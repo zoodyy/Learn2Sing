@@ -74,12 +74,20 @@ struct EditingView: View {
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
-                Picker("", selection: $drawMode) {
-                    Image(systemName: "pencil").tag(true)
-                    Image(systemName: "hand.point.up.left").tag(false)
+                HStack(spacing: 2) {
+                    Button { drawMode = true } label: {
+                        Image(systemName: "pencil")
+                            .padding(6)
+                            .background(drawMode ? Color.accentColor.opacity(0.2) : Color.clear,
+                                        in: RoundedRectangle(cornerRadius: 6))
+                    }
+                    Button { drawMode = false } label: {
+                        Image(systemName: "hand.point.up.left")
+                            .padding(6)
+                            .background(!drawMode ? Color.accentColor.opacity(0.2) : Color.clear,
+                                        in: RoundedRectangle(cornerRadius: 6))
+                    }
                 }
-                .pickerStyle(.segmented)
-                .frame(width: 80)
             }
         }
         .onAppear(perform: loadNotes)
