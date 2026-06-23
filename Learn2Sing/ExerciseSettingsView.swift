@@ -57,6 +57,16 @@ struct ExerciseSettingsView: View {
                             .keyboardType(.numbersAndPunctuation)
                             .frame(width: 60)
                     }
+
+                    HStack {
+                        Text("Time between reps")
+                        Spacer()
+                        TextField("0", value: $exercise.beatsBetweenReps, format: .number)
+                            .multilineTextAlignment(.trailing)
+                            .keyboardType(.decimalPad)
+                            .frame(width: 60)
+                        Text("beats").foregroundStyle(.secondary)
+                    }
                 }
             }
 

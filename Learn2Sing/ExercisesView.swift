@@ -7,6 +7,7 @@ struct Exercise: Identifiable, Hashable, Codable {
     var speed: Double = 100           // playback speed as a percentage of normal
     var repeatCount: Int = 1          // how many times the pattern is played back
     var transposePerRepeat: Int = 0   // semitones to shift up each repetition (negative = down)
+    var beatsBetweenReps: Double = 0  // silent beats inserted between repetitions
 }
 
 enum ExerciseRoute: Hashable {

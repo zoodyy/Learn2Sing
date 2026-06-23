@@ -364,9 +364,10 @@ struct PlaybackView: View {
               let saved = try? JSONDecoder().decode([MIDINote].self, from: data)
         else { return }
 
-        // Length of one repetition, rounded up to a whole beat so repeats stay aligned.
+        // Length of one repetition, rounded up to a whole beat so repeats stay aligned,
+        // plus any silent beats the user wants between repetitions.
         let patternEnd = saved.map { $0.beat + $0.length }.max() ?? 0
-        let repeatSpan = patternEnd.rounded(.up)
+        let repeatSpan = patternEnd.rounded(.up) + max(0, exercise.beatsBetweenReps)
         let repeats = max(1, exercise.repeatCount)
 
         // Expand the pattern: each repetition is shifted later in time and
