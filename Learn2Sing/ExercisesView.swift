@@ -4,10 +4,43 @@ struct Exercise: Identifiable, Hashable, Codable {
     var id = UUID()
     var name: String
     var pitchShift: Int = 0           // transpose all notes by this many semitones
-    var speed: Double = 100           // playback speed as a percentage of normal
+    var bpm: Double = 120             // playback tempo in beats per minute
     var repeatCount: Int = 1          // how many times the pattern is played back
     var transposePerRepeat: Int = 0   // semitones to shift up each repetition (negative = down)
     var beatsBetweenReps: Double = 0  // silent beats inserted between repetitions
+
+    init(name: String) { self.name = name }
+
+    private enum CodingKeys: String, CodingKey {
+        case id, name, pitchShift, bpm, speed, repeatCount, transposePerRepeat, beatsBetweenReps
+    }
+
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        id = try c.decodeIfPresent(UUID.self, forKey: .id) ?? UUID()
+        name = try c.decode(String.self, forKey: .name)
+        pitchShift = try c.decodeIfPresent(Int.self, forKey: .pitchShift) ?? 0
+        if let bpm = try c.decodeIfPresent(Double.self, forKey: .bpm) {
+            self.bpm = bpm
+        } else if let speed = try c.decodeIfPresent(Double.self, forKey: .speed) {
+            // Legacy: `speed` was a percentage of a 120 BPM baseline.
+            bpm = (120.0 * speed / 100.0).rounded()
+        }
+        repeatCount = try c.decodeIfPresent(Int.self, forKey: .repeatCount) ?? 1
+        transposePerRepeat = try c.decodeIfPresent(Int.self, forKey: .transposePerRepeat) ?? 0
+        beatsBetweenReps = try c.decodeIfPresent(Double.self, forKey: .beatsBetweenReps) ?? 0
+    }
+
+    func encode(to encoder: Encoder) throws {
+        var c = encoder.container(keyedBy: CodingKeys.self)
+        try c.encode(id, forKey: .id)
+        try c.encode(name, forKey: .name)
+        try c.encode(pitchShift, forKey: .pitchShift)
+        try c.encode(bpm, forKey: .bpm)
+        try c.encode(repeatCount, forKey: .repeatCount)
+        try c.encode(transposePerRepeat, forKey: .transposePerRepeat)
+        try c.encode(beatsBetweenReps, forKey: .beatsBetweenReps)
+    }
 }
 
 enum ExerciseRoute: Hashable {

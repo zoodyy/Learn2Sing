@@ -269,7 +269,7 @@ struct PlaybackView: View {
     private let pianoW: CGFloat = 38
     private let beatPx: CGFloat = 80     // pixels per beat in playback view
 
-    private var bpm: Double { 120.0 * (exercise.speed / 100.0) }
+    private var bpm: Double { exercise.bpm }
 
     var body: some View {
         TimelineView(.animation) { tl in

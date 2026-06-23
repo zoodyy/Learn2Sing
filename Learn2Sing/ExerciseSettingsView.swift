@@ -28,13 +28,13 @@ struct ExerciseSettingsView: View {
                 }
             }
 
-            Section("Speed") {
+            Section("Tempo") {
                 HStack {
-                    Text("Speed")
+                    Text("Tempo")
                     Spacer()
-                    Text("\(Int(exercise.speed))%").foregroundStyle(.secondary)
+                    Text("\(Int(exercise.bpm)) BPM").foregroundStyle(.secondary)
                 }
-                Slider(value: $exercise.speed, in: 25...200, step: 5)
+                Slider(value: $exercise.bpm, in: 40...240, step: 1)
             }
 
             Section("Repetition") {
