@@ -3,8 +3,10 @@ import SwiftUI
 struct Exercise: Identifiable, Hashable, Codable {
     var id = UUID()
     var name: String
-    var pitchShift: Int = 0     // transpose all notes by this many semitones
-    var speed: Double = 100     // playback speed as a percentage of normal
+    var pitchShift: Int = 0           // transpose all notes by this many semitones
+    var speed: Double = 100           // playback speed as a percentage of normal
+    var repeatCount: Int = 1          // how many times the pattern is played back
+    var transposePerRepeat: Int = 0   // semitones to shift up each repetition (negative = down)
 }
 
 enum ExerciseRoute: Hashable {

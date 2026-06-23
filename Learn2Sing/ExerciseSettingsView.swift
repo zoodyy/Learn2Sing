@@ -35,6 +35,31 @@ struct ExerciseSettingsView: View {
                 Slider(value: $exercise.speed, in: 25...200, step: 5)
             }
 
+            Section("Repetition") {
+                HStack {
+                    Text("Repeat")
+                    Spacer()
+                    TextField("1", value: $exercise.repeatCount, format: .number)
+                        .multilineTextAlignment(.trailing)
+                        .keyboardType(.numberPad)
+                        .frame(width: 60)
+                        .onChange(of: exercise.repeatCount) { _, newValue in
+                            if newValue < 1 { exercise.repeatCount = 1 }
+                        }
+                }
+
+                if exercise.repeatCount > 1 {
+                    HStack {
+                        Text("Transpose per repetition")
+                        Spacer()
+                        TextField("0", value: $exercise.transposePerRepeat, format: .number)
+                            .multilineTextAlignment(.trailing)
+                            .keyboardType(.numbersAndPunctuation)
+                            .frame(width: 60)
+                    }
+                }
+            }
+
             Section {
                 NavigationLink(value: ExerciseRoute.edit(exercise.id)) {
                     Label("Edit MIDI", systemImage: "pianokeys")

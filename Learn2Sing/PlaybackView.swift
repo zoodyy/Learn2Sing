@@ -363,11 +363,25 @@ struct PlaybackView: View {
         guard let data = UserDefaults.standard.data(forKey: key),
               let saved = try? JSONDecoder().decode([MIDINote].self, from: data)
         else { return }
-        // Apply the exercise's transpose so playback and animation stay in sync.
-        notes = saved.map {
-            var n = $0
-            n.pitch += exercise.pitchShift
-            return n
+
+        // Length of one repetition, rounded up to a whole beat so repeats stay aligned.
+        let patternEnd = saved.map { $0.beat + $0.length }.max() ?? 0
+        let repeatSpan = patternEnd.rounded(.up)
+        let repeats = max(1, exercise.repeatCount)
+
+        // Expand the pattern: each repetition is shifted later in time and
+        // transposed by `transposePerRepeat` semitones. Applying the same
+        // transform to the drawn notes keeps playback and animation in sync.
+        var expanded: [MIDINote] = []
+        for rep in 0..<repeats {
+            for note in saved {
+                var n = note
+                n.id = UUID()
+                n.pitch += exercise.pitchShift + rep * exercise.transposePerRepeat
+                n.beat += Double(rep) * repeatSpan
+                expanded.append(n)
+            }
         }
+        notes = expanded
     }
 }
