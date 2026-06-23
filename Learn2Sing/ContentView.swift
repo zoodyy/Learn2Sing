@@ -20,10 +20,12 @@ struct ContentView: View {
                     Label("Exercises", systemImage: "music.mic")
                 }
 
-            EditingView()
-                .tabItem {
-                    Label("Editing", systemImage: "waveform")
-                }
+            NavigationStack {
+                EditingView()
+            }
+            .tabItem {
+                Label("Editing", systemImage: "waveform")
+            }
 
             SettingsView()
                 .tabItem {
