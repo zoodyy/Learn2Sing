@@ -15,21 +15,10 @@ private let rowH: CGFloat = 22
 private let beatW: CGFloat = 52
 private let pianoW: CGFloat = 52
 private let totalBeats = 32
-private let hiPitch = 83  // B5
-private let loPitch = 36  // C2
 private let totalRows = hiPitch - loPitch + 1
 private let gridW = CGFloat(totalBeats) * beatW
 private let gridH = CGFloat(totalRows) * rowH
 
-private let noteLabels = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"]
-
-private func pitchName(_ pitch: Int) -> String {
-    "\(noteLabels[pitch % 12])\((pitch / 12) - 1)"
-}
-
-private func isBlack(_ pitch: Int) -> Bool {
-    [1, 3, 6, 8, 10].contains(pitch % 12)
-}
 
 // MARK: - EditingView
 

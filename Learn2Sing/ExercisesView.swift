@@ -5,6 +5,11 @@ struct Exercise: Identifiable, Hashable {
     var name: String
 }
 
+private enum ExerciseRoute: Hashable {
+    case play(Exercise)
+    case edit(Exercise)
+}
+
 struct ExercisesView: View {
     @State private var exercises: [Exercise] = []
     @State private var showingNameAlert = false
@@ -14,7 +19,18 @@ struct ExercisesView: View {
     var body: some View {
         NavigationStack(path: $navigationPath) {
             List(exercises) { exercise in
-                NavigationLink(exercise.name, value: exercise)
+                Button(exercise.name) {
+                    navigationPath.append(ExerciseRoute.play(exercise))
+                }
+                .foregroundStyle(.primary)
+                .swipeActions(edge: .leading, allowsFullSwipe: true) {
+                    Button {
+                        navigationPath.append(ExerciseRoute.edit(exercise))
+                    } label: {
+                        Label("Edit", systemImage: "pencil")
+                    }
+                    .tint(.blue)
+                }
             }
             .navigationTitle("Exercises")
             .toolbar {
@@ -34,7 +50,7 @@ struct ExercisesView: View {
                     let exercise = Exercise(name: name)
                     exercises.append(exercise)
                     newExerciseName = ""
-                    navigationPath.append(exercise)
+                    navigationPath.append(ExerciseRoute.edit(exercise))
                 }
                 Button("Cancel", role: .cancel) {
                     newExerciseName = ""
@@ -42,8 +58,11 @@ struct ExercisesView: View {
             } message: {
                 Text("Enter a name for the new exercise")
             }
-            .navigationDestination(for: Exercise.self) { exercise in
-                EditingView(exercise: exercise)
+            .navigationDestination(for: ExerciseRoute.self) { route in
+                switch route {
+                case .play(let ex): PlaybackView(exercise: ex)
+                case .edit(let ex): EditingView(exercise: ex)
+                }
             }
         }
     }
