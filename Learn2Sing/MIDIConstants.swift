@@ -1,5 +1,7 @@
 // Shared MIDI pitch constants and helpers used by EditingView and PlaybackView.
 
+import Foundation
+
 let hiPitch  = 83   // B5
 let loPitch  = 36   // C2
 
@@ -11,4 +13,23 @@ func pitchName(_ pitch: Int) -> String {
 
 func isBlack(_ pitch: Int) -> Bool {
     [1, 3, 6, 8, 10].contains(pitch % 12)
+}
+
+// MARK: - Instrument selection
+
+enum Instrument: String, CaseIterable, Identifiable {
+    case piano  = "Piano"
+    case sine   = "Sin Wave"
+    case guitar = "Guitar"
+    case voice  = "Voice"
+
+    var id: String { rawValue }
+
+    static let storageKey = "selectedInstrument"
+
+    /// The instrument currently chosen in Settings (defaults to piano).
+    static var current: Instrument {
+        Instrument(rawValue: UserDefaults.standard.string(forKey: storageKey) ?? "")
+            ?? .piano
+    }
 }

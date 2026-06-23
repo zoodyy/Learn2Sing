@@ -1,75 +1,213 @@
 import SwiftUI
 import AVFoundation
-import AudioToolbox
+import os
 
-// MARK: - Audio engine
-//
-// AVAudioUnitSampler needs an external DLS/SF2 file which only exists on macOS,
-// so on real iOS devices it falls back to raw sine waves.
-// kAudioUnitSubType_MIDISynth is Apple's built-in General MIDI synthesiser:
-// it ships with its own GM sound set on every iOS device — no external file needed.
+// MARK: - Instrument timbre
+
+// Each instrument is defined purely by its harmonic content + amplitude envelope,
+// so the same DSP renders identically on the simulator and on a real device — no
+// external SoundFont/DLS file (which only ships on macOS) is involved.
+private struct InstrumentSpec {
+    let harmonics: [Double]   // relative amplitude of each overtone (1st = fundamental)
+    let attack: Double        // seconds to full volume
+    let decay: Double         // seconds from peak to sustain level (sustained instruments)
+    let sustain: Double       // sustain level 0...1 (sustained instruments)
+    let release: Double       // seconds to fade after note-off
+    let decayToZero: Bool     // plucked/struck: ring out & fade even while held
+    let decayRate: Double     // ring-out speed when decayToZero
+    let vibratoDepth: Double   // ± fraction of frequency
+    let vibratoRate: Double    // Hz
+    let gain: Double          // overall output level
+}
+
+private extension Instrument {
+    var spec: InstrumentSpec {
+        switch self {
+        case .sine:
+            return InstrumentSpec(
+                harmonics: [1.0],
+                attack: 0.02, decay: 0.0, sustain: 1.0, release: 0.15,
+                decayToZero: false, decayRate: 0,
+                vibratoDepth: 0, vibratoRate: 0, gain: 0.30)
+        case .piano:
+            return InstrumentSpec(
+                harmonics: [1.0, 0.55, 0.38, 0.22, 0.14, 0.09, 0.05, 0.03],
+                attack: 0.005, decay: 0.0, sustain: 0.0, release: 0.18,
+                decayToZero: true, decayRate: 2.2,
+                vibratoDepth: 0, vibratoRate: 0, gain: 0.28)
+        case .guitar:
+            return InstrumentSpec(
+                harmonics: [1.0, 0.7, 0.5, 0.45, 0.3, 0.22, 0.16, 0.1, 0.06],
+                attack: 0.004, decay: 0.0, sustain: 0.0, release: 0.12,
+                decayToZero: true, decayRate: 3.2,
+                vibratoDepth: 0, vibratoRate: 0, gain: 0.26)
+        case .voice:
+            // Vowel-like formant emphasis on the 2nd/3rd harmonic + gentle vibrato.
+            return InstrumentSpec(
+                harmonics: [0.7, 1.0, 0.85, 0.4, 0.25, 0.15, 0.08],
+                attack: 0.06, decay: 0.08, sustain: 0.85, release: 0.22,
+                decayToZero: false, decayRate: 0,
+                vibratoDepth: 0.012, vibratoRate: 5.5, gain: 0.30)
+        }
+    }
+}
+
+// MARK: - Audio engine (custom additive synthesiser)
 
 final class ExercisePlayer {
-    private var graph: AUGraph?
-    private var synthUnit: AudioUnit?
+    private let engine = AVAudioEngine()
+    private var sourceNode: AVAudioSourceNode!
     private var workItems: [DispatchWorkItem] = []
+
+    private let sampleRate: Double = 44100
+
+    // Voice state — only touched on the audio thread except via the lock below.
+    private struct Voice {
+        var pitch: Int = -1
+        var freq: Double = 0
+        var phase: Double = 0
+        var age: Double = 0          // seconds since note-on
+        var released: Bool = false
+        var releaseAge: Double = 0   // seconds since note-off
+        var active: Bool = false
+    }
+    private static let maxVoices = 24
+    private var voices = [Voice](repeating: Voice(), count: maxVoices)
+    private var spec = Instrument.current.spec
+    private var lock = os_unfair_lock_s()
 
     init() {
         try? AVAudioSession.sharedInstance().setCategory(.playback, mode: .default)
         try? AVAudioSession.sharedInstance().setActive(true)
-        setupGraph()
-    }
 
-    private func setupGraph() {
-        NewAUGraph(&graph)
-        guard let graph else { return }
-
-        var synthDesc = AudioComponentDescription(
-            componentType:         kAudioUnitType_MusicDevice,
-            componentSubType:      kAudioUnitSubType_MIDISynth,
-            componentManufacturer: kAudioUnitManufacturer_Apple,
-            componentFlags: 0, componentFlagsMask: 0
-        )
-        var outputDesc = AudioComponentDescription(
-            componentType:         kAudioUnitType_Output,
-            componentSubType:      kAudioUnitSubType_RemoteIO,
-            componentManufacturer: kAudioUnitManufacturer_Apple,
-            componentFlags: 0, componentFlagsMask: 0
-        )
-
-        var synthNode = AUNode()
-        var outputNode = AUNode()
-        AUGraphAddNode(graph, &synthDesc,  &synthNode)
-        AUGraphAddNode(graph, &outputDesc, &outputNode)
-        AUGraphConnectNodeInput(graph, synthNode, 0, outputNode, 0)
-        AUGraphOpen(graph)
-        AUGraphNodeInfo(graph, synthNode, nil, &synthUnit)
-        AUGraphInitialize(graph)
-        AUGraphStart(graph)
-
-        // Program 0 on channel 0 = Acoustic Grand Piano
-        if let unit = synthUnit {
-            MusicDeviceMIDIEvent(unit, 0xC0, 0, 0, 0)
+        let format = AVAudioFormat(standardFormatWithSampleRate: sampleRate, channels: 2)!
+        sourceNode = AVAudioSourceNode { [weak self] _, _, frameCount, ablPointer -> OSStatus in
+            self?.render(frameCount: Int(frameCount), abl: ablPointer)
+            return noErr
         }
+        engine.attach(sourceNode)
+        engine.connect(sourceNode, to: engine.mainMixerNode, format: format)
+        try? engine.start()
     }
+
+    // MARK: Real-time render
+
+    private func render(frameCount: Int, abl: UnsafeMutablePointer<AudioBufferList>) {
+        let buffers = UnsafeMutableAudioBufferListPointer(abl)
+        let twoPi = 2.0 * Double.pi
+        let dt = 1.0 / sampleRate
+
+        os_unfair_lock_lock(&lock)
+        let spec = self.spec
+        let harmonics = spec.harmonics
+        let invHarm = 1.0 / harmonics.reduce(0, +)
+        let gain = spec.gain
+
+        for frame in 0..<frameCount {
+            var mix = 0.0
+            for vi in 0..<voices.count where voices[vi].active {
+                var v = voices[vi]
+
+                // Frequency (with optional vibrato) → phase increment.
+                let vib = spec.vibratoDepth > 0
+                    ? 1.0 + spec.vibratoDepth * sin(twoPi * spec.vibratoRate * v.age)
+                    : 1.0
+                let inc = twoPi * v.freq * vib * dt
+
+                // Timbre from summed harmonics.
+                var tone = 0.0
+                for k in 0..<harmonics.count {
+                    tone += harmonics[k] * sin(Double(k + 1) * v.phase)
+                }
+                tone *= invHarm
+
+                // Amplitude envelope.
+                let base: Double
+                if v.age < spec.attack {
+                    base = v.age / spec.attack
+                } else if spec.decayToZero {
+                    base = exp(-(v.age - spec.attack) * spec.decayRate)
+                } else if v.age < spec.attack + spec.decay {
+                    base = 1.0 - (1.0 - spec.sustain) * ((v.age - spec.attack) / spec.decay)
+                } else {
+                    base = spec.sustain
+                }
+                let rel = v.released ? exp(-v.releaseAge / spec.release) : 1.0
+                let env = base * rel
+
+                mix += tone * env
+
+                // Advance voice.
+                v.phase += inc
+                if v.phase > twoPi { v.phase -= twoPi }
+                v.age += dt
+                if v.released { v.releaseAge += dt }
+                if env < 0.0004 && (v.released || (spec.decayToZero && v.age > spec.attack)) {
+                    v.active = false
+                }
+                voices[vi] = v
+            }
+
+            let sample = Float(tanh(mix * gain))   // soft-clip the polyphonic sum
+            for buffer in buffers {
+                let ptr = buffer.mData!.assumingMemoryBound(to: Float.self)
+                ptr[frame] = sample
+            }
+        }
+        os_unfair_lock_unlock(&lock)
+    }
+
+    // MARK: Note control
+
+    func setInstrument(_ instrument: Instrument) {
+        os_unfair_lock_lock(&lock)
+        spec = instrument.spec
+        os_unfair_lock_unlock(&lock)
+    }
+
+    private func noteOn(_ pitch: Int) {
+        let freq = 440.0 * pow(2.0, (Double(pitch) - 69.0) / 12.0)
+        os_unfair_lock_lock(&lock)
+        // Reuse a free voice, else steal the oldest one.
+        var idx = voices.firstIndex { !$0.active }
+        if idx == nil {
+            idx = (0..<voices.count).max { voices[$0].age < voices[$1].age }
+        }
+        if let i = idx {
+            voices[i] = Voice(pitch: pitch, freq: freq, phase: 0, age: 0,
+                              released: false, releaseAge: 0, active: true)
+        }
+        os_unfair_lock_unlock(&lock)
+    }
+
+    private func noteOff(_ pitch: Int) {
+        os_unfair_lock_lock(&lock)
+        for i in 0..<voices.count where voices[i].active && !voices[i].released && voices[i].pitch == pitch {
+            voices[i].released = true
+            voices[i].releaseAge = 0
+        }
+        os_unfair_lock_unlock(&lock)
+    }
+
+    private func allNotesOff() {
+        os_unfair_lock_lock(&lock)
+        for i in 0..<voices.count { voices[i].active = false }
+        os_unfair_lock_unlock(&lock)
+    }
+
+    // MARK: Scheduling
 
     func schedule(notes: [MIDINote], bpm: Double, leadIn: Double, onFinish: @escaping () -> Void) {
         cancelAll()
         let secPerBeat = 60.0 / bpm
 
         for note in notes {
-            let pitch    = UInt32(note.pitch)
+            let pitch    = note.pitch
             let onDelay  = (note.beat + leadIn) * secPerBeat
             let offDelay = (note.beat + note.length + leadIn) * secPerBeat
 
-            let onItem = DispatchWorkItem { [weak self] in
-                guard let unit = self?.synthUnit else { return }
-                MusicDeviceMIDIEvent(unit, 0x90, pitch, 90, 0)   // note on
-            }
-            let offItem = DispatchWorkItem { [weak self] in
-                guard let unit = self?.synthUnit else { return }
-                MusicDeviceMIDIEvent(unit, 0x80, pitch, 0, 0)    // note off
-            }
+            let onItem  = DispatchWorkItem { [weak self] in self?.noteOn(pitch) }
+            let offItem = DispatchWorkItem { [weak self] in self?.noteOff(pitch) }
             workItems += [onItem, offItem]
             DispatchQueue.main.asyncAfter(deadline: .now() + onDelay,  execute: onItem)
             DispatchQueue.main.asyncAfter(deadline: .now() + offDelay, execute: offItem)
@@ -85,17 +223,12 @@ final class ExercisePlayer {
     func cancelAll() {
         workItems.forEach { $0.cancel() }
         workItems.removeAll()
-        if let unit = synthUnit {
-            MusicDeviceMIDIEvent(unit, 0xB0, 123, 0, 0)  // CC 123 = all notes off
-        }
+        allNotesOff()
     }
 
     deinit {
         cancelAll()
-        if let graph {
-            AUGraphStop(graph)
-            DisposeAUGraph(graph)
-        }
+        engine.stop()
     }
 }
 
@@ -131,6 +264,7 @@ struct PlaybackView: View {
         .navigationBarTitleDisplayMode(.inline)
         .onAppear {
             loadNotes()
+            player.setInstrument(Instrument.current)
             startDate = Date()
             player.schedule(notes: notes, bpm: bpm, leadIn: leadIn) {
                 dismiss()
