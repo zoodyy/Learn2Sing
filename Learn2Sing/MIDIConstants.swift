@@ -3,7 +3,7 @@
 import Foundation
 
 let hiPitch  = 83   // B5
-let loPitch  = 36   // C2
+let loPitch  = 24   // C1
 
 private let _noteLabels = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"]
 
