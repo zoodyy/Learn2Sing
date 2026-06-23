@@ -242,10 +242,11 @@ struct PlaybackView: View {
     @State private var startDate: Date? = nil
     @Environment(\.dismiss) private var dismiss
 
-    private let bpm: Double    = 120
     private let leadIn: Double = 2       // silent beats before first note
     private let pianoW: CGFloat = 38
     private let beatPx: CGFloat = 80     // pixels per beat in playback view
+
+    private var bpm: Double { 120.0 * (exercise.speed / 100.0) }
 
     var body: some View {
         TimelineView(.animation) { tl in
@@ -362,6 +363,11 @@ struct PlaybackView: View {
         guard let data = UserDefaults.standard.data(forKey: key),
               let saved = try? JSONDecoder().decode([MIDINote].self, from: data)
         else { return }
-        notes = saved
+        // Apply the exercise's transpose so playback and animation stay in sync.
+        notes = saved.map {
+            var n = $0
+            n.pitch += exercise.pitchShift
+            return n
+        }
     }
 }
