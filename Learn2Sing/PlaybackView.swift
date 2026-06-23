@@ -237,11 +237,30 @@ final class ExercisePlayer {
 
 // MARK: - PlaybackView
 
+/// Holds the on-screen pitch of the singer indicator, eased toward the latest
+/// microphone estimate once per rendered frame so the dot moves smoothly even
+/// though new estimates arrive less often than the display refreshes.
+private final class SingerIndicator {
+    private var shown: Double? = nil
+
+    /// Advance one frame toward `target` and return the value to draw.
+    func step(target: Double?, factor: Double) -> Double? {
+        guard let target else { shown = nil; return nil }
+        if let current = shown {
+            shown = current + (target - current) * factor
+        } else {
+            shown = target
+        }
+        return shown
+    }
+}
+
 struct PlaybackView: View {
     let exercise: Exercise
 
     @State private var player = ExercisePlayer()
     @StateObject private var pitchDetector = PitchDetector()
+    @State private var indicator = SingerIndicator()
     @State private var notes: [MIDINote] = []
     @State private var startDate: Date? = nil
     @Environment(\.dismiss) private var dismiss
@@ -259,8 +278,11 @@ struct PlaybackView: View {
                 return tl.date.timeIntervalSince(s) * (bpm / 60.0) - leadIn
             }()
 
+            // Ease the indicator toward the latest estimate every frame.
+            let singerPitch = indicator.step(target: pitchDetector.midiPitch, factor: 0.3)
+
             Canvas { ctx, size in
-                drawScene(ctx: ctx, size: size, beat: beat, singerPitch: pitchDetector.midiPitch)
+                drawScene(ctx: ctx, size: size, beat: beat, singerPitch: singerPitch)
             }
             .ignoresSafeArea()
         }

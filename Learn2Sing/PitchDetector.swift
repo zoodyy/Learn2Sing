@@ -42,7 +42,9 @@ final class PitchDetector: ObservableObject {
         guard sampleRate > 0 else { return }
 
         input.removeTap(onBus: 0)
-        input.installTap(onBus: 0, bufferSize: 4096, format: format) { [weak self] buffer, _ in
+        // Small hop so a fresh estimate lands frequently; the view interpolates
+        // between estimates so the indicator still moves every rendered frame.
+        input.installTap(onBus: 0, bufferSize: 1024, format: format) { [weak self] buffer, _ in
             self?.process(buffer: buffer, sampleRate: sampleRate)
         }
         engine.prepare()
@@ -99,13 +101,7 @@ final class PitchDetector: ObservableObject {
     }
 
     private func publish(_ value: Double?) {
-        DispatchQueue.main.async {
-            // Smooth a little in pitch space to steady the indicator.
-            if let v = value, let cur = self.midiPitch {
-                self.midiPitch = cur * 0.6 + v * 0.4
-            } else {
-                self.midiPitch = value
-            }
-        }
+        // Publish the raw estimate; the view smooths/interpolates it per frame.
+        DispatchQueue.main.async { self.midiPitch = value }
     }
 }
