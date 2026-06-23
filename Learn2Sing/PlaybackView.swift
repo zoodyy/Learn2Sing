@@ -265,7 +265,7 @@ struct PlaybackView: View {
     @State private var startDate: Date? = nil
     @Environment(\.dismiss) private var dismiss
 
-    private let leadIn: Double = 2       // silent beats before first note
+    private let leadIn: Double = 6       // silent beats before first note
     private let pianoW: CGFloat = 38
     private let beatPx: CGFloat = 80     // pixels per beat in playback view
 
