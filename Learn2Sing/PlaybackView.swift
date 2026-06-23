@@ -90,6 +90,14 @@ final class ExercisePlayer {
     private var finished = true
     private var onFinish: (() -> Void)?
 
+    // Host time at which sample 0 of the current schedule is played by the engine.
+    // Captured in the render block so the on-screen clock can be anchored to the
+    // real audio output (which the engine buffers well ahead of "now").
+    private var timebase = mach_timebase_info_data_t()
+    private var startHostTime: UInt64 = 0
+    private var startCaptured = false
+    private var needsStartCapture = false
+
     init() {
         // playAndRecord (rather than .playback) so the mic-based pitch detector can
         // run alongside playback; .defaultToSpeaker keeps output on the speaker.
@@ -97,9 +105,11 @@ final class ExercisePlayer {
                                                          options: [.defaultToSpeaker, .mixWithOthers])
         try? AVAudioSession.sharedInstance().setActive(true)
 
+        mach_timebase_info(&timebase)
+
         let format = AVAudioFormat(standardFormatWithSampleRate: sampleRate, channels: 2)!
-        sourceNode = AVAudioSourceNode { [weak self] _, _, frameCount, ablPointer -> OSStatus in
-            self?.render(frameCount: Int(frameCount), abl: ablPointer)
+        sourceNode = AVAudioSourceNode { [weak self] _, timestamp, frameCount, ablPointer -> OSStatus in
+            self?.render(frameCount: Int(frameCount), hostTime: timestamp.pointee.mHostTime, abl: ablPointer)
             return noErr
         }
         engine.attach(sourceNode)
@@ -109,12 +119,17 @@ final class ExercisePlayer {
 
     // MARK: Real-time render
 
-    private func render(frameCount: Int, abl: UnsafeMutablePointer<AudioBufferList>) {
+    private func render(frameCount: Int, hostTime: UInt64, abl: UnsafeMutablePointer<AudioBufferList>) {
         let buffers = UnsafeMutableAudioBufferListPointer(abl)
         let twoPi = 2.0 * Double.pi
         let dt = 1.0 / sampleRate
 
         os_unfair_lock_lock(&lock)
+        if needsStartCapture {
+            startHostTime = hostTime    // host time when sample 0 (playhead == 0) plays
+            startCaptured = true
+            needsStartCapture = false
+        }
         let spec = self.spec
         let harmonics = spec.harmonics
         let invHarm = 1.0 / harmonics.reduce(0, +)
@@ -199,6 +214,29 @@ final class ExercisePlayer {
         os_unfair_lock_unlock(&lock)
     }
 
+    /// Seconds between a sample being rendered and it actually being heard, so the
+    /// Extra delay between a sample leaving the engine and reaching the speaker.
+    private var outputLatency: TimeInterval {
+        AVAudioSession.sharedInstance().outputLatency
+    }
+
+    /// The musical beat currently being *heard*, anchored to the audio engine's own
+    /// output clock (so it stays in sync regardless of how far ahead the engine
+    /// buffers). Returns nil until playback has actually started.
+    func currentBeat(bpm: Double, leadIn: Double) -> Double? {
+        os_unfair_lock_lock(&lock)
+        let captured = startCaptured
+        let startHost = startHostTime
+        os_unfair_lock_unlock(&lock)
+        guard captured else { return nil }
+
+        let now = mach_absolute_time()
+        let elapsedTicks = now > startHost ? now - startHost : 0
+        let elapsedSec = Double(elapsedTicks) * Double(timebase.numer) / Double(timebase.denom) / 1.0e9
+        let audibleSec = elapsedSec - outputLatency      // account for the DAC delay
+        return audibleSec * (bpm / 60.0) - leadIn
+    }
+
     private func startVoiceLocked(pitch: Int) {
         let freq = 440.0 * pow(2.0, (Double(pitch) - 69.0) / 12.0)
         // Reuse a free voice, else steal the oldest one.
@@ -246,6 +284,8 @@ final class ExercisePlayer {
         self.finishSample = finishSample
         self.finished = false
         self.onFinish = onFinish
+        self.startCaptured = false
+        self.needsStartCapture = true
         for i in 0..<voices.count { voices[i].active = false }
         os_unfair_lock_unlock(&lock)
     }
@@ -257,6 +297,8 @@ final class ExercisePlayer {
         finishSample = Int.max
         finished = true
         onFinish = nil
+        startCaptured = false
+        needsStartCapture = false
         for i in 0..<voices.count { voices[i].active = false }
         os_unfair_lock_unlock(&lock)
     }
@@ -294,7 +336,6 @@ struct PlaybackView: View {
     @StateObject private var pitchDetector = PitchDetector()
     @State private var indicator = SingerIndicator()
     @State private var notes: [MIDINote] = []
-    @State private var startDate: Date? = nil
     @Environment(\.dismiss) private var dismiss
 
     private let leadIn: Double = 6       // silent beats before first note
@@ -304,11 +345,10 @@ struct PlaybackView: View {
     private var bpm: Double { exercise.bpm }
 
     var body: some View {
-        TimelineView(.animation) { tl in
-            let beat: Double = {
-                guard let s = startDate else { return -leadIn }
-                return tl.date.timeIntervalSince(s) * (bpm / 60.0) - leadIn
-            }()
+        TimelineView(.animation) { _ in
+            // Drive the playhead from the audio engine's own output clock so the
+            // notes light up exactly when they're heard.
+            let beat = player.currentBeat(bpm: bpm, leadIn: leadIn) ?? -leadIn
 
             // Ease the indicator toward the latest estimate every frame.
             let singerPitch = indicator.step(target: pitchDetector.midiPitch, factor: 0.3)
@@ -324,7 +364,6 @@ struct PlaybackView: View {
         .onAppear {
             loadNotes()
             player.setInstrument(Instrument.current)
-            startDate = Date()
             player.schedule(notes: notes, bpm: bpm, leadIn: leadIn) {
                 dismiss()
             }
