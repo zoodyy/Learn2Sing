@@ -8,8 +8,23 @@ final class ExerciseStore: ObservableObject {
     @Published var exercises: [Exercise] = []
 
     private let storeKey = "exercises"
+    private let bundledImportedKey = "didImportBundledExercises"
 
-    init() { load() }
+    init() {
+        load()
+        importBundledIfNeeded()
+    }
+
+    /// On first launch, seed the library with the exercises shipped in the app
+    /// bundle. Gated by a flag so a user's later edits/deletions are never undone.
+    private func importBundledIfNeeded() {
+        guard !UserDefaults.standard.bool(forKey: bundledImportedKey) else { return }
+        guard let url = Bundle.main.url(forResource: "BundledExercises", withExtension: "json"),
+              let data = try? Data(contentsOf: url),
+              importData(data)
+        else { return }
+        UserDefaults.standard.set(true, forKey: bundledImportedKey)
+    }
 
     // MARK: - Exercise list persistence
 
