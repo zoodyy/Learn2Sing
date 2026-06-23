@@ -77,7 +77,10 @@ final class ExercisePlayer {
     private var lock = os_unfair_lock_s()
 
     init() {
-        try? AVAudioSession.sharedInstance().setCategory(.playback, mode: .default)
+        // playAndRecord (rather than .playback) so the mic-based pitch detector can
+        // run alongside playback; .defaultToSpeaker keeps output on the speaker.
+        try? AVAudioSession.sharedInstance().setCategory(.playAndRecord, mode: .default,
+                                                         options: [.defaultToSpeaker, .mixWithOthers])
         try? AVAudioSession.sharedInstance().setActive(true)
 
         let format = AVAudioFormat(standardFormatWithSampleRate: sampleRate, channels: 2)!
@@ -238,6 +241,7 @@ struct PlaybackView: View {
     let exercise: Exercise
 
     @State private var player = ExercisePlayer()
+    @StateObject private var pitchDetector = PitchDetector()
     @State private var notes: [MIDINote] = []
     @State private var startDate: Date? = nil
     @Environment(\.dismiss) private var dismiss
@@ -256,7 +260,7 @@ struct PlaybackView: View {
             }()
 
             Canvas { ctx, size in
-                drawScene(ctx: ctx, size: size, beat: beat)
+                drawScene(ctx: ctx, size: size, beat: beat, singerPitch: pitchDetector.midiPitch)
             }
             .ignoresSafeArea()
         }
@@ -270,18 +274,20 @@ struct PlaybackView: View {
             player.schedule(notes: notes, bpm: bpm, leadIn: leadIn) {
                 dismiss()
             }
+            pitchDetector.start()
         }
         .onDisappear {
             player.cancelAll()
+            pitchDetector.stop()
         }
     }
 
     // MARK: - Drawing
 
-    private func drawScene(ctx: GraphicsContext, size: CGSize, beat: Double) {
+    private func drawScene(ctx: GraphicsContext, size: CGSize, beat: Double, singerPitch: Double?) {
         let rows    = hiPitch - loPitch + 1
         let rowH    = size.height / CGFloat(rows)
-        let phX     = pianoW + 24          // playhead x position
+        let phX     = size.width / 3       // playhead at 1/3 from the left
 
         let activePitches = Set(
             notes.filter { beat >= $0.beat && beat < $0.beat + $0.length }.map { $0.pitch }
@@ -354,6 +360,19 @@ struct PlaybackView: View {
         line.move(to: CGPoint(x: phX, y: 0))
         line.addLine(to: CGPoint(x: phX, y: size.height))
         ctx.stroke(line, with: .color(.white), lineWidth: 2)
+
+        // ── Singer's current pitch (from the microphone) ─────────────────────
+        if let pitch = singerPitch {
+            // Centre of the row for this (fractional) MIDI pitch, clamped to view.
+            let rowFloat = Double(hiPitch) - pitch
+            var y = (CGFloat(rowFloat) + 0.5) * rowH
+            let r: CGFloat = min(rowH * 0.85, 11)
+            y = min(max(y, r), size.height - r)
+
+            let dot = Path(ellipseIn: CGRect(x: phX - r, y: y - r, width: 2 * r, height: 2 * r))
+            ctx.fill(dot, with: .color(.cyan))
+            ctx.stroke(dot, with: .color(.white), lineWidth: 1.5)
+        }
     }
 
     // MARK: - Persistence
