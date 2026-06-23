@@ -57,7 +57,6 @@ private extension Instrument {
 final class ExercisePlayer {
     private let engine = AVAudioEngine()
     private var sourceNode: AVAudioSourceNode!
-    private var workItems: [DispatchWorkItem] = []
 
     private let sampleRate: Double = 44100
 
@@ -75,6 +74,21 @@ final class ExercisePlayer {
     private var voices = [Voice](repeating: Voice(), count: maxVoices)
     private var spec = Instrument.current.spec
     private var lock = os_unfair_lock_s()
+
+    // Sample-accurate note schedule, driven entirely from the audio render thread
+    // so note durations don't drift with main-thread load (which independent
+    // dispatch timers for note-on/off would suffer from).
+    private struct Event {
+        var sample: Int    // absolute sample index at which it fires
+        var pitch: Int
+        var on: Bool
+    }
+    private var events: [Event] = []
+    private var eventIndex = 0
+    private var playhead = 0        // samples elapsed since the schedule started
+    private var finishSample = Int.max
+    private var finished = true
+    private var onFinish: (() -> Void)?
 
     init() {
         // playAndRecord (rather than .playback) so the mic-based pitch detector can
@@ -107,6 +121,14 @@ final class ExercisePlayer {
         let gain = spec.gain
 
         for frame in 0..<frameCount {
+            // Fire any note-on/off events due at this exact sample.
+            let currentSample = playhead + frame
+            while eventIndex < events.count && events[eventIndex].sample <= currentSample {
+                let e = events[eventIndex]
+                if e.on { startVoiceLocked(pitch: e.pitch) } else { releaseVoiceLocked(pitch: e.pitch) }
+                eventIndex += 1
+            }
+
             var mix = 0.0
             for vi in 0..<voices.count where voices[vi].active {
                 var v = voices[vi]
@@ -157,10 +179,19 @@ final class ExercisePlayer {
                 ptr[frame] = sample
             }
         }
+        playhead += frameCount
+
+        // Notify completion once all events have fired and the tail has elapsed.
+        if !finished && eventIndex >= events.count && playhead >= finishSample {
+            finished = true
+            let callback = onFinish
+            onFinish = nil
+            if let callback { DispatchQueue.main.async(execute: callback) }
+        }
         os_unfair_lock_unlock(&lock)
     }
 
-    // MARK: Note control
+    // MARK: Note control (called from the render thread with the lock held)
 
     func setInstrument(_ instrument: Instrument) {
         os_unfair_lock_lock(&lock)
@@ -168,9 +199,8 @@ final class ExercisePlayer {
         os_unfair_lock_unlock(&lock)
     }
 
-    private func noteOn(_ pitch: Int) {
+    private func startVoiceLocked(pitch: Int) {
         let freq = 440.0 * pow(2.0, (Double(pitch) - 69.0) / 12.0)
-        os_unfair_lock_lock(&lock)
         // Reuse a free voice, else steal the oldest one.
         var idx = voices.firstIndex { !$0.active }
         if idx == nil {
@@ -180,53 +210,55 @@ final class ExercisePlayer {
             voices[i] = Voice(pitch: pitch, freq: freq, phase: 0, age: 0,
                               released: false, releaseAge: 0, active: true)
         }
-        os_unfair_lock_unlock(&lock)
     }
 
-    private func noteOff(_ pitch: Int) {
-        os_unfair_lock_lock(&lock)
+    private func releaseVoiceLocked(pitch: Int) {
         for i in 0..<voices.count where voices[i].active && !voices[i].released && voices[i].pitch == pitch {
             voices[i].released = true
             voices[i].releaseAge = 0
         }
-        os_unfair_lock_unlock(&lock)
-    }
-
-    private func allNotesOff() {
-        os_unfair_lock_lock(&lock)
-        for i in 0..<voices.count { voices[i].active = false }
-        os_unfair_lock_unlock(&lock)
     }
 
     // MARK: Scheduling
 
     func schedule(notes: [MIDINote], bpm: Double, leadIn: Double, onFinish: @escaping () -> Void) {
-        cancelAll()
         let secPerBeat = 60.0 / bpm
 
+        var events: [Event] = []
+        events.reserveCapacity(notes.count * 2)
         for note in notes {
-            let pitch    = note.pitch
-            let onDelay  = (note.beat + leadIn) * secPerBeat
-            let offDelay = (note.beat + note.length + leadIn) * secPerBeat
-
-            let onItem  = DispatchWorkItem { [weak self] in self?.noteOn(pitch) }
-            let offItem = DispatchWorkItem { [weak self] in self?.noteOff(pitch) }
-            workItems += [onItem, offItem]
-            DispatchQueue.main.asyncAfter(deadline: .now() + onDelay,  execute: onItem)
-            DispatchQueue.main.asyncAfter(deadline: .now() + offDelay, execute: offItem)
+            let onSample  = Int((note.beat + leadIn) * secPerBeat * sampleRate)
+            let offSample = Int((note.beat + note.length + leadIn) * secPerBeat * sampleRate)
+            events.append(Event(sample: onSample,  pitch: note.pitch, on: true))
+            events.append(Event(sample: offSample, pitch: note.pitch, on: false))
         }
+        // Sort by time; at the same instant fire note-offs before note-ons so a
+        // repeated pitch is released before its next strike begins.
+        events.sort { $0.sample != $1.sample ? $0.sample < $1.sample : (!$0.on && $1.on) }
 
-        let lastBeat    = notes.map { $0.beat + $0.length }.max() ?? 0
-        let finishDelay = (lastBeat + leadIn + 1.0) * secPerBeat
-        let finishItem  = DispatchWorkItem { onFinish() }
-        workItems.append(finishItem)
-        DispatchQueue.main.asyncAfter(deadline: .now() + finishDelay, execute: finishItem)
+        let lastBeat = notes.map { $0.beat + $0.length }.max() ?? 0
+        let finishSample = Int((lastBeat + leadIn + 1.0) * secPerBeat * sampleRate)
+
+        os_unfair_lock_lock(&lock)
+        self.events = events
+        self.eventIndex = 0
+        self.playhead = 0
+        self.finishSample = finishSample
+        self.finished = false
+        self.onFinish = onFinish
+        for i in 0..<voices.count { voices[i].active = false }
+        os_unfair_lock_unlock(&lock)
     }
 
     func cancelAll() {
-        workItems.forEach { $0.cancel() }
-        workItems.removeAll()
-        allNotesOff()
+        os_unfair_lock_lock(&lock)
+        events = []
+        eventIndex = 0
+        finishSample = Int.max
+        finished = true
+        onFinish = nil
+        for i in 0..<voices.count { voices[i].active = false }
+        os_unfair_lock_unlock(&lock)
     }
 
     deinit {
