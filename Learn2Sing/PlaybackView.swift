@@ -1,24 +1,55 @@
 import SwiftUI
 import AVFoundation
+import AudioToolbox
 
 // MARK: - Audio engine
+//
+// AVAudioUnitSampler needs an external DLS/SF2 file which only exists on macOS,
+// so on real iOS devices it falls back to raw sine waves.
+// kAudioUnitSubType_MIDISynth is Apple's built-in General MIDI synthesiser:
+// it ships with its own GM sound set on every iOS device — no external file needed.
 
 final class ExercisePlayer {
-    private let engine = AVAudioEngine()
-    private let sampler = AVAudioUnitSampler()
+    private var graph: AUGraph?
+    private var synthUnit: AudioUnit?
     private var workItems: [DispatchWorkItem] = []
 
     init() {
-        engine.attach(sampler)
-        engine.connect(sampler, to: engine.mainMixerNode, format: nil)
         try? AVAudioSession.sharedInstance().setCategory(.playback, mode: .default)
         try? AVAudioSession.sharedInstance().setActive(true)
-        try? engine.start()
+        setupGraph()
+    }
 
-        let dlsPath = "/System/Library/Components/CoreAudio.component/Contents/Resources/gs_instruments.dls"
-        if FileManager.default.fileExists(atPath: dlsPath) {
-            let url = URL(fileURLWithPath: dlsPath)
-            try? sampler.loadSoundBankInstrument(at: url, program: 0, bankMSB: 0x79, bankLSB: 0)
+    private func setupGraph() {
+        NewAUGraph(&graph)
+        guard let graph else { return }
+
+        var synthDesc = AudioComponentDescription(
+            componentType:         kAudioUnitType_MusicDevice,
+            componentSubType:      kAudioUnitSubType_MIDISynth,
+            componentManufacturer: kAudioUnitManufacturer_Apple,
+            componentFlags: 0, componentFlagsMask: 0
+        )
+        var outputDesc = AudioComponentDescription(
+            componentType:         kAudioUnitType_Output,
+            componentSubType:      kAudioUnitSubType_RemoteIO,
+            componentManufacturer: kAudioUnitManufacturer_Apple,
+            componentFlags: 0, componentFlagsMask: 0
+        )
+
+        var synthNode = AUNode()
+        var outputNode = AUNode()
+        AUGraphAddNode(graph, &synthDesc,  &synthNode)
+        AUGraphAddNode(graph, &outputDesc, &outputNode)
+        AUGraphConnectNodeInput(graph, synthNode, 0, outputNode, 0)
+        AUGraphOpen(graph)
+        AUGraphNodeInfo(graph, synthNode, nil, &synthUnit)
+        AUGraphInitialize(graph)
+        AUGraphStart(graph)
+
+        // Program 0 on channel 0 = Acoustic Grand Piano
+        if let unit = synthUnit {
+            MusicDeviceMIDIEvent(unit, 0xC0, 0, 0, 0)
         }
     }
 
@@ -27,23 +58,26 @@ final class ExercisePlayer {
         let secPerBeat = 60.0 / bpm
 
         for note in notes {
+            let pitch    = UInt32(note.pitch)
             let onDelay  = (note.beat + leadIn) * secPerBeat
             let offDelay = (note.beat + note.length + leadIn) * secPerBeat
 
             let onItem = DispatchWorkItem { [weak self] in
-                self?.sampler.startNote(UInt8(note.pitch), withVelocity: 90, onChannel: 0)
+                guard let unit = self?.synthUnit else { return }
+                MusicDeviceMIDIEvent(unit, 0x90, pitch, 90, 0)   // note on
             }
             let offItem = DispatchWorkItem { [weak self] in
-                self?.sampler.stopNote(UInt8(note.pitch), onChannel: 0)
+                guard let unit = self?.synthUnit else { return }
+                MusicDeviceMIDIEvent(unit, 0x80, pitch, 0, 0)    // note off
             }
             workItems += [onItem, offItem]
             DispatchQueue.main.asyncAfter(deadline: .now() + onDelay,  execute: onItem)
             DispatchQueue.main.asyncAfter(deadline: .now() + offDelay, execute: offItem)
         }
 
-        let lastBeat = notes.map { $0.beat + $0.length }.max() ?? 0
+        let lastBeat    = notes.map { $0.beat + $0.length }.max() ?? 0
         let finishDelay = (lastBeat + leadIn + 1.0) * secPerBeat
-        let finishItem = DispatchWorkItem { onFinish() }
+        let finishItem  = DispatchWorkItem { onFinish() }
         workItems.append(finishItem)
         DispatchQueue.main.asyncAfter(deadline: .now() + finishDelay, execute: finishItem)
     }
@@ -51,10 +85,18 @@ final class ExercisePlayer {
     func cancelAll() {
         workItems.forEach { $0.cancel() }
         workItems.removeAll()
-        for p in 0...127 { sampler.stopNote(UInt8(p), onChannel: 0) }
+        if let unit = synthUnit {
+            MusicDeviceMIDIEvent(unit, 0xB0, 123, 0, 0)  // CC 123 = all notes off
+        }
     }
 
-    deinit { cancelAll(); engine.stop() }
+    deinit {
+        cancelAll()
+        if let graph {
+            AUGraphStop(graph)
+            DisposeAUGraph(graph)
+        }
+    }
 }
 
 // MARK: - PlaybackView
