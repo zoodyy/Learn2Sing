@@ -2,6 +2,8 @@ import SwiftUI
 
 struct ExerciseSettingsView: View {
     @Binding var exercise: Exercise
+    @EnvironmentObject private var store: ExerciseStore
+    @Environment(\.dismiss) private var dismiss
 
     private var pitchLabel: String {
         let s = exercise.pitchShift
@@ -73,6 +75,18 @@ struct ExerciseSettingsView: View {
             Section {
                 NavigationLink(value: ExerciseRoute.edit(exercise.id)) {
                     Label("Edit MIDI", systemImage: "pianokeys")
+                }
+            }
+
+            Section {
+                Button(role: .destructive) {
+                    let id = exercise.id
+                    dismiss()
+                    // Delete after the pop so no view is bound to the removed exercise.
+                    DispatchQueue.main.async { store.delete(id: id) }
+                } label: {
+                    Label("Delete Exercise", systemImage: "trash")
+                        .frame(maxWidth: .infinity)
                 }
             }
         }
