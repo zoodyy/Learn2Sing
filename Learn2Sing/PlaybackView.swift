@@ -100,10 +100,9 @@ final class ExercisePlayer {
 
     init() {
         // playAndRecord (rather than .playback) so the mic-based pitch detector can
-        // run alongside playback; .defaultToSpeaker keeps output on the speaker.
-        try? AVAudioSession.sharedInstance().setCategory(.playAndRecord, mode: .default,
-                                                         options: [.defaultToSpeaker, .mixWithOthers])
-        try? AVAudioSession.sharedInstance().setActive(true)
+        // run alongside playback; the route manager applies the user's speaker /
+        // microphone choices (e.g. follow AirPods when connected).
+        AudioRouteManager.shared.configureSession()
 
         mach_timebase_info(&timebase)
 

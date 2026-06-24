@@ -10,6 +10,9 @@ import UniformTypeIdentifiers
 
 struct SettingsView: View {
     @AppStorage(Instrument.storageKey) private var instrumentRaw = Instrument.piano.rawValue
+    @AppStorage(AudioRouteManager.speakerKey) private var speaker = AudioRouteManager.automatic
+    @AppStorage(AudioRouteManager.micKey) private var microphone = AudioRouteManager.builtInMic
+    @ObservedObject private var routes = AudioRouteManager.shared
     @EnvironmentObject private var store: ExerciseStore
 
     @State private var exportDocument: ExerciseDocument?
@@ -26,6 +29,23 @@ struct SettingsView: View {
                             Text(instrument.rawValue).tag(instrument.rawValue)
                         }
                     }
+                }
+
+                Section {
+                    Picker("Speaker", selection: $speaker) {
+                        ForEach(options(routes.outputOptions, including: speaker), id: \.self) {
+                            Text($0).tag($0)
+                        }
+                    }
+                    Picker("Microphone", selection: $microphone) {
+                        ForEach(options(routes.inputOptions, including: microphone), id: \.self) {
+                            Text($0).tag($0)
+                        }
+                    }
+                } header: {
+                    Text("Audio Devices")
+                } footer: {
+                    Text("“Automatic” uses connected earphones (e.g. AirPods) when available, otherwise the phone.")
                 }
 
                 Section {
@@ -52,6 +72,7 @@ struct SettingsView: View {
                 }
             }
             .navigationTitle("Settings")
+            .onAppear { routes.refreshOptions() }
         }
         .fileExporter(
             isPresented: $isExporting,
@@ -87,6 +108,12 @@ struct SettingsView: View {
         } message: {
             Text(alertMessage ?? "")
         }
+    }
+
+    /// The device list to show in a picker, guaranteeing the current selection is
+    /// present even when that device is no longer connected (so it doesn't vanish).
+    private func options(_ list: [String], including selection: String) -> [String] {
+        list.contains(selection) ? list : list + [selection]
     }
 }
 

@@ -22,13 +22,11 @@ final class PitchDetector: ObservableObject {
 
     func start() {
         guard !running else { return }
-        let session = AVAudioSession.sharedInstance()
-        // Record + playback so the exercise audio still plays through the speaker.
-        try? session.setCategory(.playAndRecord, mode: .default,
-                                 options: [.defaultToSpeaker, .mixWithOthers])
-        try? session.setActive(true)
+        // Configure record + playback honouring the user's speaker / microphone
+        // choices from Settings (so playback can follow AirPods, etc.).
+        AudioRouteManager.shared.configureSession()
 
-        session.requestRecordPermission { [weak self] granted in
+        AVAudioSession.sharedInstance().requestRecordPermission { [weak self] granted in
             guard granted else { return }
             DispatchQueue.main.async { self?.beginTap() }
         }
