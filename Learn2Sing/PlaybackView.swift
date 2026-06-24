@@ -268,12 +268,29 @@ final class ExercisePlayer {
         let secPerBeat = 60.0 / bpm
 
         var events: [Event] = []
-        events.reserveCapacity(notes.count * 2)
+        events.reserveCapacity(notes.count * 2 + 2)
         for note in notes {
             let onSample  = Int((note.beat + leadIn) * secPerBeat * sampleRate)
             let offSample = Int((note.beat + note.length + leadIn) * secPerBeat * sampleRate)
             events.append(Event(sample: onSample,  pitch: note.pitch, on: true))
             events.append(Event(sample: offSample, pitch: note.pitch, on: false))
+        }
+
+        // Preview the first note before the exercise begins: sound its pitch for
+        // two beats, leave a one-beat pause, then let the exercise start on time.
+        // These events are added only to the audio schedule (not the drawn `notes`)
+        // so the preview is heard but never appears in the animation. It lives
+        // inside the silent lead-in, so the exercise itself isn't shifted.
+        if let firstNote = notes.min(by: { $0.beat < $1.beat }) {
+            let firstBeat = firstNote.beat + leadIn
+            let previewOn  = firstBeat - 3.0   // 2 beats sounding + 1 beat pause
+            let previewOff = firstBeat - 1.0
+            if previewOn >= 0 {
+                events.append(Event(sample: Int(previewOn  * secPerBeat * sampleRate),
+                                    pitch: firstNote.pitch, on: true))
+                events.append(Event(sample: Int(previewOff * secPerBeat * sampleRate),
+                                    pitch: firstNote.pitch, on: false))
+            }
         }
         // Sort by time; at the same instant fire note-offs before note-ons so a
         // repeated pitch is released before its next strike begins.
