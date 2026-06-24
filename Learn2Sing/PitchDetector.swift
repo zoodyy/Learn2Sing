@@ -1,13 +1,25 @@
 import AVFoundation
 import Combine
+import os
 
 /// Listens to the microphone and estimates the fundamental frequency the user is
-/// singing, published as a (possibly fractional) MIDI note number. Uses a simple
+/// singing, exposed as a (possibly fractional) MIDI note number. Uses a simple
 /// autocorrelation pitch tracker over the vocal range — light enough to run in the
 /// input tap callback.
 final class PitchDetector: ObservableObject {
+    // The latest estimate is stored behind a lock rather than published: the view
+    // already redraws every frame via TimelineView and reads `currentPitch` then,
+    // so publishing ~170×/sec would only flood the main thread and stutter the UI.
+    private var _pitch: Double? = nil
+    private var pitchLock = os_unfair_lock_s()
+
     /// Detected pitch as a fractional MIDI note number, or `nil` when silent / unsure.
-    @Published var midiPitch: Double? = nil
+    var currentPitch: Double? {
+        os_unfair_lock_lock(&pitchLock)
+        let value = _pitch
+        os_unfair_lock_unlock(&pitchLock)
+        return value
+    }
 
     private let engine = AVAudioEngine()
     private var running = false
@@ -22,10 +34,9 @@ final class PitchDetector: ObservableObject {
 
     func start() {
         guard !running else { return }
-        // Configure record + playback honouring the user's speaker / microphone
-        // choices from Settings (so playback can follow AirPods, etc.).
-        AudioRouteManager.shared.configureSession()
-
+        // The audio session / route is configured once by PlaybackView before this
+        // is called, so we must not reconfigure it here — doing so would switch the
+        // route out from under the already-running playback engine.
         AVAudioSession.sharedInstance().requestRecordPermission { [weak self] granted in
             guard granted else { return }
             DispatchQueue.main.async { self?.beginTap() }
@@ -37,7 +48,7 @@ final class PitchDetector: ObservableObject {
         engine.inputNode.removeTap(onBus: 0)
         engine.stop()
         running = false
-        DispatchQueue.main.async { self.midiPitch = nil }
+        publish(nil)
     }
 
     private func beginTap() {
@@ -132,7 +143,9 @@ final class PitchDetector: ObservableObject {
     }
 
     private func publish(_ value: Double?) {
-        // Publish the raw estimate; the view smooths/interpolates it per frame.
-        DispatchQueue.main.async { self.midiPitch = value }
+        // Store the raw estimate; the view reads & smooths it once per rendered frame.
+        os_unfair_lock_lock(&pitchLock)
+        _pitch = value
+        os_unfair_lock_unlock(&pitchLock)
     }
 }

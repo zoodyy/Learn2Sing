@@ -99,11 +99,6 @@ final class ExercisePlayer {
     private var needsStartCapture = false
 
     init() {
-        // playAndRecord (rather than .playback) so the mic-based pitch detector can
-        // run alongside playback; the route manager applies the user's speaker /
-        // microphone choices (e.g. follow AirPods when connected).
-        AudioRouteManager.shared.configureSession()
-
         mach_timebase_info(&timebase)
 
         let format = AVAudioFormat(standardFormatWithSampleRate: sampleRate, channels: 2)!
@@ -113,6 +108,17 @@ final class ExercisePlayer {
         }
         engine.attach(sourceNode)
         engine.connect(sourceNode, to: engine.mainMixerNode, format: format)
+        // The engine is *not* started here. It's started in begin() after the audio
+        // route has been configured, so the very first rendered sample already targets
+        // the final output (e.g. AirPods). Starting it earlier and then switching the
+        // route mid-stream is what delayed the audio, glitched timing and stuttered.
+    }
+
+    /// Start the audio engine. Call only after the session/route is configured so the
+    /// output clock anchors to the correct route from the first buffer onward.
+    func begin() {
+        guard !engine.isRunning else { return }
+        engine.prepare()
         try? engine.start()
     }
 
@@ -350,7 +356,7 @@ struct PlaybackView: View {
             let beat = player.currentBeat(bpm: bpm, leadIn: leadIn) ?? -leadIn
 
             // Ease the indicator toward the latest estimate every frame.
-            let singerPitch = indicator.step(target: pitchDetector.midiPitch, factor: 0.3)
+            let singerPitch = indicator.step(target: pitchDetector.currentPitch, factor: 0.3)
 
             Canvas { ctx, size in
                 drawScene(ctx: ctx, size: size, beat: beat, singerPitch: singerPitch)
@@ -361,7 +367,13 @@ struct PlaybackView: View {
         .navigationTitle(exercise.name)
         .navigationBarTitleDisplayMode(.inline)
         .onAppear {
+            // Order matters: configure the route first, load the notes, start the
+            // engine on that settled route, and only then schedule (which anchors the
+            // playback clock). This keeps audio and the animation in sync and stops
+            // playback from starting partway through while the exercise is still loading.
+            AudioRouteManager.shared.configureSession()
             loadNotes()
+            player.begin()
             player.setInstrument(Instrument.current)
             player.schedule(notes: notes, bpm: bpm, leadIn: leadIn) {
                 dismiss()
