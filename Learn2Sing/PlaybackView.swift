@@ -385,7 +385,7 @@ struct PlaybackView: View {
 
     private let leadIn: Double = 6       // silent beats before first note
     private let pianoW: CGFloat = 38
-    private let beatPx: CGFloat = 80     // pixels per beat in playback view
+    private let beatPx: CGFloat = 40     // pixels per beat in playback view
 
     private var bpm: Double { exercise.bpm }
 
