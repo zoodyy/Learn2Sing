@@ -351,12 +351,35 @@ private final class SingerIndicator {
     }
 }
 
+/// Records the singer's pitch over time so a trailing line can show a brief
+/// history of what they sang. Each sample is anchored to the musical beat at
+/// which it was heard, so it scrolls left in lockstep with the notes. A `nil`
+/// pitch marks a gap (no detected pitch) so the line breaks instead of jumping.
+private final class PitchTrail {
+    struct Sample { let beat: Double; let pitch: Double? }
+    private(set) var samples: [Sample] = []
+
+    func record(beat: Double, pitch: Double?) {
+        samples.append(Sample(beat: beat, pitch: pitch))
+    }
+
+    /// Drop samples that have scrolled off the left edge of the note area.
+    func prune(before beat: Double) {
+        if let idx = samples.firstIndex(where: { $0.beat >= beat }) {
+            if idx > 0 { samples.removeFirst(idx) }
+        } else {
+            samples.removeAll()
+        }
+    }
+}
+
 struct PlaybackView: View {
     let exercise: Exercise
 
     @State private var player = ExercisePlayer()
     @StateObject private var pitchDetector = PitchDetector()
     @State private var indicator = SingerIndicator()
+    @State private var trail = PitchTrail()
     @State private var notes: [MIDINote] = []
     @Environment(\.dismiss) private var dismiss
 
@@ -482,14 +505,42 @@ struct PlaybackView: View {
         line.addLine(to: CGPoint(x: phX, y: size.height))
         ctx.stroke(line, with: .color(.white), lineWidth: 2)
 
+        // ── Singer's pitch history (trailing line) ───────────────────────────
+        // Record this frame's pitch at the current beat, then drop whatever has
+        // scrolled off the left edge of the note area.
+        trail.record(beat: beat, pitch: singerPitch)
+        trail.prune(before: beat - Double((phX - pianoW) / beatPx))
+
+        let r: CGFloat = min(rowH * 0.85, 11)
+        func yFor(_ pitch: Double) -> CGFloat {
+            let rowFloat = Double(hiPitch) - pitch
+            return min(max((CGFloat(rowFloat) + 0.5) * rowH, r), size.height - r)
+        }
+
+        // Anchor each sample to its beat so the line scrolls left exactly like the
+        // notes; the newest sample sits at the playhead, joining the dot below.
+        var trailPath = Path()
+        var penDown = false
+        for s in trail.samples {
+            guard let p = s.pitch else { penDown = false; continue }
+            let pt = CGPoint(x: phX + CGFloat(s.beat - beat) * beatPx, y: yFor(p))
+            if penDown {
+                trailPath.addLine(to: pt)
+            } else {
+                trailPath.move(to: pt)
+                penDown = true
+            }
+        }
+        ctx.drawLayer { layer in
+            layer.clip(to: Path(CGRect(x: pianoW, y: 0,
+                                       width: size.width - pianoW, height: size.height)))
+            layer.stroke(trailPath, with: .color(.cyan.opacity(0.7)), lineWidth: 2.5)
+        }
+
         // ── Singer's current pitch (from the microphone) ─────────────────────
         if let pitch = singerPitch {
             // Centre of the row for this (fractional) MIDI pitch, clamped to view.
-            let rowFloat = Double(hiPitch) - pitch
-            var y = (CGFloat(rowFloat) + 0.5) * rowH
-            let r: CGFloat = min(rowH * 0.85, 11)
-            y = min(max(y, r), size.height - r)
-
+            let y = yFor(pitch)
             let dot = Path(ellipseIn: CGRect(x: phX - r, y: y - r, width: 2 * r, height: 2 * r))
             ctx.fill(dot, with: .color(.cyan))
             ctx.stroke(dot, with: .color(.white), lineWidth: 1.5)
