@@ -5,6 +5,7 @@ struct ExerciseSettingsView: View {
     @Binding var exercise: Exercise
     @EnvironmentObject private var store: ExerciseStore
     @Environment(\.dismiss) private var dismiss
+    @FocusState private var transposeFocused: Bool
 
     private var pitchLabel: String {
         let s = exercise.pitchShift
@@ -57,8 +58,24 @@ struct ExerciseSettingsView: View {
                         Spacer()
                         TextField("0", value: $exercise.transposePerRepeat, format: .number)
                             .multilineTextAlignment(.trailing)
-                            .keyboardType(.numbersAndPunctuation)
+                            .keyboardType(.numberPad)
+                            .focused($transposeFocused)
                             .frame(width: 60)
+                            .toolbar {
+                                ToolbarItemGroup(placement: .keyboard) {
+                                    if transposeFocused {
+                                        // The number pad has no minus key, so offer a
+                                        // sign toggle for entering negative transpositions.
+                                        Button {
+                                            exercise.transposePerRepeat.negate()
+                                        } label: {
+                                            Image(systemName: "plus.forwardslash.minus")
+                                        }
+                                        Spacer()
+                                        Button("Done") { transposeFocused = false }
+                                    }
+                                }
+                            }
                     }
 
                     HStack {
