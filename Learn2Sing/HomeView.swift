@@ -12,6 +12,7 @@ struct HomeView: View {
         NavigationStack {
             Text("Home")
                 .navigationTitle("Home")
+                .navigationBarTitleDisplayMode(.inline)
         }
     }
 }

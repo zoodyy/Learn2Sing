@@ -72,6 +72,7 @@ struct SettingsView: View {
                 }
             }
             .navigationTitle("Settings")
+            .navigationBarTitleDisplayMode(.inline)
             .onAppear { routes.refreshOptions() }
         }
         .fileExporter(
