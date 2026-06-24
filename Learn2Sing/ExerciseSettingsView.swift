@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 struct ExerciseSettingsView: View {
     @Binding var exercise: Exercise
@@ -92,5 +93,17 @@ struct ExerciseSettingsView: View {
         }
         .navigationTitle(exercise.name)
         .navigationBarTitleDisplayMode(.inline)
+        // Select the whole number when a repetition field is tapped, so typing a new
+        // value replaces the old one instead of inserting alongside it. Scoped to the
+        // numeric fields by keyboard type (the Name field uses the default keyboard).
+        .onReceive(NotificationCenter.default.publisher(for: UITextField.textDidBeginEditingNotification)) { notification in
+            guard let textField = notification.object as? UITextField else { return }
+            let numericKeyboards: [UIKeyboardType] = [.numberPad, .numbersAndPunctuation, .decimalPad]
+            guard numericKeyboards.contains(textField.keyboardType) else { return }
+            DispatchQueue.main.async {
+                textField.selectedTextRange = textField.textRange(
+                    from: textField.beginningOfDocument, to: textField.endOfDocument)
+            }
+        }
     }
 }
