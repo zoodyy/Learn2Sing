@@ -141,6 +141,27 @@ final class ExercisePlayer {
         try? engine.start()
     }
 
+    /// Stop rendering while the app is backgrounded. The playhead is preserved so the
+    /// exercise resumes from the same spot; `shouldRun` stays set so the config-change
+    /// observer and resume() can bring the engine back.
+    func pauseForBackground() {
+        if engine.isRunning { engine.pause() }
+    }
+
+    /// Restart after returning from the background and re-anchor the on-screen clock
+    /// to the audio's current playhead so the two don't drift apart by the time spent
+    /// away. Safe to call only between begin() and stop().
+    func resumeFromBackground() {
+        guard shouldRun else { return }
+        os_unfair_lock_lock(&lock)
+        needsStartCapture = true   // next render re-anchors startHostTime to the playhead
+        os_unfair_lock_unlock(&lock)
+        if !engine.isRunning {
+            engine.prepare()
+            try? engine.start()
+        }
+    }
+
     // MARK: Real-time render
 
     private func render(frameCount: Int, hostTime: UInt64, abl: UnsafeMutablePointer<AudioBufferList>) {
@@ -150,7 +171,15 @@ final class ExercisePlayer {
 
         os_unfair_lock_lock(&lock)
         if needsStartCapture {
-            startHostTime = hostTime    // host time when sample 0 (playhead == 0) plays
+            // `hostTime` is when the first sample of this buffer (sample `playhead`)
+            // is played, so the host time for sample 0 is that minus the playhead's
+            // duration. At the initial start playhead == 0, so this is just hostTime;
+            // after a background pause the playhead has advanced, and subtracting it
+            // re-anchors the on-screen clock to the audio's real position — keeping
+            // visuals and audio in sync no matter how long the app was away.
+            let playheadNs = Double(playhead) / sampleRate * 1.0e9
+            let playheadTicks = UInt64(playheadNs * Double(timebase.denom) / Double(timebase.numer))
+            startHostTime = hostTime > playheadTicks ? hostTime - playheadTicks : hostTime
             startCaptured = true
             needsStartCapture = false
         }
@@ -453,6 +482,7 @@ struct PlaybackView: View {
     @State private var notes: [MIDINote] = []
     @State private var finalScore: Int? = nil
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.scenePhase) private var scenePhase
 
     private let leadIn: Double = 6       // silent beats before first note
     private let pianoW: CGFloat = 38
@@ -510,6 +540,24 @@ struct PlaybackView: View {
         }
         .onDisappear {
             teardownAudio()
+        }
+        .onChange(of: scenePhase) { _, phase in
+            // The audio engine stops while the app is backgrounded but the on-screen
+            // clock is wall-clock based, so without this they'd drift apart. Pause on
+            // the way out and, on return, reconfigure the route and resume — which
+            // re-anchors the clock to the audio playhead so they stay in sync.
+            guard finalScore == nil else { return }   // nothing to sync on the score screen
+            switch phase {
+            case .active:
+                AudioRouteManager.shared.configureSession()
+                player.resumeFromBackground()
+                pitchDetector.start()
+            case .background:
+                player.pauseForBackground()
+                pitchDetector.stop()
+            default:
+                break
+            }
         }
     }
 
