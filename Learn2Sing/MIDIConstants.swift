@@ -15,6 +15,12 @@ func isBlack(_ pitch: Int) -> Bool {
     [1, 3, 6, 8, 10].contains(pitch % 12)
 }
 
+// MARK: - Scoring
+
+/// UserDefaults key for the microphone-delay compensation (in milliseconds). It
+/// only shifts how the score is computed — playback and visuals are untouched.
+let microphoneDelayKey = "microphoneDelayMs"
+
 // MARK: - Instrument selection
 
 enum Instrument: String, CaseIterable, Identifiable {

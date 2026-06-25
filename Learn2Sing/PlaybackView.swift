@@ -448,7 +448,12 @@ private final class Scorer {
     /// trailing pitch line expressed in semitones, so the score reflects exactly
     /// when the drawn line is over a note. A note counts for the frame if the
     /// singer's pitch is within `tolerance` of it while the note is sounding.
-    func update(beat: Double, notes: [MIDINote], singerPitch: Double?, tolerance: Double) {
+    ///
+    /// `noteShift` (in beats) shifts every note later in time *for scoring only*, to
+    /// compensate for the lag between singing and pitch detection: a note is treated
+    /// as sounding over `[beat + noteShift, ...]`, so detection that arrives late
+    /// still lines up with it. Playback and visuals are unaffected.
+    func update(beat: Double, notes: [MIDINote], singerPitch: Double?, tolerance: Double, noteShift: Double) {
         defer { lastBeat = beat }
         guard let last = lastBeat else { return }
         let dt = beat - last
@@ -456,7 +461,7 @@ private final class Scorer {
         // integral can't be corrupted by a discontinuity in the playhead.
         guard dt > 0, dt < 0.5 else { return }
         guard let pitch = singerPitch else { return }
-        for note in notes where beat >= note.beat && beat < note.beat + note.length {
+        for note in notes where beat >= note.beat + noteShift && beat < note.beat + note.length + noteShift {
             if abs(pitch - Double(note.pitch)) <= tolerance {
                 coveredBeats += dt
             }
@@ -481,6 +486,7 @@ struct PlaybackView: View {
     @State private var scorer = Scorer()
     @State private var notes: [MIDINote] = []
     @State private var finalScore: Int? = nil
+    @AppStorage(microphoneDelayKey) private var micDelayMs = 0.0
     @Environment(\.dismiss) private var dismiss
     @Environment(\.scenePhase) private var scenePhase
 
@@ -654,8 +660,11 @@ struct PlaybackView: View {
         // overlaps the note when the pitch is within (rectHalf + lineHalf)/rowH
         // semitones of it — a much tighter window than the circle's radius.
         let lineToleranceSemitones = Double(((rowH - 2) / 2 + 1.25) / rowH)
+        // Convert the user's microphone-delay setting (ms) into beats so notes are
+        // scored as if shifted that far to the right (later in time).
+        let noteShift = micDelayMs / 1000.0 * bpm / 60.0
         scorer.update(beat: beat, notes: notes, singerPitch: singerPitch,
-                      tolerance: lineToleranceSemitones)
+                      tolerance: lineToleranceSemitones, noteShift: noteShift)
 
         func yFor(_ pitch: Double) -> CGFloat {
             let rowFloat = Double(hiPitch) - pitch

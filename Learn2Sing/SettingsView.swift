@@ -6,12 +6,15 @@
 //
 
 import SwiftUI
+import UIKit
 import UniformTypeIdentifiers
 
 struct SettingsView: View {
     @AppStorage(Instrument.storageKey) private var instrumentRaw = Instrument.piano.rawValue
     @AppStorage(AudioRouteManager.speakerKey) private var speaker = AudioRouteManager.automatic
     @AppStorage(AudioRouteManager.micKey) private var microphone = AudioRouteManager.builtInMic
+    @AppStorage(microphoneDelayKey) private var micDelayMs = 0.0
+    @FocusState private var micDelayFocused: Bool
     @ObservedObject private var routes = AudioRouteManager.shared
     @EnvironmentObject private var store: ExerciseStore
 
@@ -49,6 +52,23 @@ struct SettingsView: View {
                 }
 
                 Section {
+                    HStack {
+                        Text("Microphone delay")
+                        Spacer()
+                        TextField("0", value: $micDelayMs, format: .number)
+                            .multilineTextAlignment(.trailing)
+                            .keyboardType(.decimalPad)
+                            .focused($micDelayFocused)
+                            .frame(width: 70)
+                        Text("ms").foregroundStyle(.secondary)
+                    }
+                } header: {
+                    Text("Scoring")
+                } footer: {
+                    Text("Compensates for the lag between singing and pitch detection. Only the score is affected — playback and visuals are unchanged.")
+                }
+
+                Section {
                     Button {
                         if let data = store.exportData() {
                             exportDocument = ExerciseDocument(data: data)
@@ -73,7 +93,28 @@ struct SettingsView: View {
             }
             .navigationTitle("Settings")
             .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                // The decimal pad has no return key, so give it a Done button to
+                // dismiss it. Ungated (this view has only one numeric field) so the
+                // accessory is reliably installed when the keyboard first appears.
+                ToolbarItemGroup(placement: .keyboard) {
+                    Spacer()
+                    Button("Done") { micDelayFocused = false }
+                }
+            }
             .onAppear { routes.refreshOptions() }
+            // Select the whole number when the delay field is tapped, so typing a new
+            // value replaces the old one instead of inserting alongside it. Scoped to
+            // numeric fields by keyboard type, matching the repetition fields.
+            .onReceive(NotificationCenter.default.publisher(for: UITextField.textDidBeginEditingNotification)) { notification in
+                guard let textField = notification.object as? UITextField else { return }
+                let numericKeyboards: [UIKeyboardType] = [.numberPad, .numbersAndPunctuation, .decimalPad]
+                guard numericKeyboards.contains(textField.keyboardType) else { return }
+                DispatchQueue.main.async {
+                    textField.selectedTextRange = textField.textRange(
+                        from: textField.beginningOfDocument, to: textField.endOfDocument)
+                }
+            }
         }
         .fileExporter(
             isPresented: $isExporting,
