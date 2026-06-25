@@ -93,13 +93,20 @@ struct SettingsView: View {
             }
             .navigationTitle("Settings")
             .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                // The decimal pad has no return key, so give it a Done button to
-                // dismiss it. Ungated (this view has only one numeric field) so the
-                // accessory is reliably installed when the keyboard first appears.
-                ToolbarItemGroup(placement: .keyboard) {
-                    Spacer()
-                    Button("Done") { micDelayFocused = false }
+            // The decimal pad has no return key. A keyboard toolbar (`.toolbar(.keyboard)`)
+            // doesn't attach reliably inside a TabView, so instead show a Done bar pinned
+            // above the keyboard while editing, and also let a scroll dismiss it.
+            .scrollDismissesKeyboard(.interactively)
+            .safeAreaInset(edge: .bottom) {
+                if micDelayFocused {
+                    HStack {
+                        Spacer()
+                        Button("Done") { micDelayFocused = false }
+                            .fontWeight(.semibold)
+                    }
+                    .padding(.horizontal)
+                    .padding(.vertical, 8)
+                    .background(.bar)
                 }
             }
             .onAppear { routes.refreshOptions() }
