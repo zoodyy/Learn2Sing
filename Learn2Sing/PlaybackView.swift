@@ -325,9 +325,16 @@ final class ExercisePlayer {
         os_unfair_lock_unlock(&lock)
     }
 
-    deinit {
+    /// Cancel the schedule and stop the engine. Idempotent: stopping an engine that
+    /// isn't running is skipped so repeated teardown calls (finish, then onDisappear,
+    /// then deinit) are harmless and never block on an already-stopped engine.
+    func stop() {
         cancelAll()
-        engine.stop()
+        if engine.isRunning { engine.stop() }
+    }
+
+    deinit {
+        stop()
     }
 }
 
@@ -470,15 +477,18 @@ struct PlaybackView: View {
             player.setInstrument(Instrument.current)
             scorer.reset()
             player.schedule(notes: notes, bpm: bpm, leadIn: leadIn) {
-                // Stop listening and reveal the score once the exercise ends.
-                pitchDetector.stop()
+                // Tear the audio down fully before revealing the score so the score
+                // screen has no engine running. Stopping both engines together (rather
+                // than only the mic, leaving the synth rendering on the shared
+                // playAndRecord session) is what avoids the intermittent freeze when
+                // navigating back to the exercise list.
+                teardownAudio()
                 finalScore = scorer.score(notes: notes)
             }
             pitchDetector.start()
         }
         .onDisappear {
-            player.cancelAll()
-            pitchDetector.stop()
+            teardownAudio()
         }
     }
 
@@ -611,6 +621,17 @@ struct PlaybackView: View {
             ctx.fill(dot, with: .color(.cyan))
             ctx.stroke(dot, with: .color(.white), lineWidth: 1.5)
         }
+    }
+
+    // MARK: - Teardown
+
+    /// Stop both audio engines and release the session. Idempotent — the engines'
+    /// own guards make the second call (finish, then onDisappear) a no-op — so it's
+    /// safe to call from the finish callback and again when the view goes away.
+    private func teardownAudio() {
+        player.stop()
+        pitchDetector.stop()
+        AudioRouteManager.shared.deactivateSession()
     }
 
     // MARK: - Persistence

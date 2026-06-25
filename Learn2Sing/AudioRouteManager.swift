@@ -84,6 +84,13 @@ final class AudioRouteManager: ObservableObject {
         applyInputRoute()
     }
 
+    /// Release the shared session when playback ends. Pairs with `configureSession`
+    /// so the mic/route is freed instead of being left active behind the exercise
+    /// list. Call only after both audio engines have been stopped.
+    func deactivateSession() {
+        try? session.setActive(false, options: .notifyOthersOnDeactivation)
+    }
+
     private func applyOutputRoute() {
         let externalConnected = session.currentRoute.outputs.contains {
             $0.portType != .builtInSpeaker && $0.portType != .builtInReceiver
