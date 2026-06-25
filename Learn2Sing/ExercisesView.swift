@@ -3,6 +3,7 @@ import SwiftUI
 struct Exercise: Identifiable, Hashable, Codable {
     var id = UUID()
     var name: String
+    var details: String = ""          // shown on the intro screen before playback
     var pitchShift: Int = 0           // transpose all notes by this many semitones
     var bpm: Double = 120             // playback tempo in beats per minute
     var repeatCount: Int = 1          // how many times the pattern is played back
@@ -12,13 +13,14 @@ struct Exercise: Identifiable, Hashable, Codable {
     init(name: String) { self.name = name }
 
     private enum CodingKeys: String, CodingKey {
-        case id, name, pitchShift, bpm, speed, repeatCount, transposePerRepeat, beatsBetweenReps
+        case id, name, details, pitchShift, bpm, speed, repeatCount, transposePerRepeat, beatsBetweenReps
     }
 
     init(from decoder: Decoder) throws {
         let c = try decoder.container(keyedBy: CodingKeys.self)
         id = try c.decodeIfPresent(UUID.self, forKey: .id) ?? UUID()
         name = try c.decode(String.self, forKey: .name)
+        details = try c.decodeIfPresent(String.self, forKey: .details) ?? ""
         pitchShift = try c.decodeIfPresent(Int.self, forKey: .pitchShift) ?? 0
         if let bpm = try c.decodeIfPresent(Double.self, forKey: .bpm) {
             self.bpm = bpm
@@ -35,6 +37,7 @@ struct Exercise: Identifiable, Hashable, Codable {
         var c = encoder.container(keyedBy: CodingKeys.self)
         try c.encode(id, forKey: .id)
         try c.encode(name, forKey: .name)
+        try c.encode(details, forKey: .details)
         try c.encode(pitchShift, forKey: .pitchShift)
         try c.encode(bpm, forKey: .bpm)
         try c.encode(repeatCount, forKey: .repeatCount)
@@ -44,7 +47,8 @@ struct Exercise: Identifiable, Hashable, Codable {
 }
 
 enum ExerciseRoute: Hashable {
-    case play(UUID)
+    case play(UUID)      // the intro/description screen shown before playback
+    case playback(UUID)  // the actual note-scrolling playback screen
     case settings(UUID)
     case edit(UUID)
 }
@@ -100,6 +104,12 @@ struct ExercisesView: View {
             .navigationDestination(for: ExerciseRoute.self) { route in
                 switch route {
                 case .play(let id):
+                    if let ex = store.exercises.first(where: { $0.id == id }) {
+                        ExerciseIntroView(exercise: ex) {
+                            navigationPath.append(ExerciseRoute.playback(id))
+                        }
+                    }
+                case .playback(let id):
                     if let ex = store.exercises.first(where: { $0.id == id }) {
                         PlaybackView(exercise: ex)
                     }

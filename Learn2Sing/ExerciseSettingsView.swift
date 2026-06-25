@@ -20,6 +20,11 @@ struct ExerciseSettingsView: View {
                 TextField("Name", text: $exercise.name)
             }
 
+            Section("Description") {
+                TextField("Shown before the exercise starts", text: $exercise.details, axis: .vertical)
+                    .lineLimit(3...8)
+            }
+
             Section("Pitch") {
                 Stepper(value: $exercise.pitchShift, in: -24...24) {
                     HStack {
