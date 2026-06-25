@@ -6,12 +6,16 @@ import Combine
 /// `midi_<uuid>`) so it stays compatible with the existing EditingView/PlaybackView.
 final class ExerciseStore: ObservableObject {
     @Published var exercises: [Exercise] = []
+    /// User-defined categories used to group exercises in the list, in display order.
+    @Published var categories: [String] = []
 
     private let storeKey = "exercises"
+    private let categoriesKey = "categories"
     private let bundledImportedKey = "didImportBundledExercises"
 
     init() {
         load()
+        loadCategories()
         importBundledIfNeeded()
     }
 
@@ -39,6 +43,41 @@ final class ExerciseStore: ObservableObject {
         guard let data = try? JSONEncoder().encode(exercises) else { return }
         UserDefaults.standard.set(data, forKey: storeKey)
     }
+
+    // MARK: - Categories
+
+    func loadCategories() {
+        guard let data = UserDefaults.standard.data(forKey: categoriesKey),
+              let saved = try? JSONDecoder().decode([String].self, from: data)
+        else { return }
+        categories = saved
+    }
+
+    private func saveCategories() {
+        guard let data = try? JSONEncoder().encode(categories) else { return }
+        UserDefaults.standard.set(data, forKey: categoriesKey)
+    }
+
+    func addCategory(_ name: String) {
+        guard !name.isEmpty, !categories.contains(name) else { return }
+        categories.append(name)
+        saveCategories()
+    }
+
+    /// Remove a category and clear it from any exercise that used it (those become
+    /// uncategorized) so no exercise is left pointing at a category that's gone.
+    func deleteCategory(_ name: String) {
+        categories.removeAll { $0 == name }
+        saveCategories()
+        var changed = false
+        for i in exercises.indices where exercises[i].category == name {
+            exercises[i].category = ""
+            changed = true
+        }
+        if changed { save() }
+    }
+
+    // MARK: - Exercise mutation
 
     @discardableResult
     func add(name: String) -> Exercise {
@@ -113,6 +152,11 @@ final class ExerciseStore: ObservableObject {
             if let notes = bundle.midi[exercise.id.uuidString] {
                 setNotes(notes, for: exercise.id)
             }
+        }
+        // Register any categories the imported exercises reference so they stay
+        // selectable and the list can group by them.
+        for category in Set(bundle.exercises.map(\.category)) where !category.isEmpty {
+            addCategory(category)
         }
         save()
         return true

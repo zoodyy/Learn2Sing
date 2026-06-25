@@ -6,12 +6,28 @@ struct ExerciseSettingsView: View {
     @EnvironmentObject private var store: ExerciseStore
     @Environment(\.dismiss) private var dismiss
     @FocusState private var transposeFocused: Bool
+    @State private var showingNewCategoryAlert = false
+    @State private var newCategoryName = ""
 
     private var pitchLabel: String {
         let s = exercise.pitchShift
         let sign = s > 0 ? "+" : ""
         let unit = abs(s) == 1 ? "semitone" : "semitones"
         return "\(sign)\(s) \(unit)"
+    }
+
+    /// One selectable category row: tapping it selects that category, and the
+    /// current selection is marked with a checkmark.
+    private func categoryRow(title: String, isSelected: Bool, select: @escaping () -> Void) -> some View {
+        Button(action: select) {
+            HStack {
+                Text(title).foregroundStyle(.primary)
+                Spacer()
+                if isSelected {
+                    Image(systemName: "checkmark").foregroundStyle(.tint)
+                }
+            }
+        }
     }
 
     var body: some View {
@@ -23,6 +39,26 @@ struct ExerciseSettingsView: View {
             Section("Description") {
                 TextField("Shown before the exercise starts", text: $exercise.details, axis: .vertical)
                     .lineLimit(3...8)
+            }
+
+            Section("Category") {
+                categoryRow(title: "None", isSelected: exercise.category.isEmpty) {
+                    exercise.category = ""
+                }
+                ForEach(store.categories, id: \.self) { category in
+                    categoryRow(title: category, isSelected: exercise.category == category) {
+                        exercise.category = category
+                    }
+                }
+                .onDelete { offsets in
+                    offsets.map { store.categories[$0] }.forEach(store.deleteCategory)
+                }
+
+                Button {
+                    showingNewCategoryAlert = true
+                } label: {
+                    Label("New Category", systemImage: "plus")
+                }
             }
 
             Section("Pitch") {
@@ -115,6 +151,19 @@ struct ExerciseSettingsView: View {
         }
         .navigationTitle(exercise.name)
         .navigationBarTitleDisplayMode(.inline)
+        .alert("New Category", isPresented: $showingNewCategoryAlert) {
+            TextField("Name", text: $newCategoryName)
+            Button("Add") {
+                let name = newCategoryName.trimmingCharacters(in: .whitespaces)
+                newCategoryName = ""
+                guard !name.isEmpty else { return }
+                store.addCategory(name)
+                exercise.category = name   // select the category just created
+            }
+            Button("Cancel", role: .cancel) { newCategoryName = "" }
+        } message: {
+            Text("Enter a name for the new category")
+        }
         // Select the whole number when a repetition field is tapped, so typing a new
         // value replaces the old one instead of inserting alongside it. Scoped to the
         // numeric fields by keyboard type (the Name field uses the default keyboard).

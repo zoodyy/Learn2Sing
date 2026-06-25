@@ -4,6 +4,7 @@ struct Exercise: Identifiable, Hashable, Codable {
     var id = UUID()
     var name: String
     var details: String = ""          // shown on the intro screen before playback
+    var category: String = ""         // group it belongs to in the list ("" = none)
     var pitchShift: Int = 0           // transpose all notes by this many semitones
     var bpm: Double = 120             // playback tempo in beats per minute
     var repeatCount: Int = 1          // how many times the pattern is played back
@@ -13,7 +14,7 @@ struct Exercise: Identifiable, Hashable, Codable {
     init(name: String) { self.name = name }
 
     private enum CodingKeys: String, CodingKey {
-        case id, name, details, pitchShift, bpm, speed, repeatCount, transposePerRepeat, beatsBetweenReps
+        case id, name, details, category, pitchShift, bpm, speed, repeatCount, transposePerRepeat, beatsBetweenReps
     }
 
     init(from decoder: Decoder) throws {
@@ -21,6 +22,7 @@ struct Exercise: Identifiable, Hashable, Codable {
         id = try c.decodeIfPresent(UUID.self, forKey: .id) ?? UUID()
         name = try c.decode(String.self, forKey: .name)
         details = try c.decodeIfPresent(String.self, forKey: .details) ?? ""
+        category = try c.decodeIfPresent(String.self, forKey: .category) ?? ""
         pitchShift = try c.decodeIfPresent(Int.self, forKey: .pitchShift) ?? 0
         if let bpm = try c.decodeIfPresent(Double.self, forKey: .bpm) {
             self.bpm = bpm
@@ -38,6 +40,7 @@ struct Exercise: Identifiable, Hashable, Codable {
         try c.encode(id, forKey: .id)
         try c.encode(name, forKey: .name)
         try c.encode(details, forKey: .details)
+        try c.encode(category, forKey: .category)
         try c.encode(pitchShift, forKey: .pitchShift)
         try c.encode(bpm, forKey: .bpm)
         try c.encode(repeatCount, forKey: .repeatCount)
@@ -59,20 +62,46 @@ struct ExercisesView: View {
     @State private var newExerciseName = ""
     @State private var navigationPath = NavigationPath()
 
+    /// Exercises with no category, or whose category was deleted, shown in an
+    /// unlabelled section so none are ever lost from the list.
+    private var uncategorized: [Exercise] {
+        store.exercises.filter { $0.category.isEmpty || !store.categories.contains($0.category) }
+    }
+
+    @ViewBuilder
+    private func exerciseRow(_ exercise: Exercise) -> some View {
+        Button(exercise.name) {
+            navigationPath.append(ExerciseRoute.play(exercise.id))
+        }
+        .foregroundStyle(.primary)
+        .swipeActions(edge: .leading, allowsFullSwipe: true) {
+            Button {
+                navigationPath.append(ExerciseRoute.settings(exercise.id))
+            } label: {
+                Label("Settings", systemImage: "slider.horizontal.3")
+            }
+            .tint(.blue)
+        }
+    }
+
     var body: some View {
         NavigationStack(path: $navigationPath) {
-            List(store.exercises) { exercise in
-                Button(exercise.name) {
-                    navigationPath.append(ExerciseRoute.play(exercise.id))
-                }
-                .foregroundStyle(.primary)
-                .swipeActions(edge: .leading, allowsFullSwipe: true) {
-                    Button {
-                        navigationPath.append(ExerciseRoute.settings(exercise.id))
-                    } label: {
-                        Label("Settings", systemImage: "slider.horizontal.3")
+            List {
+                // One section per category, in the user's defined order. A category
+                // with no exercises is skipped so its header never shows.
+                ForEach(store.categories, id: \.self) { category in
+                    let items = store.exercises.filter { $0.category == category }
+                    if !items.isEmpty {
+                        Section(category) {
+                            ForEach(items) { exerciseRow($0) }
+                        }
                     }
-                    .tint(.blue)
+                }
+
+                if !uncategorized.isEmpty {
+                    Section {
+                        ForEach(uncategorized) { exerciseRow($0) }
+                    }
                 }
             }
             .navigationTitle("Exercises")
