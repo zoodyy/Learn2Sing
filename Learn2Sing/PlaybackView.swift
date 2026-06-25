@@ -373,6 +373,47 @@ private final class PitchTrail {
     }
 }
 
+/// Accumulates how much of the exercise the singer covered correctly. For every
+/// rendered frame it adds the elapsed beat-time of each active note during which
+/// the singer's indicator circle overlapped that note's row. The final score is
+/// `coveredBeats / (sum of all note lengths)`, so if half of the notes' combined
+/// length was sung on pitch the score is 50%.
+private final class Scorer {
+    private(set) var coveredBeats: Double = 0
+    private var lastBeat: Double? = nil
+
+    func reset() {
+        coveredBeats = 0
+        lastBeat = nil
+    }
+
+    /// Integrate one frame of coverage. `tolerance` is the vertical reach of the
+    /// indicator circle expressed in semitones, so the score reflects exactly when
+    /// the drawn circle is touching a note. A note counts for the frame if the
+    /// singer's pitch is within `tolerance` of it while the note is sounding.
+    func update(beat: Double, notes: [MIDINote], singerPitch: Double?, tolerance: Double) {
+        defer { lastBeat = beat }
+        guard let last = lastBeat else { return }
+        let dt = beat - last
+        // Ignore non-advancing frames and large jumps (e.g. a restart) so the
+        // integral can't be corrupted by a discontinuity in the playhead.
+        guard dt > 0, dt < 0.5 else { return }
+        guard let pitch = singerPitch else { return }
+        for note in notes where beat >= note.beat && beat < note.beat + note.length {
+            if abs(pitch - Double(note.pitch)) <= tolerance {
+                coveredBeats += dt
+            }
+        }
+    }
+
+    /// Final score as a whole-number percentage (0...100).
+    func score(notes: [MIDINote]) -> Int {
+        let total = notes.reduce(0.0) { $0 + $1.length }
+        guard total > 0 else { return 0 }
+        return min(100, max(0, Int((coveredBeats / total * 100).rounded())))
+    }
+}
+
 struct PlaybackView: View {
     let exercise: Exercise
 
@@ -380,7 +421,9 @@ struct PlaybackView: View {
     @StateObject private var pitchDetector = PitchDetector()
     @State private var indicator = SingerIndicator()
     @State private var trail = PitchTrail()
+    @State private var scorer = Scorer()
     @State private var notes: [MIDINote] = []
+    @State private var finalScore: Int? = nil
     @Environment(\.dismiss) private var dismiss
 
     private let leadIn: Double = 6       // silent beats before first note
@@ -390,6 +433,16 @@ struct PlaybackView: View {
     private var bpm: Double { exercise.bpm }
 
     var body: some View {
+        Group {
+            if let finalScore {
+                ScoreView(score: finalScore) { dismiss() }
+            } else {
+                playback
+            }
+        }
+    }
+
+    private var playback: some View {
         TimelineView(.animation) { _ in
             // Drive the playhead from the audio engine's own output clock so the
             // notes light up exactly when they're heard.
@@ -415,8 +468,11 @@ struct PlaybackView: View {
             loadNotes()
             player.begin()
             player.setInstrument(Instrument.current)
+            scorer.reset()
             player.schedule(notes: notes, bpm: bpm, leadIn: leadIn) {
-                dismiss()
+                // Stop listening and reveal the score once the exercise ends.
+                pitchDetector.stop()
+                finalScore = scorer.score(notes: notes)
             }
             pitchDetector.start()
         }
@@ -512,6 +568,13 @@ struct PlaybackView: View {
         trail.prune(before: beat - Double((phX - pianoW) / beatPx))
 
         let r: CGFloat = min(rowH * 0.85, 11)
+
+        // Score this frame: a note counts while the singer's circle overlaps its
+        // row. The circle reaches `r` above/below its centre and a row is half a
+        // semitone tall, so its vertical reach in semitones is r/rowH + 0.5.
+        scorer.update(beat: beat, notes: notes, singerPitch: singerPitch,
+                      tolerance: Double(r / rowH) + 0.5)
+
         func yFor(_ pitch: Double) -> CGFloat {
             let rowFloat = Double(hiPitch) - pitch
             return min(max((CGFloat(rowFloat) + 0.5) * rowH, r), size.height - r)
@@ -575,5 +638,50 @@ struct PlaybackView: View {
             }
         }
         notes = expanded
+    }
+}
+
+// MARK: - ScoreView
+
+/// Shown after an exercise finishes: the score centred on screen with a single
+/// button to leave. Tinted from red (low) through to green (high) so the result
+/// reads at a glance.
+private struct ScoreView: View {
+    let score: Int
+    let onExit: () -> Void
+
+    private var tint: Color {
+        Color(hue: Double(score) / 100.0 * 0.33, saturation: 0.85, brightness: 0.95)
+    }
+
+    var body: some View {
+        VStack {
+            Spacer()
+
+            Text("Score")
+                .font(.title2.weight(.semibold))
+                .foregroundStyle(.white.opacity(0.7))
+
+            Text("\(score)%")
+                .font(.system(size: 96, weight: .bold, design: .rounded))
+                .foregroundStyle(tint)
+                .contentTransition(.numericText())
+
+            Spacer()
+
+            Button(action: onExit) {
+                Text("Exit")
+                    .font(.headline)
+                    .frame(maxWidth: .infinity)
+                    .padding()
+                    .background(tint.opacity(0.25), in: RoundedRectangle(cornerRadius: 14))
+                    .foregroundStyle(.white)
+            }
+            .padding(.horizontal, 40)
+            .padding(.bottom, 50)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Color.black.ignoresSafeArea())
+        .navigationBarBackButtonHidden(true)
     }
 }
