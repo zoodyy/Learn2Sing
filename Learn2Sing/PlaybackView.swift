@@ -375,9 +375,9 @@ private final class PitchTrail {
 
 /// Accumulates how much of the exercise the singer covered correctly. For every
 /// rendered frame it adds the elapsed beat-time of each active note during which
-/// the singer's indicator circle overlapped that note's row. The final score is
-/// `coveredBeats / (sum of all note lengths)`, so if half of the notes' combined
-/// length was sung on pitch the score is 50%.
+/// the singer's trailing pitch line lay within that note's drawn rectangle. The
+/// final score is `coveredBeats / (sum of all note lengths)`, so if half of the
+/// notes' combined length was sung on pitch the score is 50%.
 private final class Scorer {
     private(set) var coveredBeats: Double = 0
     private var lastBeat: Double? = nil
@@ -388,8 +388,8 @@ private final class Scorer {
     }
 
     /// Integrate one frame of coverage. `tolerance` is the vertical reach of the
-    /// indicator circle expressed in semitones, so the score reflects exactly when
-    /// the drawn circle is touching a note. A note counts for the frame if the
+    /// trailing pitch line expressed in semitones, so the score reflects exactly
+    /// when the drawn line is over a note. A note counts for the frame if the
     /// singer's pitch is within `tolerance` of it while the note is sounding.
     func update(beat: Double, notes: [MIDINote], singerPitch: Double?, tolerance: Double) {
         defer { lastBeat = beat }
@@ -569,11 +569,14 @@ struct PlaybackView: View {
 
         let r: CGFloat = min(rowH * 0.85, 11)
 
-        // Score this frame: a note counts while the singer's circle overlaps its
-        // row. The circle reaches `r` above/below its centre and a row is half a
-        // semitone tall, so its vertical reach in semitones is r/rowH + 0.5.
+        // Score this frame from the trailing pitch line, not the circle: a note
+        // counts only while the line sits within the note's own drawn rectangle.
+        // The rect is `rowH - 2` tall and the line is 2.5px wide, so the line
+        // overlaps the note when the pitch is within (rectHalf + lineHalf)/rowH
+        // semitones of it — a much tighter window than the circle's radius.
+        let lineToleranceSemitones = Double(((rowH - 2) / 2 + 1.25) / rowH)
         scorer.update(beat: beat, notes: notes, singerPitch: singerPitch,
-                      tolerance: Double(r / rowH) + 0.5)
+                      tolerance: lineToleranceSemitones)
 
         func yFor(_ pitch: Double) -> CGFloat {
             let rowFloat = Double(hiPitch) - pitch
