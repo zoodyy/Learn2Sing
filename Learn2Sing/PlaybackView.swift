@@ -98,6 +98,12 @@ final class ExercisePlayer {
     private var startCaptured = false
     private var needsStartCapture = false
 
+    // The engine should be running between begin() and stop(); used to restart it
+    // after the system tears down its IO (e.g. when the mic engine starts and
+    // triggers a configuration change), without resurrecting it after teardown.
+    private var shouldRun = false
+    private var configObserver: NSObjectProtocol?
+
     init() {
         mach_timebase_info(&timebase)
 
@@ -112,11 +118,24 @@ final class ExercisePlayer {
         // route has been configured, so the very first rendered sample already targets
         // the final output (e.g. AirPods). Starting it earlier and then switching the
         // route mid-stream is what delayed the audio, glitched timing and stuttered.
+
+        // iOS stops the engine when the audio IO is reconfigured — most notably when
+        // the pitch detector's input engine starts a moment after this one. Without
+        // restarting here the source node never renders again, so the playback clock
+        // (anchored to the first rendered sample) never starts and the notes sit
+        // frozen even though the mic-driven indicator keeps moving.
+        configObserver = NotificationCenter.default.addObserver(
+            forName: .AVAudioEngineConfigurationChange, object: engine, queue: .main
+        ) { [weak self] _ in
+            guard let self, self.shouldRun, !self.engine.isRunning else { return }
+            try? self.engine.start()
+        }
     }
 
     /// Start the audio engine. Call only after the session/route is configured so the
     /// output clock anchors to the correct route from the first buffer onward.
     func begin() {
+        shouldRun = true
         guard !engine.isRunning else { return }
         engine.prepare()
         try? engine.start()
@@ -329,11 +348,13 @@ final class ExercisePlayer {
     /// isn't running is skipped so repeated teardown calls (finish, then onDisappear,
     /// then deinit) are harmless and never block on an already-stopped engine.
     func stop() {
+        shouldRun = false
         cancelAll()
         if engine.isRunning { engine.stop() }
     }
 
     deinit {
+        if let configObserver { NotificationCenter.default.removeObserver(configObserver) }
         stop()
     }
 }
