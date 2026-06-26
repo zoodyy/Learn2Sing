@@ -9,6 +9,16 @@ struct MIDINote: Identifiable, Codable, Equatable {
     var length: Double  // duration in beats
 }
 
+/// A free-floating text label placed on the grid. It shares the note coordinate
+/// system (a `pitch` row for vertical position, a `beat` for horizontal) so it
+/// scrolls in lockstep with the notes during playback.
+struct MIDIText: Identifiable, Codable, Equatable {
+    var id = UUID()
+    var text: String
+    var pitch: Int      // row position (vertical)
+    var beat: Double    // start position in beats (horizontal)
+}
+
 // MARK: - Layout constants
 
 private let rowH: CGFloat = 22
@@ -18,6 +28,7 @@ private let totalBeats = 32
 private let totalRows = hiPitch - loPitch + 1
 private let gridW = CGFloat(totalBeats) * beatW
 private let gridH = CGFloat(totalRows) * rowH
+private let textFontSize: CGFloat = 12
 
 
 // MARK: - EditingView
@@ -26,14 +37,31 @@ struct EditingView: View {
     var exercise: Exercise? = nil
 
     @State private var notes: [MIDINote] = []
+    @State private var texts: [MIDIText] = []
     @State private var interaction: Interaction = .idle
-    @State private var drawMode = true
+    @State private var tool: Tool = .pen
+
+    // Text-entry sheet state.
+    @State private var showTextEditor = false
+    @State private var textInput = ""
+    @State private var editingTextID: UUID? = nil
+    @State private var isNewText = false
+
+    private enum Tool {
+        case pen    // create / move / resize notes
+        case text   // place / move / edit text labels
+        case erase  // delete notes and text
+        case hand   // pan & scroll (gesture disabled)
+    }
 
     private enum Interaction {
         case idle
         case creating(MIDINote)
         case resizing(UUID)
-        case pendingDelete(UUID)
+        case movingNote(id: UUID, grabDX: Double)
+        case pendingText(CGPoint)
+        case movingText(id: UUID, grabDX: Double, moved: Bool)
+        case erasing
     }
 
     // Notes visible during an in-progress drag
@@ -54,7 +82,7 @@ struct EditingView: View {
                 ScrollView(.horizontal, showsIndicators: true) {
                     rollCanvas
                         .frame(width: gridW, height: gridH)
-                        .highPriorityGesture(rollGesture, including: drawMode ? .all : .none)
+                        .highPriorityGesture(rollGesture, including: tool == .hand ? .none : .all)
                 }
             }
         }
@@ -64,23 +92,35 @@ struct EditingView: View {
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 HStack(spacing: 2) {
-                    Button { drawMode = true } label: {
-                        Image(systemName: "pencil")
-                            .padding(6)
-                            .background(drawMode ? Color.accentColor.opacity(0.2) : Color.clear,
-                                        in: RoundedRectangle(cornerRadius: 6))
-                    }
-                    Button { drawMode = false } label: {
-                        Image(systemName: "hand.point.up.left")
-                            .padding(6)
-                            .background(!drawMode ? Color.accentColor.opacity(0.2) : Color.clear,
-                                        in: RoundedRectangle(cornerRadius: 6))
-                    }
+                    toolButton(.pen,   system: "pencil")
+                    toolButton(.text,  system: "textformat")
+                    toolButton(.erase, system: "eraser")
+                    toolButton(.hand,  system: "hand.point.up.left")
                 }
             }
         }
-        .onAppear(perform: loadNotes)
+        .alert("Text", isPresented: $showTextEditor) {
+            TextField("Label", text: $textInput)
+            Button("OK") { commitText() }
+            Button("Cancel", role: .cancel) { cancelText() }
+        } message: {
+            Text("Enter text to place on the grid")
+        }
+        .onAppear {
+            loadNotes()
+            loadTexts()
+        }
         .onChange(of: notes) { _, _ in saveNotes() }
+        .onChange(of: texts) { _, _ in saveTexts() }
+    }
+
+    private func toolButton(_ t: Tool, system: String) -> some View {
+        Button { tool = t } label: {
+            Image(systemName: system)
+                .padding(6)
+                .background(tool == t ? Color.accentColor.opacity(0.2) : Color.clear,
+                            in: RoundedRectangle(cornerRadius: 6))
+        }
     }
 
     // MARK: - Piano key column
@@ -170,6 +210,21 @@ struct EditingView: View {
                     )
                 }
             }
+
+            // Text labels
+            for label in texts {
+                let rect = textRect(for: label)
+                let chip = Path(roundedRect: rect.insetBy(dx: 1, dy: 3), cornerRadius: 3)
+                ctx.fill(chip, with: .color(.orange.opacity(0.22)))
+                ctx.stroke(chip, with: .color(.orange.opacity(0.6)), lineWidth: 1)
+                ctx.draw(
+                    Text(label.text.isEmpty ? " " : label.text)
+                        .font(.system(size: textFontSize, weight: .semibold))
+                        .foregroundColor(.orange),
+                    at: CGPoint(x: rect.minX + 5, y: rect.midY),
+                    anchor: .leading
+                )
+            }
         }
     }
 
@@ -178,51 +233,149 @@ struct EditingView: View {
     private var rollGesture: some Gesture {
         DragGesture(minimumDistance: 0, coordinateSpace: .local)
             .onChanged { v in
-                switch interaction {
-                case .idle:
-                    if let hit = noteAt(v.startLocation) {
-                        if nearRightEdge(hit, x: v.startLocation.x) {
-                            interaction = .resizing(hit.id)
-                        } else {
-                            interaction = .pendingDelete(hit.id)
-                        }
-                    } else {
-                        let note = MIDINote(
-                            pitch: pitchAt(v.startLocation.y),
-                            beat: snappedBeat(v.startLocation.x),
-                            length: 0.25
-                        )
-                        interaction = .creating(note)
-                    }
-
-                case .creating(var note):
-                    let endBeat = Double(v.location.x) / Double(beatW)
-                    note.length = max(0.25, snapped(endBeat - note.beat))
-                    interaction = .creating(note)
-
-                case .resizing(let id):
-                    if let i = notes.firstIndex(where: { $0.id == id }) {
-                        let endBeat = Double(v.location.x) / Double(beatW)
-                        notes[i].length = max(0.25, snapped(endBeat - notes[i].beat))
-                    }
-
-                case .pendingDelete:
-                    if hypot(v.translation.width, v.translation.height) > 8 {
-                        interaction = .idle
-                    }
+                switch tool {
+                case .pen:   penChanged(v)
+                case .text:  textChanged(v)
+                case .erase: eraseChanged(v)
+                case .hand:  break
                 }
             }
-            .onEnded { _ in
-                switch interaction {
-                case .creating(let note):
-                    notes.append(note)
-                case .pendingDelete(let id):
-                    notes.removeAll { $0.id == id }
-                default:
-                    break
+            .onEnded { v in
+                switch tool {
+                case .pen:   penEnded(v)
+                case .text:  textEnded(v)
+                case .erase: interaction = .idle
+                case .hand:  break
                 }
-                interaction = .idle
             }
+    }
+
+    // MARK: Pen tool — create, move, resize notes (no delete)
+
+    private func penChanged(_ v: DragGesture.Value) {
+        switch interaction {
+        case .idle:
+            if let hit = noteAt(v.startLocation) {
+                if nearRightEdge(hit, x: v.startLocation.x) {
+                    interaction = .resizing(hit.id)
+                } else {
+                    interaction = .movingNote(id: hit.id,
+                                              grabDX: beatValue(v.startLocation.x) - hit.beat)
+                }
+            } else {
+                let note = MIDINote(
+                    pitch: pitchAt(v.startLocation.y),
+                    beat: snappedBeat(v.startLocation.x),
+                    length: 0.25
+                )
+                interaction = .creating(note)
+            }
+
+        case .creating(var note):
+            let endBeat = beatValue(v.location.x)
+            note.length = max(0.25, snapped(endBeat - note.beat))
+            interaction = .creating(note)
+
+        case .resizing(let id):
+            if let i = notes.firstIndex(where: { $0.id == id }) {
+                let endBeat = beatValue(v.location.x)
+                notes[i].length = max(0.25, snapped(endBeat - notes[i].beat))
+            }
+
+        case .movingNote(let id, let grabDX):
+            if let i = notes.firstIndex(where: { $0.id == id }) {
+                notes[i].beat = max(0, snapped(beatValue(v.location.x) - grabDX))
+                notes[i].pitch = pitchAt(v.location.y)
+            }
+
+        default:
+            break
+        }
+    }
+
+    private func penEnded(_ v: DragGesture.Value) {
+        if case .creating(let note) = interaction { notes.append(note) }
+        interaction = .idle
+    }
+
+    // MARK: Text tool — place, move, edit labels
+
+    private func textChanged(_ v: DragGesture.Value) {
+        switch interaction {
+        case .idle:
+            if let hit = textAt(v.startLocation) {
+                interaction = .movingText(id: hit.id,
+                                          grabDX: beatValue(v.startLocation.x) - hit.beat,
+                                          moved: false)
+            } else {
+                interaction = .pendingText(v.startLocation)
+            }
+
+        case .movingText(let id, let grabDX, _):
+            let moved = hypot(v.translation.width, v.translation.height) > 6
+            if moved, let i = texts.firstIndex(where: { $0.id == id }) {
+                texts[i].beat = max(0, snapped(beatValue(v.location.x) - grabDX))
+                texts[i].pitch = pitchAt(v.location.y)
+            }
+            interaction = .movingText(id: id, grabDX: grabDX, moved: moved)
+
+        default:
+            break
+        }
+    }
+
+    private func textEnded(_ v: DragGesture.Value) {
+        switch interaction {
+        case .pendingText(let p):
+            let label = MIDIText(text: "", pitch: pitchAt(p.y), beat: snappedBeat(p.x))
+            texts.append(label)
+            beginEditingText(label.id, isNew: true)
+
+        case .movingText(let id, _, let moved):
+            // A tap (no drag) opens the editor for that label.
+            if !moved { beginEditingText(id, isNew: false) }
+
+        default:
+            break
+        }
+        interaction = .idle
+    }
+
+    private func beginEditingText(_ id: UUID, isNew: Bool) {
+        editingTextID = id
+        isNewText = isNew
+        textInput = texts.first(where: { $0.id == id })?.text ?? ""
+        showTextEditor = true
+    }
+
+    private func commitText() {
+        guard let id = editingTextID else { return }
+        let trimmed = textInput.trimmingCharacters(in: .whitespacesAndNewlines)
+        if trimmed.isEmpty {
+            texts.removeAll { $0.id == id }
+        } else if let i = texts.firstIndex(where: { $0.id == id }) {
+            texts[i].text = trimmed
+        }
+        editingTextID = nil
+    }
+
+    private func cancelText() {
+        // Discard a label that was created just for this edit.
+        if isNewText, let id = editingTextID {
+            texts.removeAll { $0.id == id }
+        }
+        editingTextID = nil
+    }
+
+    // MARK: Erase tool — scrub over notes and text to delete
+
+    private func eraseChanged(_ v: DragGesture.Value) {
+        if let n = noteAt(v.location) {
+            notes.removeAll { $0.id == n.id }
+        } else if let t = textAt(v.location) {
+            texts.removeAll { $0.id == t.id }
+        }
+        interaction = .erasing
     }
 
     // MARK: - Coordinate helpers
@@ -236,8 +389,22 @@ struct EditingView: View {
         )
     }
 
+    private func textRect(for label: MIDIText) -> CGRect {
+        let w = max(beatW * 0.5, CGFloat(label.text.count) * textFontSize * 0.62 + 12)
+        return CGRect(
+            x: CGFloat(label.beat) * beatW,
+            y: CGFloat(hiPitch - label.pitch) * rowH,
+            width: w,
+            height: rowH
+        )
+    }
+
     private func noteAt(_ point: CGPoint) -> MIDINote? {
         notes.last { rect(for: $0).contains(point) }
+    }
+
+    private func textAt(_ point: CGPoint) -> MIDIText? {
+        texts.last { textRect(for: $0).contains(point) }
     }
 
     private func nearRightEdge(_ note: MIDINote, x: CGFloat) -> Bool {
@@ -249,8 +416,12 @@ struct EditingView: View {
         return max(loPitch, min(hiPitch, hiPitch - row))
     }
 
+    private func beatValue(_ x: CGFloat) -> Double {
+        Double(x) / Double(beatW)
+    }
+
     private func snappedBeat(_ x: CGFloat) -> Double {
-        snapped(Double(x) / Double(beatW))
+        snapped(beatValue(x))
     }
 
     private func snapped(_ beats: Double) -> Double {
@@ -263,6 +434,10 @@ struct EditingView: View {
         "midi_\(exercise?.id.uuidString ?? "standalone")"
     }
 
+    private var textSaveKey: String {
+        "miditext_\(exercise?.id.uuidString ?? "standalone")"
+    }
+
     private func saveNotes() {
         guard let data = try? JSONEncoder().encode(notes) else { return }
         UserDefaults.standard.set(data, forKey: saveKey)
@@ -273,5 +448,17 @@ struct EditingView: View {
               let saved = try? JSONDecoder().decode([MIDINote].self, from: data)
         else { return }
         notes = saved
+    }
+
+    private func saveTexts() {
+        guard let data = try? JSONEncoder().encode(texts) else { return }
+        UserDefaults.standard.set(data, forKey: textSaveKey)
+    }
+
+    private func loadTexts() {
+        guard let data = UserDefaults.standard.data(forKey: textSaveKey),
+              let saved = try? JSONDecoder().decode([MIDIText].self, from: data)
+        else { return }
+        texts = saved
     }
 }

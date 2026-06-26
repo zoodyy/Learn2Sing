@@ -485,6 +485,7 @@ struct PlaybackView: View {
     @State private var trail = PitchTrail()
     @State private var scorer = Scorer()
     @State private var notes: [MIDINote] = []
+    @State private var texts: [MIDIText] = []
     @State private var finalScore: Int? = nil
     @AppStorage(microphoneDelayKey) private var micDelayMs = 0.0
     @Environment(\.dismiss) private var dismiss
@@ -635,6 +636,28 @@ struct PlaybackView: View {
             }
         }
 
+        // ── Text labels ──────────────────────────────────────────────────
+        // Scroll with the notes (anchored to their beat) and clip to the note area
+        // so they never spill over the piano column.
+        if !texts.isEmpty {
+            ctx.drawLayer { layer in
+                layer.clip(to: Path(CGRect(x: pianoW, y: 0,
+                                           width: size.width - pianoW, height: size.height)))
+                for label in texts {
+                    let x = phX + CGFloat(label.beat - beat) * beatPx
+                    let row = hiPitch - label.pitch
+                    let y = CGFloat(row) * rowH + rowH / 2
+                    layer.draw(
+                        Text(label.text)
+                            .font(.system(size: 12, weight: .semibold))
+                            .foregroundColor(.orange),
+                        at: CGPoint(x: x + 3, y: y),
+                        anchor: .leading
+                    )
+                }
+            }
+        }
+
         // ── Playhead ─────────────────────────────────────────────────────
         var glow = Path()
         glow.move(to: CGPoint(x: phX, y: 0))
@@ -740,6 +763,26 @@ struct PlaybackView: View {
             }
         }
         notes = expanded
+
+        // Text labels share the note coordinate system, so apply the identical
+        // expansion (beat shift + transpose per repeat) to keep them pinned to the
+        // notes they annotate as the pattern repeats and scrolls.
+        var savedTexts: [MIDIText] = []
+        if let data = UserDefaults.standard.data(forKey: "miditext_\(exercise.id.uuidString)"),
+           let decoded = try? JSONDecoder().decode([MIDIText].self, from: data) {
+            savedTexts = decoded
+        }
+        var expandedTexts: [MIDIText] = []
+        for rep in 0..<repeats {
+            for label in savedTexts {
+                var t = label
+                t.id = UUID()
+                t.pitch += exercise.pitchShift + rep * exercise.transposePerRepeat
+                t.beat += Double(rep) * repeatSpan
+                expandedTexts.append(t)
+            }
+        }
+        texts = expandedTexts
     }
 }
 

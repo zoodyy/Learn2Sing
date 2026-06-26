@@ -90,6 +90,7 @@ final class ExerciseStore: ObservableObject {
     func delete(id: UUID) {
         exercises.removeAll { $0.id == id }
         UserDefaults.standard.removeObject(forKey: Self.midiKey(id))
+        UserDefaults.standard.removeObject(forKey: Self.midiTextKey(id))
         save()
     }
 
@@ -109,6 +110,7 @@ final class ExerciseStore: ObservableObject {
     // MARK: - MIDI pattern access
 
     static func midiKey(_ id: UUID) -> String { "midi_\(id.uuidString)" }
+    static func midiTextKey(_ id: UUID) -> String { "miditext_\(id.uuidString)" }
 
     private func notes(for id: UUID) -> [MIDINote] {
         guard let data = UserDefaults.standard.data(forKey: Self.midiKey(id)),
@@ -122,15 +124,31 @@ final class ExerciseStore: ObservableObject {
         UserDefaults.standard.set(data, forKey: Self.midiKey(id))
     }
 
+    private func texts(for id: UUID) -> [MIDIText] {
+        guard let data = UserDefaults.standard.data(forKey: Self.midiTextKey(id)),
+              let saved = try? JSONDecoder().decode([MIDIText].self, from: data)
+        else { return [] }
+        return saved
+    }
+
+    private func setTexts(_ texts: [MIDIText], for id: UUID) {
+        guard let data = try? JSONEncoder().encode(texts) else { return }
+        UserDefaults.standard.set(data, forKey: Self.midiTextKey(id))
+    }
+
     // MARK: - Export / Import
 
     /// Encodes every exercise (with all its settings) and its MIDI pattern into one file.
     func exportData() -> Data? {
         var midi: [String: [MIDINote]] = [:]
+        var texts: [String: [MIDIText]] = [:]
         for exercise in exercises {
             midi[exercise.id.uuidString] = notes(for: exercise.id)
+            let t = self.texts(for: exercise.id)
+            if !t.isEmpty { texts[exercise.id.uuidString] = t }
         }
-        let bundle = ExerciseBundle(exercises: exercises, midi: midi)
+        let bundle = ExerciseBundle(exercises: exercises, midi: midi,
+                                    texts: texts.isEmpty ? nil : texts)
         let encoder = JSONEncoder()
         encoder.outputFormatting = [.prettyPrinted]
         return try? encoder.encode(bundle)
@@ -152,6 +170,9 @@ final class ExerciseStore: ObservableObject {
             if let notes = bundle.midi[exercise.id.uuidString] {
                 setNotes(notes, for: exercise.id)
             }
+            if let texts = bundle.texts?[exercise.id.uuidString] {
+                setTexts(texts, for: exercise.id)
+            }
         }
         // Register any categories the imported exercises reference so they stay
         // selectable and the list can group by them.
@@ -168,4 +189,7 @@ final class ExerciseStore: ObservableObject {
 struct ExerciseBundle: Codable {
     var exercises: [Exercise]
     var midi: [String: [MIDINote]]
+    /// Text labels per exercise UUID string. Optional so bundles written before the
+    /// text tool existed still decode.
+    var texts: [String: [MIDIText]]? = nil
 }
