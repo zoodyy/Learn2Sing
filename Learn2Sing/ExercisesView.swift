@@ -58,8 +58,6 @@ enum ExerciseRoute: Hashable {
 
 struct ExercisesView: View {
     @EnvironmentObject private var store: ExerciseStore
-    @State private var showingNameAlert = false
-    @State private var newExerciseName = ""
     @State private var navigationPath = NavigationPath()
 
     /// Exercises with no category, or whose category was deleted, shown in an
@@ -109,26 +107,14 @@ struct ExercisesView: View {
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
-                        showingNameAlert = true
+                        // Create the exercise immediately and open its settings, where
+                        // the user picks the name and everything else.
+                        let exercise = store.add(name: "New Exercise")
+                        navigationPath.append(ExerciseRoute.settings(exercise.id))
                     } label: {
                         Image(systemName: "plus")
                     }
                 }
-            }
-            .alert("New Exercise", isPresented: $showingNameAlert) {
-                TextField("Name", text: $newExerciseName)
-                Button("Add") {
-                    let name = newExerciseName.trimmingCharacters(in: .whitespaces)
-                    guard !name.isEmpty else { return }
-                    let exercise = store.add(name: name)
-                    newExerciseName = ""
-                    navigationPath.append(ExerciseRoute.edit(exercise.id))
-                }
-                Button("Cancel", role: .cancel) {
-                    newExerciseName = ""
-                }
-            } message: {
-                Text("Enter a name for the new exercise")
             }
             .navigationDestination(for: ExerciseRoute.self) { route in
                 switch route {
