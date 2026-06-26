@@ -5,8 +5,15 @@ struct ExerciseSettingsView: View {
     @Binding var exercise: Exercise
     @EnvironmentObject private var store: ExerciseStore
     @Environment(\.dismiss) private var dismiss
-    @FocusState private var transposeFocused: Bool
+    @FocusState private var focusedField: Field?
     @State private var showingNewCategoryAlert = false
+
+    /// The text fields that can hold keyboard focus, so a single keyboard toolbar
+    /// can show a "Done" button (and the sign toggle for the transpose field) above
+    /// whichever one is being edited.
+    private enum Field {
+        case name, details, repeatCount, transpose, betweenReps
+    }
     @State private var newCategoryName = ""
 
     private var pitchLabel: String {
@@ -34,11 +41,13 @@ struct ExerciseSettingsView: View {
         Form {
             Section("Name") {
                 TextField("Name", text: $exercise.name)
+                    .focused($focusedField, equals: .name)
             }
 
             Section("Description") {
                 TextField("Shown before the exercise starts", text: $exercise.details, axis: .vertical)
                     .lineLimit(3...8)
+                    .focused($focusedField, equals: .details)
             }
 
             Section("Category") {
@@ -87,6 +96,7 @@ struct ExerciseSettingsView: View {
                     TextField("1", value: $exercise.repeatCount, format: .number)
                         .multilineTextAlignment(.trailing)
                         .keyboardType(.numberPad)
+                        .focused($focusedField, equals: .repeatCount)
                         .frame(width: 60)
                         .onChange(of: exercise.repeatCount) { _, newValue in
                             if newValue < 1 { exercise.repeatCount = 1 }
@@ -100,23 +110,8 @@ struct ExerciseSettingsView: View {
                         TextField("0", value: $exercise.transposePerRepeat, format: .number)
                             .multilineTextAlignment(.trailing)
                             .keyboardType(.numberPad)
-                            .focused($transposeFocused)
+                            .focused($focusedField, equals: .transpose)
                             .frame(width: 60)
-                            .toolbar {
-                                ToolbarItemGroup(placement: .keyboard) {
-                                    if transposeFocused {
-                                        // The number pad has no minus key, so offer a
-                                        // sign toggle for entering negative transpositions.
-                                        Button {
-                                            exercise.transposePerRepeat.negate()
-                                        } label: {
-                                            Image(systemName: "plus.forwardslash.minus")
-                                        }
-                                        Spacer()
-                                        Button("Done") { transposeFocused = false }
-                                    }
-                                }
-                            }
                     }
 
                     HStack {
@@ -125,6 +120,7 @@ struct ExerciseSettingsView: View {
                         TextField("0", value: $exercise.beatsBetweenReps, format: .number)
                             .multilineTextAlignment(.trailing)
                             .keyboardType(.decimalPad)
+                            .focused($focusedField, equals: .betweenReps)
                             .frame(width: 60)
                         Text("beats").foregroundStyle(.secondary)
                     }
@@ -151,6 +147,21 @@ struct ExerciseSettingsView: View {
         }
         .navigationTitle(exercise.name)
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItemGroup(placement: .keyboard) {
+                if focusedField == .transpose {
+                    // The number pad has no minus key, so offer a sign toggle for
+                    // entering negative transpositions.
+                    Button {
+                        exercise.transposePerRepeat.negate()
+                    } label: {
+                        Image(systemName: "plus.forwardslash.minus")
+                    }
+                }
+                Spacer()
+                Button("Done") { focusedField = nil }
+            }
+        }
         .alert("New Category", isPresented: $showingNewCategoryAlert) {
             TextField("Name", text: $newCategoryName)
             Button("Add") {
