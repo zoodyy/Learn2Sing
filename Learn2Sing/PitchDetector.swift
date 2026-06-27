@@ -24,6 +24,32 @@ final class PitchDetector: ObservableObject {
     private let engine = AVAudioEngine()
     private var running = false
 
+    // MARK: Clap onset detection (used by the microphone-delay test)
+
+    /// When enabled, sharp loud transients (claps) are timestamped so the delay
+    /// test can compare when each clap was *heard* against the metronome tick that
+    /// prompted it. Off for ordinary exercises so it never costs anything there.
+    var detectClaps = false
+    private var _claps: [UInt64] = []          // mach host times of detected onsets
+    private var clapsLock = os_unfair_lock_s()
+    private var lastClapHost: UInt64 = 0
+    private var timebase = mach_timebase_info_data_t()
+    private let clapThreshold: Float = 0.2     // peak amplitude that counts as a clap
+    private let clapRefractory = 0.15          // min seconds between counted claps
+
+    init() {
+        mach_timebase_info(&timebase)
+    }
+
+    /// Remove and return every clap onset (mach_absolute_time) seen since last call.
+    func drainClaps() -> [UInt64] {
+        os_unfair_lock_lock(&clapsLock)
+        let claps = _claps
+        _claps.removeAll()
+        os_unfair_lock_unlock(&clapsLock)
+        return claps
+    }
+
     // Each mic hop is tiny (low latency / fast refresh), but pitch detection needs
     // a longer span to resolve low notes — so hops are accumulated into this ring
     // buffer and autocorrelation runs over the whole retained window.
@@ -59,11 +85,12 @@ final class PitchDetector: ObservableObject {
         guard sampleRate > 0 else { return }
 
         filled = 0
+        lastClapHost = 0
         input.removeTap(onBus: 0)
         // Tiny hop so a fresh estimate lands very frequently; the view interpolates
         // between estimates so the indicator still moves every rendered frame.
-        input.installTap(onBus: 0, bufferSize: hopSize, format: format) { [weak self] buffer, _ in
-            self?.process(buffer: buffer, sampleRate: sampleRate)
+        input.installTap(onBus: 0, bufferSize: hopSize, format: format) { [weak self] buffer, time in
+            self?.process(buffer: buffer, time: time, sampleRate: sampleRate)
         }
         engine.prepare()
         do {
@@ -74,10 +101,12 @@ final class PitchDetector: ObservableObject {
         }
     }
 
-    private func process(buffer: AVAudioPCMBuffer, sampleRate: Double) {
+    private func process(buffer: AVAudioPCMBuffer, time: AVAudioTime, sampleRate: Double) {
         guard let channel = buffer.floatChannelData?[0] else { return }
         let n = Int(buffer.frameLength)
         guard n > 0 else { return }
+
+        if detectClaps { detectClap(channel: channel, count: n, time: time) }
 
         // Slide the new hop into the ring buffer, keeping the most recent `windowSize`.
         if n >= windowSize {
@@ -98,6 +127,27 @@ final class PitchDetector: ObservableObject {
         guard filled >= maxLag * 2 else { return }
 
         analyze(sampleRate: sampleRate, minFreq: minFreq, maxFreq: maxFreq, maxLag: maxLag)
+    }
+
+    /// Register a clap when this hop contains a loud transient, debounced by a short
+    /// refractory window so one clap isn't counted several times. The onset is
+    /// timestamped with the buffer's own host time (when it was captured) so it can
+    /// be compared against the audio engine's playback clock.
+    private func detectClap(channel: UnsafePointer<Float>, count: Int, time: AVAudioTime) {
+        var peak: Float = 0
+        for i in 0..<count { peak = max(peak, abs(channel[i])) }
+        guard peak > clapThreshold else { return }
+
+        let host = time.isHostTimeValid ? time.hostTime : mach_absolute_time()
+        if lastClapHost != 0 {
+            let elapsed = Double(host &- lastClapHost) * Double(timebase.numer)
+                / Double(timebase.denom) / 1.0e9
+            guard elapsed > clapRefractory else { return }
+        }
+        lastClapHost = host
+        os_unfair_lock_lock(&clapsLock)
+        _claps.append(host)
+        os_unfair_lock_unlock(&clapsLock)
     }
 
     private func analyze(sampleRate: Double, minFreq: Double, maxFreq: Double, maxLag: Int) {

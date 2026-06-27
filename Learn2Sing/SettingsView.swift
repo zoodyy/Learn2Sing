@@ -22,9 +22,14 @@ struct SettingsView: View {
     @State private var isExporting = false
     @State private var isImporting = false
     @State private var alertMessage: String?
+    @State private var delayTestPath = NavigationPath()
+
+    /// The exercise driving the microphone-delay test. Built once so the intro and
+    /// playback screens share the same instance; it isn't stored in the library.
+    private let delayTestExercise = SettingsView.makeDelayTestExercise()
 
     var body: some View {
-        NavigationStack {
+        NavigationStack(path: $delayTestPath) {
             Form {
                 Section("Playback") {
                     Picker("Instrument", selection: $instrumentRaw) {
@@ -62,10 +67,16 @@ struct SettingsView: View {
                             .frame(width: 70)
                         Text("ms").foregroundStyle(.secondary)
                     }
+
+                    Button {
+                        delayTestPath.append(DelayTestRoute.intro)
+                    } label: {
+                        Label("Test for delay", systemImage: "metronome")
+                    }
                 } header: {
                     Text("Scoring")
                 } footer: {
-                    Text("Compensates for the lag between singing and pitch detection. Only the score is affected — playback and visuals are unchanged.")
+                    Text("Compensates for the lag between singing and pitch detection. Only the score is affected — playback and visuals are unchanged. Run the test to measure it automatically.")
                 }
 
                 Section {
@@ -93,6 +104,16 @@ struct SettingsView: View {
             }
             .navigationTitle("Settings")
             .navigationBarTitleDisplayMode(.inline)
+            .navigationDestination(for: DelayTestRoute.self) { route in
+                switch route {
+                case .intro:
+                    ExerciseIntroView(exercise: delayTestExercise) {
+                        delayTestPath.append(DelayTestRoute.playback)
+                    }
+                case .playback:
+                    PlaybackView(exercise: delayTestExercise, mode: .delayTest)
+                }
+            }
             // The decimal pad has no return key. A keyboard toolbar (`.toolbar(.keyboard)`)
             // doesn't attach reliably inside a TabView, so instead show a Done bar pinned
             // above the keyboard while editing, and also let a scroll dismiss it.
@@ -163,6 +184,37 @@ struct SettingsView: View {
     /// present even when that device is no longer connected (so it doesn't vanish).
     private func options(_ list: [String], including selection: String) -> [String] {
         list.contains(selection) ? list : list + [selection]
+    }
+
+    /// Steps of the delay test, pushed onto the Settings navigation stack: the
+    /// intro/description screen, then the clap-along playback itself.
+    private enum DelayTestRoute: Hashable {
+        case intro
+        case playback
+    }
+
+    /// The throwaway exercise that drives the delay test, with the description shown
+    /// on its intro screen. Its notes are generated in PlaybackView's delay-test
+    /// mode rather than loaded from storage, so it never enters the user's library.
+    private static func makeDelayTestExercise() -> Exercise {
+        var exercise = Exercise(name: "Microphone Delay Test")
+        exercise.bpm = 80
+        exercise.details = """
+        This test measures how long it takes your microphone to pick up sound, so \
+        the app can line your singing up with the notes when scoring.
+
+        A steady metronome will tick along with short markers labelled “clap”. \
+        Clap your hands once on every tick. The first four ticks are just to help \
+        you settle into the beat and aren't counted — keep clapping through the \
+        rest, sixteen in all.
+
+        When it finishes, the delay between your claps and the ticks is measured \
+        and your microphone delay setting is updated automatically.
+
+        For the most accurate result, use headphones so the metronome isn't picked \
+        up by the microphone, and clap firmly.
+        """
+        return exercise
     }
 }
 

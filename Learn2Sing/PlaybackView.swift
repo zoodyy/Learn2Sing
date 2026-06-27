@@ -290,6 +290,24 @@ final class ExercisePlayer {
         return audibleSec * (bpm / 60.0) - leadIn
     }
 
+    /// The beat that was being *heard from the speaker* at a given host time — the
+    /// same mapping as `currentBeat` but for an arbitrary past instant. Used by the
+    /// delay test: feeding it the host time at which a clap was captured yields the
+    /// clap's position relative to the metronome ticks (which sit on whole beats),
+    /// so the gap to the nearest tick is exactly the round-trip microphone delay.
+    func beat(forHostTime hostTime: UInt64, bpm: Double, leadIn: Double) -> Double? {
+        os_unfair_lock_lock(&lock)
+        let captured = startCaptured
+        let startHost = startHostTime
+        os_unfair_lock_unlock(&lock)
+        guard captured else { return nil }
+
+        let elapsedTicks = hostTime > startHost ? hostTime - startHost : 0
+        let elapsedSec = Double(elapsedTicks) * Double(timebase.numer) / Double(timebase.denom) / 1.0e9
+        let audibleSec = elapsedSec - outputLatency
+        return audibleSec * (bpm / 60.0) - leadIn
+    }
+
     private func startVoiceLocked(pitch: Int) {
         let freq = 440.0 * pow(2.0, (Double(pitch) - 69.0) / 12.0)
         // Reuse a free voice, else steal the oldest one.
@@ -312,7 +330,8 @@ final class ExercisePlayer {
 
     // MARK: Scheduling
 
-    func schedule(notes: [MIDINote], bpm: Double, leadIn: Double, onFinish: @escaping () -> Void) {
+    func schedule(notes: [MIDINote], bpm: Double, leadIn: Double, preview: Bool = true,
+                  onFinish: @escaping () -> Void) {
         let secPerBeat = 60.0 / bpm
 
         var events: [Event] = []
@@ -329,7 +348,7 @@ final class ExercisePlayer {
         // These events are added only to the audio schedule (not the drawn `notes`)
         // so the preview is heard but never appears in the animation. It lives
         // inside the silent lead-in, so the exercise itself isn't shifted.
-        if let firstNote = notes.min(by: { $0.beat < $1.beat }) {
+        if preview, let firstNote = notes.min(by: { $0.beat < $1.beat }) {
             let firstBeat = firstNote.beat + leadIn
             let previewOn  = firstBeat - 3.0   // 2 beats sounding + 1 beat pause
             let previewOff = firstBeat - 1.0
@@ -476,8 +495,26 @@ private final class Scorer {
     }
 }
 
+/// What an exercise is measuring. A normal exercise scores the singer's pitch; the
+/// delay test instead times the singer's claps against the metronome to calibrate
+/// the microphone delay.
+enum PlaybackMode {
+    case normal
+    case delayTest
+}
+
+/// Collects the beat position of each detected clap during the delay test. A class
+/// (reference type) so it can be appended to from the per-frame draw pass without
+/// mutating SwiftUI `@State` during a view update.
+private final class ClapCollector {
+    private(set) var beats: [Double] = []
+    func add(_ beat: Double) { beats.append(beat) }
+    func reset() { beats.removeAll() }
+}
+
 struct PlaybackView: View {
     let exercise: Exercise
+    var mode: PlaybackMode = .normal
 
     @State private var player = ExercisePlayer()
     @StateObject private var pitchDetector = PitchDetector()
@@ -487,6 +524,8 @@ struct PlaybackView: View {
     @State private var notes: [MIDINote] = []
     @State private var texts: [MIDIText] = []
     @State private var finalScore: Int? = nil
+    @State private var claps = ClapCollector()
+    @State private var delayResultMs: Double? = nil
     @AppStorage(microphoneDelayKey) private var micDelayMs = 0.0
     @Environment(\.dismiss) private var dismiss
     @Environment(\.scenePhase) private var scenePhase
@@ -495,11 +534,21 @@ struct PlaybackView: View {
     private let pianoW: CGFloat = 38
     private let beatPx: CGFloat = 40     // pixels per beat in playback view
 
-    private var bpm: Double { exercise.bpm }
+    // Delay-test layout: a run of equally spaced metronome ticks the user claps to.
+    // The first `warmupClaps` let the singer lock onto the tempo and are excluded
+    // from the measurement; the next `countedClaps` are averaged into the result.
+    private let warmupClaps = 4
+    private let countedClaps = 16
+    private var totalClaps: Int { warmupClaps + countedClaps }
+    private let delayTestPitch = 72      // C5 — where the ticks and *clap* labels sit
+
+    private var bpm: Double { mode == .delayTest ? 80 : exercise.bpm }
 
     var body: some View {
         Group {
-            if let finalScore {
+            if let delayResultMs {
+                DelayResultView(delayMs: delayResultMs) { dismiss() }
+            } else if let finalScore {
                 ScoreView(score: finalScore) { dismiss() }
             } else {
                 playback
@@ -530,18 +579,28 @@ struct PlaybackView: View {
             // playback clock). This keeps audio and the animation in sync and stops
             // playback from starting partway through while the exercise is still loading.
             AudioRouteManager.shared.configureSession()
-            loadNotes()
+            if mode == .delayTest { loadDelayTestNotes() } else { loadNotes() }
             player.begin()
-            player.setInstrument(Instrument.current)
+            // The delay test uses a fixed percussive click as the metronome so the
+            // tick is the same regardless of the user's chosen instrument.
+            player.setInstrument(mode == .delayTest ? .piano : Instrument.current)
             scorer.reset()
-            player.schedule(notes: notes, bpm: bpm, leadIn: leadIn) {
-                // Tear the audio down fully before revealing the score so the score
-                // screen has no engine running. Stopping both engines together (rather
-                // than only the mic, leaving the synth rendering on the shared
-                // playAndRecord session) is what avoids the intermittent freeze when
-                // navigating back to the exercise list.
+            claps.reset()
+            pitchDetector.detectClaps = (mode == .delayTest)
+            player.schedule(notes: notes, bpm: bpm, leadIn: leadIn,
+                            preview: mode == .normal) {
+                // Tear the audio down fully before revealing the result so it has no
+                // engine running. Stopping both engines together (rather than only the
+                // mic, leaving the synth rendering on the shared playAndRecord session)
+                // is what avoids the intermittent freeze when navigating back.
                 teardownAudio()
-                finalScore = scorer.score(notes: notes)
+                if mode == .delayTest {
+                    let ms = measuredDelayMs()
+                    micDelayMs = ms.rounded()   // replace the setting automatically
+                    delayResultMs = ms.rounded()
+                } else {
+                    finalScore = scorer.score(notes: notes)
+                }
             }
             pitchDetector.start()
         }
@@ -553,7 +612,7 @@ struct PlaybackView: View {
             // clock is wall-clock based, so without this they'd drift apart. Pause on
             // the way out and, on return, reconfigure the route and resume — which
             // re-anchors the clock to the audio playhead so they stay in sync.
-            guard finalScore == nil else { return }   // nothing to sync on the score screen
+            guard finalScore == nil, delayResultMs == nil else { return }   // nothing to sync on a result screen
             switch phase {
             case .active:
                 AudioRouteManager.shared.configureSession()
@@ -571,6 +630,16 @@ struct PlaybackView: View {
     // MARK: - Drawing
 
     private func drawScene(ctx: GraphicsContext, size: CGSize, beat: Double, singerPitch: Double?) {
+        // Convert any claps detected since the last frame into beat positions,
+        // anchored to the audio clock so they line up with the metronome ticks.
+        if mode == .delayTest {
+            for host in pitchDetector.drainClaps() {
+                if let clapBeat = player.beat(forHostTime: host, bpm: bpm, leadIn: leadIn) {
+                    claps.add(clapBeat)
+                }
+            }
+        }
+
         let rows    = hiPitch - loPitch + 1
         let rowH    = size.height / CGFloat(rows)
         let phX     = size.width / 3       // playhead at 1/3 from the left
@@ -686,8 +755,10 @@ struct PlaybackView: View {
         // Convert the user's microphone-delay setting (ms) into beats so notes are
         // scored as if shifted that far to the right (later in time).
         let noteShift = micDelayMs / 1000.0 * bpm / 60.0
-        scorer.update(beat: beat, notes: notes, singerPitch: singerPitch,
-                      tolerance: lineToleranceSemitones, noteShift: noteShift)
+        if mode == .normal {
+            scorer.update(beat: beat, notes: notes, singerPitch: singerPitch,
+                          tolerance: lineToleranceSemitones, noteShift: noteShift)
+        }
 
         func yFor(_ pitch: Double) -> CGFloat {
             let rowFloat = Double(hiPitch) - pitch
@@ -733,6 +804,42 @@ struct PlaybackView: View {
         player.stop()
         pitchDetector.stop()
         AudioRouteManager.shared.deactivateSession()
+    }
+
+    // MARK: - Delay test
+
+    /// Build the delay-test pattern in memory: one short metronome tick per beat,
+    /// each with a "*clap*" label sitting just above it, so the existing playback
+    /// screen renders the cue with no special drawing code.
+    private func loadDelayTestNotes() {
+        var ns: [MIDINote] = []
+        var ts: [MIDIText] = []
+        for i in 0..<totalClaps {
+            ns.append(MIDINote(pitch: delayTestPitch, beat: Double(i), length: 0.1))
+            ts.append(MIDIText(text: "*clap*", pitch: delayTestPitch + 3, beat: Double(i)))
+        }
+        notes = ns
+        texts = ts
+    }
+
+    /// Average lag between each counted clap and the metronome tick that prompted it.
+    /// Ticks sit on whole beats, so the nearest integer beat is the intended tick;
+    /// claps near a warm-up tick or further than half a beat from any tick (stray
+    /// noise) are ignored. The mean over the random human timing error cancels out,
+    /// leaving the systematic microphone round-trip delay.
+    private func measuredDelayMs() -> Double {
+        let secPerBeat = 60.0 / bpm
+        var offsets: [Double] = []
+        for clapBeat in claps.beats {
+            let tick = clapBeat.rounded()
+            guard tick >= Double(warmupClaps), tick <= Double(totalClaps - 1) else { continue }
+            let offset = clapBeat - tick
+            guard abs(offset) <= 0.5 else { continue }
+            offsets.append(offset * secPerBeat)
+        }
+        guard !offsets.isEmpty else { return 0 }
+        let mean = offsets.reduce(0, +) / Double(offsets.count)
+        return max(0, mean * 1000.0)   // a delay can't be negative for compensation
     }
 
     // MARK: - Persistence
@@ -820,6 +927,53 @@ private struct ScoreView: View {
                     .frame(maxWidth: .infinity)
                     .padding()
                     .background(tint.opacity(0.25), in: RoundedRectangle(cornerRadius: 14))
+                    .foregroundStyle(.white)
+            }
+            .padding(.horizontal, 40)
+            .padding(.bottom, 50)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Color.black.ignoresSafeArea())
+        .navigationBarBackButtonHidden(true)
+    }
+}
+
+// MARK: - DelayResultView
+
+/// Shown after the microphone delay test: the measured delay in milliseconds, which
+/// has already replaced the saved microphone-delay setting, plus a button to leave.
+private struct DelayResultView: View {
+    let delayMs: Double
+    let onExit: () -> Void
+
+    var body: some View {
+        VStack {
+            Spacer()
+
+            Text("Microphone Delay")
+                .font(.title2.weight(.semibold))
+                .foregroundStyle(.white.opacity(0.7))
+
+            Text("\(Int(delayMs)) ms")
+                .font(.system(size: 80, weight: .bold, design: .rounded))
+                .foregroundStyle(.cyan)
+                .contentTransition(.numericText())
+
+            Text("Your microphone delay setting has been updated.")
+                .font(.subheadline)
+                .multilineTextAlignment(.center)
+                .foregroundStyle(.white.opacity(0.6))
+                .padding(.top, 8)
+                .padding(.horizontal, 40)
+
+            Spacer()
+
+            Button(action: onExit) {
+                Text("Done")
+                    .font(.headline)
+                    .frame(maxWidth: .infinity)
+                    .padding()
+                    .background(Color.cyan.opacity(0.25), in: RoundedRectangle(cornerRadius: 14))
                     .foregroundStyle(.white)
             }
             .padding(.horizontal, 40)
