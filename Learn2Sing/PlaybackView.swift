@@ -75,6 +75,14 @@ final class ExercisePlayer {
     private var spec = Instrument.current.spec
     private var lock = os_unfair_lock_s()
 
+    // Click playback: when `clickMode` is on, each note-on plays the loaded sample
+    // (e.g. a metronome click) instead of a synthesised note. `clickCursors` holds
+    // the play position of each currently sounding click so several can overlap.
+    private var clickMode = false
+    private var clickSamples: [Float]? = nil
+    private var clickCursors: [Int] = []
+    private let clickGain = 0.9
+
     // Sample-accurate note schedule, driven entirely from the audio render thread
     // so note durations don't drift with main-thread load (which independent
     // dispatch timers for note-on/off would suffer from).
@@ -193,7 +201,13 @@ final class ExercisePlayer {
             let currentSample = playhead + frame
             while eventIndex < events.count && events[eventIndex].sample <= currentSample {
                 let e = events[eventIndex]
-                if e.on { startVoiceLocked(pitch: e.pitch) } else { releaseVoiceLocked(pitch: e.pitch) }
+                if clickMode {
+                    if e.on { clickCursors.append(0) }   // start a click; note-offs unused
+                } else if e.on {
+                    startVoiceLocked(pitch: e.pitch)
+                } else {
+                    releaseVoiceLocked(pitch: e.pitch)
+                }
                 eventIndex += 1
             }
 
@@ -241,13 +255,33 @@ final class ExercisePlayer {
                 voices[vi] = v
             }
 
-            let sample = Float(tanh(mix * gain))   // soft-clip the polyphonic sum
+            var out = mix * gain
+
+            // Mix in any sounding clicks (the metronome), advancing each cursor.
+            if clickMode, let click = clickSamples {
+                var clickMix = 0.0
+                for i in 0..<clickCursors.count {
+                    let idx = clickCursors[i]
+                    if idx < click.count {
+                        clickMix += Double(click[idx])
+                        clickCursors[i] = idx + 1
+                    }
+                }
+                out += clickMix * clickGain
+            }
+
+            let sample = Float(tanh(out))   // soft-clip the summed output
             for buffer in buffers {
                 let ptr = buffer.mData!.assumingMemoryBound(to: Float.self)
                 ptr[frame] = sample
             }
         }
         playhead += frameCount
+
+        // Drop clicks that have finished playing so the cursor list stays small.
+        if clickMode, let count = clickSamples?.count {
+            clickCursors.removeAll { $0 >= count }
+        }
 
         // Notify completion once all events have fired and the tail has elapsed.
         if !finished && eventIndex >= events.count && playhead >= finishSample {
@@ -264,6 +298,55 @@ final class ExercisePlayer {
     func setInstrument(_ instrument: Instrument) {
         os_unfair_lock_lock(&lock)
         spec = instrument.spec
+        os_unfair_lock_unlock(&lock)
+    }
+
+    /// Turn click playback on/off. When on, note-on events trigger the loaded click
+    /// sample instead of synthesised notes (used by the delay test's metronome).
+    func setClickMode(_ on: Bool) {
+        os_unfair_lock_lock(&lock)
+        clickMode = on
+        clickCursors.removeAll()
+        os_unfair_lock_unlock(&lock)
+    }
+
+    /// Decode a bundled audio file into a mono sample buffer at the engine's sample
+    /// rate, ready to be played on each tick in click mode. Safe to call once before
+    /// scheduling; does nothing if the file is missing or can't be decoded.
+    func loadClick(named name: String, ext: String = "mp3") {
+        guard let url = Bundle.main.url(forResource: name, withExtension: ext),
+              let file = try? AVAudioFile(forReading: url) else { return }
+
+        let inFormat = file.processingFormat
+        let inFrames = AVAudioFrameCount(file.length)
+        guard inFrames > 0,
+              let inBuffer = AVAudioPCMBuffer(pcmFormat: inFormat, frameCapacity: inFrames),
+              (try? file.read(into: inBuffer)) != nil else { return }
+
+        // Convert to mono Float32 at the engine sample rate so it mixes directly.
+        guard let outFormat = AVAudioFormat(commonFormat: .pcmFormatFloat32,
+                                            sampleRate: sampleRate, channels: 1,
+                                            interleaved: false),
+              let converter = AVAudioConverter(from: inFormat, to: outFormat) else { return }
+        let outCapacity = AVAudioFrameCount(Double(inFrames) * sampleRate / inFormat.sampleRate) + 1024
+        guard let outBuffer = AVAudioPCMBuffer(pcmFormat: outFormat, frameCapacity: outCapacity) else { return }
+
+        var supplied = false
+        var error: NSError?
+        converter.convert(to: outBuffer, error: &error) { _, status in
+            if supplied { status.pointee = .noDataNow; return nil }
+            supplied = true
+            status.pointee = .haveData
+            return inBuffer
+        }
+        guard error == nil, let channel = outBuffer.floatChannelData else { return }
+
+        let n = Int(outBuffer.frameLength)
+        var samples = [Float](repeating: 0, count: n)
+        for i in 0..<n { samples[i] = channel[0][i] }
+
+        os_unfair_lock_lock(&lock)
+        clickSamples = samples
         os_unfair_lock_unlock(&lock)
     }
 
@@ -540,9 +623,11 @@ struct PlaybackView: View {
     private let warmupClaps = 4
     private let countedClaps = 16
     private var totalClaps: Int { warmupClaps + countedClaps }
-    private let delayTestPitch = 72      // C5 — where the ticks and *clap* labels sit
+    // The delay-test ticks sit on this row purely for vertical placement — it lands
+    // near the middle of the visible pitch range so the cue is centred on screen.
+    private let delayTestPitch = 53      // F3 by height
 
-    private var bpm: Double { mode == .delayTest ? 80 : exercise.bpm }
+    private var bpm: Double { mode == .delayTest ? 160 : exercise.bpm }
 
     var body: some View {
         Group {
@@ -581,9 +666,16 @@ struct PlaybackView: View {
             AudioRouteManager.shared.configureSession()
             if mode == .delayTest { loadDelayTestNotes() } else { loadNotes() }
             player.begin()
-            // The delay test uses a fixed percussive click as the metronome so the
-            // tick is the same regardless of the user's chosen instrument.
-            player.setInstrument(mode == .delayTest ? .piano : Instrument.current)
+            // The delay test plays a metronome sample on every tick (in sync with the
+            // engine clock) instead of a synthesised note; normal exercises use the
+            // user's chosen instrument.
+            if mode == .delayTest {
+                player.loadClick(named: "metronome")
+                player.setClickMode(true)
+            } else {
+                player.setClickMode(false)
+                player.setInstrument(Instrument.current)
+            }
             scorer.reset()
             claps.reset()
             pitchDetector.detectClaps = (mode == .delayTest)
