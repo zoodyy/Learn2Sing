@@ -12,7 +12,7 @@ struct ExerciseSettingsView: View {
     /// can show a "Done" button (and the sign toggle for the transpose field) above
     /// whichever one is being edited.
     private enum Field {
-        case name, details, repeatCount, transpose, betweenReps
+        case name, details, repeatCount, transpose, switchDirection, betweenReps
     }
     @State private var newCategoryName = ""
 
@@ -100,7 +100,9 @@ struct ExerciseSettingsView: View {
                         .frame(width: 60)
                         .onChange(of: exercise.repeatCount) { _, newValue in
                             if newValue < 1 { exercise.repeatCount = 1 }
+                            clampSwitchDirectionAfter()
                         }
+                    Text("time(s)").foregroundStyle(.secondary)
                 }
 
                 if exercise.repeatCount > 1 {
@@ -112,6 +114,23 @@ struct ExerciseSettingsView: View {
                             .keyboardType(.numberPad)
                             .focused($focusedField, equals: .transpose)
                             .frame(width: 60)
+                        Text("semitone(s)").foregroundStyle(.secondary)
+                    }
+
+                    if exercise.repeatCount > 2 && exercise.transposePerRepeat != 0 {
+                        HStack {
+                            Text("Switch transposing direction after")
+                            Spacer()
+                            TextField("0", value: $exercise.switchDirectionAfter, format: .number)
+                                .multilineTextAlignment(.trailing)
+                                .keyboardType(.numberPad)
+                                .focused($focusedField, equals: .switchDirection)
+                                .frame(width: 60)
+                                .onChange(of: exercise.switchDirectionAfter) { _, _ in
+                                    clampSwitchDirectionAfter()
+                                }
+                            Text("Repetitions").foregroundStyle(.secondary)
+                        }
                     }
 
                     HStack {
@@ -122,7 +141,7 @@ struct ExerciseSettingsView: View {
                             .keyboardType(.decimalPad)
                             .focused($focusedField, equals: .betweenReps)
                             .frame(width: 60)
-                        Text("beats").foregroundStyle(.secondary)
+                        Text("beat(s)").foregroundStyle(.secondary)
                     }
                 }
             }
@@ -186,6 +205,18 @@ struct ExerciseSettingsView: View {
                 textField.selectedTextRange = textField.textRange(
                     from: textField.beginningOfDocument, to: textField.endOfDocument)
             }
+        }
+    }
+
+    /// Keep "switch transposing direction after" within range: never larger than one
+    /// less than the number of repetitions, and never negative.
+    private func clampSwitchDirectionAfter() {
+        let maxValue = max(0, exercise.repeatCount - 1)
+        if exercise.switchDirectionAfter > maxValue {
+            exercise.switchDirectionAfter = maxValue
+        }
+        if exercise.switchDirectionAfter < 0 {
+            exercise.switchDirectionAfter = 0
         }
     }
 }

@@ -952,10 +952,11 @@ struct PlaybackView: View {
         // transform to the drawn notes keeps playback and animation in sync.
         var expanded: [MIDINote] = []
         for rep in 0..<repeats {
+            let transpose = cumulativeTranspose(forRepetition: rep)
             for note in saved {
                 var n = note
                 n.id = UUID()
-                n.pitch += exercise.pitchShift + rep * exercise.transposePerRepeat
+                n.pitch += exercise.pitchShift + transpose
                 n.beat += Double(rep) * repeatSpan
                 expanded.append(n)
             }
@@ -972,15 +973,35 @@ struct PlaybackView: View {
         }
         var expandedTexts: [MIDIText] = []
         for rep in 0..<repeats {
+            let transpose = cumulativeTranspose(forRepetition: rep)
             for label in savedTexts {
                 var t = label
                 t.id = UUID()
-                t.pitch += exercise.pitchShift + rep * exercise.transposePerRepeat
+                t.pitch += exercise.pitchShift + transpose
                 t.beat += Double(rep) * repeatSpan
                 expandedTexts.append(t)
             }
         }
         texts = expandedTexts
+    }
+
+    /// Cumulative semitone offset for a given repetition (0-based). Each repetition
+    /// shifts by `transposePerRepeat`; if `switchDirectionAfter` is set, the shift
+    /// direction flips every that-many repetitions, producing an up/down pattern.
+    private func cumulativeTranspose(forRepetition rep: Int) -> Int {
+        let step = exercise.transposePerRepeat
+        let switchAfter = exercise.switchDirectionAfter
+        guard switchAfter > 0, rep > 0 else { return rep * step }
+
+        var offset = 0
+        var direction = 1
+        for i in 1...rep {
+            if (i - 1) > 0 && (i - 1) % switchAfter == 0 {
+                direction = -direction
+            }
+            offset += direction * step
+        }
+        return offset
     }
 }
 
