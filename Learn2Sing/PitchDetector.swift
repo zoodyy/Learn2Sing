@@ -33,9 +33,19 @@ final class PitchDetector: ObservableObject {
     private var _claps: [UInt64] = []          // mach host times of detected onsets
     private var clapsLock = os_unfair_lock_s()
     private var lastClapHost: UInt64 = 0
+    private var lastClapLevel: Float = 0       // loudness of the current clap event
+    private var noiseFloor: Float = 0.01       // running estimate of the ambient level
     private var timebase = mach_timebase_info_data_t()
-    private let clapThreshold: Float = 0.2     // peak amplitude that counts as a clap
-    private let clapRefractory = 0.15          // min seconds between counted claps
+
+    // A clap is a transient that's both well above the ambient level (so it works
+    // regardless of how hot or quiet a given microphone runs) and above a small
+    // absolute floor (so quiet background ticks don't register). Detections within
+    // `clapMergeWindow` of each other are treated as one clap event, keeping the
+    // loudest onset's time — so if the metronome bleeds into the mic just before the
+    // user's louder clap, the clap's timing wins instead of the tick's.
+    private let clapRatio: Float = 4.0         // times the noise floor to count as a clap
+    private let clapAbsMin: Float = 0.02       // absolute floor, below which nothing counts
+    private let clapMergeWindow = 0.25         // seconds; onsets closer than this merge
 
     init() {
         mach_timebase_info(&timebase)
@@ -86,6 +96,11 @@ final class PitchDetector: ObservableObject {
 
         filled = 0
         lastClapHost = 0
+        lastClapLevel = 0
+        noiseFloor = 0.01
+        os_unfair_lock_lock(&clapsLock)
+        _claps.removeAll()
+        os_unfair_lock_unlock(&clapsLock)
         input.removeTap(onBus: 0)
         // Tiny hop so a fresh estimate lands very frequently; the view interpolates
         // between estimates so the indicator still moves every rendered frame.
@@ -129,22 +144,38 @@ final class PitchDetector: ObservableObject {
         analyze(sampleRate: sampleRate, minFreq: minFreq, maxFreq: maxFreq, maxLag: maxLag)
     }
 
-    /// Register a clap when this hop contains a loud transient, debounced by a short
-    /// refractory window so one clap isn't counted several times. The onset is
-    /// timestamped with the buffer's own host time (when it was captured) so it can
-    /// be compared against the audio engine's playback clock.
+    /// Register a clap when this hop's peak rises sharply above the ambient level.
+    /// Detection is relative to a slowly tracked noise floor so it adapts to each
+    /// microphone's gain (a fixed threshold worked for hot mics like AirPods but
+    /// missed quieter built-in mics entirely). The onset is timestamped with the
+    /// buffer's own host time so it can be compared against the playback clock.
     private func detectClap(channel: UnsafePointer<Float>, count: Int, time: AVAudioTime) {
         var peak: Float = 0
         for i in 0..<count { peak = max(peak, abs(channel[i])) }
-        guard peak > clapThreshold else { return }
+
+        // Track the ambient level slowly so a single loud clap barely moves it.
+        noiseFloor = max(0.005, noiseFloor * 0.995 + peak * 0.005)
+
+        guard peak > clapAbsMin, peak > noiseFloor * clapRatio else { return }
 
         let host = time.isHostTimeValid ? time.hostTime : mach_absolute_time()
         if lastClapHost != 0 {
             let elapsed = Double(host &- lastClapHost) * Double(timebase.numer)
                 / Double(timebase.denom) / 1.0e9
-            guard elapsed > clapRefractory else { return }
+            if elapsed < clapMergeWindow {
+                // Same clap event: if this onset is louder, it's closer to the true
+                // attack, so move the recorded time to it. Otherwise ignore it.
+                guard peak > lastClapLevel else { return }
+                lastClapHost = host
+                lastClapLevel = peak
+                os_unfair_lock_lock(&clapsLock)
+                if !_claps.isEmpty { _claps[_claps.count - 1] = host }
+                os_unfair_lock_unlock(&clapsLock)
+                return
+            }
         }
         lastClapHost = host
+        lastClapLevel = peak
         os_unfair_lock_lock(&clapsLock)
         _claps.append(host)
         os_unfair_lock_unlock(&clapsLock)

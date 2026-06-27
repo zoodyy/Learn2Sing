@@ -681,16 +681,25 @@ struct PlaybackView: View {
             pitchDetector.detectClaps = (mode == .delayTest)
             player.schedule(notes: notes, bpm: bpm, leadIn: leadIn,
                             preview: mode == .normal) {
-                // Tear the audio down fully before revealing the result so it has no
-                // engine running. Stopping both engines together (rather than only the
-                // mic, leaving the synth rendering on the shared playAndRecord session)
-                // is what avoids the intermittent freeze when navigating back.
-                teardownAudio()
                 if mode == .delayTest {
+                    // Convert the detected claps to beat positions *before* tearing
+                    // the audio down — the conversion needs the engine's still-live
+                    // playback clock to anchor each clap against the metronome ticks.
+                    for host in pitchDetector.drainClaps() {
+                        if let clapBeat = player.beat(forHostTime: host, bpm: bpm, leadIn: leadIn) {
+                            claps.add(clapBeat)
+                        }
+                    }
                     let ms = measuredDelayMs()
+                    teardownAudio()
                     micDelayMs = ms.rounded()   // replace the setting automatically
                     delayResultMs = ms.rounded()
                 } else {
+                    // Tear the audio down fully before revealing the score so it has no
+                    // engine running. Stopping both engines together (rather than only
+                    // the mic, leaving the synth rendering on the shared playAndRecord
+                    // session) is what avoids the intermittent freeze when navigating back.
+                    teardownAudio()
                     finalScore = scorer.score(notes: notes)
                 }
             }
@@ -722,16 +731,6 @@ struct PlaybackView: View {
     // MARK: - Drawing
 
     private func drawScene(ctx: GraphicsContext, size: CGSize, beat: Double, singerPitch: Double?) {
-        // Convert any claps detected since the last frame into beat positions,
-        // anchored to the audio clock so they line up with the metronome ticks.
-        if mode == .delayTest {
-            for host in pitchDetector.drainClaps() {
-                if let clapBeat = player.beat(forHostTime: host, bpm: bpm, leadIn: leadIn) {
-                    claps.add(clapBeat)
-                }
-            }
-        }
-
         let rows    = hiPitch - loPitch + 1
         let rowH    = size.height / CGFloat(rows)
         let phX     = size.width / 3       // playhead at 1/3 from the left
