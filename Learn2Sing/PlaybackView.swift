@@ -611,6 +611,10 @@ struct PlaybackView: View {
     @State private var delayResultMs: Double? = nil
     @State private var visuals = VisualSettings.current
     @State private var follower = VerticalFollower()
+    // Vertical centre of each repetition's pitch range, plus one repetition's length
+    // in beats — used by "follow notes vertically" to recentre once per repetition.
+    @State private var repetitionCenters: [Double] = []
+    @State private var repeatSpan: Double = 0
     @AppStorage(microphoneDelayKey) private var micDelayMs = 0.0
     @AppStorage(VocalRange.storageKey) private var vocalRangeRaw = ""
     @Environment(\.dismiss) private var dismiss
@@ -748,22 +752,14 @@ struct PlaybackView: View {
         let playheadX = size.width / 3
 
         // Vertical centre. Normally the whole keyboard's midpoint; when "follow notes
-        // vertically" is on, ease toward the midpoint of the notes currently on screen
-        // so each repetition is centred (its top and bottom note equidistant from the
-        // middle). Falls back to the last centre during gaps with no visible notes.
+        // vertically" is on, recentre once per repetition: take the centre of whichever
+        // repetition the playhead is currently in and ease toward it, so the view holds
+        // steady through a repetition and only moves when the next one begins.
         let defaultCenter = Double(hiPitch + loPitch) / 2
         let centerPitch: Double
-        if s.followNotesVertically {
-            let leftBeat = beat - Double((playheadX - pW) / beatPxZoom)
-            let rightBeat = beat + Double((size.width - playheadX) / beatPxZoom)
-            let visible = notes.filter { $0.beat + $0.length >= leftBeat && $0.beat <= rightBeat }
-            let target: Double
-            if let lo = visible.map(\.pitch).min(), let hi = visible.map(\.pitch).max() {
-                target = Double(lo + hi) / 2
-            } else {
-                target = follower.current ?? defaultCenter
-            }
-            centerPitch = follower.step(target: target, factor: 0.08)
+        if s.followNotesVertically, repeatSpan > 0, !repetitionCenters.isEmpty {
+            let idx = max(0, min(repetitionCenters.count - 1, Int(floor(beat / repeatSpan))))
+            centerPitch = follower.step(target: repetitionCenters[idx], factor: 0.08)
         } else {
             centerPitch = defaultCenter
         }
@@ -904,18 +900,33 @@ struct PlaybackView: View {
         // the voice's lowest note, lowering the exercise only when its top pokes
         // above the voice's highest note. Applied to the fully expanded pitches so
         // every repetition's transposition is accounted for.
+        var vocalShift = 0
         if let range = VocalRange(rawValue: vocalRangeRaw),
            let lo = expanded.map(\.pitch).min(),
            let hi = expanded.map(\.pitch).max() {
-            let shift = range.fitTranspose(low: lo, high: hi)
-            if shift != 0 {
-                for i in expanded.indices { expanded[i].pitch += shift }
-                for i in expandedTexts.indices { expandedTexts[i].pitch += shift }
+            vocalShift = range.fitTranspose(low: lo, high: hi)
+            if vocalShift != 0 {
+                for i in expanded.indices { expanded[i].pitch += vocalShift }
+                for i in expandedTexts.indices { expandedTexts[i].pitch += vocalShift }
             }
         }
 
         notes = expanded
         texts = expandedTexts
+
+        // Pre-compute the vertical centre of each repetition (the midpoint of its
+        // pitch range) so "follow notes vertically" can recentre once per repetition.
+        // Each repetition's range is the pattern's range shifted by that repetition's
+        // cumulative transpose, plus the global pitch- and vocal-range shifts.
+        self.repeatSpan = repeatSpan
+        if let pMin = saved.map(\.pitch).min(), let pMax = saved.map(\.pitch).max() {
+            let baseMid = Double(pMin + pMax) / 2
+            repetitionCenters = (0..<repeats).map { rep in
+                baseMid + Double(exercise.pitchShift + cumulativeTranspose(forRepetition: rep) + vocalShift)
+            }
+        } else {
+            repetitionCenters = []
+        }
     }
 
     /// Cumulative semitone offset for a given repetition (0-based). Each repetition
