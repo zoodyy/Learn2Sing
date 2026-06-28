@@ -26,7 +26,7 @@ let microphoneDelayKey = "microphoneDelayMs"
 /// The singer's voice type. Used by the "Test Vocal Range" feature in Settings,
 /// which measures the lowest and highest notes the user can sing and classifies
 /// them into one of these categories. Stored as the raw string in UserDefaults.
-/// (For now it's purely informational and doesn't change any exercise behaviour.)
+/// When set, exercises are transposed to fit the voice's range (see `fitTranspose`).
 enum VocalRange: String, CaseIterable, Identifiable {
     case bass         = "Bass"
     case baritone     = "Baritone"
@@ -66,6 +66,24 @@ enum VocalRange: String, CaseIterable, Identifiable {
         return allCases.min {
             abs($0.center - center) < abs($1.center - center)
         } ?? .baritone
+    }
+
+    /// Semitones to transpose an exercise spanning `[low, high]` (MIDI) so it sits
+    /// within this voice's comfortable range. The lowest note is never left below
+    /// the voice's lowest note — a hard floor. If the exercise's top then pokes
+    /// above the voice's highest note it's dropped back down to fit, but only as
+    /// far as that floor allows. Returns 0 when the exercise already fits.
+    func fitTranspose(low: Int, high: Int) -> Int {
+        let bounds = typicalRange
+        // 1. Lift the exercise so its lowest note isn't below the voice's floor.
+        let up = max(0, bounds.low - low)
+        let liftedLow = low + up
+        let liftedHigh = high + up
+        // 2. If the top now exceeds the voice's ceiling, drop it back down — but not
+        //    so far that the lowest note would fall below the floor.
+        let over = max(0, liftedHigh - bounds.high)
+        let down = min(over, liftedLow - bounds.low)
+        return up - down
     }
 }
 

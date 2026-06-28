@@ -610,6 +610,7 @@ struct PlaybackView: View {
     @State private var claps = ClapCollector()
     @State private var delayResultMs: Double? = nil
     @AppStorage(microphoneDelayKey) private var micDelayMs = 0.0
+    @AppStorage(VocalRange.storageKey) private var vocalRangeRaw = ""
     @Environment(\.dismiss) private var dismiss
     @Environment(\.scenePhase) private var scenePhase
 
@@ -961,7 +962,6 @@ struct PlaybackView: View {
                 expanded.append(n)
             }
         }
-        notes = expanded
 
         // Text labels share the note coordinate system, so apply the identical
         // expansion (beat shift + transpose per repeat) to keep them pinned to the
@@ -982,6 +982,23 @@ struct PlaybackView: View {
                 expandedTexts.append(t)
             }
         }
+
+        // Finally, if the singer has set a vocal range, transpose the whole exercise
+        // (notes and their labels together) to fit it: never let a note drop below
+        // the voice's lowest note, lowering the exercise only when its top pokes
+        // above the voice's highest note. Applied to the fully expanded pitches so
+        // every repetition's transposition is accounted for.
+        if let range = VocalRange(rawValue: vocalRangeRaw),
+           let lo = expanded.map(\.pitch).min(),
+           let hi = expanded.map(\.pitch).max() {
+            let shift = range.fitTranspose(low: lo, high: hi)
+            if shift != 0 {
+                for i in expanded.indices { expanded[i].pitch += shift }
+                for i in expandedTexts.indices { expandedTexts[i].pitch += shift }
+            }
+        }
+
+        notes = expanded
         texts = expandedTexts
     }
 
