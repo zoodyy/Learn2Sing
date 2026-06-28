@@ -9,12 +9,6 @@ import SwiftUI
 
 struct ContentView: View {
     var body: some View {
-        NavigationStack { PlaybackVisualsView() }
-    }
-}
-
-struct ContentViewReal: View {
-    var body: some View {
         TabView {
             HomeView()
                 .tabItem {
