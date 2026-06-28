@@ -14,6 +14,7 @@ struct SettingsView: View {
     @AppStorage(AudioRouteManager.speakerKey) private var speaker = AudioRouteManager.automatic
     @AppStorage(AudioRouteManager.micKey) private var microphone = AudioRouteManager.builtInMic
     @AppStorage(microphoneDelayKey) private var micDelayMs = 0.0
+    @AppStorage(VocalRange.storageKey) private var vocalRangeRaw = ""
     @FocusState private var micDelayFocused: Bool
     @ObservedObject private var routes = AudioRouteManager.shared
     @EnvironmentObject private var store: ExerciseStore
@@ -22,14 +23,14 @@ struct SettingsView: View {
     @State private var isExporting = false
     @State private var isImporting = false
     @State private var alertMessage: String?
-    @State private var delayTestPath = NavigationPath()
+    @State private var settingsPath = NavigationPath()
 
     /// The exercise driving the microphone-delay test. Built once so the intro and
     /// playback screens share the same instance; it isn't stored in the library.
     private let delayTestExercise = SettingsView.makeDelayTestExercise()
 
     var body: some View {
-        NavigationStack(path: $delayTestPath) {
+        NavigationStack(path: $settingsPath) {
             Form {
                 Section("Playback") {
                     Picker("Instrument", selection: $instrumentRaw) {
@@ -37,6 +38,25 @@ struct SettingsView: View {
                             Text(instrument.rawValue).tag(instrument.rawValue)
                         }
                     }
+                }
+
+                Section {
+                    Picker("Vocal range", selection: $vocalRangeRaw) {
+                        Text("Not set").tag("")
+                        ForEach(VocalRange.allCases) { range in
+                            Text(range.rawValue).tag(range.rawValue)
+                        }
+                    }
+
+                    Button {
+                        settingsPath.append(SettingsRoute.vocalRangeTest)
+                    } label: {
+                        Label("Test Vocal Range", systemImage: "waveform")
+                    }
+                } header: {
+                    Text("Vocal Range")
+                } footer: {
+                    Text("Sing your lowest and highest notes and the app estimates your voice type, then sets it above.")
                 }
 
                 Section {
@@ -69,7 +89,7 @@ struct SettingsView: View {
                     }
 
                     Button {
-                        delayTestPath.append(DelayTestRoute.intro)
+                        settingsPath.append(SettingsRoute.delayIntro)
                     } label: {
                         Label("Test for delay", systemImage: "metronome")
                     }
@@ -104,14 +124,16 @@ struct SettingsView: View {
             }
             .navigationTitle("Settings")
             .navigationBarTitleDisplayMode(.inline)
-            .navigationDestination(for: DelayTestRoute.self) { route in
+            .navigationDestination(for: SettingsRoute.self) { route in
                 switch route {
-                case .intro:
+                case .delayIntro:
                     ExerciseIntroView(exercise: delayTestExercise) {
-                        delayTestPath.append(DelayTestRoute.playback)
+                        settingsPath.append(SettingsRoute.delayPlayback)
                     }
-                case .playback:
+                case .delayPlayback:
                     PlaybackView(exercise: delayTestExercise, mode: .delayTest)
+                case .vocalRangeTest:
+                    VocalRangeTestView { settingsPath = NavigationPath() }
                 }
             }
             // The decimal pad has no return key. A keyboard toolbar (`.toolbar(.keyboard)`)
@@ -186,11 +208,13 @@ struct SettingsView: View {
         list.contains(selection) ? list : list + [selection]
     }
 
-    /// Steps of the delay test, pushed onto the Settings navigation stack: the
-    /// intro/description screen, then the clap-along playback itself.
-    private enum DelayTestRoute: Hashable {
-        case intro
-        case playback
+    /// Screens pushed onto the Settings navigation stack: the microphone-delay
+    /// test's intro/description screen and its clap-along playback, plus the
+    /// vocal-range test.
+    private enum SettingsRoute: Hashable {
+        case delayIntro
+        case delayPlayback
+        case vocalRangeTest
     }
 
     /// The throwaway exercise that drives the delay test, with the description shown
