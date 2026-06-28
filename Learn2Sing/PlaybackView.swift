@@ -1003,19 +1003,22 @@ struct PlaybackView: View {
     }
 
     /// Cumulative semitone offset for a given repetition (0-based). Each repetition
-    /// shifts by `transposePerRepeat`; if `switchDirectionAfter` is set, the shift
-    /// direction flips every that-many repetitions, producing an up/down pattern.
+    /// shifts by `transposePerRepeat` from the one before it. If `switchDirectionAfter`
+    /// is set, the direction flips exactly once after that many repetitions — counting
+    /// the untransposed first repetition — then keeps going the new way for the rest.
+    /// E.g. step +1, switchAfter 1 over 5 reps gives 0, -1, -2, -3, -4 (one up step is
+    /// "spent" on the first repetition, so the switch lands immediately after it).
     private func cumulativeTranspose(forRepetition rep: Int) -> Int {
         let step = exercise.transposePerRepeat
         let switchAfter = exercise.switchDirectionAfter
-        guard switchAfter > 0, rep > 0 else { return rep * step }
+        guard rep > 0 else { return 0 }
+        guard switchAfter > 0 else { return rep * step }   // never switches
 
         var offset = 0
-        var direction = 1
-        for i in 1...rep {
-            if (i - 1) > 0 && (i - 1) % switchAfter == 0 {
-                direction = -direction
-            }
+        for r in 1...rep {
+            // The first `switchAfter` repetitions (including the untransposed one at
+            // r == 0) go in the initial direction; from there on it's reversed.
+            let direction = r >= switchAfter ? -1 : 1
             offset += direction * step
         }
         return offset
