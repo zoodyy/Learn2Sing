@@ -609,6 +609,8 @@ struct PlaybackView: View {
     @State private var finalScore: Int? = nil
     @State private var claps = ClapCollector()
     @State private var delayResultMs: Double? = nil
+    @State private var visuals = VisualSettings.current
+    @State private var follower = VerticalFollower()
     @AppStorage(microphoneDelayKey) private var micDelayMs = 0.0
     @AppStorage(VocalRange.storageKey) private var vocalRangeRaw = ""
     @Environment(\.dismiss) private var dismiss
@@ -665,6 +667,9 @@ struct PlaybackView: View {
             // playback clock). This keeps audio and the animation in sync and stops
             // playback from starting partway through while the exercise is still loading.
             AudioRouteManager.shared.configureSession()
+            // Pick up the latest visual settings and start the vertical follower fresh.
+            visuals = VisualSettings.current
+            follower.reset()
             if mode == .delayTest { loadDelayTestNotes() } else { loadNotes() }
             player.begin()
             // The delay test plays a metronome sample on every tick (in sync with the
@@ -732,118 +737,60 @@ struct PlaybackView: View {
     // MARK: - Drawing
 
     private func drawScene(ctx: GraphicsContext, size: CGSize, beat: Double, singerPitch: Double?) {
-        let rows    = hiPitch - loPitch + 1
-        let rowH    = size.height / CGFloat(rows)
-        let phX     = size.width / 3       // playhead at 1/3 from the left
+        let s = visuals
 
-        let activePitches = Set(
-            notes.filter { beat >= $0.beat && beat < $0.beat + $0.length }.map { $0.pitch }
-        )
+        // Layout scalars from the visual settings: rows scale with vertical zoom,
+        // beats with horizontal zoom, and the keyboard column vanishes when hidden.
+        let baseRowH = size.height / CGFloat(hiPitch - loPitch + 1)
+        let rowH = baseRowH * CGFloat(s.verticalZoom)
+        let beatPxZoom = beatPx * CGFloat(s.horizontalZoom)
+        let pW: CGFloat = s.showKeyboard ? pianoW : 0
+        let playheadX = size.width / 3
 
-        // ── Piano key column ────────────────────────────────────────────
-        for row in 0..<rows {
-            let pitch = hiPitch - row
-            let y = CGFloat(row) * rowH
-            let active = activePitches.contains(pitch)
-            let bg: Color = active ? .yellow : (isBlack(pitch) ? Color(white: 0.07) : Color(white: 0.82))
-            ctx.fill(Path(CGRect(x: 0, y: y, width: pianoW - 1, height: rowH)), with: .color(bg))
-        }
-
-        var colBorder = Path()
-        colBorder.move(to: CGPoint(x: pianoW - 0.5, y: 0))
-        colBorder.addLine(to: CGPoint(x: pianoW - 0.5, y: size.height))
-        ctx.stroke(colBorder, with: .color(.gray.opacity(0.4)), lineWidth: 1)
-
-        // ── Note area row backgrounds ────────────────────────────────────
-        for row in 0..<rows {
-            let pitch = hiPitch - row
-            let y = CGFloat(row) * rowH
-            ctx.fill(
-                Path(CGRect(x: pianoW, y: y, width: size.width - pianoW, height: rowH)),
-                with: .color(isBlack(pitch) ? Color(white: 0.08) : Color(white: 0.14))
-            )
-        }
-
-        // Horizontal separators
-        var hLines = Path()
-        for row in 0...rows {
-            let y = CGFloat(row) * rowH
-            hLines.move(to: CGPoint(x: pianoW, y: y))
-            hLines.addLine(to: CGPoint(x: size.width, y: y))
-        }
-        ctx.stroke(hLines, with: .color(white: 0.2), lineWidth: 0.5)
-
-        // ── Notes ────────────────────────────────────────────────────────
-        for note in notes {
-            let noteX = phX + CGFloat(note.beat - beat) * beatPx
-            let noteW = CGFloat(note.length) * beatPx
-
-            let leftEdge  = max(noteX, pianoW)
-            let rightEdge = min(noteX + noteW, size.width)
-            guard rightEdge > leftEdge else { continue }
-
-            let row  = hiPitch - note.pitch
-            let y    = CGFloat(row) * rowH + 1
-            let rect = CGRect(x: leftEdge, y: y, width: rightEdge - leftEdge - 1, height: rowH - 2)
-            let path = Path(roundedRect: rect, cornerRadius: 2)
-
-            let isActive = activePitches.contains(note.pitch) && beat >= note.beat
-            if isActive {
-                ctx.fill(path, with: .color(.white))
-                ctx.stroke(path, with: .color(.yellow), lineWidth: 1.5)
+        // Vertical centre. Normally the whole keyboard's midpoint; when "follow notes
+        // vertically" is on, ease toward the midpoint of the notes currently on screen
+        // so each repetition is centred (its top and bottom note equidistant from the
+        // middle). Falls back to the last centre during gaps with no visible notes.
+        let defaultCenter = Double(hiPitch + loPitch) / 2
+        let centerPitch: Double
+        if s.followNotesVertically {
+            let leftBeat = beat - Double((playheadX - pW) / beatPxZoom)
+            let rightBeat = beat + Double((size.width - playheadX) / beatPxZoom)
+            let visible = notes.filter { $0.beat + $0.length >= leftBeat && $0.beat <= rightBeat }
+            let target: Double
+            if let lo = visible.map(\.pitch).min(), let hi = visible.map(\.pitch).max() {
+                target = Double(lo + hi) / 2
             } else {
-                ctx.fill(path, with: .color(.green.opacity(0.85)))
-                ctx.stroke(path, with: .color(.green), lineWidth: 1)
+                target = follower.current ?? defaultCenter
             }
+            centerPitch = follower.step(target: target, factor: 0.08)
+        } else {
+            centerPitch = defaultCenter
         }
 
-        // ── Text labels ──────────────────────────────────────────────────
-        // Scroll with the notes (anchored to their beat) and clip to the note area
-        // so they never spill over the piano column.
-        if !texts.isEmpty {
-            ctx.drawLayer { layer in
-                layer.clip(to: Path(CGRect(x: pianoW, y: 0,
-                                           width: size.width - pianoW, height: size.height)))
-                for label in texts {
-                    let x = phX + CGFloat(label.beat - beat) * beatPx
-                    let row = hiPitch - label.pitch
-                    let y = CGFloat(row) * rowH + rowH / 2
-                    layer.draw(
-                        Text(label.text)
-                            .font(.system(size: 12, weight: .semibold))
-                            .foregroundColor(.orange),
-                        at: CGPoint(x: x + 3, y: y),
-                        anchor: .leading
-                    )
-                }
-            }
-        }
-
-        // ── Playhead ─────────────────────────────────────────────────────
-        var glow = Path()
-        glow.move(to: CGPoint(x: phX, y: 0))
-        glow.addLine(to: CGPoint(x: phX, y: size.height))
-        ctx.stroke(glow, with: .color(.white.opacity(0.12)), lineWidth: 10)
-
-        var line = Path()
-        line.move(to: CGPoint(x: phX, y: 0))
-        line.addLine(to: CGPoint(x: phX, y: size.height))
-        ctx.stroke(line, with: .color(.white), lineWidth: 2)
+        let layout = SceneLayout(size: size, pianoW: pW, rowH: rowH, beatPx: beatPxZoom,
+                                 playheadX: playheadX, centerPitch: centerPitch)
 
         // ── Singer's pitch history (trailing line) ───────────────────────────
-        // Record this frame's pitch at the current beat, then drop whatever has
-        // scrolled off the left edge of the note area.
+        // Record this frame's pitch at the current beat, drop whatever scrolled off
+        // the left edge, then build the path through the layout's coordinate mapping.
         trail.record(beat: beat, pitch: singerPitch)
-        trail.prune(before: beat - Double((phX - pianoW) / beatPx))
+        trail.prune(before: beat - Double((playheadX - pW) / beatPxZoom))
 
-        let r: CGFloat = min(rowH * 0.85, 11)
+        let r = min(rowH * 0.85, 11)
+        func clampY(_ y: CGFloat) -> CGFloat { min(max(y, r), size.height - r) }
+        var trailPath = Path()
+        var penDown = false
+        for sample in trail.samples {
+            guard let p = sample.pitch else { penDown = false; continue }
+            let pt = CGPoint(x: layout.x(sample.beat, beat: beat), y: clampY(layout.y(p)))
+            if penDown { trailPath.addLine(to: pt) } else { trailPath.move(to: pt); penDown = true }
+        }
 
-        // Score this frame from the trailing pitch line, not the circle: a note
-        // counts only while the line sits within the note's own drawn rectangle.
-        // The rect is `rowH - 2` tall and the line is 2.5px wide, so the line
-        // overlaps the note when the pitch is within (rectHalf + lineHalf)/rowH
-        // semitones of it — a much tighter window than the circle's radius.
-        let lineToleranceSemitones = Double(((rowH - 2) / 2 + 1.25) / rowH)
+        // Score this frame from the trailing pitch line: a note counts only while the
+        // line sits within its drawn rectangle. The tolerance is derived from the
+        // *unzoomed* row height so the score doesn't change when the user zooms.
+        let lineToleranceSemitones = Double(((baseRowH - 2) / 2 + 1.25) / baseRowH)
         // Convert the user's microphone-delay setting (ms) into beats so notes are
         // scored as if shifted that far to the right (later in time).
         let noteShift = micDelayMs / 1000.0 * bpm / 60.0
@@ -852,39 +799,8 @@ struct PlaybackView: View {
                           tolerance: lineToleranceSemitones, noteShift: noteShift)
         }
 
-        func yFor(_ pitch: Double) -> CGFloat {
-            let rowFloat = Double(hiPitch) - pitch
-            return min(max((CGFloat(rowFloat) + 0.5) * rowH, r), size.height - r)
-        }
-
-        // Anchor each sample to its beat so the line scrolls left exactly like the
-        // notes; the newest sample sits at the playhead, joining the dot below.
-        var trailPath = Path()
-        var penDown = false
-        for s in trail.samples {
-            guard let p = s.pitch else { penDown = false; continue }
-            let pt = CGPoint(x: phX + CGFloat(s.beat - beat) * beatPx, y: yFor(p))
-            if penDown {
-                trailPath.addLine(to: pt)
-            } else {
-                trailPath.move(to: pt)
-                penDown = true
-            }
-        }
-        ctx.drawLayer { layer in
-            layer.clip(to: Path(CGRect(x: pianoW, y: 0,
-                                       width: size.width - pianoW, height: size.height)))
-            layer.stroke(trailPath, with: .color(.cyan.opacity(0.7)), lineWidth: 2.5)
-        }
-
-        // ── Singer's current pitch (from the microphone) ─────────────────────
-        if let pitch = singerPitch {
-            // Centre of the row for this (fractional) MIDI pitch, clamped to view.
-            let y = yFor(pitch)
-            let dot = Path(ellipseIn: CGRect(x: phX - r, y: y - r, width: 2 * r, height: 2 * r))
-            ctx.fill(dot, with: .color(.cyan))
-            ctx.stroke(dot, with: .color(.white), lineWidth: 1.5)
-        }
+        drawPlaybackScene(ctx: ctx, layout: layout, beat: beat, notes: notes, texts: texts,
+                          trailPath: trailPath, singerPitch: singerPitch, settings: s)
     }
 
     // MARK: - Teardown

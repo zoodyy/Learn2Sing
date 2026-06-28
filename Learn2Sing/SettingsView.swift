@@ -41,6 +41,21 @@ struct SettingsView: View {
                 }
 
                 Section {
+                    Button {
+                        settingsPath.append(SettingsRoute.visualsHub)
+                    } label: {
+                        HStack {
+                            Label("Visuals", systemImage: "paintpalette")
+                            Spacer()
+                            Image(systemName: "chevron.right")
+                                .font(.footnote.weight(.semibold))
+                                .foregroundStyle(.tertiary)
+                        }
+                    }
+                    .foregroundStyle(.primary)
+                }
+
+                Section {
                     Picker("Vocal range", selection: $vocalRangeRaw) {
                         Text("Not set").tag("")
                         ForEach(VocalRange.allCases) { range in
@@ -134,6 +149,10 @@ struct SettingsView: View {
                     PlaybackView(exercise: delayTestExercise, mode: .delayTest)
                 case .vocalRangeTest:
                     VocalRangeTestView { settingsPath = NavigationPath() }
+                case .visualsHub:
+                    VisualsHubView { settingsPath.append(SettingsRoute.visualsPlayback) }
+                case .visualsPlayback:
+                    PlaybackVisualsView()
                 }
             }
             // The decimal pad has no return key. A keyboard toolbar (`.toolbar(.keyboard)`)
@@ -215,6 +234,8 @@ struct SettingsView: View {
         case delayIntro
         case delayPlayback
         case vocalRangeTest
+        case visualsHub
+        case visualsPlayback
     }
 
     /// The throwaway exercise that drives the delay test, with the description shown
