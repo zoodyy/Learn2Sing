@@ -1,4 +1,5 @@
 import SwiftUI
+import UniformTypeIdentifiers
 
 /// The "Visuals" hub reached from Settings. For now it has a single entry —
 /// Playback — but it's a screen of its own so further visual areas can be added.
@@ -44,6 +45,20 @@ struct PlaybackVisualsView: View {
     @AppStorage(VisualKeys.textColor)      private var textColor      = VisualDefaults.textColor
     @AppStorage(VisualKeys.textFont)       private var textFont       = VisualDefaults.textFont
 
+    /// Saved named templates the user can switch between.
+    @StateObject private var templates = VisualTemplateStore()
+
+    /// Naming alert for "Save current as template".
+    @State private var isNamingTemplate = false
+    @State private var newTemplateName = ""
+
+    /// Share-sheet / file-dialog state for export & import of a single template.
+    @State private var exportDocument: ExerciseDocument?
+    @State private var exportFilename = "Visual Template"
+    @State private var isExportingTemplate = false
+    @State private var isImportingTemplate = false
+    @State private var templateAlert: String?
+
     /// Anchors the preview's scrolling clock so the demo notes start at beat 0 when
     /// the screen appears (rather than at the huge absolute timeline value).
     @State private var start = Date()
@@ -86,6 +101,8 @@ struct PlaybackVisualsView: View {
 
     var body: some View {
         Form {
+            templatesSection
+
             Section {
                 preview
                     .listRowInsets(EdgeInsets())
@@ -120,9 +137,124 @@ struct PlaybackVisualsView: View {
                     }
                 }
             }
+
+            Section {
+                Button {
+                    exportCurrentTemplate()
+                } label: {
+                    Label("Export template", systemImage: "square.and.arrow.up")
+                }
+
+                Button {
+                    isImportingTemplate = true
+                } label: {
+                    Label("Import template", systemImage: "square.and.arrow.down")
+                }
+            } footer: {
+                Text("Export saves the current visual settings as a template file you can share. Import loads a template file and applies it.")
+            }
         }
         .navigationTitle("Playback")
         .navigationBarTitleDisplayMode(.inline)
+        .alert("New Template", isPresented: $isNamingTemplate) {
+            TextField("Name", text: $newTemplateName)
+            Button("Save") { saveCurrentAsTemplate() }
+            Button("Cancel", role: .cancel) { }
+        } message: {
+            Text("Save the current visual settings as a template.")
+        }
+        .fileExporter(
+            isPresented: $isExportingTemplate,
+            document: exportDocument,
+            contentType: .json,
+            defaultFilename: exportFilename
+        ) { result in
+            if case .failure(let error) = result {
+                templateAlert = "Export failed: \(error.localizedDescription)"
+            }
+        }
+        .fileImporter(
+            isPresented: $isImportingTemplate,
+            allowedContentTypes: [.json]
+        ) { result in
+            switch result {
+            case .success(let url):
+                let accessed = url.startAccessingSecurityScopedResource()
+                defer { if accessed { url.stopAccessingSecurityScopedResource() } }
+                guard let data = try? Data(contentsOf: url),
+                      let template = VisualTemplate.decode(from: data) else {
+                    templateAlert = "That file isn’t a valid visual template."
+                    return
+                }
+                templates.add(imported: template).apply()
+            case .failure(let error):
+                templateAlert = "Import failed: \(error.localizedDescription)"
+            }
+        }
+        .alert("Templates", isPresented: Binding(
+            get: { templateAlert != nil },
+            set: { if !$0 { templateAlert = nil } }
+        )) {
+            Button("OK", role: .cancel) { templateAlert = nil }
+        } message: {
+            Text(templateAlert ?? "")
+        }
+    }
+
+    // MARK: - Templates
+
+    private var templatesSection: some View {
+        Section {
+            ForEach(templates.templates) { template in
+                Button {
+                    template.apply()
+                } label: {
+                    HStack {
+                        Text(template.name)
+                            .foregroundStyle(.primary)
+                        Spacer()
+                        if template.matchesCurrent {
+                            Image(systemName: "checkmark")
+                                .font(.footnote.weight(.semibold))
+                                .foregroundStyle(.tint)
+                        }
+                    }
+                }
+            }
+            .onDelete { templates.remove(atOffsets: $0) }
+
+            Button {
+                newTemplateName = ""
+                isNamingTemplate = true
+            } label: {
+                Label("Save current as template", systemImage: "plus")
+            }
+        } header: {
+            Text("Templates")
+        } footer: {
+            Text("Select a template to apply it, or save the current settings as a new one.")
+        }
+    }
+
+    /// Captures the current settings under the entered name and stores them.
+    private func saveCurrentAsTemplate() {
+        let name = newTemplateName.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !name.isEmpty else { return }
+        templates.add(.capturingCurrent(name: name))
+    }
+
+    /// Prepares a JSON document of the current settings and presents the share dialog.
+    private func exportCurrentTemplate() {
+        let current = templates.templates.first(where: \.matchesCurrent)
+        let name = current?.name ?? "Custom"
+        let template = VisualTemplate.capturingCurrent(name: name)
+        guard let data = template.jsonData() else {
+            templateAlert = "Could not prepare the template file."
+            return
+        }
+        exportFilename = name
+        exportDocument = ExerciseDocument(data: data)
+        isExportingTemplate = true
     }
 
     // MARK: - Preview
