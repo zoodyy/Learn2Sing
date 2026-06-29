@@ -266,7 +266,7 @@ func drawPlaybackScene(ctx: GraphicsContext, layout: SceneLayout, beat: Double,
         let radius = max(0, min(settings.noteRoundness * rect.height / 2, rect.width / 2, rect.height / 2))
         let path = Path(roundedRect: rect, cornerRadius: radius)
 
-        let isActive = activePitches.contains(note.pitch) && beat >= note.beat
+        let isActive = beat >= note.beat && beat < note.beat + note.length
         if isActive {
             // Stroke in the same colour as the fill so the active note isn't a hair
             // smaller than the others, which carry an outward 1pt stroke of their own.
