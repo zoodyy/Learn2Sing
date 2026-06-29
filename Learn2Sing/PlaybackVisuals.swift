@@ -268,8 +268,10 @@ func drawPlaybackScene(ctx: GraphicsContext, layout: SceneLayout, beat: Double,
 
         let isActive = activePitches.contains(note.pitch) && beat >= note.beat
         if isActive {
+            // Stroke in the same colour as the fill so the active note isn't a hair
+            // smaller than the others, which carry an outward 1pt stroke of their own.
             ctx.fill(path, with: .color(settings.playingNoteColor))
-            ctx.stroke(path, with: .color(.yellow), lineWidth: 1.5)
+            ctx.stroke(path, with: .color(settings.playingNoteColor), lineWidth: 1)
         } else {
             ctx.fill(path, with: .color(settings.noteColor))
             ctx.stroke(path, with: .color(settings.noteColor.opacity(0.7)), lineWidth: 1)
