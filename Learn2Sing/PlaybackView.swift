@@ -615,6 +615,10 @@ struct PlaybackView: View {
     // in beats — used by "follow notes vertically" to recentre once per repetition.
     @State private var repetitionCenters: [Double] = []
     @State private var repeatSpan: Double = 0
+    // Semitone span (highest − lowest pitch) of one repetition. Constant across reps
+    // since each is the same pattern transposed; used by "follow notes vertically" to
+    // zoom out when a repetition is too tall to fit the screen.
+    @State private var repetitionPitchSpan: Double = 0
     @AppStorage(microphoneDelayKey) private var micDelayMs = 0.0
     @AppStorage(VocalRange.storageKey) private var vocalRangeRaw = ""
     @Environment(\.dismiss) private var dismiss
@@ -746,7 +750,7 @@ struct PlaybackView: View {
         // Layout scalars from the visual settings: rows scale with vertical zoom,
         // beats with horizontal zoom, and the keyboard column vanishes when hidden.
         let baseRowH = size.height / CGFloat(hiPitch - loPitch + 1)
-        let rowH = baseRowH * CGFloat(s.verticalZoom)
+        var rowH = baseRowH * CGFloat(s.verticalZoom)
         let beatPxZoom = beatPx * CGFloat(s.horizontalZoom)
         let pW: CGFloat = s.showKeyboard ? pianoW : 0
         let playheadX = size.width / 3
@@ -760,6 +764,13 @@ struct PlaybackView: View {
         if s.followNotesVertically, repeatSpan > 0, !repetitionCenters.isEmpty {
             let idx = max(0, min(repetitionCenters.count - 1, Int(floor(beat / repeatSpan))))
             centerPitch = follower.step(target: repetitionCenters[idx], factor: 0.08)
+            // If the repetition's notes are too far apart to fit at the chosen vertical
+            // zoom, zoom out (never in) just enough that they fit on screen, leaving a
+            // one-row margin top and bottom so they aren't flush against the edges.
+            if repetitionPitchSpan > 0 {
+                let fitRowH = size.height / CGFloat(repetitionPitchSpan + 2)
+                rowH = min(rowH, fitRowH)
+            }
         } else {
             centerPitch = defaultCenter
         }
@@ -924,8 +935,10 @@ struct PlaybackView: View {
             repetitionCenters = (0..<repeats).map { rep in
                 baseMid + Double(exercise.pitchShift + cumulativeTranspose(forRepetition: rep) + vocalShift)
             }
+            repetitionPitchSpan = Double(pMax - pMin)
         } else {
             repetitionCenters = []
+            repetitionPitchSpan = 0
         }
     }
 
