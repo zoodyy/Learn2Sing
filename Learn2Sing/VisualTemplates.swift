@@ -15,6 +15,7 @@ struct VisualTemplate: Codable, Identifiable, Hashable {
     var id: UUID
     var name: String
     var noteColor: String
+    var playingNoteColor: String
     var noteRoundness: Double
     var verticalZoom: Double
     var horizontalZoom: Double
@@ -27,13 +28,14 @@ struct VisualTemplate: Codable, Identifiable, Hashable {
     var textFont: String
 
     init(id: UUID = UUID(), name: String,
-         noteColor: String, noteRoundness: Double, verticalZoom: Double,
-         horizontalZoom: Double, followVertical: Bool, showLines: Bool,
-         background: String, showKeyboard: Bool, showPitches: Bool,
+         noteColor: String, playingNoteColor: String, noteRoundness: Double,
+         verticalZoom: Double, horizontalZoom: Double, followVertical: Bool,
+         showLines: Bool, background: String, showKeyboard: Bool, showPitches: Bool,
          textColor: String, textFont: String) {
         self.id = id
         self.name = name
         self.noteColor = noteColor
+        self.playingNoteColor = playingNoteColor
         self.noteRoundness = noteRoundness
         self.verticalZoom = verticalZoom
         self.horizontalZoom = horizontalZoom
@@ -44,6 +46,27 @@ struct VisualTemplate: Codable, Identifiable, Hashable {
         self.showPitches = showPitches
         self.textColor = textColor
         self.textFont = textFont
+    }
+
+    /// Custom decoding so templates saved (or bundled) before a setting existed still
+    /// load: any missing key falls back to its `VisualDefaults` value rather than
+    /// failing the whole decode.
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        id = try c.decodeIfPresent(UUID.self, forKey: .id) ?? UUID()
+        name = try c.decode(String.self, forKey: .name)
+        noteColor = try c.decodeIfPresent(String.self, forKey: .noteColor) ?? VisualDefaults.noteColor
+        playingNoteColor = try c.decodeIfPresent(String.self, forKey: .playingNoteColor) ?? VisualDefaults.playingNoteColor
+        noteRoundness = try c.decodeIfPresent(Double.self, forKey: .noteRoundness) ?? VisualDefaults.noteRoundness
+        verticalZoom = try c.decodeIfPresent(Double.self, forKey: .verticalZoom) ?? VisualDefaults.verticalZoom
+        horizontalZoom = try c.decodeIfPresent(Double.self, forKey: .horizontalZoom) ?? VisualDefaults.horizontalZoom
+        followVertical = try c.decodeIfPresent(Bool.self, forKey: .followVertical) ?? VisualDefaults.followVertical
+        showLines = try c.decodeIfPresent(Bool.self, forKey: .showLines) ?? VisualDefaults.showLines
+        background = try c.decodeIfPresent(String.self, forKey: .background) ?? VisualDefaults.background
+        showKeyboard = try c.decodeIfPresent(Bool.self, forKey: .showKeyboard) ?? VisualDefaults.showKeyboard
+        showPitches = try c.decodeIfPresent(Bool.self, forKey: .showPitches) ?? VisualDefaults.showPitches
+        textColor = try c.decodeIfPresent(String.self, forKey: .textColor) ?? VisualDefaults.textColor
+        textFont = try c.decodeIfPresent(String.self, forKey: .textFont) ?? VisualDefaults.textFont
     }
 
     /// Captures the settings currently stored in UserDefaults into a new template,
@@ -57,6 +80,7 @@ struct VisualTemplate: Codable, Identifiable, Hashable {
         return VisualTemplate(
             name: name,
             noteColor: str(VisualKeys.noteColor, VisualDefaults.noteColor),
+            playingNoteColor: str(VisualKeys.playingNoteColor, VisualDefaults.playingNoteColor),
             noteRoundness: dbl(VisualKeys.noteRoundness, VisualDefaults.noteRoundness),
             verticalZoom: dbl(VisualKeys.verticalZoom, VisualDefaults.verticalZoom),
             horizontalZoom: dbl(VisualKeys.horizontalZoom, VisualDefaults.horizontalZoom),
@@ -75,6 +99,7 @@ struct VisualTemplate: Codable, Identifiable, Hashable {
     func apply() {
         let d = UserDefaults.standard
         d.set(noteColor, forKey: VisualKeys.noteColor)
+        d.set(playingNoteColor, forKey: VisualKeys.playingNoteColor)
         d.set(noteRoundness, forKey: VisualKeys.noteRoundness)
         d.set(verticalZoom, forKey: VisualKeys.verticalZoom)
         d.set(horizontalZoom, forKey: VisualKeys.horizontalZoom)

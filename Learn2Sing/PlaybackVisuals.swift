@@ -61,7 +61,8 @@ extension Color {
 // MARK: - Stored keys & defaults
 
 enum VisualKeys {
-    static let noteColor      = "vis_noteColor"
+    static let noteColor        = "vis_noteColor"
+    static let playingNoteColor = "vis_playingNoteColor"
     static let noteRoundness  = "vis_noteRoundness"
     static let verticalZoom   = "vis_verticalZoom"
     static let horizontalZoom = "vis_horizontalZoom"
@@ -77,7 +78,8 @@ enum VisualKeys {
 /// Default values, used both for the @AppStorage controls and when resolving the
 /// stored settings, so a never-touched setting reads the same in both places.
 enum VisualDefaults {
-    static let noteColor      = "#34C759"   // green, matching the original look
+    static let noteColor        = "#34C759"   // green, matching the original look
+    static let playingNoteColor = "#FFFFFF"   // white, matching the original active-note look
     static let noteRoundness  = 0.2
     static let verticalZoom   = 1.0
     static let horizontalZoom = 1.0
@@ -96,6 +98,7 @@ enum VisualDefaults {
 /// from the raw stored representation.
 struct VisualSettings {
     var noteColor: Color
+    var playingNoteColor: Color
     var noteRoundness: Double
     var verticalZoom: Double
     var horizontalZoom: Double
@@ -115,6 +118,7 @@ struct VisualSettings {
         func str(_ k: String, _ def: String) -> String { d.string(forKey: k) ?? def }
         return VisualSettings(
             noteColor: Color(hex: str(VisualKeys.noteColor, VisualDefaults.noteColor)),
+            playingNoteColor: Color(hex: str(VisualKeys.playingNoteColor, VisualDefaults.playingNoteColor)),
             noteRoundness: dbl(VisualKeys.noteRoundness, VisualDefaults.noteRoundness),
             verticalZoom: dbl(VisualKeys.verticalZoom, VisualDefaults.verticalZoom),
             horizontalZoom: dbl(VisualKeys.horizontalZoom, VisualDefaults.horizontalZoom),
@@ -264,7 +268,7 @@ func drawPlaybackScene(ctx: GraphicsContext, layout: SceneLayout, beat: Double,
 
         let isActive = activePitches.contains(note.pitch) && beat >= note.beat
         if isActive {
-            ctx.fill(path, with: .color(.white))
+            ctx.fill(path, with: .color(settings.playingNoteColor))
             ctx.stroke(path, with: .color(.yellow), lineWidth: 1.5)
         } else {
             ctx.fill(path, with: .color(settings.noteColor))

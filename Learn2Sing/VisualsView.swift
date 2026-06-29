@@ -33,7 +33,8 @@ struct VisualsHubView: View {
 /// square cut-out of the real playback rendering — updates as the controls below
 /// are changed, so the effect of each setting is immediately visible.
 struct PlaybackVisualsView: View {
-    @AppStorage(VisualKeys.noteColor)      private var noteColor      = VisualDefaults.noteColor
+    @AppStorage(VisualKeys.noteColor)        private var noteColor        = VisualDefaults.noteColor
+    @AppStorage(VisualKeys.playingNoteColor) private var playingNoteColor = VisualDefaults.playingNoteColor
     @AppStorage(VisualKeys.noteRoundness)  private var noteRoundness  = VisualDefaults.noteRoundness
     @AppStorage(VisualKeys.verticalZoom)   private var verticalZoom   = VisualDefaults.verticalZoom
     @AppStorage(VisualKeys.horizontalZoom) private var horizontalZoom = VisualDefaults.horizontalZoom
@@ -69,6 +70,7 @@ struct PlaybackVisualsView: View {
     private var settings: VisualSettings {
         VisualSettings(
             noteColor: Color(hex: noteColor),
+            playingNoteColor: Color(hex: playingNoteColor),
             noteRoundness: noteRoundness,
             verticalZoom: verticalZoom,
             horizontalZoom: horizontalZoom,
@@ -110,6 +112,7 @@ struct PlaybackVisualsView: View {
 
             Section("Notes") {
                 ColorPicker("Note colour", selection: colorBinding($noteColor), supportsOpacity: false)
+                ColorPicker("Playing note colour", selection: colorBinding($playingNoteColor), supportsOpacity: false)
                 sliderRow("Note roundness", value: $noteRoundness, range: 0...1)
             }
 
