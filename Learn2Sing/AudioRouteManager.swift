@@ -74,10 +74,20 @@ final class AudioRouteManager: ObservableObject {
     /// Configure the shared session for simultaneous record + playback, honouring the
     /// user's speaker / microphone preferences. Call before starting the engine or mic tap.
     func configureSession() {
-        // Allow routing to Bluetooth / AirPlay so earphones can be used; mixWithOthers keeps
-        // the mic-based pitch detector and the synth playing together.
+        // Allow only *output* Bluetooth (A2DP) and AirPlay, so earphones get full-quality
+        // stereo sound. Crucially we do NOT pass `.allowBluetooth`: that enables the
+        // Hands-Free Profile (HFP/SCO) — the low-quality, two-way "phone-call" Bluetooth
+        // mode (mono, ~8–16 kHz). Under `.playAndRecord`, allowing HFP makes iOS route
+        // AirPods through it (so playback sounds like a phone call), forces the whole
+        // system into that voice route (degrading other apps' audio), and keeps the
+        // session in a voice-processing state that also quietens the built-in speaker.
+        //
+        // With only A2DP allowed, the Bluetooth mic isn't offered, so input falls back to
+        // the built-in microphone — exactly what we want: clean music to the AirPods while
+        // the phone's mic listens for pitch. `.mixWithOthers` is intentionally omitted so
+        // the app takes normal audio focus and plays back at full volume.
         let options: AVAudioSession.CategoryOptions =
-            [.allowBluetooth, .allowBluetoothA2DP, .allowAirPlay, .mixWithOthers]
+            [.allowBluetoothA2DP, .allowAirPlay]
         try? session.setCategory(.playAndRecord, mode: .default, options: options)
         try? session.setActive(true)
         applyOutputRoute()
