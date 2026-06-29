@@ -45,8 +45,9 @@ struct PlaybackVisualsView: View {
     @AppStorage(VisualKeys.textColor)      private var textColor      = VisualDefaults.textColor
     @AppStorage(VisualKeys.textFont)       private var textFont       = VisualDefaults.textFont
 
-    /// Saved named templates the user can switch between.
-    @StateObject private var templates = VisualTemplateStore()
+    /// Saved named templates the user can switch between. Created at app launch and
+    /// injected, so the bundled default is seeded before any playback.
+    @EnvironmentObject private var templates: VisualTemplateStore
 
     /// Naming alert for "Save current as template".
     @State private var isNamingTemplate = false
@@ -101,8 +102,6 @@ struct PlaybackVisualsView: View {
 
     var body: some View {
         Form {
-            templatesSection
-
             Section {
                 preview
                     .listRowInsets(EdgeInsets())
@@ -137,6 +136,8 @@ struct PlaybackVisualsView: View {
                     }
                 }
             }
+
+            templatesSection
 
             Section {
                 Button {

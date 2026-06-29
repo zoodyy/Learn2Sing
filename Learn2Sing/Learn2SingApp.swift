@@ -3,11 +3,16 @@ import SwiftUI
 @main
 struct Learn2SingApp: App {
     @StateObject private var store = ExerciseStore()
+    // Created at launch so the bundled default template is seeded and applied before
+    // any playback, making it the starting look rather than only after the visuals
+    // settings screen is first opened.
+    @StateObject private var visualTemplates = VisualTemplateStore()
 
     var body: some Scene {
         WindowGroup {
             ContentView()
                 .environmentObject(store)
+                .environmentObject(visualTemplates)
         }
     }
 }

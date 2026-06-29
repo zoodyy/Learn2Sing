@@ -115,12 +115,29 @@ final class VisualTemplateStore: ObservableObject {
     @Published private(set) var templates: [VisualTemplate] = []
 
     private static let storageKey = "vis_templates"
+    private static let bundledSeededKey = "didSeedBundledVisualTemplates"
 
     init() {
         if let data = UserDefaults.standard.data(forKey: Self.storageKey),
            let decoded = try? JSONDecoder().decode([VisualTemplate].self, from: data) {
             templates = decoded
         }
+        seedBundledIfNeeded()
+    }
+
+    /// On first launch, add the template shipped in the app bundle and apply it as the
+    /// starting look for the playback visuals. Gated by a flag so the user's later
+    /// edits or deletion of it are never undone.
+    private func seedBundledIfNeeded() {
+        guard !UserDefaults.standard.bool(forKey: Self.bundledSeededKey) else { return }
+        defer { UserDefaults.standard.set(true, forKey: Self.bundledSeededKey) }
+        guard let url = Bundle.main.url(forResource: "SimplestTemplate", withExtension: "json"),
+              let data = try? Data(contentsOf: url),
+              let template = VisualTemplate.decode(from: data)
+        else { return }
+        templates.append(template)
+        persist()
+        template.apply()
     }
 
     func add(_ template: VisualTemplate) {
