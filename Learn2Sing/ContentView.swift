@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct ContentView: View {
+    @AppStorage(AppTheme.storageKey) private var themeRaw = AppTheme.system.rawValue
+
     var body: some View {
         TabView {
             HomeView()
@@ -25,6 +27,8 @@ struct ContentView: View {
                     Label("Settings", systemImage: "gearshape")
                 }
         }
+        // nil for "System" lets the device's light/dark setting through.
+        .preferredColorScheme((AppTheme(rawValue: themeRaw) ?? .system).colorScheme)
     }
 }
 

@@ -1,14 +1,47 @@
 import SwiftUI
 import UniformTypeIdentifiers
 
-/// The "Visuals" hub reached from Settings. For now it has a single entry —
-/// Playback — but it's a screen of its own so further visual areas can be added.
+/// App-wide appearance choice. "System" follows the device's light/dark setting.
+enum AppTheme: String, CaseIterable, Identifiable {
+    case system = "System"
+    case light  = "Light"
+    case dark   = "Dark"
+
+    var id: String { rawValue }
+
+    static let storageKey = "appTheme"
+
+    /// The `colorScheme` to force, or `nil` to follow the system (device) setting.
+    var colorScheme: ColorScheme? {
+        switch self {
+        case .system: return nil
+        case .light:  return .light
+        case .dark:   return .dark
+        }
+    }
+}
+
+/// The "Visuals" hub reached from Settings. Holds the app-wide theme choice and an
+/// entry to the Playback-visuals screen; it's a screen of its own so further visual
+/// areas can be added.
 struct VisualsHubView: View {
+    @AppStorage(AppTheme.storageKey) private var themeRaw = AppTheme.system.rawValue
+
     /// Push the playback-visuals screen onto the shared Settings navigation stack.
     let openPlayback: () -> Void
 
     var body: some View {
         Form {
+            Section {
+                Picker("Theme", selection: $themeRaw) {
+                    ForEach(AppTheme.allCases) { theme in
+                        Text(theme.rawValue).tag(theme.rawValue)
+                    }
+                }
+            } footer: {
+                Text("Sets the app's appearance. “System” matches your device's light or dark setting.")
+            }
+
             Section {
                 Button(action: openPlayback) {
                     HStack {
