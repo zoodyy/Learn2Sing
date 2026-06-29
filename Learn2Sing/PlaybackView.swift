@@ -615,10 +615,11 @@ struct PlaybackView: View {
     // in beats — used by "follow notes vertically" to recentre once per repetition.
     @State private var repetitionCenters: [Double] = []
     @State private var repeatSpan: Double = 0
-    // Semitone span (highest − lowest pitch) of one repetition. Constant across reps
-    // since each is the same pattern transposed; used by "follow notes vertically" to
-    // zoom out when a repetition is too tall to fit the screen.
-    @State private var repetitionPitchSpan: Double = 0
+    // Largest semitone distance from a repetition's centre to its furthest content
+    // (note or text label), above or below. Constant across reps since each is the
+    // same pattern transposed; used by "follow notes vertically" to zoom out when a
+    // repetition is too tall to fit inside the safe area.
+    @State private var repetitionMaxExtent: Double = 0
     @AppStorage(microphoneDelayKey) private var micDelayMs = 0.0
     @AppStorage(VocalRange.storageKey) private var vocalRangeRaw = ""
     @Environment(\.dismiss) private var dismiss
@@ -653,18 +654,24 @@ struct PlaybackView: View {
     }
 
     private var playback: some View {
-        TimelineView(.animation) { _ in
-            // Drive the playhead from the audio engine's own output clock so the
-            // notes light up exactly when they're heard.
-            let beat = player.currentBeat(bpm: bpm, leadIn: leadIn) ?? -leadIn
+        // The GeometryReader (which respects the safe area) reports the insets for the
+        // title/back bar and bottom menu, while the Canvas inside ignores the safe area
+        // and draws full-screen — so the insets tell drawScene where those bars sit.
+        GeometryReader { geo in
+            TimelineView(.animation) { _ in
+                // Drive the playhead from the audio engine's own output clock so the
+                // notes light up exactly when they're heard.
+                let beat = player.currentBeat(bpm: bpm, leadIn: leadIn) ?? -leadIn
 
-            // Ease the indicator toward the latest estimate every frame.
-            let singerPitch = indicator.step(target: pitchDetector.currentPitch, factor: 0.3)
+                // Ease the indicator toward the latest estimate every frame.
+                let singerPitch = indicator.step(target: pitchDetector.currentPitch, factor: 0.3)
 
-            Canvas { ctx, size in
-                drawScene(ctx: ctx, size: size, beat: beat, singerPitch: singerPitch)
+                Canvas { ctx, size in
+                    drawScene(ctx: ctx, size: size, beat: beat, singerPitch: singerPitch,
+                              safeTop: geo.safeAreaInsets.top, safeBottom: geo.safeAreaInsets.bottom)
+                }
+                .ignoresSafeArea()
             }
-            .ignoresSafeArea()
         }
         .background(Color.black.ignoresSafeArea())
         .navigationTitle(exercise.name)
@@ -744,7 +751,8 @@ struct PlaybackView: View {
 
     // MARK: - Drawing
 
-    private func drawScene(ctx: GraphicsContext, size: CGSize, beat: Double, singerPitch: Double?) {
+    private func drawScene(ctx: GraphicsContext, size: CGSize, beat: Double,
+                           singerPitch: Double?, safeTop: CGFloat = 0, safeBottom: CGFloat = 0) {
         let s = visuals
 
         // Layout scalars from the visual settings: rows scale with vertical zoom,
@@ -761,14 +769,18 @@ struct PlaybackView: View {
         // steady through a repetition and only moves when the next one begins.
         let defaultCenter = Double(hiPitch + loPitch) / 2
         let centerPitch: Double
+        var centerY = size.height / 2
         if s.followNotesVertically, repeatSpan > 0, !repetitionCenters.isEmpty {
             let idx = max(0, min(repetitionCenters.count - 1, Int(floor(beat / repeatSpan))))
             centerPitch = follower.step(target: repetitionCenters[idx], factor: 0.08)
-            // If the repetition's notes are too far apart to fit at the chosen vertical
-            // zoom, zoom out (never in) just enough that they fit on screen, leaving a
-            // one-row margin top and bottom so they aren't flush against the edges.
-            if repetitionPitchSpan > 0 {
-                let fitRowH = size.height / CGFloat(repetitionPitchSpan + 2)
+            // Centre the content in the safe area — between the title/back bar at the
+            // top and the menu at the bottom — and, if a repetition is too tall to fit
+            // there at the chosen zoom, zoom out (never in) just enough that no note or
+            // text label lands under those bars, keeping a one-row margin.
+            centerY = (size.height + safeTop - safeBottom) / 2
+            let usableHalf = (size.height - safeTop - safeBottom) / 2
+            if repetitionMaxExtent > 0 {
+                let fitRowH = usableHalf / CGFloat(repetitionMaxExtent + 1)
                 rowH = min(rowH, fitRowH)
             }
         } else {
@@ -776,7 +788,7 @@ struct PlaybackView: View {
         }
 
         let layout = SceneLayout(size: size, pianoW: pW, rowH: rowH, beatPx: beatPxZoom,
-                                 playheadX: playheadX, centerPitch: centerPitch)
+                                 playheadX: playheadX, centerPitch: centerPitch, centerY: centerY)
 
         // ── Singer's pitch history (trailing line) ───────────────────────────
         // Record this frame's pitch at the current beat, drop whatever scrolled off
@@ -935,10 +947,15 @@ struct PlaybackView: View {
             repetitionCenters = (0..<repeats).map { rep in
                 baseMid + Double(exercise.pitchShift + cumulativeTranspose(forRepetition: rep) + vocalShift)
             }
-            repetitionPitchSpan = Double(pMax - pMin)
+            // Furthest content from the centre, including text labels (which can sit
+            // above/below the notes), measured in semitones. The relative geometry is
+            // identical for every repetition, so one value covers them all.
+            let contentMax = max(Double(pMax), savedTexts.map { Double($0.pitch) }.max() ?? -.infinity)
+            let contentMin = min(Double(pMin), savedTexts.map { Double($0.pitch) }.min() ?? .infinity)
+            repetitionMaxExtent = max(contentMax - baseMid, baseMid - contentMin)
         } else {
             repetitionCenters = []
-            repetitionPitchSpan = 0
+            repetitionMaxExtent = 0
         }
     }
 

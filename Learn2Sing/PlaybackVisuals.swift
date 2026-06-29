@@ -173,8 +173,20 @@ struct SceneLayout {
     let beatPx: CGFloat      // pixels per beat
     let playheadX: CGFloat   // x of the fixed playhead line
     let centerPitch: Double  // MIDI pitch drawn at the vertical centre
+    let centerY: CGFloat     // screen y at which `centerPitch` is drawn
 
-    var centerY: CGFloat { size.height / 2 }
+    init(size: CGSize, pianoW: CGFloat, rowH: CGFloat, beatPx: CGFloat,
+         playheadX: CGFloat, centerPitch: Double, centerY: CGFloat? = nil) {
+        self.size = size
+        self.pianoW = pianoW
+        self.rowH = rowH
+        self.beatPx = beatPx
+        self.playheadX = playheadX
+        self.centerPitch = centerPitch
+        // Defaults to the canvas midpoint; callers can shift it (e.g. to centre content
+        // within the safe area rather than the full screen).
+        self.centerY = centerY ?? size.height / 2
+    }
 
     /// Vertical centre of the row for a (possibly fractional) MIDI pitch.
     func y(_ pitch: Double) -> CGFloat { centerY - CGFloat(pitch - centerPitch) * rowH }
