@@ -86,8 +86,15 @@ final class AudioRouteManager: ObservableObject {
         // the built-in microphone — exactly what we want: clean music to the AirPods while
         // the phone's mic listens for pitch. `.mixWithOthers` is intentionally omitted so
         // the app takes normal audio focus and plays back at full volume.
+        //
+        // `.defaultToSpeaker` makes the built-in speaker the default output and, crucially,
+        // drives it at full *media* volume. Routing to the speaker with
+        // `overrideOutputAudioPort(.speaker)` instead uses the "speakerphone" path, which
+        // under `.playAndRecord` is attenuated to a quiet, voice-call level — the reason
+        // the speaker was so much quieter than other apps. A connected accessory (AirPods)
+        // still takes priority over this default, so it doesn't pin output to the speaker.
         let options: AVAudioSession.CategoryOptions =
-            [.allowBluetoothA2DP, .allowAirPlay]
+            [.allowBluetoothA2DP, .allowAirPlay, .defaultToSpeaker]
         try? session.setCategory(.playAndRecord, mode: .default, options: options)
         try? session.setActive(true)
         applyOutputRoute()
@@ -105,17 +112,17 @@ final class AudioRouteManager: ObservableObject {
         let externalConnected = session.currentRoute.outputs.contains {
             $0.portType != .builtInSpeaker && $0.portType != .builtInReceiver
         }
-        switch selectedSpeaker {
-        case Self.builtInSpeaker:
+        if selectedSpeaker == Self.builtInSpeaker && externalConnected {
+            // The user forces the phone speaker while an accessory is connected, so the
+            // route has to be overridden explicitly (the "speakerphone" path). This is
+            // the only case that path is used, as it's quieter than the default speaker.
             try? session.overrideOutputAudioPort(.speaker)
-        case Self.automatic:
-            // Use connected earphones / Bluetooth when present; otherwise the speaker
-            // (so it never falls back to the quiet earpiece receiver).
-            try? session.overrideOutputAudioPort(externalConnected ? .none : .speaker)
-        default:
-            // A specific external output was chosen: route to it when connected, else speaker.
-            let connected = session.currentRoute.outputs.contains { $0.portName == selectedSpeaker }
-            try? session.overrideOutputAudioPort(connected ? .none : .speaker)
+        } else {
+            // Clear any override and let `.defaultToSpeaker` decide: a connected accessory
+            // (AirPods etc.) takes priority, otherwise it routes to the built-in speaker at
+            // full media volume — never the quiet earpiece receiver. Covers Automatic, a
+            // specific chosen output, and the plain built-in-speaker (no accessory) case.
+            try? session.overrideOutputAudioPort(.none)
         }
     }
 
