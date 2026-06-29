@@ -26,12 +26,18 @@ struct VisualTemplate: Codable, Identifiable, Hashable {
     var showPitches: Bool
     var textColor: String
     var textFont: String
+    var singerSize: Double
+    var singerInnerColor: String
+    var singerOuterColor: String
+    var singerLineColor: String
 
     init(id: UUID = UUID(), name: String,
          noteColor: String, playingNoteColor: String, noteRoundness: Double,
          verticalZoom: Double, horizontalZoom: Double, followVertical: Bool,
          showLines: Bool, background: String, showKeyboard: Bool, showPitches: Bool,
-         textColor: String, textFont: String) {
+         textColor: String, textFont: String,
+         singerSize: Double, singerInnerColor: String,
+         singerOuterColor: String, singerLineColor: String) {
         self.id = id
         self.name = name
         self.noteColor = noteColor
@@ -46,6 +52,10 @@ struct VisualTemplate: Codable, Identifiable, Hashable {
         self.showPitches = showPitches
         self.textColor = textColor
         self.textFont = textFont
+        self.singerSize = singerSize
+        self.singerInnerColor = singerInnerColor
+        self.singerOuterColor = singerOuterColor
+        self.singerLineColor = singerLineColor
     }
 
     /// Custom decoding so templates saved (or bundled) before a setting existed still
@@ -67,6 +77,10 @@ struct VisualTemplate: Codable, Identifiable, Hashable {
         showPitches = try c.decodeIfPresent(Bool.self, forKey: .showPitches) ?? VisualDefaults.showPitches
         textColor = try c.decodeIfPresent(String.self, forKey: .textColor) ?? VisualDefaults.textColor
         textFont = try c.decodeIfPresent(String.self, forKey: .textFont) ?? VisualDefaults.textFont
+        singerSize = try c.decodeIfPresent(Double.self, forKey: .singerSize) ?? VisualDefaults.singerSize
+        singerInnerColor = try c.decodeIfPresent(String.self, forKey: .singerInnerColor) ?? VisualDefaults.singerInnerColor
+        singerOuterColor = try c.decodeIfPresent(String.self, forKey: .singerOuterColor) ?? VisualDefaults.singerOuterColor
+        singerLineColor = try c.decodeIfPresent(String.self, forKey: .singerLineColor) ?? VisualDefaults.singerLineColor
     }
 
     /// Captures the settings currently stored in UserDefaults into a new template,
@@ -90,7 +104,11 @@ struct VisualTemplate: Codable, Identifiable, Hashable {
             showKeyboard: bool(VisualKeys.showKeyboard, VisualDefaults.showKeyboard),
             showPitches: bool(VisualKeys.showPitches, VisualDefaults.showPitches),
             textColor: str(VisualKeys.textColor, VisualDefaults.textColor),
-            textFont: str(VisualKeys.textFont, VisualDefaults.textFont))
+            textFont: str(VisualKeys.textFont, VisualDefaults.textFont),
+            singerSize: dbl(VisualKeys.singerSize, VisualDefaults.singerSize),
+            singerInnerColor: str(VisualKeys.singerInnerColor, VisualDefaults.singerInnerColor),
+            singerOuterColor: str(VisualKeys.singerOuterColor, VisualDefaults.singerOuterColor),
+            singerLineColor: str(VisualKeys.singerLineColor, VisualDefaults.singerLineColor))
     }
 
     /// Writes this template's values into UserDefaults under the `VisualKeys`. The
@@ -110,6 +128,10 @@ struct VisualTemplate: Codable, Identifiable, Hashable {
         d.set(showPitches, forKey: VisualKeys.showPitches)
         d.set(textColor, forKey: VisualKeys.textColor)
         d.set(textFont, forKey: VisualKeys.textFont)
+        d.set(singerSize, forKey: VisualKeys.singerSize)
+        d.set(singerInnerColor, forKey: VisualKeys.singerInnerColor)
+        d.set(singerOuterColor, forKey: VisualKeys.singerOuterColor)
+        d.set(singerLineColor, forKey: VisualKeys.singerLineColor)
     }
 
     /// True when this template's stored values match what is currently in UserDefaults,

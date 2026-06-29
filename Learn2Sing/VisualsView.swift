@@ -45,6 +45,10 @@ struct PlaybackVisualsView: View {
     @AppStorage(VisualKeys.showPitches)    private var showPitches     = VisualDefaults.showPitches
     @AppStorage(VisualKeys.textColor)      private var textColor      = VisualDefaults.textColor
     @AppStorage(VisualKeys.textFont)       private var textFont       = VisualDefaults.textFont
+    @AppStorage(VisualKeys.singerSize)       private var singerSize       = VisualDefaults.singerSize
+    @AppStorage(VisualKeys.singerInnerColor) private var singerInnerColor = VisualDefaults.singerInnerColor
+    @AppStorage(VisualKeys.singerOuterColor) private var singerOuterColor = VisualDefaults.singerOuterColor
+    @AppStorage(VisualKeys.singerLineColor)  private var singerLineColor  = VisualDefaults.singerLineColor
 
     /// Saved named templates the user can switch between. Created at app launch and
     /// injected, so the bundled default is seeded before any playback.
@@ -80,7 +84,11 @@ struct PlaybackVisualsView: View {
             showKeyboard: showKeyboard,
             showPitches: showPitches,
             textColor: Color(hex: textColor),
-            textFont: PlaybackFont(rawValue: textFont) ?? .system)
+            textFont: PlaybackFont(rawValue: textFont) ?? .system,
+            singerSize: singerSize,
+            singerInnerColor: Color(hex: singerInnerColor),
+            singerOuterColor: Color(hex: singerOuterColor),
+            singerLineColor: Color(hex: singerLineColor))
     }
 
     // Demo content. A short three-note motif repeated many times so the preview can
@@ -138,6 +146,13 @@ struct PlaybackVisualsView: View {
                         Text(font.rawValue).tag(font.rawValue)
                     }
                 }
+            }
+
+            Section("Singing indicator") {
+                sliderRow("Size", value: $singerSize, range: 0.5...3)
+                ColorPicker("Inner colour", selection: opacityColorBinding($singerInnerColor), supportsOpacity: true)
+                ColorPicker("Outer colour", selection: opacityColorBinding($singerOuterColor), supportsOpacity: true)
+                ColorPicker("Line colour", selection: opacityColorBinding($singerLineColor), supportsOpacity: true)
             }
 
             templatesSection
@@ -305,5 +320,12 @@ struct PlaybackVisualsView: View {
     private func colorBinding(_ raw: Binding<String>) -> Binding<Color> {
         Binding(get: { Color(hex: raw.wrappedValue) },
                 set: { raw.wrappedValue = $0.hexString })
+    }
+
+    /// Like `colorBinding`, but preserves the picked opacity (stored as "#RRGGBBAA")
+    /// for colours where transparency is meaningful.
+    private func opacityColorBinding(_ raw: Binding<String>) -> Binding<Color> {
+        Binding(get: { Color(hex: raw.wrappedValue) },
+                set: { raw.wrappedValue = $0.hexStringWithAlpha })
     }
 }

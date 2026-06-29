@@ -36,17 +36,19 @@ extension Color {
         let cleaned = hex.trimmingCharacters(in: CharacterSet(charactersIn: "# ")).uppercased()
         var value: UInt64 = 0
         Scanner(string: cleaned).scanHexInt64(&value)
-        let r, g, b: Double
+        let r, g, b, a: Double
         if cleaned.count == 8 {
             r = Double((value >> 24) & 0xFF) / 255
             g = Double((value >> 16) & 0xFF) / 255
             b = Double((value >> 8) & 0xFF) / 255
+            a = Double(value & 0xFF) / 255
         } else {
             r = Double((value >> 16) & 0xFF) / 255
             g = Double((value >> 8) & 0xFF) / 255
             b = Double(value & 0xFF) / 255
+            a = 1
         }
-        self.init(.sRGB, red: r, green: g, blue: b, opacity: 1)
+        self.init(.sRGB, red: r, green: g, blue: b, opacity: a)
     }
 
     /// "#RRGGBB" representation, used to persist a colour picked from the wheel.
@@ -55,6 +57,16 @@ extension Color {
         UIColor(self).getRed(&r, green: &g, blue: &b, alpha: &a)
         return String(format: "#%02X%02X%02X",
                       Int((r * 255).rounded()), Int((g * 255).rounded()), Int((b * 255).rounded()))
+    }
+
+    /// "#RRGGBBAA" representation, used for colours whose opacity (including fully
+    /// transparent) is meaningful, like the singer indicator's fill/stroke/trail.
+    var hexStringWithAlpha: String {
+        var r: CGFloat = 0, g: CGFloat = 0, b: CGFloat = 0, a: CGFloat = 0
+        UIColor(self).getRed(&r, green: &g, blue: &b, alpha: &a)
+        return String(format: "#%02X%02X%02X%02X",
+                      Int((r * 255).rounded()), Int((g * 255).rounded()),
+                      Int((b * 255).rounded()), Int((a * 255).rounded()))
     }
 }
 
@@ -73,6 +85,10 @@ enum VisualKeys {
     static let showPitches    = "vis_showPitches"
     static let textColor      = "vis_textColor"
     static let textFont       = "vis_textFont"
+    static let singerSize        = "vis_singerSize"
+    static let singerInnerColor  = "vis_singerInnerColor"
+    static let singerOuterColor  = "vis_singerOuterColor"
+    static let singerLineColor   = "vis_singerLineColor"
 }
 
 /// Default values, used both for the @AppStorage controls and when resolving the
@@ -90,6 +106,10 @@ enum VisualDefaults {
     static let showPitches    = false
     static let textColor      = "#FF9500"   // orange, matching the original look
     static let textFont       = PlaybackFont.system.rawValue
+    static let singerSize        = 1.0          // multiplier on the original dot radius
+    static let singerInnerColor  = "#00FFFFFF"  // cyan, the original dot fill
+    static let singerOuterColor  = "#FFFFFFFF"  // white, the original dot border
+    static let singerLineColor   = "#00FFFFB2"  // cyan at ~70% opacity, the original trail
 }
 
 // MARK: - Resolved settings
@@ -109,6 +129,10 @@ struct VisualSettings {
     var showPitches: Bool
     var textColor: Color
     var textFont: PlaybackFont
+    var singerSize: Double
+    var singerInnerColor: Color
+    var singerOuterColor: Color
+    var singerLineColor: Color
 
     /// The current settings read straight from UserDefaults (used by PlaybackView).
     static var current: VisualSettings {
@@ -128,7 +152,11 @@ struct VisualSettings {
             showKeyboard: bool(VisualKeys.showKeyboard, VisualDefaults.showKeyboard),
             showPitches: bool(VisualKeys.showPitches, VisualDefaults.showPitches),
             textColor: Color(hex: str(VisualKeys.textColor, VisualDefaults.textColor)),
-            textFont: PlaybackFont(rawValue: str(VisualKeys.textFont, VisualDefaults.textFont)) ?? .system)
+            textFont: PlaybackFont(rawValue: str(VisualKeys.textFont, VisualDefaults.textFont)) ?? .system,
+            singerSize: dbl(VisualKeys.singerSize, VisualDefaults.singerSize),
+            singerInnerColor: Color(hex: str(VisualKeys.singerInnerColor, VisualDefaults.singerInnerColor)),
+            singerOuterColor: Color(hex: str(VisualKeys.singerOuterColor, VisualDefaults.singerOuterColor)),
+            singerLineColor: Color(hex: str(VisualKeys.singerLineColor, VisualDefaults.singerLineColor)))
     }
 }
 
@@ -307,15 +335,15 @@ func drawPlaybackScene(ctx: GraphicsContext, layout: SceneLayout, beat: Double,
     // ── Singer's pitch history (trailing line) ───────────────────────────────
     ctx.drawLayer { layer in
         layer.clip(to: Path(CGRect(x: pianoW, y: 0, width: size.width - pianoW, height: size.height)))
-        layer.stroke(trailPath, with: .color(.cyan.opacity(0.7)), lineWidth: 2.5)
+        layer.stroke(trailPath, with: .color(settings.singerLineColor), lineWidth: 2.5)
     }
 
     // ── Singer's current pitch (dot at the playhead) ──────────────────────────
     if let pitch = singerPitch {
-        let r = min(rowH * 0.85, 11)
+        let r = min(rowH * 0.85, 11) * settings.singerSize
         let y = min(max(layout.y(pitch), r), size.height - r)
         let dot = Path(ellipseIn: CGRect(x: layout.playheadX - r, y: y - r, width: 2 * r, height: 2 * r))
-        ctx.fill(dot, with: .color(.cyan))
-        ctx.stroke(dot, with: .color(.white), lineWidth: 1.5)
+        ctx.fill(dot, with: .color(settings.singerInnerColor))
+        ctx.stroke(dot, with: .color(settings.singerOuterColor), lineWidth: 1.5)
     }
 }
