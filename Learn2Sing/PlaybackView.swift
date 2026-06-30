@@ -414,6 +414,7 @@ final class ExercisePlayer {
     // MARK: Scheduling
 
     func schedule(notes: [MIDINote], bpm: Double, leadIn: Double, preview: Bool = true,
+                  repeatSpan: Double = 0, betweenReps: Double = 0,
                   onFinish: @escaping () -> Void) {
         let secPerBeat = 60.0 / bpm
 
@@ -426,20 +427,35 @@ final class ExercisePlayer {
             events.append(Event(sample: offSample, pitch: note.pitch, on: false))
         }
 
-        // Preview the first note before the exercise begins: sound its pitch for
-        // two beats, leave a one-beat pause, then let the exercise start on time.
-        // These events are added only to the audio schedule (not the drawn `notes`)
-        // so the preview is heard but never appears in the animation. It lives
-        // inside the silent lead-in, so the exercise itself isn't shifted.
-        if preview, let firstNote = notes.min(by: { $0.beat < $1.beat }) {
-            let firstBeat = firstNote.beat + leadIn
-            let previewOn  = firstBeat - 3.0   // 2 beats sounding + 1 beat pause
-            let previewOff = firstBeat - 1.0
-            if previewOn >= 0 {
-                events.append(Event(sample: Int(previewOn  * secPerBeat * sampleRate),
-                                    pitch: firstNote.pitch, on: true))
-                events.append(Event(sample: Int(previewOff * secPerBeat * sampleRate),
-                                    pitch: firstNote.pitch, on: false))
+        // Preview the first note of each repetition before it begins: sound its
+        // pitch for two beats, leave a one-beat pause, then let that repetition start
+        // on time. These events are added only to the audio schedule (not the drawn
+        // `notes`), so the preview is heard but never appears in the animation and is
+        // never scored. The first repetition's preview lives inside the silent lead-in.
+        // Later repetitions only get one when the gap between reps is at least three
+        // beats — the preview's two-beat tone plus one-beat pause — so it fits inside
+        // the silence without colliding with the previous repetition.
+        if preview {
+            // Earliest note of each repetition, grouped by the repeat span. Each
+            // repetition's first note already carries that rep's transposition, so its
+            // pitch is the right one to preview.
+            var firstByRep: [Int: MIDINote] = [:]
+            for note in notes {
+                let rep = repeatSpan > 0 ? Int(floor(note.beat / repeatSpan + 1e-6)) : 0
+                if let existing = firstByRep[rep], existing.beat <= note.beat { continue }
+                firstByRep[rep] = note
+            }
+            for (rep, firstNote) in firstByRep {
+                if rep >= 1 && betweenReps < 3 { continue }
+                let firstBeat = firstNote.beat + leadIn
+                let previewOn  = firstBeat - 3.0   // 2 beats sounding + 1 beat pause
+                let previewOff = firstBeat - 1.0
+                if previewOn >= 0 {
+                    events.append(Event(sample: Int(previewOn  * secPerBeat * sampleRate),
+                                        pitch: firstNote.pitch, on: true))
+                    events.append(Event(sample: Int(previewOff * secPerBeat * sampleRate),
+                                        pitch: firstNote.pitch, on: false))
+                }
             }
         }
         // Sort by time; at the same instant fire note-offs before note-ons so a
@@ -701,7 +717,8 @@ struct PlaybackView: View {
             claps.reset()
             pitchDetector.detectClaps = (mode == .delayTest)
             player.schedule(notes: notes, bpm: bpm, leadIn: leadIn,
-                            preview: mode == .normal) {
+                            preview: mode == .normal,
+                            repeatSpan: repeatSpan, betweenReps: exercise.beatsBetweenReps) {
                 if mode == .delayTest {
                     // Convert the detected claps to beat positions *before* tearing
                     // the audio down — the conversion needs the engine's still-live
