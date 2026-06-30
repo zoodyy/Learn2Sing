@@ -1,0 +1,1084 @@
+{
+  "exercises" : [
+    {
+      "repeatCount" : 10,
+      "category" : "Tone",
+      "transposePerRepeat" : 1,
+      "beatsBetweenReps" : 4,
+      "switchDirectionAfter" : 0,
+      "id" : "52F6A03F-8B99-4601-820D-E9E8657D8ED3",
+      "bpm" : 138,
+      "name" : "May",
+      "pitchShift" : -12,
+      "details" : "Keep your jaw and throat relaxed, lowering your larynx. You should feel some resonance in your lips."
+    },
+    {
+      "repeatCount" : 7,
+      "category" : "Scales",
+      "transposePerRepeat" : 1,
+      "beatsBetweenReps" : 4,
+      "switchDirectionAfter" : 0,
+      "id" : "0ECAE354-AEDE-40A4-98EF-7AADECCDC3E4",
+      "bpm" : 125,
+      "name" : "Major Ascending",
+      "pitchShift" : 0,
+      "details" : ""
+    },
+    {
+      "details" : "",
+      "id" : "AB235E23-8BCD-4D78-9468-40F0B6060DAE",
+      "switchDirectionAfter" : 0,
+      "beatsBetweenReps" : 4,
+      "transposePerRepeat" : 1,
+      "bpm" : 125,
+      "name" : "Major Descending",
+      "category" : "Scales",
+      "repeatCount" : 7,
+      "pitchShift" : 0
+    },
+    {
+      "details" : "",
+      "id" : "E5B18A98-4953-4DDC-A4A3-F5EE88B58D9F",
+      "switchDirectionAfter" : 0,
+      "beatsBetweenReps" : 4,
+      "transposePerRepeat" : 1,
+      "bpm" : 125,
+      "name" : "Minor Ascending",
+      "category" : "Scales",
+      "repeatCount" : 7,
+      "pitchShift" : 0
+    },
+    {
+      "details" : "",
+      "id" : "A9BB1A5C-23D2-40D2-A127-E7797C251BA0",
+      "switchDirectionAfter" : 0,
+      "beatsBetweenReps" : 4,
+      "transposePerRepeat" : 1,
+      "bpm" : 125,
+      "name" : "Minor Descending",
+      "category" : "Scales",
+      "repeatCount" : 7,
+      "pitchShift" : 0
+    },
+    {
+      "repeatCount" : 8,
+      "bpm" : 204,
+      "id" : "A82EC056-B23E-46F6-97EA-A0E960C69C1B",
+      "category" : "Tone",
+      "pitchShift" : 0,
+      "transposePerRepeat" : 1,
+      "beatsBetweenReps" : 4,
+      "name" : "Doo Hoo",
+      "details" : "",
+      "switchDirectionAfter" : 0
+    },
+    {
+      "repeatCount" : 10,
+      "bpm" : 120,
+      "id" : "4BFA2CC6-4A87-4C2B-B0D0-688042C23525",
+      "category" : "Tone",
+      "pitchShift" : -12,
+      "transposePerRepeat" : 1,
+      "beatsBetweenReps" : 4,
+      "name" : "Mum",
+      "details" : "",
+      "switchDirectionAfter" : 0
+    },
+    {
+      "repeatCount" : 1,
+      "bpm" : 120,
+      "id" : "177175A8-8AFC-4B67-9E3B-7808FD5F18D0",
+      "category" : "",
+      "pitchShift" : -12,
+      "transposePerRepeat" : -1,
+      "beatsBetweenReps" : 4,
+      "name" : "Test",
+      "details" : "",
+      "switchDirectionAfter" : 0
+    },
+    {
+      "name" : "Yum Ya",
+      "beatsBetweenReps" : 4,
+      "details" : "Move your jaw freely on the \"Yum\" and maintain the relaxed feeling on the \"Ya.\"",
+      "category" : "Tone",
+      "repeatCount" : 10,
+      "transposePerRepeat" : 1,
+      "bpm" : 130,
+      "id" : "508A4B56-826C-4C7F-8A8A-EC4ADEF48F62",
+      "switchDirectionAfter" : 0,
+      "pitchShift" : 0
+    },
+    {
+      "name" : "Three-Note Run",
+      "beatsBetweenReps" : 4,
+      "details" : "Maintain a steady airflow and consistent mouth placement.",
+      "category" : "Agility",
+      "repeatCount" : 8,
+      "transposePerRepeat" : 1,
+      "bpm" : 200,
+      "id" : "636D3030-BD0E-4B90-995E-49D298E897A4",
+      "switchDirectionAfter" : 0,
+      "pitchShift" : 0
+    },
+    {
+      "name" : "Test 2",
+      "beatsBetweenReps" : 2,
+      "details" : "\n",
+      "category" : "",
+      "repeatCount" : 3,
+      "transposePerRepeat" : 6,
+      "bpm" : 120,
+      "id" : "511866DD-F3C3-4111-8DAD-50846F1E7A47",
+      "switchDirectionAfter" : 0,
+      "pitchShift" : 0
+    },
+    {
+      "name" : "Test 3",
+      "beatsBetweenReps" : 1,
+      "details" : "type shit",
+      "category" : "",
+      "repeatCount" : 3,
+      "transposePerRepeat" : 3,
+      "bpm" : 200,
+      "id" : "A99C4898-613E-4500-9AEF-838E1BCCD23F",
+      "switchDirectionAfter" : 2,
+      "pitchShift" : 0
+    },
+    {
+      "name" : "Bumblebee",
+      "beatsBetweenReps" : 0,
+      "details" : "Focus on keeping your lips flexible and your larynx low.",
+      "category" : "Articulation",
+      "repeatCount" : 1,
+      "transposePerRepeat" : 0,
+      "bpm" : 132,
+      "id" : "5C40BDD7-969C-43EA-BC16-E49E7CE3DFE5",
+      "switchDirectionAfter" : 0,
+      "pitchShift" : 0
+    }
+  ],
+  "midi" : {
+    "A82EC056-B23E-46F6-97EA-A0E960C69C1B" : [
+      {
+        "pitch" : 45,
+        "id" : "867AC6A5-4779-43D8-84BC-41B28F82473D",
+        "beat" : 0,
+        "length" : 1
+      },
+      {
+        "pitch" : 45,
+        "id" : "8C187EF7-4CB2-4950-8B74-B2667443DC68",
+        "beat" : 2,
+        "length" : 1
+      },
+      {
+        "pitch" : 47,
+        "id" : "6B10ED7D-AB19-4E21-B203-F190D6860A1F",
+        "beat" : 3,
+        "length" : 1
+      },
+      {
+        "beat" : 4,
+        "id" : "58F24220-6A58-4ED0-8D34-9373D86545FC",
+        "pitch" : 49,
+        "length" : 1
+      },
+      {
+        "beat" : 6,
+        "id" : "6A6D56E5-79EE-4AB5-AC9A-043573986E79",
+        "pitch" : 49,
+        "length" : 1
+      },
+      {
+        "beat" : 7,
+        "id" : "3482D016-0549-4422-899B-459FA44CED79",
+        "pitch" : 50,
+        "length" : 1
+      },
+      {
+        "beat" : 8,
+        "id" : "FC5885D3-55D7-45F4-95BD-A7FD10EB980F",
+        "pitch" : 52,
+        "length" : 1
+      },
+      {
+        "beat" : 10,
+        "id" : "6B13D523-28D2-45C7-B9E7-D5B14EE666A8",
+        "pitch" : 52,
+        "length" : 1
+      },
+      {
+        "beat" : 11,
+        "id" : "F138A642-6F32-42B2-BF29-479C781A540E",
+        "pitch" : 50,
+        "length" : 1
+      },
+      {
+        "beat" : 12,
+        "id" : "870CAFF6-F40A-4C69-9C4D-88F1167B4AD3",
+        "pitch" : 49,
+        "length" : 1
+      },
+      {
+        "beat" : 14,
+        "id" : "BEC2A0C9-BC05-4BB9-BB91-7F8DCD3D3813",
+        "pitch" : 49,
+        "length" : 1
+      },
+      {
+        "beat" : 15,
+        "id" : "9782A161-622F-487B-8180-13B397DA1B4A",
+        "pitch" : 47,
+        "length" : 1
+      },
+      {
+        "beat" : 16,
+        "id" : "B661F205-6E8C-43DA-B25A-B9A4CB0FB4DB",
+        "pitch" : 45,
+        "length" : 1
+      }
+    ],
+    "5C40BDD7-969C-43EA-BC16-E49E7CE3DFE5" : [
+      {
+        "beat" : 0,
+        "id" : "01290508-6076-416A-8764-49B21CA1E857",
+        "pitch" : 49,
+        "length" : 1
+      },
+      {
+        "beat" : 1,
+        "id" : "2646D825-36D6-4382-9B05-902539DC977D",
+        "pitch" : 53,
+        "length" : 1
+      },
+      {
+        "beat" : 2,
+        "id" : "AE6138A4-9020-4CFD-84DA-4EC1AC2CE85B",
+        "pitch" : 51,
+        "length" : 1
+      },
+      {
+        "beat" : 5,
+        "id" : "ECDD79F5-AA6C-4181-B5A6-D1392DBA2E01",
+        "pitch" : 56,
+        "length" : 1
+      },
+      {
+        "beat" : 3,
+        "id" : "DE5D27BB-C440-468F-B634-72D3524391DF",
+        "pitch" : 54,
+        "length" : 1
+      },
+      {
+        "beat" : 4,
+        "id" : "8399D1CF-4970-4FBF-84CB-92C5AC7ED44F",
+        "pitch" : 53,
+        "length" : 1
+      },
+      {
+        "beat" : 6,
+        "id" : "EBEC049E-1A1F-42D4-A84B-382D8F840DF8",
+        "pitch" : 54,
+        "length" : 1
+      },
+      {
+        "beat" : 7,
+        "id" : "BB20F58C-9D2D-46C4-8EFA-C0D481438C78",
+        "pitch" : 58,
+        "length" : 1
+      },
+      {
+        "beat" : 8,
+        "id" : "C3145A77-6569-4C45-AA01-421D524DD8F5",
+        "pitch" : 56,
+        "length" : 1
+      },
+      {
+        "beat" : 9,
+        "id" : "73F76D7F-6EEE-42A6-8930-00DF2F072541",
+        "pitch" : 60,
+        "length" : 1
+      },
+      {
+        "beat" : 10,
+        "id" : "CA4442BC-54E3-4563-B65A-543F842BC8F3",
+        "pitch" : 58,
+        "length" : 1
+      },
+      {
+        "beat" : 11,
+        "id" : "70E1131C-7185-447F-957E-3BB02414BF65",
+        "pitch" : 61,
+        "length" : 1
+      },
+      {
+        "beat" : 12,
+        "id" : "06EE1E08-310A-4826-A925-1DBD16B51E83",
+        "pitch" : 60,
+        "length" : 1
+      },
+      {
+        "beat" : 13,
+        "id" : "3C85C726-B5A0-45CD-B365-C751B1DB47A8",
+        "pitch" : 63,
+        "length" : 1
+      },
+      {
+        "beat" : 14,
+        "id" : "F9DB400A-6A1E-46FC-B91E-FF46CEC56317",
+        "pitch" : 61,
+        "length" : 2
+      },
+      {
+        "beat" : 16,
+        "id" : "E0AD1CB8-7AFE-414F-8646-0FF35503D3C2",
+        "pitch" : 65,
+        "length" : 1
+      },
+      {
+        "beat" : 17,
+        "id" : "21DE0F0F-BF9A-4A92-A986-1711D5E63FA7",
+        "pitch" : 61,
+        "length" : 1
+      },
+      {
+        "beat" : 18,
+        "id" : "512BF8FE-3E14-49E4-9A69-20A8D1A6C6D4",
+        "pitch" : 63,
+        "length" : 1
+      },
+      {
+        "beat" : 19,
+        "id" : "F6BF7920-4112-481E-89C7-EFA0A4A7B8B9",
+        "pitch" : 60,
+        "length" : 1
+      },
+      {
+        "beat" : 20,
+        "id" : "8E8C2005-6C0C-4977-92BC-C2B88EB23995",
+        "pitch" : 61,
+        "length" : 1
+      },
+      {
+        "beat" : 21,
+        "id" : "B4FCB6BA-B067-4DC6-9DFA-EB8ECDB14EC9",
+        "pitch" : 58,
+        "length" : 1
+      },
+      {
+        "beat" : 22,
+        "id" : "772F94EC-7FC6-4359-8DFC-5AD7E2D0C0DA",
+        "pitch" : 60,
+        "length" : 1
+      },
+      {
+        "beat" : 23,
+        "id" : "70EF2CF2-BF91-48ED-84D7-944540D0E171",
+        "pitch" : 56,
+        "length" : 1
+      },
+      {
+        "beat" : 24,
+        "id" : "72F8E4E5-50BD-459C-A2B4-708002EA58B7",
+        "pitch" : 58,
+        "length" : 1
+      },
+      {
+        "beat" : 25,
+        "id" : "381F0ADB-9827-4DBB-B3AD-B0643938C24C",
+        "pitch" : 54,
+        "length" : 1
+      },
+      {
+        "beat" : 26,
+        "id" : "B9E2C74C-834F-4888-A028-A2D1DFF902A6",
+        "pitch" : 56,
+        "length" : 1
+      },
+      {
+        "id" : "C9D2FA61-FA9B-4205-B4DB-64C180F5A0B0",
+        "beat" : 27,
+        "length" : 1,
+        "pitch" : 53
+      },
+      {
+        "id" : "5B52A950-4410-4AFA-812E-0FEA02E936E7",
+        "beat" : 28,
+        "length" : 1,
+        "pitch" : 54
+      },
+      {
+        "id" : "06956D28-B319-403C-8270-E6169EC1CA83",
+        "beat" : 29,
+        "length" : 1,
+        "pitch" : 51
+      },
+      {
+        "id" : "22FFF29A-0950-4EB3-A7FE-BC8FB1A20EFA",
+        "beat" : 30,
+        "length" : 2,
+        "pitch" : 49
+      }
+    ],
+    "E5B18A98-4953-4DDC-A4A3-F5EE88B58D9F" : [
+      {
+        "pitch" : 45,
+        "id" : "938FB817-9CDE-4D38-8483-CDD12EEC01BC",
+        "beat" : 0,
+        "length" : 1
+      },
+      {
+        "pitch" : 47,
+        "id" : "39802A8C-EA16-4436-A755-3901337D0459",
+        "beat" : 1,
+        "length" : 1
+      },
+      {
+        "pitch" : 48,
+        "id" : "AC3129E8-121E-41A0-906A-69849BDF5B53",
+        "beat" : 2,
+        "length" : 1
+      },
+      {
+        "pitch" : 50,
+        "id" : "CF0617B4-DC38-4676-BFE8-816752F048E4",
+        "beat" : 3,
+        "length" : 1
+      },
+      {
+        "pitch" : 52,
+        "id" : "4AE9D9B3-76DC-42D6-A4AA-BC166D263361",
+        "beat" : 4,
+        "length" : 1
+      },
+      {
+        "pitch" : 53,
+        "id" : "D35799F7-A248-4870-8FFB-BF44DC93920F",
+        "beat" : 5,
+        "length" : 1
+      },
+      {
+        "pitch" : 55,
+        "id" : "4F1D1D53-6886-4C45-85CF-06A3966F1243",
+        "beat" : 6,
+        "length" : 1
+      },
+      {
+        "pitch" : 57,
+        "id" : "4983B08C-1C1C-4875-92BE-C3C63A2FC69A",
+        "beat" : 7,
+        "length" : 1
+      }
+    ],
+    "0ECAE354-AEDE-40A4-98EF-7AADECCDC3E4" : [
+      {
+        "pitch" : 45,
+        "id" : "61483339-E439-4C31-A62B-421B13DB2AC5",
+        "beat" : 0,
+        "length" : 1
+      },
+      {
+        "pitch" : 47,
+        "id" : "464E8B2A-65D1-42CB-80CD-344BE3BF9482",
+        "beat" : 1,
+        "length" : 1
+      },
+      {
+        "pitch" : 49,
+        "id" : "B5979557-1CF3-4C31-B567-6E22A976AFE5",
+        "beat" : 2,
+        "length" : 1
+      },
+      {
+        "pitch" : 50,
+        "id" : "D82B10DA-5CD0-4B9B-BE16-567A2F3B0CA8",
+        "beat" : 3,
+        "length" : 1
+      },
+      {
+        "pitch" : 52,
+        "id" : "73F1DF4D-D058-40D1-A8C7-07A4A8F3E61B",
+        "beat" : 4,
+        "length" : 1
+      },
+      {
+        "pitch" : 54,
+        "id" : "F1C93AFE-98A5-42BA-951C-429F2CD5EC36",
+        "beat" : 5,
+        "length" : 1
+      },
+      {
+        "pitch" : 56,
+        "id" : "2ED46477-EC31-4E63-AFE1-9BFEA9906132",
+        "beat" : 6,
+        "length" : 1
+      },
+      {
+        "pitch" : 57,
+        "id" : "613B6454-2C01-4792-AEA0-251439966FF6",
+        "beat" : 7,
+        "length" : 1
+      }
+    ],
+    "A9BB1A5C-23D2-40D2-A127-E7797C251BA0" : [
+      {
+        "id" : "EF1F5A59-0D83-4DC2-8B27-5CD518A8AE60",
+        "beat" : 0,
+        "length" : 1,
+        "pitch" : 57
+      },
+      {
+        "id" : "D1E105EB-53FD-4D5A-B730-8E93C8C38495",
+        "beat" : 1,
+        "length" : 1,
+        "pitch" : 55
+      },
+      {
+        "id" : "2C594B9D-DA6E-4B29-B880-4E27EA9C4787",
+        "beat" : 2,
+        "length" : 1,
+        "pitch" : 53
+      },
+      {
+        "id" : "C4A7D26D-BB70-4BC9-9693-084B96D106AA",
+        "beat" : 3,
+        "length" : 1,
+        "pitch" : 52
+      },
+      {
+        "id" : "B97D3932-3520-4476-914B-66C70B96AB96",
+        "beat" : 4,
+        "length" : 1,
+        "pitch" : 50
+      },
+      {
+        "id" : "12283CF5-972D-403E-BB34-CAB27A69F7B6",
+        "beat" : 5,
+        "length" : 1,
+        "pitch" : 48
+      },
+      {
+        "id" : "9F42DFA3-D441-47E5-9869-D820703F96E3",
+        "beat" : 6,
+        "length" : 1,
+        "pitch" : 47
+      },
+      {
+        "id" : "708ABCD6-98EC-4DC1-8713-3889EBB5E2A6",
+        "beat" : 7,
+        "length" : 1,
+        "pitch" : 45
+      }
+    ],
+    "511866DD-F3C3-4111-8DAD-50846F1E7A47" : [
+      {
+        "id" : "FC275589-C4DB-46D6-9AFE-4DAC8AF498F7",
+        "beat" : 0,
+        "length" : 2,
+        "pitch" : 57
+      },
+      {
+        "id" : "6179BE60-D266-4520-99CC-6D097E257910",
+        "beat" : 2,
+        "length" : 2,
+        "pitch" : 54
+      },
+      {
+        "id" : "03D18CC5-1973-4D06-92A7-E30ABDE1DDF3",
+        "beat" : 4,
+        "length" : 1,
+        "pitch" : 55
+      },
+      {
+        "id" : "6413E5E0-D260-4099-9C45-9DCAEEB7A443",
+        "beat" : 5,
+        "length" : 1.25,
+        "pitch" : 54
+      },
+      {
+        "id" : "99DCD210-82F2-47D2-818B-40F6B5EB3073",
+        "beat" : 6.25,
+        "length" : 1.75,
+        "pitch" : 55
+      }
+    ],
+    "4BFA2CC6-4A87-4C2B-B0D0-688042C23525" : [
+      {
+        "id" : "F153C32F-9E40-4D29-92E9-AE8C90028BFB",
+        "beat" : 0,
+        "length" : 1,
+        "pitch" : 57
+      },
+      {
+        "id" : "E5F63C7E-6415-4B2A-A544-1F152E732EDC",
+        "beat" : 1,
+        "length" : 1,
+        "pitch" : 59
+      },
+      {
+        "id" : "C58D3D2C-C6CD-4279-B4B4-ECE972261E1E",
+        "beat" : 2,
+        "length" : 1,
+        "pitch" : 61
+      },
+      {
+        "pitch" : 59,
+        "length" : 1,
+        "id" : "886FF08B-D706-47A6-86A8-7B5588133BBF",
+        "beat" : 3
+      },
+      {
+        "pitch" : 57,
+        "length" : 1,
+        "id" : "7195CA0F-AD7C-49AC-A15E-1B11C82C0F6F",
+        "beat" : 4
+      },
+      {
+        "pitch" : 64,
+        "length" : 1,
+        "id" : "1450CFFA-71C0-4EF5-AADC-7F5EB701415F",
+        "beat" : 5
+      },
+      {
+        "pitch" : 61,
+        "length" : 1,
+        "id" : "548B5167-7CCB-4342-A39E-DC3F1CC95E14",
+        "beat" : 6
+      },
+      {
+        "pitch" : 59,
+        "length" : 1,
+        "id" : "4E755FA7-3CEC-4004-924F-21978B4D6284",
+        "beat" : 7
+      },
+      {
+        "pitch" : 57,
+        "length" : 1,
+        "id" : "5F112B7B-C144-45D7-B2EE-3514B183EFB5",
+        "beat" : 8
+      }
+    ],
+    "52F6A03F-8B99-4601-820D-E9E8657D8ED3" : [
+      {
+        "length" : 1,
+        "id" : "B7EEF9DA-1EE2-485B-95F7-423FB7EF4D53",
+        "beat" : 0,
+        "pitch" : 57
+      },
+      {
+        "length" : 1,
+        "id" : "FE42D906-FFD3-4027-9EFD-740FE0CAA922",
+        "beat" : 1,
+        "pitch" : 61
+      },
+      {
+        "length" : 1,
+        "id" : "87941AF7-5343-43BB-8B00-AE8E171E64F2",
+        "beat" : 2,
+        "pitch" : 59
+      },
+      {
+        "length" : 1,
+        "id" : "824EA525-D830-4601-8AA8-A68B5BC77B77",
+        "beat" : 3,
+        "pitch" : 62
+      },
+      {
+        "length" : 1,
+        "id" : "F3948747-4AAF-4717-942E-206326D43AE4",
+        "beat" : 4,
+        "pitch" : 61
+      },
+      {
+        "length" : 1,
+        "id" : "4B314DEE-A366-4D9A-A376-42C91E39C8F7",
+        "beat" : 5,
+        "pitch" : 64
+      },
+      {
+        "length" : 1,
+        "id" : "FAB94871-1DEB-4D80-8E33-A3EED973DEA2",
+        "beat" : 6,
+        "pitch" : 62
+      },
+      {
+        "length" : 1,
+        "id" : "40658CE7-17F6-4228-955B-1B29EC4C9C89",
+        "beat" : 7,
+        "pitch" : 59
+      },
+      {
+        "length" : 1,
+        "id" : "6D3DDBBB-58F7-41DC-B27E-3B9CD5BDE1EF",
+        "beat" : 8,
+        "pitch" : 57
+      }
+    ],
+    "177175A8-8AFC-4B67-9E3B-7808FD5F18D0" : [
+      {
+        "pitch" : 61,
+        "id" : "3007AD19-51B7-4807-86CA-1ACB81F521AB",
+        "beat" : 3,
+        "length" : 2
+      },
+      {
+        "pitch" : 64,
+        "id" : "9F0D129C-40B3-4622-BC50-E119276A451B",
+        "beat" : 5,
+        "length" : 2
+      },
+      {
+        "pitch" : 61,
+        "id" : "CC90C880-245B-427D-B3DE-1FD4B62D3EB8",
+        "beat" : 0,
+        "length" : 2
+      }
+    ],
+    "A99C4898-613E-4500-9AEF-838E1BCCD23F" : [
+      {
+        "beat" : 4,
+        "id" : "8866E795-677E-4216-8439-C497A1303C29",
+        "pitch" : 52,
+        "length" : 1
+      },
+      {
+        "beat" : 0,
+        "id" : "78D16010-D22B-4548-AD72-7F34EF8CED65",
+        "pitch" : 24,
+        "length" : 2.25
+      },
+      {
+        "beat" : 2,
+        "id" : "245F6031-A6AA-44F5-A4E4-F4DE40B5731A",
+        "pitch" : 62,
+        "length" : 1.5
+      }
+    ],
+    "508A4B56-826C-4C7F-8A8A-EC4ADEF48F62" : [
+      {
+        "id" : "B3FB51B6-8EE4-4EE6-8442-BC8018D55A77",
+        "beat" : 0,
+        "length" : 1,
+        "pitch" : 45
+      },
+      {
+        "id" : "023DFFB9-113E-4333-A4BB-9A0A1F426BE5",
+        "beat" : 1,
+        "length" : 1,
+        "pitch" : 47
+      },
+      {
+        "id" : "E23D366C-A830-4135-857D-486C65F74F69",
+        "beat" : 2,
+        "length" : 1,
+        "pitch" : 49
+      },
+      {
+        "id" : "87DDF932-655E-489D-B708-90C0B30426B1",
+        "beat" : 3,
+        "length" : 1,
+        "pitch" : 47
+      },
+      {
+        "id" : "1DAF4911-5E0B-4313-9C4D-0921D3AA5B66",
+        "beat" : 4,
+        "length" : 1,
+        "pitch" : 45
+      },
+      {
+        "id" : "9E718255-1AFC-41DA-87A1-94D7F1996AA2",
+        "beat" : 5,
+        "length" : 1,
+        "pitch" : 49
+      },
+      {
+        "id" : "80C6C306-4BAB-4FE0-BDAF-B437010CCE10",
+        "beat" : 6,
+        "length" : 1,
+        "pitch" : 52
+      },
+      {
+        "id" : "FE1F3C79-567B-4FC5-ABB5-89A0FAEA805D",
+        "beat" : 7,
+        "length" : 1,
+        "pitch" : 49
+      },
+      {
+        "id" : "5C29CDA4-4451-4C14-929D-3F99947781EF",
+        "beat" : 8,
+        "length" : 1,
+        "pitch" : 45
+      }
+    ],
+    "AB235E23-8BCD-4D78-9468-40F0B6060DAE" : [
+      {
+        "id" : "9F89E85A-B5C8-4906-943B-7ED6469D7B44",
+        "beat" : 0,
+        "length" : 1,
+        "pitch" : 45
+      },
+      {
+        "id" : "43F5104B-3689-4527-9E04-9F394799E290",
+        "beat" : 1,
+        "length" : 1,
+        "pitch" : 44
+      },
+      {
+        "id" : "2532ECB7-52C9-46E8-B4F5-6DB4764C6037",
+        "beat" : 2,
+        "length" : 1,
+        "pitch" : 42
+      },
+      {
+        "id" : "7408BE31-84AA-4D44-97DA-3AF6B9601EA3",
+        "beat" : 3,
+        "length" : 1,
+        "pitch" : 40
+      },
+      {
+        "id" : "D94AAC72-C2CC-47C3-AF78-7EA37E8E88AF",
+        "beat" : 4,
+        "length" : 1,
+        "pitch" : 38
+      },
+      {
+        "id" : "462D0E25-3171-4FC1-99AA-009B0737E6FD",
+        "beat" : 5,
+        "length" : 1,
+        "pitch" : 37
+      },
+      {
+        "id" : "86B5BA93-0B0C-4B82-A350-77F0444BDCE2",
+        "beat" : 6,
+        "length" : 1,
+        "pitch" : 35
+      },
+      {
+        "id" : "9B87ED0E-CFDC-4E06-94CB-B413AF9EFF03",
+        "beat" : 7,
+        "length" : 1,
+        "pitch" : 33
+      }
+    ],
+    "636D3030-BD0E-4B90-995E-49D298E897A4" : [
+      {
+        "pitch" : 51,
+        "length" : 1,
+        "id" : "CA3CB16B-B2AA-4A06-B276-B3C7CF38F4D4",
+        "beat" : 0
+      },
+      {
+        "pitch" : 49,
+        "length" : 1,
+        "id" : "F8EB50DC-772B-4C13-A960-BBA2BA098EB6",
+        "beat" : 1
+      },
+      {
+        "pitch" : 47,
+        "length" : 1,
+        "id" : "44D0F774-A687-48A0-95F4-59329BB44EFC",
+        "beat" : 2
+      },
+      {
+        "pitch" : 51,
+        "length" : 1,
+        "id" : "776495B3-A650-4A5D-A9E6-AEEB58720512",
+        "beat" : 3
+      },
+      {
+        "pitch" : 49,
+        "length" : 1,
+        "id" : "F67C2305-F7C7-48FC-B974-65349B8E953B",
+        "beat" : 4
+      },
+      {
+        "pitch" : 47,
+        "length" : 1,
+        "id" : "DB2A9269-B0A1-4D81-8AF2-7EB4BF587213",
+        "beat" : 5
+      },
+      {
+        "pitch" : 51,
+        "length" : 1,
+        "id" : "74C7D50B-0272-4380-A25A-9AA1E7E829CE",
+        "beat" : 6
+      },
+      {
+        "pitch" : 49,
+        "length" : 1,
+        "id" : "371AAC79-4695-4EB2-8569-86AAEAAF840E",
+        "beat" : 7
+      },
+      {
+        "pitch" : 47,
+        "length" : 1,
+        "id" : "42DC3889-1F8E-4401-B471-614C58F27B2A",
+        "beat" : 8
+      },
+      {
+        "pitch" : 51,
+        "length" : 1,
+        "id" : "F561476A-C38E-49E7-AEAD-CD343AB64AA5",
+        "beat" : 9
+      },
+      {
+        "pitch" : 49,
+        "length" : 1,
+        "id" : "E14ABA21-2F12-420B-A7D6-78B15ECCA689",
+        "beat" : 10
+      },
+      {
+        "pitch" : 47,
+        "length" : 1,
+        "id" : "21EBE27F-D1A3-444F-B9D1-7FB910AB98C6",
+        "beat" : 11
+      },
+      {
+        "pitch" : 51,
+        "length" : 1,
+        "id" : "CF85022C-178B-4B6C-A25E-F574A2397A94",
+        "beat" : 12
+      },
+      {
+        "pitch" : 49,
+        "length" : 1,
+        "id" : "1F147E72-E1E4-4630-9AB4-99D35C740F16",
+        "beat" : 13
+      },
+      {
+        "pitch" : 47,
+        "length" : 1,
+        "id" : "56A3C722-D596-4941-A589-15F4178EAEBA",
+        "beat" : 14
+      }
+    ]
+  },
+  "texts" : {
+    "AB235E23-8BCD-4D78-9468-40F0B6060DAE" : [
+      {
+        "text" : "Do",
+        "id" : "9FDCAB64-0CE1-4929-8F11-795A680485BD",
+        "beat" : 0.25,
+        "pitch" : 46
+      },
+      {
+        "text" : "Ti",
+        "id" : "F7B24BDC-8325-44C7-918F-913FBC4BACC3",
+        "beat" : 1.25,
+        "pitch" : 45
+      },
+      {
+        "text" : "La",
+        "id" : "985CEF97-8032-4E57-8C02-842594BF1626",
+        "beat" : 2.25,
+        "pitch" : 43
+      },
+      {
+        "text" : "Sol",
+        "id" : "DD7EE3C1-51B8-4140-A834-9EABEE9F7CBE",
+        "beat" : 3.25,
+        "pitch" : 41
+      },
+      {
+        "pitch" : 39,
+        "id" : "1F39CB9C-4C46-4290-8A85-063188084AD3",
+        "beat" : 4.25,
+        "text" : "Fa"
+      },
+      {
+        "pitch" : 38,
+        "id" : "84E76A5F-8E30-4A18-B19E-A73BA1767FCE",
+        "beat" : 5.25,
+        "text" : "Mi"
+      },
+      {
+        "pitch" : 36,
+        "id" : "EEF266B4-C172-425F-ADF8-0794864975F6",
+        "beat" : 6.25,
+        "text" : "Re"
+      },
+      {
+        "pitch" : 34,
+        "id" : "2765041E-910C-4CB5-94FB-7B1DAB53F1CC",
+        "beat" : 7.25,
+        "text" : "Do"
+      }
+    ],
+    "A99C4898-613E-4500-9AEF-838E1BCCD23F" : [
+      {
+        "pitch" : 54,
+        "id" : "6ACEC0E1-ACA2-4D65-8ADB-D472BA7222FB",
+        "beat" : 0,
+        "text" : "Texting and shit"
+      },
+      {
+        "pitch" : 50,
+        "id" : "9FC30800-14DE-4926-AEF4-E4FC4F40B918",
+        "beat" : 3,
+        "text" : "Yknow"
+      },
+      {
+        "pitch" : 53,
+        "id" : "267A3BF9-937C-4642-9480-59EDFA0A5CF5",
+        "beat" : 4,
+        "text" : "Frfrfr"
+      },
+      {
+        "pitch" : 58,
+        "id" : "EE6137D4-A684-4F43-B769-D29C5F3DF782",
+        "beat" : 0,
+        "text" : "Hmmm"
+      }
+    ],
+    "511866DD-F3C3-4111-8DAD-50846F1E7A47" : [
+      {
+        "pitch" : 55,
+        "id" : "89B8E6E6-2C09-4F1D-8BD3-8A08E49EB760",
+        "beat" : 2,
+        "text" : "Ooooooooo"
+      },
+      {
+        "pitch" : 56,
+        "id" : "C977CEF5-7966-4D67-9FA3-13FEC6223113",
+        "beat" : 4,
+        "text" : "Aaaaaa"
+      },
+      {
+        "pitch" : 55,
+        "id" : "38B99C3C-6DAF-4636-8BD3-C086C2E97F6D",
+        "beat" : 5,
+        "text" : "iiiiii"
+      },
+      {
+        "pitch" : 56,
+        "id" : "B9F25737-92A2-4379-8EA0-7BAD548B51DF",
+        "beat" : 0,
+        "text" : "Jaaaaa"
+      },
+      {
+        "pitch" : 63,
+        "id" : "934CB8B6-E579-4767-8108-C2E60EC7535C",
+        "beat" : 0,
+        "text" : "1"
+      },
+      {
+        "pitch" : 63,
+        "id" : "38573C83-F6F3-4AA3-9802-B78182839720",
+        "beat" : 2,
+        "text" : "2"
+      },
+      {
+        "pitch" : 66,
+        "id" : "40D13485-CF48-459B-ABDA-99A609626FCE",
+        "beat" : 0,
+        "text" : "3"
+      },
+      {
+        "pitch" : 68,
+        "id" : "3A9925D3-CDEC-423E-8876-9DD25BF6AB93",
+        "beat" : 0,
+        "text" : "Ahahavdjfbfbdkdndndkdndndndkdnxkxnfflfnfidndbdifb"
+      }
+    ]
+  }
+}
