@@ -82,6 +82,8 @@ struct PlaybackVisualsView: View {
     @AppStorage(VisualKeys.singerInnerColor) private var singerInnerColor = VisualDefaults.singerInnerColor
     @AppStorage(VisualKeys.singerOuterColor) private var singerOuterColor = VisualDefaults.singerOuterColor
     @AppStorage(VisualKeys.singerLineColor)  private var singerLineColor  = VisualDefaults.singerLineColor
+    @AppStorage(VisualKeys.showRepetitionCounter)     private var showRepetitionCounter     = VisualDefaults.showRepetitionCounter
+    @AppStorage(VisualKeys.repetitionCounterPosition) private var repetitionCounterPosition = VisualDefaults.repetitionCounterPosition
 
     /// Saved named templates the user can switch between. Created at app launch and
     /// injected, so the bundled default is seeded before any playback.
@@ -121,7 +123,9 @@ struct PlaybackVisualsView: View {
             singerSize: singerSize,
             singerInnerColor: Color(hex: singerInnerColor),
             singerOuterColor: Color(hex: singerOuterColor),
-            singerLineColor: Color(hex: singerLineColor))
+            singerLineColor: Color(hex: singerLineColor),
+            showRepetitionCounter: showRepetitionCounter,
+            repetitionCounterPosition: RepetitionCounterPosition(rawValue: repetitionCounterPosition) ?? .bottomRight)
     }
 
     // Demo content. A short three-note motif repeated many times so the preview can
@@ -257,6 +261,21 @@ struct PlaybackVisualsView: View {
                 ColorPicker("Line colour", selection: opacityColorBinding($singerLineColor), supportsOpacity: true)
             }
 
+            Section {
+                Toggle("Show repetition counter", isOn: $showRepetitionCounter)
+                if showRepetitionCounter {
+                    Picker("Position", selection: $repetitionCounterPosition) {
+                        ForEach(RepetitionCounterPosition.allCases) { position in
+                            Text(position.rawValue).tag(position.rawValue)
+                        }
+                    }
+                }
+            } header: {
+                Text("Repetitions")
+            } footer: {
+                Text("Shows which repetition you're on out of the total, e.g. “2/5”. Hidden for exercises that don't repeat.")
+            }
+
             templatesSection
 
             Section {
@@ -390,9 +409,13 @@ struct PlaybackVisualsView: View {
                                          playheadX: size.width / 3, centerPitch: center)
                 // A gently bobbing dot so the singer indicator is visible too.
                 let singer = demoCenter + 2.5 * sin(beat * 1.6)
+                // Cycle a demo counter (1/4 … 4/4) so the badge previews live.
+                let demoTotal = 4
+                let demoCurrent = min(demoTotal, Int(beat / 4) % demoTotal + 1)
                 drawPlaybackScene(ctx: ctx, layout: layout, beat: beat,
                                   notes: demoNotes, texts: demoTexts,
-                                  trailPath: Path(), singerPitch: singer, settings: settings)
+                                  trailPath: Path(), singerPitch: singer, settings: settings,
+                                  repetition: (current: demoCurrent, total: demoTotal))
             }
         }
     }

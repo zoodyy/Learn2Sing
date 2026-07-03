@@ -30,6 +30,8 @@ struct VisualTemplate: Codable, Identifiable, Hashable {
     var singerInnerColor: String
     var singerOuterColor: String
     var singerLineColor: String
+    var showRepetitionCounter: Bool
+    var repetitionCounterPosition: String
 
     init(id: UUID = UUID(), name: String,
          noteColor: String, playingNoteColor: String, noteRoundness: Double,
@@ -37,7 +39,8 @@ struct VisualTemplate: Codable, Identifiable, Hashable {
          showLines: Bool, background: String, showKeyboard: Bool, showPitches: Bool,
          textColor: String, textFont: String,
          singerSize: Double, singerInnerColor: String,
-         singerOuterColor: String, singerLineColor: String) {
+         singerOuterColor: String, singerLineColor: String,
+         showRepetitionCounter: Bool, repetitionCounterPosition: String) {
         self.id = id
         self.name = name
         self.noteColor = noteColor
@@ -56,6 +59,8 @@ struct VisualTemplate: Codable, Identifiable, Hashable {
         self.singerInnerColor = singerInnerColor
         self.singerOuterColor = singerOuterColor
         self.singerLineColor = singerLineColor
+        self.showRepetitionCounter = showRepetitionCounter
+        self.repetitionCounterPosition = repetitionCounterPosition
     }
 
     /// Custom decoding so templates saved (or bundled) before a setting existed still
@@ -81,6 +86,8 @@ struct VisualTemplate: Codable, Identifiable, Hashable {
         singerInnerColor = try c.decodeIfPresent(String.self, forKey: .singerInnerColor) ?? VisualDefaults.singerInnerColor
         singerOuterColor = try c.decodeIfPresent(String.self, forKey: .singerOuterColor) ?? VisualDefaults.singerOuterColor
         singerLineColor = try c.decodeIfPresent(String.self, forKey: .singerLineColor) ?? VisualDefaults.singerLineColor
+        showRepetitionCounter = try c.decodeIfPresent(Bool.self, forKey: .showRepetitionCounter) ?? VisualDefaults.showRepetitionCounter
+        repetitionCounterPosition = try c.decodeIfPresent(String.self, forKey: .repetitionCounterPosition) ?? VisualDefaults.repetitionCounterPosition
     }
 
     /// Captures the settings currently stored in UserDefaults into a new template,
@@ -108,7 +115,9 @@ struct VisualTemplate: Codable, Identifiable, Hashable {
             singerSize: dbl(VisualKeys.singerSize, VisualDefaults.singerSize),
             singerInnerColor: str(VisualKeys.singerInnerColor, VisualDefaults.singerInnerColor),
             singerOuterColor: str(VisualKeys.singerOuterColor, VisualDefaults.singerOuterColor),
-            singerLineColor: str(VisualKeys.singerLineColor, VisualDefaults.singerLineColor))
+            singerLineColor: str(VisualKeys.singerLineColor, VisualDefaults.singerLineColor),
+            showRepetitionCounter: bool(VisualKeys.showRepetitionCounter, VisualDefaults.showRepetitionCounter),
+            repetitionCounterPosition: str(VisualKeys.repetitionCounterPosition, VisualDefaults.repetitionCounterPosition))
     }
 
     /// Writes this template's values into UserDefaults under the `VisualKeys`. The
@@ -132,6 +141,8 @@ struct VisualTemplate: Codable, Identifiable, Hashable {
         d.set(singerInnerColor, forKey: VisualKeys.singerInnerColor)
         d.set(singerOuterColor, forKey: VisualKeys.singerOuterColor)
         d.set(singerLineColor, forKey: VisualKeys.singerLineColor)
+        d.set(showRepetitionCounter, forKey: VisualKeys.showRepetitionCounter)
+        d.set(repetitionCounterPosition, forKey: VisualKeys.repetitionCounterPosition)
     }
 
     /// True when this template's stored values match what is currently in UserDefaults,

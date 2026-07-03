@@ -27,6 +27,18 @@ enum PlaybackFont: String, CaseIterable, Identifiable {
     }
 }
 
+// MARK: - Repetition counter placement
+
+/// Where the "current / total repetitions" counter sits on the playback screen.
+enum RepetitionCounterPosition: String, CaseIterable, Identifiable {
+    case topRight     = "Top right"
+    case bottomLeft   = "Bottom left"
+    case bottomMiddle = "Bottom middle"
+    case bottomRight  = "Bottom right"
+
+    var id: String { rawValue }
+}
+
 // MARK: - Color <-> hex (so colours can live in UserDefaults / @AppStorage)
 
 extension Color {
@@ -89,6 +101,8 @@ enum VisualKeys {
     static let singerInnerColor  = "vis_singerInnerColor"
     static let singerOuterColor  = "vis_singerOuterColor"
     static let singerLineColor   = "vis_singerLineColor"
+    static let showRepetitionCounter    = "vis_showRepetitionCounter"
+    static let repetitionCounterPosition = "vis_repetitionCounterPosition"
 }
 
 /// Default values, used both for the @AppStorage controls and when resolving the
@@ -110,6 +124,8 @@ enum VisualDefaults {
     static let singerInnerColor  = "#00FFFFFF"  // cyan, the original dot fill
     static let singerOuterColor  = "#FFFFFFFF"  // white, the original dot border
     static let singerLineColor   = "#00FFFFB2"  // cyan at ~70% opacity, the original trail
+    static let showRepetitionCounter    = false
+    static let repetitionCounterPosition = RepetitionCounterPosition.bottomRight.rawValue
 }
 
 // MARK: - Resolved settings
@@ -133,6 +149,8 @@ struct VisualSettings {
     var singerInnerColor: Color
     var singerOuterColor: Color
     var singerLineColor: Color
+    var showRepetitionCounter: Bool
+    var repetitionCounterPosition: RepetitionCounterPosition
 
     /// The current settings read straight from UserDefaults (used by PlaybackView).
     static var current: VisualSettings {
@@ -156,7 +174,10 @@ struct VisualSettings {
             singerSize: dbl(VisualKeys.singerSize, VisualDefaults.singerSize),
             singerInnerColor: Color(hex: str(VisualKeys.singerInnerColor, VisualDefaults.singerInnerColor)),
             singerOuterColor: Color(hex: str(VisualKeys.singerOuterColor, VisualDefaults.singerOuterColor)),
-            singerLineColor: Color(hex: str(VisualKeys.singerLineColor, VisualDefaults.singerLineColor)))
+            singerLineColor: Color(hex: str(VisualKeys.singerLineColor, VisualDefaults.singerLineColor)),
+            showRepetitionCounter: bool(VisualKeys.showRepetitionCounter, VisualDefaults.showRepetitionCounter),
+            repetitionCounterPosition: RepetitionCounterPosition(
+                rawValue: str(VisualKeys.repetitionCounterPosition, VisualDefaults.repetitionCounterPosition)) ?? .bottomRight)
     }
 }
 
@@ -219,10 +240,16 @@ final class VerticalFollower {
 /// visuals-customisation preview, honouring `settings`. Pure drawing — the caller
 /// supplies the data, the current beat, the singer's pitch and a pre-built trail
 /// path (which depends on the same layout).
+/// `repetition` is the (current, total) repetition pair, 1-based. When it is non-nil
+/// and the counter is enabled, a "current / total" badge is drawn at the configured
+/// corner. Callers pass nil to hide it (e.g. exercises that don't repeat). `safeTop`
+/// and `safeBottom` keep that badge clear of on-screen chrome in the live view.
 func drawPlaybackScene(ctx: GraphicsContext, layout: SceneLayout, beat: Double,
                        notes: [MIDINote], texts: [MIDIText],
                        trailPath: Path, singerPitch: Double?,
-                       settings: VisualSettings) {
+                       settings: VisualSettings,
+                       repetition: (current: Int, total: Int)? = nil,
+                       safeTop: CGFloat = 0, safeBottom: CGFloat = 0) {
     let size = layout.size
     let pianoW = layout.pianoW
     let rowH = layout.rowH
@@ -357,5 +384,32 @@ func drawPlaybackScene(ctx: GraphicsContext, layout: SceneLayout, beat: Double,
         let dot = Path(ellipseIn: CGRect(x: layout.playheadX - r, y: y - r, width: 2 * r, height: 2 * r))
         ctx.fill(dot, with: .color(settings.singerInnerColor))
         ctx.stroke(dot, with: .color(settings.singerOuterColor), lineWidth: 1.5)
+    }
+
+    // ── Repetition counter ────────────────────────────────────────────────────
+    // A "current / total" badge showing which repetition is playing. Drawn last so it
+    // sits above the notes; only shown when enabled and the exercise actually repeats.
+    if settings.showRepetitionCounter, let rep = repetition, rep.total > 1 {
+        let resolved = ctx.resolve(
+            Text("\(rep.current)/\(rep.total)")
+                .font(.system(size: 15, weight: .semibold, design: settings.textFont.design))
+                .foregroundColor(.white))
+        let textSize = resolved.measure(in: size)
+        let padH: CGFloat = 9, padV: CGFloat = 4
+        let badge = CGSize(width: textSize.width + 2 * padH, height: textSize.height + 2 * padV)
+        let margin: CGFloat = 10
+        let topY = safeTop + margin
+        let bottomY = size.height - safeBottom - margin - badge.height
+        let origin: CGPoint
+        switch settings.repetitionCounterPosition {
+        case .topRight:     origin = CGPoint(x: size.width - margin - badge.width, y: topY)
+        case .bottomLeft:   origin = CGPoint(x: margin, y: bottomY)
+        case .bottomMiddle: origin = CGPoint(x: (size.width - badge.width) / 2, y: bottomY)
+        case .bottomRight:  origin = CGPoint(x: size.width - margin - badge.width, y: bottomY)
+        }
+        let pill = Path(roundedRect: CGRect(origin: origin, size: badge), cornerRadius: badge.height / 2)
+        ctx.fill(pill, with: .color(.black.opacity(0.55)))
+        ctx.draw(resolved, at: CGPoint(x: origin.x + badge.width / 2, y: origin.y + badge.height / 2),
+                 anchor: .center)
     }
 }

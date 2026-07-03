@@ -835,8 +835,19 @@ struct PlaybackView: View {
                           tolerance: lineToleranceSemitones, noteShift: noteShift)
         }
 
+        // Which repetition is playing, 1-based, for the optional on-screen counter.
+        // Only supplied for exercises that actually repeat (repeat count > 1) and never
+        // in the delay test; the renderer hides the badge when it's nil.
+        let totalReps = max(1, exercise.repeatCount)
+        var repetition: (current: Int, total: Int)? = nil
+        if mode == .normal, totalReps > 1, repeatSpan > 0 {
+            let idx = max(0, min(totalReps - 1, Int(floor(beat / repeatSpan))))
+            repetition = (current: idx + 1, total: totalReps)
+        }
+
         drawPlaybackScene(ctx: ctx, layout: layout, beat: beat, notes: notes, texts: texts,
-                          trailPath: trailPath, singerPitch: singerPitch, settings: s)
+                          trailPath: trailPath, singerPitch: singerPitch, settings: s,
+                          repetition: repetition, safeTop: safeTop, safeBottom: safeBottom)
     }
 
     // MARK: - Teardown
