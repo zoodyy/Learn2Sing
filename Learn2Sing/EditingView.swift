@@ -24,9 +24,12 @@ struct MIDIText: Identifiable, Codable, Equatable {
 private let rowH: CGFloat = 22
 private let beatW: CGFloat = 52
 private let pianoW: CGFloat = 52
-private let totalBeats = 32
+private let beatsPerMeasure = 4
+/// Empty measures always kept free to the right of the last note/text, so there's
+/// room to keep adding; the grid grows by another measure whenever content reaches
+/// into this trailing band.
+private let freeMeasures = 4
 private let totalRows = hiPitch - loPitch + 1
-private let gridW = CGFloat(totalBeats) * beatW
 private let gridH = CGFloat(totalRows) * rowH
 private let textFontSize: CGFloat = 12
 
@@ -74,6 +77,28 @@ struct EditingView: View {
         if case .creating(let n) = interaction { return n.id }
         return nil
     }
+
+    // MARK: - Dynamic grid width
+
+    /// Furthest beat any content reaches: the end of the longest-reaching note or the
+    /// right edge of the furthest text chip. Uses `liveNotes` so the grid grows live
+    /// while a note is being dragged into the trailing free measures.
+    private var contentEndBeat: Double {
+        var maxBeat = 0.0
+        for note in liveNotes { maxBeat = max(maxBeat, note.beat + note.length) }
+        for label in texts { maxBeat = max(maxBeat, Double(textRect(for: label).maxX / beatW)) }
+        return maxBeat
+    }
+
+    /// Whole measures of content (rounded up) plus `freeMeasures` empty ones, expressed
+    /// in beats. A tiny epsilon keeps content that lands exactly on a measure line from
+    /// counting as spilling into the next measure.
+    private var totalBeats: Int {
+        let contentMeasures = Int((contentEndBeat / Double(beatsPerMeasure) - 1e-6).rounded(.up))
+        return (max(0, contentMeasures) + freeMeasures) * beatsPerMeasure
+    }
+
+    private var gridW: CGFloat { CGFloat(totalBeats) * beatW }
 
     var body: some View {
         ScrollView(.vertical, showsIndicators: true) {
