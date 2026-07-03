@@ -137,20 +137,89 @@ struct PlaybackVisualsView: View {
         }
         return ns
     }()
+    private static let demoTextPitch = 70
     private let demoTexts: [MIDIText] = (0..<200).map {
-        MIDIText(text: "La", pitch: 70, beat: Double($0) * 4 + 0.15)
+        MIDIText(text: "La", pitch: PlaybackVisualsView.demoTextPitch, beat: Double($0) * 4 + 0.15)
     }
     /// Midpoint of the demo notes, used as the centre when following vertically.
     private let demoCenter = Double(60 + 67) / 2
 
-    var body: some View {
-        Form {
-            Section {
-                preview
-                    .listRowInsets(EdgeInsets())
-                    .listRowBackground(Color.clear)
-            }
+    /// Highest / lowest pitch any demo element (note or text) is drawn at. The
+    /// collapsed preview crops down to this band plus a one-row margin either side.
+    private static let demoTopPitch = max(demoTextPitch, demoPattern.map(\.pitch).max() ?? demoTextPitch)
+    private static let demoLowestPitch = min(demoTextPitch, demoPattern.map(\.pitch).min() ?? demoTextPitch)
 
+    /// Layout of the pinned preview above the form.
+    private static let previewSidePadding: CGFloat = 20
+    private static let previewVerticalPadding: CGFloat = 6
+
+    /// How far the form below the preview is scrolled (0 at rest, grows downward).
+    /// Drives the collapsing crop of the pinned preview.
+    @State private var scrollOffset: CGFloat = 0
+
+    var body: some View {
+        GeometryReader { geo in
+            let previewWidth = max(0, geo.size.width - 2 * Self.previewSidePadding)
+            settingsForm
+                .contentMargins(.top, previewWidth + 2 * Self.previewVerticalPadding)
+                .onScrollGeometryChange(for: CGFloat.self) { scroll in
+                    scroll.contentOffset.y + scroll.contentInsets.top
+                } action: { _, offset in
+                    scrollOffset = offset
+                }
+                .overlay(alignment: .top) {
+                    collapsiblePreview(width: previewWidth, fullHeight: previewWidth)
+                }
+        }
+        .navigationTitle("Playback")
+        .navigationBarTitleDisplayMode(.inline)
+        .alert("New Template", isPresented: $isNamingTemplate) {
+            TextField("Name", text: $newTemplateName)
+            Button("Save") { saveCurrentAsTemplate() }
+            Button("Cancel", role: .cancel) { }
+        } message: {
+            Text("Save the current visual settings as a template.")
+        }
+        .fileExporter(
+            isPresented: $isExportingTemplate,
+            document: exportDocument,
+            contentType: .json,
+            defaultFilename: exportFilename
+        ) { result in
+            if case .failure(let error) = result {
+                templateAlert = "Export failed: \(error.localizedDescription)"
+            }
+        }
+        .fileImporter(
+            isPresented: $isImportingTemplate,
+            allowedContentTypes: [.json]
+        ) { result in
+            switch result {
+            case .success(let url):
+                let accessed = url.startAccessingSecurityScopedResource()
+                defer { if accessed { url.stopAccessingSecurityScopedResource() } }
+                guard let data = try? Data(contentsOf: url),
+                      let template = VisualTemplate.decode(from: data) else {
+                    templateAlert = "That file isn’t a valid visual template."
+                    return
+                }
+                templates.add(imported: template).apply()
+            case .failure(let error):
+                templateAlert = "Import failed: \(error.localizedDescription)"
+            }
+        }
+        .alert("Templates", isPresented: Binding(
+            get: { templateAlert != nil },
+            set: { if !$0 { templateAlert = nil } }
+        )) {
+            Button("OK", role: .cancel) { templateAlert = nil }
+        } message: {
+            Text(templateAlert ?? "")
+        }
+    }
+
+    private var settingsForm: some View {
+        Form {
             Section("Notes") {
                 ColorPicker("Note colour", selection: colorBinding($noteColor), supportsOpacity: false)
                 ColorPicker("Playing note colour", selection: colorBinding($playingNoteColor), supportsOpacity: false)
@@ -205,51 +274,6 @@ struct PlaybackVisualsView: View {
             } footer: {
                 Text("Export saves the current visual settings as a template file you can share. Import loads a template file and applies it.")
             }
-        }
-        .navigationTitle("Playback")
-        .navigationBarTitleDisplayMode(.inline)
-        .alert("New Template", isPresented: $isNamingTemplate) {
-            TextField("Name", text: $newTemplateName)
-            Button("Save") { saveCurrentAsTemplate() }
-            Button("Cancel", role: .cancel) { }
-        } message: {
-            Text("Save the current visual settings as a template.")
-        }
-        .fileExporter(
-            isPresented: $isExportingTemplate,
-            document: exportDocument,
-            contentType: .json,
-            defaultFilename: exportFilename
-        ) { result in
-            if case .failure(let error) = result {
-                templateAlert = "Export failed: \(error.localizedDescription)"
-            }
-        }
-        .fileImporter(
-            isPresented: $isImportingTemplate,
-            allowedContentTypes: [.json]
-        ) { result in
-            switch result {
-            case .success(let url):
-                let accessed = url.startAccessingSecurityScopedResource()
-                defer { if accessed { url.stopAccessingSecurityScopedResource() } }
-                guard let data = try? Data(contentsOf: url),
-                      let template = VisualTemplate.decode(from: data) else {
-                    templateAlert = "That file isn’t a valid visual template."
-                    return
-                }
-                templates.add(imported: template).apply()
-            case .failure(let error):
-                templateAlert = "Import failed: \(error.localizedDescription)"
-            }
-        }
-        .alert("Templates", isPresented: Binding(
-            get: { templateAlert != nil },
-            set: { if !$0 { templateAlert = nil } }
-        )) {
-            Button("OK", role: .cancel) { templateAlert = nil }
-        } message: {
-            Text(templateAlert ?? "")
         }
     }
 
@@ -311,7 +335,47 @@ struct PlaybackVisualsView: View {
 
     // MARK: - Preview
 
-    private var preview: some View {
+    /// The preview, pinned above the scrolling form. While the form scrolls, the
+    /// preview doesn't move away; it collapses instead, cropping empty canvas from
+    /// the top and bottom (never rescaling the drawing) until only the band of demo
+    /// notes/text plus a one-row margin on each side remains.
+    private func collapsiblePreview(width: CGFloat, fullHeight: CGFloat) -> some View {
+        // Mirror the Canvas maths so the crop bounds line up with the drawn rows.
+        let rowH = fullHeight / CGFloat(hiPitch - loPitch + 1) * CGFloat(verticalZoom)
+        let centerPitch = followVertical ? demoCenter : Double(hiPitch + loPitch) / 2
+        func y(_ pitch: Double) -> CGFloat {
+            fullHeight / 2 - CGFloat(pitch - centerPitch) * rowH
+        }
+        // Top edge of the row one above the highest demo element and bottom edge of
+        // the row one below the lowest, clamped for zooms that push the band off
+        // the canvas.
+        let bandTop = min(max(0, y(Double(Self.demoTopPitch) + 1.5)), fullHeight)
+        let bandBottom = min(max(bandTop, y(Double(Self.demoLowestPitch) - 1.5)), fullHeight)
+        let minHeight = max(bandBottom - bandTop, 44)
+        let visibleHeight = min(fullHeight, max(minHeight, fullHeight - max(0, scrollOffset)))
+
+        // Split the cropped-away amount between top and bottom in proportion to the
+        // empty space on each side, so both margins reach one row simultaneously.
+        let cropped = fullHeight - visibleHeight
+        let slackAbove = bandTop
+        let slackBelow = fullHeight - bandBottom
+        let totalSlack = slackAbove + slackBelow
+        let topCrop = totalSlack > 0 ? cropped * slackAbove / totalSlack : 0
+
+        return previewCanvas
+            .frame(width: width, height: fullHeight)
+            .offset(y: -topCrop)
+            .frame(width: width, height: visibleHeight, alignment: .top)
+            .background(Color.black)
+            .clipShape(RoundedRectangle(cornerRadius: 12))
+            .overlay(RoundedRectangle(cornerRadius: 12).stroke(.white.opacity(0.15)))
+            .padding(.horizontal, Self.previewSidePadding)
+            .padding(.vertical, Self.previewVerticalPadding)
+            .frame(maxWidth: .infinity)
+            .background(Color(.systemGroupedBackground))
+    }
+
+    private var previewCanvas: some View {
         TimelineView(.animation) { timeline in
             let beat = timeline.date.timeIntervalSince(start) * 0.7   // slow scroll
             Canvas { ctx, size in
@@ -331,12 +395,6 @@ struct PlaybackVisualsView: View {
                                   trailPath: Path(), singerPitch: singer, settings: settings)
             }
         }
-        .aspectRatio(1, contentMode: .fit)
-        .frame(maxWidth: .infinity)
-        .background(Color.black)
-        .clipShape(RoundedRectangle(cornerRadius: 12))
-        .overlay(RoundedRectangle(cornerRadius: 12).stroke(.white.opacity(0.15)))
-        .padding(.vertical, 6)
     }
 
     // MARK: - Helpers
