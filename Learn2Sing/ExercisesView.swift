@@ -67,6 +67,18 @@ struct ExercisesView: View {
     /// header shows the exercise count in parentheses instead.
     @State private var collapsedCategories: Set<String> = []
 
+    /// True while the user is rearranging category order. Entered by long-pressing
+    /// a category header (which just switches the mode — it never picks up a row to
+    /// drag), exited via the top-leading ✗ button.
+    @State private var isReordering = false
+
+    /// Drives the List into edit mode so `.onMove` shows drag handles.
+    @State private var editMode: EditMode = .inactive
+
+    /// The collapse state captured when entering reorder mode. Restored on exit so
+    /// categories that were expanded before the mode switch become expanded again.
+    @State private var collapsedBeforeReorder: Set<String> = []
+
     /// Exercises with no category, or whose category was deleted, shown in an
     /// unlabelled section so none are ever lost from the list.
     private var uncategorized: [Exercise] {
@@ -99,6 +111,48 @@ struct ExercisesView: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
+        // A long press only flips into reorder mode; it deliberately does not begin
+        // dragging this row. `.simultaneousGesture` keeps the tap-to-collapse working.
+        .simultaneousGesture(
+            LongPressGesture(minimumDuration: 0.5).onEnded { _ in
+                enterReorderMode()
+            }
+        )
+    }
+
+    /// A collapsed, drag-reorderable row for a category, shown only in reorder mode.
+    /// Rendered as a plain row (not `Section(header:)`) so the List's native `.onMove`
+    /// can actually move it.
+    private func reorderRow(_ category: String) -> some View {
+        let count = store.exercises.filter { $0.category == category }.count
+        return HStack {
+            Text(category)
+            Text("(\(count))")
+                .foregroundStyle(.secondary)
+            Spacer()
+        }
+    }
+
+    private func enterReorderMode() {
+        guard !isReordering else { return }
+        collapsedBeforeReorder = collapsedCategories
+        withAnimation {
+            collapsedCategories = Set(store.categories)
+            isReordering = true
+            editMode = .active
+        }
+    }
+
+    private func exitReorderMode() {
+        withAnimation {
+            collapsedCategories = collapsedBeforeReorder
+            isReordering = false
+            editMode = .inactive
+        }
+    }
+
+    private func moveCategory(from source: IndexSet, to destination: Int) {
+        store.moveCategory(from: source, to: destination)
     }
 
     @ViewBuilder
@@ -120,37 +174,56 @@ struct ExercisesView: View {
     var body: some View {
         NavigationStack(path: $navigationPath) {
             List {
-                // One section per category, in the user's defined order. A category
-                // with no exercises is skipped so its header never shows.
-                ForEach(store.categories, id: \.self) { category in
-                    let items = store.exercises.filter { $0.category == category }
-                    if !items.isEmpty {
-                        let isCollapsed = collapsedCategories.contains(category)
-                        Section(header: categoryHeader(category, count: items.count, isCollapsed: isCollapsed)) {
-                            if !isCollapsed {
-                                ForEach(items) { exerciseRow($0) }
+                if isReordering {
+                    // Reorder mode: every category collapsed to a single draggable row.
+                    ForEach(store.categories, id: \.self) { category in
+                        reorderRow(category)
+                    }
+                    .onMove(perform: moveCategory)
+                } else {
+                    // One section per category, in the user's defined order. A category
+                    // with no exercises is skipped so its header never shows.
+                    ForEach(store.categories, id: \.self) { category in
+                        let items = store.exercises.filter { $0.category == category }
+                        if !items.isEmpty {
+                            let isCollapsed = collapsedCategories.contains(category)
+                            Section(header: categoryHeader(category, count: items.count, isCollapsed: isCollapsed)) {
+                                if !isCollapsed {
+                                    ForEach(items) { exerciseRow($0) }
+                                }
                             }
                         }
                     }
-                }
 
-                if !uncategorized.isEmpty {
-                    Section {
-                        ForEach(uncategorized) { exerciseRow($0) }
+                    if !uncategorized.isEmpty {
+                        Section {
+                            ForEach(uncategorized) { exerciseRow($0) }
+                        }
                     }
                 }
             }
-            .navigationTitle("Exercises")
+            .environment(\.editMode, $editMode)
+            .navigationTitle(isReordering ? "Reorder" : "Exercises")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button {
-                        // Create the exercise immediately and open its settings, where
-                        // the user picks the name and everything else.
-                        let exercise = store.add(name: "New Exercise")
-                        navigationPath.append(ExerciseRoute.settings(exercise.id))
-                    } label: {
-                        Image(systemName: "plus")
+                if isReordering {
+                    ToolbarItem(placement: .topBarLeading) {
+                        Button {
+                            exitReorderMode()
+                        } label: {
+                            Image(systemName: "xmark")
+                        }
+                    }
+                } else {
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Button {
+                            // Create the exercise immediately and open its settings, where
+                            // the user picks the name and everything else.
+                            let exercise = store.add(name: "New Exercise")
+                            navigationPath.append(ExerciseRoute.settings(exercise.id))
+                        } label: {
+                            Image(systemName: "plus")
+                        }
                     }
                 }
             }

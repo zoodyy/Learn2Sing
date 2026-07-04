@@ -64,6 +64,12 @@ final class ExerciseStore: ObservableObject {
         saveCategories()
     }
 
+    /// Reorder the user's categories (drives the grouping order in the list).
+    func moveCategory(from source: IndexSet, to destination: Int) {
+        categories.move(fromOffsets: source, toOffset: destination)
+        saveCategories()
+    }
+
     /// Remove a category and clear it from any exercise that used it (those become
     /// uncategorized) so no exercise is left pointing at a category that's gone.
     func deleteCategory(_ name: String) {
