@@ -155,12 +155,26 @@ struct ExercisesView: View {
         store.moveCategory(from: source, to: destination)
     }
 
+    /// Commit a drop: move the dragged exercise into `category`, positioned before
+    /// `targetID` (or appended when nil). The payload is the dragged exercise's UUID.
+    private func handleDrop(_ items: [String], toCategory category: String, before targetID: UUID?) -> Bool {
+        guard let first = items.first, let dropped = UUID(uuidString: first) else { return false }
+        store.moveExercise(dropped, toCategory: category, before: targetID)
+        return true
+    }
+
+    /// One exercise row. `sectionCategory` is the category of the section it's shown
+    /// in (""  for the uncategorized section) so a drop onto it lands in the right group.
     @ViewBuilder
-    private func exerciseRow(_ exercise: Exercise) -> some View {
+    private func exerciseRow(_ exercise: Exercise, inCategory sectionCategory: String) -> some View {
         Button(exercise.name) {
             navigationPath.append(ExerciseRoute.play(exercise.id))
         }
         .foregroundStyle(.primary)
+        .draggable(exercise.id.uuidString)
+        .dropDestination(for: String.self) { items, _ in
+            handleDrop(items, toCategory: sectionCategory, before: exercise.id)
+        }
         .swipeActions(edge: .leading, allowsFullSwipe: true) {
             Button {
                 navigationPath.append(ExerciseRoute.settings(exercise.id))
@@ -187,9 +201,15 @@ struct ExercisesView: View {
                         let items = store.exercises.filter { $0.category == category }
                         if !items.isEmpty {
                             let isCollapsed = collapsedCategories.contains(category)
-                            Section(header: categoryHeader(category, count: items.count, isCollapsed: isCollapsed)) {
+                            Section(header: categoryHeader(category, count: items.count, isCollapsed: isCollapsed)
+                                .dropDestination(for: String.self) { dropped, _ in
+                                    // Dropping onto a header moves the exercise into that
+                                    // category (appended), which also reaches collapsed ones.
+                                    handleDrop(dropped, toCategory: category, before: nil)
+                                }
+                            ) {
                                 if !isCollapsed {
-                                    ForEach(items) { exerciseRow($0) }
+                                    ForEach(items) { exerciseRow($0, inCategory: category) }
                                 }
                             }
                         }
@@ -197,7 +217,7 @@ struct ExercisesView: View {
 
                     if !uncategorized.isEmpty {
                         Section {
-                            ForEach(uncategorized) { exerciseRow($0) }
+                            ForEach(uncategorized) { exerciseRow($0, inCategory: "") }
                         }
                     }
                 }
