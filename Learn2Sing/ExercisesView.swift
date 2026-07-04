@@ -63,10 +63,42 @@ struct ExercisesView: View {
     @EnvironmentObject private var store: ExerciseStore
     @State private var navigationPath = NavigationPath()
 
+    /// Categories the user has collapsed. Their exercises are hidden and the
+    /// header shows the exercise count in parentheses instead.
+    @State private var collapsedCategories: Set<String> = []
+
     /// Exercises with no category, or whose category was deleted, shown in an
     /// unlabelled section so none are ever lost from the list.
     private var uncategorized: [Exercise] {
         store.exercises.filter { $0.category.isEmpty || !store.categories.contains($0.category) }
+    }
+
+    /// A tappable section header showing the category name and a collapse arrow.
+    /// While collapsed the exercise count is shown in parentheses.
+    private func categoryHeader(_ category: String, count: Int, isCollapsed: Bool) -> some View {
+        Button {
+            withAnimation {
+                if isCollapsed {
+                    collapsedCategories.remove(category)
+                } else {
+                    collapsedCategories.insert(category)
+                }
+            }
+        } label: {
+            HStack {
+                Text(category)
+                if isCollapsed {
+                    Text("(\(count))")
+                        .foregroundStyle(.secondary)
+                }
+                Spacer()
+                Image(systemName: "chevron.right")
+                    .rotationEffect(.degrees(isCollapsed ? 0 : 90))
+                    .foregroundStyle(.secondary)
+            }
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
     }
 
     @ViewBuilder
@@ -93,8 +125,11 @@ struct ExercisesView: View {
                 ForEach(store.categories, id: \.self) { category in
                     let items = store.exercises.filter { $0.category == category }
                     if !items.isEmpty {
-                        Section(category) {
-                            ForEach(items) { exerciseRow($0) }
+                        let isCollapsed = collapsedCategories.contains(category)
+                        Section(header: categoryHeader(category, count: items.count, isCollapsed: isCollapsed)) {
+                            if !isCollapsed {
+                                ForEach(items) { exerciseRow($0) }
+                            }
                         }
                     }
                 }
