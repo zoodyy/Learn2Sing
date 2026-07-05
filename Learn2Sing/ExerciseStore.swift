@@ -116,6 +116,7 @@ final class ExerciseStore: ObservableObject {
         exercises.removeAll { $0.id == id }
         UserDefaults.standard.removeObject(forKey: Self.midiKey(id))
         UserDefaults.standard.removeObject(forKey: Self.midiTextKey(id))
+        ScoreHistory.delete(for: id)
         save()
     }
 

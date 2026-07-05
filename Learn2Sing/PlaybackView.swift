@@ -662,7 +662,8 @@ struct PlaybackView: View {
             if let delayResultMs {
                 DelayResultView(delayMs: delayResultMs) { dismiss() }
             } else if let finalScore {
-                ScoreView(score: finalScore) { dismiss() }
+                ScoreView(score: finalScore,
+                          history: ScoreHistory.entries(for: exercise.id)) { dismiss() }
             } else {
                 playback
             }
@@ -738,7 +739,10 @@ struct PlaybackView: View {
                     // the mic, leaving the synth rendering on the shared playAndRecord
                     // session) is what avoids the intermittent freeze when navigating back.
                     teardownAudio()
-                    finalScore = scorer.score(notes: notes)
+                    let score = scorer.score(notes: notes)
+                    // Save before showing the result so the chart includes this run.
+                    ScoreHistory.record(score: score, for: exercise.id)
+                    finalScore = score
                 }
             }
             pitchDetector.start()
@@ -1012,31 +1016,55 @@ struct PlaybackView: View {
 
 // MARK: - ScoreView
 
-/// Shown after an exercise finishes: the score centred on screen with a single
-/// button to leave. Tinted from red (low) through to green (high) so the result
-/// reads at a glance.
+/// Shown after an exercise finishes: the score with a chart of this exercise's
+/// past scores, and a single button to leave. Tinted from red (low) through to
+/// green (high) so the result reads at a glance. In landscape the score sits
+/// beside the chart instead of above it so everything stays on screen.
 private struct ScoreView: View {
     let score: Int
+    let history: [ScoreEntry]
     let onExit: () -> Void
+
+    @Environment(\.verticalSizeClass) private var verticalSizeClass
 
     private var tint: Color {
         Color(hue: Double(score) / 100.0 * 0.33, saturation: 0.85, brightness: 0.95)
     }
 
-    var body: some View {
+    private var scoreLabel: some View {
         VStack {
-            Spacer()
-
             Text("Score")
                 .font(.title2.weight(.semibold))
                 .foregroundStyle(.white.opacity(0.7))
 
             Text("\(score)%")
-                .font(.system(size: 96, weight: .bold, design: .rounded))
+                .font(.system(size: 80, weight: .bold, design: .rounded))
                 .foregroundStyle(tint)
                 .contentTransition(.numericText())
+        }
+    }
 
-            Spacer()
+    private var chart: some View {
+        ScoreHistoryChart(entries: history, tint: tint)
+    }
+
+    var body: some View {
+        VStack(spacing: 16) {
+            if verticalSizeClass == .compact {
+                HStack(spacing: 24) {
+                    scoreLabel
+                    chart
+                }
+                .padding(.horizontal, 24)
+                .padding(.top, 12)
+            } else {
+                Spacer()
+                scoreLabel
+                chart
+                    .padding(.horizontal, 24)
+                    .padding(.top, 16)
+                Spacer()
+            }
 
             Button(action: onExit) {
                 Text("Exit")
@@ -1047,10 +1075,13 @@ private struct ScoreView: View {
                     .foregroundStyle(.white)
             }
             .padding(.horizontal, 40)
-            .padding(.bottom, 50)
+            .padding(.bottom, verticalSizeClass == .compact ? 16 : 50)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color.black.ignoresSafeArea())
+        // The screen is always black, so render controls (the range picker) with
+        // their dark-mode materials regardless of the system appearance.
+        .environment(\.colorScheme, .dark)
         .navigationBarBackButtonHidden(true)
     }
 }
