@@ -29,6 +29,9 @@ struct ContentView: View {
         }
         // nil for "System" lets the device's light/dark setting through.
         .preferredColorScheme((AppTheme(rawValue: themeRaw) ?? .system).colorScheme)
+        // Re-assert the stored orientation lock once the scene is live, so a lock
+        // set in a previous run is enforced from launch.
+        .onAppear { OrientationLockManager.apply(.current) }
     }
 }
 

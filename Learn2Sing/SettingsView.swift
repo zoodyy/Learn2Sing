@@ -15,6 +15,7 @@ struct SettingsView: View {
     @AppStorage(AudioRouteManager.micKey) private var microphone = AudioRouteManager.builtInMic
     @AppStorage(microphoneDelayKey) private var micDelayMs = 0.0
     @AppStorage(VocalRange.storageKey) private var vocalRangeRaw = ""
+    @AppStorage(OrientationLock.storageKey) private var orientationLockRaw = OrientationLock.none.rawValue
     @FocusState private var micDelayFocused: Bool
     @ObservedObject private var routes = AudioRouteManager.shared
     @EnvironmentObject private var store: ExerciseStore
@@ -53,6 +54,21 @@ struct SettingsView: View {
                             Text(instrument.rawValue).tag(instrument.rawValue)
                         }
                     }
+                }
+
+                Section {
+                    Picker("Lock orientation", selection: $orientationLockRaw) {
+                        ForEach(OrientationLock.allCases) { lock in
+                            Text(lock.rawValue).tag(lock.rawValue)
+                        }
+                    }
+                    .onChange(of: orientationLockRaw) { _, newValue in
+                        OrientationLockManager.apply(OrientationLock(rawValue: newValue) ?? .none)
+                    }
+                } header: {
+                    Text("Orientation")
+                } footer: {
+                    Text("Keeps the app in the chosen orientation. “Don't lock” lets it rotate with your device.")
                 }
 
                 Section {

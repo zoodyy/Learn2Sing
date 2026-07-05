@@ -378,6 +378,59 @@ final class Learn2SingUITests: XCTestCase {
         XCTAssertEqual(reopened.value as? String, typed, "username was not persisted")
     }
 
+    // MARK: - Orientation lock
+
+    /// Selecting "Portrait" in the orientation setting keeps the app in portrait
+    /// even after the device is rotated to landscape; the choice also persists.
+    func testOrientationLockPortrait() throws {
+        let device = XCUIDevice.shared
+        // Leave the device upright however this test ends.
+        defer { device.orientation = .portrait }
+
+        func openSettings() -> XCUIApplication {
+            let app = XCUIApplication()
+            app.launch()
+            let tab = app.buttons["Settings"]
+            XCTAssertTrue(tab.waitForExistence(timeout: 5), "Settings tab not found")
+            tab.tap()
+            XCTAssertTrue(app.navigationBars["Settings"].waitForExistence(timeout: 5))
+            return app
+        }
+
+        device.orientation = .portrait
+        var app = openSettings()
+
+        // The menu-style Picker exposes a button whose label is "Lock orientation,
+        // <current value>", so match on the prefix.
+        func orientationPicker(_ app: XCUIApplication) -> XCUIElement {
+            app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "Lock orientation")).firstMatch
+        }
+        let picker = orientationPicker(app)
+        XCTAssertTrue(picker.waitForExistence(timeout: 3), "orientation picker not found")
+        picker.tap()
+        let portraitOption = app.buttons["Portrait"].firstMatch
+        XCTAssertTrue(portraitOption.waitForExistence(timeout: 3), "Portrait option not found")
+        portraitOption.tap()
+        sleep(1)
+
+        // Rotate the physical device to landscape; the app must stay portrait,
+        // i.e. its window stays taller than it is wide.
+        device.orientation = .landscapeLeft
+        sleep(2)
+        let frame = app.windows.firstMatch.frame
+        XCTAssertGreaterThan(frame.height, frame.width,
+                             "app rotated to landscape despite the portrait lock (\(frame))")
+
+        // The choice must survive a relaunch and still read "Portrait".
+        device.orientation = .portrait
+        app.terminate()
+        app = openSettings()
+        let reopened = orientationPicker(app)
+        XCTAssertTrue(reopened.waitForExistence(timeout: 3))
+        XCTAssertTrue(reopened.label.contains("Portrait"),
+                      "orientation choice not persisted, picker shows \(reopened.label)")
+    }
+
     /// Tap-to-collapse and long-press-to-reorder-mode on headers still work.
     func testHeaderTapAndLongPressStillWork() throws {
         let app = openExercises()
