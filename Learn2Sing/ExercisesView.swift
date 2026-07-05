@@ -85,39 +85,28 @@ struct ExercisesView: View {
         store.exercises.filter { $0.category.isEmpty || !store.categories.contains($0.category) }
     }
 
-    /// A tappable section header showing the category name and a collapse arrow.
-    /// While collapsed the exercise count is shown in parentheses.
-    private func categoryHeader(_ category: String, count: Int, isCollapsed: Bool) -> some View {
-        Button {
-            withAnimation {
-                if isCollapsed {
-                    collapsedCategories.remove(category)
-                } else {
-                    collapsedCategories.insert(category)
-                }
-            }
-        } label: {
-            HStack {
-                Text(category)
-                if isCollapsed {
-                    Text("(\(count))")
-                        .foregroundStyle(.secondary)
-                }
-                Spacer()
-                Image(systemName: "chevron.right")
-                    .rotationEffect(.degrees(isCollapsed ? 0 : 90))
-                    .foregroundStyle(.secondary)
-            }
-            .contentShape(Rectangle())
+    /// The list content in normal mode: one section per non-empty category (in the
+    /// user's order) plus the uncategorized group at the end, ready to hand to the
+    /// UIKit-backed list that does the rendering and drag & drop.
+    private var listSections: [ExerciseListSection] {
+        var result: [ExerciseListSection] = []
+        for category in store.categories {
+            let items = store.exercises.filter { $0.category == category }
+            guard !items.isEmpty else { continue }
+            let isCollapsed = collapsedCategories.contains(category)
+            result.append(ExerciseListSection(category: category,
+                                              isCollapsed: isCollapsed,
+                                              totalCount: items.count,
+                                              items: isCollapsed ? [] : items))
         }
-        .buttonStyle(.plain)
-        // A long press only flips into reorder mode; it deliberately does not begin
-        // dragging this row. `.simultaneousGesture` keeps the tap-to-collapse working.
-        .simultaneousGesture(
-            LongPressGesture(minimumDuration: 0.5).onEnded { _ in
-                enterReorderMode()
-            }
-        )
+        let uncategorized = self.uncategorized
+        if !uncategorized.isEmpty {
+            result.append(ExerciseListSection(category: "",
+                                              isCollapsed: false,
+                                              totalCount: uncategorized.count,
+                                              items: uncategorized))
+        }
+        return result
     }
 
     /// A collapsed, drag-reorderable row for a category, shown only in reorder mode.
@@ -155,74 +144,40 @@ struct ExercisesView: View {
         store.moveCategory(from: source, to: destination)
     }
 
-    /// Commit a drop: move the dragged exercise into `category`, positioned before
-    /// `targetID` (or appended when nil). The payload is the dragged exercise's UUID.
-    private func handleDrop(_ items: [String], toCategory category: String, before targetID: UUID?) -> Bool {
-        guard let first = items.first, let dropped = UUID(uuidString: first) else { return false }
-        store.moveExercise(dropped, toCategory: category, before: targetID)
-        return true
-    }
-
-    /// One exercise row. `sectionCategory` is the category of the section it's shown
-    /// in (""  for the uncategorized section) so a drop onto it lands in the right group.
-    @ViewBuilder
-    private func exerciseRow(_ exercise: Exercise, inCategory sectionCategory: String) -> some View {
-        Button(exercise.name) {
-            navigationPath.append(ExerciseRoute.play(exercise.id))
-        }
-        .foregroundStyle(.primary)
-        .draggable(exercise.id.uuidString)
-        .dropDestination(for: String.self) { items, _ in
-            handleDrop(items, toCategory: sectionCategory, before: exercise.id)
-        }
-        .swipeActions(edge: .leading, allowsFullSwipe: true) {
-            Button {
-                navigationPath.append(ExerciseRoute.settings(exercise.id))
-            } label: {
-                Label("Settings", systemImage: "slider.horizontal.3")
-            }
-            .tint(.blue)
-        }
-    }
-
     var body: some View {
         NavigationStack(path: $navigationPath) {
-            List {
+            Group {
                 if isReordering {
                     // Reorder mode: every category collapsed to a single draggable row.
-                    ForEach(store.categories, id: \.self) { category in
-                        reorderRow(category)
+                    List {
+                        ForEach(store.categories, id: \.self) { category in
+                            reorderRow(category)
+                        }
+                        .onMove(perform: moveCategory)
                     }
-                    .onMove(perform: moveCategory)
+                    .environment(\.editMode, $editMode)
                 } else {
-                    // One section per category, in the user's defined order. A category
-                    // with no exercises is skipped so its header never shows.
-                    ForEach(store.categories, id: \.self) { category in
-                        let items = store.exercises.filter { $0.category == category }
-                        if !items.isEmpty {
-                            let isCollapsed = collapsedCategories.contains(category)
-                            Section(header: categoryHeader(category, count: items.count, isCollapsed: isCollapsed)
-                                .dropDestination(for: String.self) { dropped, _ in
-                                    // Dropping onto a header moves the exercise into that
-                                    // category (appended), which also reaches collapsed ones.
-                                    handleDrop(dropped, toCategory: category, before: nil)
-                                }
-                            ) {
-                                if !isCollapsed {
-                                    ForEach(items) { exerciseRow($0, inCategory: category) }
-                                }
+                    ExerciseCollectionList(
+                        sections: listSections,
+                        onSelect: { navigationPath.append(ExerciseRoute.play($0)) },
+                        onSettings: { navigationPath.append(ExerciseRoute.settings($0)) },
+                        onToggleCollapse: { category in
+                            if collapsedCategories.contains(category) {
+                                collapsedCategories.remove(category)
+                            } else {
+                                collapsedCategories.insert(category)
                             }
+                        },
+                        onHeaderLongPress: { enterReorderMode() },
+                        onMove: { id, category, before in
+                            store.moveExercise(id, toCategory: category, before: before)
                         }
-                    }
-
-                    if !uncategorized.isEmpty {
-                        Section {
-                            ForEach(uncategorized) { exerciseRow($0, inCategory: "") }
-                        }
-                    }
+                    )
+                    // Span the full screen like a List so content scrolls under the
+                    // navigation and tab bars.
+                    .ignoresSafeArea()
                 }
             }
-            .environment(\.editMode, $editMode)
             .navigationTitle(isReordering ? "Reorder" : "Exercises")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
