@@ -281,6 +281,55 @@ final class Learn2SingUITests: XCTestCase {
                       "the Settings action should push the settings screen")
     }
 
+    /// The MIDI editor's transport: play starts playback (the button flips to
+    /// Stop), stop returns it to Play. Captures idle and playing screenshots.
+    func testEditorPlaybackTransport() throws {
+        let app = openExercises()
+        sleep(2)
+        let snap = snapshotList(app)
+        guard let category = snap.headers.first(where: { !(snap.items[$0] ?? []).isEmpty }),
+              let name = snap.items[category]?.first else {
+            XCTFail("no visible exercise"); return
+        }
+
+        // Into the exercise's settings, then its MIDI editor. The Settings query is
+        // scoped to the swiped row so it can't match the tab bar's Settings tab.
+        cell(app, named: name).swipeRight()
+        let settings = app.collectionViews.buttons["Settings"].firstMatch
+        XCTAssertTrue(settings.waitForExistence(timeout: 3), "leading swipe should reveal Settings")
+        settings.tap()
+        XCTAssertTrue(app.navigationBars[name].waitForExistence(timeout: 3),
+                      "tapping Settings should push the exercise's settings screen")
+        sleep(1)
+        // The Edit MIDI link sits near the bottom of the (lazy) settings form.
+        var editMIDI = app.buttons["Edit MIDI"].firstMatch
+        for _ in 0..<4 where !editMIDI.exists {
+            app.swipeUp()
+            usleep(500_000)
+            editMIDI = app.buttons["Edit MIDI"].firstMatch
+        }
+        XCTAssertTrue(editMIDI.waitForExistence(timeout: 3), "settings should offer Edit MIDI")
+        editMIDI.tap()
+
+        let play = app.buttons["Play"].firstMatch
+        XCTAssertTrue(play.waitForExistence(timeout: 3), "editor should show a Play button")
+        sleep(1)
+        saveScreenshot("editor-idle")
+
+        // An exercise without notes leaves Play disabled; nothing more to verify.
+        guard play.isEnabled else { return }
+
+        play.tap()
+        let stop = app.buttons["Stop"].firstMatch
+        XCTAssertTrue(stop.waitForExistence(timeout: 3), "Play should flip to Stop while playing")
+        sleep(2)
+        saveScreenshot("editor-playing")
+
+        stop.tap()
+        XCTAssertTrue(app.buttons["Play"].firstMatch.waitForExistence(timeout: 3),
+                      "Stop should return the transport to Play")
+    }
+
     /// The visible exercise names, top to bottom.
     private func visibleCellOrder(_ app: XCUIApplication) -> [String] {
         let contentTop = app.navigationBars.firstMatch.frame.maxY

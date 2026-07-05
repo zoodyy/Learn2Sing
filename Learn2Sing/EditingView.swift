@@ -1,4 +1,5 @@
 import SwiftUI
+import Combine
 
 // MARK: - Model
 
@@ -32,6 +33,7 @@ private let freeMeasures = 4
 private let totalRows = hiPitch - loPitch + 1
 private let gridH = CGFloat(totalRows) * rowH
 private let textFontSize: CGFloat = 12
+private let rulerH: CGFloat = 26
 
 
 // MARK: - EditingView
@@ -49,6 +51,20 @@ struct EditingView: View {
     @State private var textInput = ""
     @State private var editingTextID: UUID? = nil
     @State private var isNewText = false
+
+    // Playback state. The playhead is where the next playback run starts (set by
+    // scrubbing the ruler); while playing, the drawn position comes from the audio
+    // engine's own clock so the line tracks exactly what's being heard.
+    @State private var player = ExercisePlayer()
+    @State private var isPlaying = false
+    @State private var playheadBeat: Double = 0
+    @State private var playStartBeat: Double = 0
+    @State private var engineStarted = false
+    // Horizontal scroll offset + viewport size of the roll, so the fixed ruler can
+    // draw in grid coordinates and auto-follow knows what's visible.
+    @State private var scrollGeom = CGRect.zero
+    @State private var scrollPos = ScrollPosition(edge: .leading)
+    @Environment(\.scenePhase) private var scenePhase
 
     private enum Tool {
         case pen    // create / move / resize notes
@@ -100,16 +116,29 @@ struct EditingView: View {
 
     private var gridW: CGFloat { CGFloat(totalBeats) * beatW }
 
+    private var bpm: Double { exercise?.bpm ?? 120 }
+
     var body: some View {
-        ScrollView(.vertical, showsIndicators: true) {
-            HStack(alignment: .top, spacing: 0) {
-                pianoKeysCanvas
-                ScrollView(.horizontal, showsIndicators: true) {
-                    rollCanvas
-                        .frame(width: gridW, height: gridH)
-                        .highPriorityGesture(rollGesture, including: tool == .hand ? .none : .all)
+        VStack(spacing: 0) {
+            rulerRow
+            ScrollView(.vertical, showsIndicators: true) {
+                HStack(alignment: .top, spacing: 0) {
+                    pianoKeysCanvas
+                    ScrollView(.horizontal, showsIndicators: true) {
+                        rollCanvas
+                            .frame(width: gridW, height: gridH)
+                            .overlay(alignment: .topLeading) { playheadOverlay }
+                            .highPriorityGesture(rollGesture, including: tool == .hand ? .none : .all)
+                    }
+                    .scrollPosition($scrollPos)
+                    .onScrollGeometryChange(for: CGRect.self) { g in
+                        CGRect(origin: g.contentOffset, size: g.containerSize)
+                    } action: { _, new in
+                        scrollGeom = new
+                    }
                 }
             }
+            transportBar
         }
         .background(Color.black)
         .navigationTitle(exercise?.name ?? "Editing")
@@ -135,8 +164,201 @@ struct EditingView: View {
             loadNotes()
             loadTexts()
         }
+        .onDisappear {
+            isPlaying = false
+            player.stop()
+            if engineStarted {
+                AudioRouteManager.shared.deactivateSession()
+                engineStarted = false
+            }
+        }
+        .onChange(of: scenePhase) { _, phase in
+            if phase == .background, isPlaying { stopPlayback() }
+        }
+        .onReceive(Timer.publish(every: 0.25, on: .main, in: .common).autoconnect()) { _ in
+            followPlayhead()
+        }
         .onChange(of: notes) { _, _ in saveNotes() }
         .onChange(of: texts) { _, _ in saveTexts() }
+    }
+
+    // MARK: - Playback
+
+    /// The beat the playhead is drawn at: the engine's live position while playing
+    /// (so the line tracks the audio exactly), otherwise where the user parked it.
+    private var displayBeat: Double {
+        if isPlaying, let b = player.currentBeat(bpm: bpm, leadIn: 0) {
+            return playStartBeat + max(0, b)
+        }
+        return playheadBeat
+    }
+
+    private func startPlayback(from startBeat: Double) {
+        // Keep only what sounds at or after the playhead; a note straddling it is
+        // clipped so just its remainder plays.
+        let clipped: [MIDINote] = notes.compactMap { note in
+            let end = note.beat + note.length
+            guard end > startBeat else { return nil }
+            var n = note
+            n.beat = max(0, note.beat - startBeat)
+            n.length = (end - startBeat) - n.beat
+            return n
+        }
+        guard !clipped.isEmpty else { return }
+
+        // Configure the route and start the engine on first play only; afterwards it
+        // keeps running between runs so play/stop is instant.
+        if !engineStarted {
+            AudioRouteManager.shared.configureSession()
+            player.begin()
+            engineStarted = true
+        }
+        player.setClickMode(false)
+        player.setInstrument(Instrument.current)
+        playStartBeat = startBeat
+        player.schedule(notes: clipped, bpm: bpm, leadIn: 0, preview: false) {
+            isPlaying = false
+            playheadBeat = playStartBeat
+        }
+        isPlaying = true
+    }
+
+    /// Silence the schedule and park the playhead back where this run started, so
+    /// pressing play again repeats the same passage.
+    private func stopPlayback() {
+        player.cancelAll()
+        isPlaying = false
+        playheadBeat = playStartBeat
+    }
+
+    /// Keep the playhead on screen during playback: once it leaves the viewport,
+    /// jump the scroll so it re-enters near the left edge.
+    private func followPlayhead() {
+        guard isPlaying, scrollGeom.width > 0 else { return }
+        let x = CGFloat(displayBeat) * beatW
+        if x > scrollGeom.maxX - 24 || x < scrollGeom.minX {
+            let target = max(0, x - scrollGeom.width * 0.2)
+            withAnimation(.easeInOut(duration: 0.2)) { scrollPos.scrollTo(x: target) }
+        }
+    }
+
+    // MARK: - Ruler & transport bar
+
+    /// Fixed strip above the grid showing measure numbers and beat ticks, drawn in
+    /// grid coordinates (shifted by the roll's scroll offset so it stays aligned).
+    /// Tap or drag anywhere on it to move the playhead.
+    private var rulerRow: some View {
+        HStack(spacing: 0) {
+            Color(white: 0.13).frame(width: pianoW)
+            TimelineView(.animation(minimumInterval: nil, paused: !isPlaying)) { _ in
+                Canvas { ctx, size in
+                    ctx.fill(Path(CGRect(origin: .zero, size: size)), with: .color(Color(white: 0.13)))
+                    ctx.translateBy(x: -scrollGeom.minX, y: 0)
+
+                    let first = max(0, Int(scrollGeom.minX / beatW))
+                    let last = min(totalBeats, Int((scrollGeom.minX + size.width) / beatW) + 1)
+                    if first <= last {
+                        for beat in first...last {
+                            let x = CGFloat(beat) * beatW
+                            let isBar = beat % beatsPerMeasure == 0
+                            var tick = Path()
+                            tick.move(to: CGPoint(x: x, y: isBar ? size.height * 0.35 : size.height * 0.65))
+                            tick.addLine(to: CGPoint(x: x, y: size.height))
+                            ctx.stroke(tick, with: .color(white: isBar ? 0.6 : 0.35), lineWidth: 1)
+                            if isBar {
+                                ctx.draw(
+                                    Text("\(beat / beatsPerMeasure + 1)")
+                                        .font(.system(size: 9, weight: .medium))
+                                        .foregroundColor(.gray),
+                                    at: CGPoint(x: x + 3, y: 1),
+                                    anchor: .topLeading
+                                )
+                            }
+                        }
+                    }
+
+                    let px = CGFloat(displayBeat) * beatW
+                    var marker = Path()
+                    marker.move(to: CGPoint(x: px - 5, y: 0))
+                    marker.addLine(to: CGPoint(x: px + 5, y: 0))
+                    marker.addLine(to: CGPoint(x: px, y: 8))
+                    marker.closeSubpath()
+                    ctx.fill(marker, with: .color(.red))
+                    var line = Path()
+                    line.move(to: CGPoint(x: px, y: 0))
+                    line.addLine(to: CGPoint(x: px, y: size.height))
+                    ctx.stroke(line, with: .color(.red.opacity(0.9)), lineWidth: 1.5)
+                }
+                .gesture(rulerGesture)
+            }
+        }
+        .frame(height: rulerH)
+    }
+
+    private var rulerGesture: some Gesture {
+        DragGesture(minimumDistance: 0)
+            .onChanged { v in
+                if isPlaying { stopPlayback() }
+                let beat = Double(v.location.x + scrollGeom.minX) / Double(beatW)
+                playheadBeat = min(Double(totalBeats), max(0, snapped(beat)))
+            }
+    }
+
+    /// Red line over the roll at the playhead, animated from the audio clock while
+    /// playing. Drawn in its own overlay so the note canvas isn't redrawn per frame.
+    private var playheadOverlay: some View {
+        TimelineView(.animation(minimumInterval: nil, paused: !isPlaying)) { _ in
+            Canvas { ctx, size in
+                let x = CGFloat(displayBeat) * beatW
+                guard x >= 0, x <= size.width else { return }
+                var line = Path()
+                line.move(to: CGPoint(x: x, y: 0))
+                line.addLine(to: CGPoint(x: x, y: size.height))
+                ctx.stroke(line, with: .color(.red.opacity(0.9)), lineWidth: 1.5)
+            }
+        }
+        .frame(width: gridW, height: gridH)
+        .allowsHitTesting(false)
+    }
+
+    private var transportBar: some View {
+        HStack(spacing: 24) {
+            Button {
+                if isPlaying { stopPlayback() }
+                playheadBeat = 0
+            } label: {
+                Image(systemName: "backward.end.fill")
+            }
+            .accessibilityLabel("Go to Start")
+            Button {
+                isPlaying ? stopPlayback() : startPlayback(from: playheadBeat)
+            } label: {
+                Image(systemName: isPlaying ? "stop.fill" : "play.fill")
+                    .font(.title3)
+                    .frame(width: 28)
+            }
+            .disabled(notes.isEmpty)
+            .accessibilityLabel(isPlaying ? "Stop" : "Play")
+            TimelineView(.animation(minimumInterval: 0.1, paused: !isPlaying)) { _ in
+                Text(positionLabel(for: displayBeat))
+                    .font(.system(.footnote, design: .monospaced))
+                    .foregroundStyle(.secondary)
+            }
+            Spacer()
+            Text("\(Int(bpm)) BPM")
+                .font(.footnote)
+                .foregroundStyle(.secondary)
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 10)
+        .background(Color(white: 0.1))
+        .foregroundStyle(.white)
+    }
+
+    /// "measure.beat" readout, 1-based, e.g. "3.2".
+    private func positionLabel(for beat: Double) -> String {
+        let b = max(0, beat)
+        return "\(Int(b) / beatsPerMeasure + 1).\(Int(b) % beatsPerMeasure + 1)"
     }
 
     private func toolButton(_ t: Tool, system: String) -> some View {
