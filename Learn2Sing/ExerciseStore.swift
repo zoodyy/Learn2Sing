@@ -64,6 +64,31 @@ final class ExerciseStore: ObservableObject {
         saveCategories()
     }
 
+    /// Reorder the user's categories (drives the grouping order in the list).
+    func moveCategory(from source: IndexSet, to destination: Int) {
+        categories.move(fromOffsets: source, toOffset: destination)
+        saveCategories()
+    }
+
+    /// Move a dragged exercise so it lands in `category`, positioned just before the
+    /// exercise `targetID` (or at the end of that category when `targetID` is nil).
+    /// Sections in the list are rendered by filtering on `category`, so only the
+    /// exercise's own `category` and its order relative to its new siblings matter.
+    func moveExercise(_ id: UUID, toCategory category: String, before targetID: UUID?) {
+        guard id != targetID,
+              let from = exercises.firstIndex(where: { $0.id == id }) else { return }
+        var moved = exercises.remove(at: from)
+        moved.category = category
+        if let targetID, let to = exercises.firstIndex(where: { $0.id == targetID }) {
+            exercises.insert(moved, at: to)
+        } else if let lastInCategory = exercises.lastIndex(where: { $0.category == category }) {
+            exercises.insert(moved, at: lastInCategory + 1)
+        } else {
+            exercises.append(moved)
+        }
+        save()
+    }
+
     /// Remove a category and clear it from any exercise that used it (those become
     /// uncategorized) so no exercise is left pointing at a category that's gone.
     func deleteCategory(_ name: String) {

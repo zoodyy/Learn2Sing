@@ -1,0 +1,430 @@
+import SwiftUI
+import UIKit
+
+/// One visible group in the exercise list: a category and the rows shown for it.
+/// `category` is "" for the uncategorized group, which renders without a header.
+struct ExerciseListSection: Equatable {
+    var category: String
+    var isCollapsed: Bool
+    /// Number of exercises in the category, including hidden ones — shown in the
+    /// header while collapsed (when `items` is empty).
+    var totalCount: Int
+    var items: [Exercise]
+}
+
+/// The normal-mode exercise list. This is intentionally NOT a SwiftUI List: a
+/// List can never commit an internal drag onto another row or section (row-level
+/// drop modifiers aren't consulted for List-internal drags, `.onDrag` crashes on
+/// multi-section lists, and per-section `.onMove` can't cross sections). It is a
+/// UICollectionView in the same insetGrouped list style SwiftUI's List is backed
+/// by — same appearance — with drag & drop driven directly through UIKit's
+/// drag/drop delegates: an exercise can be dragged to reorder within its category
+/// or dropped into another one (including onto a collapsed category's header).
+struct ExerciseCollectionList: UIViewControllerRepresentable {
+    var sections: [ExerciseListSection]
+    var onSelect: (UUID) -> Void
+    var onSettings: (UUID) -> Void
+    var onToggleCollapse: (String) -> Void
+    var onHeaderLongPress: () -> Void
+    /// (exercise, newCategory, idOfExerciseItNowPrecedes — nil appends)
+    var onMove: (UUID, String, UUID?) -> Void
+
+    func makeUIViewController(context: Context) -> ExerciseListController {
+        let controller = ExerciseListController()
+        apply(to: controller)
+        return controller
+    }
+
+    func updateUIViewController(_ controller: ExerciseListController, context: Context) {
+        apply(to: controller)
+    }
+
+    private func apply(to controller: ExerciseListController) {
+        controller.onSelect = onSelect
+        controller.onSettings = onSettings
+        controller.onToggleCollapse = onToggleCollapse
+        controller.onHeaderLongPress = onHeaderLongPress
+        controller.onMove = onMove
+        controller.setSections(sections, animated: true)
+    }
+}
+
+final class ExerciseListController: UIViewController {
+    var onSelect: ((UUID) -> Void)?
+    var onSettings: ((UUID) -> Void)?
+    var onToggleCollapse: ((String) -> Void)?
+    var onHeaderLongPress: (() -> Void)?
+    var onMove: ((UUID, String, UUID?) -> Void)?
+
+    private var sections: [ExerciseListSection] = []
+    private var exercisesByID: [UUID: Exercise] = [:]
+    private var collectionView: UICollectionView!
+    private var dataSource: UICollectionViewDiffableDataSource<String, UUID>!
+    /// Sections handed over while a drag was in flight; deferred because mutating
+    /// the layout mid-drag cancels the lift (and crashes SwiftUI's equivalent).
+    private var pendingSections: [ExerciseListSection]?
+    private var isPerformingDrop = false
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+
+        let layout = UICollectionViewCompositionalLayout { [weak self] sectionIndex, environment in
+            guard let self, sectionIndex < self.sections.count else { return nil }
+            var config = UICollectionLayoutListConfiguration(appearance: .insetGrouped)
+            config.headerMode = self.sections[sectionIndex].category.isEmpty ? .none : .supplementary
+            config.leadingSwipeActionsConfigurationProvider = { [weak self] indexPath in
+                self?.leadingSwipeActions(at: indexPath)
+            }
+            return NSCollectionLayoutSection.list(using: config, layoutEnvironment: environment)
+        }
+
+        let cv = UICollectionView(frame: .zero, collectionViewLayout: layout)
+        cv.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(cv)
+        NSLayoutConstraint.activate([
+            cv.topAnchor.constraint(equalTo: view.topAnchor),
+            cv.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            cv.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            cv.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+        ])
+        cv.delegate = self
+        cv.dragDelegate = self
+        cv.dropDelegate = self
+        cv.dragInteractionEnabled = true
+        collectionView = cv
+        // Lets the navigation/tab bars apply their scrolled-under effects, like
+        // they do for a SwiftUI List.
+        setContentScrollView(cv, for: [.top, .bottom])
+
+        let cellRegistration = UICollectionView.CellRegistration<UICollectionViewListCell, UUID> {
+            [weak self] cell, _, id in
+            var content = UIListContentConfiguration.cell()
+            content.text = self?.exercisesByID[id]?.name
+            cell.contentConfiguration = content
+        }
+        dataSource = UICollectionViewDiffableDataSource<String, UUID>(collectionView: cv) {
+            collectionView, indexPath, id in
+            collectionView.dequeueConfiguredReusableCell(using: cellRegistration, for: indexPath, item: id)
+        }
+
+        let headerRegistration = UICollectionView.SupplementaryRegistration<ExerciseSectionHeaderView>(
+            elementKind: UICollectionView.elementKindSectionHeader
+        ) { [weak self] header, _, indexPath in
+            self?.configure(header: header, forSection: indexPath.section, animated: false)
+        }
+        dataSource.supplementaryViewProvider = { collectionView, kind, indexPath in
+            collectionView.dequeueConfiguredReusableSupplementary(using: headerRegistration, for: indexPath)
+        }
+
+        applySnapshot(animated: false, reconfiguring: [])
+    }
+
+    // MARK: - Data
+
+    func setSections(_ new: [ExerciseListSection], animated: Bool) {
+        guard new != sections else { return }
+        if collectionView?.hasActiveDrag == true || isPerformingDrop {
+            pendingSections = new
+            return
+        }
+        let oldByID = exercisesByID
+        sections = new
+        exercisesByID = Dictionary(
+            new.flatMap { $0.items }.map { ($0.id, $0) },
+            uniquingKeysWith: { first, _ in first }
+        )
+        guard dataSource != nil else { return } // applied in viewDidLoad
+        // Rows whose exercise changed in place (e.g. renamed) need reconfiguring;
+        // diffable identity is the UUID, so it won't notice on its own.
+        let changed = exercisesByID.keys.filter { oldByID[$0] != nil && oldByID[$0] != exercisesByID[$0] }
+        applySnapshot(animated: animated && view.window != nil, reconfiguring: Array(changed))
+    }
+
+    private func applySnapshot(animated: Bool, reconfiguring: [UUID]) {
+        var snapshot = NSDiffableDataSourceSnapshot<String, UUID>()
+        for section in sections {
+            snapshot.appendSections([section.category])
+            snapshot.appendItems(section.items.map(\.id), toSection: section.category)
+        }
+        snapshot.reconfigureItems(reconfiguring)
+        dataSource.apply(snapshot, animatingDifferences: animated)
+        updateVisibleHeaders(animated: animated)
+    }
+
+    /// Snapshots don't cover supplementaries, so collapse toggles and count
+    /// changes have to be pushed to the visible headers by hand.
+    private func updateVisibleHeaders(animated: Bool) {
+        for indexPath in collectionView.indexPathsForVisibleSupplementaryElements(
+            ofKind: UICollectionView.elementKindSectionHeader
+        ) {
+            guard let header = collectionView.supplementaryView(
+                forElementKind: UICollectionView.elementKindSectionHeader, at: indexPath
+            ) as? ExerciseSectionHeaderView else { continue }
+            configure(header: header, forSection: indexPath.section, animated: animated)
+        }
+    }
+
+    private func configure(header: ExerciseSectionHeaderView, forSection sectionIndex: Int, animated: Bool) {
+        guard sectionIndex < sections.count else { return }
+        let section = sections[sectionIndex]
+        header.configure(name: section.category, count: section.totalCount,
+                         isCollapsed: section.isCollapsed, animated: animated)
+        header.onTap = { [weak self] in self?.onToggleCollapse?(section.category) }
+        header.onLongPress = { [weak self] in self?.onHeaderLongPress?() }
+    }
+
+    private func location(of id: UUID) -> (section: Int, item: Int)? {
+        for (sectionIndex, section) in sections.enumerated() {
+            if let itemIndex = section.items.firstIndex(where: { $0.id == id }) {
+                return (sectionIndex, itemIndex)
+            }
+        }
+        return nil
+    }
+
+    /// The section whose header sits under `point`, for drops that land on a
+    /// header (the only way to reach a collapsed category).
+    private func headerSection(at point: CGPoint) -> Int? {
+        for indexPath in collectionView.indexPathsForVisibleSupplementaryElements(
+            ofKind: UICollectionView.elementKindSectionHeader
+        ) {
+            guard indexPath.section < sections.count,
+                  let header = collectionView.supplementaryView(
+                      forElementKind: UICollectionView.elementKindSectionHeader, at: indexPath
+                  ) else { continue }
+            let frame = header.convert(header.bounds, to: collectionView)
+            if frame.contains(point) {
+                return indexPath.section
+            }
+        }
+        return nil
+    }
+
+    private func leadingSwipeActions(at indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+        guard let id = dataSource.itemIdentifier(for: indexPath) else { return nil }
+        let action = UIContextualAction(style: .normal, title: "Settings") { [weak self] _, _, done in
+            self?.onSettings?(id)
+            done(true)
+        }
+        action.image = UIImage(systemName: "slider.horizontal.3")
+        action.backgroundColor = .systemBlue
+        let config = UISwipeActionsConfiguration(actions: [action])
+        config.performsFirstActionWithFullSwipe = true
+        return config
+    }
+}
+
+// MARK: - Selection
+
+extension ExerciseListController: UICollectionViewDelegate {
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        collectionView.deselectItem(at: indexPath, animated: true)
+        guard let id = dataSource.itemIdentifier(for: indexPath) else { return }
+        onSelect?(id)
+    }
+}
+
+// MARK: - Drag & drop
+
+extension ExerciseListController: UICollectionViewDragDelegate, UICollectionViewDropDelegate {
+    func collectionView(_ collectionView: UICollectionView, itemsForBeginning session: UIDragSession,
+                        at indexPath: IndexPath) -> [UIDragItem] {
+        guard let id = dataSource.itemIdentifier(for: indexPath) else { return [] }
+        let item = UIDragItem(itemProvider: NSItemProvider(object: id.uuidString as NSString))
+        item.localObject = id
+        return [item]
+    }
+
+    func collectionView(_ collectionView: UICollectionView,
+                        dragSessionIsRestrictedToDraggingApplication session: UIDragSession) -> Bool {
+        true
+    }
+
+    func collectionView(_ collectionView: UICollectionView, canHandle session: UIDropSession) -> Bool {
+        session.localDragSession != nil
+    }
+
+    func collectionView(_ collectionView: UICollectionView, dropSessionDidUpdate session: UIDropSession,
+                        withDestinationIndexPath destinationIndexPath: IndexPath?) -> UICollectionViewDropProposal {
+        guard session.localDragSession != nil else {
+            return UICollectionViewDropProposal(operation: .cancel)
+        }
+        if destinationIndexPath != nil {
+            return UICollectionViewDropProposal(operation: .move, intent: .insertAtDestinationIndexPath)
+        }
+        if headerSection(at: session.location(in: collectionView)) != nil {
+            return UICollectionViewDropProposal(operation: .move, intent: .unspecified)
+        }
+        return UICollectionViewDropProposal(operation: .cancel)
+    }
+
+    func collectionView(_ collectionView: UICollectionView,
+                        performDropWith coordinator: UICollectionViewDropCoordinator) {
+        guard let dropItem = coordinator.items.first,
+              let id = dropItem.dragItem.localObject as? UUID,
+              let source = location(of: id)
+        else { return }
+
+        // Resolve where the item was let go. The header hit-test comes first:
+        // when the touch ends on a header no insertion gap was shown, but UIKit
+        // still reports a (misleading) nearest-row destinationIndexPath.
+        let destinationSection: Int
+        var destinationItem: Int?
+        if let headerHit = headerSection(at: coordinator.session.location(in: collectionView)) {
+            destinationSection = headerHit
+            destinationItem = nil
+        } else if let indexPath = coordinator.destinationIndexPath, indexPath.section < sections.count {
+            destinationSection = indexPath.section
+            destinationItem = indexPath.item
+        } else {
+            return
+        }
+
+        var new = sections
+        let moved = new[source.section].items.remove(at: source.item)
+        new[source.section].totalCount -= 1
+
+        let category = new[destinationSection].category
+        var beforeID: UUID?
+        var finalIndexPath: IndexPath?
+        if new[destinationSection].isCollapsed {
+            // Into a collapsed category: the exercise joins it but stays hidden.
+            new[destinationSection].totalCount += 1
+        } else if let destinationItem {
+            let insertIndex = min(destinationItem, new[destinationSection].items.count)
+            new[destinationSection].items.insert(moved, at: insertIndex)
+            new[destinationSection].totalCount += 1
+            if insertIndex + 1 < new[destinationSection].items.count {
+                beforeID = new[destinationSection].items[insertIndex + 1].id
+            }
+            finalIndexPath = IndexPath(item: insertIndex, section: destinationSection)
+        } else {
+            // Dropped on an expanded category's header: append.
+            new[destinationSection].items.append(moved)
+            new[destinationSection].totalCount += 1
+            finalIndexPath = IndexPath(item: new[destinationSection].items.count - 1,
+                                       section: destinationSection)
+        }
+
+        // An emptied category's section disappears, like in the SwiftUI view.
+        if new[source.section].totalCount == 0 {
+            new.remove(at: source.section)
+            if var indexPath = finalIndexPath, indexPath.section > source.section {
+                indexPath.section -= 1
+                finalIndexPath = indexPath
+            }
+        }
+
+        isPerformingDrop = true
+        sections = new
+        exercisesByID[id] = {
+            var updated = moved
+            updated.category = category
+            return updated
+        }()
+        applySnapshot(animated: false, reconfiguring: [])
+        if let finalIndexPath {
+            coordinator.drop(dropItem.dragItem, toItemAt: finalIndexPath)
+        } else if let headerIndex = sections.firstIndex(where: { $0.category == category }),
+                  let headerView = collectionView.supplementaryView(
+                      forElementKind: UICollectionView.elementKindSectionHeader,
+                      at: IndexPath(item: 0, section: headerIndex)
+                  ) {
+            let target = UIDragPreviewTarget(
+                container: headerView,
+                center: CGPoint(x: headerView.bounds.midX, y: headerView.bounds.midY)
+            )
+            coordinator.drop(dropItem.dragItem, to: target)
+        }
+        isPerformingDrop = false
+
+        // Tell the store after the drop's own layout pass so the SwiftUI update
+        // (which round-trips back into setSections) can't fight the animation.
+        DispatchQueue.main.async { [weak self] in
+            self?.onMove?(id, category, beforeID)
+        }
+    }
+
+    func collectionView(_ collectionView: UICollectionView, dropSessionDidEnd session: UIDropSession) {
+        if let pending = pendingSections {
+            pendingSections = nil
+            setSections(pending, animated: true)
+        }
+    }
+}
+
+// MARK: - Section header
+
+/// Replica of the SwiftUI section header: category name, exercise count while
+/// collapsed, and a chevron that points right (collapsed) or down (expanded).
+/// Tap toggles collapse; a long press enters category-reorder mode.
+final class ExerciseSectionHeaderView: UICollectionReusableView {
+    var onTap: (() -> Void)?
+    var onLongPress: (() -> Void)?
+
+    private let nameLabel = UILabel()
+    private let countLabel = UILabel()
+    private let chevron = UIImageView()
+    private var isCollapsed = false
+
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+
+        // Take the exact type the system uses for grouped-list headers so the
+        // header is indistinguishable from the SwiftUI Section header it replaces.
+        let headerDefaults = UIListContentConfiguration.groupedHeader()
+        nameLabel.font = headerDefaults.textProperties.font
+        nameLabel.textColor = headerDefaults.textProperties.color
+        nameLabel.adjustsFontForContentSizeCategory = true
+        countLabel.font = headerDefaults.textProperties.font
+        countLabel.textColor = .tertiaryLabel
+        countLabel.adjustsFontForContentSizeCategory = true
+        chevron.image = UIImage(systemName: "chevron.right")
+        chevron.preferredSymbolConfiguration = UIImage.SymbolConfiguration(font: headerDefaults.textProperties.font)
+        chevron.tintColor = .tertiaryLabel
+        chevron.setContentHuggingPriority(.required, for: .horizontal)
+
+        let spacer = UIView()
+        spacer.setContentHuggingPriority(.defaultLow, for: .horizontal)
+        let stack = UIStackView(arrangedSubviews: [nameLabel, countLabel, spacer, chevron])
+        stack.axis = .horizontal
+        stack.alignment = .center
+        stack.spacing = 8
+        stack.translatesAutoresizingMaskIntoConstraints = false
+        addSubview(stack)
+        NSLayoutConstraint.activate([
+            stack.leadingAnchor.constraint(equalTo: layoutMarginsGuide.leadingAnchor),
+            stack.trailingAnchor.constraint(equalTo: layoutMarginsGuide.trailingAnchor),
+            stack.topAnchor.constraint(equalTo: topAnchor, constant: 10),
+            stack.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
+        ])
+
+        addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(tapped)))
+        let longPress = UILongPressGestureRecognizer(target: self, action: #selector(longPressed(_:)))
+        longPress.minimumPressDuration = 0.5
+        addGestureRecognizer(longPress)
+    }
+
+    @available(*, unavailable)
+    required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
+
+    func configure(name: String, count: Int, isCollapsed: Bool, animated: Bool) {
+        nameLabel.text = name
+        countLabel.text = "(\(count))"
+        countLabel.isHidden = !isCollapsed
+        self.isCollapsed = isCollapsed
+        let transform = isCollapsed ? .identity : CGAffineTransform(rotationAngle: .pi / 2)
+        if animated {
+            UIView.animate(withDuration: 0.3) { self.chevron.transform = transform }
+        } else {
+            chevron.transform = transform
+        }
+    }
+
+    @objc private func tapped() { onTap?() }
+
+    @objc private func longPressed(_ recognizer: UILongPressGestureRecognizer) {
+        guard recognizer.state == .began else { return }
+        onLongPress?()
+    }
+}

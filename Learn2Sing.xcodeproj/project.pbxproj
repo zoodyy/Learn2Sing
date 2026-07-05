@@ -6,8 +6,19 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXContainerItemProxy section */
+		AA00000000000000000000A1 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 124147F22FEA7AA0003F13EB /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 124147F92FEA7AA0003F13EB;
+			remoteInfo = Learn2Sing;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
 		124147FA2FEA7AA0003F13EB /* Learn2Sing.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Learn2Sing.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		AA00000000000000000000A2 /* Learn2SingUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Learn2SingUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -16,10 +27,22 @@
 			path = Learn2Sing;
 			sourceTree = "<group>";
 		};
+		AA00000000000000000000A3 /* Learn2SingUITests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Learn2SingUITests;
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		124147F72FEA7AA0003F13EB /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		AA00000000000000000000A4 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -33,6 +56,7 @@
 			isa = PBXGroup;
 			children = (
 				124147FC2FEA7AA0003F13EB /* Learn2Sing */,
+				AA00000000000000000000A3 /* Learn2SingUITests */,
 				124147FB2FEA7AA0003F13EB /* Products */,
 			);
 			sourceTree = "<group>";
@@ -41,6 +65,7 @@
 			isa = PBXGroup;
 			children = (
 				124147FA2FEA7AA0003F13EB /* Learn2Sing.app */,
+				AA00000000000000000000A2 /* Learn2SingUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -69,6 +94,29 @@
 			productName = Learn2Sing;
 			productReference = 124147FA2FEA7AA0003F13EB /* Learn2Sing.app */;
 			productType = "com.apple.product-type.application";
+		};
+		AA00000000000000000000A5 /* Learn2SingUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = AA00000000000000000000A6 /* Build configuration list for PBXNativeTarget "Learn2SingUITests" */;
+			buildPhases = (
+				AA00000000000000000000A7 /* Sources */,
+				AA00000000000000000000A4 /* Frameworks */,
+				AA00000000000000000000A8 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				AA00000000000000000000A9 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				AA00000000000000000000A3 /* Learn2SingUITests */,
+			);
+			name = Learn2SingUITests;
+			packageProductDependencies = (
+			);
+			productName = Learn2SingUITests;
+			productReference = AA00000000000000000000A2 /* Learn2SingUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
 		};
 /* End PBXNativeTarget section */
 
@@ -100,12 +148,20 @@
 			projectRoot = "";
 			targets = (
 				124147F92FEA7AA0003F13EB /* Learn2Sing */,
+				AA00000000000000000000A5 /* Learn2SingUITests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
 		124147F82FEA7AA0003F13EB /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		AA00000000000000000000A8 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -122,7 +178,22 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		AA00000000000000000000A7 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		AA00000000000000000000A9 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 124147F92FEA7AA0003F13EB /* Learn2Sing */;
+			targetProxy = AA00000000000000000000A1 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		124148052FEA7AA1003F13EB /* Debug */ = {
@@ -329,6 +400,46 @@
 			};
 			name = Release;
 		};
+		AA00000000000000000000B1 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = U6R4LY5VX8;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.2;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = CDE.Learn2SingUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = auto;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = Learn2Sing;
+			};
+			name = Debug;
+		};
+		AA00000000000000000000B2 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = U6R4LY5VX8;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.2;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = CDE.Learn2SingUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = auto;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = Learn2Sing;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -346,6 +457,15 @@
 			buildConfigurations = (
 				124148082FEA7AA1003F13EB /* Debug */,
 				124148092FEA7AA1003F13EB /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		AA00000000000000000000A6 /* Build configuration list for PBXNativeTarget "Learn2SingUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AA00000000000000000000B1 /* Debug */,
+				AA00000000000000000000B2 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
