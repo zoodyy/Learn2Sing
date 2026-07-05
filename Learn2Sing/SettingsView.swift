@@ -32,6 +32,21 @@ struct SettingsView: View {
     var body: some View {
         NavigationStack(path: $settingsPath) {
             Form {
+                Section {
+                    Button {
+                        settingsPath.append(SettingsRoute.profile)
+                    } label: {
+                        HStack {
+                            Label("Profile", systemImage: "person.crop.circle")
+                            Spacer()
+                            Image(systemName: "chevron.right")
+                                .font(.footnote.weight(.semibold))
+                                .foregroundStyle(.tertiary)
+                        }
+                    }
+                    .foregroundStyle(.primary)
+                }
+
                 Section("Playback") {
                     Picker("Instrument", selection: $instrumentRaw) {
                         ForEach(Instrument.allCases) { instrument in
@@ -153,6 +168,8 @@ struct SettingsView: View {
                     VisualsHubView { settingsPath.append(SettingsRoute.visualsPlayback) }
                 case .visualsPlayback:
                     PlaybackVisualsView()
+                case .profile:
+                    ProfileView()
                 }
             }
             // The decimal pad has no return key. A keyboard toolbar (`.toolbar(.keyboard)`)
@@ -236,6 +253,7 @@ struct SettingsView: View {
         case vocalRangeTest
         case visualsHub
         case visualsPlayback
+        case profile
     }
 
     /// The throwaway exercise that drives the delay test, with the description shown
