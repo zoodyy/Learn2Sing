@@ -227,10 +227,16 @@ struct ExercisesView: View {
         }
     }
 
+    /// The as-created snapshot of an exercise added via the + menu. Compared
+    /// against on return to the list so an exercise the user never touched
+    /// (no setting, name, description, or MIDI change) is silently discarded.
+    @State private var pendingNewExercise: Exercise?
+
     /// Create the exercise immediately and open its settings, where the user
     /// picks the name and everything else.
     private func addExercise() {
         let exercise = store.add(name: "New Exercise")
+        pendingNewExercise = exercise
         navigationPath.append(ExerciseRoute.settings(exercise.id))
     }
 
@@ -322,6 +328,14 @@ struct ExercisesView: View {
                 Button("Cancel", role: .cancel) {}
             } message: {
                 Text("Enter a name for the new category.")
+            }
+            // Back at the list after creating an exercise: if it was never
+            // touched (settings screens deeper in this path can't be showing
+            // anymore), remove it again.
+            .onChange(of: navigationPath.count) { _, count in
+                guard count == 0, let created = pendingNewExercise else { return }
+                pendingNewExercise = nil
+                store.discardIfUntouched(created)
             }
             .navigationDestination(for: ExerciseRoute.self) { route in
                 switch route {

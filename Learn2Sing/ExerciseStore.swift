@@ -157,6 +157,18 @@ final class ExerciseStore: ObservableObject {
         return exercise
     }
 
+    /// Delete a just-created exercise the user backed out of without touching:
+    /// every setting (name, description, …) still matches the snapshot taken at
+    /// creation and no MIDI notes or text labels were added.
+    func discardIfUntouched(_ created: Exercise) {
+        guard let current = exercises.first(where: { $0.id == created.id }),
+              current == created,
+              notes(for: created.id).isEmpty,
+              texts(for: created.id).isEmpty
+        else { return }
+        delete(id: created.id)
+    }
+
     func delete(id: UUID) {
         exercises.removeAll { $0.id == id }
         UserDefaults.standard.removeObject(forKey: Self.midiKey(id))
