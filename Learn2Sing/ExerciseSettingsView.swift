@@ -7,6 +7,9 @@ struct ExerciseSettingsView: View {
     @Environment(\.dismiss) private var dismiss
     @FocusState private var focusedField: Field?
 
+    /// Drives the "really delete?" confirmation shown by the delete button.
+    @State private var isConfirmingDelete = false
+
     /// The text fields that can hold keyboard focus, so a single keyboard toolbar
     /// can show a "Done" button (and the sign toggle for the transpose field) above
     /// whichever one is being edited.
@@ -117,15 +120,23 @@ struct ExerciseSettingsView: View {
 
             Section {
                 Button(role: .destructive) {
-                    let id = exercise.id
-                    dismiss()
-                    // Delete after the pop so no view is bound to the removed exercise.
-                    DispatchQueue.main.async { store.delete(id: id) }
+                    isConfirmingDelete = true
                 } label: {
                     Label("Delete Exercise", systemImage: "trash")
                         .frame(maxWidth: .infinity)
                 }
             }
+        }
+        .alert("Delete Exercise?", isPresented: $isConfirmingDelete) {
+            Button("Delete", role: .destructive) {
+                let id = exercise.id
+                dismiss()
+                // Delete after the pop so no view is bound to the removed exercise.
+                DispatchQueue.main.async { store.delete(id: id) }
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("\"\(exercise.name)\" and its MIDI pattern will be deleted. This cannot be undone.")
         }
         .navigationTitle(exercise.name)
         .navigationBarTitleDisplayMode(.inline)
