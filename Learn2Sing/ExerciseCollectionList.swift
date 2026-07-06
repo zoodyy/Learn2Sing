@@ -7,7 +7,8 @@ struct ExerciseListSection: Equatable {
     var category: String
     var isCollapsed: Bool
     /// Number of exercises in the category, including hidden ones — shown in the
-    /// header while collapsed (when `items` is empty).
+    /// header while collapsed (when `items` is empty) and always when zero, so
+    /// empty categories don't look like they lost their contents.
     var totalCount: Int
     var items: [Exercise]
 }
@@ -306,8 +307,9 @@ extension ExerciseListController: UICollectionViewDragDelegate, UICollectionView
                                        section: destinationSection)
         }
 
-        // An emptied category's section disappears, like in the SwiftUI view.
-        if new[source.section].totalCount == 0 {
+        // Named categories stay visible when emptied (showing "(0)"), but the
+        // unlabelled uncategorized group disappears, like in the SwiftUI view.
+        if new[source.section].totalCount == 0, new[source.section].category.isEmpty {
             new.remove(at: source.section)
             if var indexPath = finalIndexPath, indexPath.section > source.section {
                 indexPath.section -= 1
@@ -411,7 +413,7 @@ final class ExerciseSectionHeaderView: UICollectionReusableView {
     func configure(name: String, count: Int, isCollapsed: Bool, animated: Bool) {
         nameLabel.text = name
         countLabel.text = "(\(count))"
-        countLabel.isHidden = !isCollapsed
+        countLabel.isHidden = !isCollapsed && count > 0
         self.isCollapsed = isCollapsed
         let transform = isCollapsed ? .identity : CGAffineTransform(rotationAngle: .pi / 2)
         if animated {

@@ -89,14 +89,13 @@ struct ExercisesView: View {
         store.exercises.filter { $0.category.isEmpty || !store.categories.contains($0.category) }
     }
 
-    /// The list content in normal mode: one section per non-empty category (in the
-    /// user's order) plus the uncategorized group at the end, ready to hand to the
-    /// UIKit-backed list that does the rendering and drag & drop.
+    /// The list content in normal mode: one section per category (in the user's
+    /// order, empty ones included) plus the uncategorized group at the end, ready
+    /// to hand to the UIKit-backed list that does the rendering and drag & drop.
     private var listSections: [ExerciseListSection] {
         var result: [ExerciseListSection] = []
         for category in store.categories {
             let items = store.exercises.filter { $0.category == category }
-            guard !items.isEmpty else { continue }
             let isCollapsed = collapsedCategories.contains(category)
             result.append(ExerciseListSection(category: category,
                                               isCollapsed: isCollapsed,
