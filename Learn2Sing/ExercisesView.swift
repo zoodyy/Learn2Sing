@@ -59,6 +59,41 @@ enum ExerciseRoute: Hashable {
     case edit(UUID)
 }
 
+/// The inline-editable category name on the edit-categories screen. Edits are
+/// committed (via `onRename`) when the user submits or focus moves away; a commit
+/// the store refuses — duplicate name, empty after trimming — reverts the text.
+private struct CategoryNameField: View {
+    let category: String
+    let onRename: (String) -> Void
+    @State private var name: String
+    @FocusState private var isFocused: Bool
+
+    init(category: String, onRename: @escaping (String) -> Void) {
+        self.category = category
+        self.onRename = onRename
+        _name = State(initialValue: category)
+    }
+
+    var body: some View {
+        TextField("Name", text: $name)
+            .focused($isFocused)
+            .onSubmit(commit)
+            .onChange(of: isFocused) { _, focused in
+                if !focused { commit() }
+            }
+    }
+
+    private func commit() {
+        let trimmed = name.trimmingCharacters(in: .whitespaces)
+        if !trimmed.isEmpty, trimmed != category {
+            onRename(trimmed)
+        }
+        // On success the row is replaced (its ForEach identity is the name), so
+        // this only shows through when the rename was refused: revert.
+        name = category
+    }
+}
+
 struct ExercisesView: View {
     @EnvironmentObject private var store: ExerciseStore
     @State private var navigationPath = NavigationPath()
@@ -116,17 +151,25 @@ struct ExercisesView: View {
         return result
     }
 
-    /// A collapsed, drag-reorderable row for a category, shown only in reorder mode.
-    /// Rendered as a plain row (not `Section(header:)`) so the List's native `.onMove`
-    /// can actually move it. In delete mode the drag handle is replaced by a delete
-    /// button — except for "No Category", which can't be deleted.
+    /// A drag-reorderable row for a category, shown only on the edit-categories
+    /// screen. Rendered as a plain row (not `Section(header:)`) so the List's native
+    /// `.onMove` can actually move it. The name is an inline text field for renaming,
+    /// and in delete mode the drag handle is replaced by a delete button — "No
+    /// Category" gets neither, since it can't be renamed or deleted.
     private func reorderRow(_ category: String) -> some View {
         let count = store.exercises.filter { $0.category == category }.count
         return HStack {
-            Text(category)
+            if category == ExerciseStore.noCategoryName {
+                // Fill the row like the text field does so the count stays trailing.
+                Text(category)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            } else {
+                CategoryNameField(category: category) { newName in
+                    renameCategory(category, to: newName)
+                }
+            }
             Text("(\(count))")
                 .foregroundStyle(.secondary)
-            Spacer()
             if isDeletingCategories && category != ExerciseStore.noCategoryName {
                 Button {
                     withAnimation { store.deleteCategory(category) }
@@ -172,6 +215,18 @@ struct ExercisesView: View {
         store.moveCategory(from: source, to: destination)
     }
 
+    /// Rename via the store, then carry the collapse state over to the new name so
+    /// the category doesn't spring open when leaving the edit-categories screen.
+    private func renameCategory(_ category: String, to newName: String) {
+        guard store.renameCategory(category, to: newName) else { return }
+        if collapsedCategories.remove(category) != nil {
+            collapsedCategories.insert(newName)
+        }
+        if collapsedBeforeReorder.remove(category) != nil {
+            collapsedBeforeReorder.insert(newName)
+        }
+    }
+
     /// Create the exercise immediately and open its settings, where the user
     /// picks the name and everything else.
     private func addExercise() {
@@ -213,7 +268,7 @@ struct ExercisesView: View {
                     .ignoresSafeArea()
                 }
             }
-            .navigationTitle(isReordering ? "Reorder" : "Exercises")
+            .navigationTitle(isReordering ? "Edit Categories" : "Exercises")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 if isReordering {

@@ -91,6 +91,28 @@ final class ExerciseStore: ObservableObject {
         saveCategories()
     }
 
+    /// Rename a category, carrying its exercises over to the new name. Refused
+    /// (returning false) when the new name is taken, empty, or the source is the
+    /// undeletable "No Category" group.
+    @discardableResult
+    func renameCategory(_ name: String, to newName: String) -> Bool {
+        guard name != Self.noCategoryName,
+              !newName.isEmpty,
+              newName != name,
+              !categories.contains(newName),
+              let idx = categories.firstIndex(of: name)
+        else { return false }
+        categories[idx] = newName
+        saveCategories()
+        var changed = false
+        for i in exercises.indices where exercises[i].category == name {
+            exercises[i].category = newName
+            changed = true
+        }
+        if changed { save() }
+        return true
+    }
+
     /// Move a dragged exercise so it lands in `category`, positioned just before the
     /// exercise `targetID` (or at the end of that category when `targetID` is nil).
     /// Sections in the list are rendered by filtering on `category`, so only the
