@@ -79,6 +79,10 @@ struct ExercisesView: View {
     /// categories that were expanded before the mode switch become expanded again.
     @State private var collapsedBeforeReorder: Set<String> = []
 
+    /// Drives the "name your new category" alert opened from the + menu.
+    @State private var isNamingNewCategory = false
+    @State private var newCategoryName = ""
+
     /// Exercises with no category, or whose category was deleted, shown in an
     /// unlabelled section so none are ever lost from the list.
     private var uncategorized: [Exercise] {
@@ -144,6 +148,13 @@ struct ExercisesView: View {
         store.moveCategory(from: source, to: destination)
     }
 
+    /// Create the exercise immediately and open its settings, where the user
+    /// picks the name and everything else.
+    private func addExercise() {
+        let exercise = store.add(name: "New Exercise")
+        navigationPath.append(ExerciseRoute.settings(exercise.id))
+    }
+
     var body: some View {
         NavigationStack(path: $navigationPath) {
             Group {
@@ -189,18 +200,41 @@ struct ExercisesView: View {
                             Image(systemName: "xmark")
                         }
                     }
-                } else {
                     ToolbarItem(placement: .topBarTrailing) {
                         Button {
-                            // Create the exercise immediately and open its settings, where
-                            // the user picks the name and everything else.
-                            let exercise = store.add(name: "New Exercise")
-                            navigationPath.append(ExerciseRoute.settings(exercise.id))
+                            addExercise()
+                        } label: {
+                            Image(systemName: "plus")
+                        }
+                    }
+                } else {
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Menu {
+                            Button {
+                                addExercise()
+                            } label: {
+                                Label("New Exercise", systemImage: "music.note")
+                            }
+                            Button {
+                                newCategoryName = ""
+                                isNamingNewCategory = true
+                            } label: {
+                                Label("New Category", systemImage: "folder.badge.plus")
+                            }
                         } label: {
                             Image(systemName: "plus")
                         }
                     }
                 }
+            }
+            .alert("New Category", isPresented: $isNamingNewCategory) {
+                TextField("Name", text: $newCategoryName)
+                Button("Create") {
+                    store.addCategory(newCategoryName.trimmingCharacters(in: .whitespaces))
+                }
+                Button("Cancel", role: .cancel) {}
+            } message: {
+                Text("Enter a name for the new category.")
             }
             .navigationDestination(for: ExerciseRoute.self) { route in
                 switch route {
