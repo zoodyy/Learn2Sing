@@ -288,7 +288,8 @@ struct ExercisesView: View {
                     }
                     ToolbarItem(placement: .topBarTrailing) {
                         Button {
-                            addExercise()
+                            newCategoryName = ""
+                            isNamingNewCategory = true
                         } label: {
                             Image(systemName: "plus")
                         }
