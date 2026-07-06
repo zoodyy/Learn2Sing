@@ -36,6 +36,12 @@ struct ExerciseSettingsView: View {
                     .focused($focusedField, equals: .details)
             }
 
+            Section {
+                NavigationLink(value: ExerciseRoute.edit(exercise.id)) {
+                    Label("Edit MIDI", systemImage: "pianokeys")
+                }
+            }
+
             Section("Pitch") {
                 Stepper(value: $exercise.pitchShift, in: -24...24) {
                     HStack {
@@ -70,6 +76,8 @@ struct ExerciseSettingsView: View {
                         }
                     Text("time(s)").foregroundStyle(.secondary)
                 }
+                .contentShape(Rectangle())
+                .onTapGesture { focusedField = .repeatCount }
 
                 if exercise.repeatCount > 1 {
                     HStack {
@@ -82,6 +90,8 @@ struct ExerciseSettingsView: View {
                             .frame(width: 60)
                         Text("semitone(s)").foregroundStyle(.secondary)
                     }
+                    .contentShape(Rectangle())
+                    .onTapGesture { focusedField = .transpose }
 
                     if exercise.repeatCount > 2 && exercise.transposePerRepeat != 0 {
                         HStack {
@@ -97,6 +107,8 @@ struct ExerciseSettingsView: View {
                                 }
                             Text("Repetitions").foregroundStyle(.secondary)
                         }
+                        .contentShape(Rectangle())
+                        .onTapGesture { focusedField = .switchDirection }
                     }
 
                     HStack {
@@ -109,12 +121,8 @@ struct ExerciseSettingsView: View {
                             .frame(width: 60)
                         Text("beat(s)").foregroundStyle(.secondary)
                     }
-                }
-            }
-
-            Section {
-                NavigationLink(value: ExerciseRoute.edit(exercise.id)) {
-                    Label("Edit MIDI", systemImage: "pianokeys")
+                    .contentShape(Rectangle())
+                    .onTapGesture { focusedField = .betweenReps }
                 }
             }
 
