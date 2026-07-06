@@ -9,6 +9,11 @@ final class ExerciseStore: ObservableObject {
     /// User-defined categories used to group exercises in the list, in display order.
     @Published var categories: [String] = []
 
+    /// The always-present home for exercises not assigned to any other category:
+    /// new exercises start here, deleting a category moves its exercises here, and
+    /// it can never itself be deleted.
+    static let noCategoryName = "No Category"
+
     private let storeKey = "exercises"
     private let categoriesKey = "categories"
     private let bundledImportedKey = "didImportBundledExercises"
@@ -17,6 +22,22 @@ final class ExerciseStore: ObservableObject {
         load()
         loadCategories()
         importBundledIfNeeded()
+        adoptNoCategory()
+    }
+
+    /// Make sure the "No Category" group exists and owns every exercise without a
+    /// category, migrating data written before this group existed.
+    private func adoptNoCategory() {
+        if !categories.contains(Self.noCategoryName) {
+            categories.append(Self.noCategoryName)
+            saveCategories()
+        }
+        var changed = false
+        for i in exercises.indices where exercises[i].category.isEmpty {
+            exercises[i].category = Self.noCategoryName
+            changed = true
+        }
+        if changed { save() }
     }
 
     /// On first launch, seed the library with the exercises shipped in the app
@@ -89,14 +110,15 @@ final class ExerciseStore: ObservableObject {
         save()
     }
 
-    /// Remove a category and clear it from any exercise that used it (those become
-    /// uncategorized) so no exercise is left pointing at a category that's gone.
+    /// Remove a category and move its exercises into "No Category" so none are
+    /// deleted along with it. The "No Category" group itself can't be removed.
     func deleteCategory(_ name: String) {
+        guard name != Self.noCategoryName else { return }
         categories.removeAll { $0 == name }
         saveCategories()
         var changed = false
         for i in exercises.indices where exercises[i].category == name {
-            exercises[i].category = ""
+            exercises[i].category = Self.noCategoryName
             changed = true
         }
         if changed { save() }
@@ -106,7 +128,8 @@ final class ExerciseStore: ObservableObject {
 
     @discardableResult
     func add(name: String) -> Exercise {
-        let exercise = Exercise(name: name)
+        var exercise = Exercise(name: name)
+        exercise.category = Self.noCategoryName
         exercises.append(exercise)
         save()
         return exercise
@@ -187,7 +210,9 @@ final class ExerciseStore: ObservableObject {
         guard let bundle = try? JSONDecoder().decode(ExerciseBundle.self, from: data) else {
             return false
         }
-        for exercise in bundle.exercises {
+        for var exercise in bundle.exercises {
+            // Bundles written before the "No Category" group existed use "".
+            if exercise.category.isEmpty { exercise.category = Self.noCategoryName }
             if let idx = exercises.firstIndex(where: { $0.id == exercise.id }) {
                 exercises[idx] = exercise
             } else {

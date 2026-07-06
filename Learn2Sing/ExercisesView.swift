@@ -83,6 +83,10 @@ struct ExercisesView: View {
     @State private var isNamingNewCategory = false
     @State private var newCategoryName = ""
 
+    /// True while the reorder screen is in delete mode: the drag handles are
+    /// swapped for per-row delete buttons. Toggled by the trash toolbar button.
+    @State private var isDeletingCategories = false
+
     /// Exercises with no category, or whose category was deleted, shown in an
     /// unlabelled section so none are ever lost from the list.
     private var uncategorized: [Exercise] {
@@ -114,7 +118,8 @@ struct ExercisesView: View {
 
     /// A collapsed, drag-reorderable row for a category, shown only in reorder mode.
     /// Rendered as a plain row (not `Section(header:)`) so the List's native `.onMove`
-    /// can actually move it.
+    /// can actually move it. In delete mode the drag handle is replaced by a delete
+    /// button — except for "No Category", which can't be deleted.
     private func reorderRow(_ category: String) -> some View {
         let count = store.exercises.filter { $0.category == category }.count
         return HStack {
@@ -122,6 +127,15 @@ struct ExercisesView: View {
             Text("(\(count))")
                 .foregroundStyle(.secondary)
             Spacer()
+            if isDeletingCategories && category != ExerciseStore.noCategoryName {
+                Button {
+                    withAnimation { store.deleteCategory(category) }
+                } label: {
+                    Image(systemName: "minus.circle.fill")
+                        .foregroundStyle(.red)
+                }
+                .buttonStyle(.borderless)
+            }
         }
     }
 
@@ -131,6 +145,7 @@ struct ExercisesView: View {
         withAnimation {
             collapsedCategories = Set(store.categories)
             isReordering = true
+            isDeletingCategories = false
             editMode = .active
         }
     }
@@ -139,7 +154,17 @@ struct ExercisesView: View {
         withAnimation {
             collapsedCategories = collapsedBeforeReorder
             isReordering = false
+            isDeletingCategories = false
             editMode = .inactive
+        }
+    }
+
+    /// Swap the reorder rows' drag handles for delete buttons and back. Edit mode
+    /// is what makes the List show drag handles, so it's turned off while deleting.
+    private func toggleDeleteMode() {
+        withAnimation {
+            isDeletingCategories.toggle()
+            editMode = isDeletingCategories ? .inactive : .active
         }
     }
 
@@ -197,6 +222,13 @@ struct ExercisesView: View {
                             exitReorderMode()
                         } label: {
                             Image(systemName: "xmark")
+                        }
+                    }
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Button {
+                            toggleDeleteMode()
+                        } label: {
+                            Image(systemName: isDeletingCategories ? "trash.fill" : "trash")
                         }
                     }
                     ToolbarItem(placement: .topBarTrailing) {

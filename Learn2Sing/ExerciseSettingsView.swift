@@ -51,13 +51,11 @@ struct ExerciseSettingsView: View {
             }
 
             Section("Category") {
-                categoryRow(title: "None", isSelected: exercise.category.isEmpty) {
-                    exercise.category = ""
-                }
                 ForEach(store.categories, id: \.self) { category in
                     categoryRow(title: category, isSelected: exercise.category == category) {
                         exercise.category = category
                     }
+                    .deleteDisabled(category == ExerciseStore.noCategoryName)
                 }
                 .onDelete { offsets in
                     offsets.map { store.categories[$0] }.forEach(store.deleteCategory)
