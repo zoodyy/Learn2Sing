@@ -18,6 +18,12 @@ private struct InstrumentSpec {
     let vibratoDepth: Double   // ± fraction of frequency
     let vibratoRate: Double    // Hz
     let gain: Double          // overall output level
+
+    // Rich (piano-like) rendering. Any non-zero value switches the voice to the
+    // per-partial path: independent phase, decay and detune per overtone.
+    var partialDecayStretch: Double = 0  // extra decay rate per partial index (highs die faster)
+    var inharmonicity: Double = 0        // B coefficient: partial k at k·f0·√(1+B·k²)
+    var decayKeyTrack: Double = 0        // decay-rate octaves per octave above middle C
 }
 
 private extension Instrument {
@@ -30,11 +36,16 @@ private extension Instrument {
                 decayToZero: false, decayRate: 0,
                 vibratoDepth: 0, vibratoRate: 0, gain: 0.30)
         case .piano:
+            // Starts brighter than the old mix because the upper partials decay
+            // away quickly (partialDecayStretch) — bright hammer strike settling
+            // into a mellow, slowly beating sustain, instead of a static organ tone.
             return InstrumentSpec(
-                harmonics: [1.0, 0.55, 0.38, 0.22, 0.14, 0.09, 0.05, 0.03],
-                attack: 0.005, decay: 0.0, sustain: 0.0, release: 0.18,
-                decayToZero: true, decayRate: 2.2,
-                vibratoDepth: 0, vibratoRate: 0, gain: 0.28)
+                harmonics: [1.0, 0.62, 0.45, 0.32, 0.25, 0.18, 0.13, 0.09, 0.06, 0.04],
+                attack: 0.002, decay: 0.0, sustain: 0.0, release: 0.10,
+                decayToZero: true, decayRate: 0.9,
+                vibratoDepth: 0, vibratoRate: 0, gain: 0.32,
+                partialDecayStretch: 0.55, inharmonicity: 0.00045,
+                decayKeyTrack: 0.8)
         case .guitar:
             return InstrumentSpec(
                 harmonics: [1.0, 0.7, 0.5, 0.45, 0.3, 0.22, 0.16, 0.1, 0.06],
@@ -69,11 +80,29 @@ final class ExercisePlayer {
         var released: Bool = false
         var releaseAge: Double = 0   // seconds since note-off
         var active: Bool = false
+        var decayRate: Double = 0    // spec.decayRate scaled by the note's pitch
     }
     private static let maxVoices = 24
+    private static let maxPartials = 16
     private var voices = [Voice](repeating: Voice(), count: maxVoices)
     private var spec = Instrument.current.spec
     private var lock = os_unfair_lock_s()
+
+    // Per-voice per-partial state for the rich (piano-like) path, preallocated as
+    // flat [voice × partial] arrays so the render thread never allocates.
+    private var partialPhase = [Double](repeating: 0, count: maxVoices * maxPartials)
+    private var partialInc   = [Double](repeating: 0, count: maxVoices * maxPartials)
+    private var partialEnv   = [Double](repeating: 0, count: maxVoices * maxPartials)
+    private var partialFade  = [Double](repeating: 0, count: maxVoices * maxPartials)
+
+    // Cheap audio-thread RNG (xorshift64) for the partials' random start phases.
+    private var noiseState: UInt64 = 0x9E3779B97F4A7C15
+    private func nextRandom() -> Double {
+        noiseState ^= noiseState << 13
+        noiseState ^= noiseState >> 7
+        noiseState ^= noiseState << 17
+        return Double(Int64(bitPattern: noiseState)) / Double(Int64.max)   // -1...1
+    }
 
     // Click playback: when `clickMode` is on, each note-on plays the loaded sample
     // (e.g. a metronome click) instead of a synthesised note. `clickCursors` holds
@@ -195,6 +224,7 @@ final class ExercisePlayer {
         let harmonics = spec.harmonics
         let invHarm = 1.0 / harmonics.reduce(0, +)
         let gain = spec.gain
+        let rich = spec.partialDecayStretch > 0 || spec.inharmonicity > 0
 
         for frame in 0..<frameCount {
             // Fire any note-on/off events due at this exact sample.
@@ -215,25 +245,46 @@ final class ExercisePlayer {
             for vi in 0..<voices.count where voices[vi].active {
                 var v = voices[vi]
 
-                // Frequency (with optional vibrato) → phase increment.
-                let vib = spec.vibratoDepth > 0
-                    ? 1.0 + spec.vibratoDepth * sin(twoPi * spec.vibratoRate * v.age)
-                    : 1.0
-                let inc = twoPi * v.freq * vib * dt
-
-                // Timbre from summed harmonics.
                 var tone = 0.0
-                for k in 0..<harmonics.count {
-                    tone += harmonics[k] * sin(Double(k + 1) * v.phase)
+                if rich {
+                    // Per-partial rendering: each overtone has its own (inharmonic)
+                    // frequency and its own decay — highs die faster — so the
+                    // spectrum evolves like a struck string's.
+                    let base = vi * Self.maxPartials
+                    for k in 0..<min(harmonics.count, Self.maxPartials) {
+                        let i = base + k
+                        let env = partialEnv[i]
+                        if env > 0.0001 {
+                            tone += harmonics[k] * env * sin(partialPhase[i])
+                            partialEnv[i] = env * partialFade[i]
+                        }
+                        partialPhase[i] += partialInc[i]
+                        if partialPhase[i] > twoPi { partialPhase[i] -= twoPi }
+                    }
+                    tone *= invHarm
+                } else {
+                    // Frequency (with optional vibrato) → phase increment.
+                    let vib = spec.vibratoDepth > 0
+                        ? 1.0 + spec.vibratoDepth * sin(twoPi * spec.vibratoRate * v.age)
+                        : 1.0
+                    let inc = twoPi * v.freq * vib * dt
+
+                    // Timbre from summed harmonics.
+                    for k in 0..<harmonics.count {
+                        tone += harmonics[k] * sin(Double(k + 1) * v.phase)
+                    }
+                    tone *= invHarm
+
+                    v.phase += inc
+                    if v.phase > twoPi { v.phase -= twoPi }
                 }
-                tone *= invHarm
 
                 // Amplitude envelope.
                 let base: Double
                 if v.age < spec.attack {
                     base = v.age / spec.attack
                 } else if spec.decayToZero {
-                    base = exp(-(v.age - spec.attack) * spec.decayRate)
+                    base = exp(-(v.age - spec.attack) * v.decayRate)
                 } else if v.age < spec.attack + spec.decay {
                     base = 1.0 - (1.0 - spec.sustain) * ((v.age - spec.attack) / spec.decay)
                 } else {
@@ -245,8 +296,6 @@ final class ExercisePlayer {
                 mix += tone * env
 
                 // Advance voice.
-                v.phase += inc
-                if v.phase > twoPi { v.phase -= twoPi }
                 v.age += dt
                 if v.released { v.releaseAge += dt }
                 if env < 0.0004 && (v.released || (spec.decayToZero && v.age > spec.attack)) {
@@ -398,9 +447,38 @@ final class ExercisePlayer {
         if idx == nil {
             idx = (0..<voices.count).max { voices[$0].age < voices[$1].age }
         }
-        if let i = idx {
-            voices[i] = Voice(pitch: pitch, freq: freq, phase: 0, age: 0,
-                              released: false, releaseAge: 0, active: true)
+        guard let i = idx else { return }
+
+        // Higher notes decay faster, low notes ring longer (like real strings).
+        let decayRate = spec.decayRate
+            * pow(2.0, Double(pitch - 60) / 12.0 * spec.decayKeyTrack)
+        voices[i] = Voice(pitch: pitch, freq: freq, phase: 0, age: 0,
+                          released: false, releaseAge: 0, active: true,
+                          decayRate: decayRate)
+
+        // Set up the per-partial tables for the rich (piano-like) path: stretched
+        // (inharmonic) partial frequencies, random start phases, and a per-partial
+        // fade so upper partials decay away faster.
+        if spec.partialDecayStretch > 0 || spec.inharmonicity > 0 {
+            let dt = 1.0 / sampleRate
+            let twoPi = 2.0 * Double.pi
+            let base = i * Self.maxPartials
+            let bCoeff = spec.inharmonicity
+            for k in 0..<min(spec.harmonics.count, Self.maxPartials) {
+                let n = Double(k + 1)
+                let f = freq * n * (bCoeff > 0 ? (1 + bCoeff * n * n).squareRoot() : 1)
+                let j = base + k
+                // Partials at or above Nyquist would alias — silence them.
+                if f >= sampleRate * 0.45 {
+                    partialEnv[j] = 0
+                    partialInc[j] = 0
+                    continue
+                }
+                partialInc[j] = twoPi * f * dt
+                partialPhase[j] = (nextRandom() + 1) * Double.pi
+                partialEnv[j] = 1
+                partialFade[j] = exp(-dt * decayRate * spec.partialDecayStretch * Double(k))
+            }
         }
     }
 
