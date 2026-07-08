@@ -222,15 +222,22 @@ final class ExerciseStore: ObservableObject {
     // MARK: - Export / Import
 
     /// Encodes every exercise (with all its settings) and its MIDI pattern into one file.
+    /// Exercises are written in the order they appear in the list: grouped by
+    /// category (in the user's category order), with uncategorized ones last.
     func exportData() -> Data? {
+        var ordered: [Exercise] = []
+        for category in categories {
+            ordered.append(contentsOf: exercises.filter { $0.category == category })
+        }
+        ordered.append(contentsOf: exercises.filter { !categories.contains($0.category) })
         var midi: [String: [MIDINote]] = [:]
         var texts: [String: [MIDIText]] = [:]
-        for exercise in exercises {
+        for exercise in ordered {
             midi[exercise.id.uuidString] = notes(for: exercise.id)
             let t = self.texts(for: exercise.id)
             if !t.isEmpty { texts[exercise.id.uuidString] = t }
         }
-        let bundle = ExerciseBundle(exercises: exercises, midi: midi,
+        let bundle = ExerciseBundle(exercises: ordered, categories: categories, midi: midi,
                                     texts: texts.isEmpty ? nil : texts)
         let encoder = JSONEncoder()
         encoder.outputFormatting = [.prettyPrinted]
@@ -247,11 +254,11 @@ final class ExerciseStore: ObservableObject {
         for var exercise in bundle.exercises {
             // Bundles written before the "No Category" group existed use "".
             if exercise.category.isEmpty { exercise.category = Self.noCategoryName }
-            if let idx = exercises.firstIndex(where: { $0.id == exercise.id }) {
-                exercises[idx] = exercise
-            } else {
-                exercises.append(exercise)
-            }
+            // Imported exercises take the order they have in the bundle: any
+            // existing copy is dropped and re-appended, so importing a full
+            // export reproduces its list order exactly.
+            exercises.removeAll { $0.id == exercise.id }
+            exercises.append(exercise)
             if let notes = bundle.midi[exercise.id.uuidString] {
                 setNotes(notes, for: exercise.id)
             }
@@ -259,9 +266,10 @@ final class ExerciseStore: ObservableObject {
                 setTexts(texts, for: exercise.id)
             }
         }
-        // Register any categories the imported exercises reference so they stay
-        // selectable and the list can group by them.
-        for category in Set(bundle.exercises.map(\.category)) where !category.isEmpty {
+        // Register imported categories in the order the bundle lists them (older
+        // bundles carry no category list, so fall back to the order categories
+        // first appear on the exercises), keeping the exported grouping order.
+        for category in bundle.categories ?? bundle.exercises.map(\.category) {
             addCategory(category)
         }
         save()
@@ -273,6 +281,9 @@ final class ExerciseStore: ObservableObject {
 /// pattern keyed by exercise UUID string.
 struct ExerciseBundle: Codable {
     var exercises: [Exercise]
+    /// The category display order at export time. Optional so bundles written
+    /// before categories were exported still decode.
+    var categories: [String]? = nil
     var midi: [String: [MIDINote]]
     /// Text labels per exercise UUID string. Optional so bundles written before the
     /// text tool existed still decode.
