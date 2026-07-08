@@ -132,6 +132,9 @@ struct ExercisesView: View {
     /// order, empty ones included) plus the uncategorized group at the end, ready
     /// to hand to the UIKit-backed list that does the rendering and drag & drop.
     private var listSections: [ExerciseListSection] {
+        func rows(_ exercises: [Exercise]) -> [ExerciseListRow] {
+            exercises.map { ExerciseListRow(exercise: $0, pattern: store.notes(for: $0.id)) }
+        }
         var result: [ExerciseListSection] = []
         for category in store.categories {
             let items = store.exercises.filter { $0.category == category }
@@ -139,14 +142,14 @@ struct ExercisesView: View {
             result.append(ExerciseListSection(category: category,
                                               isCollapsed: isCollapsed,
                                               totalCount: items.count,
-                                              items: isCollapsed ? [] : items))
+                                              items: isCollapsed ? [] : rows(items)))
         }
         let uncategorized = self.uncategorized
         if !uncategorized.isEmpty {
             result.append(ExerciseListSection(category: "",
                                               isCollapsed: false,
                                               totalCount: uncategorized.count,
-                                              items: uncategorized))
+                                              items: rows(uncategorized)))
         }
         return result
     }

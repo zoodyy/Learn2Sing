@@ -1,6 +1,15 @@
 import SwiftUI
 import UIKit
 
+/// One row of the exercise list: the exercise plus its MIDI pattern (a single
+/// repetition — the stored notes, before any repeat/transpose playback settings),
+/// drawn as a thumbnail on the row's trailing edge.
+struct ExerciseListRow: Equatable {
+    var exercise: Exercise
+    var pattern: [MIDINote]
+    var id: UUID { exercise.id }
+}
+
 /// One visible group in the exercise list: a category and the rows shown for it.
 /// `category` is "" for the uncategorized group, which renders without a header.
 struct ExerciseListSection: Equatable {
@@ -10,7 +19,7 @@ struct ExerciseListSection: Equatable {
     /// header while collapsed (when `items` is empty) and always when zero, so
     /// empty categories don't look like they lost their contents.
     var totalCount: Int
-    var items: [Exercise]
+    var items: [ExerciseListRow]
 }
 
 /// The normal-mode exercise list. This is intentionally NOT a SwiftUI List: a
@@ -58,7 +67,7 @@ final class ExerciseListController: UIViewController {
     var onMove: ((UUID, String, UUID?) -> Void)?
 
     private var sections: [ExerciseListSection] = []
-    private var exercisesByID: [UUID: Exercise] = [:]
+    private var rowsByID: [UUID: ExerciseListRow] = [:]
     private var collectionView: UICollectionView!
     private var dataSource: UICollectionViewDiffableDataSource<String, UUID>!
     /// Sections handed over while a drag was in flight; deferred because mutating
@@ -99,9 +108,20 @@ final class ExerciseListController: UIViewController {
 
         let cellRegistration = UICollectionView.CellRegistration<UICollectionViewListCell, UUID> {
             [weak self] cell, _, id in
+            let row = self?.rowsByID[id]
             var content = UIListContentConfiguration.cell()
-            content.text = self?.exercisesByID[id]?.name
+            content.text = row?.exercise.name
             cell.contentConfiguration = content
+            if let pattern = row?.pattern, !pattern.isEmpty {
+                cell.accessories = [.customView(configuration: .init(
+                    customView: MIDIPatternView(notes: pattern),
+                    placement: .trailing(),
+                    reservedLayoutWidth: .actual,
+                    maintainsFixedSize: true
+                ))]
+            } else {
+                cell.accessories = []
+            }
         }
         dataSource = UICollectionViewDiffableDataSource<String, UUID>(collectionView: cv) {
             collectionView, indexPath, id in
@@ -128,16 +148,16 @@ final class ExerciseListController: UIViewController {
             pendingSections = new
             return
         }
-        let oldByID = exercisesByID
+        let oldByID = rowsByID
         sections = new
-        exercisesByID = Dictionary(
+        rowsByID = Dictionary(
             new.flatMap { $0.items }.map { ($0.id, $0) },
             uniquingKeysWith: { first, _ in first }
         )
         guard dataSource != nil else { return } // applied in viewDidLoad
-        // Rows whose exercise changed in place (e.g. renamed) need reconfiguring;
-        // diffable identity is the UUID, so it won't notice on its own.
-        let changed = exercisesByID.keys.filter { oldByID[$0] != nil && oldByID[$0] != exercisesByID[$0] }
+        // Rows whose exercise changed in place (e.g. renamed, MIDI edited) need
+        // reconfiguring; diffable identity is the UUID, so it won't notice on its own.
+        let changed = rowsByID.keys.filter { oldByID[$0] != nil && oldByID[$0] != rowsByID[$0] }
         applySnapshot(animated: animated && view.window != nil, reconfiguring: Array(changed))
     }
 
@@ -319,9 +339,9 @@ extension ExerciseListController: UICollectionViewDragDelegate, UICollectionView
 
         isPerformingDrop = true
         sections = new
-        exercisesByID[id] = {
+        rowsByID[id] = {
             var updated = moved
-            updated.category = category
+            updated.exercise.category = category
             return updated
         }()
         applySnapshot(animated: false, reconfiguring: [])
@@ -351,6 +371,61 @@ extension ExerciseListController: UICollectionViewDragDelegate, UICollectionView
         if let pending = pendingSections {
             pendingSections = nil
             setSections(pending, animated: true)
+        }
+    }
+}
+
+// MARK: - Pattern thumbnail
+
+/// A miniature piano-roll of an exercise's MIDI pattern, shown on the trailing
+/// edge of its row. Notes are drawn in `.label` so they match the row text color.
+private final class MIDIPatternView: UIView {
+    private let notes: [MIDINote]
+
+    init(notes: [MIDINote]) {
+        self.notes = notes
+        super.init(frame: CGRect(origin: .zero, size: Self.size))
+        isOpaque = false
+        backgroundColor = .clear
+        registerForTraitChanges([UITraitUserInterfaceStyle.self]) { (self: MIDIPatternView, _) in
+            self.setNeedsDisplay()
+        }
+    }
+
+    @available(*, unavailable)
+    required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
+
+    private static let size = CGSize(width: 64, height: 26)
+    override var intrinsicContentSize: CGSize { Self.size }
+
+    override func draw(_ rect: CGRect) {
+        guard let first = notes.first else { return }
+        let content = bounds
+
+        var minBeat = first.beat
+        var maxEnd = first.beat + first.length
+        var minPitch = first.pitch
+        var maxPitch = first.pitch
+        for note in notes.dropFirst() {
+            minBeat = min(minBeat, note.beat)
+            maxEnd = max(maxEnd, note.beat + note.length)
+            minPitch = min(minPitch, note.pitch)
+            maxPitch = max(maxPitch, note.pitch)
+        }
+        let beatSpan = max(maxEnd - minBeat, 0.001)
+        let pitchSpan = maxPitch - minPitch
+
+        // Thin bars, so patterns spanning many rows still read at this size.
+        let noteH = min(max(content.height / CGFloat(pitchSpan + 1), 2), 4)
+        UIColor.label.setFill()
+        for note in notes {
+            let x = (note.beat - minBeat) / beatSpan * content.width
+            let w = max(note.length / beatSpan * content.width - 1, 2)
+            let y = pitchSpan == 0
+                ? (content.height - noteH) / 2
+                : CGFloat(maxPitch - note.pitch) / CGFloat(pitchSpan) * (content.height - noteH)
+            UIBezierPath(roundedRect: CGRect(x: x, y: y, width: w, height: noteH),
+                         cornerRadius: 1).fill()
         }
     }
 }

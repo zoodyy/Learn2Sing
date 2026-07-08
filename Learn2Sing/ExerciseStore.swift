@@ -195,7 +195,7 @@ final class ExerciseStore: ObservableObject {
     static func midiKey(_ id: UUID) -> String { "midi_\(id.uuidString)" }
     static func midiTextKey(_ id: UUID) -> String { "miditext_\(id.uuidString)" }
 
-    private func notes(for id: UUID) -> [MIDINote] {
+    func notes(for id: UUID) -> [MIDINote] {
         guard let data = UserDefaults.standard.data(forKey: Self.midiKey(id)),
               let saved = try? JSONDecoder().decode([MIDINote].self, from: data)
         else { return [] }
