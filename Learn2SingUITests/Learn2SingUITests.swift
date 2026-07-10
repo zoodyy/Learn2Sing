@@ -536,17 +536,17 @@ final class Learn2SingUITests: XCTestCase {
         XCTAssertTrue(pickerQuery.firstMatch.label.contains("Public"),
                       "picker should now read Public, reads \(pickerQuery.firstMatch.label)")
 
-        // The Community tab lists it, with the uploader's name on the row. The
-        // hidden Exercises tab keeps its own copy of the row in the element tree,
-        // so match on name AND uploader together to hit the Community row.
+        // The Community tab lists it, with the uploader's name inline after the
+        // exercise name (one label). The hidden Exercises tab keeps its own copy
+        // of the row in the element tree, so match on name AND uploader together
+        // to hit the Community row.
         app.buttons["Community"].tap()
         XCTAssertTrue(app.navigationBars["Community"].waitForExistence(timeout: 5),
                       "Community tab should open the Community screen")
         sleep(1)
-        let row = app.cells
-            .containing(.staticText, identifier: name)
-            .containing(.staticText, identifier: uploaderName)
-            .firstMatch
+        let rowLabel = NSPredicate(format: "label CONTAINS %@ AND label CONTAINS %@",
+                                   name, uploaderName)
+        let row = app.cells.containing(rowLabel).firstMatch
         XCTAssertTrue(row.waitForExistence(timeout: 3),
                       "public exercise with uploader \(uploaderName) not listed on Community tab")
         XCTAssertFalse(app.navigationBars["Community"].buttons["Add"].exists,

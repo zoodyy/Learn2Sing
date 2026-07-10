@@ -115,40 +115,33 @@ final class ExerciseListController: UIViewController {
             [weak self] cell, _, id in
             let row = self?.rowsByID[id]
             var content = UIListContentConfiguration.cell()
-            content.text = row?.exercise.name
-            cell.contentConfiguration = content
-            // Uploader name and pattern thumbnail share one trailing accessory so
-            // their order (name … uploader, pattern) is fixed regardless of how
-            // UIKit sorts multiple accessories.
-            var trailingViews: [UIView] = []
-            if let uploader = row?.uploaderName, !uploader.isEmpty {
-                let label = UILabel()
-                label.text = uploader
-                label.font = .preferredFont(forTextStyle: .subheadline)
-                label.textColor = .secondaryLabel
-                label.adjustsFontForContentSizeCategory = true
-                trailingViews.append(label)
-            }
-            if let pattern = row?.pattern, !pattern.isEmpty {
-                trailingViews.append(MIDIPatternView(notes: pattern))
-            }
-            if trailingViews.isEmpty {
-                cell.accessories = []
+            if let row, let uploader = row.uploaderName, !uploader.isEmpty {
+                // The uploader's name rides along in grey right after the
+                // exercise name (Community tab).
+                let text = NSMutableAttributedString(
+                    string: row.exercise.name,
+                    attributes: [.font: content.textProperties.font,
+                                 .foregroundColor: content.textProperties.color]
+                )
+                text.append(NSAttributedString(
+                    string: "  \(uploader)",
+                    attributes: [.font: UIFont.preferredFont(forTextStyle: .subheadline),
+                                 .foregroundColor: UIColor.secondaryLabel]
+                ))
+                content.attributedText = text
             } else {
-                let stack = UIStackView(arrangedSubviews: trailingViews)
-                stack.axis = .horizontal
-                stack.alignment = .center
-                stack.spacing = 8
-                // A UIStackView has no intrinsic content size, so without an
-                // explicit frame the fixed-size accessory collapses to zero.
-                stack.frame = CGRect(origin: .zero,
-                                     size: stack.systemLayoutSizeFitting(UIView.layoutFittingCompressedSize))
+                content.text = row?.exercise.name
+            }
+            cell.contentConfiguration = content
+            if let pattern = row?.pattern, !pattern.isEmpty {
                 cell.accessories = [.customView(configuration: .init(
-                    customView: stack,
+                    customView: MIDIPatternView(notes: pattern),
                     placement: .trailing(),
                     reservedLayoutWidth: .actual,
                     maintainsFixedSize: true
                 ))]
+            } else {
+                cell.accessories = []
             }
         }
         dataSource = UICollectionViewDiffableDataSource<String, UUID>(collectionView: cv) {
