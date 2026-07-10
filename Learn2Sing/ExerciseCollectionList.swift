@@ -7,6 +7,9 @@ import UIKit
 struct ExerciseListRow: Equatable {
     var exercise: Exercise
     var pattern: [MIDINote]
+    /// Shown in grey between the name and the pattern thumbnail (Community tab
+    /// only — nil hides it).
+    var uploaderName: String? = nil
     var id: UUID { exercise.id }
 }
 
@@ -33,11 +36,13 @@ struct ExerciseListSection: Equatable {
 struct ExerciseCollectionList: UIViewControllerRepresentable {
     var sections: [ExerciseListSection]
     var onSelect: (UUID) -> Void
-    var onSettings: (UUID) -> Void
-    var onToggleCollapse: (String) -> Void
-    var onHeaderLongPress: () -> Void
-    /// (exercise, newCategory, idOfExerciseItNowPrecedes — nil appends)
-    var onMove: (UUID, String, UUID?) -> Void
+    /// nil hides the leading "Settings" swipe action (Community tab).
+    var onSettings: ((UUID) -> Void)? = nil
+    var onToggleCollapse: (String) -> Void = { _ in }
+    var onHeaderLongPress: () -> Void = {}
+    /// (exercise, newCategory, idOfExerciseItNowPrecedes — nil appends).
+    /// nil disables drag & drop entirely (Community tab).
+    var onMove: ((UUID, String, UUID?) -> Void)? = nil
 
     func makeUIViewController(context: Context) -> ExerciseListController {
         let controller = ExerciseListController()
@@ -112,15 +117,38 @@ final class ExerciseListController: UIViewController {
             var content = UIListContentConfiguration.cell()
             content.text = row?.exercise.name
             cell.contentConfiguration = content
+            // Uploader name and pattern thumbnail share one trailing accessory so
+            // their order (name … uploader, pattern) is fixed regardless of how
+            // UIKit sorts multiple accessories.
+            var trailingViews: [UIView] = []
+            if let uploader = row?.uploaderName, !uploader.isEmpty {
+                let label = UILabel()
+                label.text = uploader
+                label.font = .preferredFont(forTextStyle: .subheadline)
+                label.textColor = .secondaryLabel
+                label.adjustsFontForContentSizeCategory = true
+                trailingViews.append(label)
+            }
             if let pattern = row?.pattern, !pattern.isEmpty {
+                trailingViews.append(MIDIPatternView(notes: pattern))
+            }
+            if trailingViews.isEmpty {
+                cell.accessories = []
+            } else {
+                let stack = UIStackView(arrangedSubviews: trailingViews)
+                stack.axis = .horizontal
+                stack.alignment = .center
+                stack.spacing = 8
+                // A UIStackView has no intrinsic content size, so without an
+                // explicit frame the fixed-size accessory collapses to zero.
+                stack.frame = CGRect(origin: .zero,
+                                     size: stack.systemLayoutSizeFitting(UIView.layoutFittingCompressedSize))
                 cell.accessories = [.customView(configuration: .init(
-                    customView: MIDIPatternView(notes: pattern),
+                    customView: stack,
                     placement: .trailing(),
                     reservedLayoutWidth: .actual,
                     maintainsFixedSize: true
                 ))]
-            } else {
-                cell.accessories = []
             }
         }
         dataSource = UICollectionViewDiffableDataSource<String, UUID>(collectionView: cv) {
@@ -222,7 +250,8 @@ final class ExerciseListController: UIViewController {
     }
 
     private func leadingSwipeActions(at indexPath: IndexPath) -> UISwipeActionsConfiguration? {
-        guard let id = dataSource.itemIdentifier(for: indexPath) else { return nil }
+        guard onSettings != nil,
+              let id = dataSource.itemIdentifier(for: indexPath) else { return nil }
         let action = UIContextualAction(style: .normal, title: "Settings") { [weak self] _, _, done in
             self?.onSettings?(id)
             done(true)
@@ -250,7 +279,8 @@ extension ExerciseListController: UICollectionViewDelegate {
 extension ExerciseListController: UICollectionViewDragDelegate, UICollectionViewDropDelegate {
     func collectionView(_ collectionView: UICollectionView, itemsForBeginning session: UIDragSession,
                         at indexPath: IndexPath) -> [UIDragItem] {
-        guard let id = dataSource.itemIdentifier(for: indexPath) else { return [] }
+        guard onMove != nil,
+              let id = dataSource.itemIdentifier(for: indexPath) else { return [] }
         let item = UIDragItem(itemProvider: NSItemProvider(object: id.uuidString as NSString))
         item.localObject = id
         return [item]

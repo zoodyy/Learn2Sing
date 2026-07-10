@@ -1,5 +1,13 @@
 import SwiftUI
 
+/// Whether an exercise stays in the user's own library or also appears on the
+/// Community tab.
+enum ExerciseVisibility: String, Codable, CaseIterable {
+    case `private`, `public`
+
+    var label: String { rawValue.capitalized }
+}
+
 struct Exercise: Identifiable, Hashable, Codable {
     var id = UUID()
     var name: String
@@ -11,11 +19,13 @@ struct Exercise: Identifiable, Hashable, Codable {
     var transposePerRepeat: Int = 0   // semitones to shift up each repetition (negative = down)
     var switchDirectionAfter: Int = 0 // flip the transpose direction after this many repetitions (0 = never)
     var beatsBetweenReps: Double = 0  // silent beats inserted between repetitions
+    var visibility: ExerciseVisibility = .private // public exercises show on the Community tab
+    var uploaderName: String = ""     // profile username stamped when made public
 
     init(name: String) { self.name = name }
 
     private enum CodingKeys: String, CodingKey {
-        case id, name, details, category, pitchShift, bpm, speed, repeatCount, transposePerRepeat, switchDirectionAfter, beatsBetweenReps
+        case id, name, details, category, pitchShift, bpm, speed, repeatCount, transposePerRepeat, switchDirectionAfter, beatsBetweenReps, visibility, uploaderName
     }
 
     init(from decoder: Decoder) throws {
@@ -35,6 +45,8 @@ struct Exercise: Identifiable, Hashable, Codable {
         transposePerRepeat = try c.decodeIfPresent(Int.self, forKey: .transposePerRepeat) ?? 0
         switchDirectionAfter = try c.decodeIfPresent(Int.self, forKey: .switchDirectionAfter) ?? 0
         beatsBetweenReps = try c.decodeIfPresent(Double.self, forKey: .beatsBetweenReps) ?? 0
+        visibility = try c.decodeIfPresent(ExerciseVisibility.self, forKey: .visibility) ?? .private
+        uploaderName = try c.decodeIfPresent(String.self, forKey: .uploaderName) ?? ""
     }
 
     func encode(to encoder: Encoder) throws {
@@ -49,6 +61,8 @@ struct Exercise: Identifiable, Hashable, Codable {
         try c.encode(transposePerRepeat, forKey: .transposePerRepeat)
         try c.encode(switchDirectionAfter, forKey: .switchDirectionAfter)
         try c.encode(beatsBetweenReps, forKey: .beatsBetweenReps)
+        try c.encode(visibility, forKey: .visibility)
+        try c.encode(uploaderName, forKey: .uploaderName)
     }
 }
 

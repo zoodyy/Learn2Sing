@@ -22,6 +22,11 @@ struct ContentView: View {
                     Label("Exercises", systemImage: "music.mic")
                 }
 
+            CommunityView()
+                .tabItem {
+                    Label("Community", systemImage: "person.3")
+                }
+
             SettingsView()
                 .tabItem {
                     Label("Settings", systemImage: "gearshape")

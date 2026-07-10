@@ -127,6 +127,18 @@ struct ExerciseSettingsView: View {
             }
 
             Section {
+                Picker("Visibility", selection: $exercise.visibility) {
+                    ForEach(ExerciseVisibility.allCases, id: \.self) { visibility in
+                        Text(visibility.label).tag(visibility)
+                    }
+                }
+            } header: {
+                Text("Visibility")
+            } footer: {
+                Text("Public exercises appear on the Community tab.")
+            }
+
+            Section {
                 Button(role: .destructive) {
                     isConfirmingDelete = true
                 } label: {
@@ -145,6 +157,13 @@ struct ExerciseSettingsView: View {
             Button("Cancel", role: .cancel) {}
         } message: {
             Text("\"\(exercise.name)\" and its MIDI pattern will be deleted. This cannot be undone.")
+        }
+        // Publishing stamps the current profile username as the uploader shown
+        // next to the exercise on the Community tab.
+        .onChange(of: exercise.visibility) { _, newValue in
+            if newValue == .public {
+                exercise.uploaderName = UserProfile.load().username
+            }
         }
         .navigationTitle(exercise.name)
         .navigationBarTitleDisplayMode(.inline)

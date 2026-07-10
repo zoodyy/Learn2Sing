@@ -480,6 +480,85 @@ final class Learn2SingUITests: XCTestCase {
                       "orientation choice not persisted, picker shows \(reopened.label)")
     }
 
+    // MARK: - Community
+
+    /// Setting an exercise's visibility to Public makes it appear on the
+    /// Community tab, showing the profile username as uploader; the Community
+    /// list offers neither a + button nor a Settings swipe action.
+    func testCommunityTabShowsPublicExercises() throws {
+        // Give the profile a username so the Community row has an uploader to show.
+        var app = XCUIApplication()
+        app.launch()
+        let settingsTab = app.buttons["Settings"]
+        XCTAssertTrue(settingsTab.waitForExistence(timeout: 5), "Settings tab not found")
+        settingsTab.tap()
+        let profileRow = app.buttons["Profile"].firstMatch
+        XCTAssertTrue(profileRow.waitForExistence(timeout: 5), "Profile row not found")
+        profileRow.tap()
+        let usernameField = app.textFields["Username"].firstMatch
+        XCTAssertTrue(usernameField.waitForExistence(timeout: 3), "username field not found")
+        var uploaderName = (usernameField.value as? String) ?? ""
+        if uploaderName.isEmpty || uploaderName == "Username" { // placeholder when empty
+            usernameField.tap()
+            usernameField.typeText("TestSinger")
+            uploaderName = (usernameField.value as? String) ?? "TestSinger"
+        }
+        app.terminate()
+
+        // Publish the first visible exercise via its settings.
+        app = openExercises()
+        sleep(2)
+        let snap = snapshotList(app)
+        guard let category = snap.headers.first(where: { !(snap.items[$0] ?? []).isEmpty }),
+              let name = snap.items[category]?.first else {
+            XCTFail("no visible exercise"); return
+        }
+        cell(app, named: name).swipeRight()
+        let settings = app.collectionViews.buttons["Settings"].firstMatch
+        XCTAssertTrue(settings.waitForExistence(timeout: 3), "leading swipe should reveal Settings")
+        settings.tap()
+        XCTAssertTrue(app.navigationBars[name].waitForExistence(timeout: 3))
+        sleep(1)
+        // The menu-style Picker's button is labelled "Visibility, <current value>".
+        let pickerQuery = app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "Visibility"))
+        var picker = pickerQuery.firstMatch
+        for _ in 0..<6 where !picker.exists {
+            app.swipeUp()
+            usleep(500_000)
+            picker = pickerQuery.firstMatch
+        }
+        XCTAssertTrue(picker.waitForExistence(timeout: 3), "Visibility picker not found")
+        picker.tap()
+        let publicOption = app.buttons["Public"].firstMatch
+        XCTAssertTrue(publicOption.waitForExistence(timeout: 3), "Public option not found")
+        publicOption.tap()
+        sleep(1)
+        XCTAssertTrue(pickerQuery.firstMatch.label.contains("Public"),
+                      "picker should now read Public, reads \(pickerQuery.firstMatch.label)")
+
+        // The Community tab lists it, with the uploader's name on the row. The
+        // hidden Exercises tab keeps its own copy of the row in the element tree,
+        // so match on name AND uploader together to hit the Community row.
+        app.buttons["Community"].tap()
+        XCTAssertTrue(app.navigationBars["Community"].waitForExistence(timeout: 5),
+                      "Community tab should open the Community screen")
+        sleep(1)
+        let row = app.cells
+            .containing(.staticText, identifier: name)
+            .containing(.staticText, identifier: uploaderName)
+            .firstMatch
+        XCTAssertTrue(row.waitForExistence(timeout: 3),
+                      "public exercise with uploader \(uploaderName) not listed on Community tab")
+        XCTAssertFalse(app.navigationBars["Community"].buttons["Add"].exists,
+                       "Community must not offer a + button")
+        saveScreenshot("community")
+
+        // No settings access from the Community list.
+        row.swipeRight()
+        XCTAssertFalse(app.collectionViews.buttons["Settings"].firstMatch.waitForExistence(timeout: 2),
+                       "Community rows must not reveal a Settings swipe action")
+    }
+
     /// Tap-to-collapse and long-press-to-reorder-mode on headers still work.
     func testHeaderTapAndLongPressStillWork() throws {
         let app = openExercises()
