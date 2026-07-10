@@ -631,7 +631,7 @@ final class Learn2SingUITests: XCTestCase {
         XCTAssertFalse((snapshotList(app).items[category] ?? []).isEmpty, "tap should expand \(category)")
 
         header(app, named: category).press(forDuration: 0.8)
-        XCTAssertTrue(app.navigationBars["Reorder"].waitForExistence(timeout: 3),
+        XCTAssertTrue(app.navigationBars["Edit Categories"].waitForExistence(timeout: 3),
                       "long-press on header should enter reorder mode")
         app.buttons["xmark"].firstMatch.tap()
         XCTAssertTrue(app.navigationBars["Exercises"].waitForExistence(timeout: 3),
