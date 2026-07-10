@@ -7,19 +7,27 @@
 
 import SwiftUI
 
-/// The Home tab: built-in categories over the user's library, starting with
-/// "Recent" — the last five exercises that played through to the end. The
-/// categories look and behave like the Exercises tab's (tap to collapse,
-/// long-press to rearrange) but never show exercise counts, and the reorder
-/// screen has no add, delete, or rename — the categories are fixed.
+/// The Home tab: built-in categories over the user's library — "Recent" (the
+/// last five exercises that played through to the end) and "Routines" (the
+/// user's own ordered exercise lists, created via the + button; swipe right on
+/// one to edit it). The categories look and behave like the Exercises tab's
+/// (tap to collapse, long-press to rearrange) but never show exercise counts,
+/// and the reorder screen has no add, delete, or rename — the categories are
+/// fixed.
 struct HomeView: View {
     @EnvironmentObject private var store: ExerciseStore
     @State private var navigationPath = NavigationPath()
 
     private static let recentCategory = "Recent"
+    private static let routinesCategory = "Routines"
 
     /// The built-in categories in the user's display order.
-    @State private var categories: [String] = [HomeView.recentCategory]
+    @State private var categories: [String] = [HomeView.recentCategory,
+                                               HomeView.routinesCategory]
+
+    /// Drives the "name your new routine" alert opened from the + button.
+    @State private var isNamingNewRoutine = false
+    @State private var newRoutineName = ""
 
     /// Categories the user has collapsed. Their exercises are hidden; unlike the
     /// Exercises tab, no count appears in the header.
@@ -43,24 +51,46 @@ struct HomeView: View {
             .prefix(5))
     }
 
-    private func exercises(in category: String) -> [Exercise] {
+    /// A routine shown as a list row. The row type is built around exercises, so
+    /// the routine rides in a placeholder exercise carrying its id and name; the
+    /// id is how taps and swipes are recognized as targeting a routine.
+    private func routineRow(_ routine: Routine) -> ExerciseListRow {
+        var placeholder = Exercise(name: routine.name)
+        placeholder.id = routine.id
+        return ExerciseListRow(exercise: placeholder, pattern: [],
+                               swipeActionTitle: "Edit", swipeActionImage: "pencil")
+    }
+
+    private func rows(in category: String) -> [ExerciseListRow] {
         switch category {
-        case Self.recentCategory: recentExercises
-        default: []
+        case Self.recentCategory:
+            recentExercises.map { ExerciseListRow(exercise: $0, pattern: store.notes(for: $0.id)) }
+        case Self.routinesCategory:
+            store.routines.map(routineRow)
+        default:
+            []
         }
     }
 
     private var listSections: [ExerciseListSection] {
         categories.map { category in
-            let items = exercises(in: category).map {
-                ExerciseListRow(exercise: $0, pattern: store.notes(for: $0.id))
-            }
+            let items = rows(in: category)
             let isCollapsed = collapsedCategories.contains(category)
             return ExerciseListSection(category: category,
                                        isCollapsed: isCollapsed,
                                        totalCount: items.count,
                                        items: isCollapsed ? [] : items,
                                        showsCount: false)
+        }
+    }
+
+    /// Route a row tap or swipe: routine rows open the routine editor, exercise
+    /// rows go to the given exercise route.
+    private func open(_ id: UUID, asExercise route: ExerciseRoute) {
+        if store.routines.contains(where: { $0.id == id }) {
+            navigationPath.append(ExerciseRoute.routine(id))
+        } else {
+            navigationPath.append(route)
         }
     }
 
@@ -101,8 +131,8 @@ struct HomeView: View {
                 } else {
                     ExerciseCollectionList(
                         sections: listSections,
-                        onSelect: { navigationPath.append(ExerciseRoute.play($0)) },
-                        onSettings: { navigationPath.append(ExerciseRoute.settings($0)) },
+                        onSelect: { open($0, asExercise: .play($0)) },
+                        onSettings: { open($0, asExercise: .settings($0)) },
                         onToggleCollapse: { category in
                             if collapsedCategories.contains(category) {
                                 collapsedCategories.remove(category)
@@ -129,7 +159,25 @@ struct HomeView: View {
                             Image(systemName: "xmark")
                         }
                     }
+                } else {
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Button {
+                            newRoutineName = ""
+                            isNamingNewRoutine = true
+                        } label: {
+                            Image(systemName: "plus")
+                        }
+                    }
                 }
+            }
+            .alert("New Routine", isPresented: $isNamingNewRoutine) {
+                TextField("Name", text: $newRoutineName)
+                Button("Create") {
+                    store.addRoutine(named: newRoutineName.trimmingCharacters(in: .whitespaces))
+                }
+                Button("Cancel", role: .cancel) {}
+            } message: {
+                Text("Enter a name for the new routine.")
             }
             .navigationDestination(for: ExerciseRoute.self) { route in
                 switch route {
@@ -150,6 +198,16 @@ struct HomeView: View {
                 case .edit(let id):
                     if let ex = store.exercises.first(where: { $0.id == id }) {
                         EditingView(exercise: ex)
+                    }
+                case .routine(let id):
+                    if store.routines.contains(where: { $0.id == id }) {
+                        RoutineEditView(routineID: id) {
+                            navigationPath.append(ExerciseRoute.routinePicker(id))
+                        }
+                    }
+                case .routinePicker(let id):
+                    if store.routines.contains(where: { $0.id == id }) {
+                        RoutineExercisePickerView(routineID: id)
                     }
                 case .user:
                     // Never appended from this tab; usernames only show in Community.

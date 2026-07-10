@@ -1,6 +1,16 @@
 import SwiftUI
 import Combine
 
+/// An ordered list of exercises the user assembles on the Home tab. Unlike
+/// categories, routines are keyed by id — names are free-form and don't have
+/// to be unique — and an exercise can appear in any number of routines.
+struct Routine: Identifiable, Hashable, Codable {
+    var id = UUID()
+    var name: String
+    /// The routine's exercises in the user's order. Never contains duplicates.
+    var exerciseIDs: [UUID] = []
+}
+
 /// Single source of truth for the user's exercises and their MIDI patterns.
 /// Backed by UserDefaults (exercise list under `exercises`, each pattern under
 /// `midi_<uuid>`) so it stays compatible with the existing EditingView/PlaybackView.
@@ -11,6 +21,9 @@ final class ExerciseStore: ObservableObject {
     /// Exercise ids ordered by when they last played through to the end, newest
     /// first. Drives the Home tab's "Recent" category.
     @Published var recentlyPlayed: [UUID] = []
+    /// The user's routines in display order. Shown in the Home tab's "Routines"
+    /// category.
+    @Published var routines: [Routine] = []
 
     /// The always-present home for exercises not assigned to any other category:
     /// new exercises start here, deleting a category moves its exercises here, and
@@ -20,12 +33,14 @@ final class ExerciseStore: ObservableObject {
     private let storeKey = "exercises"
     private let categoriesKey = "categories"
     private let recentlyPlayedKey = "recentlyPlayed"
+    private let routinesKey = "routines"
     private let bundledImportedKey = "didImportBundledExercises"
 
     init() {
         load()
         loadCategories()
         loadRecentlyPlayed()
+        loadRoutines()
         importBundledIfNeeded()
         adoptNoCategory()
     }
@@ -178,6 +193,64 @@ final class ExerciseStore: ObservableObject {
         saveRecentlyPlayed()
     }
 
+    // MARK: - Routines
+
+    private func loadRoutines() {
+        guard let data = UserDefaults.standard.data(forKey: routinesKey),
+              let saved = try? JSONDecoder().decode([Routine].self, from: data)
+        else { return }
+        routines = saved
+    }
+
+    private func saveRoutines() {
+        guard let data = try? JSONEncoder().encode(routines) else { return }
+        UserDefaults.standard.set(data, forKey: routinesKey)
+    }
+
+    /// Create an empty routine. Names are free-form (duplicates allowed); only an
+    /// empty name is refused.
+    @discardableResult
+    func addRoutine(named name: String) -> Routine? {
+        guard !name.isEmpty else { return nil }
+        let routine = Routine(name: name)
+        routines.append(routine)
+        saveRoutines()
+        return routine
+    }
+
+    /// Rename a routine. Refused only when the new name is empty after trimming.
+    func renameRoutine(_ id: UUID, to newName: String) {
+        guard !newName.isEmpty,
+              let idx = routines.firstIndex(where: { $0.id == id }) else { return }
+        routines[idx].name = newName
+        saveRoutines()
+    }
+
+    /// Reorder the exercises within a routine (drives the edit-routine screen).
+    func moveRoutineExercises(_ id: UUID, from source: IndexSet, to destination: Int) {
+        guard let idx = routines.firstIndex(where: { $0.id == id }) else { return }
+        routines[idx].exerciseIDs.move(fromOffsets: source, toOffset: destination)
+        saveRoutines()
+    }
+
+    /// Add the exercise to the routine's end, or remove it if already present.
+    /// Backs the picker's tap-to-select rows, which is why membership toggles.
+    func toggleExercise(_ exerciseID: UUID, in routineID: UUID) {
+        guard let idx = routines.firstIndex(where: { $0.id == routineID }) else { return }
+        if let existing = routines[idx].exerciseIDs.firstIndex(of: exerciseID) {
+            routines[idx].exerciseIDs.remove(at: existing)
+        } else {
+            routines[idx].exerciseIDs.append(exerciseID)
+        }
+        saveRoutines()
+    }
+
+    func removeExercise(_ exerciseID: UUID, fromRoutine routineID: UUID) {
+        guard let idx = routines.firstIndex(where: { $0.id == routineID }) else { return }
+        routines[idx].exerciseIDs.removeAll { $0 == exerciseID }
+        saveRoutines()
+    }
+
     // MARK: - Exercise mutation
 
     @discardableResult
@@ -209,6 +282,12 @@ final class ExerciseStore: ObservableObject {
         if recentlyPlayed.contains(id) {
             recentlyPlayed.removeAll { $0 == id }
             saveRecentlyPlayed()
+        }
+        if routines.contains(where: { $0.exerciseIDs.contains(id) }) {
+            for i in routines.indices {
+                routines[i].exerciseIDs.removeAll { $0 == id }
+            }
+            saveRoutines()
         }
         save()
     }

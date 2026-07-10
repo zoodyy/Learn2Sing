@@ -64,8 +64,9 @@ struct CommunityView: View {
                     CommunityUserProfileView(username: username) {
                         navigationPath.append(ExerciseRoute.play($0))
                     }
-                case .settings, .edit:
-                    // Never appended from this tab; exercises aren't editable here.
+                case .settings, .edit, .routine, .routinePicker:
+                    // Never appended from this tab; exercises aren't editable
+                    // here and routines live on the Home tab.
                     EmptyView()
                 }
             }

@@ -10,6 +10,13 @@ struct ExerciseListRow: Equatable {
     /// Shown in grey between the name and the pattern thumbnail (Community tab
     /// only — nil hides it).
     var uploaderName: String? = nil
+    /// nil hides the selection mark; true/false draws a filled/empty circle on
+    /// the row's leading edge (the routine exercise picker).
+    var isSelected: Bool? = nil
+    /// Title and symbol of the leading "Settings" swipe action, so rows that
+    /// aren't exercises (routines on the Home tab) can label it differently.
+    var swipeActionTitle = "Settings"
+    var swipeActionImage = "slider.horizontal.3"
     var id: UUID { exercise.id }
 }
 
@@ -143,16 +150,38 @@ final class ExerciseListController: UIViewController {
                 content.text = row?.exercise.name
                 cell.contentConfiguration = content
             }
+            var accessories: [UICellAccessory] = []
+            if let isSelected = row?.isSelected {
+                // The picker's selection mark, mimicking the system multi-select
+                // circles: filled blue checkmark when selected, hollow grey when
+                // not. Wrapped in a plain view because a bare UIImageView as the
+                // accessory makes accessibility expose the whole row as an Image
+                // (labelled "circle") instead of a cell — breaking VoiceOver and
+                // UI tests alike.
+                let mark = UIImageView(image: UIImage(
+                    systemName: isSelected ? "checkmark.circle.fill" : "circle"
+                ))
+                mark.preferredSymbolConfiguration = UIImage.SymbolConfiguration(textStyle: .body)
+                mark.tintColor = isSelected ? .systemBlue : .tertiaryLabel
+                mark.sizeToFit()
+                let container = UIView(frame: mark.bounds)
+                container.addSubview(mark)
+                accessories.append(.customView(configuration: .init(
+                    customView: container,
+                    placement: .leading(),
+                    reservedLayoutWidth: .actual,
+                    maintainsFixedSize: true
+                )))
+            }
             if let pattern = row?.pattern, !pattern.isEmpty {
-                cell.accessories = [.customView(configuration: .init(
+                accessories.append(.customView(configuration: .init(
                     customView: MIDIPatternView(notes: pattern),
                     placement: .trailing(),
                     reservedLayoutWidth: .actual,
                     maintainsFixedSize: true
-                ))]
-            } else {
-                cell.accessories = []
+                )))
             }
+            cell.accessories = accessories
         }
         dataSource = UICollectionViewDiffableDataSource<String, UUID>(collectionView: cv) {
             collectionView, indexPath, id in
@@ -255,12 +284,13 @@ final class ExerciseListController: UIViewController {
 
     private func leadingSwipeActions(at indexPath: IndexPath) -> UISwipeActionsConfiguration? {
         guard onSettings != nil,
-              let id = dataSource.itemIdentifier(for: indexPath) else { return nil }
-        let action = UIContextualAction(style: .normal, title: "Settings") { [weak self] _, _, done in
+              let id = dataSource.itemIdentifier(for: indexPath),
+              let row = rowsByID[id] else { return nil }
+        let action = UIContextualAction(style: .normal, title: row.swipeActionTitle) { [weak self] _, _, done in
             self?.onSettings?(id)
             done(true)
         }
-        action.image = UIImage(systemName: "slider.horizontal.3")
+        action.image = UIImage(systemName: row.swipeActionImage)
         action.backgroundColor = .systemBlue
         let config = UISwipeActionsConfiguration(actions: [action])
         config.performsFirstActionWithFullSwipe = true

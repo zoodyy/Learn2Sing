@@ -685,4 +685,109 @@ final class Learn2SingUITests: XCTestCase {
         XCTAssertTrue(app.navigationBars["Home"].waitForExistence(timeout: 3),
                       "✗ should exit reorder mode back to Home")
     }
+
+    /// The Home tab's "Routines" category: the + button creates a named routine,
+    /// swiping right on it opens the edit screen (Name field at the top, no
+    /// counts), whose + button opens a multi-select exercise picker; picked
+    /// exercises land in the routine and the trash mode removes them again.
+    func testHomeRoutines() throws {
+        let app = XCUIApplication()
+        app.launch()
+        XCTAssertTrue(app.navigationBars["Home"].waitForExistence(timeout: 5))
+        sleep(2)
+        XCTAssertTrue(header(app, named: "Routines").exists,
+                      "Home should show the Routines category header")
+
+        // Create a routine via the + button. UserDefaults persist between runs,
+        // so the name is unique per run.
+        let routineName = "Routine \(Int(Date().timeIntervalSince1970))"
+        let add = app.navigationBars["Home"].buttons["Add"].firstMatch
+        XCTAssertTrue(add.waitForExistence(timeout: 3), "Home should show a + button")
+        add.tap()
+        let alert = app.alerts["New Routine"]
+        XCTAssertTrue(alert.waitForExistence(timeout: 3), "+ should ask for the routine's name")
+        alert.textFields.firstMatch.tap()
+        alert.textFields.firstMatch.typeText(routineName)
+        alert.buttons["Create"].tap()
+        sleep(1)
+        XCTAssertTrue(cell(app, named: routineName).waitForExistence(timeout: 3),
+                      "the new routine should be listed under Routines")
+        saveScreenshot("home-routines")
+
+        // Swipe right reveals Edit, which pushes the edit screen: the Name field
+        // at the top holds the routine's name, and there are no "(N)" counts.
+        cell(app, named: routineName).swipeRight()
+        let edit = app.collectionViews.buttons["Edit"].firstMatch
+        XCTAssertTrue(edit.waitForExistence(timeout: 3), "swipe right should reveal Edit")
+        edit.tap()
+        XCTAssertTrue(app.navigationBars["Edit Routine"].waitForExistence(timeout: 3),
+                      "Edit should push the routine's edit screen")
+        let nameField = app.textFields.firstMatch
+        XCTAssertTrue(nameField.waitForExistence(timeout: 3), "edit screen should show a Name field")
+        XCTAssertEqual(nameField.value as? String, routineName)
+        XCTAssertTrue(app.staticTexts.allElementsBoundByIndex
+            .filter { $0.label.hasPrefix("(") && $0.frame.height > 0 }.isEmpty,
+                      "the edit-routine screen must not show exercise counts")
+        saveScreenshot("routine-edit-empty")
+
+        // + opens the picker: the categorized exercise list, but with no + button
+        // of its own; tapping rows selects them.
+        app.navigationBars["Edit Routine"].buttons["Add"].tap()
+        XCTAssertTrue(app.navigationBars["Add Exercises"].waitForExistence(timeout: 3),
+                      "+ should push the exercise picker")
+        sleep(2)
+        XCTAssertFalse(app.navigationBars["Add Exercises"].buttons["Add"].exists,
+                       "the picker must not offer a + button")
+        let picks = Array(visibleCellOrder(app).prefix(2))
+        XCTAssertEqual(picks.count, 2, "need two visible exercises to pick")
+        for pick in picks {
+            cell(app, named: pick).tap()
+            usleep(500_000)
+        }
+        saveScreenshot("routine-picker-selected")
+
+        // Back on the edit screen the picked exercises are listed.
+        let backButton = app.navigationBars["Add Exercises"].buttons.firstMatch
+        XCTAssertTrue(backButton.exists, "picker should show a back button")
+        backButton.tap()
+        XCTAssertTrue(app.navigationBars["Edit Routine"].waitForExistence(timeout: 3),
+                      "back should return to the edit screen")
+        sleep(1)
+        for pick in picks {
+            XCTAssertTrue(cell(app, named: pick).exists,
+                          "\(pick) should have been added to the routine")
+        }
+        saveScreenshot("routine-edit-filled")
+
+        // Trash mode removes an exercise from the routine (not from the library).
+        app.buttons["trash"].firstMatch.tap()
+        sleep(1)
+        let removeTarget = cell(app, named: picks[0])
+        let remove = removeTarget.buttons.firstMatch
+        XCTAssertTrue(remove.waitForExistence(timeout: 3),
+                      "trash mode should show per-row delete buttons")
+        remove.tap()
+        sleep(1)
+        XCTAssertFalse(cell(app, named: picks[0]).exists,
+                       "\(picks[0]) should have been removed from the routine")
+        XCTAssertTrue(cell(app, named: picks[1]).exists,
+                      "\(picks[1]) should still be in the routine")
+
+        // The routine and its remaining exercise survive a relaunch.
+        app.terminate()
+        app.launch()
+        XCTAssertTrue(app.navigationBars["Home"].waitForExistence(timeout: 5))
+        sleep(2)
+        let routineCell = cell(app, named: routineName)
+        XCTAssertTrue(routineCell.waitForExistence(timeout: 3),
+                      "the routine should survive a relaunch")
+        routineCell.swipeRight()
+        let editAgain = app.collectionViews.buttons["Edit"].firstMatch
+        XCTAssertTrue(editAgain.waitForExistence(timeout: 3))
+        editAgain.tap()
+        XCTAssertTrue(app.navigationBars["Edit Routine"].waitForExistence(timeout: 3))
+        sleep(1)
+        XCTAssertTrue(cell(app, named: picks[1]).exists,
+                      "the routine's exercise should survive a relaunch")
+    }
 }
