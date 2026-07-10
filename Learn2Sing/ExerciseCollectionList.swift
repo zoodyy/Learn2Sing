@@ -23,6 +23,9 @@ struct ExerciseListSection: Equatable {
     /// empty categories don't look like they lost their contents.
     var totalCount: Int
     var items: [ExerciseListRow]
+    /// false keeps the exercise count out of the header entirely, even while
+    /// collapsed (Home tab).
+    var showsCount = true
 }
 
 /// The normal-mode exercise list. This is intentionally NOT a SwiftUI List: a
@@ -217,7 +220,8 @@ final class ExerciseListController: UIViewController {
         guard sectionIndex < sections.count else { return }
         let section = sections[sectionIndex]
         header.configure(name: section.category, count: section.totalCount,
-                         isCollapsed: section.isCollapsed, animated: animated)
+                         isCollapsed: section.isCollapsed, showsCount: section.showsCount,
+                         animated: animated)
         header.onTap = { [weak self] in self?.onToggleCollapse?(section.category) }
         header.onLongPress = { [weak self] in self?.onHeaderLongPress?() }
     }
@@ -599,10 +603,10 @@ final class ExerciseSectionHeaderView: UICollectionReusableView {
     @available(*, unavailable)
     required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
 
-    func configure(name: String, count: Int, isCollapsed: Bool, animated: Bool) {
+    func configure(name: String, count: Int, isCollapsed: Bool, showsCount: Bool, animated: Bool) {
         nameLabel.text = name
         countLabel.text = "(\(count))"
-        countLabel.isHidden = !isCollapsed && count > 0
+        countLabel.isHidden = !showsCount || (!isCollapsed && count > 0)
         self.isCollapsed = isCollapsed
         let transform = isCollapsed ? .identity : CGAffineTransform(rotationAngle: .pi / 2)
         if animated {

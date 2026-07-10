@@ -716,6 +716,7 @@ struct PlaybackView: View {
     @State private var repetitionMaxExtent: Double = 0
     @AppStorage(microphoneDelayKey) private var micDelayMs = 0.0
     @AppStorage(VocalRange.storageKey) private var vocalRangeRaw = ""
+    @EnvironmentObject private var store: ExerciseStore
     @Environment(\.dismiss) private var dismiss
     @Environment(\.scenePhase) private var scenePhase
 
@@ -820,6 +821,9 @@ struct PlaybackView: View {
                     let score = scorer.score(notes: notes)
                     // Save before showing the result so the chart includes this run.
                     ScoreHistory.record(score: score, for: exercise.id)
+                    // The run played through to the end, so it counts for the
+                    // Home tab's "Recent" category regardless of the score.
+                    store.markPlayed(exercise.id)
                     finalScore = score
                 }
             }

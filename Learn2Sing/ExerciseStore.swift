@@ -8,6 +8,9 @@ final class ExerciseStore: ObservableObject {
     @Published var exercises: [Exercise] = []
     /// User-defined categories used to group exercises in the list, in display order.
     @Published var categories: [String] = []
+    /// Exercise ids ordered by when they last played through to the end, newest
+    /// first. Drives the Home tab's "Recent" category.
+    @Published var recentlyPlayed: [UUID] = []
 
     /// The always-present home for exercises not assigned to any other category:
     /// new exercises start here, deleting a category moves its exercises here, and
@@ -16,11 +19,13 @@ final class ExerciseStore: ObservableObject {
 
     private let storeKey = "exercises"
     private let categoriesKey = "categories"
+    private let recentlyPlayedKey = "recentlyPlayed"
     private let bundledImportedKey = "didImportBundledExercises"
 
     init() {
         load()
         loadCategories()
+        loadRecentlyPlayed()
         importBundledIfNeeded()
         adoptNoCategory()
     }
@@ -146,6 +151,33 @@ final class ExerciseStore: ObservableObject {
         if changed { save() }
     }
 
+    // MARK: - Recently played
+
+    private func loadRecentlyPlayed() {
+        guard let data = UserDefaults.standard.data(forKey: recentlyPlayedKey),
+              let saved = try? JSONDecoder().decode([UUID].self, from: data)
+        else { return }
+        recentlyPlayed = saved
+    }
+
+    private func saveRecentlyPlayed() {
+        guard let data = try? JSONEncoder().encode(recentlyPlayed) else { return }
+        UserDefaults.standard.set(data, forKey: recentlyPlayedKey)
+    }
+
+    /// Move an exercise to the front of the recently-played order. Called by the
+    /// playback screen when a run plays through to the end.
+    func markPlayed(_ id: UUID) {
+        recentlyPlayed.removeAll { $0 == id }
+        recentlyPlayed.insert(id, at: 0)
+        // Keep a few more than the Home tab shows so deleted exercises don't
+        // thin the visible list out.
+        if recentlyPlayed.count > 20 {
+            recentlyPlayed.removeLast(recentlyPlayed.count - 20)
+        }
+        saveRecentlyPlayed()
+    }
+
     // MARK: - Exercise mutation
 
     @discardableResult
@@ -174,6 +206,10 @@ final class ExerciseStore: ObservableObject {
         UserDefaults.standard.removeObject(forKey: Self.midiKey(id))
         UserDefaults.standard.removeObject(forKey: Self.midiTextKey(id))
         ScoreHistory.delete(for: id)
+        if recentlyPlayed.contains(id) {
+            recentlyPlayed.removeAll { $0 == id }
+            saveRecentlyPlayed()
+        }
         save()
     }
 

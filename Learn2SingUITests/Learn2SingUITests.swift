@@ -637,4 +637,52 @@ final class Learn2SingUITests: XCTestCase {
         XCTAssertTrue(app.navigationBars["Exercises"].waitForExistence(timeout: 3),
                       "✗ should exit reorder mode")
     }
+
+    /// The Home tab's "Recent" category: at most five rows, a header that
+    /// collapses without ever showing an exercise count, and a long-press
+    /// reorder mode without the add/delete buttons of the Exercises tab.
+    func testHomeRecentCategory() throws {
+        let app = XCUIApplication()
+        app.launch()
+        XCTAssertTrue(app.navigationBars["Home"].waitForExistence(timeout: 5))
+        sleep(2)
+
+        let recentHeader = header(app, named: "Recent")
+        XCTAssertTrue(recentHeader.exists, "Home should show the Recent category header")
+        let expanded = snapshotList(app).items["Recent"] ?? []
+        XCTAssertLessThanOrEqual(expanded.count, 5, "Recent shows at most 5 exercises")
+        saveScreenshot("home-recent")
+
+        // Collapse: rows disappear but, unlike the Exercises tab, no "(N)" count.
+        recentHeader.tap()
+        sleep(1)
+        XCTAssertEqual(snapshotList(app).items["Recent"] ?? [], [],
+                       "tap should collapse Recent")
+        let counts = app.staticTexts.allElementsBoundByIndex
+            .filter { $0.label.hasPrefix("(") && $0.frame.height > 0 }
+        XCTAssertTrue(counts.isEmpty, "collapsed Home headers must not show a count")
+        saveScreenshot("home-recent-collapsed")
+        header(app, named: "Recent").tap()
+        sleep(1)
+        XCTAssertEqual((snapshotList(app).items["Recent"] ?? []).count, expanded.count,
+                       "tap should expand Recent again")
+
+        // Long-press: reorder mode with only the ✗ button — no +, no trash,
+        // and no exercise count on the category row.
+        header(app, named: "Recent").press(forDuration: 0.8)
+        XCTAssertTrue(app.navigationBars["Edit Categories"].waitForExistence(timeout: 3),
+                      "long-press on a Home header should enter reorder mode")
+        XCTAssertFalse(app.navigationBars.buttons["plus"].exists,
+                       "Home reorder mode has no add button")
+        XCTAssertFalse(app.navigationBars.buttons["trash"].exists,
+                       "Home reorder mode has no delete button")
+        XCTAssertTrue(app.staticTexts["Recent"].exists,
+                      "Recent should appear as a reorderable row")
+        XCTAssertFalse(app.staticTexts["(\(expanded.count))"].exists,
+                       "Home reorder rows must not show a count")
+        saveScreenshot("home-reorder")
+        app.buttons["xmark"].firstMatch.tap()
+        XCTAssertTrue(app.navigationBars["Home"].waitForExistence(timeout: 3),
+                      "✗ should exit reorder mode back to Home")
+    }
 }
