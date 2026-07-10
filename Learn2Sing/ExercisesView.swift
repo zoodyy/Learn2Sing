@@ -71,6 +71,7 @@ enum ExerciseRoute: Hashable {
     case playback(UUID)  // the actual note-scrolling playback screen
     case settings(UUID)
     case edit(UUID)
+    case user(String)    // a community uploader's profile, by username
 }
 
 /// The inline-editable category name on the edit-categories screen. Edits are
@@ -374,6 +375,9 @@ struct ExercisesView: View {
                     if let ex = store.exercises.first(where: { $0.id == id }) {
                         EditingView(exercise: ex)
                     }
+                case .user:
+                    // Never appended from this tab; usernames only show in Community.
+                    EmptyView()
                 }
             }
         }

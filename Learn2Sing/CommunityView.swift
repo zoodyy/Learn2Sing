@@ -37,7 +37,8 @@ struct CommunityView: View {
                 } else {
                     ExerciseCollectionList(
                         sections: listSections,
-                        onSelect: { navigationPath.append(ExerciseRoute.play($0)) }
+                        onSelect: { navigationPath.append(ExerciseRoute.play($0)) },
+                        onSelectUploader: { navigationPath.append(ExerciseRoute.user($0)) }
                     )
                     // Span the full screen like a List so content scrolls under the
                     // navigation and tab bars.
@@ -58,11 +59,62 @@ struct CommunityView: View {
                     if let ex = store.exercises.first(where: { $0.id == id }) {
                         PlaybackView(exercise: ex)
                     }
+                case .user(let username):
+                    CommunityUserProfileView(username: username) {
+                        navigationPath.append(ExerciseRoute.play($0))
+                    }
                 case .settings, .edit:
                     // Never appended from this tab; exercises aren't editable here.
                     EmptyView()
                 }
             }
         }
+    }
+}
+
+/// A community uploader's profile: their username as the title and all of their
+/// public exercises, rendered like the Community list but without the redundant
+/// uploader name on each row. Pushed onto the Community stack, so the standard
+/// back button appears top-left.
+struct CommunityUserProfileView: View {
+    @EnvironmentObject private var store: ExerciseStore
+    let username: String
+    /// Called with the tapped exercise's id; the Community stack pushes playback.
+    let onSelect: (UUID) -> Void
+
+    private var listSections: [ExerciseListSection] {
+        let rows = store.exercises
+            .filter { $0.visibility == .public && $0.uploaderName == username }
+            .map { exercise in
+                ExerciseListRow(exercise: exercise,
+                                pattern: store.notes(for: exercise.id))
+            }
+        guard !rows.isEmpty else { return [] }
+        return [ExerciseListSection(category: "",
+                                    isCollapsed: false,
+                                    totalCount: rows.count,
+                                    items: rows)]
+    }
+
+    var body: some View {
+        Group {
+            if listSections.isEmpty {
+                ContentUnavailableView(
+                    "No Public Exercises",
+                    systemImage: "person.crop.circle",
+                    description: Text("\(username) has no public exercises right now.")
+                )
+            } else {
+                ExerciseCollectionList(
+                    sections: listSections,
+                    onSelect: onSelect
+                )
+                // Span the full screen like a List so content scrolls under the
+                // navigation and tab bars.
+                .ignoresSafeArea()
+            }
+        }
+        .navigationTitle(username)
+        .navigationBarTitleDisplayMode(.inline)
     }
 }

@@ -536,17 +536,19 @@ final class Learn2SingUITests: XCTestCase {
         XCTAssertTrue(pickerQuery.firstMatch.label.contains("Public"),
                       "picker should now read Public, reads \(pickerQuery.firstMatch.label)")
 
-        // The Community tab lists it, with the uploader's name inline after the
-        // exercise name (one label). The hidden Exercises tab keeps its own copy
-        // of the row in the element tree, so match on name AND uploader together
-        // to hit the Community row.
+        // The Community tab lists it, with the uploader's name after the
+        // exercise name as its own tappable element (a button, since tapping it
+        // opens the uploader's profile). The hidden Exercises tab keeps its own
+        // copy of the row in the element tree, so match on name AND uploader
+        // together to hit the Community row.
         app.buttons["Community"].tap()
         XCTAssertTrue(app.navigationBars["Community"].waitForExistence(timeout: 5),
                       "Community tab should open the Community screen")
         sleep(1)
-        let rowLabel = NSPredicate(format: "label CONTAINS %@ AND label CONTAINS %@",
-                                   name, uploaderName)
-        let row = app.cells.containing(rowLabel).firstMatch
+        let row = app.cells
+            .containing(.staticText, identifier: name)
+            .containing(.button, identifier: uploaderName)
+            .firstMatch
         XCTAssertTrue(row.waitForExistence(timeout: 3),
                       "public exercise with uploader \(uploaderName) not listed on Community tab")
         XCTAssertFalse(app.navigationBars["Community"].buttons["Add"].exists,
@@ -557,6 +559,59 @@ final class Learn2SingUITests: XCTestCase {
         row.swipeRight()
         XCTAssertFalse(app.collectionViews.buttons["Settings"].firstMatch.waitForExistence(timeout: 2),
                        "Community rows must not reveal a Settings swipe action")
+    }
+
+    /// Tapping the grey uploader name on a Community row opens that uploader's
+    /// profile: their username as the title, their public exercises without the
+    /// per-row uploader name, and the standard back button top-left.
+    func testCommunityUsernameOpensUploaderProfile() throws {
+        let app = XCUIApplication()
+        app.launch()
+        let tab = app.buttons["Community"]
+        XCTAssertTrue(tab.waitForExistence(timeout: 5), "Community tab not found")
+        tab.tap()
+        XCTAssertTrue(app.navigationBars["Community"].waitForExistence(timeout: 5))
+        sleep(1)
+
+        // Find a visible row showing an uploader (the name label plus the
+        // uploader's name, exposed as a button since it's tappable) and tap the
+        // uploader's name.
+        var exerciseName: String?
+        var uploader: XCUIElement?
+        for cell in app.cells.allElementsBoundByIndex where cell.isHittable {
+            let button = cell.buttons.firstMatch
+            guard button.exists, cell.staticTexts.firstMatch.exists else { continue }
+            exerciseName = cell.staticTexts.firstMatch.label
+            uploader = button
+            break
+        }
+        guard let uploader, let exerciseName else {
+            throw XCTSkip("Community shows no exercise with an uploader name; publish one first.")
+        }
+        let username = uploader.label
+        uploader.tap()
+
+        // The profile pushes (instead of the row opening playback): username as
+        // the title, and the exercise listed WITHOUT the uploader name on the row.
+        let profileBar = app.navigationBars[username]
+        XCTAssertTrue(profileBar.waitForExistence(timeout: 5),
+                      "tapping the username should push the uploader's profile")
+        sleep(1)
+        let profileRow = app.cells
+            .containing(.staticText, identifier: exerciseName)
+            .allElementsBoundByIndex
+            .first { $0.isHittable }
+        XCTAssertNotNil(profileRow, "the uploader's exercise should be listed on their profile")
+        XCTAssertFalse(profileRow?.buttons[username].exists ?? true,
+                       "profile rows must not repeat the username")
+        saveScreenshot("uploader-profile")
+
+        // The back button top-left returns to the Community list.
+        let backButton = profileBar.buttons.firstMatch
+        XCTAssertTrue(backButton.exists, "profile should show a back button top-left")
+        backButton.tap()
+        XCTAssertTrue(app.navigationBars["Community"].waitForExistence(timeout: 5),
+                      "back button should return to the Community list")
     }
 
     /// Tap-to-collapse and long-press-to-reorder-mode on headers still work.

@@ -36,6 +36,8 @@ struct ExerciseListSection: Equatable {
 struct ExerciseCollectionList: UIViewControllerRepresentable {
     var sections: [ExerciseListSection]
     var onSelect: (UUID) -> Void
+    /// Tap on a row's grey uploader name (Community tab). nil leaves the name inert.
+    var onSelectUploader: ((String) -> Void)? = nil
     /// nil hides the leading "Settings" swipe action (Community tab).
     var onSettings: ((UUID) -> Void)? = nil
     var onToggleCollapse: (String) -> Void = { _ in }
@@ -56,6 +58,7 @@ struct ExerciseCollectionList: UIViewControllerRepresentable {
 
     private func apply(to controller: ExerciseListController) {
         controller.onSelect = onSelect
+        controller.onSelectUploader = onSelectUploader
         controller.onSettings = onSettings
         controller.onToggleCollapse = onToggleCollapse
         controller.onHeaderLongPress = onHeaderLongPress
@@ -66,6 +69,7 @@ struct ExerciseCollectionList: UIViewControllerRepresentable {
 
 final class ExerciseListController: UIViewController {
     var onSelect: ((UUID) -> Void)?
+    var onSelectUploader: ((String) -> Void)?
     var onSettings: ((UUID) -> Void)?
     var onToggleCollapse: ((String) -> Void)?
     var onHeaderLongPress: (() -> Void)?
@@ -120,7 +124,10 @@ final class ExerciseListController: UIViewController {
                 // exercise name truncates with "…" while the uploader's name
                 // always stays fully visible.
                 cell.contentConfiguration = NameUploaderConfiguration(
-                    name: row.exercise.name, uploader: uploader
+                    name: row.exercise.name, uploader: uploader,
+                    onTapUploader: self?.onSelectUploader.map { open in
+                        { open(uploader) }
+                    }
                 )
             } else {
                 var content = UIListContentConfiguration.cell()
@@ -403,6 +410,8 @@ extension ExerciseListController: UICollectionViewDragDelegate, UICollectionView
 private struct NameUploaderConfiguration: UIContentConfiguration {
     var name: String
     var uploader: String
+    /// Tapping the uploader's name opens their profile; nil leaves it inert.
+    var onTapUploader: (() -> Void)?
 
     func makeContentView() -> UIView & UIContentView {
         NameUploaderContentView(configuration: self)
@@ -439,6 +448,11 @@ private final class NameUploaderContentView: UIView, UIContentView {
         uploaderLabel.textColor = .secondaryLabel
         uploaderLabel.adjustsFontForContentSizeCategory = true
         uploaderLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
+        // The recognizer cancels the touch for the cell, so tapping the name
+        // opens the uploader's profile instead of selecting the row.
+        uploaderLabel.addGestureRecognizer(
+            UITapGestureRecognizer(target: self, action: #selector(uploaderTapped))
+        )
 
         nameLabel.translatesAutoresizingMaskIntoConstraints = false
         uploaderLabel.translatesAutoresizingMaskIntoConstraints = false
@@ -464,6 +478,11 @@ private final class NameUploaderContentView: UIView, UIContentView {
         guard let config = configuration as? NameUploaderConfiguration else { return }
         nameLabel.text = config.name
         uploaderLabel.text = config.uploader
+        uploaderLabel.isUserInteractionEnabled = config.onTapUploader != nil
+    }
+
+    @objc private func uploaderTapped() {
+        (configuration as? NameUploaderConfiguration)?.onTapUploader?()
     }
 }
 
