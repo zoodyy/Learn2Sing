@@ -103,6 +103,7 @@ enum VisualKeys {
     static let singerLineColor   = "vis_singerLineColor"
     static let showRepetitionCounter    = "vis_showRepetitionCounter"
     static let repetitionCounterPosition = "vis_repetitionCounterPosition"
+    static let hideTabBar     = "vis_hideTabBar"
 }
 
 /// Default values, used both for the @AppStorage controls and when resolving the
@@ -126,6 +127,7 @@ enum VisualDefaults {
     static let singerLineColor   = "#00FFFFB2"  // cyan at ~70% opacity, the original trail
     static let showRepetitionCounter    = false
     static let repetitionCounterPosition = RepetitionCounterPosition.bottomRight.rawValue
+    static let hideTabBar     = false
 }
 
 // MARK: - Resolved settings
@@ -151,6 +153,10 @@ struct VisualSettings {
     var singerLineColor: Color
     var showRepetitionCounter: Bool
     var repetitionCounterPosition: RepetitionCounterPosition
+    // Hides the tab bar while an exercise plays. Not part of the drawn scene (so the
+    // visuals preview ignores it), which is why it defaults here: the preview's
+    // memberwise construction doesn't need to mention it.
+    var hideTabBar: Bool = false
 
     /// The current settings read straight from UserDefaults (used by PlaybackView).
     static var current: VisualSettings {
@@ -177,7 +183,8 @@ struct VisualSettings {
             singerLineColor: Color(hex: str(VisualKeys.singerLineColor, VisualDefaults.singerLineColor)),
             showRepetitionCounter: bool(VisualKeys.showRepetitionCounter, VisualDefaults.showRepetitionCounter),
             repetitionCounterPosition: RepetitionCounterPosition(
-                rawValue: str(VisualKeys.repetitionCounterPosition, VisualDefaults.repetitionCounterPosition)) ?? .bottomRight)
+                rawValue: str(VisualKeys.repetitionCounterPosition, VisualDefaults.repetitionCounterPosition)) ?? .bottomRight,
+            hideTabBar: bool(VisualKeys.hideTabBar, VisualDefaults.hideTabBar))
     }
 }
 

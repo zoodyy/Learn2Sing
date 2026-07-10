@@ -84,11 +84,44 @@ struct HomeView: View {
         }
     }
 
-    /// Route a row tap or swipe: routine rows open the routine editor, exercise
-    /// rows go to the given exercise route.
+    /// A routine's exercises that still exist in the library, in routine order —
+    /// what actually plays. The routine-play routes index into this list.
+    private func routineExercises(_ routineID: UUID) -> [Exercise] {
+        (store.routines.first(where: { $0.id == routineID })?.exerciseIDs ?? [])
+            .compactMap { id in store.exercises.first { $0.id == id } }
+    }
+
+    /// Tap on a routine: play its exercises in order, starting with the first
+    /// one's intro screen. An empty routine opens its editor instead, since
+    /// there's nothing to play yet.
+    private func openRoutine(_ id: UUID) {
+        if routineExercises(id).isEmpty {
+            navigationPath.append(ExerciseRoute.routine(id))
+        } else {
+            navigationPath.append(ExerciseRoute.routinePlay(id, 0))
+        }
+    }
+
+    /// The score screen's button while a routine is playing: swap the finished
+    /// exercise's intro/playback pair for the next one's intro, or pop back
+    /// home after the last exercise.
+    private func advanceRoutine(_ id: UUID, after index: Int) {
+        if index + 1 < routineExercises(id).count {
+            navigationPath.removeLast(2)
+            navigationPath.append(ExerciseRoute.routinePlay(id, index + 1))
+        } else {
+            navigationPath = NavigationPath()
+        }
+    }
+
+    /// Route a row tap or swipe: routine rows play (tap) or edit (swipe) the
+    /// routine, exercise rows go to the given exercise route.
     private func open(_ id: UUID, asExercise route: ExerciseRoute) {
         if store.routines.contains(where: { $0.id == id }) {
-            navigationPath.append(ExerciseRoute.routine(id))
+            switch route {
+            case .play: openRoutine(id)
+            default: navigationPath.append(ExerciseRoute.routine(id))
+            }
         } else {
             navigationPath.append(route)
         }
@@ -204,6 +237,20 @@ struct HomeView: View {
                         RoutineEditView(routineID: id) {
                             navigationPath.append(ExerciseRoute.routinePicker(id))
                         }
+                    }
+                case .routinePlay(let id, let index):
+                    let exercises = routineExercises(id)
+                    if index < exercises.count {
+                        ExerciseIntroView(exercise: exercises[index]) {
+                            navigationPath.append(ExerciseRoute.routinePlayback(id, index))
+                        }
+                    }
+                case .routinePlayback(let id, let index):
+                    let exercises = routineExercises(id)
+                    if index < exercises.count {
+                        PlaybackView(exercise: exercises[index],
+                                     scoreExitTitle: index + 1 < exercises.count ? "Next" : "Exit",
+                                     onScoreExit: { advanceRoutine(id, after: index) })
                     }
                 case .routinePicker(let id):
                     if store.routines.contains(where: { $0.id == id }) {

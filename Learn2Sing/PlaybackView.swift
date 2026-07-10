@@ -692,6 +692,12 @@ private final class ClapCollector {
 struct PlaybackView: View {
     let exercise: Exercise
     var mode: PlaybackMode = .normal
+    /// Title of the score screen's exit button ("Next" while a routine has more
+    /// exercises to play).
+    var scoreExitTitle = "Exit"
+    /// What the score screen's exit button does instead of popping this screen
+    /// (routines advance to the next exercise). nil keeps the default dismiss.
+    var onScoreExit: (() -> Void)? = nil
 
     @State private var player = ExercisePlayer()
     @StateObject private var pitchDetector = PitchDetector()
@@ -742,11 +748,17 @@ struct PlaybackView: View {
                 DelayResultView(delayMs: delayResultMs) { dismiss() }
             } else if let finalScore {
                 ScoreView(score: finalScore,
-                          history: ScoreHistory.entries(for: exercise.id)) { dismiss() }
+                          history: ScoreHistory.entries(for: exercise.id),
+                          exitTitle: scoreExitTitle) {
+                    if let onScoreExit { onScoreExit() } else { dismiss() }
+                }
             } else {
                 playback
             }
         }
+        // Kept on the whole flow (not just `playback`) so the bar doesn't pop back
+        // in on the score screen between a routine's exercises.
+        .toolbar(visuals.hideTabBar ? .hidden : .automatic, for: .tabBar)
     }
 
     private var playback: some View {
@@ -1105,6 +1117,7 @@ struct PlaybackView: View {
 private struct ScoreView: View {
     let score: Int
     let history: [ScoreEntry]
+    var exitTitle = "Exit"
     let onExit: () -> Void
 
     @Environment(\.verticalSizeClass) private var verticalSizeClass
@@ -1149,7 +1162,7 @@ private struct ScoreView: View {
             }
 
             Button(action: onExit) {
-                Text("Exit")
+                Text(exitTitle)
                     .font(.headline)
                     .frame(maxWidth: .infinity)
                     .padding()

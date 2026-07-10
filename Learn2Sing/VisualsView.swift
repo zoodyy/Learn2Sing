@@ -84,6 +84,7 @@ struct PlaybackVisualsView: View {
     @AppStorage(VisualKeys.singerLineColor)  private var singerLineColor  = VisualDefaults.singerLineColor
     @AppStorage(VisualKeys.showRepetitionCounter)     private var showRepetitionCounter     = VisualDefaults.showRepetitionCounter
     @AppStorage(VisualKeys.repetitionCounterPosition) private var repetitionCounterPosition = VisualDefaults.repetitionCounterPosition
+    @AppStorage(VisualKeys.hideTabBar)     private var hideTabBar     = VisualDefaults.hideTabBar
 
     /// Saved named templates the user can switch between. Created at app launch and
     /// injected, so the bundled default is seeded before any playback.
@@ -274,6 +275,14 @@ struct PlaybackVisualsView: View {
                 Text("Repetitions")
             } footer: {
                 Text("Shows which repetition you're on out of the total, e.g. “2/5”. Hidden for exercises that don't repeat.")
+            }
+
+            Section {
+                Toggle("Hide tab bar", isOn: $hideTabBar)
+            } header: {
+                Text("Screen")
+            } footer: {
+                Text("Hides the Home, Exercises, Community and Settings tabs at the bottom of the screen while an exercise plays.")
             }
 
             templatesSection

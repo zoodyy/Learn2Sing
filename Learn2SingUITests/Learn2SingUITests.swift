@@ -790,4 +790,142 @@ final class Learn2SingUITests: XCTestCase {
         XCTAssertTrue(cell(app, named: picks[1]).exists,
                       "the routine's exercise should survive a relaunch")
     }
+
+    /// Tapping a routine plays its exercises in order: each one's intro screen,
+    /// its playback, then the score screen — whose button reads "Next" and moves
+    /// on to the following exercise's intro, until the last one's reads "Exit"
+    /// and returns home. Requires microphone access to be granted up front
+    /// (xcrun simctl privacy … grant microphone) so no permission alert blocks
+    /// playback.
+    func testRoutinePlaysExercisesInOrder() throws {
+        let app = XCUIApplication()
+        app.launch()
+        XCTAssertTrue(app.navigationBars["Home"].waitForExistence(timeout: 5))
+        sleep(2)
+
+        // Build a fresh two-exercise routine through the UI.
+        let routineName = "Play \(Int(Date().timeIntervalSince1970))"
+        app.navigationBars["Home"].buttons["Add"].firstMatch.tap()
+        let alert = app.alerts["New Routine"]
+        XCTAssertTrue(alert.waitForExistence(timeout: 3))
+        alert.textFields.firstMatch.tap()
+        alert.textFields.firstMatch.typeText(routineName)
+        alert.buttons["Create"].tap()
+        XCTAssertTrue(cell(app, named: routineName).waitForExistence(timeout: 3))
+        cell(app, named: routineName).swipeRight()
+        let edit = app.collectionViews.buttons["Edit"].firstMatch
+        XCTAssertTrue(edit.waitForExistence(timeout: 3))
+        edit.tap()
+        XCTAssertTrue(app.navigationBars["Edit Routine"].waitForExistence(timeout: 3))
+        app.navigationBars["Edit Routine"].buttons["Add"].tap()
+        XCTAssertTrue(app.navigationBars["Add Exercises"].waitForExistence(timeout: 3))
+        sleep(2)
+        let picks = Array(visibleCellOrder(app).prefix(2))
+        XCTAssertEqual(picks.count, 2, "need two visible exercises to pick")
+        for pick in picks {
+            cell(app, named: pick).tap()
+            usleep(500_000)
+        }
+        app.navigationBars["Add Exercises"].buttons.firstMatch.tap()
+        XCTAssertTrue(app.navigationBars["Edit Routine"].waitForExistence(timeout: 3))
+        app.navigationBars["Edit Routine"].buttons.firstMatch.tap()
+        XCTAssertTrue(app.navigationBars["Home"].waitForExistence(timeout: 3))
+        sleep(1)
+
+        // Tap the routine: the FIRST exercise's intro screen appears.
+        cell(app, named: routineName).tap()
+        XCTAssertTrue(app.navigationBars[picks[0]].waitForExistence(timeout: 3),
+                      "tapping the routine should open \(picks[0])'s intro screen")
+        let start = app.buttons["Start"].firstMatch
+        XCTAssertTrue(start.waitForExistence(timeout: 3))
+        saveScreenshot("routine-play-intro-1")
+        start.tap()
+
+        // Let the exercise play through; the score screen's button reads "Next"
+        // because another exercise follows.
+        let next = app.buttons["Next"].firstMatch
+        XCTAssertTrue(next.waitForExistence(timeout: 300),
+                      "\(picks[0]) should finish with a score screen offering Next")
+        XCTAssertFalse(app.buttons["Exit"].exists,
+                       "mid-routine score screens must not read Exit")
+        saveScreenshot("routine-play-score-1")
+        next.tap()
+
+        // The SECOND exercise's intro follows; after playing it the score
+        // screen's button reads "Exit" and leads back home.
+        XCTAssertTrue(app.navigationBars[picks[1]].waitForExistence(timeout: 5),
+                      "Next should open \(picks[1])'s intro screen")
+        let start2 = app.buttons["Start"].firstMatch
+        XCTAssertTrue(start2.waitForExistence(timeout: 3))
+        start2.tap()
+        let exit = app.buttons["Exit"].firstMatch
+        XCTAssertTrue(exit.waitForExistence(timeout: 300),
+                      "\(picks[1]) should finish with a score screen offering Exit")
+        saveScreenshot("routine-play-score-2")
+        exit.tap()
+        XCTAssertTrue(app.navigationBars["Home"].waitForExistence(timeout: 5),
+                      "Exit after the last exercise should return to Home")
+    }
+
+    // MARK: - Hide tab bar during playback
+
+    /// The Visuals → Playback screen offers the "Hide tab bar" toggle.
+    func testHideTabBarToggleExists() throws {
+        let app = XCUIApplication()
+        app.launch()
+        app.buttons["Settings"].firstMatch.tap()
+        let visuals = app.buttons["Visuals"].firstMatch
+        XCTAssertTrue(visuals.waitForExistence(timeout: 5))
+        visuals.tap()
+        let playback = app.buttons["Playback"].firstMatch
+        XCTAssertTrue(playback.waitForExistence(timeout: 5))
+        playback.tap()
+        // The form renders lazily; scroll until the toggle near the bottom exists.
+        let toggle = app.switches["Hide tab bar"].firstMatch
+        for _ in 0..<8 where !toggle.exists {
+            app.swipeUp()
+        }
+        XCTAssertTrue(toggle.waitForExistence(timeout: 5),
+                      "Visuals → Playback should offer the Hide tab bar toggle")
+    }
+
+    /// With the setting on, the tab bar disappears while an exercise plays; with
+    /// it off, it stays. The setting is forced through the argument domain so the
+    /// simulator's persistent defaults are untouched.
+    func testHideTabBarDuringPlayback() throws {
+        for (value, expectHidden) in [("YES", true), ("NO", false)] {
+            let app = XCUIApplication()
+            app.launchArguments = ["-\(hideTabBarKey)", value]
+            app.launch()
+            let tab = app.buttons["Exercises"]
+            XCTAssertTrue(tab.waitForExistence(timeout: 5))
+            tab.tap()
+            XCTAssertTrue(app.navigationBars["Exercises"].waitForExistence(timeout: 5))
+
+            // Open the first exercise's intro and start playback.
+            let firstCell = app.cells.firstMatch
+            XCTAssertTrue(firstCell.waitForExistence(timeout: 5))
+            firstCell.tap()
+            let start = app.buttons["Start"].firstMatch
+            XCTAssertTrue(start.waitForExistence(timeout: 5), "intro Start button not found")
+            start.tap()
+            XCTAssertTrue(start.waitForNonExistence(timeout: 5), "playback did not start")
+
+            let tabBar = app.tabBars.firstMatch
+            if expectHidden {
+                XCTAssertTrue(tabBar.waitForNonExistence(timeout: 5),
+                              "tab bar should be hidden during playback")
+                saveScreenshot("playback-tabbar-hidden")
+            } else {
+                sleep(2)
+                XCTAssertTrue(tabBar.exists && tabBar.isHittable,
+                              "tab bar should stay visible during playback")
+                saveScreenshot("playback-tabbar-visible")
+            }
+            app.terminate()
+        }
+    }
+
+    /// Must match VisualKeys.hideTabBar in the app target.
+    private let hideTabBarKey = "vis_hideTabBar"
 }
