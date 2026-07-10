@@ -114,25 +114,22 @@ final class ExerciseListController: UIViewController {
         let cellRegistration = UICollectionView.CellRegistration<UICollectionViewListCell, UUID> {
             [weak self] cell, _, id in
             let row = self?.rowsByID[id]
-            var content = UIListContentConfiguration.cell()
             if let row, let uploader = row.uploaderName, !uploader.isEmpty {
                 // The uploader's name rides along in grey right after the
-                // exercise name (Community tab).
-                let text = NSMutableAttributedString(
-                    string: row.exercise.name,
-                    attributes: [.font: content.textProperties.font,
-                                 .foregroundColor: content.textProperties.color]
+                // exercise name (Community tab). Separate labels, so a long
+                // exercise name truncates with "…" while the uploader's name
+                // always stays fully visible.
+                cell.contentConfiguration = NameUploaderConfiguration(
+                    name: row.exercise.name, uploader: uploader
                 )
-                text.append(NSAttributedString(
-                    string: "  \(uploader)",
-                    attributes: [.font: UIFont.preferredFont(forTextStyle: .subheadline),
-                                 .foregroundColor: UIColor.secondaryLabel]
-                ))
-                content.attributedText = text
             } else {
+                var content = UIListContentConfiguration.cell()
+                // Long exercise names truncate with "…" instead of wrapping.
+                content.textProperties.numberOfLines = 1
+                content.textProperties.lineBreakMode = .byTruncatingTail
                 content.text = row?.exercise.name
+                cell.contentConfiguration = content
             }
-            cell.contentConfiguration = content
             if let pattern = row?.pattern, !pattern.isEmpty {
                 cell.accessories = [.customView(configuration: .init(
                     customView: MIDIPatternView(notes: pattern),
@@ -395,6 +392,78 @@ extension ExerciseListController: UICollectionViewDragDelegate, UICollectionView
             pendingSections = nil
             setSections(pending, animated: true)
         }
+    }
+}
+
+// MARK: - Name + uploader cell content
+
+/// Cell content for Community rows: exercise name with the uploader's name in
+/// grey right after it. Two labels instead of one attributed string, so a long
+/// exercise name truncates with "…" while the uploader stays fully visible.
+private struct NameUploaderConfiguration: UIContentConfiguration {
+    var name: String
+    var uploader: String
+
+    func makeContentView() -> UIView & UIContentView {
+        NameUploaderContentView(configuration: self)
+    }
+
+    func updated(for state: UIConfigurationState) -> NameUploaderConfiguration { self }
+}
+
+private final class NameUploaderContentView: UIView, UIContentView {
+    private let nameLabel = UILabel()
+    private let uploaderLabel = UILabel()
+
+    var configuration: UIContentConfiguration {
+        didSet { apply() }
+    }
+
+    func supports(_ configuration: UIContentConfiguration) -> Bool {
+        configuration is NameUploaderConfiguration
+    }
+
+    init(configuration: NameUploaderConfiguration) {
+        self.configuration = configuration
+        super.init(frame: .zero)
+
+        // Match the plain rows, which use UIListContentConfiguration.cell().
+        let defaults = UIListContentConfiguration.cell()
+        nameLabel.font = defaults.textProperties.font
+        nameLabel.textColor = defaults.textProperties.color
+        nameLabel.adjustsFontForContentSizeCategory = true
+        nameLabel.lineBreakMode = .byTruncatingTail
+        nameLabel.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
+
+        uploaderLabel.font = .preferredFont(forTextStyle: .subheadline)
+        uploaderLabel.textColor = .secondaryLabel
+        uploaderLabel.adjustsFontForContentSizeCategory = true
+        uploaderLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
+
+        nameLabel.translatesAutoresizingMaskIntoConstraints = false
+        uploaderLabel.translatesAutoresizingMaskIntoConstraints = false
+        addSubview(nameLabel)
+        addSubview(uploaderLabel)
+        preservesSuperviewLayoutMargins = true
+        let margins = defaults.directionalLayoutMargins
+        NSLayoutConstraint.activate([
+            nameLabel.leadingAnchor.constraint(equalTo: layoutMarginsGuide.leadingAnchor),
+            nameLabel.topAnchor.constraint(equalTo: topAnchor, constant: margins.top),
+            nameLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -margins.bottom),
+            uploaderLabel.leadingAnchor.constraint(equalTo: nameLabel.trailingAnchor, constant: 8),
+            uploaderLabel.trailingAnchor.constraint(lessThanOrEqualTo: layoutMarginsGuide.trailingAnchor),
+            uploaderLabel.firstBaselineAnchor.constraint(equalTo: nameLabel.firstBaselineAnchor),
+        ])
+        apply()
+    }
+
+    @available(*, unavailable)
+    required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
+
+    private func apply() {
+        guard let config = configuration as? NameUploaderConfiguration else { return }
+        nameLabel.text = config.name
+        uploaderLabel.text = config.uploader
     }
 }
 
