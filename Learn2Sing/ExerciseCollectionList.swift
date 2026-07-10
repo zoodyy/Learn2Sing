@@ -110,6 +110,9 @@ final class ExerciseListController: UIViewController {
         cv.dragDelegate = self
         cv.dropDelegate = self
         cv.dragInteractionEnabled = true
+        // The system top edge effect is replaced by stableTopEdgeFade() in the
+        // hosting SwiftUI view (see TopEdgeFade.swift for the why).
+        cv.topEdgeEffect.isHidden = true
         collectionView = cv
         // Lets the navigation/tab bars apply their scrolled-under effects, like
         // they do for a SwiftUI List.

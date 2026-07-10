@@ -83,6 +83,7 @@ struct ProfileView: View {
         }
         .navigationTitle("Profile")
         .navigationBarTitleDisplayMode(.inline)
+        .stableTopEdgeFade()
         .onAppear { profile.save() }
         .onChange(of: profile.username) { profile.save() }
     }

@@ -294,6 +294,7 @@ struct ExercisesView: View {
             }
             .navigationTitle(isReordering ? "Edit Categories" : "Exercises")
             .navigationBarTitleDisplayMode(.inline)
+            .stableTopEdgeFade()
             .toolbar {
                 if isReordering {
                     ToolbarItem(placement: .topBarLeading) {

@@ -12,25 +12,21 @@ struct ContentView: View {
 
     var body: some View {
         TabView {
-            HomeView()
-                .tabItem {
-                    Label("Home", systemImage: "house")
-                }
+            Tab("Home", systemImage: "house") {
+                HomeView()
+            }
 
-            ExercisesView()
-                .tabItem {
-                    Label("Exercises", systemImage: "music.mic")
-                }
+            Tab("Exercises", systemImage: "music.mic") {
+                ExercisesView()
+            }
 
-            CommunityView()
-                .tabItem {
-                    Label("Community", systemImage: "person.3")
-                }
+            Tab("Community", systemImage: "person.3") {
+                CommunityView()
+            }
 
-            SettingsView()
-                .tabItem {
-                    Label("Settings", systemImage: "gearshape")
-                }
+            Tab("Settings", systemImage: "gearshape") {
+                SettingsView()
+            }
         }
         // nil for "System" lets the device's light/dark setting through.
         .preferredColorScheme((AppTheme(rawValue: themeRaw) ?? .system).colorScheme)

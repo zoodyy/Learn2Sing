@@ -170,6 +170,7 @@ struct SettingsView: View {
             }
             .navigationTitle("Settings")
             .navigationBarTitleDisplayMode(.inline)
+            .stableTopEdgeFade()
             .navigationDestination(for: SettingsRoute.self) { route in
                 switch route {
                 case .delayIntro:

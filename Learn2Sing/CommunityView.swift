@@ -47,6 +47,7 @@ struct CommunityView: View {
             }
             .navigationTitle("Community")
             .navigationBarTitleDisplayMode(.inline)
+            .stableTopEdgeFade()
             .navigationDestination(for: ExerciseRoute.self) { route in
                 switch route {
                 case .play(let id):
@@ -116,5 +117,6 @@ struct CommunityUserProfileView: View {
         }
         .navigationTitle(username)
         .navigationBarTitleDisplayMode(.inline)
+        .stableTopEdgeFade()
     }
 }
