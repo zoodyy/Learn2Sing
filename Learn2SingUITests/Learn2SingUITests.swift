@@ -614,6 +614,128 @@ final class Learn2SingUITests: XCTestCase {
                       "back button should return to the Community list")
     }
 
+    /// Opening an exercise from the Community tab shows a Download button above
+    /// Start; tapping it flips to a disabled "Added to Exercises" confirmation
+    /// and files a private copy under "No Category" on the Exercises tab. The
+    /// copy is deleted again afterwards so reruns don't accumulate duplicates.
+    func testCommunityDownloadAddsCopyToExercises() throws {
+        // Publish the first visible categorized exercise so Community has a
+        // known row (idempotent if it is already public).
+        var app = openExercises()
+        sleep(2)
+        let snap = snapshotList(app)
+        guard let category = snap.headers.first(where: {
+                  $0 != "No Category" && !(snap.items[$0] ?? []).isEmpty
+              }),
+              let name = snap.items[category]?.first else {
+            XCTFail("no visible exercise outside No Category"); return
+        }
+        cell(app, named: name).swipeRight()
+        let settings = app.collectionViews.buttons["Settings"].firstMatch
+        XCTAssertTrue(settings.waitForExistence(timeout: 3), "leading swipe should reveal Settings")
+        settings.tap()
+        XCTAssertTrue(app.navigationBars[name].waitForExistence(timeout: 3))
+        sleep(1)
+        let pickerQuery = app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "Visibility"))
+        var picker = pickerQuery.firstMatch
+        for _ in 0..<6 where !picker.exists {
+            app.swipeUp()
+            usleep(500_000)
+            picker = pickerQuery.firstMatch
+        }
+        XCTAssertTrue(picker.waitForExistence(timeout: 3), "Visibility picker not found")
+        picker.tap()
+        let publicOption = app.buttons["Public"].firstMatch
+        XCTAssertTrue(publicOption.waitForExistence(timeout: 3), "Public option not found")
+        publicOption.tap()
+        sleep(1)
+
+        // How many copies of the exercise "No Category" holds before the download.
+        app = relaunchToExercises(app)
+        sleep(2)
+        // Synthetic scroll gestures are unreliable on this list (its cells are
+        // drag sources), so instead collapse categories from the top until the
+        // "No Category" section — always the last — is on screen.
+        func noCategoryCopies() -> Int {
+            for _ in 0..<10 {
+                if header(app, named: "No Category").isHittable { break }
+                let snap = snapshotList(app)
+                guard let target = snap.headers.first(where: {
+                    $0 != "No Category" && !(snap.items[$0] ?? []).isEmpty
+                }) else { break }
+                header(app, named: target).tap()
+                usleep(500_000)
+            }
+            sleep(1)
+            return (snapshotList(app).items["No Category"] ?? []).filter { $0 == name }.count
+        }
+        let copiesBefore = noCategoryCopies()
+
+        // Open the exercise from the Community tab. The hidden Exercises tab
+        // keeps its own copy of the row in the element tree, so take a hittable
+        // match, and tap the name label (not the cell center, which could hit
+        // the uploader button).
+        app.buttons["Community"].tap()
+        XCTAssertTrue(app.navigationBars["Community"].waitForExistence(timeout: 5))
+        sleep(1)
+        let rows = app.cells.containing(.staticText, identifier: name).allElementsBoundByIndex
+        guard let row = rows.first(where: { $0.isHittable }) else {
+            XCTFail("\(name) not listed on the Community tab"); return
+        }
+        row.staticTexts[name].firstMatch.tap()
+        XCTAssertTrue(app.navigationBars[name].waitForExistence(timeout: 3),
+                      "tapping the row should push the intro screen")
+
+        // Download sits above Start; tapping it flips to a disabled confirmation.
+        let download = app.buttons["Download"].firstMatch
+        XCTAssertTrue(download.waitForExistence(timeout: 3),
+                      "the intro screen from Community should offer Download")
+        let start = app.buttons["Start"].firstMatch
+        XCTAssertTrue(start.exists, "Start button not found")
+        XCTAssertLessThan(download.frame.maxY, start.frame.minY, "Download should sit above Start")
+        saveScreenshot("community-intro-download")
+        download.tap()
+        let confirmation = app.buttons["Added to Exercises"].firstMatch
+        XCTAssertTrue(confirmation.waitForExistence(timeout: 3),
+                      "Download should flip to Added to Exercises")
+        XCTAssertFalse(confirmation.isEnabled, "the confirmation must not download again")
+        saveScreenshot("community-intro-downloaded")
+
+        // The "No Category" group gained exactly one copy — checked after a
+        // relaunch, which also proves the download was persisted.
+        app = relaunchToExercises(app)
+        sleep(2)
+        XCTAssertEqual(noCategoryCopies(), copiesBefore + 1,
+                       "the download should add a copy of \(name) to No Category")
+
+        // Delete the copy again: the bottom-most row with the name is the newly
+        // appended one (the original sits in its category further up).
+        let candidates = app.cells.containing(.staticText, identifier: name).allElementsBoundByIndex
+            .filter { $0.isHittable }
+        guard let copy = candidates.max(by: { $0.frame.midY < $1.frame.midY }) else {
+            XCTFail("downloaded copy not found in the list"); return
+        }
+        copy.swipeRight()
+        let copySettings = app.collectionViews.buttons["Settings"].firstMatch
+        XCTAssertTrue(copySettings.waitForExistence(timeout: 3))
+        copySettings.tap()
+        XCTAssertTrue(app.navigationBars[name].waitForExistence(timeout: 3))
+        sleep(1)
+        var deleteButton = app.buttons["Delete Exercise"].firstMatch
+        for _ in 0..<8 where !deleteButton.exists {
+            app.swipeUp()
+            usleep(500_000)
+            deleteButton = app.buttons["Delete Exercise"].firstMatch
+        }
+        XCTAssertTrue(deleteButton.waitForExistence(timeout: 3), "settings should offer Delete Exercise")
+        deleteButton.tap()
+        let confirm = app.alerts["Delete Exercise?"]
+        XCTAssertTrue(confirm.waitForExistence(timeout: 3), "deleting should ask for confirmation")
+        confirm.buttons["Delete"].tap()
+        XCTAssertTrue(app.navigationBars["Exercises"].waitForExistence(timeout: 5),
+                      "deleting the copy should pop back to the list")
+    }
+
     /// Tap-to-collapse and long-press-to-reorder-mode on headers still work.
     func testHeaderTapAndLongPressStillWork() throws {
         let app = openExercises()

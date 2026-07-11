@@ -269,6 +269,24 @@ final class ExerciseStore: ObservableObject {
         return exercise
     }
 
+    /// Copy a community exercise into the user's own library: a fresh id so the
+    /// copy is independent of the original, private visibility, no uploader name,
+    /// and the "No Category" group. The MIDI pattern and text labels are copied too.
+    @discardableResult
+    func downloadCopy(of id: UUID) -> Exercise? {
+        guard let source = exercises.first(where: { $0.id == id }) else { return nil }
+        var copy = source
+        copy.id = UUID()
+        copy.visibility = .private
+        copy.uploaderName = ""
+        copy.category = Self.noCategoryName
+        exercises.append(copy)
+        setNotes(notes(for: id), for: copy.id)
+        setTexts(texts(for: id), for: copy.id)
+        save()
+        return copy
+    }
+
     /// Delete a just-created exercise the user backed out of without touching:
     /// every setting (name, description, …) still matches the snapshot taken at
     /// creation and no MIDI notes or text labels were added.

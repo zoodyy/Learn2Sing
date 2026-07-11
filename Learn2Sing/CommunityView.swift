@@ -52,7 +52,8 @@ struct CommunityView: View {
                 switch route {
                 case .play(let id):
                     if let ex = store.exercises.first(where: { $0.id == id }) {
-                        ExerciseIntroView(exercise: ex) {
+                        ExerciseIntroView(exercise: ex,
+                                          onDownload: { store.downloadCopy(of: id) }) {
                             navigationPath.append(ExerciseRoute.playback(id))
                         }
                     }
