@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import UIKit
 import UniformTypeIdentifiers
 
 /// The user's profile, persisted as JSON in the app's documents directory.
@@ -19,15 +18,13 @@ struct UserProfile: Codable {
             .appendingPathComponent("profile.json")
     }
 
-    /// Loads the stored profile (or a fresh one) and stamps in the current
-    /// device ID, which can change when the app is reinstalled.
+    /// Loads the stored profile (or a fresh one) and stamps in the device ID,
+    /// a UUID kept in the Keychain so it survives reinstalls.
     static func load() -> UserProfile {
         var profile = (try? Data(contentsOf: fileURL))
             .flatMap { try? JSONDecoder().decode(UserProfile.self, from: $0) }
             ?? UserProfile()
-        if let vendorID = UIDevice.current.identifierForVendor?.uuidString {
-            profile.deviceID = vendorID
-        }
+        profile.deviceID = DeviceIdentifier.uuidString
         return profile
     }
 
