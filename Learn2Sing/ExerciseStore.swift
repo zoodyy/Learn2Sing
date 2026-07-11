@@ -218,6 +218,13 @@ final class ExerciseStore: ObservableObject {
         return routine
     }
 
+    /// Delete a routine. Its exercises are untouched — they only stop being
+    /// grouped by it.
+    func deleteRoutine(_ id: UUID) {
+        routines.removeAll { $0.id == id }
+        saveRoutines()
+    }
+
     /// Rename a routine. Refused only when the new name is empty after trimming.
     func renameRoutine(_ id: UUID, to newName: String) {
         guard !newName.isEmpty,

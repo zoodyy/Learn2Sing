@@ -17,6 +17,8 @@ struct ExerciseListRow: Equatable {
     /// aren't exercises (routines on the Home tab) can label it differently.
     var swipeActionTitle = "Settings"
     var swipeActionImage = "slider.horizontal.3"
+    /// true adds a trailing "Delete" swipe action (routines on the Home tab).
+    var showsDelete = false
     var id: UUID { exercise.id }
 }
 
@@ -50,6 +52,9 @@ struct ExerciseCollectionList: UIViewControllerRepresentable {
     var onSelectUploader: ((String) -> Void)? = nil
     /// nil hides the leading "Settings" swipe action (Community tab).
     var onSettings: ((UUID) -> Void)? = nil
+    /// Trailing "Delete" swipe on rows with `showsDelete`. Only asked to confirm —
+    /// the row stays until the store update comes back through `sections`.
+    var onDelete: ((UUID) -> Void)? = nil
     var onToggleCollapse: (String) -> Void = { _ in }
     var onHeaderLongPress: () -> Void = {}
     /// (exercise, newCategory, idOfExerciseItNowPrecedes — nil appends).
@@ -70,6 +75,7 @@ struct ExerciseCollectionList: UIViewControllerRepresentable {
         controller.onSelect = onSelect
         controller.onSelectUploader = onSelectUploader
         controller.onSettings = onSettings
+        controller.onDelete = onDelete
         controller.onToggleCollapse = onToggleCollapse
         controller.onHeaderLongPress = onHeaderLongPress
         controller.onMove = onMove
@@ -81,6 +87,7 @@ final class ExerciseListController: UIViewController {
     var onSelect: ((UUID) -> Void)?
     var onSelectUploader: ((String) -> Void)?
     var onSettings: ((UUID) -> Void)?
+    var onDelete: ((UUID) -> Void)?
     var onToggleCollapse: ((String) -> Void)?
     var onHeaderLongPress: (() -> Void)?
     var onMove: ((UUID, String, UUID?) -> Void)?
@@ -103,6 +110,9 @@ final class ExerciseListController: UIViewController {
             config.headerMode = self.sections[sectionIndex].category.isEmpty ? .none : .supplementary
             config.leadingSwipeActionsConfigurationProvider = { [weak self] indexPath in
                 self?.leadingSwipeActions(at: indexPath)
+            }
+            config.trailingSwipeActionsConfigurationProvider = { [weak self] indexPath in
+                self?.trailingSwipeActions(at: indexPath)
             }
             return NSCollectionLayoutSection.list(using: config, layoutEnvironment: environment)
         }
@@ -292,6 +302,22 @@ final class ExerciseListController: UIViewController {
         }
         action.image = UIImage(systemName: row.swipeActionImage)
         action.backgroundColor = .systemBlue
+        let config = UISwipeActionsConfiguration(actions: [action])
+        config.performsFirstActionWithFullSwipe = true
+        return config
+    }
+
+    private func trailingSwipeActions(at indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+        guard onDelete != nil,
+              let id = dataSource.itemIdentifier(for: indexPath),
+              rowsByID[id]?.showsDelete == true else { return nil }
+        let action = UIContextualAction(style: .destructive, title: "Delete") { [weak self] _, _, done in
+            self?.onDelete?(id)
+            // false, so the row isn't removed here: a confirmation alert follows,
+            // and the row only leaves once the store update flows back in.
+            done(false)
+        }
+        action.image = UIImage(systemName: "trash")
         let config = UISwipeActionsConfiguration(actions: [action])
         config.performsFirstActionWithFullSwipe = true
         return config

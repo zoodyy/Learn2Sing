@@ -10,7 +10,8 @@ import SwiftUI
 /// The Home tab: built-in categories over the user's library — "Recent" (the
 /// last five exercises that played through to the end) and "Routines" (the
 /// user's own ordered exercise lists, created via the + button; swipe right on
-/// one to edit it). The categories look and behave like the Exercises tab's
+/// one to edit it, swipe left to delete it after a confirmation). The
+/// categories look and behave like the Exercises tab's
 /// (tap to collapse, long-press to rearrange) but never show exercise counts,
 /// and the reorder screen has no add, delete, or rename — the categories are
 /// fixed.
@@ -28,6 +29,12 @@ struct HomeView: View {
     /// Drives the "name your new routine" alert opened from the + button.
     @State private var isNamingNewRoutine = false
     @State private var newRoutineName = ""
+
+    /// The routine a left swipe asked to delete, while its "really delete?"
+    /// confirmation is up. A copy, not a lookup, so the alert still shows the
+    /// name if the routine changes underneath it.
+    @State private var routinePendingDelete: Routine?
+    @State private var isConfirmingRoutineDelete = false
 
     /// Categories the user has collapsed. Their exercises are hidden; unlike the
     /// Exercises tab, no count appears in the header.
@@ -58,7 +65,8 @@ struct HomeView: View {
         var placeholder = Exercise(name: routine.name)
         placeholder.id = routine.id
         return ExerciseListRow(exercise: placeholder, pattern: [],
-                               swipeActionTitle: "Edit", swipeActionImage: "pencil")
+                               swipeActionTitle: "Edit", swipeActionImage: "pencil",
+                               showsDelete: true)
     }
 
     private func rows(in category: String) -> [ExerciseListRow] {
@@ -166,6 +174,11 @@ struct HomeView: View {
                         sections: listSections,
                         onSelect: { open($0, asExercise: .play($0)) },
                         onSettings: { open($0, asExercise: .settings($0)) },
+                        onDelete: { id in
+                            guard let routine = store.routines.first(where: { $0.id == id }) else { return }
+                            routinePendingDelete = routine
+                            isConfirmingRoutineDelete = true
+                        },
                         onToggleCollapse: { category in
                             if collapsedCategories.contains(category) {
                                 collapsedCategories.remove(category)
@@ -211,6 +224,15 @@ struct HomeView: View {
                 Button("Cancel", role: .cancel) {}
             } message: {
                 Text("Enter a name for the new routine.")
+            }
+            .alert("Delete Routine?", isPresented: $isConfirmingRoutineDelete,
+                   presenting: routinePendingDelete) { routine in
+                Button("Delete", role: .destructive) {
+                    store.deleteRoutine(routine.id)
+                }
+                Button("Cancel", role: .cancel) {}
+            } message: { routine in
+                Text("\"\(routine.name)\" will be deleted. Its exercises stay in your library. This cannot be undone.")
             }
             .navigationDestination(for: ExerciseRoute.self) { route in
                 switch route {

@@ -791,6 +791,64 @@ final class Learn2SingUITests: XCTestCase {
                       "the routine's exercise should survive a relaunch")
     }
 
+    /// Swiping left on a routine reveals a Delete action that asks for
+    /// confirmation first: Cancel keeps the routine, Delete removes it — and it
+    /// stays gone after a relaunch.
+    func testHomeRoutineSwipeDelete() throws {
+        let app = XCUIApplication()
+        app.launch()
+        XCTAssertTrue(app.navigationBars["Home"].waitForExistence(timeout: 5))
+        sleep(2)
+
+        // Create a routine to delete. UserDefaults persist between runs, so the
+        // name is unique per run.
+        let routineName = "Doomed \(Int(Date().timeIntervalSince1970))"
+        app.navigationBars["Home"].buttons["Add"].firstMatch.tap()
+        let nameAlert = app.alerts["New Routine"]
+        XCTAssertTrue(nameAlert.waitForExistence(timeout: 3))
+        nameAlert.textFields.firstMatch.tap()
+        nameAlert.textFields.firstMatch.typeText(routineName)
+        nameAlert.buttons["Create"].tap()
+        XCTAssertTrue(cell(app, named: routineName).waitForExistence(timeout: 3))
+
+        // Swipe left reveals Delete, which asks for confirmation.
+        cell(app, named: routineName).swipeLeft()
+        let deleteAction = app.collectionViews.buttons["Delete"].firstMatch
+        XCTAssertTrue(deleteAction.waitForExistence(timeout: 3),
+                      "swiping left on a routine should reveal a Delete action")
+        saveScreenshot("routine-swipe-delete")
+        deleteAction.tap()
+        var confirm = app.alerts["Delete Routine?"]
+        XCTAssertTrue(confirm.waitForExistence(timeout: 3),
+                      "Delete should ask for confirmation before deleting")
+        saveScreenshot("routine-delete-confirm")
+
+        // Cancel keeps the routine.
+        confirm.buttons["Cancel"].tap()
+        sleep(1)
+        XCTAssertTrue(cell(app, named: routineName).exists,
+                      "Cancel must not delete the routine")
+
+        // Delete removes it.
+        cell(app, named: routineName).swipeLeft()
+        XCTAssertTrue(deleteAction.waitForExistence(timeout: 3))
+        deleteAction.tap()
+        confirm = app.alerts["Delete Routine?"]
+        XCTAssertTrue(confirm.waitForExistence(timeout: 3))
+        confirm.buttons["Delete"].tap()
+        sleep(1)
+        XCTAssertFalse(cell(app, named: routineName).exists,
+                       "confirming Delete should remove the routine")
+
+        // And it stays gone after a relaunch.
+        app.terminate()
+        app.launch()
+        XCTAssertTrue(app.navigationBars["Home"].waitForExistence(timeout: 5))
+        sleep(2)
+        XCTAssertFalse(cell(app, named: routineName).exists,
+                       "the deleted routine must not come back after a relaunch")
+    }
+
     /// Tapping a routine plays its exercises in order: each one's intro screen,
     /// its playback, then the score screen — whose button reads "Next" and moves
     /// on to the following exercise's intro, until the last one's reads "Exit"
