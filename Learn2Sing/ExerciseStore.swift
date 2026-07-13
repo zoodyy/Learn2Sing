@@ -361,10 +361,10 @@ final class ExerciseStore: ObservableObject {
 
     // MARK: - Export / Import
 
-    /// Encodes every exercise (with all its settings) and its MIDI pattern into one file.
-    /// Exercises are written in the order they appear in the list: grouped by
+    /// Snapshots every exercise (with all its settings) and its MIDI pattern.
+    /// Exercises are listed in the order they appear in the list: grouped by
     /// category (in the user's category order), with uncategorized ones last.
-    func exportData() -> Data? {
+    func exportBundle() -> ExerciseBundle {
         var ordered: [Exercise] = []
         for category in categories {
             ordered.append(contentsOf: exercises.filter { $0.category == category })
@@ -377,11 +377,15 @@ final class ExerciseStore: ObservableObject {
             let t = self.texts(for: exercise.id)
             if !t.isEmpty { texts[exercise.id.uuidString] = t }
         }
-        let bundle = ExerciseBundle(exercises: ordered, categories: categories, midi: midi,
-                                    texts: texts.isEmpty ? nil : texts)
+        return ExerciseBundle(exercises: ordered, categories: categories, midi: midi,
+                              texts: texts.isEmpty ? nil : texts)
+    }
+
+    /// `exportBundle()` encoded as a standalone JSON file.
+    func exportData() -> Data? {
         let encoder = JSONEncoder()
         encoder.outputFormatting = [.prettyPrinted]
-        return try? encoder.encode(bundle)
+        return try? encoder.encode(exportBundle())
     }
 
     /// Merges the exercises in `data` into the library (by id: existing ones are
@@ -391,6 +395,12 @@ final class ExerciseStore: ObservableObject {
         guard let bundle = try? JSONDecoder().decode(ExerciseBundle.self, from: data) else {
             return false
         }
+        importBundle(bundle)
+        return true
+    }
+
+    /// Merges an already-decoded bundle into the library (same rules as `importData`).
+    func importBundle(_ bundle: ExerciseBundle) {
         for var exercise in bundle.exercises {
             // Bundles written before the "No Category" group existed use "".
             if exercise.category.isEmpty { exercise.category = Self.noCategoryName }
@@ -413,7 +423,6 @@ final class ExerciseStore: ObservableObject {
             addCategory(category)
         }
         save()
-        return true
     }
 }
 

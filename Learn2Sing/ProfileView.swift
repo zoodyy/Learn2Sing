@@ -9,9 +9,14 @@ import SwiftUI
 import UniformTypeIdentifiers
 
 /// The user's profile, persisted as JSON in the app's documents directory.
+/// The same JSON (with the exercise library embedded) is what ProfileSync
+/// uploads to and restores from the server.
 struct UserProfile: Codable {
     var username: String = ""
     var deviceID: String = ""
+    /// Snapshot of the Exercises tab (exercises, categories, MIDI patterns,
+    /// text labels). Optional so profiles written before sync existed decode.
+    var exercises: ExerciseBundle? = nil
 
     static var fileURL: URL {
         FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
@@ -50,7 +55,16 @@ struct ProfileFile: Transferable {
 }
 
 struct ProfileView: View {
+    @EnvironmentObject private var store: ExerciseStore
     @State private var profile = UserProfile.load()
+
+    /// The full profile as uploaded/shared: the stored fields plus a fresh
+    /// snapshot of the exercise library.
+    private var fullProfile: UserProfile {
+        var full = profile
+        full.exercises = store.exportBundle()
+        return full
+    }
 
     var body: some View {
         Form {
@@ -69,7 +83,7 @@ struct ProfileView: View {
 
             Section {
                 ShareLink(
-                    item: ProfileFile(data: profile.jsonData() ?? Data()),
+                    item: ProfileFile(data: fullProfile.jsonData() ?? Data()),
                     preview: SharePreview("Learn2Sing Profile")
                 ) {
                     Label("Download Profile", systemImage: "square.and.arrow.up")
@@ -82,6 +96,9 @@ struct ProfileView: View {
         .navigationBarTitleDisplayMode(.inline)
         .stableTopEdgeFade()
         .onAppear { profile.save() }
-        .onChange(of: profile.username) { profile.save() }
+        .onChange(of: profile.username) {
+            profile.save()
+            ProfileSync.shared.scheduleUpload()
+        }
     }
 }

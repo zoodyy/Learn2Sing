@@ -15,6 +15,9 @@ struct Learn2SingApp: App {
             ContentView()
                 .environmentObject(store)
                 .environmentObject(visualTemplates)
+                // Restore the profile from the server on a fresh install, then
+                // keep the server copy in sync as the user edits.
+                .task { await ProfileSync.shared.start(with: store) }
         }
     }
 }
