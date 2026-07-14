@@ -749,7 +749,15 @@ struct PlaybackView: View {
             } else if let finalScore {
                 ScoreView(score: finalScore,
                           history: ScoreHistory.entries(for: exercise.id),
-                          exitTitle: scoreExitTitle) {
+                          exitTitle: scoreExitTitle,
+                          onPlayAgain: {
+                              // Drop the previous run's trail/indicator so no ghost line
+                              // shows up; clearing the score remounts `playback`, whose
+                              // onAppear restarts audio and scoring from scratch.
+                              trail = PitchTrail()
+                              indicator = SingerIndicator()
+                              self.finalScore = nil
+                          }) {
                     if let onScoreExit { onScoreExit() } else { dismiss() }
                 }
             } else {
@@ -1111,13 +1119,15 @@ struct PlaybackView: View {
 // MARK: - ScoreView
 
 /// Shown after an exercise finishes: the score with a chart of this exercise's
-/// past scores, and a single button to leave. Tinted from red (low) through to
-/// green (high) so the result reads at a glance. In landscape the score sits
-/// beside the chart instead of above it so everything stays on screen.
+/// past scores, plus buttons to replay the exercise or leave. Tinted from red
+/// (low) through to green (high) so the result reads at a glance. In landscape
+/// the score sits beside the chart instead of above it so everything stays on
+/// screen.
 private struct ScoreView: View {
     let score: Int
     let history: [ScoreEntry]
     var exitTitle = "Exit"
+    let onPlayAgain: () -> Void
     let onExit: () -> Void
 
     @Environment(\.verticalSizeClass) private var verticalSizeClass
@@ -1161,13 +1171,24 @@ private struct ScoreView: View {
                 Spacer()
             }
 
-            Button(action: onExit) {
-                Text(exitTitle)
-                    .font(.headline)
-                    .frame(maxWidth: .infinity)
-                    .padding()
-                    .background(tint.opacity(0.25), in: RoundedRectangle(cornerRadius: 14))
-                    .foregroundStyle(.white)
+            HStack(spacing: 12) {
+                Button(action: onPlayAgain) {
+                    Text("Play Again")
+                        .font(.headline)
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(tint.opacity(0.25), in: RoundedRectangle(cornerRadius: 14))
+                        .foregroundStyle(.white)
+                }
+
+                Button(action: onExit) {
+                    Text(exitTitle)
+                        .font(.headline)
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(tint.opacity(0.25), in: RoundedRectangle(cornerRadius: 14))
+                        .foregroundStyle(.white)
+                }
             }
             .padding(.horizontal, 40)
             .padding(.bottom, verticalSizeClass == .compact ? 16 : 50)
