@@ -698,6 +698,9 @@ struct PlaybackView: View {
     /// What the score screen's exit button does instead of popping this screen
     /// (routines advance to the next exercise). nil keeps the default dismiss.
     var onScoreExit: (() -> Void)? = nil
+    /// When set (playing from the Community tab), the score screen shows a Download
+    /// button — same as the intro screen's — copying the exercise into the library.
+    var onScoreDownload: (() -> Void)? = nil
 
     @State private var player = ExercisePlayer()
     @StateObject private var pitchDetector = PitchDetector()
@@ -750,6 +753,7 @@ struct PlaybackView: View {
                 ScoreView(score: finalScore,
                           history: ScoreHistory.entries(for: exercise.id),
                           exitTitle: scoreExitTitle,
+                          onDownload: onScoreDownload,
                           onPlayAgain: {
                               // Drop the previous run's trail/indicator so no ghost line
                               // shows up; clearing the score remounts `playback`, whose
@@ -1127,10 +1131,16 @@ private struct ScoreView: View {
     let score: Int
     let history: [ScoreEntry]
     var exitTitle = "Exit"
+    /// When set (playing from the Community tab), a Download button appears above
+    /// the Play Again/Exit row, copying the exercise into the user's own library.
+    var onDownload: (() -> Void)? = nil
     let onPlayAgain: () -> Void
     let onExit: () -> Void
 
     @Environment(\.verticalSizeClass) private var verticalSizeClass
+
+    /// Flips after a download so the button confirms instead of copying again.
+    @State private var isDownloaded = false
 
     private var tint: Color {
         Color(hue: Double(score) / 100.0 * 0.33, saturation: 0.85, brightness: 0.95)
@@ -1169,6 +1179,23 @@ private struct ScoreView: View {
                     .padding(.horizontal, 24)
                     .padding(.top, 16)
                 Spacer()
+            }
+
+            if let onDownload {
+                Button {
+                    onDownload()
+                    withAnimation { isDownloaded = true }
+                } label: {
+                    Label(isDownloaded ? "Added to Exercises" : "Download",
+                          systemImage: isDownloaded ? "checkmark" : "arrow.down.circle")
+                        .font(.headline)
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(.tint.opacity(0.15), in: RoundedRectangle(cornerRadius: 14))
+                        .foregroundStyle(.tint)
+                }
+                .disabled(isDownloaded)
+                .padding(.horizontal, 40)
             }
 
             HStack(spacing: 12) {

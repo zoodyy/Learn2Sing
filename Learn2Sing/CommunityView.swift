@@ -86,7 +86,8 @@ struct CommunityView: View {
                         // Pop the intro screen along with playback so Exit lands back
                         // where the exercise was tapped (the list or a user profile).
                         PlaybackView(exercise: ex,
-                                     onScoreExit: { navigationPath.removeLast(2) })
+                                     onScoreExit: { navigationPath.removeLast(2) },
+                                     onScoreDownload: { store.downloadCopy(of: ex) })
                     }
                 case .user(let username):
                     CommunityUserProfileView(username: username) {
