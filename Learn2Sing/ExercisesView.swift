@@ -372,7 +372,10 @@ struct ExercisesView: View {
                     }
                 case .playback(let id):
                     if let ex = store.exercises.first(where: { $0.id == id }) {
-                        PlaybackView(exercise: ex)
+                        // Pop the intro screen along with playback so Exit lands back
+                        // on the list the exercise was tapped from.
+                        PlaybackView(exercise: ex,
+                                     onScoreExit: { navigationPath.removeLast(2) })
                     }
                 case .settings(let id):
                     if store.exercises.contains(where: { $0.id == id }) {
