@@ -43,6 +43,38 @@ final class ExerciseStore: ObservableObject {
         loadRoutines()
         importBundledIfNeeded()
         adoptNoCategory()
+        enforceBundledPrivacy()
+    }
+
+    // MARK: - Bundled exercises
+
+    /// Ids of the exercises shipped in the app bundle. The JSON carries fixed
+    /// UUIDs, so these are identical on every install and survive renames.
+    static let bundledExerciseIDs: Set<UUID> = {
+        guard let url = Bundle.main.url(forResource: "BundledExercises", withExtension: "json"),
+              let data = try? Data(contentsOf: url),
+              let bundle = try? JSONDecoder().decode(ExerciseBundle.self, from: data)
+        else { return [] }
+        return Set(bundle.exercises.map(\.id))
+    }()
+
+    /// Bundled exercises can't be shared: their settings show no visibility
+    /// picker (a copy made via Download can be shared — it gets a fresh id).
+    func isBundled(_ id: UUID) -> Bool {
+        Self.bundledExerciseIDs.contains(id)
+    }
+
+    /// Older versions allowed publishing bundled exercises, so stored data and
+    /// imports may still carry .public on them — put those back to private.
+    private func enforceBundledPrivacy() {
+        var changed = false
+        for i in exercises.indices where exercises[i].visibility == .public
+            && Self.bundledExerciseIDs.contains(exercises[i].id) {
+            exercises[i].visibility = .private
+            exercises[i].uploaderName = ""
+            changed = true
+        }
+        if changed { save() }
     }
 
     /// Make sure the "No Category" group exists and owns every exercise without a
@@ -425,6 +457,7 @@ final class ExerciseStore: ObservableObject {
             addCategory(category)
         }
         save()
+        enforceBundledPrivacy()
     }
 }
 

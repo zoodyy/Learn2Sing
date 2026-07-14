@@ -132,16 +132,20 @@ struct ExerciseSettingsView: View {
                 }
             }
 
-            Section {
-                Picker("Visibility", selection: $exercise.visibility) {
-                    ForEach(ExerciseVisibility.allCases, id: \.self) { visibility in
-                        Text(visibility.label).tag(visibility)
+            // Bundled exercises can't be shared, so they get no visibility
+            // setting at all.
+            if !store.isBundled(exercise.id) {
+                Section {
+                    Picker("Visibility", selection: $exercise.visibility) {
+                        ForEach(ExerciseVisibility.allCases, id: \.self) { visibility in
+                            Text(visibility.label).tag(visibility)
+                        }
                     }
+                } header: {
+                    Text("Visibility")
+                } footer: {
+                    Text("Public exercises appear on the Community tab.")
                 }
-            } header: {
-                Text("Visibility")
-            } footer: {
-                Text("Public exercises appear on the Community tab.")
             }
 
             Section {
