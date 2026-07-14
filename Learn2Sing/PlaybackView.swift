@@ -714,6 +714,9 @@ struct PlaybackView: View {
     @State private var delayResultMs: Double? = nil
     @State private var visuals = VisualSettings.current
     @State private var follower = VerticalFollower()
+    /// Set while the user has playback paused via the toolbar button. Freezes the
+    /// TimelineView (so the canvas holds its last frame) alongside the audio.
+    @State private var isPaused = false
     // Vertical centre of each repetition's pitch range, plus one repetition's length
     // in beats — used by "follow notes vertically" to recentre once per repetition.
     @State private var repetitionCenters: [Double] = []
@@ -778,7 +781,7 @@ struct PlaybackView: View {
         // title/back bar and bottom menu, while the Canvas inside ignores the safe area
         // and draws full-screen — so the insets tell drawScene where those bars sit.
         GeometryReader { geo in
-            TimelineView(.animation) { _ in
+            TimelineView(.animation(minimumInterval: nil, paused: isPaused)) { _ in
                 // Drive the playhead from the audio engine's own output clock so the
                 // notes light up exactly when they're heard.
                 let beat = player.currentBeat(bpm: bpm, leadIn: leadIn) ?? -leadIn
@@ -796,7 +799,21 @@ struct PlaybackView: View {
         .background(Color.black.ignoresSafeArea())
         .navigationTitle(exercise.name)
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            // No pause during the delay test: re-anchoring the clock mid-test would
+            // corrupt the beat positions of claps captured before the pause.
+            if mode == .normal {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button {
+                        togglePause()
+                    } label: {
+                        Image(systemName: isPaused ? "play.fill" : "pause.fill")
+                    }
+                }
+            }
+        }
         .onAppear {
+            isPaused = false
             // Order matters: configure the route first, load the notes, start the
             // engine on that settled route, and only then schedule (which anchors the
             // playback clock). This keeps audio and the animation in sync and stops
@@ -864,6 +881,7 @@ struct PlaybackView: View {
             guard finalScore == nil, delayResultMs == nil else { return }   // nothing to sync on a result screen
             switch phase {
             case .active:
+                guard !isPaused else { break }   // stay paused if the user paused before leaving
                 AudioRouteManager.shared.configureSession()
                 player.resumeFromBackground()
                 pitchDetector.start()
@@ -965,6 +983,22 @@ struct PlaybackView: View {
     /// Stop both audio engines and release the session. Idempotent — the engines'
     /// own guards make the second call (finish, then onDisappear) a no-op — so it's
     /// safe to call from the finish callback and again when the view goes away.
+    /// Pause/resume from the toolbar button, reusing the backgrounding path: the
+    /// engine keeps its playhead while paused, and resuming re-anchors the on-screen
+    /// clock to it so audio and animation stay in sync across the gap.
+    private func togglePause() {
+        if isPaused {
+            AudioRouteManager.shared.configureSession()
+            player.resumeFromBackground()
+            pitchDetector.start()
+            isPaused = false
+        } else {
+            player.pauseForBackground()
+            pitchDetector.stop()
+            isPaused = true
+        }
+    }
+
     private func teardownAudio() {
         player.stop()
         pitchDetector.stop()
