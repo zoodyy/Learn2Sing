@@ -192,6 +192,11 @@ final class ExercisePlayer {
         guard shouldRun else { return }
         os_unfair_lock_lock(&lock)
         needsStartCapture = true   // next render re-anchors startHostTime to the playhead
+        // Until that render happens the old anchor is stale (it would include all the
+        // paused wall-clock time and read far ahead), so report "no clock" instead —
+        // currentBeat returns nil and the view holds its last frame rather than
+        // flicking every note to the left for a frame.
+        startCaptured = false
         os_unfair_lock_unlock(&lock)
         if !engine.isRunning {
             engine.prepare()
@@ -689,6 +694,16 @@ private final class ClapCollector {
     func reset() { beats.removeAll() }
 }
 
+/// The beat drawn on the previous frame. While the playback clock is unanchored —
+/// right after a pause is resumed, until the engine's next render pass recaptures
+/// the start time — the view draws this instead of a stale or restarted beat, so
+/// the notes hold still rather than flicker. A class (reference type) so the
+/// per-frame draw pass can update it without mutating SwiftUI `@State` during a
+/// view update.
+private final class LastDrawnBeat {
+    var value: Double? = nil
+}
+
 struct PlaybackView: View {
     let exercise: Exercise
     var mode: PlaybackMode = .normal
@@ -717,6 +732,7 @@ struct PlaybackView: View {
     /// Set while the user has playback paused via the toolbar button. Freezes the
     /// TimelineView (so the canvas holds its last frame) alongside the audio.
     @State private var isPaused = false
+    @State private var lastDrawnBeat = LastDrawnBeat()
     // Vertical centre of each repetition's pitch range, plus one repetition's length
     // in beats — used by "follow notes vertically" to recentre once per repetition.
     @State private var repetitionCenters: [Double] = []
@@ -783,13 +799,17 @@ struct PlaybackView: View {
         GeometryReader { geo in
             TimelineView(.animation(minimumInterval: nil, paused: isPaused)) { _ in
                 // Drive the playhead from the audio engine's own output clock so the
-                // notes light up exactly when they're heard.
-                let beat = player.currentBeat(bpm: bpm, leadIn: leadIn) ?? -leadIn
+                // notes light up exactly when they're heard. While the clock is
+                // unanchored (before the first render, or right after resuming from a
+                // pause) hold the previously drawn beat so nothing jumps.
+                let beat = player.currentBeat(bpm: bpm, leadIn: leadIn)
+                    ?? lastDrawnBeat.value ?? -leadIn
 
                 // Ease the indicator toward the latest estimate every frame.
                 let singerPitch = indicator.step(target: pitchDetector.currentPitch, factor: 0.3)
 
                 Canvas { ctx, size in
+                    lastDrawnBeat.value = beat
                     drawScene(ctx: ctx, size: size, beat: beat, singerPitch: singerPitch,
                               safeTop: geo.safeAreaInsets.top, safeBottom: geo.safeAreaInsets.bottom)
                 }
@@ -814,6 +834,9 @@ struct PlaybackView: View {
         }
         .onAppear {
             isPaused = false
+            // A new run's clock is unanchored until its first render pass; start from
+            // the lead-in again rather than holding the previous run's final beat.
+            lastDrawnBeat.value = nil
             // Order matters: configure the route first, load the notes, start the
             // engine on that settled route, and only then schedule (which anchors the
             // playback clock). This keeps audio and the animation in sync and stops
