@@ -50,6 +50,9 @@ struct ExerciseCollectionList: UIViewControllerRepresentable {
     var onSelect: (UUID) -> Void
     /// Tap on a row's grey uploader name (Community tab). nil leaves the name inert.
     var onSelectUploader: ((String) -> Void)? = nil
+    /// Pull-to-refresh handler (Community tab); the spinner stays until it
+    /// returns. nil (the other tabs) installs no refresh control at all.
+    var onRefresh: (() async -> Void)? = nil
     /// nil hides the leading "Settings" swipe action (Community tab).
     var onSettings: ((UUID) -> Void)? = nil
     /// Trailing "Delete" swipe on rows with `showsDelete`. Only asked to confirm —
@@ -74,6 +77,7 @@ struct ExerciseCollectionList: UIViewControllerRepresentable {
     private func apply(to controller: ExerciseListController) {
         controller.onSelect = onSelect
         controller.onSelectUploader = onSelectUploader
+        controller.onRefresh = onRefresh
         controller.onSettings = onSettings
         controller.onDelete = onDelete
         controller.onToggleCollapse = onToggleCollapse
@@ -86,6 +90,7 @@ struct ExerciseCollectionList: UIViewControllerRepresentable {
 final class ExerciseListController: UIViewController {
     var onSelect: ((UUID) -> Void)?
     var onSelectUploader: ((String) -> Void)?
+    var onRefresh: (() async -> Void)?
     var onSettings: ((UUID) -> Void)?
     var onDelete: ((UUID) -> Void)?
     var onToggleCollapse: ((String) -> Void)?
@@ -130,6 +135,13 @@ final class ExerciseListController: UIViewController {
         cv.dragDelegate = self
         cv.dropDelegate = self
         cv.dragInteractionEnabled = true
+        // onRefresh is assigned before the view loads (apply() runs inside
+        // makeUIViewController), so its presence is known here.
+        if onRefresh != nil {
+            let control = UIRefreshControl()
+            control.addTarget(self, action: #selector(refreshPulled(_:)), for: .valueChanged)
+            cv.refreshControl = control
+        }
         // The system top edge effect is replaced by stableTopEdgeFade() in the
         // hosting SwiftUI view (see TopEdgeFade.swift for the why).
         cv.topEdgeEffect.isHidden = true
@@ -211,6 +223,13 @@ final class ExerciseListController: UIViewController {
     }
 
     // MARK: - Data
+
+    @objc private func refreshPulled(_ control: UIRefreshControl) {
+        Task { @MainActor in
+            await onRefresh?()
+            control.endRefreshing()
+        }
+    }
 
     func setSections(_ new: [ExerciseListSection], animated: Bool) {
         guard new != sections else { return }

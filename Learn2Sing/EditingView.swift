@@ -688,6 +688,7 @@ struct EditingView: View {
     private func saveNotes() {
         guard let data = try? JSONEncoder().encode(notes) else { return }
         UserDefaults.standard.set(data, forKey: saveKey)
+        scheduleServerSync()
     }
 
     private func loadNotes() {
@@ -700,6 +701,16 @@ struct EditingView: View {
     private func saveTexts() {
         guard let data = try? JSONEncoder().encode(texts) else { return }
         UserDefaults.standard.set(data, forKey: textSaveKey)
+        scheduleServerSync()
+    }
+
+    /// Pattern edits write to UserDefaults directly, bypassing the store the
+    /// server syncs observe — so kick them explicitly. Keeps a public exercise's
+    /// server copy current without toggling its visibility.
+    private func scheduleServerSync() {
+        guard exercise != nil else { return }
+        ProfileSync.shared.scheduleUpload()
+        CommunitySync.shared.scheduleUpload()
     }
 
     private func loadTexts() {

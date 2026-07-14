@@ -561,15 +561,9 @@ final class Learn2SingUITests: XCTestCase {
                        "Community rows must not reveal a Settings swipe action")
     }
 
-    /// An exercise another device shared on the server appears on the Community
-    /// tab. The test plays the other device: it POSTs a SHARED_EXERCISE document
-    /// (fixed fake device id, per-run exercise name) straight to the server, then
-    /// launches the app and looks for the exercise. Each run replaces the previous
-    /// run's document, so test data never accumulates on the server.
-    func testCommunityShowsServerExercises() throws {
-        let deviceID = "eeeeeeee-5555-4666-8777-888888888888"
-        let exerciseID = UUID().uuidString
-        let name = "Server Test \(Int(Date().timeIntervalSince1970))"
+    /// POST a one-exercise SHARED_EXERCISE document to the server as the fake
+    /// device `deviceID`, waiting until the server accepted it.
+    private func postSharedExercise(deviceID: String, exerciseID: String, name: String) {
         let doc = """
         {"deviceID":"\(deviceID)","exercises":[{"id":"\(exerciseID)","name":"\(name)",\
         "details":"","category":"No Category","pitchShift":0,"bpm":120,"repeatCount":1,\
@@ -589,6 +583,17 @@ final class Learn2SingUITests: XCTestCase {
             posted.fulfill()
         }.resume()
         wait(for: [posted], timeout: 15)
+    }
+
+    /// An exercise another device shared on the server appears on the Community
+    /// tab. The test plays the other device: it POSTs a SHARED_EXERCISE document
+    /// (fixed fake device id, per-run exercise name) straight to the server, then
+    /// launches the app and looks for the exercise. Each run replaces the previous
+    /// run's document, so test data never accumulates on the server.
+    func testCommunityShowsServerExercises() throws {
+        let name = "Server Test \(Int(Date().timeIntervalSince1970))"
+        postSharedExercise(deviceID: "eeeeeeee-5555-4666-8777-888888888888",
+                           exerciseID: UUID().uuidString, name: name)
 
         let app = XCUIApplication()
         app.launch()
@@ -603,6 +608,139 @@ final class Learn2SingUITests: XCTestCase {
         XCTAssertTrue(row.waitForExistence(timeout: 15),
                       "server-shared exercise \(name) not listed on Community tab")
         saveScreenshot("community-server")
+    }
+
+    /// Pulling the Community list down refetches from the server: a document
+    /// replaced on the server WHILE the tab is open appears after the pull.
+    func testCommunityPullToRefresh() throws {
+        let deviceID = "eeeeeeee-5555-4666-8777-888888888888"
+        let exerciseID = UUID().uuidString
+        let stamp = Int(Date().timeIntervalSince1970)
+        let oldName = "Refresh Before \(stamp)"
+        let newName = "Refresh After \(stamp)"
+        postSharedExercise(deviceID: deviceID, exerciseID: exerciseID, name: oldName)
+
+        let app = XCUIApplication()
+        app.launch()
+        let tab = app.buttons["Community"]
+        XCTAssertTrue(tab.waitForExistence(timeout: 5), "Community tab not found")
+        tab.tap()
+        XCTAssertTrue(app.navigationBars["Community"].waitForExistence(timeout: 5))
+        let oldRow = app.cells.containing(.staticText, identifier: oldName).firstMatch
+        XCTAssertTrue(oldRow.waitForExistence(timeout: 15),
+                      "\(oldName) should be listed after the tab's own fetch")
+
+        // Replace the document on the server while the tab stays open, then
+        // pull the list down. A slow synthetic drag from the top row downward
+        // triggers the UIRefreshControl.
+        postSharedExercise(deviceID: deviceID, exerciseID: exerciseID, name: newName)
+        let newRow = app.cells.containing(.staticText, identifier: newName).firstMatch
+        for _ in 0..<3 where !newRow.exists {
+            let from = app.cells.firstMatch.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5))
+            let to = from.withOffset(CGVector(dx: 0, dy: 400))
+            from.press(forDuration: 0.1, thenDragTo: to, withVelocity: .slow, thenHoldForDuration: 0.3)
+            sleep(3)
+        }
+        XCTAssertTrue(newRow.waitForExistence(timeout: 5),
+                      "pull-to-refresh should fetch the replaced document (\(newName))")
+        XCTAssertFalse(app.cells.containing(.staticText, identifier: oldName).firstMatch.exists,
+                       "the stale \(oldName) row should be gone after the refresh")
+        saveScreenshot("community-refreshed")
+    }
+
+    /// Editing a public exercise's MIDI pattern updates the server document
+    /// automatically — no private/public toggle needed. Reads this device's id
+    /// off the Profile screen, snapshots its SHARED_EXERCISE record, draws one
+    /// note in the editor of the record's first exercise, and waits for the
+    /// record to change. Skipped when the device has nothing shared yet.
+    func testEditingPublicExerciseUpdatesServer() throws {
+        // The device id (shown in Settings → Profile) keys the server record.
+        var app = XCUIApplication()
+        app.launch()
+        app.buttons["Settings"].firstMatch.tap()
+        let profileRow = app.buttons["Profile"].firstMatch
+        XCTAssertTrue(profileRow.waitForExistence(timeout: 5), "Profile row not found")
+        profileRow.tap()
+        XCTAssertTrue(app.staticTexts["Device ID"].waitForExistence(timeout: 3))
+        // The id may share its accessibility label with the "Device ID" title,
+        // so search every label for a uuid-shaped substring.
+        let uuidPattern = /[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12}/
+        guard let deviceID = app.staticTexts.allElementsBoundByIndex
+            .compactMap({ $0.label.firstMatch(of: uuidPattern).map { String($0.output) } })
+            .first else {
+            XCTFail("no uuid-shaped label on the Profile screen"); return
+        }
+
+        /// This device's record document, straight from the public fetch.
+        func fetchRecord() -> String? {
+            var result: String?
+            let done = expectation(description: "fetched shared records")
+            let url = URL(string:
+                "https://echolex.api.phrase-by-phrase.com/api/v1/learn2Sing/fetch-public/SHARED_EXERCISE")!
+            URLSession.shared.dataTask(with: url) { data, _, _ in
+                defer { done.fulfill() }
+                guard let data,
+                      let records = try? JSONSerialization.jsonObject(with: data) as? [[String: Any]]
+                else { return }
+                result = records.first {
+                    ($0["entityId"] as? String)?.caseInsensitiveCompare(deviceID) == .orderedSame
+                }?["jsonData"] as? String
+            }.resume()
+            wait(for: [done], timeout: 15)
+            return result
+        }
+
+        guard let before = fetchRecord(),
+              let doc = try? JSONSerialization.jsonObject(with: Data(before.utf8)) as? [String: Any],
+              let exercises = doc["exercises"] as? [[String: Any]],
+              let name = exercises.first?["name"] as? String else {
+            throw XCTSkip("this device has no shared exercises; publish one first")
+        }
+
+        // Into the shared exercise's MIDI editor.
+        app = relaunchToExercises(app)
+        sleep(2)
+        let row = cell(app, named: name)
+        guard row.exists, row.isHittable else {
+            throw XCTSkip("shared exercise \(name) not visible in the list")
+        }
+        row.swipeRight()
+        let settings = app.collectionViews.buttons["Settings"].firstMatch
+        XCTAssertTrue(settings.waitForExistence(timeout: 3), "leading swipe should reveal Settings")
+        settings.tap()
+        XCTAssertTrue(app.navigationBars[name].waitForExistence(timeout: 3))
+        sleep(1)
+        var editMIDI = app.buttons["Edit MIDI"].firstMatch
+        for _ in 0..<6 where !editMIDI.exists {
+            app.swipeUp()
+            usleep(500_000)
+            editMIDI = app.buttons["Edit MIDI"].firstMatch
+        }
+        XCTAssertTrue(editMIDI.waitForExistence(timeout: 3), "settings should offer Edit MIDI")
+        editMIDI.tap()
+        XCTAssertTrue(app.buttons["Play"].firstMatch.waitForExistence(timeout: 3),
+                      "editor did not open")
+        sleep(1)
+
+        // Draw with the pen (the default tool): a tap on an empty grid spot
+        // creates a note, which saves and schedules the upload. Poll the server
+        // for the changed record; try a second spot in case the first tap
+        // landed on an existing note (which is a no-op).
+        func recordChanged() -> Bool {
+            for _ in 0..<8 {
+                sleep(3)
+                if let now = fetchRecord(), now != before { return true }
+            }
+            return false
+        }
+        app.windows.firstMatch.coordinate(withNormalizedOffset: CGVector(dx: 0.8, dy: 0.75)).tap()
+        var changed = recordChanged()
+        if !changed {
+            app.windows.firstMatch.coordinate(withNormalizedOffset: CGVector(dx: 0.55, dy: 0.6)).tap()
+            changed = recordChanged()
+        }
+        XCTAssertTrue(changed,
+                      "drawing a note in a public exercise should update the server record")
     }
 
     /// Tapping the grey uploader name on a Community row opens that uploader's

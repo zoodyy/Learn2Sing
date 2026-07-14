@@ -19,8 +19,10 @@ struct SharedExercisesDoc: Codable {
 /// Connects the Community tab to the server. Each device persists a single
 /// SHARED_EXERCISE document holding its public exercises (re-uploaded whenever
 /// the library changes, so making an exercise private removes it for everyone),
-/// and the tab lists the documents of every other device via the public fetch
-/// endpoint. Fetched patterns are cached under the standard `midi_<uuid>` /
+/// and the tab lists every device's document — including this one's — via the
+/// public fetch endpoint. The list itself is never persisted: it holds exactly
+/// what the server returned this session, so every user's Community tab looks
+/// the same. Fetched patterns are cached under the standard `midi_<uuid>` /
 /// `miditext_<uuid>` UserDefaults keys, so thumbnails, playback, and Download
 /// treat community exercises exactly like local ones.
 @MainActor
@@ -28,17 +30,15 @@ final class CommunitySync: ObservableObject {
     static let shared = CommunitySync()
 
     private static let baseURL = "https://echolex.api.phrase-by-phrase.com/api/v1/learn2Sing"
-    /// The last fetched community list, kept so the tab has content offline
-    /// and immediately at launch.
-    private static let cachedListKey = "communityExercises"
     /// UUID strings whose midi/miditext keys were written by a fetch, so a later
     /// fetch can clean up patterns of exercises that left the community list.
     private static let cachedPatternIDsKey = "communityPatternIDs"
 
-    /// Other users' public exercises, in the order the server returns them.
-    /// The user's own public exercises are not in here — the Community tab
-    /// shows the local copies, which are never stale.
+    /// Every device's public exercises as last fetched, in the order the server
+    /// returns them. Empty until the first fetch of the session succeeds.
     @Published private(set) var exercises: [Exercise] = []
+    /// true while a fetch is on the wire; drives the tab's initial spinner.
+    @Published private(set) var isFetching = false
 
     private weak var store: ExerciseStore?
     private var storeObservation: AnyCancellable?
@@ -50,7 +50,8 @@ final class CommunitySync: ObservableObject {
     private var lastUploadedBody: Data?
 
     private init() {
-        loadCachedList()
+        // An earlier version persisted the fetched list under this key.
+        UserDefaults.standard.removeObject(forKey: "communityExercises")
     }
 
     /// Call once at launch, after ProfileSync has restored the library (so a
@@ -132,10 +133,13 @@ final class CommunitySync: ObservableObject {
         var jsonData: String
     }
 
-    /// Reloads the community list from the server. Called at launch and whenever
-    /// the Community tab appears; a failure keeps the previous (cached) list.
+    /// Reloads the community list from the server. Called at launch, whenever
+    /// the Community tab appears, and on pull-to-refresh; a failure keeps the
+    /// list from the last successful fetch of this session.
     func refresh() async {
         guard let url = URL(string: "\(Self.baseURL)/fetch-public/SHARED_EXERCISE") else { return }
+        isFetching = true
+        defer { isFetching = false }
         do {
             let (data, response) = try await URLSession.shared.data(from: url)
             guard let http = response as? HTTPURLResponse, (200...299).contains(http.statusCode) else {
@@ -163,20 +167,20 @@ final class CommunitySync: ObservableObject {
     /// Publishes the fetched exercises and swaps their patterns into the
     /// UserDefaults cache, dropping patterns of exercises no longer shared.
     private func apply(docs: [SharedExercisesDoc]) {
-        let ownDeviceID = DeviceIdentifier.uuidString
         let localIDs = Set(store?.exercises.map(\.id) ?? [])
         let defaults = UserDefaults.standard
         var seenDevices = Set<String>()
         var seenExercises = Set<UUID>()
-        var remote: [Exercise] = []
+        var fetched: [Exercise] = []
         var cachedIDs: [String] = []
-        for doc in docs where doc.deviceID != ownDeviceID && seenDevices.insert(doc.deviceID).inserted {
+        for doc in docs where seenDevices.insert(doc.deviceID).inserted {
             for exercise in doc.exercises where exercise.visibility == .public {
-                // Skip ids that exist locally so an exercise can never appear
-                // twice; the local copy always wins.
-                guard !localIDs.contains(exercise.id),
-                      seenExercises.insert(exercise.id).inserted else { continue }
-                remote.append(exercise)
+                guard seenExercises.insert(exercise.id).inserted else { continue }
+                fetched.append(exercise)
+                // Exercises that live in the local store (this device's own
+                // uploads) already have their pattern under these keys; never
+                // overwrite it with the server copy, which may lag behind.
+                guard !localIDs.contains(exercise.id) else { continue }
                 cachedIDs.append(exercise.id.uuidString)
                 if let notes = doc.midi[exercise.id.uuidString],
                    let data = try? JSONEncoder().encode(notes) {
@@ -198,21 +202,6 @@ final class CommunitySync: ObservableObject {
             defaults.removeObject(forKey: ExerciseStore.midiTextKey(id))
         }
         defaults.set(cachedIDs, forKey: Self.cachedPatternIDsKey)
-        exercises = remote
-        saveCachedList()
-    }
-
-    // MARK: - Offline cache
-
-    private func loadCachedList() {
-        guard let data = UserDefaults.standard.data(forKey: Self.cachedListKey),
-              let saved = try? JSONDecoder().decode([Exercise].self, from: data)
-        else { return }
-        exercises = saved
-    }
-
-    private func saveCachedList() {
-        guard let data = try? JSONEncoder().encode(exercises) else { return }
-        UserDefaults.standard.set(data, forKey: Self.cachedListKey)
+        exercises = fetched
     }
 }

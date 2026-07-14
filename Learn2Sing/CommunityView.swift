@@ -1,31 +1,24 @@
 import SwiftUI
 
 /// The Community tab: every user's public exercises, in one flat list (no
-/// categories) — this device's own public exercises followed by everyone
-/// else's, fetched from the server by CommunitySync. Looks like the Exercises
-/// tab but read-only — no add button, no settings swipe, no drag & drop — and
-/// each row shows the uploader's username in grey between the name and the
-/// pattern thumbnail.
+/// categories), exactly as fetched from the server by CommunitySync — nothing
+/// local is mixed in, so every user sees the same list. Refreshed when the tab
+/// appears and by pulling down. Looks like the Exercises tab but read-only —
+/// no add button, no settings swipe, no drag & drop — and each row shows the
+/// uploader's username in grey between the name and the pattern thumbnail.
 struct CommunityView: View {
     @EnvironmentObject private var store: ExerciseStore
     @ObservedObject private var community = CommunitySync.shared
     @State private var navigationPath = NavigationPath()
 
-    /// Own public exercises (always current locally) plus the fetched remote
-    /// ones. CommunitySync guarantees the two never share an id.
-    private var communityExercises: [Exercise] {
-        store.exercises.filter { $0.visibility == .public } + community.exercises
-    }
-
-    /// Route ids can point at either a local or a fetched exercise.
     private func exercise(for id: UUID) -> Exercise? {
-        communityExercises.first { $0.id == id }
+        community.exercises.first { $0.id == id }
     }
 
-    /// All public exercises as a single unlabelled section. An empty `category`
+    /// All fetched exercises as a single unlabelled section. An empty `category`
     /// makes the list render no header.
     private var listSections: [ExerciseListSection] {
-        let rows = communityExercises
+        let rows = community.exercises
             .map { exercise in
                 ExerciseListRow(exercise: exercise,
                                 pattern: store.notes(for: exercise.id),
@@ -42,16 +35,31 @@ struct CommunityView: View {
         NavigationStack(path: $navigationPath) {
             Group {
                 if listSections.isEmpty {
-                    ContentUnavailableView(
-                        "No Community Exercises",
-                        systemImage: "person.3",
-                        description: Text("Exercises set to public in their settings appear here.")
-                    )
+                    // A scroll view so pull-to-refresh also works while the list
+                    // is empty (e.g. after launching without a connection).
+                    GeometryReader { geo in
+                        ScrollView {
+                            Group {
+                                if community.isFetching {
+                                    ProgressView()
+                                } else {
+                                    ContentUnavailableView(
+                                        "No Community Exercises",
+                                        systemImage: "person.3",
+                                        description: Text("Public exercises shared by all users appear here. Pull down to refresh.")
+                                    )
+                                }
+                            }
+                            .frame(width: geo.size.width, height: geo.size.height)
+                        }
+                        .refreshable { await community.refresh() }
+                    }
                 } else {
                     ExerciseCollectionList(
                         sections: listSections,
                         onSelect: { navigationPath.append(ExerciseRoute.play($0)) },
-                        onSelectUploader: { navigationPath.append(ExerciseRoute.user($0)) }
+                        onSelectUploader: { navigationPath.append(ExerciseRoute.user($0)) },
+                        onRefresh: { await community.refresh() }
                     )
                     // Span the full screen like a List so content scrolls under the
                     // navigation and tab bars.
@@ -103,8 +111,7 @@ struct CommunityUserProfileView: View {
     let onSelect: (UUID) -> Void
 
     private var listSections: [ExerciseListSection] {
-        let all = store.exercises.filter { $0.visibility == .public } + community.exercises
-        let rows = all
+        let rows = community.exercises
             .filter { $0.uploaderName == username }
             .map { exercise in
                 ExerciseListRow(exercise: exercise,
