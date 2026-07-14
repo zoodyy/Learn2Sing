@@ -10,6 +10,11 @@ struct ExerciseSettingsView: View {
     /// Drives the "really delete?" confirmation shown by the delete button.
     @State private var isConfirmingDelete = false
 
+    /// Shown when publishing (or renaming a public exercise) would give this
+    /// user two public exercises with the same name; the exercise is kept (or
+    /// put back to) private. Different users may share the same name.
+    @State private var isWarningDuplicateName = false
+
     /// The text fields that can hold keyboard focus, so a single keyboard toolbar
     /// can show a "Done" button (and the sign toggle for the transpose field) above
     /// whichever one is being edited.
@@ -28,6 +33,7 @@ struct ExerciseSettingsView: View {
             Section("Name") {
                 TextField("Name", text: $exercise.name)
                     .focused($focusedField, equals: .name)
+                    .onSubmit { demoteIfNameTaken() }
             }
 
             Section("Description") {
@@ -159,11 +165,26 @@ struct ExerciseSettingsView: View {
             Text("\"\(exercise.name)\" and its MIDI pattern will be deleted. This cannot be undone.")
         }
         // Publishing stamps the current profile username as the uploader shown
-        // next to the exercise on the Community tab.
+        // next to the exercise on the Community tab — unless the user already
+        // shares another exercise with this name, which is refused.
         .onChange(of: exercise.visibility) { _, newValue in
-            if newValue == .public {
+            guard newValue == .public else { return }
+            if isPublicNameTaken() {
+                exercise.visibility = .private
+                isWarningDuplicateName = true
+            } else {
                 exercise.uploaderName = UserProfile.load().username
             }
+        }
+        // Renames are checked when editing ends, not per keystroke — a name
+        // passes through spurious collisions while being typed.
+        .onChange(of: focusedField) { old, new in
+            if old == .name, new != .name { demoteIfNameTaken() }
+        }
+        .alert("Name Already Public", isPresented: $isWarningDuplicateName) {
+            Button("OK", role: .cancel) {}
+        } message: {
+            Text("You already have a public exercise named \"\(exercise.name)\". Each of your public exercises needs a unique name, so this one stays private.")
         }
         .navigationTitle(exercise.name)
         .navigationBarTitleDisplayMode(.inline)
@@ -194,6 +215,26 @@ struct ExerciseSettingsView: View {
                     from: textField.beginningOfDocument, to: textField.endOfDocument)
             }
         }
+    }
+
+    /// Whether another of this user's public exercises already uses this
+    /// exercise's name (ignoring case and surrounding whitespace).
+    private func isPublicNameTaken() -> Bool {
+        let name = exercise.name.trimmingCharacters(in: .whitespacesAndNewlines)
+        return store.exercises.contains {
+            $0.id != exercise.id && $0.visibility == .public
+                && $0.name.trimmingCharacters(in: .whitespacesAndNewlines)
+                    .caseInsensitiveCompare(name) == .orderedSame
+        }
+    }
+
+    /// Called when a rename is committed: a public exercise renamed into a
+    /// collision with another public one goes back to private, with the same
+    /// warning the visibility picker shows.
+    private func demoteIfNameTaken() {
+        guard exercise.visibility == .public, isPublicNameTaken() else { return }
+        exercise.visibility = .private
+        isWarningDuplicateName = true
     }
 
     /// Keep "switch transposing direction after" within range: never larger than one

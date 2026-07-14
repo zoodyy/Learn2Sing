@@ -648,6 +648,161 @@ final class Learn2SingUITests: XCTestCase {
         saveScreenshot("community-refreshed")
     }
 
+    /// Making an exercise public is refused with a warning when another of the
+    /// user's public exercises already has the same name: the alert appears and
+    /// the visibility stays Private. Uses the first two exercises of the top
+    /// category (always on screen — the bottom of this list is unreachable for
+    /// synthetic gestures): the first is published, the second temporarily
+    /// renamed to the first's name. Both are restored afterwards.
+    func testDuplicatePublicNameRefused() throws {
+        var app = openExercises()
+        sleep(2)
+        // Expand the top category if a previous run left it collapsed.
+        var snap = snapshotList(app)
+        guard let category = snap.headers.first else { XCTFail("no categories"); return }
+        if (snap.items[category] ?? []).count < 2 {
+            header(app, named: category).tap()
+            sleep(1)
+            snap = snapshotList(app)
+        }
+        guard let items = snap.items[category], items.count >= 2 else {
+            XCTFail("top category \(category) needs two visible exercises"); return
+        }
+        let first = items[0], second = items[1]
+
+        func openSettings(_ name: String) {
+            cell(app, named: name).swipeRight()
+            let settings = app.collectionViews.buttons["Settings"].firstMatch
+            XCTAssertTrue(settings.waitForExistence(timeout: 3), "swipe should reveal Settings")
+            settings.tap()
+            XCTAssertTrue(app.navigationBars[name].waitForExistence(timeout: 3))
+            sleep(1)
+        }
+
+        /// The visibility picker's menu button ("Visibility, <value>"),
+        /// scrolled into view if needed.
+        func visibilityPicker() -> XCUIElement {
+            let query = app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "Visibility"))
+            var picker = query.firstMatch
+            for _ in 0..<6 where !picker.exists {
+                app.swipeUp()
+                usleep(500_000)
+                picker = query.firstMatch
+            }
+            XCTAssertTrue(picker.waitForExistence(timeout: 3), "Visibility picker not found")
+            return picker
+        }
+
+        /// Selects Private/Public and returns the label shown BEFORE the change.
+        @discardableResult
+        func setVisibility(_ value: String) -> String {
+            let picker = visibilityPicker()
+            let before = picker.label
+            picker.tap()
+            let option = app.buttons[value].firstMatch
+            XCTAssertTrue(option.waitForExistence(timeout: 3), "\(value) option not found")
+            option.tap()
+            sleep(1)
+            return before
+        }
+
+        /// Replaces the settings name field's content, verifying it stuck.
+        func rename(from oldName: String, to newName: String) {
+            // Back to the top of the form, where the name field lives (earlier
+            // interactions may have scrolled it away — taps at stale frames
+            // land on other rows).
+            app.swipeDown()
+            app.swipeDown()
+            let nameField = app.textFields.element(boundBy: 0)
+            XCTAssertTrue(nameField.waitForExistence(timeout: 3), "name field not found")
+            nameField.tap()
+            // Select all (via the edit menu) and type over it; fall back to
+            // cursor-to-the-end plus deletes when the menu doesn't show.
+            nameField.press(forDuration: 1.2)
+            let selectAll = app.menuItems["Select All"]
+            if selectAll.waitForExistence(timeout: 2) {
+                selectAll.tap()
+                usleep(300_000)
+            } else {
+                nameField.coordinate(withNormalizedOffset: CGVector(dx: 0.95, dy: 0.5)).tap()
+                nameField.typeText(String(repeating: XCUIKeyboardKey.delete.rawValue,
+                                          count: oldName.count * 2))
+            }
+            nameField.typeText(newName)
+            app.buttons["Done"].firstMatch.tap()
+            usleep(500_000)
+            XCTAssertEqual(nameField.value as? String, newName, "rename did not stick")
+        }
+
+        // Start from a known state: the second exercise private, the first
+        // public — remembering both so they can be restored at the end.
+        openSettings(second)
+        let secondWasPublic = setVisibility("Private").contains("Public")
+        app = relaunchToExercises(app)
+        sleep(2)
+
+        openSettings(first)
+        let firstWasPublic = setVisibility("Public").contains("Public")
+        XCTAssertFalse(app.alerts["Name Already Public"].exists,
+                       "publishing \(first) must not warn (its name is unique)")
+        XCTAssertTrue(visibilityPicker().label.contains("Public"),
+                      "\(first) should be public now")
+        app = relaunchToExercises(app)
+        sleep(2)
+
+        // Rename the (private) second exercise to the published name and try
+        // to publish it: warned, and it stays private.
+        openSettings(second)
+        rename(from: second, to: first)
+        setVisibility("Public")
+        let alert = app.alerts["Name Already Public"]
+        XCTAssertTrue(alert.waitForExistence(timeout: 3),
+                      "publishing a second \"\(first)\" should warn about the duplicate name")
+        saveScreenshot("duplicate-name-warning")
+        alert.buttons["OK"].tap()
+        sleep(1)
+        XCTAssertTrue(visibilityPicker().label.contains("Private"),
+                      "the duplicate \"\(first)\" must stay private")
+
+        // Restore the second exercise's name. Relaunch first: the settings
+        // form has scrolled by now and taps at stale frames go astray, while a
+        // fresh screen starts at the top with the name field in place. Two
+        // rows now carry the published name — the renamed one sits directly
+        // below the original, and must show Private (the original is Public).
+        app = relaunchToExercises(app)
+        sleep(2)
+        let sameNamed = app.cells.containing(.staticText, identifier: first).allElementsBoundByIndex
+            .filter { $0.isHittable }
+            .sorted { $0.frame.midY < $1.frame.midY }
+        XCTAssertGreaterThanOrEqual(sameNamed.count, 2, "both \"\(first)\" rows should be visible")
+        sameNamed[1].swipeRight()
+        let renamedSettings = app.collectionViews.buttons["Settings"].firstMatch
+        XCTAssertTrue(renamedSettings.waitForExistence(timeout: 3))
+        renamedSettings.tap()
+        XCTAssertTrue(app.navigationBars[first].waitForExistence(timeout: 3))
+        sleep(1)
+        XCTAssertTrue(visibilityPicker().label.contains("Private"),
+                      "the second row must be the renamed (private) exercise")
+        for _ in 0..<4 where !app.textFields.element(boundBy: 0).isHittable {
+            app.swipeDown()
+            usleep(500_000)
+        }
+        rename(from: first, to: second)
+        if secondWasPublic { setVisibility("Public") }
+
+        // And the first exercise's visibility, if the test changed it.
+        app = relaunchToExercises(app)
+        sleep(2)
+        XCTAssertTrue(cell(app, named: second).waitForExistence(timeout: 3),
+                      "\(second) should have its original name back")
+        if !firstWasPublic {
+            openSettings(first)
+            setVisibility("Private")
+        }
+        // Give the debounced sync time to reach the server before the app dies.
+        sleep(6)
+    }
+
     /// Editing a public exercise's MIDI pattern updates the server document
     /// automatically — no private/public toggle needed. Reads this device's id
     /// off the Profile screen, snapshots its SHARED_EXERCISE record, draws one
