@@ -1,18 +1,31 @@
 import SwiftUI
 
-/// The Community tab: every exercise whose visibility is set to public, in one
-/// flat list (no categories). Looks like the Exercises tab but read-only — no
-/// add button, no settings swipe, no drag & drop — and each row shows the
-/// uploader's username in grey between the name and the pattern thumbnail.
+/// The Community tab: every user's public exercises, in one flat list (no
+/// categories) — this device's own public exercises followed by everyone
+/// else's, fetched from the server by CommunitySync. Looks like the Exercises
+/// tab but read-only — no add button, no settings swipe, no drag & drop — and
+/// each row shows the uploader's username in grey between the name and the
+/// pattern thumbnail.
 struct CommunityView: View {
     @EnvironmentObject private var store: ExerciseStore
+    @ObservedObject private var community = CommunitySync.shared
     @State private var navigationPath = NavigationPath()
+
+    /// Own public exercises (always current locally) plus the fetched remote
+    /// ones. CommunitySync guarantees the two never share an id.
+    private var communityExercises: [Exercise] {
+        store.exercises.filter { $0.visibility == .public } + community.exercises
+    }
+
+    /// Route ids can point at either a local or a fetched exercise.
+    private func exercise(for id: UUID) -> Exercise? {
+        communityExercises.first { $0.id == id }
+    }
 
     /// All public exercises as a single unlabelled section. An empty `category`
     /// makes the list render no header.
     private var listSections: [ExerciseListSection] {
-        let rows = store.exercises
-            .filter { $0.visibility == .public }
+        let rows = communityExercises
             .map { exercise in
                 ExerciseListRow(exercise: exercise,
                                 pattern: store.notes(for: exercise.id),
@@ -48,17 +61,20 @@ struct CommunityView: View {
             .navigationTitle("Community")
             .navigationBarTitleDisplayMode(.inline)
             .stableTopEdgeFade()
+            // Reload from the server each time the tab is visited; the previous
+            // list stays up while (and if) the fetch fails.
+            .task { await community.refresh() }
             .navigationDestination(for: ExerciseRoute.self) { route in
                 switch route {
                 case .play(let id):
-                    if let ex = store.exercises.first(where: { $0.id == id }) {
+                    if let ex = exercise(for: id) {
                         ExerciseIntroView(exercise: ex,
-                                          onDownload: { store.downloadCopy(of: id) }) {
+                                          onDownload: { store.downloadCopy(of: ex) }) {
                             navigationPath.append(ExerciseRoute.playback(id))
                         }
                     }
                 case .playback(let id):
-                    if let ex = store.exercises.first(where: { $0.id == id }) {
+                    if let ex = exercise(for: id) {
                         PlaybackView(exercise: ex)
                     }
                 case .user(let username):
@@ -81,13 +97,15 @@ struct CommunityView: View {
 /// back button appears top-left.
 struct CommunityUserProfileView: View {
     @EnvironmentObject private var store: ExerciseStore
+    @ObservedObject private var community = CommunitySync.shared
     let username: String
     /// Called with the tapped exercise's id; the Community stack pushes playback.
     let onSelect: (UUID) -> Void
 
     private var listSections: [ExerciseListSection] {
-        let rows = store.exercises
-            .filter { $0.visibility == .public && $0.uploaderName == username }
+        let all = store.exercises.filter { $0.visibility == .public } + community.exercises
+        let rows = all
+            .filter { $0.uploaderName == username }
             .map { exercise in
                 ExerciseListRow(exercise: exercise,
                                 pattern: store.notes(for: exercise.id))

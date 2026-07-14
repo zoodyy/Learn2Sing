@@ -16,8 +16,13 @@ struct Learn2SingApp: App {
                 .environmentObject(store)
                 .environmentObject(visualTemplates)
                 // Restore the profile from the server on a fresh install, then
-                // keep the server copy in sync as the user edits.
-                .task { await ProfileSync.shared.start(with: store) }
+                // keep the server copy in sync as the user edits. Community
+                // sync starts after the restore so a fresh install shares its
+                // restored public exercises instead of an empty list.
+                .task {
+                    await ProfileSync.shared.start(with: store)
+                    await CommunitySync.shared.start(with: store)
+                }
         }
     }
 }

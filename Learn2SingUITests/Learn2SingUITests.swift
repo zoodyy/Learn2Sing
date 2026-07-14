@@ -561,6 +561,50 @@ final class Learn2SingUITests: XCTestCase {
                        "Community rows must not reveal a Settings swipe action")
     }
 
+    /// An exercise another device shared on the server appears on the Community
+    /// tab. The test plays the other device: it POSTs a SHARED_EXERCISE document
+    /// (fixed fake device id, per-run exercise name) straight to the server, then
+    /// launches the app and looks for the exercise. Each run replaces the previous
+    /// run's document, so test data never accumulates on the server.
+    func testCommunityShowsServerExercises() throws {
+        let deviceID = "eeeeeeee-5555-4666-8777-888888888888"
+        let exerciseID = UUID().uuidString
+        let name = "Server Test \(Int(Date().timeIntervalSince1970))"
+        let doc = """
+        {"deviceID":"\(deviceID)","exercises":[{"id":"\(exerciseID)","name":"\(name)",\
+        "details":"","category":"No Category","pitchShift":0,"bpm":120,"repeatCount":1,\
+        "transposePerRepeat":0,"switchDirectionAfter":0,"beatsBetweenReps":0,\
+        "visibility":"public","uploaderName":"ServerTester"}],\
+        "midi":{"\(exerciseID)":[{"id":"\(UUID().uuidString)","pitch":60,"beat":0,"length":1}]}}
+        """
+        var request = URLRequest(url: URL(string:
+            "https://echolex.api.phrase-by-phrase.com/api/v1/learn2Sing/persist/\(deviceID)/SHARED_EXERCISE?customId1=\(deviceID)")!)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.httpBody = Data(doc.utf8)
+        let posted = expectation(description: "posted shared exercise")
+        URLSession.shared.dataTask(with: request) { _, response, error in
+            XCTAssertNil(error, "POST failed: \(String(describing: error))")
+            XCTAssertEqual((response as? HTTPURLResponse)?.statusCode, 200)
+            posted.fulfill()
+        }.resume()
+        wait(for: [posted], timeout: 15)
+
+        let app = XCUIApplication()
+        app.launch()
+        let tab = app.buttons["Community"]
+        XCTAssertTrue(tab.waitForExistence(timeout: 5), "Community tab not found")
+        tab.tap()
+        XCTAssertTrue(app.navigationBars["Community"].waitForExistence(timeout: 5))
+        let row = app.cells
+            .containing(.staticText, identifier: name)
+            .containing(.button, identifier: "ServerTester")
+            .firstMatch
+        XCTAssertTrue(row.waitForExistence(timeout: 15),
+                      "server-shared exercise \(name) not listed on Community tab")
+        saveScreenshot("community-server")
+    }
+
     /// Tapping the grey uploader name on a Community row opens that uploader's
     /// profile: their username as the title, their public exercises without the
     /// per-row uploader name, and the standard back button top-left.

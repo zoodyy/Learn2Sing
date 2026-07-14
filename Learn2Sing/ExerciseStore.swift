@@ -271,18 +271,20 @@ final class ExerciseStore: ObservableObject {
 
     /// Copy a community exercise into the user's own library: a fresh id so the
     /// copy is independent of the original, private visibility, no uploader name,
-    /// and the "No Category" group. The MIDI pattern and text labels are copied too.
+    /// and the "No Category" group. The MIDI pattern and text labels are copied
+    /// too. Takes the exercise by value because community exercises fetched from
+    /// the server aren't in `exercises` (their patterns are still readable by id
+    /// — CommunitySync caches them under the standard keys).
     @discardableResult
-    func downloadCopy(of id: UUID) -> Exercise? {
-        guard let source = exercises.first(where: { $0.id == id }) else { return nil }
+    func downloadCopy(of source: Exercise) -> Exercise {
         var copy = source
         copy.id = UUID()
         copy.visibility = .private
         copy.uploaderName = ""
         copy.category = Self.noCategoryName
         exercises.append(copy)
-        setNotes(notes(for: id), for: copy.id)
-        setTexts(texts(for: id), for: copy.id)
+        setNotes(notes(for: source.id), for: copy.id)
+        setTexts(texts(for: source.id), for: copy.id)
         save()
         return copy
     }
@@ -347,7 +349,7 @@ final class ExerciseStore: ObservableObject {
         UserDefaults.standard.set(data, forKey: Self.midiKey(id))
     }
 
-    private func texts(for id: UUID) -> [MIDIText] {
+    func texts(for id: UUID) -> [MIDIText] {
         guard let data = UserDefaults.standard.data(forKey: Self.midiTextKey(id)),
               let saved = try? JSONDecoder().decode([MIDIText].self, from: data)
         else { return [] }
