@@ -1261,7 +1261,7 @@ private struct ScoreView: View {
                         .font(.headline)
                         .frame(maxWidth: .infinity)
                         .padding()
-                        .background(tint.opacity(0.25), in: RoundedRectangle(cornerRadius: 14))
+                        .background(.tint, in: RoundedRectangle(cornerRadius: 14))
                         .foregroundStyle(.white)
                 }
 
@@ -1270,7 +1270,7 @@ private struct ScoreView: View {
                         .font(.headline)
                         .frame(maxWidth: .infinity)
                         .padding()
-                        .background(tint.opacity(0.25), in: RoundedRectangle(cornerRadius: 14))
+                        .background(.tint, in: RoundedRectangle(cornerRadius: 14))
                         .foregroundStyle(.white)
                 }
             }
