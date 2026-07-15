@@ -386,15 +386,13 @@ struct EditingView: View {
                 sep.addLine(to: CGPoint(x: pianoW, y: y + rowH))
                 ctx.stroke(sep, with: .color(.gray.opacity(0.3)), lineWidth: 0.5)
 
-                if !isBlack(pitch) {
-                    ctx.draw(
-                        Text(pitchName(pitch))
-                            .font(.system(size: 9, weight: .medium))
-                            .foregroundColor(.black),
-                        at: CGPoint(x: pianoW - 4, y: y + rowH / 2),
-                        anchor: .trailing
-                    )
-                }
+                ctx.draw(
+                    Text(pitchName(pitch))
+                        .font(.system(size: 9, weight: .medium))
+                        .foregroundColor(isBlack(pitch) ? .white : .black),
+                    at: CGPoint(x: pianoW - 4, y: y + rowH / 2),
+                    anchor: .trailing
+                )
             }
 
             var border = Path()
