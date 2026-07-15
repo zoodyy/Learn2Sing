@@ -18,7 +18,6 @@ final class ProfileSync {
     static let shared = ProfileSync()
 
     private static let baseURL = "https://echolex.api.phrase-by-phrase.com/api/v1/learn2Sing"
-    private static let customId1 = "0cd1e44b-03e0-4c94-baa2-ab7579e65bf5"
     /// Set once a restore attempt has reached the server. Lives in UserDefaults,
     /// which is wiped on reinstall — exactly when a restore should run again.
     private static let restoredKey = "didAttemptProfileRestore"
@@ -71,7 +70,7 @@ final class ProfileSync {
         // Compact encoding (unlike the pretty-printed local file): the server
         // rejects documents past roughly 64 KB, so every byte counts.
         guard let body = try? JSONEncoder().encode(profile),
-              let url = URL(string: "\(Self.baseURL)/persist/\(profile.deviceID)/PROFILE?customId1=\(Self.customId1)")
+              let url = URL(string: "\(Self.baseURL)/persist/\(profile.deviceID)/PROFILE")
         else { return }
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
