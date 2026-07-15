@@ -17,7 +17,9 @@ import SwiftUI
 /// fixed.
 struct HomeView: View {
     @EnvironmentObject private var store: ExerciseStore
-    @State private var navigationPath = NavigationPath()
+    @EnvironmentObject private var toasts: ToastCenter
+    // Typed (not NavigationPath) so pops can be inspected for the saved toasts.
+    @State private var navigationPath: [ExerciseRoute] = []
 
     private static let recentCategory = "Recent"
     private static let routinesCategory = "Routines"
@@ -119,7 +121,7 @@ struct HomeView: View {
             navigationPath.removeLast(2)
             navigationPath.append(ExerciseRoute.routinePlay(id, index + 1))
         } else {
-            navigationPath = NavigationPath()
+            navigationPath = []
         }
     }
 
@@ -154,50 +156,53 @@ struct HomeView: View {
         }
     }
 
-    var body: some View {
-        NavigationStack(path: $navigationPath) {
-            Group {
-                if isReordering {
-                    // Reorder mode like the Exercises tab's, minus the +/delete
-                    // toolbar buttons and the per-row exercise counts: the built-in
-                    // categories are plain draggable rows.
-                    List {
-                        ForEach(categories, id: \.self) { category in
-                            Text(category)
-                        }
-                        .onMove { source, destination in
-                            categories.move(fromOffsets: source, toOffset: destination)
-                        }
-                    }
-                    .environment(\.editMode, $editMode)
-                } else {
-                    ExerciseCollectionList(
-                        sections: listSections,
-                        onSelect: { open($0, asExercise: .play($0)) },
-                        onSettings: { open($0, asExercise: .settings($0)) },
-                        onDelete: { id in
-                            guard let routine = store.routines.first(where: { $0.id == id }) else { return }
-                            routinePendingDelete = routine
-                            isConfirmingRoutineDelete = true
-                        },
-                        onToggleCollapse: { category in
-                            if collapsedCategories.contains(category) {
-                                collapsedCategories.remove(category)
-                            } else {
-                                collapsedCategories.insert(category)
-                            }
-                        },
-                        onHeaderLongPress: { enterReorderMode() },
-                        onAdd: { _ in
-                            newRoutineName = ""
-                            isNamingNewRoutine = true
-                        }
-                    )
-                    // Span the full screen like a List so content scrolls under the
-                    // navigation and tab bars.
-                    .ignoresSafeArea()
+    @ViewBuilder
+    private var listContent: some View {
+        if isReordering {
+            // Reorder mode like the Exercises tab's, minus the +/delete
+            // toolbar buttons and the per-row exercise counts: the built-in
+            // categories are plain draggable rows.
+            List {
+                ForEach(categories, id: \.self) { category in
+                    Text(category)
+                }
+                .onMove { source, destination in
+                    categories.move(fromOffsets: source, toOffset: destination)
                 }
             }
+            .environment(\.editMode, $editMode)
+        } else {
+            ExerciseCollectionList(
+                sections: listSections,
+                onSelect: { open($0, asExercise: .play($0)) },
+                onSettings: { open($0, asExercise: .settings($0)) },
+                onDelete: { id in
+                    guard let routine = store.routines.first(where: { $0.id == id }) else { return }
+                    routinePendingDelete = routine
+                    isConfirmingRoutineDelete = true
+                },
+                onToggleCollapse: { category in
+                    if collapsedCategories.contains(category) {
+                        collapsedCategories.remove(category)
+                    } else {
+                        collapsedCategories.insert(category)
+                    }
+                },
+                onHeaderLongPress: { enterReorderMode() },
+                onAdd: { _ in
+                    newRoutineName = ""
+                    isNamingNewRoutine = true
+                }
+            )
+            // Span the full screen like a List so content scrolls under the
+            // navigation and tab bars.
+            .ignoresSafeArea()
+        }
+    }
+
+    var body: some View {
+        NavigationStack(path: $navigationPath) {
+            listContent
             .navigationTitle(isReordering ? "Edit Categories" : "Home")
             .navigationBarTitleDisplayMode(.inline)
             .stableTopEdgeFade()
@@ -230,58 +235,66 @@ struct HomeView: View {
             } message: { routine in
                 Text("\"\(routine.name)\" will be deleted. Its exercises stay in your library. This cannot be undone.")
             }
+            .onChange(of: navigationPath) { old, new in
+                toasts.routesPopped(from: old, to: new)
+            }
             .navigationDestination(for: ExerciseRoute.self) { route in
-                switch route {
-                case .play(let id):
-                    if let ex = store.exercises.first(where: { $0.id == id }) {
-                        ExerciseIntroView(exercise: ex) {
-                            navigationPath.append(ExerciseRoute.playback(id))
-                        }
-                    }
-                case .playback(let id):
-                    if let ex = store.exercises.first(where: { $0.id == id }) {
-                        // Pop the intro screen along with playback so Exit lands back
-                        // on the list the exercise was tapped from.
-                        PlaybackView(exercise: ex,
-                                     onScoreExit: { navigationPath.removeLast(2) })
-                    }
-                case .settings(let id):
-                    if store.exercises.contains(where: { $0.id == id }) {
-                        ExerciseSettingsView(exercise: store.binding(for: id))
-                    }
-                case .edit(let id):
-                    if let ex = store.exercises.first(where: { $0.id == id }) {
-                        EditingView(exercise: ex)
-                    }
-                case .routine(let id):
-                    if store.routines.contains(where: { $0.id == id }) {
-                        RoutineEditView(routineID: id) {
-                            navigationPath.append(ExerciseRoute.routinePicker(id))
-                        }
-                    }
-                case .routinePlay(let id, let index):
-                    let exercises = routineExercises(id)
-                    if index < exercises.count {
-                        ExerciseIntroView(exercise: exercises[index]) {
-                            navigationPath.append(ExerciseRoute.routinePlayback(id, index))
-                        }
-                    }
-                case .routinePlayback(let id, let index):
-                    let exercises = routineExercises(id)
-                    if index < exercises.count {
-                        PlaybackView(exercise: exercises[index],
-                                     scoreExitTitle: index + 1 < exercises.count ? "Next" : "Exit",
-                                     onScoreExit: { advanceRoutine(id, after: index) })
-                    }
-                case .routinePicker(let id):
-                    if store.routines.contains(where: { $0.id == id }) {
-                        RoutineExercisePickerView(routineID: id)
-                    }
-                case .user:
-                    // Never appended from this tab; usernames only show in Community.
-                    EmptyView()
+                destination(for: route)
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func destination(for route: ExerciseRoute) -> some View {
+        switch route {
+        case .play(let id):
+            if let ex = store.exercises.first(where: { $0.id == id }) {
+                ExerciseIntroView(exercise: ex) {
+                    navigationPath.append(ExerciseRoute.playback(id))
                 }
             }
+        case .playback(let id):
+            if let ex = store.exercises.first(where: { $0.id == id }) {
+                // Pop the intro screen along with playback so Exit lands back
+                // on the list the exercise was tapped from.
+                PlaybackView(exercise: ex,
+                             onScoreExit: { navigationPath.removeLast(2) })
+            }
+        case .settings(let id):
+            if store.exercises.contains(where: { $0.id == id }) {
+                ExerciseSettingsView(exercise: store.binding(for: id))
+            }
+        case .edit(let id):
+            if let ex = store.exercises.first(where: { $0.id == id }) {
+                EditingView(exercise: ex)
+            }
+        case .routine(let id):
+            if store.routines.contains(where: { $0.id == id }) {
+                RoutineEditView(routineID: id) {
+                    navigationPath.append(ExerciseRoute.routinePicker(id))
+                }
+            }
+        case .routinePlay(let id, let index):
+            let exercises = routineExercises(id)
+            if index < exercises.count {
+                ExerciseIntroView(exercise: exercises[index]) {
+                    navigationPath.append(ExerciseRoute.routinePlayback(id, index))
+                }
+            }
+        case .routinePlayback(let id, let index):
+            let exercises = routineExercises(id)
+            if index < exercises.count {
+                PlaybackView(exercise: exercises[index],
+                             scoreExitTitle: index + 1 < exercises.count ? "Next" : "Exit",
+                             onScoreExit: { advanceRoutine(id, after: index) })
+            }
+        case .routinePicker(let id):
+            if store.routines.contains(where: { $0.id == id }) {
+                RoutineExercisePickerView(routineID: id)
+            }
+        case .user:
+            // Never appended from this tab; usernames only show in Community.
+            EmptyView()
         }
     }
 }

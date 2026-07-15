@@ -117,7 +117,9 @@ private struct CategoryNameField: View {
 
 struct ExercisesView: View {
     @EnvironmentObject private var store: ExerciseStore
-    @State private var navigationPath = NavigationPath()
+    @EnvironmentObject private var toasts: ToastCenter
+    // Typed (not NavigationPath) so pops can be inspected for the saved toasts.
+    @State private var navigationPath: [ExerciseRoute] = []
 
     /// Categories the user has collapsed. Their exercises are hidden and the
     /// header shows the exercise count in parentheses instead.
@@ -354,13 +356,16 @@ struct ExercisesView: View {
             } message: {
                 Text("Enter a name for the new category.")
             }
-            // Back at the list after creating an exercise: if it was never
-            // touched (settings screens deeper in this path can't be showing
-            // anymore), remove it again.
-            .onChange(of: navigationPath.count) { _, count in
-                guard count == 0, let created = pendingNewExercise else { return }
-                pendingNewExercise = nil
-                store.discardIfUntouched(created)
+            .onChange(of: navigationPath) { old, new in
+                // Back at the list after creating an exercise: if it was never
+                // touched (settings screens deeper in this path can't be showing
+                // anymore), remove it again — and skip the "Saved!" toast for it.
+                if new.isEmpty, let created = pendingNewExercise {
+                    pendingNewExercise = nil
+                    store.discardIfUntouched(created)
+                    if !store.exercises.contains(where: { $0.id == created.id }) { return }
+                }
+                toasts.routesPopped(from: old, to: new)
             }
             .navigationDestination(for: ExerciseRoute.self) { route in
                 switch route {

@@ -9,6 +9,9 @@ import SwiftUI
 
 struct ContentView: View {
     @AppStorage(AppTheme.storageKey) private var themeRaw = AppTheme.system.rawValue
+    /// Renders "Saved!" confirmations above every tab, so they outlive the
+    /// screen (settings / MIDI editor) whose pop triggered them.
+    @StateObject private var toasts = ToastCenter()
 
     var body: some View {
         TabView {
@@ -28,6 +31,8 @@ struct ContentView: View {
                 SettingsView()
             }
         }
+        .environmentObject(toasts)
+        .overlay { ToastOverlay(toasts: toasts) }
         // nil for "System" lets the device's light/dark setting through.
         .preferredColorScheme((AppTheme(rawValue: themeRaw) ?? .system).colorScheme)
         // Re-assert the stored orientation lock once the scene is live, so a lock

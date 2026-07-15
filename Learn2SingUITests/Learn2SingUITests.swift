@@ -330,6 +330,69 @@ final class Learn2SingUITests: XCTestCase {
                       "Stop should return the transport to Play")
     }
 
+    /// Leaving the MIDI editor shows a "Midi Saved!" toast and leaving the
+    /// settings screen shows "Exercise Saved!" — but pushing deeper (settings →
+    /// editor) shows nothing.
+    func testSavedToasts() throws {
+        // Queries only run once the app goes idle (pop + toast animations), so
+        // the default 1.5s toast can be gone before the first existence check.
+        let app = XCUIApplication()
+        app.launchEnvironment["TOAST_SECONDS"] = "5"
+        app.launch()
+        let tab = app.buttons["Exercises"]
+        XCTAssertTrue(tab.waitForExistence(timeout: 5), "Exercises tab not found")
+        tab.tap()
+        XCTAssertTrue(app.navigationBars["Exercises"].waitForExistence(timeout: 5))
+        sleep(2)
+        let snap = snapshotList(app)
+        guard let category = snap.headers.first(where: { !(snap.items[$0] ?? []).isEmpty }),
+              let name = snap.items[category]?.first else {
+            XCTFail("no visible exercise"); return
+        }
+
+        // Into the exercise's settings, then its MIDI editor.
+        cell(app, named: name).swipeRight()
+        let settings = app.collectionViews.buttons["Settings"].firstMatch
+        XCTAssertTrue(settings.waitForExistence(timeout: 3), "leading swipe should reveal Settings")
+        settings.tap()
+        XCTAssertTrue(app.navigationBars[name].waitForExistence(timeout: 3))
+        sleep(1)
+        var editMIDI = app.buttons["Edit MIDI"].firstMatch
+        for _ in 0..<4 where !editMIDI.exists {
+            app.swipeUp()
+            usleep(500_000)
+            editMIDI = app.buttons["Edit MIDI"].firstMatch
+        }
+        XCTAssertTrue(editMIDI.waitForExistence(timeout: 3), "settings should offer Edit MIDI")
+        editMIDI.tap()
+
+        // Pushing into the editor covers settings without popping it: no toast.
+        XCTAssertTrue(app.buttons["Play"].firstMatch.waitForExistence(timeout: 3),
+                      "editor should be showing")
+        XCTAssertFalse(app.staticTexts["Exercise Saved!"].exists,
+                       "pushing into the editor must not show the exercise toast")
+
+        // Pop back to settings: the MIDI toast appears, then auto-hides. The
+        // iOS 26 floating back button lives outside the navigation bar; it's
+        // matched by its accessibility identifier (its label is the previous
+        // screen's title).
+        let back = app.buttons["BackButton"].firstMatch
+        XCTAssertTrue(back.waitForExistence(timeout: 3), "no Back button found")
+        back.tap()
+        XCTAssertTrue(app.staticTexts["Midi Saved!"].waitForExistence(timeout: 3),
+                      "leaving the MIDI editor should confirm the save")
+        saveScreenshot("toast-midi-saved")
+        XCTAssertTrue(app.staticTexts["Midi Saved!"].waitForNonExistence(timeout: 8),
+                      "the toast should auto-hide")
+
+        // Pop back to the list: the exercise toast appears.
+        XCTAssertTrue(app.navigationBars[name].waitForExistence(timeout: 3))
+        app.buttons["BackButton"].firstMatch.tap()
+        XCTAssertTrue(app.staticTexts["Exercise Saved!"].waitForExistence(timeout: 3),
+                      "leaving settings should confirm the save")
+        saveScreenshot("toast-exercise-saved")
+    }
+
     /// The visible exercise names, top to bottom.
     private func visibleCellOrder(_ app: XCUIApplication) -> [String] {
         let contentTop = app.navigationBars.firstMatch.frame.maxY

@@ -4,6 +4,7 @@ import UIKit
 struct ExerciseSettingsView: View {
     @Binding var exercise: Exercise
     @EnvironmentObject private var store: ExerciseStore
+    @EnvironmentObject private var toasts: ToastCenter
     @Environment(\.dismiss) private var dismiss
     @FocusState private var focusedField: Field?
 
@@ -160,6 +161,8 @@ struct ExerciseSettingsView: View {
         .alert("Delete Exercise?", isPresented: $isConfirmingDelete) {
             Button("Delete", role: .destructive) {
                 let id = exercise.id
+                // The pop below would otherwise toast "Exercise Saved!".
+                toasts.suppressNext()
                 dismiss()
                 // Delete after the pop so no view is bound to the removed exercise.
                 DispatchQueue.main.async { store.delete(id: id) }
