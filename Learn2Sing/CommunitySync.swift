@@ -6,21 +6,32 @@
 import Foundation
 import Combine
 
-/// The document each user keeps on the server under their device ID: all of
-/// their public exercises together with the MIDI patterns and text labels,
-/// in the same per-uuid dictionary layout as ExerciseBundle.
-struct SharedExercisesDoc: Codable {
+/// The document persisted per public exercise, under the exercise's own ID:
+/// the exercise together with its MIDI pattern and text labels. `exercise` is
+/// nil in a tombstone — the overwrite posted when an exercise is made private
+/// or deleted, since the server has no delete and keeps one latest record per
+/// ID.
+struct SharedExerciseDoc: Codable {
     var deviceID: String
-    var exercises: [Exercise]
-    var midi: [String: [MIDINote]]
-    var texts: [String: [MIDIText]]? = nil
+    var exercise: Exercise? = nil
+    var midi: [MIDINote] = []
+    var texts: [MIDIText]? = nil
 }
 
-/// Connects the Community tab to the server. Each device persists a single
-/// SHARED_EXERCISE document holding its public exercises (re-uploaded whenever
-/// the library changes, so making an exercise private removes it for everyone),
-/// and the tab lists every device's document — including this one's — via the
-/// public fetch endpoint. The list itself is never persisted: it holds exactly
+/// The document each user keeps on the server under PUBLIC_NAME: their current
+/// profile username. Fetched per device on refresh, so renaming yourself in the
+/// profile updates the label on your exercises for everyone.
+struct PublicNameDoc: Codable {
+    var deviceID: String
+    var username: String
+}
+
+/// Connects the Community tab to the server. Each device persists one
+/// SHARED_EXERCISE document per public exercise, keyed by the exercise's ID
+/// (re-uploaded when the exercise changes, and overwritten with a tombstone
+/// when it goes private or is deleted, so it disappears for everyone) plus a
+/// PUBLIC_NAME document with its username, and the tab lists every exercise
+/// document — including this device's — via the public fetch endpoint. The list itself is never persisted: it holds exactly
 /// what the server returned this session, so every user's Community tab looks
 /// the same. Fetched patterns are cached under the standard `midi_<uuid>` /
 /// `miditext_<uuid>` UserDefaults keys, so thumbnails, playback, and Download
@@ -33,6 +44,10 @@ final class CommunitySync: ObservableObject {
     /// UUID strings whose midi/miditext keys were written by a fetch, so a later
     /// fetch can clean up patterns of exercises that left the community list.
     private static let cachedPatternIDsKey = "communityPatternIDs"
+    /// UUID strings of this device's exercises that have a live record on the
+    /// server; persisted so exercises unshared or deleted while offline (or in
+    /// a previous session) still get their tombstone on the next upload.
+    private static let uploadedExerciseIDsKey = "communityUploadedExerciseIDs"
 
     /// Every device's public exercises as last fetched, in the order the server
     /// returns them. Empty until the first fetch of the session succeeds.
@@ -45,9 +60,12 @@ final class CommunitySync: ObservableObject {
     private let uploadTrigger = PassthroughSubject<Void, Never>()
     private var uploadDebounce: AnyCancellable?
     private var readyToUpload = false
-    /// Body of the last accepted upload; identical re-encodes are skipped, so
-    /// the store's frequent unrelated changes don't cause redundant POSTs.
-    private var lastUploadedBody: Data?
+    /// Body of the last accepted upload per exercise ID; identical re-encodes
+    /// are skipped, so the store's frequent unrelated changes don't cause
+    /// redundant POSTs.
+    private var lastUploadedBodies: [String: Data] = [:]
+    /// Same skip-if-unchanged guard for the PUBLIC_NAME document.
+    private var lastUploadedName: Data?
 
     private init() {
         // An earlier version persisted the fetched list under this key.
@@ -84,30 +102,95 @@ final class CommunitySync: ObservableObject {
 
     // MARK: - Upload
 
-    /// Snapshots the public exercises with their patterns and POSTs them as this
-    /// device's shared document.
+    /// Pushes both server documents: the shared exercises and the username.
+    /// Each one is skipped when its body hasn't changed since the last accept.
     private func upload() async {
+        await uploadSharedExercises()
+        await uploadPublicName()
+    }
+
+    /// POSTs each public exercise with its pattern as its own document, then
+    /// overwrites the records of exercises that are no longer public with
+    /// tombstones so they vanish from everyone's Community tab.
+    private func uploadSharedExercises() async {
         guard readyToUpload, let store else { return }
-        let publicExercises = store.exercises.filter { $0.visibility == .public }
-        var midi: [String: [MIDINote]] = [:]
-        var texts: [String: [MIDIText]] = [:]
-        for exercise in publicExercises {
-            midi[exercise.id.uuidString] = store.notes(for: exercise.id)
-            let t = store.texts(for: exercise.id)
-            if !t.isEmpty { texts[exercise.id.uuidString] = t }
-        }
         let deviceID = DeviceIdentifier.uuidString
-        let doc = SharedExercisesDoc(deviceID: deviceID,
-                                     exercises: publicExercises,
-                                     midi: midi,
-                                     texts: texts.isEmpty ? nil : texts)
+        let publicExercises = store.exercises.filter { $0.visibility == .public }
+        let defaults = UserDefaults.standard
+        // Exercise IDs with a live record on the server as of the last upload.
+        var onServer = Set(defaults.stringArray(forKey: Self.uploadedExerciseIDsKey) ?? [])
         // Compact and key-sorted: the server rejects documents past roughly
         // 64 KB, and a deterministic encoding makes the skip-if-unchanged
         // comparison below reliable.
         let encoder = JSONEncoder()
         encoder.outputFormatting = [.sortedKeys]
-        guard let body = try? encoder.encode(doc), body != lastUploadedBody,
-              let url = URL(string: "\(Self.baseURL)/persist/\(deviceID)/SHARED_EXERCISE?customId1=\(deviceID)")
+
+        for exercise in publicExercises {
+            let idString = exercise.id.uuidString
+            let t = store.texts(for: exercise.id)
+            let doc = SharedExerciseDoc(deviceID: deviceID,
+                                        exercise: exercise,
+                                        midi: store.notes(for: exercise.id),
+                                        texts: t.isEmpty ? nil : t)
+            guard let body = try? encoder.encode(doc) else { continue }
+            if body == lastUploadedBodies[idString] {
+                onServer.insert(idString)
+                continue
+            }
+            if await post(body: body, exerciseID: idString, exerciseName: exercise.name) {
+                lastUploadedBodies[idString] = body
+                onServer.insert(idString)
+            }
+        }
+
+        let publicIDs = Set(publicExercises.map { $0.id.uuidString })
+        for idString in onServer.subtracting(publicIDs) {
+            guard let body = try? encoder.encode(SharedExerciseDoc(deviceID: deviceID)) else { continue }
+            if await post(body: body, exerciseID: idString, exerciseName: "") {
+                lastUploadedBodies.removeValue(forKey: idString)
+                onServer.remove(idString)
+            }
+        }
+        defaults.set(onServer.sorted(), forKey: Self.uploadedExerciseIDsKey)
+    }
+
+    /// POSTs one per-exercise document to the persist endpoint; returns whether
+    /// the server accepted it.
+    private func post(body: Data, exerciseID: String, exerciseName: String) async -> Bool {
+        var components = URLComponents(string: "\(Self.baseURL)/persist/\(exerciseID)/SHARED_EXERCISE")
+        components?.queryItems = [
+            URLQueryItem(name: "customId1", value: DeviceIdentifier.uuidString),
+            URLQueryItem(name: "customName", value: exerciseName),
+            URLQueryItem(name: "customId2", value: exerciseID),
+        ]
+        guard let url = components?.url else { return false }
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.httpBody = body
+        do {
+            let (_, response) = try await URLSession.shared.data(for: request)
+            if let http = response as? HTTPURLResponse, (200...299).contains(http.statusCode) {
+                return true
+            }
+            if let http = response as? HTTPURLResponse {
+                print("CommunitySync: upload of \(exerciseID) failed with status \(http.statusCode)")
+            }
+        } catch {
+            print("CommunitySync: upload of \(exerciseID) failed: \(error)")
+        }
+        return false
+    }
+
+    /// POSTs the profile username as this device's PUBLIC_NAME document.
+    private func uploadPublicName() async {
+        guard readyToUpload else { return }
+        let deviceID = DeviceIdentifier.uuidString
+        let doc = PublicNameDoc(deviceID: deviceID, username: UserProfile.load().username)
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = [.sortedKeys]
+        guard let body = try? encoder.encode(doc), body != lastUploadedName,
+              let url = URL(string: "\(Self.baseURL)/persist/\(deviceID)/PUBLIC_NAME?customId1=\(deviceID)")
         else { return }
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
@@ -116,12 +199,12 @@ final class CommunitySync: ObservableObject {
         do {
             let (_, response) = try await URLSession.shared.data(for: request)
             if let http = response as? HTTPURLResponse, (200...299).contains(http.statusCode) {
-                lastUploadedBody = body
+                lastUploadedName = body
             } else if let http = response as? HTTPURLResponse {
-                print("CommunitySync: upload failed with status \(http.statusCode)")
+                print("CommunitySync: name upload failed with status \(http.statusCode)")
             }
         } catch {
-            print("CommunitySync: upload failed: \(error)")
+            print("CommunitySync: name upload failed: \(error)")
         }
     }
 
@@ -148,50 +231,81 @@ final class CommunitySync: ObservableObject {
                 }
                 return
             }
-            apply(docs: Self.decodeDocs(from: data))
+            let docs = Self.decodeDocs(from: data)
+            let names = await Self.fetchPublicNames(for: Set(docs.map(\.deviceID)))
+            apply(docs: docs, names: names)
         } catch {
             print("CommunitySync: fetch failed: \(error)")
         }
     }
 
-    /// The fetch endpoint answers with an array of records; documents that fail
-    /// to decode (e.g. written by a newer app version) are skipped.
-    private static func decodeDocs(from data: Data) -> [SharedExercisesDoc] {
-        let decoder = JSONDecoder()
-        guard let records = try? decoder.decode([PersistRecord].self, from: data) else { return [] }
-        return records.compactMap {
-            try? decoder.decode(SharedExercisesDoc.self, from: Data($0.jsonData.utf8))
+    /// Fetches every uploader's PUBLIC_NAME document in parallel and returns the
+    /// non-empty usernames by device ID. Devices whose fetch fails are simply
+    /// absent, so their exercises keep the name stamped at publish time.
+    private static func fetchPublicNames(for deviceIDs: Set<String>) async -> [String: String] {
+        await withTaskGroup(of: (String, String)?.self) { group in
+            for deviceID in deviceIDs {
+                group.addTask {
+                    guard let url = URL(string: "\(baseURL)/fetch-public/PUBLIC_NAME?customId1=\(deviceID)"),
+                          let (data, response) = try? await URLSession.shared.data(from: url),
+                          let http = response as? HTTPURLResponse, (200...299).contains(http.statusCode)
+                    else { return nil }
+                    let decoder = JSONDecoder()
+                    // The endpoint keeps one latest record per id, so the first
+                    // record is the current name.
+                    guard let record = (try? decoder.decode([PersistRecord].self, from: data))?.first,
+                          let doc = try? decoder.decode(PublicNameDoc.self, from: Data(record.jsonData.utf8)),
+                          !doc.username.isEmpty
+                    else { return nil }
+                    return (deviceID, doc.username)
+                }
+            }
+            var names: [String: String] = [:]
+            for await pair in group {
+                if let (deviceID, username) = pair { names[deviceID] = username }
+            }
+            return names
         }
     }
 
-    /// Publishes the fetched exercises and swaps their patterns into the
+    /// The fetch endpoint answers with an array of records, one per exercise;
+    /// tombstones and documents that fail to decode (e.g. the pre-split
+    /// whole-library documents, or ones written by a newer app version) are
+    /// skipped.
+    private static func decodeDocs(from data: Data) -> [SharedExerciseDoc] {
+        let decoder = JSONDecoder()
+        guard let records = try? decoder.decode([PersistRecord].self, from: data) else { return [] }
+        return records.compactMap {
+            try? decoder.decode(SharedExerciseDoc.self, from: Data($0.jsonData.utf8))
+        }
+    }
+
+    /// Publishes the fetched exercises — relabelled with each uploader's current
+    /// PUBLIC_NAME where one was fetched — and swaps their patterns into the
     /// UserDefaults cache, dropping patterns of exercises no longer shared.
-    private func apply(docs: [SharedExercisesDoc]) {
+    private func apply(docs: [SharedExerciseDoc], names: [String: String]) {
         let localIDs = Set(store?.exercises.map(\.id) ?? [])
         let defaults = UserDefaults.standard
-        var seenDevices = Set<String>()
         var seenExercises = Set<UUID>()
         var fetched: [Exercise] = []
         var cachedIDs: [String] = []
-        for doc in docs where seenDevices.insert(doc.deviceID).inserted {
-            for exercise in doc.exercises where exercise.visibility == .public {
-                guard seenExercises.insert(exercise.id).inserted else { continue }
-                fetched.append(exercise)
-                // Exercises that live in the local store (this device's own
-                // uploads) already have their pattern under these keys; never
-                // overwrite it with the server copy, which may lag behind.
-                guard !localIDs.contains(exercise.id) else { continue }
-                cachedIDs.append(exercise.id.uuidString)
-                if let notes = doc.midi[exercise.id.uuidString],
-                   let data = try? JSONEncoder().encode(notes) {
-                    defaults.set(data, forKey: ExerciseStore.midiKey(exercise.id))
-                }
-                if let texts = doc.texts?[exercise.id.uuidString],
-                   let data = try? JSONEncoder().encode(texts) {
-                    defaults.set(data, forKey: ExerciseStore.midiTextKey(exercise.id))
-                } else {
-                    defaults.removeObject(forKey: ExerciseStore.midiTextKey(exercise.id))
-                }
+        for doc in docs {
+            guard var exercise = doc.exercise, exercise.visibility == .public,
+                  seenExercises.insert(exercise.id).inserted else { continue }
+            if let name = names[doc.deviceID] { exercise.uploaderName = name }
+            fetched.append(exercise)
+            // Exercises that live in the local store (this device's own
+            // uploads) already have their pattern under these keys; never
+            // overwrite it with the server copy, which may lag behind.
+            guard !localIDs.contains(exercise.id) else { continue }
+            cachedIDs.append(exercise.id.uuidString)
+            if let data = try? JSONEncoder().encode(doc.midi) {
+                defaults.set(data, forKey: ExerciseStore.midiKey(exercise.id))
+            }
+            if let texts = doc.texts, let data = try? JSONEncoder().encode(texts) {
+                defaults.set(data, forKey: ExerciseStore.midiTextKey(exercise.id))
+            } else {
+                defaults.removeObject(forKey: ExerciseStore.midiTextKey(exercise.id))
             }
         }
         let stale = Set(defaults.stringArray(forKey: Self.cachedPatternIDsKey) ?? [])

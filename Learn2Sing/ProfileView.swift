@@ -99,6 +99,9 @@ struct ProfileView: View {
         .onChange(of: profile.username) {
             profile.save()
             ProfileSync.shared.scheduleUpload()
+            // Also push the new name to the PUBLIC_NAME document the Community
+            // tab labels exercises with.
+            CommunitySync.shared.scheduleUpload()
         }
     }
 }
