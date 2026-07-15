@@ -35,6 +35,9 @@ struct ExerciseListSection: Equatable {
     /// false keeps the exercise count out of the header entirely, even while
     /// collapsed (Home tab).
     var showsCount = true
+    /// true puts a + button in the header, right after the category name
+    /// (Routines on the Home tab). Taps arrive via the list's `onAdd`.
+    var showsAdd = false
 }
 
 /// The normal-mode exercise list. This is intentionally NOT a SwiftUI List: a
@@ -60,6 +63,8 @@ struct ExerciseCollectionList: UIViewControllerRepresentable {
     var onDelete: ((UUID) -> Void)? = nil
     var onToggleCollapse: (String) -> Void = { _ in }
     var onHeaderLongPress: () -> Void = {}
+    /// Tap on a section header's + button (sections with `showsAdd`).
+    var onAdd: ((String) -> Void)? = nil
     /// (exercise, newCategory, idOfExerciseItNowPrecedes — nil appends).
     /// nil disables drag & drop entirely (Community tab).
     var onMove: ((UUID, String, UUID?) -> Void)? = nil
@@ -82,6 +87,7 @@ struct ExerciseCollectionList: UIViewControllerRepresentable {
         controller.onDelete = onDelete
         controller.onToggleCollapse = onToggleCollapse
         controller.onHeaderLongPress = onHeaderLongPress
+        controller.onAdd = onAdd
         controller.onMove = onMove
         controller.setSections(sections, animated: true)
     }
@@ -95,6 +101,7 @@ final class ExerciseListController: UIViewController {
     var onDelete: ((UUID) -> Void)?
     var onToggleCollapse: ((String) -> Void)?
     var onHeaderLongPress: (() -> Void)?
+    var onAdd: ((String) -> Void)?
     var onMove: ((UUID, String, UUID?) -> Void)?
 
     private var sections: [ExerciseListSection] = []
@@ -282,6 +289,7 @@ final class ExerciseListController: UIViewController {
                          animated: animated)
         header.onTap = { [weak self] in self?.onToggleCollapse?(section.category) }
         header.onLongPress = { [weak self] in self?.onHeaderLongPress?() }
+        header.onAdd = section.showsAdd ? { [weak self] in self?.onAdd?(section.category) } : nil
     }
 
     private func location(of id: UUID) -> (section: Int, item: Int)? {
@@ -627,13 +635,18 @@ private final class MIDIPatternView: UIView {
 
 /// Replica of the SwiftUI section header: category name, exercise count while
 /// collapsed, and a chevron that points right (collapsed) or down (expanded).
-/// Tap toggles collapse; a long press enters category-reorder mode.
+/// Tap toggles collapse; a long press enters category-reorder mode. Sections
+/// with an add handler show a + button right after the name (Routines on Home).
 final class ExerciseSectionHeaderView: UICollectionReusableView {
     var onTap: (() -> Void)?
     var onLongPress: (() -> Void)?
+    var onAdd: (() -> Void)? {
+        didSet { addButton.isHidden = onAdd == nil }
+    }
 
     private let nameLabel = UILabel()
     private let countLabel = UILabel()
+    private let addButton = UIButton(type: .system)
     private let chevron = UIImageView()
     private var isCollapsed = false
 
@@ -654,9 +667,19 @@ final class ExerciseSectionHeaderView: UICollectionReusableView {
         chevron.tintColor = .tertiaryLabel
         chevron.setContentHuggingPriority(.required, for: .horizontal)
 
+        addButton.setImage(UIImage(systemName: "plus"), for: .normal)
+        addButton.setPreferredSymbolConfiguration(
+            UIImage.SymbolConfiguration(font: headerDefaults.textProperties.font),
+            forImageIn: .normal
+        )
+        addButton.setContentHuggingPriority(.required, for: .horizontal)
+        addButton.accessibilityLabel = "Add"
+        addButton.isHidden = true
+        addButton.addTarget(self, action: #selector(addTapped), for: .touchUpInside)
+
         let spacer = UIView()
         spacer.setContentHuggingPriority(.defaultLow, for: .horizontal)
-        let stack = UIStackView(arrangedSubviews: [nameLabel, countLabel, spacer, chevron])
+        let stack = UIStackView(arrangedSubviews: [nameLabel, addButton, countLabel, spacer, chevron])
         stack.axis = .horizontal
         stack.alignment = .center
         stack.spacing = 8
@@ -672,6 +695,9 @@ final class ExerciseSectionHeaderView: UICollectionReusableView {
         addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(tapped)))
         let longPress = UILongPressGestureRecognizer(target: self, action: #selector(longPressed(_:)))
         longPress.minimumPressDuration = 0.5
+        // The delegate keeps a slow press on the + button from also triggering
+        // reorder mode (taps on controls already take precedence on their own).
+        longPress.delegate = self
         addGestureRecognizer(longPress)
     }
 
@@ -693,8 +719,17 @@ final class ExerciseSectionHeaderView: UICollectionReusableView {
 
     @objc private func tapped() { onTap?() }
 
+    @objc private func addTapped() { onAdd?() }
+
     @objc private func longPressed(_ recognizer: UILongPressGestureRecognizer) {
         guard recognizer.state == .began else { return }
         onLongPress?()
+    }
+}
+
+extension ExerciseSectionHeaderView: UIGestureRecognizerDelegate {
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer,
+                           shouldReceive touch: UITouch) -> Bool {
+        !(touch.view is UIControl)
     }
 }

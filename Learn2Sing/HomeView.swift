@@ -88,7 +88,8 @@ struct HomeView: View {
                                        isCollapsed: isCollapsed,
                                        totalCount: items.count,
                                        items: isCollapsed ? [] : items,
-                                       showsCount: false)
+                                       showsCount: false,
+                                       showsAdd: category == Self.routinesCategory)
         }
     }
 
@@ -186,7 +187,11 @@ struct HomeView: View {
                                 collapsedCategories.insert(category)
                             }
                         },
-                        onHeaderLongPress: { enterReorderMode() }
+                        onHeaderLongPress: { enterReorderMode() },
+                        onAdd: { _ in
+                            newRoutineName = ""
+                            isNamingNewRoutine = true
+                        }
                     )
                     // Span the full screen like a List so content scrolls under the
                     // navigation and tab bars.
@@ -203,15 +208,6 @@ struct HomeView: View {
                             exitReorderMode()
                         } label: {
                             Image(systemName: "xmark")
-                        }
-                    }
-                } else {
-                    ToolbarItem(placement: .topBarTrailing) {
-                        Button {
-                            newRoutineName = ""
-                            isNamingNewRoutine = true
-                        } label: {
-                            Image(systemName: "plus")
                         }
                     }
                 }

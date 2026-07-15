@@ -1178,11 +1178,14 @@ final class Learn2SingUITests: XCTestCase {
         XCTAssertTrue(header(app, named: "Routines").exists,
                       "Home should show the Routines category header")
 
-        // Create a routine via the + button. UserDefaults persist between runs,
-        // so the name is unique per run.
+        // Create a routine via the + button next to the Routines header.
+        // UserDefaults persist between runs, so the name is unique per run.
         let routineName = "Routine \(Int(Date().timeIntervalSince1970))"
-        let add = app.navigationBars["Home"].buttons["Add"].firstMatch
-        XCTAssertTrue(add.waitForExistence(timeout: 3), "Home should show a + button")
+        XCTAssertFalse(app.navigationBars["Home"].buttons["Add"].exists,
+                       "the + button should live in the Routines header, not the nav bar")
+        let add = app.collectionViews.buttons["Add"].firstMatch
+        XCTAssertTrue(add.waitForExistence(timeout: 3),
+                      "the Routines header should show a + button")
         add.tap()
         let alert = app.alerts["New Routine"]
         XCTAssertTrue(alert.waitForExistence(timeout: 3), "+ should ask for the routine's name")
