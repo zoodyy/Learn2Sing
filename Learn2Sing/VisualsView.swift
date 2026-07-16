@@ -21,11 +21,12 @@ enum AppTheme: String, CaseIterable, Identifiable {
     }
 }
 
-/// The "Visuals" hub reached from Settings. Holds the app-wide theme choice and an
-/// entry to the Playback-visuals screen; it's a screen of its own so further visual
-/// areas can be added.
+/// The "Visuals" hub reached from Settings. Holds the app-wide theme and
+/// orientation choices and an entry to the Playback-visuals screen; it's a screen
+/// of its own so further visual areas can be added.
 struct VisualsHubView: View {
     @AppStorage(AppTheme.storageKey) private var themeRaw = AppTheme.system.rawValue
+    @AppStorage(OrientationLock.storageKey) private var orientationLockRaw = OrientationLock.none.rawValue
 
     /// Push the playback-visuals screen onto the shared Settings navigation stack.
     let openPlayback: () -> Void
@@ -40,6 +41,21 @@ struct VisualsHubView: View {
                 }
             } footer: {
                 Text("Sets the app's appearance. “System” matches your device's light or dark setting.")
+            }
+
+            Section {
+                Picker("Lock orientation", selection: $orientationLockRaw) {
+                    ForEach(OrientationLock.allCases) { lock in
+                        Text(lock.rawValue).tag(lock.rawValue)
+                    }
+                }
+                .onChange(of: orientationLockRaw) { _, newValue in
+                    OrientationLockManager.apply(OrientationLock(rawValue: newValue) ?? .none)
+                }
+            } header: {
+                Text("Orientation")
+            } footer: {
+                Text("Keeps the app in the chosen orientation. “Don't lock” lets it rotate with your device.")
             }
 
             Section {

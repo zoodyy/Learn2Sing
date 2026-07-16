@@ -165,13 +165,14 @@ func pitchInputText(_ hz: Double) -> String {
 
 // MARK: - Management screens
 
-/// The list of uploaded instruments: add via the file picker, swipe to delete,
-/// tap a row to edit its name and pitch on the detail screen.
-struct CustomInstrumentsView: View {
+/// The "Instruments" screen inside the Audio settings: pick one of the built-in
+/// playback sounds, or manage the uploaded ones — add via the file picker, swipe
+/// to delete, tap a row to edit its name and pitch on the detail screen.
+struct InstrumentsView: View {
     @ObservedObject private var store = CustomInstrumentStore.shared
     @AppStorage(Instrument.storageKey) private var instrumentRaw = Instrument.piano.rawValue
 
-    /// Pushes the detail screen for an instrument onto the Settings stack.
+    /// Pushes the detail screen for a custom instrument onto the Settings stack.
     let onSelect: (UUID) -> Void
 
     @State private var isImporting = false
@@ -179,6 +180,24 @@ struct CustomInstrumentsView: View {
 
     var body: some View {
         Form {
+            Section("Built-in") {
+                ForEach(Instrument.allCases) { instrument in
+                    Button {
+                        instrumentRaw = instrument.rawValue
+                    } label: {
+                        HStack {
+                            Text(instrument.rawValue)
+                            Spacer()
+                            if instrumentRaw == instrument.rawValue {
+                                Image(systemName: "checkmark")
+                                    .foregroundStyle(.tint)
+                            }
+                        }
+                    }
+                    .foregroundStyle(.primary)
+                }
+            }
+
             Section {
                 ForEach(store.instruments) { instrument in
                     Button {
@@ -208,11 +227,13 @@ struct CustomInstrumentsView: View {
                         store.delete(id: store.instruments[offset].id)
                     }
                 }
+            } header: {
+                Text("Custom")
             } footer: {
                 Text("Upload an MP3 or WAV file containing a single sound. Playback shifts it up and down from its pitch to reach every note. After uploading, set the pitch the recording actually has.")
             }
         }
-        .navigationTitle("Custom Instruments")
+        .navigationTitle("Instruments")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
@@ -241,7 +262,7 @@ struct CustomInstrumentsView: View {
                 alertMessage = "Import failed: \(error.localizedDescription)"
             }
         }
-        .alert("Custom Instruments", isPresented: Binding(
+        .alert("Instruments", isPresented: Binding(
             get: { alertMessage != nil },
             set: { if !$0 { alertMessage = nil } }
         )) {

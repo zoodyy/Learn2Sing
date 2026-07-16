@@ -499,6 +499,7 @@ final class Learn2SingUITests: XCTestCase {
         // Leave the device upright however this test ends.
         defer { device.orientation = .portrait }
 
+        // The orientation picker lives on the Visuals hub inside Settings.
         func openSettings() -> XCUIApplication {
             let app = XCUIApplication()
             app.launch()
@@ -506,6 +507,10 @@ final class Learn2SingUITests: XCTestCase {
             XCTAssertTrue(tab.waitForExistence(timeout: 5), "Settings tab not found")
             tab.tap()
             XCTAssertTrue(app.navigationBars["Settings"].waitForExistence(timeout: 5))
+            let visuals = app.buttons["Visuals"].firstMatch
+            XCTAssertTrue(visuals.waitForExistence(timeout: 5), "Visuals row not found")
+            visuals.tap()
+            XCTAssertTrue(app.navigationBars["Visuals"].waitForExistence(timeout: 5))
             return app
         }
 
@@ -1642,4 +1647,65 @@ final class Learn2SingUITests: XCTestCase {
 
     /// Must match VisualKeys.hideTabBar in the app target.
     private let hideTabBarKey = "vis_hideTabBar"
+
+    // MARK: - Settings categories
+
+    /// Walks the Settings category hubs (Audio with its Instruments sub-screen,
+    /// Visuals, Voice) and checks each screen's key controls exist,
+    /// screenshotting along the way.
+    func testSettingsCategoryNavigation() throws {
+        let app = XCUIApplication()
+        app.launch()
+        let tab = app.buttons["Settings"]
+        XCTAssertTrue(tab.waitForExistence(timeout: 5), "Settings tab not found")
+        tab.tap()
+        XCTAssertTrue(app.navigationBars["Settings"].waitForExistence(timeout: 5))
+        saveScreenshot("settings-root")
+
+        // Audio hub: devices and scoring live here, Instruments is a sub-screen.
+        app.buttons["Audio"].firstMatch.tap()
+        XCTAssertTrue(app.navigationBars["Audio"].waitForExistence(timeout: 5),
+                      "Audio row should push the Audio hub")
+        XCTAssertTrue(app.buttons.matching(
+            NSPredicate(format: "label BEGINSWITH %@", "Speaker")).firstMatch.waitForExistence(timeout: 5),
+            "Speaker picker not on the Audio screen")
+        XCTAssertTrue(app.staticTexts["Microphone delay"].exists,
+                      "Microphone delay row not on the Audio screen")
+        XCTAssertTrue(app.buttons["Test for delay"].exists,
+                      "delay test button not on the Audio screen")
+        saveScreenshot("settings-audio")
+
+        // Instruments: built-in choices plus the custom-instrument list.
+        app.buttons["Instruments"].firstMatch.tap()
+        XCTAssertTrue(app.navigationBars["Instruments"].waitForExistence(timeout: 5),
+                      "Instruments row should push the Instruments screen")
+        XCTAssertTrue(app.buttons["Piano"].waitForExistence(timeout: 5),
+                      "built-in instruments not listed")
+        XCTAssertTrue(app.staticTexts["Custom"].exists, "Custom section not shown")
+        saveScreenshot("settings-instruments")
+        app.navigationBars["Instruments"].buttons.firstMatch.tap()   // back to Audio
+        XCTAssertTrue(app.navigationBars["Audio"].waitForExistence(timeout: 5))
+        app.navigationBars["Audio"].buttons.firstMatch.tap()         // back to Settings
+        XCTAssertTrue(app.navigationBars["Settings"].waitForExistence(timeout: 5))
+
+        // Visuals hub now also holds the orientation lock.
+        app.buttons["Visuals"].firstMatch.tap()
+        XCTAssertTrue(app.navigationBars["Visuals"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.buttons.matching(
+            NSPredicate(format: "label BEGINSWITH %@", "Lock orientation")).firstMatch.waitForExistence(timeout: 5),
+            "orientation picker not on the Visuals screen")
+        saveScreenshot("settings-visuals")
+        app.navigationBars["Visuals"].buttons.firstMatch.tap()
+        XCTAssertTrue(app.navigationBars["Settings"].waitForExistence(timeout: 5))
+
+        // Voice hub: vocal range picker and its test.
+        app.buttons["Voice"].firstMatch.tap()
+        XCTAssertTrue(app.navigationBars["Voice"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.buttons.matching(
+            NSPredicate(format: "label BEGINSWITH %@", "Vocal range")).firstMatch.waitForExistence(timeout: 5),
+            "vocal range picker not on the Voice screen")
+        XCTAssertTrue(app.buttons["Test Vocal Range"].exists,
+                      "vocal range test button not on the Voice screen")
+        saveScreenshot("settings-voice")
+    }
 }

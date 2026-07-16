@@ -10,14 +10,6 @@ import UIKit
 import UniformTypeIdentifiers
 
 struct SettingsView: View {
-    @AppStorage(Instrument.storageKey) private var instrumentRaw = Instrument.piano.rawValue
-    @AppStorage(AudioRouteManager.speakerKey) private var speaker = AudioRouteManager.automatic
-    @AppStorage(AudioRouteManager.micKey) private var microphone = AudioRouteManager.builtInMic
-    @AppStorage(microphoneDelayKey) private var micDelayMs = 0.0
-    @AppStorage(VocalRange.storageKey) private var vocalRangeRaw = ""
-    @AppStorage(OrientationLock.storageKey) private var orientationLockRaw = OrientationLock.none.rawValue
-    @FocusState private var micDelayFocused: Bool
-    @ObservedObject private var routes = AudioRouteManager.shared
     @EnvironmentObject private var store: ExerciseStore
 
     @State private var exportDocument: ExerciseDocument?
@@ -34,115 +26,25 @@ struct SettingsView: View {
         NavigationStack(path: $settingsPath) {
             Form {
                 Section {
-                    Button {
-                        settingsPath.append(SettingsRoute.profile)
-                    } label: {
-                        HStack {
-                            Label("Profile", systemImage: "person.crop.circle")
-                            Spacer()
-                            Image(systemName: "chevron.right")
-                                .font(.footnote.weight(.semibold))
-                                .foregroundStyle(.tertiary)
-                        }
-                    }
-                    .foregroundStyle(.primary)
-                }
-
-                Section("Playback") {
-                    Picker("Instrument", selection: $instrumentRaw) {
-                        ForEach(Instrument.allCases) { instrument in
-                            Text(instrument.rawValue).tag(instrument.rawValue)
-                        }
-                    }
+                    hubLink("Profile", systemImage: "person.crop.circle", route: .profile)
                 }
 
                 Section {
-                    Picker("Lock orientation", selection: $orientationLockRaw) {
-                        ForEach(OrientationLock.allCases) { lock in
-                            Text(lock.rawValue).tag(lock.rawValue)
-                        }
-                    }
-                    .onChange(of: orientationLockRaw) { _, newValue in
-                        OrientationLockManager.apply(OrientationLock(rawValue: newValue) ?? .none)
-                    }
-                } header: {
-                    Text("Orientation")
+                    hubLink("Audio", systemImage: "speaker.wave.2", route: .audio)
                 } footer: {
-                    Text("Keeps the app in the chosen orientation. “Don't lock” lets it rotate with your device.")
+                    Text("Instruments, playback and recording devices, and the microphone delay used for scoring.")
                 }
 
                 Section {
-                    Button {
-                        settingsPath.append(SettingsRoute.visualsHub)
-                    } label: {
-                        HStack {
-                            Label("Visuals", systemImage: "paintpalette")
-                            Spacer()
-                            Image(systemName: "chevron.right")
-                                .font(.footnote.weight(.semibold))
-                                .foregroundStyle(.tertiary)
-                        }
-                    }
-                    .foregroundStyle(.primary)
-                }
-
-                Section {
-                    Picker("Vocal range", selection: $vocalRangeRaw) {
-                        Text("Not set").tag("")
-                        ForEach(VocalRange.allCases) { range in
-                            Text(range.rawValue).tag(range.rawValue)
-                        }
-                    }
-
-                    Button {
-                        settingsPath.append(SettingsRoute.vocalRangeTest)
-                    } label: {
-                        Label("Test Vocal Range", systemImage: "waveform")
-                    }
-                } header: {
-                    Text("Vocal Range")
+                    hubLink("Visuals", systemImage: "paintpalette", route: .visualsHub)
                 } footer: {
-                    Text("Sing your lowest and highest notes and the app estimates your voice type, then sets it above.")
+                    Text("Theme, orientation and the look of the playback screen.")
                 }
 
                 Section {
-                    Picker("Speaker", selection: $speaker) {
-                        ForEach(options(routes.outputOptions, including: speaker), id: \.self) {
-                            Text($0).tag($0)
-                        }
-                    }
-                    Picker("Microphone", selection: $microphone) {
-                        ForEach(options(routes.inputOptions, including: microphone), id: \.self) {
-                            Text($0).tag($0)
-                        }
-                    }
-                } header: {
-                    Text("Audio Devices")
+                    hubLink("Voice", systemImage: "music.mic", route: .voice)
                 } footer: {
-                    Text("“Automatic” uses connected earphones (e.g. AirPods) when available, otherwise the phone.")
-                }
-
-                Section {
-                    HStack {
-                        Text("Microphone delay")
-                        Spacer()
-                        TextField("0", value: $micDelayMs, format: .number)
-                            .multilineTextAlignment(.trailing)
-                            .keyboardType(.decimalPad)
-                            .focused($micDelayFocused)
-                            .frame(width: 70)
-                        Text("ms").foregroundStyle(.secondary)
-                    }
-
-                    Button {
-                        settingsPath.append(SettingsRoute.delayIntro)
-                    } label: {
-                        Label("Test for delay", systemImage: "metronome")
-                    }
-                } header: {
-                    Text("Scoring")
-                } footer: {
-                    Text("Compensates for the lag between singing and pitch detection. Only the score is affected — playback and visuals are unchanged. Run the test to measure it automatically.")
+                    Text("Your vocal range and the test that measures it.")
                 }
 
                 Section {
@@ -173,12 +75,22 @@ struct SettingsView: View {
             .stableTopEdgeFade()
             .navigationDestination(for: SettingsRoute.self) { route in
                 switch route {
+                case .audio:
+                    AudioSettingsView(
+                        openInstruments: { settingsPath.append(SettingsRoute.instruments) },
+                        openDelayTest: { settingsPath.append(SettingsRoute.delayIntro) })
+                case .instruments:
+                    InstrumentsView { settingsPath.append(SettingsRoute.customInstrument($0)) }
+                case .customInstrument(let id):
+                    CustomInstrumentDetailView(instrument: CustomInstrumentStore.shared.binding(for: id))
                 case .delayIntro:
                     ExerciseIntroView(exercise: delayTestExercise) {
                         settingsPath.append(SettingsRoute.delayPlayback)
                     }
                 case .delayPlayback:
                     PlaybackView(exercise: delayTestExercise, mode: .delayTest)
+                case .voice:
+                    VoiceSettingsView { settingsPath.append(SettingsRoute.vocalRangeTest) }
                 case .vocalRangeTest:
                     VocalRangeTestView { settingsPath = NavigationPath() }
                 case .visualsHub:
@@ -189,24 +101,8 @@ struct SettingsView: View {
                     ProfileView()
                 }
             }
-            // The decimal pad has no return key. A keyboard toolbar (`.toolbar(.keyboard)`)
-            // doesn't attach reliably inside a TabView, so instead show a Done bar pinned
-            // above the keyboard while editing, and also let a scroll dismiss it.
-            .scrollDismissesKeyboard(.interactively)
-            .safeAreaInset(edge: .bottom) {
-                if micDelayFocused {
-                    HStack {
-                        Spacer()
-                        Button("Done") { micDelayFocused = false }
-                            .fontWeight(.semibold)
-                    }
-                    .padding(.horizontal)
-                    .padding(.vertical, 8)
-                    .background(.bar)
-                }
-            }
-            .onAppear { routes.refreshOptions() }
-            // Select the whole number when the delay field is tapped, so typing a new
+            // Select the whole number when a numeric field anywhere on this stack is
+            // tapped (e.g. the microphone delay on the Audio screen), so typing a new
             // value replaces the old one instead of inserting alongside it. Scoped to
             // numeric fields by keyboard type, matching the repetition fields.
             .onReceive(NotificationCenter.default.publisher(for: UITextField.textDidBeginEditingNotification)) { notification in
@@ -255,18 +151,32 @@ struct SettingsView: View {
         }
     }
 
-    /// The device list to show in a picker, guaranteeing the current selection is
-    /// present even when that device is no longer connected (so it doesn't vanish).
-    private func options(_ list: [String], including selection: String) -> [String] {
-        list.contains(selection) ? list : list + [selection]
+    /// A row that pushes a settings category screen onto the navigation stack.
+    private func hubLink(_ title: String, systemImage: String, route: SettingsRoute) -> some View {
+        Button {
+            settingsPath.append(route)
+        } label: {
+            HStack {
+                Label(title, systemImage: systemImage)
+                Spacer()
+                Image(systemName: "chevron.right")
+                    .font(.footnote.weight(.semibold))
+                    .foregroundStyle(.tertiary)
+            }
+        }
+        .foregroundStyle(.primary)
     }
 
-    /// Screens pushed onto the Settings navigation stack: the microphone-delay
-    /// test's intro/description screen and its clap-along playback, plus the
-    /// vocal-range test.
+    /// Screens pushed onto the Settings navigation stack: the category hubs
+    /// (Audio with its instruments screens, Visuals, Voice, Profile) and the
+    /// microphone-delay and vocal-range tests they lead to.
     private enum SettingsRoute: Hashable {
+        case audio
+        case instruments
+        case customInstrument(UUID)
         case delayIntro
         case delayPlayback
+        case voice
         case vocalRangeTest
         case visualsHub
         case visualsPlayback
@@ -295,6 +205,38 @@ struct SettingsView: View {
         up by the microphone, and clap firmly.
         """
         return exercise
+    }
+}
+
+/// The "Voice" hub reached from Settings: the user's vocal range and the test
+/// that measures it. A screen of its own so further voice areas can be added.
+struct VoiceSettingsView: View {
+    @AppStorage(VocalRange.storageKey) private var vocalRangeRaw = ""
+
+    /// Push the vocal-range test onto the shared Settings navigation stack.
+    let openRangeTest: () -> Void
+
+    var body: some View {
+        Form {
+            Section {
+                Picker("Vocal range", selection: $vocalRangeRaw) {
+                    Text("Not set").tag("")
+                    ForEach(VocalRange.allCases) { range in
+                        Text(range.rawValue).tag(range.rawValue)
+                    }
+                }
+
+                Button(action: openRangeTest) {
+                    Label("Test Vocal Range", systemImage: "waveform")
+                }
+            } header: {
+                Text("Vocal Range")
+            } footer: {
+                Text("Sing your lowest and highest notes and the app estimates your voice type, then sets it above.")
+            }
+        }
+        .navigationTitle("Voice")
+        .navigationBarTitleDisplayMode(.inline)
     }
 }
 
