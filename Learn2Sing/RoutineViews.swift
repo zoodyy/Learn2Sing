@@ -126,22 +126,96 @@ struct RoutineEditView: View {
     }
 }
 
-/// Multi-select exercise picker for a routine, reached from the edit-routine
-/// screen's + button. The same categorized list as the Exercises tab (tap a
-/// header to collapse), but rows can't be started, edited, or dragged — tapping
-/// one toggles its membership in the routine, shown by a leading check circle.
-/// Changes apply immediately, so leaving the screen "adds" the selection.
-struct RoutineExercisePickerView: View {
+/// Edit screen for the favourites list, reached from the + button in the Home
+/// tab's "Favourites" header. The same layout as the edit-routine screen —
+/// draggable rows, a trash toggle that swaps the drag handles for delete
+/// buttons, and a + button pushing the exercise picker — minus the name field,
+/// since the built-in category can't be renamed.
+struct FavouritesEditView: View {
     @EnvironmentObject private var store: ExerciseStore
-    let routineID: UUID
+    /// Called by the + button; the Home stack pushes the exercise picker.
+    let onAddExercises: () -> Void
+
+    /// Always active so the exercise rows show drag handles, exactly like the
+    /// edit-routine screen; turned off while deleting (see below).
+    @State private var editMode: EditMode = .active
+
+    /// True while the drag handles are swapped for per-row delete buttons.
+    /// Toggled by the trash toolbar button.
+    @State private var isDeletingExercises = false
+
+    private func exerciseRow(_ exerciseID: UUID) -> some View {
+        HStack {
+            Text(store.exercises.first { $0.id == exerciseID }?.name ?? "")
+                .frame(maxWidth: .infinity, alignment: .leading)
+            if isDeletingExercises {
+                Button {
+                    withAnimation { store.removeFavourite(exerciseID) }
+                } label: {
+                    Image(systemName: "minus.circle.fill")
+                        .foregroundStyle(.red)
+                }
+                .buttonStyle(.borderless)
+            }
+        }
+    }
+
+    /// Swap the rows' drag handles for delete buttons and back. Edit mode is what
+    /// makes the List show drag handles, so it's turned off while deleting.
+    private func toggleDeleteMode() {
+        withAnimation {
+            isDeletingExercises.toggle()
+            editMode = isDeletingExercises ? .inactive : .active
+        }
+    }
+
+    var body: some View {
+        List {
+            Section {
+                ForEach(store.favourites, id: \.self) { exerciseID in
+                    exerciseRow(exerciseID)
+                }
+                .onMove { source, destination in
+                    store.moveFavourites(from: source, to: destination)
+                }
+            }
+        }
+        .environment(\.editMode, $editMode)
+        .navigationTitle("Edit Favourites")
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Button {
+                    toggleDeleteMode()
+                } label: {
+                    Image(systemName: isDeletingExercises ? "trash.fill" : "trash")
+                }
+            }
+            ToolbarItem(placement: .topBarTrailing) {
+                Button {
+                    onAddExercises()
+                } label: {
+                    Image(systemName: "plus")
+                }
+            }
+        }
+    }
+}
+
+/// Multi-select exercise picker, reached from an edit screen's + button. The
+/// same categorized list as the Exercises tab (tap a header to collapse), but
+/// rows can't be started, edited, or dragged — tapping one toggles its
+/// membership in the target list, shown by a leading check circle. Changes
+/// apply immediately, so leaving the screen "adds" the selection. Shared by
+/// the edit-routine and edit-favourites screens.
+private struct ExerciseMultiPickerList: View {
+    @EnvironmentObject private var store: ExerciseStore
+    let selectedIDs: Set<UUID>
+    let onToggle: (UUID) -> Void
 
     /// Categories the user has collapsed. Their exercises are hidden and the
     /// header shows the exercise count in parentheses instead.
     @State private var collapsedCategories: Set<String> = []
-
-    private var selectedIDs: Set<UUID> {
-        Set(store.routines.first(where: { $0.id == routineID })?.exerciseIDs ?? [])
-    }
 
     /// Exercises with no category, or whose category was deleted, shown in an
     /// unlabelled section like on the Exercises tab.
@@ -179,7 +253,7 @@ struct RoutineExercisePickerView: View {
     var body: some View {
         ExerciseCollectionList(
             sections: listSections,
-            onSelect: { store.toggleExercise($0, in: routineID) },
+            onSelect: onToggle,
             onToggleCollapse: { category in
                 if collapsedCategories.contains(category) {
                     collapsedCategories.remove(category)
@@ -194,5 +268,32 @@ struct RoutineExercisePickerView: View {
         .navigationTitle("Add Exercises")
         .navigationBarTitleDisplayMode(.inline)
         .stableTopEdgeFade()
+    }
+}
+
+/// The exercise picker for a routine, reached from the edit-routine screen's
+/// + button.
+struct RoutineExercisePickerView: View {
+    @EnvironmentObject private var store: ExerciseStore
+    let routineID: UUID
+
+    var body: some View {
+        ExerciseMultiPickerList(
+            selectedIDs: Set(store.routines.first(where: { $0.id == routineID })?.exerciseIDs ?? []),
+            onToggle: { store.toggleExercise($0, in: routineID) }
+        )
+    }
+}
+
+/// The exercise picker for the favourites list, reached from the
+/// edit-favourites screen's + button.
+struct FavouritesExercisePickerView: View {
+    @EnvironmentObject private var store: ExerciseStore
+
+    var body: some View {
+        ExerciseMultiPickerList(
+            selectedIDs: Set(store.favourites),
+            onToggle: { store.toggleFavourite($0) }
+        )
     }
 }

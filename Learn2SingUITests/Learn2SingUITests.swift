@@ -1395,6 +1395,116 @@ final class Learn2SingUITests: XCTestCase {
                        "the deleted routine must not come back after a relaunch")
     }
 
+    /// The Home tab's "Favourites" category: its + button pushes the
+    /// edit-favourites screen (like edit-routine, but with no name field), whose
+    /// + button opens the multi-select exercise picker; picked exercises land in
+    /// the Favourites category on Home and the trash mode removes them again.
+    /// Favourites persist between runs, so picks are chosen from exercises not
+    /// already favourited and removed again at the end.
+    func testHomeFavourites() throws {
+        var app = XCUIApplication()
+        app.launch()
+        XCTAssertTrue(app.navigationBars["Home"].waitForExistence(timeout: 5))
+        sleep(2)
+        let favouritesHeader = header(app, named: "Favourites")
+        XCTAssertTrue(favouritesHeader.exists,
+                      "Home should show the Favourites category header")
+
+        // The Favourites header's + button (the one nearest the header — the
+        // Routines header shows its own) pushes the edit screen, with no
+        // naming alert in between.
+        let addButtons = app.collectionViews.buttons.matching(identifier: "Add")
+            .allElementsBoundByIndex.filter { $0.isHittable }
+        guard let add = addButtons.min(by: {
+            abs($0.frame.midY - favouritesHeader.frame.midY)
+                < abs($1.frame.midY - favouritesHeader.frame.midY)
+        }) else {
+            XCTFail("the Favourites header should show a + button"); return
+        }
+        add.tap()
+        XCTAssertTrue(app.navigationBars["Edit Favourites"].waitForExistence(timeout: 3),
+                      "the Favourites + button should push the edit-favourites screen")
+        XCTAssertFalse(app.textFields.firstMatch.exists,
+                       "the edit-favourites screen has no name field")
+        sleep(1)
+        let initialFavourites = visibleCellOrder(app)
+        saveScreenshot("favourites-edit")
+
+        // + opens the same picker as edit-routine; pick two exercises that
+        // aren't favourites yet.
+        app.navigationBars["Edit Favourites"].buttons["Add"].tap()
+        XCTAssertTrue(app.navigationBars["Add Exercises"].waitForExistence(timeout: 3),
+                      "+ should push the exercise picker")
+        sleep(2)
+        let picks = Array(visibleCellOrder(app).filter { !initialFavourites.contains($0) }.prefix(2))
+        XCTAssertEqual(picks.count, 2, "need two visible non-favourite exercises to pick")
+        for pick in picks {
+            cell(app, named: pick).tap()
+            usleep(500_000)
+        }
+        saveScreenshot("favourites-picker-selected")
+
+        // Back on the edit screen the picked exercises are listed.
+        app.navigationBars["Add Exercises"].buttons.firstMatch.tap()
+        XCTAssertTrue(app.navigationBars["Edit Favourites"].waitForExistence(timeout: 3),
+                      "back should return to the edit screen")
+        sleep(1)
+        for pick in picks {
+            XCTAssertTrue(cell(app, named: pick).exists,
+                          "\(pick) should have been added to the favourites")
+        }
+        saveScreenshot("favourites-edit-filled")
+
+        // Trash mode removes a favourite (not the exercise itself).
+        app.buttons["trash"].firstMatch.tap()
+        sleep(1)
+        let remove = cell(app, named: picks[0]).buttons.firstMatch
+        XCTAssertTrue(remove.waitForExistence(timeout: 3),
+                      "trash mode should show per-row delete buttons")
+        remove.tap()
+        sleep(1)
+        XCTAssertFalse(cell(app, named: picks[0]).exists,
+                       "\(picks[0]) should have been removed from the favourites")
+        XCTAssertTrue(cell(app, named: picks[1]).exists,
+                      "\(picks[1]) should still be a favourite")
+
+        // Back home, the remaining favourite is listed under Favourites — and it
+        // survives a relaunch.
+        app.buttons["BackButton"].firstMatch.tap()
+        XCTAssertTrue(app.navigationBars["Home"].waitForExistence(timeout: 3),
+                      "back should return to Home")
+        sleep(1)
+        XCTAssertTrue((snapshotList(app).items["Favourites"] ?? []).contains(picks[1]),
+                      "\(picks[1]) should be listed under Favourites on Home")
+        saveScreenshot("home-favourites")
+        app.terminate()
+        app = XCUIApplication()
+        app.launch()
+        XCTAssertTrue(app.navigationBars["Home"].waitForExistence(timeout: 5))
+        sleep(2)
+        XCTAssertTrue((snapshotList(app).items["Favourites"] ?? []).contains(picks[1]),
+                      "the favourite should survive a relaunch")
+
+        // Clean up: remove the added favourite so reruns start from the same state.
+        let cleanupHeader = header(app, named: "Favourites")
+        let cleanupAdd = app.collectionViews.buttons.matching(identifier: "Add")
+            .allElementsBoundByIndex.filter { $0.isHittable }
+            .min(by: {
+                abs($0.frame.midY - cleanupHeader.frame.midY)
+                    < abs($1.frame.midY - cleanupHeader.frame.midY)
+            })
+        cleanupAdd?.tap()
+        XCTAssertTrue(app.navigationBars["Edit Favourites"].waitForExistence(timeout: 3))
+        app.buttons["trash"].firstMatch.tap()
+        sleep(1)
+        let cleanupRemove = cell(app, named: picks[1]).buttons.firstMatch
+        XCTAssertTrue(cleanupRemove.waitForExistence(timeout: 3))
+        cleanupRemove.tap()
+        sleep(1)
+        XCTAssertFalse(cell(app, named: picks[1]).exists,
+                       "cleanup should remove the remaining favourite")
+    }
+
     /// Tapping a routine plays its exercises in order: each one's intro screen,
     /// its playback, then the score screen — whose button reads "Next" and moves
     /// on to the following exercise's intro, until the last one's reads "Exit"

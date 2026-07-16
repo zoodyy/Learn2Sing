@@ -74,6 +74,8 @@ enum ExerciseRoute: Hashable {
     case user(String)    // a community uploader's profile, by username
     case routine(UUID)         // a routine's edit screen (Home tab)
     case routinePicker(UUID)   // multi-select exercise picker for a routine (Home tab)
+    case favourites            // the edit-favourites screen (Home tab)
+    case favouritesPicker      // multi-select exercise picker for favourites (Home tab)
     // Playing a routine walks these two alternately through the routine's
     // exercises: intro of exercise #index, its playback, intro of #index+1, …
     case routinePlay(UUID, Int)      // intro screen of the routine's #index exercise
@@ -390,9 +392,10 @@ struct ExercisesView: View {
                     if let ex = store.exercises.first(where: { $0.id == id }) {
                         EditingView(exercise: ex)
                     }
-                case .user, .routine, .routinePicker, .routinePlay, .routinePlayback:
+                case .user, .routine, .routinePicker, .routinePlay, .routinePlayback,
+                     .favourites, .favouritesPicker:
                     // Never appended from this tab; usernames only show in
-                    // Community and routines live on the Home tab.
+                    // Community, routines and favourites live on the Home tab.
                     EmptyView()
                 }
             }

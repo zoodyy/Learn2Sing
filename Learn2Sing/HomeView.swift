@@ -8,9 +8,11 @@
 import SwiftUI
 
 /// The Home tab: built-in categories over the user's library — "Recent" (the
-/// last five exercises that played through to the end) and "Routines" (the
+/// last five exercises that played through to the end), "Routines" (the
 /// user's own ordered exercise lists, created via the + button; swipe right on
-/// one to edit it, swipe left to delete it after a confirmation). The
+/// one to edit it, swipe left to delete it after a confirmation), and
+/// "Favourites" (a single ordered exercise list, its + button opening the
+/// edit-favourites screen). The
 /// categories look and behave like the Exercises tab's
 /// (tap to collapse, long-press to rearrange) but never show exercise counts,
 /// and the reorder screen has no add, delete, or rename — the categories are
@@ -23,10 +25,12 @@ struct HomeView: View {
 
     private static let recentCategory = "Recent"
     private static let routinesCategory = "Routines"
+    private static let favouritesCategory = "Favourites"
 
     /// The built-in categories in the user's display order.
     @State private var categories: [String] = [HomeView.recentCategory,
-                                               HomeView.routinesCategory]
+                                               HomeView.routinesCategory,
+                                               HomeView.favouritesCategory]
 
     /// Drives the "name your new routine" alert opened from the + button.
     @State private var isNamingNewRoutine = false
@@ -71,12 +75,19 @@ struct HomeView: View {
                                showsDelete: true)
     }
 
+    /// The favourite exercises that still exist in the library, in the user's order.
+    private var favouriteExercises: [Exercise] {
+        store.favourites.compactMap { id in store.exercises.first { $0.id == id } }
+    }
+
     private func rows(in category: String) -> [ExerciseListRow] {
         switch category {
         case Self.recentCategory:
             recentExercises.map { ExerciseListRow(exercise: $0, pattern: store.notes(for: $0.id)) }
         case Self.routinesCategory:
             store.routines.map(routineRow)
+        case Self.favouritesCategory:
+            favouriteExercises.map { ExerciseListRow(exercise: $0, pattern: store.notes(for: $0.id)) }
         default:
             []
         }
@@ -91,7 +102,8 @@ struct HomeView: View {
                                        totalCount: items.count,
                                        items: isCollapsed ? [] : items,
                                        showsCount: false,
-                                       showsAdd: category == Self.routinesCategory)
+                                       showsAdd: category == Self.routinesCategory
+                                           || category == Self.favouritesCategory)
         }
     }
 
@@ -189,9 +201,13 @@ struct HomeView: View {
                     }
                 },
                 onHeaderLongPress: { enterReorderMode() },
-                onAdd: { _ in
-                    newRoutineName = ""
-                    isNamingNewRoutine = true
+                onAdd: { category in
+                    if category == Self.favouritesCategory {
+                        navigationPath.append(ExerciseRoute.favourites)
+                    } else {
+                        newRoutineName = ""
+                        isNamingNewRoutine = true
+                    }
                 }
             )
             // Span the full screen like a List so content scrolls under the
@@ -292,6 +308,12 @@ struct HomeView: View {
             if store.routines.contains(where: { $0.id == id }) {
                 RoutineExercisePickerView(routineID: id)
             }
+        case .favourites:
+            FavouritesEditView {
+                navigationPath.append(ExerciseRoute.favouritesPicker)
+            }
+        case .favouritesPicker:
+            FavouritesExercisePickerView()
         case .user:
             // Never appended from this tab; usernames only show in Community.
             EmptyView()

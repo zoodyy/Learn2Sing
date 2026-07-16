@@ -24,6 +24,9 @@ final class ExerciseStore: ObservableObject {
     /// The user's routines in display order. Shown in the Home tab's "Routines"
     /// category.
     @Published var routines: [Routine] = []
+    /// The user's favourite exercises in display order. Shown in the Home tab's
+    /// "Favourites" category. Never contains duplicates.
+    @Published var favourites: [UUID] = []
 
     /// The always-present home for exercises not assigned to any other category:
     /// new exercises start here, deleting a category moves its exercises here, and
@@ -34,6 +37,7 @@ final class ExerciseStore: ObservableObject {
     private let categoriesKey = "categories"
     private let recentlyPlayedKey = "recentlyPlayed"
     private let routinesKey = "routines"
+    private let favouritesKey = "favourites"
     private let bundledImportedKey = "didImportBundledExercises"
 
     init() {
@@ -41,6 +45,7 @@ final class ExerciseStore: ObservableObject {
         loadCategories()
         loadRecentlyPlayed()
         loadRoutines()
+        loadFavourites()
         importBundledIfNeeded()
         adoptNoCategory()
         enforceBundledPrivacy()
@@ -290,6 +295,42 @@ final class ExerciseStore: ObservableObject {
         saveRoutines()
     }
 
+    // MARK: - Favourites
+
+    private func loadFavourites() {
+        guard let data = UserDefaults.standard.data(forKey: favouritesKey),
+              let saved = try? JSONDecoder().decode([UUID].self, from: data)
+        else { return }
+        favourites = saved
+    }
+
+    private func saveFavourites() {
+        guard let data = try? JSONEncoder().encode(favourites) else { return }
+        UserDefaults.standard.set(data, forKey: favouritesKey)
+    }
+
+    /// Reorder the favourites (drives the edit-favourites screen).
+    func moveFavourites(from source: IndexSet, to destination: Int) {
+        favourites.move(fromOffsets: source, toOffset: destination)
+        saveFavourites()
+    }
+
+    /// Add the exercise to the favourites' end, or remove it if already present.
+    /// Backs the picker's tap-to-select rows, which is why membership toggles.
+    func toggleFavourite(_ exerciseID: UUID) {
+        if let existing = favourites.firstIndex(of: exerciseID) {
+            favourites.remove(at: existing)
+        } else {
+            favourites.append(exerciseID)
+        }
+        saveFavourites()
+    }
+
+    func removeFavourite(_ exerciseID: UUID) {
+        favourites.removeAll { $0 == exerciseID }
+        saveFavourites()
+    }
+
     // MARK: - Exercise mutation
 
     @discardableResult
@@ -347,6 +388,10 @@ final class ExerciseStore: ObservableObject {
                 routines[i].exerciseIDs.removeAll { $0 == id }
             }
             saveRoutines()
+        }
+        if favourites.contains(id) {
+            favourites.removeAll { $0 == id }
+            saveFavourites()
         }
         save()
     }
