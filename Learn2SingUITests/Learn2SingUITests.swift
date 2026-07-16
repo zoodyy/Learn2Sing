@@ -1707,5 +1707,16 @@ final class Learn2SingUITests: XCTestCase {
         XCTAssertTrue(app.buttons["Test Vocal Range"].exists,
                       "vocal range test button not on the Voice screen")
         saveScreenshot("settings-voice")
+        app.navigationBars["Voice"].buttons.firstMatch.tap()
+        XCTAssertTrue(app.navigationBars["Settings"].waitForExistence(timeout: 5))
+
+        // Backup hub: exercise export and import.
+        app.buttons["Backup"].firstMatch.tap()
+        XCTAssertTrue(app.navigationBars["Backup"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.buttons["Export Exercises"].waitForExistence(timeout: 5),
+                      "export button not on the Backup screen")
+        XCTAssertTrue(app.buttons["Import Exercises"].exists,
+                      "import button not on the Backup screen")
+        saveScreenshot("settings-backup")
     }
 }

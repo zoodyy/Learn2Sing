@@ -10,12 +10,6 @@ import UIKit
 import UniformTypeIdentifiers
 
 struct SettingsView: View {
-    @EnvironmentObject private var store: ExerciseStore
-
-    @State private var exportDocument: ExerciseDocument?
-    @State private var isExporting = false
-    @State private var isImporting = false
-    @State private var alertMessage: String?
     @State private var settingsPath = NavigationPath()
 
     /// The exercise driving the microphone-delay test. Built once so the intro and
@@ -48,26 +42,9 @@ struct SettingsView: View {
                 }
 
                 Section {
-                    Button {
-                        if let data = store.exportData() {
-                            exportDocument = ExerciseDocument(data: data)
-                            isExporting = true
-                        } else {
-                            alertMessage = "Could not prepare the export file."
-                        }
-                    } label: {
-                        Label("Export Exercises", systemImage: "square.and.arrow.up")
-                    }
-
-                    Button {
-                        isImporting = true
-                    } label: {
-                        Label("Import Exercises", systemImage: "square.and.arrow.down")
-                    }
-                } header: {
-                    Text("Exercises")
+                    hubLink("Backup", systemImage: "externaldrive", route: .backup)
                 } footer: {
-                    Text("Export saves every exercise and its settings to a file. Import merges exercises from a file into your library.")
+                    Text("Export your exercise library to a file, or import one.")
                 }
             }
             .navigationTitle("Settings")
@@ -99,6 +76,8 @@ struct SettingsView: View {
                     PlaybackVisualsView()
                 case .profile:
                     ProfileView()
+                case .backup:
+                    BackupSettingsView()
                 }
             }
             // Select the whole number when a numeric field anywhere on this stack is
@@ -114,40 +93,6 @@ struct SettingsView: View {
                         from: textField.beginningOfDocument, to: textField.endOfDocument)
                 }
             }
-        }
-        .fileExporter(
-            isPresented: $isExporting,
-            document: exportDocument,
-            contentType: .json,
-            defaultFilename: "Learn2Sing Exercises"
-        ) { result in
-            if case .failure(let error) = result {
-                alertMessage = "Export failed: \(error.localizedDescription)"
-            }
-        }
-        .fileImporter(
-            isPresented: $isImporting,
-            allowedContentTypes: [.json]
-        ) { result in
-            switch result {
-            case .success(let url):
-                let accessed = url.startAccessingSecurityScopedResource()
-                defer { if accessed { url.stopAccessingSecurityScopedResource() } }
-                guard let data = try? Data(contentsOf: url), store.importData(data) else {
-                    alertMessage = "That file could not be imported."
-                    return
-                }
-            case .failure(let error):
-                alertMessage = "Import failed: \(error.localizedDescription)"
-            }
-        }
-        .alert("Exercises", isPresented: Binding(
-            get: { alertMessage != nil },
-            set: { if !$0 { alertMessage = nil } }
-        )) {
-            Button("OK", role: .cancel) { alertMessage = nil }
-        } message: {
-            Text(alertMessage ?? "")
         }
     }
 
@@ -168,8 +113,8 @@ struct SettingsView: View {
     }
 
     /// Screens pushed onto the Settings navigation stack: the category hubs
-    /// (Audio with its instruments screens, Visuals, Voice, Profile) and the
-    /// microphone-delay and vocal-range tests they lead to.
+    /// (Audio with its instruments screens, Visuals, Voice, Backup, Profile) and
+    /// the microphone-delay and vocal-range tests they lead to.
     private enum SettingsRoute: Hashable {
         case audio
         case instruments
@@ -181,6 +126,7 @@ struct SettingsView: View {
         case visualsHub
         case visualsPlayback
         case profile
+        case backup
     }
 
     /// The throwaway exercise that drives the delay test, with the description shown
@@ -237,6 +183,80 @@ struct VoiceSettingsView: View {
         }
         .navigationTitle("Voice")
         .navigationBarTitleDisplayMode(.inline)
+    }
+}
+
+/// The "Backup" hub reached from Settings: exporting the exercise library to a
+/// file and importing one back in.
+struct BackupSettingsView: View {
+    @EnvironmentObject private var store: ExerciseStore
+
+    @State private var exportDocument: ExerciseDocument?
+    @State private var isExporting = false
+    @State private var isImporting = false
+    @State private var alertMessage: String?
+
+    var body: some View {
+        Form {
+            Section {
+                Button {
+                    if let data = store.exportData() {
+                        exportDocument = ExerciseDocument(data: data)
+                        isExporting = true
+                    } else {
+                        alertMessage = "Could not prepare the export file."
+                    }
+                } label: {
+                    Label("Export Exercises", systemImage: "square.and.arrow.up")
+                }
+
+                Button {
+                    isImporting = true
+                } label: {
+                    Label("Import Exercises", systemImage: "square.and.arrow.down")
+                }
+            } header: {
+                Text("Exercises")
+            } footer: {
+                Text("Export saves every exercise and its settings to a file. Import merges exercises from a file into your library.")
+            }
+        }
+        .navigationTitle("Backup")
+        .navigationBarTitleDisplayMode(.inline)
+        .fileExporter(
+            isPresented: $isExporting,
+            document: exportDocument,
+            contentType: .json,
+            defaultFilename: "Learn2Sing Exercises"
+        ) { result in
+            if case .failure(let error) = result {
+                alertMessage = "Export failed: \(error.localizedDescription)"
+            }
+        }
+        .fileImporter(
+            isPresented: $isImporting,
+            allowedContentTypes: [.json]
+        ) { result in
+            switch result {
+            case .success(let url):
+                let accessed = url.startAccessingSecurityScopedResource()
+                defer { if accessed { url.stopAccessingSecurityScopedResource() } }
+                guard let data = try? Data(contentsOf: url), store.importData(data) else {
+                    alertMessage = "That file could not be imported."
+                    return
+                }
+            case .failure(let error):
+                alertMessage = "Import failed: \(error.localizedDescription)"
+            }
+        }
+        .alert("Exercises", isPresented: Binding(
+            get: { alertMessage != nil },
+            set: { if !$0 { alertMessage = nil } }
+        )) {
+            Button("OK", role: .cancel) { alertMessage = nil }
+        } message: {
+            Text(alertMessage ?? "")
+        }
     }
 }
 
