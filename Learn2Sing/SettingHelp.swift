@@ -25,6 +25,10 @@ private struct SettingHelpModifier: ViewModifier {
 
     func body(content: Content) -> some View {
         content
+            // Fill the row and hit-test the whole rectangle so the hold works
+            // anywhere on the row, not just on the label at the leading edge.
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .contentShape(Rectangle())
             // Simultaneous so the hold doesn't swallow the row's own tap
             // (opening a picker, following a link, toggling a switch).
             .simultaneousGesture(
