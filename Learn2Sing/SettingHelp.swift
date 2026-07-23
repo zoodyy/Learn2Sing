@@ -36,9 +36,13 @@ private struct SettingHelpModifier: ViewModifier {
             .popover(isPresented: $isShowing) {
                 Text(text)
                     .font(.callout)
-                    .padding()
-                    .frame(maxWidth: 280)
                     .fixedSize(horizontal: false, vertical: true)
+                    .frame(width: 260)
+                    .padding()
+                    // `.fitted` sizes the popover to its content's height; without
+                    // it the compact-adaptation popover keeps a fixed height and
+                    // clips long text at the top and bottom.
+                    .presentationSizing(.fitted)
                     .presentationCompactAdaptation(.popover)
             }
             // Keep the explanation available to VoiceOver now that the visible
