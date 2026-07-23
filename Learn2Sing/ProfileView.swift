@@ -88,8 +88,7 @@ struct ProfileView: View {
                 ) {
                     Label("Download Profile", systemImage: "square.and.arrow.up")
                 }
-            } footer: {
-                Text("Saves your profile as a JSON file using the share sheet.")
+                .settingHelp("Saves your profile as a JSON file using the share sheet.")
             }
         }
         .navigationTitle("Profile")

@@ -39,8 +39,7 @@ struct VisualsHubView: View {
                         Text(theme.rawValue).tag(theme.rawValue)
                     }
                 }
-            } footer: {
-                Text("Sets the app's appearance. “System” matches your device's light or dark setting.")
+                .settingHelp("Sets the app's appearance. “System” matches your device's light or dark setting.")
             }
 
             Section {
@@ -52,10 +51,9 @@ struct VisualsHubView: View {
                 .onChange(of: orientationLockRaw) { _, newValue in
                     OrientationLockManager.apply(OrientationLock(rawValue: newValue) ?? .none)
                 }
+                .settingHelp("Keeps the app in the chosen orientation. “Don't lock” lets it rotate with your device.")
             } header: {
                 Text("Orientation")
-            } footer: {
-                Text("Keeps the app in the chosen orientation. “Don't lock” lets it rotate with your device.")
             }
 
             Section {
@@ -69,8 +67,7 @@ struct VisualsHubView: View {
                     }
                 }
                 .foregroundStyle(.primary)
-            } footer: {
-                Text("Customise how the note-scrolling playback screen looks.")
+                .settingHelp("Customise how the note-scrolling playback screen looks.")
             }
         }
         .navigationTitle("Visuals")
@@ -280,25 +277,24 @@ struct PlaybackVisualsView: View {
 
             Section {
                 Toggle("Show repetition counter", isOn: $showRepetitionCounter)
+                    .settingHelp("Shows which repetition you're on out of the total, e.g. “2/5”. Hidden for exercises that don't repeat.")
                 if showRepetitionCounter {
                     Picker("Position", selection: $repetitionCounterPosition) {
                         ForEach(RepetitionCounterPosition.allCases) { position in
                             Text(position.rawValue).tag(position.rawValue)
                         }
                     }
+                    .settingHelp("Shows which repetition you're on out of the total, e.g. “2/5”. Hidden for exercises that don't repeat.")
                 }
             } header: {
                 Text("Repetitions")
-            } footer: {
-                Text("Shows which repetition you're on out of the total, e.g. “2/5”. Hidden for exercises that don't repeat.")
             }
 
             Section {
                 Toggle("Hide tab bar", isOn: $hideTabBar)
+                    .settingHelp("Hides the Home, Exercises, Community and Settings tabs at the bottom of the screen while an exercise plays.")
             } header: {
                 Text("Screen")
-            } footer: {
-                Text("Hides the Home, Exercises, Community and Settings tabs at the bottom of the screen while an exercise plays.")
             }
 
             templatesSection
@@ -309,14 +305,14 @@ struct PlaybackVisualsView: View {
                 } label: {
                     Label("Export template", systemImage: "square.and.arrow.up")
                 }
+                .settingHelp("Export saves the current visual settings as a template file you can share. Import loads a template file and applies it.")
 
                 Button {
                     isImportingTemplate = true
                 } label: {
                     Label("Import template", systemImage: "square.and.arrow.down")
                 }
-            } footer: {
-                Text("Export saves the current visual settings as a template file you can share. Import loads a template file and applies it.")
+                .settingHelp("Export saves the current visual settings as a template file you can share. Import loads a template file and applies it.")
             }
         }
     }
@@ -349,10 +345,9 @@ struct PlaybackVisualsView: View {
             } label: {
                 Label("Save current as template", systemImage: "plus")
             }
+            .settingHelp("Select a template to apply it, or save the current settings as a new one.")
         } header: {
             Text("Templates")
-        } footer: {
-            Text("Select a template to apply it, or save the current settings as a new one.")
         }
     }
 

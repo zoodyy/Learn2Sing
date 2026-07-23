@@ -142,10 +142,9 @@ struct ExerciseSettingsView: View {
                             Text(visibility.label).tag(visibility)
                         }
                     }
+                    .settingHelp("Public exercises appear on the Community tab.")
                 } header: {
                     Text("Visibility")
-                } footer: {
-                    Text("Public exercises appear on the Community tab.")
                 }
             }
 

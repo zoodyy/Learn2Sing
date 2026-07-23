@@ -229,8 +229,7 @@ struct InstrumentsView: View {
                 }
             } header: {
                 Text("Custom")
-            } footer: {
-                Text("Upload an MP3 or WAV file containing a single sound. Playback shifts it up and down from its pitch to reach every note. After uploading, set the pitch the recording actually has.")
+                    .settingHelp("Upload an MP3 or WAV file containing a single sound. Playback shifts it up and down from its pitch to reach every note. After uploading, set the pitch the recording actually has.")
             }
         }
         .navigationTitle("Instruments")
@@ -303,6 +302,7 @@ struct CustomInstrumentDetailView: View {
                             instrument.baseFrequency = hz
                         }
                     }
+                    .settingHelp("The note (e.g. C3) or frequency in Hz (e.g. 130.81) of the recorded sound. Playback shifts the recording up or down from here to reach each note.")
                 HStack {
                     Text("Interpreted as")
                     Spacer()
@@ -312,10 +312,9 @@ struct CustomInstrumentDetailView: View {
                         Text("Not recognized").foregroundStyle(.red)
                     }
                 }
+                .settingHelp("The note (e.g. C3) or frequency in Hz (e.g. 130.81) of the recorded sound. Playback shifts the recording up or down from here to reach each note.")
             } header: {
                 Text("Pitch of the Recording")
-            } footer: {
-                Text("The note (e.g. C3) or frequency in Hz (e.g. 130.81) of the recorded sound. Playback shifts the recording up or down from here to reach each note.")
             }
 
             Section {

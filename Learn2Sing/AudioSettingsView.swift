@@ -33,8 +33,7 @@ struct AudioSettingsView: View {
                     }
                 }
                 .foregroundStyle(.primary)
-            } footer: {
-                Text("Choose the sound that plays the notes, or upload your own.")
+                .settingHelp("Choose the sound that plays the notes, or upload your own.")
             }
 
             Section {
@@ -43,15 +42,15 @@ struct AudioSettingsView: View {
                         Text($0).tag($0)
                     }
                 }
+                .settingHelp("“Automatic” uses connected earphones (e.g. AirPods) when available, otherwise the phone.")
                 Picker("Microphone", selection: $microphone) {
                     ForEach(options(routes.inputOptions, including: microphone), id: \.self) {
                         Text($0).tag($0)
                     }
                 }
+                .settingHelp("“Automatic” uses connected earphones (e.g. AirPods) when available, otherwise the phone.")
             } header: {
                 Text("Devices")
-            } footer: {
-                Text("“Automatic” uses connected earphones (e.g. AirPods) when available, otherwise the phone.")
             }
 
             Section {
@@ -65,14 +64,14 @@ struct AudioSettingsView: View {
                         .frame(width: 70)
                     Text("ms").foregroundStyle(.secondary)
                 }
+                .settingHelp("Compensates for the lag between singing and pitch detection. Only the score is affected — playback and visuals are unchanged. Run the test to measure it automatically.")
 
                 Button(action: openDelayTest) {
                     Label("Test for delay", systemImage: "metronome")
                 }
+                .settingHelp("Compensates for the lag between singing and pitch detection. Only the score is affected — playback and visuals are unchanged. Run the test to measure it automatically.")
             } header: {
                 Text("Scoring")
-            } footer: {
-                Text("Compensates for the lag between singing and pitch detection. Only the score is affected — playback and visuals are unchanged. Run the test to measure it automatically.")
             }
         }
         .navigationTitle("Audio")

@@ -25,26 +25,22 @@ struct SettingsView: View {
 
                 Section {
                     hubLink("Audio", systemImage: "speaker.wave.2", route: .audio)
-                } footer: {
-                    Text("Instruments, playback and recording devices, and the microphone delay used for scoring.")
+                        .settingHelp("Instruments, playback and recording devices, and the microphone delay used for scoring.")
                 }
 
                 Section {
                     hubLink("Visuals", systemImage: "paintpalette", route: .visualsHub)
-                } footer: {
-                    Text("Theme, orientation and the look of the playback screen.")
+                        .settingHelp("Theme, orientation and the look of the playback screen.")
                 }
 
                 Section {
                     hubLink("Voice", systemImage: "music.mic", route: .voice)
-                } footer: {
-                    Text("Your vocal range and the test that measures it.")
+                        .settingHelp("Your vocal range and the test that measures it.")
                 }
 
                 Section {
                     hubLink("Backup", systemImage: "externaldrive", route: .backup)
-                } footer: {
-                    Text("Export your exercise library to a file, or import one.")
+                        .settingHelp("Export your exercise library to a file, or import one.")
                 }
             }
             .navigationTitle("Settings")
@@ -171,14 +167,14 @@ struct VoiceSettingsView: View {
                         Text(range.rawValue).tag(range.rawValue)
                     }
                 }
+                .settingHelp("Sing your lowest and highest notes and the app estimates your voice type, then sets it above.")
 
                 Button(action: openRangeTest) {
                     Label("Test Vocal Range", systemImage: "waveform")
                 }
+                .settingHelp("Sing your lowest and highest notes and the app estimates your voice type, then sets it above.")
             } header: {
                 Text("Vocal Range")
-            } footer: {
-                Text("Sing your lowest and highest notes and the app estimates your voice type, then sets it above.")
             }
         }
         .navigationTitle("Voice")
@@ -209,16 +205,16 @@ struct BackupSettingsView: View {
                 } label: {
                     Label("Export Exercises", systemImage: "square.and.arrow.up")
                 }
+                .settingHelp("Export saves every exercise and its settings to a file. Import merges exercises from a file into your library.")
 
                 Button {
                     isImporting = true
                 } label: {
                     Label("Import Exercises", systemImage: "square.and.arrow.down")
                 }
+                .settingHelp("Export saves every exercise and its settings to a file. Import merges exercises from a file into your library.")
             } header: {
                 Text("Exercises")
-            } footer: {
-                Text("Export saves every exercise and its settings to a file. Import merges exercises from a file into your library.")
             }
         }
         .navigationTitle("Backup")
