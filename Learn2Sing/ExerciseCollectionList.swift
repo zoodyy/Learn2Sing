@@ -93,6 +93,17 @@ struct ExerciseCollectionList: UIViewControllerRepresentable {
     }
 }
 
+/// Diffable item identity. A bare exercise UUID can't be the identifier: the
+/// same exercise may legitimately appear in more than one section (a
+/// recently-played exercise that's also a favourite, on the Home tab), and a
+/// diffable snapshot requires globally-unique item identifiers. With a bare UUID
+/// the later section's copy wins, so collapsing that section makes the row jump
+/// to the other one. Pairing the UUID with its section keeps each copy distinct.
+nonisolated private struct ItemID: Hashable {
+    var section: String
+    var id: UUID
+}
+
 final class ExerciseListController: UIViewController {
     var onSelect: ((UUID) -> Void)?
     var onSelectUploader: ((String) -> Void)?
@@ -107,7 +118,7 @@ final class ExerciseListController: UIViewController {
     private var sections: [ExerciseListSection] = []
     private var rowsByID: [UUID: ExerciseListRow] = [:]
     private var collectionView: UICollectionView!
-    private var dataSource: UICollectionViewDiffableDataSource<String, UUID>!
+    private var dataSource: UICollectionViewDiffableDataSource<String, ItemID>!
     /// Sections handed over while a drag was in flight; deferred because mutating
     /// the layout mid-drag cancels the lift (and crashes SwiftUI's equivalent).
     private var pendingSections: [ExerciseListSection]?
@@ -157,9 +168,9 @@ final class ExerciseListController: UIViewController {
         // they do for a SwiftUI List.
         setContentScrollView(cv, for: [.top, .bottom])
 
-        let cellRegistration = UICollectionView.CellRegistration<UICollectionViewListCell, UUID> {
-            [weak self] cell, _, id in
-            let row = self?.rowsByID[id]
+        let cellRegistration = UICollectionView.CellRegistration<UICollectionViewListCell, ItemID> {
+            [weak self] cell, _, itemID in
+            let row = self?.rowsByID[itemID.id]
             if let row, let uploader = row.uploaderName, !uploader.isEmpty {
                 // The uploader's name rides along in grey right after the
                 // exercise name (Community tab). Separate labels, so a long
@@ -212,9 +223,9 @@ final class ExerciseListController: UIViewController {
             }
             cell.accessories = accessories
         }
-        dataSource = UICollectionViewDiffableDataSource<String, UUID>(collectionView: cv) {
-            collectionView, indexPath, id in
-            collectionView.dequeueConfiguredReusableCell(using: cellRegistration, for: indexPath, item: id)
+        dataSource = UICollectionViewDiffableDataSource<String, ItemID>(collectionView: cv) {
+            collectionView, indexPath, itemID in
+            collectionView.dequeueConfiguredReusableCell(using: cellRegistration, for: indexPath, item: itemID)
         }
 
         let headerRegistration = UICollectionView.SupplementaryRegistration<ExerciseSectionHeaderView>(
@@ -252,16 +263,23 @@ final class ExerciseListController: UIViewController {
         )
         guard dataSource != nil else { return } // applied in viewDidLoad
         // Rows whose exercise changed in place (e.g. renamed, MIDI edited) need
-        // reconfiguring; diffable identity is the UUID, so it won't notice on its own.
-        let changed = rowsByID.keys.filter { oldByID[$0] != nil && oldByID[$0] != rowsByID[$0] }
-        applySnapshot(animated: animated && view.window != nil, reconfiguring: Array(changed))
+        // reconfiguring; diffable identity is the exercise id, so it won't notice
+        // on its own. An exercise may sit in several sections, so reconfigure every
+        // copy of it.
+        let changedIDs = Set(rowsByID.keys.filter { oldByID[$0] != nil && oldByID[$0] != rowsByID[$0] })
+        let reconfiguring = sections.flatMap { section in
+            section.items.filter { changedIDs.contains($0.id) }
+                .map { ItemID(section: section.category, id: $0.id) }
+        }
+        applySnapshot(animated: animated && view.window != nil, reconfiguring: reconfiguring)
     }
 
-    private func applySnapshot(animated: Bool, reconfiguring: [UUID]) {
-        var snapshot = NSDiffableDataSourceSnapshot<String, UUID>()
+    private func applySnapshot(animated: Bool, reconfiguring: [ItemID]) {
+        var snapshot = NSDiffableDataSourceSnapshot<String, ItemID>()
         for section in sections {
             snapshot.appendSections([section.category])
-            snapshot.appendItems(section.items.map(\.id), toSection: section.category)
+            snapshot.appendItems(section.items.map { ItemID(section: section.category, id: $0.id) },
+                                 toSection: section.category)
         }
         snapshot.reconfigureItems(reconfiguring)
         dataSource.apply(snapshot, animatingDifferences: animated)
@@ -321,7 +339,7 @@ final class ExerciseListController: UIViewController {
 
     private func leadingSwipeActions(at indexPath: IndexPath) -> UISwipeActionsConfiguration? {
         guard onSettings != nil,
-              let id = dataSource.itemIdentifier(for: indexPath),
+              let id = dataSource.itemIdentifier(for: indexPath)?.id,
               let row = rowsByID[id] else { return nil }
         let action = UIContextualAction(style: .normal, title: row.swipeActionTitle) { [weak self] _, _, done in
             self?.onSettings?(id)
@@ -336,7 +354,7 @@ final class ExerciseListController: UIViewController {
 
     private func trailingSwipeActions(at indexPath: IndexPath) -> UISwipeActionsConfiguration? {
         guard onDelete != nil,
-              let id = dataSource.itemIdentifier(for: indexPath),
+              let id = dataSource.itemIdentifier(for: indexPath)?.id,
               rowsByID[id]?.showsDelete == true else { return nil }
         let action = UIContextualAction(style: .destructive, title: "Delete") { [weak self] _, _, done in
             self?.onDelete?(id)
@@ -356,7 +374,7 @@ final class ExerciseListController: UIViewController {
 extension ExerciseListController: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         collectionView.deselectItem(at: indexPath, animated: true)
-        guard let id = dataSource.itemIdentifier(for: indexPath) else { return }
+        guard let id = dataSource.itemIdentifier(for: indexPath)?.id else { return }
         onSelect?(id)
     }
 }
@@ -367,7 +385,7 @@ extension ExerciseListController: UICollectionViewDragDelegate, UICollectionView
     func collectionView(_ collectionView: UICollectionView, itemsForBeginning session: UIDragSession,
                         at indexPath: IndexPath) -> [UIDragItem] {
         guard onMove != nil,
-              let id = dataSource.itemIdentifier(for: indexPath) else { return [] }
+              let id = dataSource.itemIdentifier(for: indexPath)?.id else { return [] }
         let item = UIDragItem(itemProvider: NSItemProvider(object: id.uuidString as NSString))
         item.localObject = id
         return [item]
