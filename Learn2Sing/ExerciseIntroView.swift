@@ -12,6 +12,10 @@ struct ExerciseIntroView: View {
     /// Flips after a download so the button confirms instead of copying again.
     @State private var isDownloaded = false
 
+    /// Toggled by the "See Score" toolbar button to show/hide the score-history
+    /// chart under the description.
+    @State private var showScore = false
+
     private var trimmedDetails: String {
         exercise.details.trimmingCharacters(in: .whitespacesAndNewlines)
     }
@@ -31,6 +35,10 @@ struct ExerciseIntroView: View {
                         Text(trimmedDetails)
                             .font(.body)
                             .foregroundStyle(.secondary)
+                    }
+
+                    if showScore {
+                        scoreChartCard
                     }
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -68,5 +76,25 @@ struct ExerciseIntroView: View {
         }
         .navigationTitle(exercise.name)
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Button {
+                    withAnimation { showScore.toggle() }
+                } label: {
+                    Label("See Score", systemImage: "chart.line.uptrend.xyaxis")
+                }
+            }
+        }
+    }
+
+    /// The same score-history chart shown on the result screen, kept on a black
+    /// card with a dark colour scheme because the chart draws its axes in white.
+    private var scoreChartCard: some View {
+        ScoreHistoryChart(entries: ScoreHistory.entries(for: exercise.id),
+                          tint: .accentColor)
+            .environment(\.colorScheme, .dark)
+            .padding()
+            .frame(maxWidth: .infinity)
+            .background(Color.black, in: RoundedRectangle(cornerRadius: 14))
     }
 }
