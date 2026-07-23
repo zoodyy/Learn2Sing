@@ -21,24 +21,16 @@ struct SettingsView: View {
             Form {
                 Section {
                     hubLink("Profile", systemImage: "person.crop.circle", route: .profile)
-                }
 
-                Section {
                     hubLink("Audio", systemImage: "speaker.wave.2", route: .audio)
                         .settingHelp("Instruments, playback and recording devices, and the microphone delay used for scoring.")
-                }
 
-                Section {
                     hubLink("Visuals", systemImage: "paintpalette", route: .visualsHub)
                         .settingHelp("Theme, orientation and the look of the playback screen.")
-                }
 
-                Section {
                     hubLink("Voice", systemImage: "music.mic", route: .voice)
                         .settingHelp("Your vocal range and the test that measures it.")
-                }
 
-                Section {
                     hubLink("Backup", systemImage: "externaldrive", route: .backup)
                         .settingHelp("Export your exercise library to a file, or import one.")
                 }
