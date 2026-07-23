@@ -3,15 +3,17 @@ import AVFoundation
 import Combine
 
 /// Guides the singer through two short holds — the lowest note they can sing, then
-/// the highest — listens with the pitch detector, and classifies the result into a
-/// `VocalRange` which it writes to Settings. Purely measures the voice; it doesn't
-/// change how any exercise plays.
+/// the highest — listens with the pitch detector, and saves the measured notes as
+/// the singer's custom `VocalRange` in Settings. Purely measures the voice; it
+/// doesn't change how any exercise plays.
 struct VocalRangeTestView: View {
     /// Called when the test is finished/dismissed, so the caller can pop the stack.
     let onFinish: () -> Void
 
     @StateObject private var pitchDetector = PitchDetector()
     @AppStorage(VocalRange.storageKey) private var vocalRangeRaw = ""
+    @AppStorage(VocalRange.customLowKey)  private var customLow  = VocalRange.customDefault.low
+    @AppStorage(VocalRange.customHighKey) private var customHigh = VocalRange.customDefault.high
     @Environment(\.scenePhase) private var scenePhase
 
     @State private var phase: Phase = .lowIntro
@@ -159,25 +161,31 @@ struct VocalRangeTestView: View {
         VStack(spacing: 24) {
             Spacer()
 
-            Text("Your Voice Type")
+            Text("Your Vocal Range")
                 .font(.title2.weight(.semibold))
                 .foregroundStyle(.secondary)
 
-            Text(classifiedRange?.rawValue ?? "—")
-                .font(.system(size: 56, weight: .bold, design: .rounded))
-                .foregroundStyle(.tint)
-                .multilineTextAlignment(.center)
-
             if let low = lowMIDI, let high = highMIDI {
-                Text("Measured range: \(pitchName(Int(low.rounded()))) – \(pitchName(Int(high.rounded())))")
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
+                Text("\(pitchName(Int(low.rounded()))) – \(pitchName(Int(high.rounded())))")
+                    .font(.system(size: 56, weight: .bold, design: .rounded))
+                    .foregroundStyle(.tint)
+                    .multilineTextAlignment(.center)
+            } else {
+                Text("—")
+                    .font(.system(size: 56, weight: .bold, design: .rounded))
+                    .foregroundStyle(.tint)
             }
 
             Spacer()
 
             Button {
-                if let range = classifiedRange { vocalRangeRaw = range.rawValue }
+                if let low = lowMIDI, let high = highMIDI {
+                    // Clamp into the note range the Voice settings pickers offer, so
+                    // the saved custom range is always selectable there afterwards.
+                    customLow  = min(max(Int(low.rounded()), loPitch), hiPitch)
+                    customHigh = min(max(Int(high.rounded()), loPitch), hiPitch)
+                    vocalRangeRaw = VocalRange.custom.rawValue
+                }
                 teardown()
                 onFinish()
             } label: {
@@ -192,11 +200,6 @@ struct VocalRangeTestView: View {
             Button("Try Again") { restart() }
                 .padding(.bottom, 4)
         }
-    }
-
-    private var classifiedRange: VocalRange? {
-        guard let low = lowMIDI, let high = highMIDI else { return nil }
-        return VocalRange.classify(lowMIDI: low, highMIDI: high)
     }
 
     // MARK: - Recording logic

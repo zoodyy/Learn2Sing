@@ -23,10 +23,12 @@ let microphoneDelayKey = "microphoneDelayMs"
 
 // MARK: - Vocal range
 
-/// The singer's voice type. Used by the "Test Vocal Range" feature in Settings,
-/// which measures the lowest and highest notes the user can sing and classifies
-/// them into one of these categories. Stored as the raw string in UserDefaults.
-/// When set, exercises are transposed to fit the voice's range (see `fitTranspose`).
+/// The singer's voice type. The preset cases are standard voice categories; the
+/// `.custom` case lets the singer enter their own lowest and highest notes, which
+/// the "Test Vocal Range" feature in Settings also fills in from the notes it
+/// measures. Stored as the raw string in UserDefaults (with the custom low/high
+/// notes stored separately). When set, exercises are transposed to fit the
+/// voice's range (see `fitTranspose`).
 enum VocalRange: String, CaseIterable, Identifiable {
     case bass         = "Bass"
     case baritone     = "Baritone"
@@ -34,13 +36,32 @@ enum VocalRange: String, CaseIterable, Identifiable {
     case alto         = "Alto"
     case mezzoSoprano = "Mezzo"
     case soprano      = "Soprano"
+    case custom       = "Custom"
 
     var id: String { rawValue }
 
     /// UserDefaults key holding the selected range's raw value ("" = not set).
     static let storageKey = "vocalRange"
 
-    /// Typical comfortable range for the voice type, as MIDI note numbers.
+    /// UserDefaults keys holding the custom range's lowest/highest MIDI notes,
+    /// used only when `.custom` is selected.
+    static let customLowKey  = "vocalRangeCustomLow"
+    static let customHighKey = "vocalRangeCustomHigh"
+
+    /// The custom range shown before the singer has chosen their own, and the
+    /// fallback if the stored values are missing (a comfortable baritone span).
+    static let customDefault = (low: 45, high: 69)   // A2–A4
+
+    /// The singer's stored custom low/high MIDI notes, clamped so low ≤ high.
+    static var customRange: (low: Int, high: Int) {
+        let defaults = UserDefaults.standard
+        let low  = defaults.object(forKey: customLowKey)  as? Int ?? customDefault.low
+        let high = defaults.object(forKey: customHighKey) as? Int ?? customDefault.high
+        return (min(low, high), max(low, high))
+    }
+
+    /// Typical comfortable range for the voice type, as MIDI note numbers. For
+    /// `.custom` this is the singer's own stored range.
     var typicalRange: (low: Int, high: Int) {
         switch self {
         case .bass:         return (40, 64)   // E2–E4
@@ -49,23 +70,8 @@ enum VocalRange: String, CaseIterable, Identifiable {
         case .alto:         return (53, 77)   // F3–F5
         case .mezzoSoprano: return (57, 81)   // A3–A5
         case .soprano:      return (60, 84)   // C4–C6
+        case .custom:       return VocalRange.customRange
         }
-    }
-
-    /// Centre (mean) of the typical range, used to match a measured voice to a type.
-    private var center: Double {
-        let r = typicalRange
-        return Double(r.low + r.high) / 2.0
-    }
-
-    /// Classify a measured vocal range — the lowest and highest sung MIDI notes —
-    /// into the voice type whose typical tessitura centre is nearest the measured
-    /// centre. A rough but reasonable estimate from just two held notes.
-    static func classify(lowMIDI: Double, highMIDI: Double) -> VocalRange {
-        let center = (lowMIDI + highMIDI) / 2.0
-        return allCases.min {
-            abs($0.center - center) < abs($1.center - center)
-        } ?? .baritone
     }
 
     /// Semitones to transpose an exercise spanning `[low, high]` (MIDI) so it sits

@@ -146,9 +146,13 @@ struct SettingsView: View {
 /// that measures it. A screen of its own so further voice areas can be added.
 struct VoiceSettingsView: View {
     @AppStorage(VocalRange.storageKey) private var vocalRangeRaw = ""
+    @AppStorage(VocalRange.customLowKey)  private var customLow  = VocalRange.customDefault.low
+    @AppStorage(VocalRange.customHighKey) private var customHigh = VocalRange.customDefault.high
 
     /// Push the vocal-range test onto the shared Settings navigation stack.
     let openRangeTest: () -> Void
+
+    private var isCustom: Bool { vocalRangeRaw == VocalRange.custom.rawValue }
 
     var body: some View {
         Form {
@@ -159,12 +163,33 @@ struct VoiceSettingsView: View {
                         Text(range.rawValue).tag(range.rawValue)
                     }
                 }
-                .settingHelp("Sing your lowest and highest notes and the app estimates your voice type, then sets it above.")
+                .settingHelp("Choose your voice type, or pick “Custom” to enter your own lowest and highest notes. The test below can fill this in for you.")
+
+                if isCustom {
+                    Picker("Lowest note", selection: $customLow) {
+                        ForEach(loPitch...hiPitch, id: \.self) { pitch in
+                            Text(pitchName(pitch)).tag(pitch)
+                        }
+                    }
+                    .onChange(of: customLow) { _, newLow in
+                        if newLow > customHigh { customHigh = newLow }
+                    }
+
+                    Picker("Highest note", selection: $customHigh) {
+                        ForEach(loPitch...hiPitch, id: \.self) { pitch in
+                            Text(pitchName(pitch)).tag(pitch)
+                        }
+                    }
+                    .onChange(of: customHigh) { _, newHigh in
+                        if newHigh < customLow { customLow = newHigh }
+                    }
+                    .settingHelp("The lowest and highest notes you can comfortably sing. Exercises are transposed to fit between them.")
+                }
 
                 Button(action: openRangeTest) {
                     Label("Test Vocal Range", systemImage: "waveform")
                 }
-                .settingHelp("Sing your lowest and highest notes and the app estimates your voice type, then sets it above.")
+                .settingHelp("Sing your lowest and highest notes and the app sets them as your custom vocal range above.")
             } header: {
                 Text("Vocal Range")
             }
