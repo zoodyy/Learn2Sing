@@ -36,7 +36,7 @@ enum PublicIdentifier {
         UUID(uuidString: derived(from: id.uuidString)) ?? id
     }
 
-    /// Version-5 UUID of `name` under the app namespace, as an uppercase string.
+    /// Version-5 UUID of `name` under the app namespace, as a lowercase string.
     private static func derived(from name: String) -> String {
         var input = [UInt8]()
         withUnsafeBytes(of: namespace.uuid) { input.append(contentsOf: $0) }
@@ -48,6 +48,6 @@ enum PublicIdentifier {
                                bytes[4], bytes[5], bytes[6], bytes[7],
                                bytes[8], bytes[9], bytes[10], bytes[11],
                                bytes[12], bytes[13], bytes[14], bytes[15]))
-        return uuid.uuidString
+        return uuid.uuidString.lowercased()
     }
 }

@@ -8,6 +8,18 @@ struct MIDINote: Identifiable, Codable, Equatable {
     var pitch: Int      // MIDI pitch number
     var beat: Double    // start position in beats
     var length: Double  // duration in beats
+
+    private enum CodingKeys: String, CodingKey { case id, pitch, beat, length }
+
+    // Emit the id lowercase so every UUID in the community request body is
+    // lowercase; UUID decoding is case-insensitive, so this round-trips.
+    func encode(to encoder: Encoder) throws {
+        var c = encoder.container(keyedBy: CodingKeys.self)
+        try c.encode(id.uuidString.lowercased(), forKey: .id)
+        try c.encode(pitch, forKey: .pitch)
+        try c.encode(beat, forKey: .beat)
+        try c.encode(length, forKey: .length)
+    }
 }
 
 /// A free-floating text label placed on the grid. It shares the note coordinate
@@ -18,6 +30,18 @@ struct MIDIText: Identifiable, Codable, Equatable {
     var text: String
     var pitch: Int      // row position (vertical)
     var beat: Double    // start position in beats (horizontal)
+
+    private enum CodingKeys: String, CodingKey { case id, text, pitch, beat }
+
+    // Emit the id lowercase so every UUID in the community request body is
+    // lowercase; UUID decoding is case-insensitive, so this round-trips.
+    func encode(to encoder: Encoder) throws {
+        var c = encoder.container(keyedBy: CodingKeys.self)
+        try c.encode(id.uuidString.lowercased(), forKey: .id)
+        try c.encode(text, forKey: .text)
+        try c.encode(pitch, forKey: .pitch)
+        try c.encode(beat, forKey: .beat)
+    }
 }
 
 // MARK: - Layout constants

@@ -51,7 +51,9 @@ struct Exercise: Identifiable, Hashable, Codable {
 
     func encode(to encoder: Encoder) throws {
         var c = encoder.container(keyedBy: CodingKeys.self)
-        try c.encode(id, forKey: .id)
+        // Lowercase so the id is lowercase in the community request body; UUID
+        // decoding is case-insensitive, so this round-trips unchanged.
+        try c.encode(id.uuidString.lowercased(), forKey: .id)
         try c.encode(name, forKey: .name)
         try c.encode(details, forKey: .details)
         try c.encode(category, forKey: .category)
