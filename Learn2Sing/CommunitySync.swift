@@ -12,22 +12,27 @@ import Combine
 /// or deleted, since the server has no delete and keeps one latest record per
 /// ID.
 struct SharedExerciseDoc: Codable {
-    var deviceID: String
+    /// The uploader's public user id (see PublicIdentifier) — never the raw
+    /// device id. `exercise.id` likewise carries the public exercise id.
+    var userID: String
     var exercise: Exercise? = nil
     var midi: [MIDINote] = []
     var texts: [MIDIText]? = nil
 }
 
 /// The document each user keeps on the server under PUBLIC_NAME: their current
-/// profile username. Fetched per device on refresh, so renaming yourself in the
+/// profile username. Fetched per user on refresh, so renaming yourself in the
 /// profile updates the label on your exercises for everyone.
 struct PublicNameDoc: Codable {
-    var deviceID: String
+    /// The uploader's public user id (see PublicIdentifier), matching the
+    /// `userID` stamped on their shared exercises.
+    var userID: String
     var username: String
 }
 
 /// Connects the Community tab to the server. Each device persists one
-/// SHARED_EXERCISE document per public exercise, keyed by the exercise's ID
+/// SHARED_EXERCISE document per public exercise, keyed by the exercise's public
+/// ID (see PublicIdentifier — the raw id and device id never leave the device)
 /// (re-uploaded when the exercise changes, and overwritten with a tombstone
 /// when it goes private or is deleted, so it disappears for everyone) plus a
 /// PUBLIC_NAME document with its username, and the tab lists every exercise
@@ -114,7 +119,7 @@ final class CommunitySync: ObservableObject {
     /// tombstones so they vanish from everyone's Community tab.
     private func uploadSharedExercises() async {
         guard readyToUpload, let store else { return }
-        let deviceID = DeviceIdentifier.uuidString
+        let userID = PublicIdentifier.user
         let publicExercises = store.exercises.filter { $0.visibility == .public }
         let defaults = UserDefaults.standard
         // Exercise IDs with a live record on the server as of the last upload.
@@ -128,8 +133,12 @@ final class CommunitySync: ObservableObject {
         for exercise in publicExercises {
             let idString = exercise.id.uuidString
             let t = store.texts(for: exercise.id)
-            let doc = SharedExerciseDoc(deviceID: deviceID,
-                                        exercise: exercise,
+            // Publish under the exercise's public id; the raw id stays local
+            // (it still keys the pattern lookups and the bookkeeping below).
+            var shared = exercise
+            shared.id = PublicIdentifier.exercise(exercise.id)
+            let doc = SharedExerciseDoc(userID: userID,
+                                        exercise: shared,
                                         midi: store.notes(for: exercise.id),
                                         texts: t.isEmpty ? nil : t)
             guard let body = try? encoder.encode(doc) else { continue }
@@ -145,7 +154,7 @@ final class CommunitySync: ObservableObject {
 
         let publicIDs = Set(publicExercises.map { $0.id.uuidString })
         for idString in onServer.subtracting(publicIDs) {
-            guard let body = try? encoder.encode(SharedExerciseDoc(deviceID: deviceID)) else { continue }
+            guard let body = try? encoder.encode(SharedExerciseDoc(userID: userID)) else { continue }
             if await post(body: body, exerciseID: idString, exerciseName: "") {
                 lastUploadedBodies.removeValue(forKey: idString)
                 onServer.remove(idString)
@@ -157,11 +166,14 @@ final class CommunitySync: ObservableObject {
     /// POSTs one per-exercise document to the persist endpoint; returns whether
     /// the server accepted it.
     private func post(body: Data, exerciseID: String, exerciseName: String) async -> Bool {
-        var components = URLComponents(string: "\(Self.baseURL)/persist/\(exerciseID)/SHARED_EXERCISE")
+        // The document is keyed and queried by public ids only; `exerciseID`
+        // (the raw id) is used just for local logging.
+        let publicExerciseID = PublicIdentifier.exerciseID(exerciseID)
+        var components = URLComponents(string: "\(Self.baseURL)/persist/\(publicExerciseID)/SHARED_EXERCISE")
         components?.queryItems = [
-            URLQueryItem(name: "customId1", value: DeviceIdentifier.uuidString),
+            URLQueryItem(name: "customId1", value: PublicIdentifier.user),
             URLQueryItem(name: "customName", value: exerciseName),
-            URLQueryItem(name: "customId2", value: exerciseID),
+            URLQueryItem(name: "customId2", value: publicExerciseID),
         ]
         guard let url = components?.url else { return false }
         var request = URLRequest(url: url)
@@ -185,12 +197,12 @@ final class CommunitySync: ObservableObject {
     /// POSTs the profile username as this device's PUBLIC_NAME document.
     private func uploadPublicName() async {
         guard readyToUpload else { return }
-        let deviceID = DeviceIdentifier.uuidString
-        let doc = PublicNameDoc(deviceID: deviceID, username: UserProfile.load().username)
+        let userID = PublicIdentifier.user
+        let doc = PublicNameDoc(userID: userID, username: UserProfile.load().username)
         let encoder = JSONEncoder()
         encoder.outputFormatting = [.sortedKeys]
         guard let body = try? encoder.encode(doc), body != lastUploadedName,
-              let url = URL(string: "\(Self.baseURL)/persist/\(deviceID)/PUBLIC_NAME?customId1=\(deviceID)")
+              let url = URL(string: "\(Self.baseURL)/persist/\(userID)/PUBLIC_NAME?customId1=\(userID)")
         else { return }
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
@@ -232,7 +244,7 @@ final class CommunitySync: ObservableObject {
                 return
             }
             let docs = Self.decodeDocs(from: data)
-            let names = await Self.fetchPublicNames(for: Set(docs.map(\.deviceID)))
+            let names = await Self.fetchPublicNames(for: Set(docs.map(\.userID)))
             apply(docs: docs, names: names)
         } catch {
             print("CommunitySync: fetch failed: \(error)")
@@ -240,13 +252,13 @@ final class CommunitySync: ObservableObject {
     }
 
     /// Fetches every uploader's PUBLIC_NAME document in parallel and returns the
-    /// non-empty usernames by device ID. Devices whose fetch fails are simply
+    /// non-empty usernames by public user id. Users whose fetch fails are simply
     /// absent, so their exercises keep the name stamped at publish time.
-    private static func fetchPublicNames(for deviceIDs: Set<String>) async -> [String: String] {
+    private static func fetchPublicNames(for userIDs: Set<String>) async -> [String: String] {
         await withTaskGroup(of: (String, String)?.self) { group in
-            for deviceID in deviceIDs {
+            for userID in userIDs {
                 group.addTask {
-                    guard let url = URL(string: "\(baseURL)/fetch-public/PUBLIC_NAME?customId1=\(deviceID)"),
+                    guard let url = URL(string: "\(baseURL)/fetch-public/PUBLIC_NAME?customId1=\(userID)"),
                           let (data, response) = try? await URLSession.shared.data(from: url),
                           let http = response as? HTTPURLResponse, (200...299).contains(http.statusCode)
                     else { return nil }
@@ -257,12 +269,12 @@ final class CommunitySync: ObservableObject {
                           let doc = try? decoder.decode(PublicNameDoc.self, from: Data(record.jsonData.utf8)),
                           !doc.username.isEmpty
                     else { return nil }
-                    return (deviceID, doc.username)
+                    return (userID, doc.username)
                 }
             }
             var names: [String: String] = [:]
             for await pair in group {
-                if let (deviceID, username) = pair { names[deviceID] = username }
+                if let (userID, username) = pair { names[userID] = username }
             }
             return names
         }
@@ -284,7 +296,6 @@ final class CommunitySync: ObservableObject {
     /// PUBLIC_NAME where one was fetched — and swaps their patterns into the
     /// UserDefaults cache, dropping patterns of exercises no longer shared.
     private func apply(docs: [SharedExerciseDoc], names: [String: String]) {
-        let localIDs = Set(store?.exercises.map(\.id) ?? [])
         let defaults = UserDefaults.standard
         var seenExercises = Set<UUID>()
         var fetched: [Exercise] = []
@@ -292,12 +303,11 @@ final class CommunitySync: ObservableObject {
         for doc in docs {
             guard var exercise = doc.exercise, exercise.visibility == .public,
                   seenExercises.insert(exercise.id).inserted else { continue }
-            if let name = names[doc.deviceID] { exercise.uploaderName = name }
+            if let name = names[doc.userID] { exercise.uploaderName = name }
             fetched.append(exercise)
-            // Exercises that live in the local store (this device's own
-            // uploads) already have their pattern under these keys; never
-            // overwrite it with the server copy, which may lag behind.
-            guard !localIDs.contains(exercise.id) else { continue }
+            // Every fetched exercise carries its public id, a namespace distinct
+            // from any local raw id, so caching the server pattern here can never
+            // clobber a local one — even for this device's own uploads.
             cachedIDs.append(exercise.id.uuidString)
             if let data = try? JSONEncoder().encode(doc.midi) {
                 defaults.set(data, forKey: ExerciseStore.midiKey(exercise.id))
@@ -311,7 +321,7 @@ final class CommunitySync: ObservableObject {
         let stale = Set(defaults.stringArray(forKey: Self.cachedPatternIDsKey) ?? [])
             .subtracting(cachedIDs)
         for idString in stale {
-            guard let id = UUID(uuidString: idString), !localIDs.contains(id) else { continue }
+            guard let id = UUID(uuidString: idString) else { continue }
             defaults.removeObject(forKey: ExerciseStore.midiKey(id))
             defaults.removeObject(forKey: ExerciseStore.midiTextKey(id))
         }
