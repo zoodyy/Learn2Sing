@@ -31,6 +31,9 @@ struct SettingsView: View {
                     hubLink("Voice", systemImage: "music.mic", route: .voice)
                         .settingHelp("Your vocal range and the test that measures it.")
 
+                    hubLink("Exercises", systemImage: "list.bullet", route: .exercises)
+                        .settingHelp("How your exercise library is presented, including the Home tab's recommendations.")
+
                     hubLink("Backup", systemImage: "externaldrive", route: .backup)
                         .settingHelp("Export your exercise library to a file, or import one.")
                 }
@@ -64,6 +67,8 @@ struct SettingsView: View {
                     PlaybackVisualsView()
                 case .profile:
                     ProfileView()
+                case .exercises:
+                    ExercisesSettingsView()
                 case .backup:
                     BackupSettingsView()
                 }
@@ -101,8 +106,8 @@ struct SettingsView: View {
     }
 
     /// Screens pushed onto the Settings navigation stack: the category hubs
-    /// (Audio with its instruments screens, Visuals, Voice, Backup, Profile) and
-    /// the microphone-delay and vocal-range tests they lead to.
+    /// (Audio with its instruments screens, Visuals, Voice, Exercises, Backup,
+    /// Profile) and the microphone-delay and vocal-range tests they lead to.
     private enum SettingsRoute: Hashable {
         case audio
         case instruments
@@ -114,6 +119,7 @@ struct SettingsView: View {
         case visualsHub
         case visualsPlayback
         case profile
+        case exercises
         case backup
     }
 
@@ -195,6 +201,32 @@ struct VoiceSettingsView: View {
             }
         }
         .navigationTitle("Voice")
+        .navigationBarTitleDisplayMode(.inline)
+    }
+}
+
+/// The "Exercises" hub reached from Settings: how the exercise library is
+/// presented, currently the size of the Home tab's "Recommended" category.
+struct ExercisesSettingsView: View {
+    @AppStorage(RecommendedExercises.amountKey)
+    private var recommendedAmount = RecommendedExercises.defaultAmount
+
+    var body: some View {
+        Form {
+            Section {
+                Stepper(value: $recommendedAmount, in: RecommendedExercises.amountRange) {
+                    HStack {
+                        Text("Recommended exercises amount")
+                        Spacer()
+                        Text("\(recommendedAmount)").foregroundStyle(.secondary)
+                    }
+                }
+                .settingHelp("How many exercises the Home tab's “Recommended” category suggests. It picks the exercises that came with the app which you haven't practised in the longest.")
+            } header: {
+                Text("Recommendations")
+            }
+        }
+        .navigationTitle("Exercises")
         .navigationBarTitleDisplayMode(.inline)
     }
 }

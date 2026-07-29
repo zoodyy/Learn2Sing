@@ -1234,6 +1234,72 @@ final class Learn2SingUITests: XCTestCase {
                       "✗ should exit reorder mode back to Home")
     }
 
+    /// The Home tab's "Recommended" category: it suggests as many exercises as the
+    /// Settings ▸ Exercises amount asks for, all of them bundled with the app, and
+    /// follows the setting when it changes.
+    func testHomeRecommendedCategory() throws {
+        let app = XCUIApplication()
+        app.launch()
+        XCTAssertTrue(app.navigationBars["Home"].waitForExistence(timeout: 5))
+        sleep(2)
+
+        XCTAssertTrue(header(app, named: "Recommended").exists,
+                      "Home should show the Recommended category header")
+        let recommended = snapshotList(app).items["Recommended"] ?? []
+        XCTAssertFalse(recommended.isEmpty, "Recommended should suggest exercises")
+        saveScreenshot("home-recommended")
+
+        // Only exercises that shipped with the app are recommended. Names can be
+        // edited, so bundled-ness is read the way the app itself shows it: a
+        // bundled exercise offers no Visibility setting.
+        guard let first = recommended.first else { return }
+        cell(app, named: first).swipeRight()
+        let settings = app.collectionViews.buttons["Settings"].firstMatch
+        XCTAssertTrue(settings.waitForExistence(timeout: 3), "swipe should reveal Settings")
+        settings.tap()
+        XCTAssertTrue(app.navigationBars[first].waitForExistence(timeout: 3))
+        sleep(1)
+        var deleteButton = app.buttons["Delete Exercise"].firstMatch
+        for _ in 0..<8 where !deleteButton.exists {
+            app.swipeUp()
+            usleep(500_000)
+            deleteButton = app.buttons["Delete Exercise"].firstMatch
+        }
+        XCTAssertFalse(
+            app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "Visibility")).firstMatch.exists,
+            "\"\(first)\" isn't bundled — only bundled exercises may be recommended")
+        app.navigationBars[first].buttons.firstMatch.tap()
+        XCTAssertTrue(app.navigationBars["Home"].waitForExistence(timeout: 5))
+        sleep(1)
+
+        // Raise the amount by one in Settings; Home should suggest one more.
+        app.buttons["Settings"].firstMatch.tap()
+        XCTAssertTrue(app.navigationBars["Settings"].waitForExistence(timeout: 5))
+        settingsRow(app, named: "Exercises")?.tap()
+        XCTAssertTrue(app.navigationBars["Exercises"].waitForExistence(timeout: 5))
+        let stepper = app.steppers.firstMatch
+        XCTAssertTrue(stepper.waitForExistence(timeout: 5), "no amount stepper")
+        stepper.buttons["Increment"].tap()
+        sleep(1)
+        saveScreenshot("settings-exercises-raised")
+
+        app.buttons["Home"].firstMatch.tap()
+        XCTAssertTrue(app.navigationBars["Home"].waitForExistence(timeout: 5))
+        sleep(1)
+        XCTAssertEqual((snapshotList(app).items["Recommended"] ?? []).count, recommended.count + 1,
+                       "raising the amount should add one recommendation")
+
+        // Put the setting back so the next run starts from the same state. The
+        // Settings tab keeps its stack, so it comes back on the Exercises screen.
+        app.buttons["Settings"].firstMatch.tap()
+        if app.navigationBars["Settings"].waitForExistence(timeout: 2) {
+            settingsRow(app, named: "Exercises")?.tap()
+        }
+        XCTAssertTrue(app.navigationBars["Exercises"].waitForExistence(timeout: 5))
+        app.steppers.firstMatch.buttons["Decrement"].tap()
+        sleep(1)
+    }
+
     /// The Home tab's "Routines" category: the + button creates a named routine,
     /// swiping right on it opens the edit screen (Name field at the top, no
     /// counts), whose + button opens a multi-select exercise picker; picked
@@ -1650,9 +1716,18 @@ final class Learn2SingUITests: XCTestCase {
 
     // MARK: - Settings categories
 
+    /// A row on a Settings screen, found by label. Rows whose label matches a tab
+    /// ("Exercises") would otherwise resolve to the tab bar button, so anything
+    /// sitting on the tab bar is skipped.
+    private func settingsRow(_ app: XCUIApplication, named label: String) -> XCUIElement? {
+        let tabBar = app.tabBars.firstMatch
+        return app.buttons.matching(identifier: label).allElementsBoundByIndex
+            .first { $0.frame.height > 0 && (!tabBar.exists || $0.frame.maxY < tabBar.frame.minY) }
+    }
+
     /// Walks the Settings category hubs (Audio with its Instruments sub-screen,
-    /// Visuals, Voice) and checks each screen's key controls exist,
-    /// screenshotting along the way.
+    /// Visuals, Voice, Exercises, Backup) and checks each screen's key controls
+    /// exist, screenshotting along the way.
     func testSettingsCategoryNavigation() throws {
         let app = XCUIApplication()
         app.launch()
@@ -1708,6 +1783,20 @@ final class Learn2SingUITests: XCTestCase {
                       "vocal range test button not on the Voice screen")
         saveScreenshot("settings-voice")
         app.navigationBars["Voice"].buttons.firstMatch.tap()
+        XCTAssertTrue(app.navigationBars["Settings"].waitForExistence(timeout: 5))
+
+        // Exercises hub: how many exercises Home recommends. The row shares its
+        // label with the Exercises tab, so pick the one above the tab bar.
+        let exercisesRow = settingsRow(app, named: "Exercises")
+        XCTAssertNotNil(exercisesRow, "Exercises row not on the Settings screen")
+        exercisesRow?.tap()
+        XCTAssertTrue(app.navigationBars["Exercises"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.staticTexts["Recommended exercises amount"].waitForExistence(timeout: 5),
+                      "recommended amount row not on the Exercises screen")
+        XCTAssertTrue(app.steppers.firstMatch.exists,
+                      "recommended amount has no stepper")
+        saveScreenshot("settings-exercises")
+        app.navigationBars["Exercises"].buttons.firstMatch.tap()
         XCTAssertTrue(app.navigationBars["Settings"].waitForExistence(timeout: 5))
 
         // Backup hub: exercise export and import.

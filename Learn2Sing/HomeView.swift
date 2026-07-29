@@ -10,9 +10,10 @@ import SwiftUI
 /// The Home tab: built-in categories over the user's library — "Recent" (the
 /// last five exercises that played through to the end), "Routines" (the
 /// user's own ordered exercise lists, created via the + button; swipe right on
-/// one to edit it, swipe left to delete it after a confirmation), and
+/// one to edit it, swipe left to delete it after a confirmation),
 /// "Favourites" (a single ordered exercise list, its + button opening the
-/// edit-favourites screen). The
+/// edit-favourites screen), and "Recommended" (the bundled exercises played
+/// longest ago, as many as Settings ▸ Exercises asks for). The
 /// categories look and behave like the Exercises tab's
 /// (tap to collapse, long-press to rearrange) but never show exercise counts,
 /// and the reorder screen has no add, delete, or rename — the categories are
@@ -26,11 +27,17 @@ struct HomeView: View {
     private static let recentCategory = "Recent"
     private static let routinesCategory = "Routines"
     private static let favouritesCategory = "Favourites"
+    private static let recommendedCategory = "Recommended"
 
     /// The built-in categories in the user's display order.
     @State private var categories: [String] = [HomeView.recentCategory,
                                                HomeView.routinesCategory,
-                                               HomeView.favouritesCategory]
+                                               HomeView.favouritesCategory,
+                                               HomeView.recommendedCategory]
+
+    /// How many exercises "Recommended" shows, from Settings ▸ Exercises.
+    @AppStorage(RecommendedExercises.amountKey)
+    private var recommendedAmount = RecommendedExercises.defaultAmount
 
     /// Drives the "name your new routine" alert opened from the + button.
     @State private var isNamingNewRoutine = false
@@ -80,6 +87,12 @@ struct HomeView: View {
         store.favourites.compactMap { id in store.exercises.first { $0.id == id } }
     }
 
+    /// The exercises to suggest: the bundled ones played longest ago (never-played
+    /// first), as many as the "Recommended exercises amount" setting asks for.
+    private var recommendedExercises: [Exercise] {
+        store.recommendedExercises(count: recommendedAmount)
+    }
+
     private func rows(in category: String) -> [ExerciseListRow] {
         switch category {
         case Self.recentCategory:
@@ -88,6 +101,8 @@ struct HomeView: View {
             store.routines.map(routineRow)
         case Self.favouritesCategory:
             favouriteExercises.map { ExerciseListRow(exercise: $0, pattern: store.notes(for: $0.id)) }
+        case Self.recommendedCategory:
+            recommendedExercises.map { ExerciseListRow(exercise: $0, pattern: store.notes(for: $0.id)) }
         default:
             []
         }

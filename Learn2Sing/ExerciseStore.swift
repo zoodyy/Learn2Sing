@@ -21,6 +21,10 @@ final class ExerciseStore: ObservableObject {
     /// Exercise ids ordered by when they last played through to the end, newest
     /// first. Drives the Home tab's "Recent" category.
     @Published var recentlyPlayed: [UUID] = []
+    /// When each exercise last played through to the end. Unlike `recentlyPlayed`
+    /// this is kept for every exercise, not just the newest handful, so the Home
+    /// tab's "Recommended" category can find the ones played longest ago.
+    @Published var lastPlayed: [UUID: Date] = [:]
     /// The user's routines in display order. Shown in the Home tab's "Routines"
     /// category.
     @Published var routines: [Routine] = []
@@ -36,19 +40,23 @@ final class ExerciseStore: ObservableObject {
     private let storeKey = "exercises"
     private let categoriesKey = "categories"
     private let recentlyPlayedKey = "recentlyPlayed"
+    private let lastPlayedKey = "lastPlayed"
     private let routinesKey = "routines"
     private let favouritesKey = "favourites"
     private let bundledImportedKey = "didImportBundledExercises"
+    private let lastPlayedSeededKey = "didSeedLastPlayed"
 
     init() {
         load()
         loadCategories()
         loadRecentlyPlayed()
+        loadLastPlayed()
         loadRoutines()
         loadFavourites()
         importBundledIfNeeded()
         adoptNoCategory()
         enforceBundledPrivacy()
+        seedLastPlayedIfNeeded()
     }
 
     // MARK: - Bundled exercises
@@ -228,6 +236,64 @@ final class ExerciseStore: ObservableObject {
             recentlyPlayed.removeLast(recentlyPlayed.count - 20)
         }
         saveRecentlyPlayed()
+        lastPlayed[id] = Date()
+        saveLastPlayed()
+    }
+
+    // MARK: - Last played
+
+    private func loadLastPlayed() {
+        guard let data = UserDefaults.standard.data(forKey: lastPlayedKey),
+              let saved = try? JSONDecoder().decode([String: Date].self, from: data)
+        else { return }
+        lastPlayed = saved.reduce(into: [:]) { result, entry in
+            if let id = UUID(uuidString: entry.key) { result[id] = entry.value }
+        }
+    }
+
+    private func saveLastPlayed() {
+        let encodable = lastPlayed.reduce(into: [String: Date]()) { result, entry in
+            result[entry.key.uuidString] = entry.value
+        }
+        guard let data = try? JSONEncoder().encode(encodable) else { return }
+        UserDefaults.standard.set(data, forKey: lastPlayedKey)
+    }
+
+    /// Libraries that predate the play timestamps have none, which would make
+    /// every exercise look never-played. Seed them once from each exercise's
+    /// newest recorded score — the closest record of when it last ran — after
+    /// which `markPlayed` keeps them current.
+    private func seedLastPlayedIfNeeded() {
+        guard !UserDefaults.standard.bool(forKey: lastPlayedSeededKey) else { return }
+        for exercise in exercises where lastPlayed[exercise.id] == nil {
+            if let played = ScoreHistory.entries(for: exercise.id).map(\.date).max() {
+                lastPlayed[exercise.id] = played
+            }
+        }
+        saveLastPlayed()
+        UserDefaults.standard.set(true, forKey: lastPlayedSeededKey)
+    }
+
+    // MARK: - Recommendations
+
+    /// The exercises the Home tab's "Recommended" category suggests: the ones the
+    /// user hasn't played in the longest, never-played ones first. Only exercises
+    /// that shipped with the app are considered — the user's own and community
+    /// downloads (which always get a fresh id) are left out.
+    func recommendedExercises(count: Int) -> [Exercise] {
+        guard count > 0 else { return [] }
+        return exercises.enumerated()
+            .filter { isBundled($0.element.id) }
+            .sorted { lhs, rhs in
+                let left = lastPlayed[lhs.element.id] ?? .distantPast
+                let right = lastPlayed[rhs.element.id] ?? .distantPast
+                // Never-played exercises all tie at .distantPast; library order
+                // keeps their ranking stable from one launch to the next.
+                if left == right { return lhs.offset < rhs.offset }
+                return left < right
+            }
+            .prefix(count)
+            .map(\.element)
     }
 
     // MARK: - Routines
@@ -383,6 +449,9 @@ final class ExerciseStore: ObservableObject {
             recentlyPlayed.removeAll { $0 == id }
             saveRecentlyPlayed()
         }
+        if lastPlayed.removeValue(forKey: id) != nil {
+            saveLastPlayed()
+        }
         if routines.contains(where: { $0.exerciseIDs.contains(id) }) {
             for i in routines.indices {
                 routines[i].exerciseIDs.removeAll { $0 == id }
@@ -504,6 +573,15 @@ final class ExerciseStore: ObservableObject {
         save()
         enforceBundledPrivacy()
     }
+}
+
+/// Settings for the Home tab's "Recommended" category, edited under
+/// Settings ▸ Exercises.
+enum RecommendedExercises {
+    static let amountKey = "recommendedExercisesAmount"
+    /// How many exercises the category shows when the user hasn't chosen.
+    static let defaultAmount = 5
+    static let amountRange = 1...20
 }
 
 /// The on-disk format for export/import: the exercise list plus each one's MIDI
