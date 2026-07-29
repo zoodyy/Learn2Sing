@@ -207,11 +207,14 @@ struct FavouritesEditView: View {
 /// rows can't be started, edited, or dragged — tapping one toggles its
 /// membership in the target list, shown by a leading check circle. Changes
 /// apply immediately, so leaving the screen "adds" the selection. Shared by
-/// the edit-routine and edit-favourites screens.
-private struct ExerciseMultiPickerList: View {
+/// the edit-routine and edit-favourites screens and the recommendation
+/// whitelist, which titles it differently because it deselects as much as it
+/// adds.
+struct ExerciseMultiPickerList: View {
     @EnvironmentObject private var store: ExerciseStore
     let selectedIDs: Set<UUID>
     let onToggle: (UUID) -> Void
+    var title = "Add Exercises"
 
     /// Categories the user has collapsed. Their exercises are hidden and the
     /// header shows the exercise count in parentheses instead.
@@ -265,7 +268,7 @@ private struct ExerciseMultiPickerList: View {
         // Span the full screen like a List so content scrolls under the
         // navigation and tab bars.
         .ignoresSafeArea()
-        .navigationTitle("Add Exercises")
+        .navigationTitle(title)
         .navigationBarTitleDisplayMode(.inline)
         .stableTopEdgeFade()
     }
@@ -294,6 +297,21 @@ struct FavouritesExercisePickerView: View {
         ExerciseMultiPickerList(
             selectedIDs: Set(store.favourites),
             onToggle: { store.toggleFavourite($0) }
+        )
+    }
+}
+
+/// The exercises the Home tab's "Recommended" category may draw from, reached
+/// from Settings ▸ Exercises. Every exercise in the library is listed; the
+/// ticked ones start out as those that shipped with the app.
+struct RecommendationWhitelistView: View {
+    @EnvironmentObject private var store: ExerciseStore
+
+    var body: some View {
+        ExerciseMultiPickerList(
+            selectedIDs: store.recommendationWhitelist,
+            onToggle: { store.toggleWhitelisted($0) },
+            title: "Whitelisted Exercises"
         )
     }
 }

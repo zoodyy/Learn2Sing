@@ -68,7 +68,11 @@ struct SettingsView: View {
                 case .profile:
                     ProfileView()
                 case .exercises:
-                    ExercisesSettingsView()
+                    ExercisesSettingsView {
+                        settingsPath.append(SettingsRoute.recommendationWhitelist)
+                    }
+                case .recommendationWhitelist:
+                    RecommendationWhitelistView()
                 case .backup:
                     BackupSettingsView()
                 }
@@ -120,6 +124,7 @@ struct SettingsView: View {
         case visualsPlayback
         case profile
         case exercises
+        case recommendationWhitelist
         case backup
     }
 
@@ -206,10 +211,15 @@ struct VoiceSettingsView: View {
 }
 
 /// The "Exercises" hub reached from Settings: how the exercise library is
-/// presented, currently the size of the Home tab's "Recommended" category.
+/// presented — the size of the Home tab's "Recommended" category and which
+/// exercises it may draw from.
 struct ExercisesSettingsView: View {
+    @EnvironmentObject private var store: ExerciseStore
     @AppStorage(RecommendedExercises.amountKey)
     private var recommendedAmount = RecommendedExercises.defaultAmount
+
+    /// Push the whitelist picker onto the shared Settings navigation stack.
+    let openWhitelist: () -> Void
 
     var body: some View {
         Form {
@@ -221,7 +231,21 @@ struct ExercisesSettingsView: View {
                         Text("\(recommendedAmount)").foregroundStyle(.secondary)
                     }
                 }
-                .settingHelp("How many exercises the Home tab's “Recommended” category suggests. It picks the exercises that came with the app which you haven't practised in the longest.")
+                .settingHelp("How many exercises the Home tab's “Recommended” category suggests. It picks the whitelisted exercises you haven't practised in the longest.")
+
+                Button(action: openWhitelist) {
+                    HStack {
+                        Text("Whitelisted exercises")
+                        Spacer()
+                        Text("\(store.recommendationWhitelist.count)")
+                            .foregroundStyle(.secondary)
+                        Image(systemName: "chevron.right")
+                            .font(.footnote.weight(.semibold))
+                            .foregroundStyle(.tertiary)
+                    }
+                }
+                .foregroundStyle(.primary)
+                .settingHelp("The exercises recommendations are picked from. Everything that came with the app starts out selected; tap an exercise to add or remove it.")
             } header: {
                 Text("Recommendations")
             }

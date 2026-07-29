@@ -12,7 +12,7 @@ import SwiftUI
 /// user's own ordered exercise lists, created via the + button; swipe right on
 /// one to edit it, swipe left to delete it after a confirmation),
 /// "Favourites" (a single ordered exercise list, its + button opening the
-/// edit-favourites screen), and "Recommended" (the bundled exercises played
+/// edit-favourites screen), and "Recommended" (the whitelisted exercises played
 /// longest ago, as many as Settings ▸ Exercises asks for). The
 /// categories look and behave like the Exercises tab's
 /// (tap to collapse, long-press to rearrange) but never show exercise counts,
@@ -87,8 +87,8 @@ struct HomeView: View {
         store.favourites.compactMap { id in store.exercises.first { $0.id == id } }
     }
 
-    /// The exercises to suggest: the bundled ones played longest ago (never-played
-    /// first), as many as the "Recommended exercises amount" setting asks for.
+    /// The exercises to suggest: the whitelisted ones played longest ago
+    /// (never-played first), as many as the amount setting asks for.
     private var recommendedExercises: [Exercise] {
         store.recommendedExercises(count: recommendedAmount)
     }

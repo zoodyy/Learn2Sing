@@ -1300,6 +1300,81 @@ final class Learn2SingUITests: XCTestCase {
         sleep(1)
     }
 
+    /// The recommendation whitelist under Settings ▸ Exercises: a multi-select
+    /// picker over the whole library, starting with the app's own exercises
+    /// ticked. Unticking one takes it out of Home's recommendations.
+    func testRecommendationWhitelist() throws {
+        let app = XCUIApplication()
+        app.launch()
+        XCTAssertTrue(app.navigationBars["Home"].waitForExistence(timeout: 5))
+        sleep(2)
+        let before = snapshotList(app).items["Recommended"] ?? []
+        XCTAssertFalse(before.isEmpty, "Recommended should suggest exercises")
+
+        // Settings ▸ Exercises ▸ Whitelisted exercises.
+        app.buttons["Settings"].firstMatch.tap()
+        XCTAssertTrue(app.navigationBars["Settings"].waitForExistence(timeout: 5))
+        settingsRow(app, named: "Exercises")?.tap()
+        XCTAssertTrue(app.navigationBars["Exercises"].waitForExistence(timeout: 5))
+        let whitelistRow = app.buttons.matching(
+            NSPredicate(format: "label BEGINSWITH %@", "Whitelisted exercises")).firstMatch
+        XCTAssertTrue(whitelistRow.waitForExistence(timeout: 5),
+                      "whitelist row not under the amount setting")
+        // The row's trailing count says how many exercises are whitelisted; the
+        // app's own exercises are ticked from the start, so it can't be zero.
+        XCTAssertFalse(whitelistRow.label.hasSuffix("0"),
+                       "whitelist should start with the bundled exercises selected")
+        whitelistRow.tap()
+        XCTAssertTrue(app.navigationBars["Whitelisted Exercises"].waitForExistence(timeout: 5),
+                      "whitelist row should push the picker")
+        sleep(1)
+        saveScreenshot("settings-whitelist")
+
+        // Untick every exercise of the first category — the picker can't be
+        // scrolled reliably, and the recommendations all come from the top of
+        // the library anyway.
+        let picker = snapshotList(app)
+        guard let firstCategory = picker.headers.first,
+              let removed = picker.items[firstCategory], !removed.isEmpty else {
+            XCTFail("picker showed no exercises"); return
+        }
+        for name in removed {
+            cell(app, named: name).tap()
+            usleep(300_000)
+        }
+        saveScreenshot("settings-whitelist-deselected")
+
+        // Home no longer recommends any of them.
+        app.buttons["Home"].firstMatch.tap()
+        XCTAssertTrue(app.navigationBars["Home"].waitForExistence(timeout: 5))
+        sleep(1)
+        let after = snapshotList(app).items["Recommended"] ?? []
+        for name in removed {
+            XCTAssertFalse(after.contains(name),
+                           "\"\(name)\" was unticked and shouldn't be recommended")
+        }
+        XCTAssertNotEqual(after, before, "unticking should change the recommendations")
+        saveScreenshot("home-recommended-after-whitelist")
+
+        // Tick them again so the next run starts from the same state.
+        app.buttons["Settings"].firstMatch.tap()
+        if app.navigationBars["Exercises"].waitForExistence(timeout: 2) {
+            app.buttons.matching(
+                NSPredicate(format: "label BEGINSWITH %@", "Whitelisted exercises")).firstMatch.tap()
+        }
+        XCTAssertTrue(app.navigationBars["Whitelisted Exercises"].waitForExistence(timeout: 5))
+        sleep(1)
+        for name in removed {
+            cell(app, named: name).tap()
+            usleep(300_000)
+        }
+        app.buttons["Home"].firstMatch.tap()
+        XCTAssertTrue(app.navigationBars["Home"].waitForExistence(timeout: 5))
+        sleep(1)
+        XCTAssertEqual(snapshotList(app).items["Recommended"] ?? [], before,
+                       "re-ticking should restore the original recommendations")
+    }
+
     /// The Home tab's "Routines" category: the + button creates a named routine,
     /// swiping right on it opens the edit screen (Name field at the top, no
     /// counts), whose + button opens a multi-select exercise picker; picked

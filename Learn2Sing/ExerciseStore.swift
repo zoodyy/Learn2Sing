@@ -31,6 +31,11 @@ final class ExerciseStore: ObservableObject {
     /// The user's favourite exercises in display order. Shown in the Home tab's
     /// "Favourites" category. Never contains duplicates.
     @Published var favourites: [UUID] = []
+    /// The exercises the Home tab's "Recommended" category may draw from, edited
+    /// under Settings ▸ Exercises ▸ Whitelisted Exercises. Seeded with the
+    /// exercises that shipped with the app; any exercise in the library can be
+    /// added or removed from there.
+    @Published var recommendationWhitelist: Set<UUID> = []
 
     /// The always-present home for exercises not assigned to any other category:
     /// new exercises start here, deleting a category moves its exercises here, and
@@ -43,8 +48,10 @@ final class ExerciseStore: ObservableObject {
     private let lastPlayedKey = "lastPlayed"
     private let routinesKey = "routines"
     private let favouritesKey = "favourites"
+    private let whitelistKey = "recommendationWhitelist"
     private let bundledImportedKey = "didImportBundledExercises"
     private let lastPlayedSeededKey = "didSeedLastPlayed"
+    private let whitelistSeededKey = "didSeedRecommendationWhitelist"
 
     init() {
         load()
@@ -53,10 +60,12 @@ final class ExerciseStore: ObservableObject {
         loadLastPlayed()
         loadRoutines()
         loadFavourites()
+        loadWhitelist()
         importBundledIfNeeded()
         adoptNoCategory()
         enforceBundledPrivacy()
         seedLastPlayedIfNeeded()
+        seedWhitelistIfNeeded()
     }
 
     // MARK: - Bundled exercises
@@ -278,12 +287,13 @@ final class ExerciseStore: ObservableObject {
 
     /// The exercises the Home tab's "Recommended" category suggests: the ones the
     /// user hasn't played in the longest, never-played ones first. Only exercises
-    /// that shipped with the app are considered — the user's own and community
-    /// downloads (which always get a fresh id) are left out.
+    /// in the recommendation whitelist are considered — that starts out as the
+    /// ones that shipped with the app, and the user edits it under
+    /// Settings ▸ Exercises.
     func recommendedExercises(count: Int) -> [Exercise] {
         guard count > 0 else { return [] }
         return exercises.enumerated()
-            .filter { isBundled($0.element.id) }
+            .filter { recommendationWhitelist.contains($0.element.id) }
             .sorted { lhs, rhs in
                 let left = lastPlayed[lhs.element.id] ?? .distantPast
                 let right = lastPlayed[rhs.element.id] ?? .distantPast
@@ -397,6 +407,41 @@ final class ExerciseStore: ObservableObject {
         saveFavourites()
     }
 
+    // MARK: - Recommendation whitelist
+
+    private func loadWhitelist() {
+        guard let data = UserDefaults.standard.data(forKey: whitelistKey),
+              let saved = try? JSONDecoder().decode(Set<UUID>.self, from: data)
+        else { return }
+        recommendationWhitelist = saved
+    }
+
+    private func saveWhitelist() {
+        guard let data = try? JSONEncoder().encode(recommendationWhitelist) else { return }
+        UserDefaults.standard.set(data, forKey: whitelistKey)
+    }
+
+    /// Start the whitelist off with the exercises that shipped with the app, so
+    /// recommendations behave the same as before it was editable. Gated by a flag
+    /// so a user who unticks them all doesn't get them back on the next launch.
+    private func seedWhitelistIfNeeded() {
+        guard !UserDefaults.standard.bool(forKey: whitelistSeededKey) else { return }
+        recommendationWhitelist = Self.bundledExerciseIDs
+        saveWhitelist()
+        UserDefaults.standard.set(true, forKey: whitelistSeededKey)
+    }
+
+    /// Add the exercise to the recommendation pool, or remove it if already in it.
+    /// Backs the picker's tap-to-select rows, which is why membership toggles.
+    func toggleWhitelisted(_ exerciseID: UUID) {
+        if recommendationWhitelist.contains(exerciseID) {
+            recommendationWhitelist.remove(exerciseID)
+        } else {
+            recommendationWhitelist.insert(exerciseID)
+        }
+        saveWhitelist()
+    }
+
     // MARK: - Exercise mutation
 
     @discardableResult
@@ -461,6 +506,9 @@ final class ExerciseStore: ObservableObject {
         if favourites.contains(id) {
             favourites.removeAll { $0 == id }
             saveFavourites()
+        }
+        if recommendationWhitelist.remove(id) != nil {
+            saveWhitelist()
         }
         save()
     }
