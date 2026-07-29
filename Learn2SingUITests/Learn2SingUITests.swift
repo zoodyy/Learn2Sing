@@ -1883,4 +1883,91 @@ final class Learn2SingUITests: XCTestCase {
                       "import button not on the Backup screen")
         saveScreenshot("settings-backup")
     }
+
+    /// The Home tab's edit-categories screen: each category's eye button hides it
+    /// from the Home list, and the last visible one can't be hidden.
+    func testHomeCategoriesCanBeHidden() throws {
+        let app = XCUIApplication()
+        app.launch()
+        let tab = app.buttons["Home"]
+        XCTAssertTrue(tab.waitForExistence(timeout: 5), "Home tab not found")
+        tab.tap()
+        XCTAssertTrue(app.navigationBars["Home"].waitForExistence(timeout: 5))
+
+        let categories = ["Recent", "Routines", "Favourites", "Recommended"]
+
+        // Long-press any visible header to reach the edit-categories screen. Hidden
+        // categories persist across launches, so the first visible one is whatever
+        // an earlier run left behind.
+        let anyVisible = app.staticTexts.matching(
+            NSPredicate(format: "label IN %@", categories)).firstMatch
+        XCTAssertTrue(anyVisible.waitForExistence(timeout: 5), "Home list has no categories")
+        anyVisible.press(forDuration: 0.8)
+        XCTAssertTrue(app.navigationBars["Edit Categories"].waitForExistence(timeout: 5),
+                      "long press did not open Edit Categories")
+
+        func hideButton(_ category: String) -> XCUIElement { app.buttons["Hide \(category)"] }
+        func showButton(_ category: String) -> XCUIElement { app.buttons["Show \(category)"] }
+
+        // Start from a known state: everything visible.
+        for category in categories where showButton(category).exists {
+            showButton(category).tap()
+        }
+        saveScreenshot("home-edit-categories")
+
+        // Every category is now visible and hideable.
+        for category in categories {
+            XCTAssertTrue(hideButton(category).waitForExistence(timeout: 5),
+                          "no eye button for \(category)")
+            XCTAssertTrue(hideButton(category).isEnabled, "\(category) eye button disabled")
+        }
+
+        // Hide all but the last: it flips to "Show", and the survivor locks.
+        for category in categories.dropLast() {
+            hideButton(category).tap()
+            XCTAssertTrue(showButton(category).waitForExistence(timeout: 3),
+                          "\(category) did not flip to hidden")
+        }
+        let survivor = categories[categories.count - 1]
+        XCTAssertFalse(hideButton(survivor).isEnabled,
+                       "the last visible category must not be hideable")
+        saveScreenshot("home-edit-categories-hidden")
+
+        // Back on Home, only the survivor is listed.
+        app.navigationBars["Edit Categories"].buttons.firstMatch.tap()
+        XCTAssertTrue(app.navigationBars["Home"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.staticTexts[survivor].waitForExistence(timeout: 5),
+                      "\(survivor) vanished from Home")
+        for category in categories.dropLast() {
+            XCTAssertFalse(app.staticTexts[category].exists,
+                           "\(category) still on Home after being hidden")
+        }
+        saveScreenshot("home-hidden-categories")
+
+        // Hiding survives a relaunch.
+        app.terminate()
+        app.launch()
+        app.buttons["Home"].tap()
+        XCTAssertTrue(app.staticTexts[survivor].waitForExistence(timeout: 5))
+        for category in categories.dropLast() {
+            XCTAssertFalse(app.staticTexts[category].exists,
+                           "\(category) came back on Home after a relaunch")
+        }
+
+        // Unhiding brings a category back — and restores the app for the next run.
+        app.staticTexts[survivor].press(forDuration: 0.8)
+        XCTAssertTrue(app.navigationBars["Edit Categories"].waitForExistence(timeout: 5))
+        for category in categories.dropLast() {
+            showButton(category).tap()
+            XCTAssertTrue(hideButton(category).waitForExistence(timeout: 3),
+                          "\(category) did not flip back to visible")
+        }
+        XCTAssertTrue(hideButton(survivor).isEnabled,
+                      "survivor should be hideable again once another is visible")
+        app.navigationBars["Edit Categories"].buttons.firstMatch.tap()
+        for category in categories {
+            XCTAssertTrue(app.staticTexts[category].waitForExistence(timeout: 5),
+                          "\(category) did not come back to Home")
+        }
+    }
 }

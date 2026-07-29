@@ -17,7 +17,8 @@ import SwiftUI
 /// categories look and behave like the Exercises tab's
 /// (tap to collapse, long-press to rearrange) but never show exercise counts,
 /// and the reorder screen has no add, delete, or rename — the categories are
-/// fixed.
+/// fixed, though each one's eye button hides it from this tab (never the last
+/// visible one).
 struct HomeView: View {
     @EnvironmentObject private var store: ExerciseStore
     @EnvironmentObject private var toasts: ToastCenter
@@ -64,6 +65,39 @@ struct HomeView: View {
     /// categories that were expanded before the mode switch become expanded again.
     @State private var collapsedBeforeReorder: Set<String> = []
 
+    /// Categories the user has hidden via the eye button on the edit-categories
+    /// screen. They vanish from the Home list entirely (not just their exercises)
+    /// but stay on the edit screen so they can be brought back. Persisted as a
+    /// newline-joined list, since a hidden category should stay hidden across launches.
+    @AppStorage("homeHiddenCategories") private var hiddenCategoriesRaw = ""
+
+    private var hiddenCategories: Set<String> {
+        get { Set(hiddenCategoriesRaw.split(separator: "\n").map(String.init)) }
+        nonmutating set { hiddenCategoriesRaw = newValue.sorted().joined(separator: "\n") }
+    }
+
+    /// The categories still shown on the Home list, in the user's order.
+    private var visibleCategories: [String] {
+        categories.filter { !hiddenCategories.contains($0) }
+    }
+
+    /// Hiding is blocked for the last visible category, so the list can never be
+    /// emptied out completely.
+    private func canToggleHidden(_ category: String) -> Bool {
+        hiddenCategories.contains(category) || visibleCategories.count > 1
+    }
+
+    private func toggleHidden(_ category: String) {
+        guard canToggleHidden(category) else { return }
+        var hidden = hiddenCategories
+        if hidden.contains(category) {
+            hidden.remove(category)
+        } else {
+            hidden.insert(category)
+        }
+        hiddenCategories = hidden
+    }
+
     /// The five exercises that most recently played through to the end, newest first.
     private var recentExercises: [Exercise] {
         Array(store.recentlyPlayed
@@ -109,7 +143,7 @@ struct HomeView: View {
     }
 
     private var listSections: [ExerciseListSection] {
-        categories.map { category in
+        visibleCategories.map { category in
             let items = rows(in: category)
             let isCollapsed = collapsedCategories.contains(category)
             return ExerciseListSection(category: category,
@@ -183,6 +217,27 @@ struct HomeView: View {
         }
     }
 
+    /// A drag-reorderable row for a category on the edit-categories screen: the
+    /// name, and trailing (just left of the List's drag handle) an eye button that
+    /// hides the category from the Home list. The button is disabled on the last
+    /// visible category so at least one always remains.
+    private func reorderRow(_ category: String) -> some View {
+        let isHidden = hiddenCategories.contains(category)
+        return HStack {
+            Text(category)
+                .foregroundStyle(isHidden ? .secondary : .primary)
+            Spacer()
+            Button {
+                withAnimation { toggleHidden(category) }
+            } label: {
+                Image(systemName: isHidden ? "eye.slash" : "eye")
+            }
+            .buttonStyle(.borderless)
+            .disabled(!canToggleHidden(category))
+            .accessibilityLabel(isHidden ? "Show \(category)" : "Hide \(category)")
+        }
+    }
+
     @ViewBuilder
     private var listContent: some View {
         if isReordering {
@@ -191,7 +246,7 @@ struct HomeView: View {
             // categories are plain draggable rows.
             List {
                 ForEach(categories, id: \.self) { category in
-                    Text(category)
+                    reorderRow(category)
                 }
                 .onMove { source, destination in
                     categories.move(fromOffsets: source, toOffset: destination)
