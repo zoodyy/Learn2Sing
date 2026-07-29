@@ -38,6 +38,9 @@ struct ExerciseListSection: Equatable {
     /// true puts a + button in the header, right after the category name
     /// (Routines on the Home tab). Taps arrive via the list's `onAdd`.
     var showsAdd = false
+    /// false drops the collapse chevron from the header, for sections that only
+    /// label a group and can't be collapsed (the Community search results).
+    var showsChevron = true
 }
 
 /// The normal-mode exercise list. This is intentionally NOT a SwiftUI List: a
@@ -304,7 +307,7 @@ final class ExerciseListController: UIViewController {
         let section = sections[sectionIndex]
         header.configure(name: section.category, count: section.totalCount,
                          isCollapsed: section.isCollapsed, showsCount: section.showsCount,
-                         animated: animated)
+                         showsChevron: section.showsChevron, animated: animated)
         header.onTap = { [weak self] in self?.onToggleCollapse?(section.category) }
         header.onLongPress = { [weak self] in self?.onHeaderLongPress?() }
         header.onAdd = section.showsAdd ? { [weak self] in self?.onAdd?(section.category) } : nil
@@ -722,10 +725,12 @@ final class ExerciseSectionHeaderView: UICollectionReusableView {
     @available(*, unavailable)
     required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
 
-    func configure(name: String, count: Int, isCollapsed: Bool, showsCount: Bool, animated: Bool) {
+    func configure(name: String, count: Int, isCollapsed: Bool, showsCount: Bool,
+                   showsChevron: Bool, animated: Bool) {
         nameLabel.text = name
         countLabel.text = "(\(count))"
         countLabel.isHidden = !showsCount || (!isCollapsed && count > 0)
+        chevron.isHidden = !showsChevron
         self.isCollapsed = isCollapsed
         let transform = isCollapsed ? .identity : CGAffineTransform(rotationAngle: .pi / 2)
         if animated {

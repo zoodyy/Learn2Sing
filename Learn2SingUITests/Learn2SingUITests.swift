@@ -1040,6 +1040,163 @@ final class Learn2SingUITests: XCTestCase {
                       "back button should return to the Community list")
     }
 
+    /// The Community tab's search field, in one pass over the live list: an
+    /// exercise-name query keeps that row and drops the others, a username query
+    /// lists the uploader under a "Users" header (tapping the row opens their
+    /// profile), a word from an exercise's description finds that exercise, and
+    /// nonsense shows "No Results".
+    func testCommunitySearch() throws {
+        /// The Community list's own rows (the hidden tabs keep copies of their
+        /// rows in the element tree, but those aren't hittable) as
+        /// (exercise name, uploader name).
+        func rows(_ app: XCUIApplication) -> [(name: String, uploader: String)] {
+            app.cells.allElementsBoundByIndex.compactMap { cell in
+                guard cell.isHittable else { return nil }
+                let text = cell.staticTexts.firstMatch
+                let uploader = cell.buttons.firstMatch
+                guard text.exists, uploader.exists else { return nil }
+                return (text.label, uploader.label)
+            }
+        }
+
+        let app = XCUIApplication()
+        app.launch()
+        let tab = app.buttons["Community"]
+        XCTAssertTrue(tab.waitForExistence(timeout: 5), "Community tab not found")
+        tab.tap()
+        XCTAssertTrue(app.navigationBars["Community"].waitForExistence(timeout: 5))
+        // Give the tab's fetch time to land.
+        sleep(4)
+
+        let listed = rows(app)
+        guard listed.count >= 2, listed.contains(where: { $0.name != listed[0].name }) else {
+            throw XCTSkip("Community needs two differently-named exercises; publish some first.")
+        }
+
+        let search = app.searchFields.firstMatch
+        XCTAssertTrue(search.waitForExistence(timeout: 3), "Community should offer a search field")
+        saveScreenshot("community-search-empty")
+
+        /// Empties the search field, whichever way the clear affordance shows up.
+        func clearSearch() {
+            let field = app.searchFields.firstMatch
+            let clear = field.buttons["Clear text"].firstMatch
+            if clear.exists {
+                clear.tap()
+            } else {
+                field.tap()
+                field.typeText(String(repeating: XCUIKeyboardKey.delete.rawValue, count: 40))
+            }
+            sleep(1)
+        }
+
+        /// Types `query` into an emptied search field.
+        func type(_ query: String) {
+            let field = app.searchFields.firstMatch
+            XCTAssertTrue(field.waitForExistence(timeout: 3), "search field gone")
+            field.tap()
+            field.typeText(query)
+            sleep(1)
+        }
+
+        /// An exercise's description, read off its intro screen (nil when it has
+        /// none). The description sits under the title in the screen's scroll
+        /// view; the buttons below it are excluded by name.
+        func descriptionText(of name: String) -> String? {
+            app.cells.containing(.staticText, identifier: name).allElementsBoundByIndex
+                .first { $0.isHittable }?
+                .staticTexts[name].firstMatch.tap()
+            XCTAssertTrue(app.navigationBars[name].waitForExistence(timeout: 5),
+                          "tapping \(name) should push its intro screen")
+            sleep(1)
+            let text = app.scrollViews.firstMatch.staticTexts.allElementsBoundByIndex
+                .map(\.label)
+                .first {
+                    $0 != name && $0 != "No description." && !$0.isEmpty
+                        && !["Download", "Start", "See Score", "Added to Exercises"].contains($0)
+                }
+            app.buttons["BackButton"].firstMatch.tap()
+            XCTAssertTrue(app.navigationBars["Community"].waitForExistence(timeout: 5))
+            sleep(1)
+            return text
+        }
+
+        // Prefer a row that has a description, so step 3 below has something to
+        // search for; the first row does for the other steps otherwise. Only a
+        // few candidates are opened, to keep the test short.
+        var target = listed[0]
+        var description: String?
+        for candidate in listed.prefix(3) {
+            if let text = descriptionText(of: candidate.name) {
+                target = candidate
+                description = text
+                break
+            }
+        }
+        guard let other = listed.first(where: { $0.name != target.name }) else {
+            throw XCTSkip("Community needs two differently-named exercises; publish some first.")
+        }
+
+        // 1. Exercise name: the row stays, the differently-named one goes.
+        type(target.name)
+        XCTAssertTrue(rows(app).contains { $0.name == target.name },
+                      "searching \(target.name) should keep its row")
+        XCTAssertFalse(rows(app).contains { $0.name == other.name },
+                       "searching \(target.name) should drop \(other.name)")
+        XCTAssertTrue(app.staticTexts["Exercises"].exists,
+                      "exercise matches should sit under an Exercises header")
+        saveScreenshot("community-search-exercise")
+
+        // 2. Username: listed under Users, as a row of its own that opens the
+        // uploader's profile.
+        clearSearch()
+        type(target.uploader)
+        XCTAssertTrue(app.staticTexts["Users"].waitForExistence(timeout: 3),
+                      "a matching uploader should be listed under a Users header")
+        let userRow = app.cells.containing(.staticText, identifier: target.uploader)
+            .allElementsBoundByIndex
+            .first { $0.isHittable }
+        XCTAssertNotNil(userRow, "\(target.uploader) should be listed as a user row")
+        saveScreenshot("community-search-user")
+        userRow?.tap()
+        XCTAssertTrue(app.navigationBars[target.uploader].waitForExistence(timeout: 5),
+                      "tapping the user row should push \(target.uploader)'s profile")
+        app.buttons["BackButton"].firstMatch.tap()
+        XCTAssertTrue(app.navigationBars["Community"].waitForExistence(timeout: 5))
+        sleep(1)
+
+        // 3. The longest word of the description finds the exercise it belongs
+        // to. When neither the exercise name nor the uploader contains that word,
+        // only the description can have matched.
+        let words: [String] = (description ?? "")
+            .components(separatedBy: CharacterSet.alphanumerics.inverted)
+        if let word = words.max(by: { $0.count < $1.count }), !word.isEmpty {
+            clearSearch()
+            type(word)
+            XCTAssertTrue(rows(app).contains { $0.name == target.name },
+                          "searching the description word \"\(word)\" should find \(target.name)")
+            saveScreenshot("community-search-description")
+        } else {
+            print("no community exercise among the first rows has a description; step skipped")
+        }
+
+        // 4. Nonsense: an explicit no-results state.
+        clearSearch()
+        type("zzqqxwv")
+        // The system search empty state, labelled "No Results for “<term>”".
+        let noResults = app.staticTexts
+            .matching(NSPredicate(format: "label BEGINSWITH %@", "No Results"))
+            .firstMatch
+        XCTAssertTrue(noResults.waitForExistence(timeout: 3),
+                      "a query matching nothing should show No Results")
+        XCTAssertTrue(rows(app).isEmpty, "no rows should be listed for a non-matching query")
+        saveScreenshot("community-search-none")
+
+        // Leave the list unfiltered.
+        clearSearch()
+        XCTAssertFalse(rows(app).isEmpty, "clearing the search should restore the list")
+    }
+
     /// Opening an exercise from the Community tab shows a Download button above
     /// Start; tapping it flips to a disabled "Added to Exercises" confirmation
     /// and files a private copy under "No Category" on the Exercises tab. The
