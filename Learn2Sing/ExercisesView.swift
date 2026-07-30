@@ -21,11 +21,15 @@ struct Exercise: Identifiable, Hashable, Codable {
     var beatsBetweenReps: Double = 0  // silent beats inserted between repetitions
     var visibility: ExerciseVisibility = .private // public exercises show on the Community tab
     var uploaderName: String = ""     // profile username stamped when made public
+    // Set when the exercise was copied into the library from the Community tab,
+    // to the uploader it came from (which may itself be "" — uploaders without a
+    // profile username). nil means the user created it themselves.
+    var downloadedFrom: String? = nil
 
     init(name: String) { self.name = name }
 
     private enum CodingKeys: String, CodingKey {
-        case id, name, details, category, pitchShift, bpm, speed, repeatCount, transposePerRepeat, switchDirectionAfter, beatsBetweenReps, visibility, uploaderName
+        case id, name, details, category, pitchShift, bpm, speed, repeatCount, transposePerRepeat, switchDirectionAfter, beatsBetweenReps, visibility, uploaderName, downloadedFrom
     }
 
     init(from decoder: Decoder) throws {
@@ -47,6 +51,7 @@ struct Exercise: Identifiable, Hashable, Codable {
         beatsBetweenReps = try c.decodeIfPresent(Double.self, forKey: .beatsBetweenReps) ?? 0
         visibility = try c.decodeIfPresent(ExerciseVisibility.self, forKey: .visibility) ?? .private
         uploaderName = try c.decodeIfPresent(String.self, forKey: .uploaderName) ?? ""
+        downloadedFrom = try c.decodeIfPresent(String.self, forKey: .downloadedFrom)
     }
 
     func encode(to encoder: Encoder) throws {
@@ -65,6 +70,9 @@ struct Exercise: Identifiable, Hashable, Codable {
         try c.encode(beatsBetweenReps, forKey: .beatsBetweenReps)
         try c.encode(visibility, forKey: .visibility)
         try c.encode(uploaderName, forKey: .uploaderName)
+        // Omitted when nil, so exercises the user made themselves upload exactly
+        // the same document body as before this field existed.
+        try c.encodeIfPresent(downloadedFrom, forKey: .downloadedFrom)
     }
 }
 
@@ -149,29 +157,45 @@ struct ExercisesView: View {
     /// swapped for per-row delete buttons. Toggled by the trash toolbar button.
     @State private var isDeletingCategories = false
 
-    /// Exercises with no category, or whose category was deleted, shown in an
-    /// unlabelled section so none are ever lost from the list.
-    private var uncategorized: [Exercise] {
-        store.exercises.filter { $0.category.isEmpty || !store.categories.contains($0.category) }
+    /// The filters picked in the toolbar's filter menu. Empty (the default) shows
+    /// the whole library. Deliberately not persisted: a filter that survived a
+    /// relaunch would look like exercises had gone missing.
+    @State private var activeFilters: Set<ExerciseFilter> = []
+
+    /// The exercises the list may show, narrowed by the active filters.
+    private var visibleExercises: [Exercise] {
+        guard !activeFilters.isEmpty else { return store.exercises }
+        return store.exercises.filter {
+            activeFilters.matches($0, isBundled: store.isBundled($0.id))
+        }
     }
 
     /// The list content in normal mode: one section per category (in the user's
-    /// order, empty ones included) plus the uncategorized group at the end, ready
-    /// to hand to the UIKit-backed list that does the rendering and drag & drop.
+    /// order, empty ones included) plus the uncategorized group — exercises with
+    /// no category, or whose category was deleted, so none are ever lost from the
+    /// list — at the end, ready to hand to the UIKit-backed list that does the
+    /// rendering and drag & drop.
     private var listSections: [ExerciseListSection] {
         func rows(_ exercises: [Exercise]) -> [ExerciseListRow] {
             exercises.map { ExerciseListRow(exercise: $0, pattern: store.notes(for: $0.id)) }
         }
+        let exercises = visibleExercises
+        let isFiltering = !activeFilters.isEmpty
         var result: [ExerciseListSection] = []
         for category in store.categories {
-            let items = store.exercises.filter { $0.category == category }
+            let items = exercises.filter { $0.category == category }
+            // Empty categories normally stay visible (showing "(0)"), but while
+            // filtering a category with no match left is just noise.
+            if items.isEmpty && isFiltering { continue }
             let isCollapsed = collapsedCategories.contains(category)
             result.append(ExerciseListSection(category: category,
                                               isCollapsed: isCollapsed,
                                               totalCount: items.count,
                                               items: isCollapsed ? [] : rows(items)))
         }
-        let uncategorized = self.uncategorized
+        let uncategorized = exercises.filter {
+            $0.category.isEmpty || !store.categories.contains($0.category)
+        }
         if !uncategorized.isEmpty {
             result.append(ExerciseListSection(category: "",
                                               isCollapsed: false,
@@ -179,6 +203,20 @@ struct ExercisesView: View {
                                               items: rows(uncategorized)))
         }
         return result
+    }
+
+    /// Menu toggle state for one filter.
+    private func filterBinding(_ filter: ExerciseFilter) -> Binding<Bool> {
+        Binding(
+            get: { activeFilters.contains(filter) },
+            set: { isOn in
+                if isOn {
+                    activeFilters.insert(filter)
+                } else {
+                    activeFilters.remove(filter)
+                }
+            }
+        )
     }
 
     /// A drag-reorderable row for a category, shown only on the edit-categories
@@ -265,13 +303,17 @@ struct ExercisesView: View {
     /// Create the exercise immediately and open its settings, where the user
     /// picks the name and everything else.
     private func addExercise() {
+        // A filter the new exercise doesn't match would hide it the moment the
+        // user came back from its settings, so adding one drops the filters.
+        activeFilters.removeAll()
         let exercise = store.add(name: "New Exercise")
         pendingNewExercise = exercise
         navigationPath.append(ExerciseRoute.settings(exercise.id))
     }
 
     var body: some View {
-        NavigationStack(path: $navigationPath) {
+        let sections = listSections
+        return NavigationStack(path: $navigationPath) {
             Group {
                 if isReordering {
                     // Reorder mode: every category collapsed to a single draggable row.
@@ -282,9 +324,17 @@ struct ExercisesView: View {
                         .onMove(perform: moveCategory)
                     }
                     .environment(\.editMode, $editMode)
+                } else if sections.isEmpty && !activeFilters.isEmpty {
+                    ContentUnavailableView {
+                        Label("No Matching Exercises", systemImage: "line.3.horizontal.decrease.circle")
+                    } description: {
+                        Text("No exercise matches the selected filters.")
+                    } actions: {
+                        Button("Clear Filters") { activeFilters.removeAll() }
+                    }
                 } else {
                     ExerciseCollectionList(
-                        sections: listSections,
+                        sections: sections,
                         onSelect: { navigationPath.append(ExerciseRoute.play($0)) },
                         onSettings: { navigationPath.append(ExerciseRoute.settings($0)) },
                         onToggleCollapse: { category in
@@ -332,6 +382,38 @@ struct ExercisesView: View {
                         }
                     }
                 } else {
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Menu {
+                            Section("Source") {
+                                ForEach(ExerciseFilter.sourceCases) { filter in
+                                    Toggle(isOn: filterBinding(filter)) {
+                                        Label(filter.label, systemImage: filter.systemImage)
+                                    }
+                                }
+                            }
+                            Section("Visibility") {
+                                ForEach(ExerciseFilter.visibilityCases) { filter in
+                                    Toggle(isOn: filterBinding(filter)) {
+                                        Label(filter.label, systemImage: filter.systemImage)
+                                    }
+                                }
+                            }
+                            if !activeFilters.isEmpty {
+                                Section {
+                                    Button(role: .destructive) {
+                                        activeFilters.removeAll()
+                                    } label: {
+                                        Label("Clear Filters", systemImage: "xmark.circle")
+                                    }
+                                }
+                            }
+                        } label: {
+                            Image(systemName: activeFilters.isEmpty
+                                  ? "line.3.horizontal.decrease.circle"
+                                  : "line.3.horizontal.decrease.circle.fill")
+                        }
+                        .accessibilityLabel("Filter")
+                    }
                     ToolbarItem(placement: .topBarTrailing) {
                         Menu {
                             Button {

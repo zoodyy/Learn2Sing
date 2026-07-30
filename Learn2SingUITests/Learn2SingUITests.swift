@@ -1343,6 +1343,44 @@ final class Learn2SingUITests: XCTestCase {
                       "✗ should exit reorder mode")
     }
 
+    /// The Exercises tab's filter menu. Picks within a group are OR'd and groups
+    /// are AND'd, so "Bundled" alone lists exercises while "Bundled" + "Public"
+    /// can't match anything — bundled exercises are always private.
+    func testExerciseFilterMenu() throws {
+        let app = openExercises()
+        sleep(2)
+        let unfiltered = snapshotList(app)
+
+        func openFilterMenu() {
+            app.navigationBars["Exercises"].buttons["Filter"].firstMatch.tap()
+            XCTAssertTrue(app.buttons["Bundled Exercises"].firstMatch.waitForExistence(timeout: 3),
+                          "filter menu did not open")
+        }
+
+        openFilterMenu()
+        saveScreenshot("filter-menu")
+        app.buttons["Bundled Exercises"].firstMatch.tap()
+        sleep(2)
+        saveScreenshot("filter-bundled")
+        let bundled = snapshotList(app)
+        let bundledNames = Set(bundled.items.values.flatMap { $0 })
+        XCTAssertFalse(bundledNames.isEmpty, "filtering to bundled exercises emptied the list")
+        XCTAssertTrue(bundledNames.isSubset(of: Set(unfiltered.items.values.flatMap { $0 })),
+                      "filtered list shows exercises the unfiltered one didn't")
+
+        // Adding a visibility pick narrows further, across groups.
+        openFilterMenu()
+        app.buttons["Public Exercises"].firstMatch.tap()
+        XCTAssertTrue(app.staticTexts["No Matching Exercises"].waitForExistence(timeout: 3),
+                      "bundled + public should match nothing")
+        saveScreenshot("filter-empty")
+
+        app.buttons["Clear Filters"].firstMatch.tap()
+        sleep(2)
+        XCTAssertEqual(snapshotList(app).headers, unfiltered.headers,
+                       "clearing the filters should restore the full list")
+    }
+
     /// The Home tab's "Recent" category: at most five rows, a header that
     /// collapses without ever showing an exercise count, and a long-press
     /// reorder mode without the add/delete buttons of the Exercises tab.

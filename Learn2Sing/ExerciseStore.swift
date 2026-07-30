@@ -455,7 +455,9 @@ final class ExerciseStore: ObservableObject {
 
     /// Copy a community exercise into the user's own library: a fresh id so the
     /// copy is independent of the original, private visibility, no uploader name,
-    /// and the "No Category" group. The MIDI pattern and text labels are copied
+    /// and the "No Category" group. The original uploader is remembered in
+    /// `downloadedFrom`, which is what marks the copy as a community exercise for
+    /// the Exercises tab's filter. The MIDI pattern and text labels are copied
     /// too. Takes the exercise by value because community exercises fetched from
     /// the server aren't in `exercises` (their patterns are still readable by id
     /// — CommunitySync caches them under the standard keys).
@@ -464,6 +466,7 @@ final class ExerciseStore: ObservableObject {
         var copy = source
         copy.id = UUID()
         copy.visibility = .private
+        copy.downloadedFrom = source.uploaderName
         copy.uploaderName = ""
         copy.category = Self.noCategoryName
         exercises.append(copy)
