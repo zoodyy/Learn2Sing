@@ -2,9 +2,9 @@ import SwiftUI
 
 /// Shown right after an exercise is tapped, before playback begins. Presents the
 /// exercise's description so the singer knows what to do, with a button to start.
-/// When opened from the Community tab a like button sits under the title and a
-/// Download button appears above Start, copying the exercise into the user's own
-/// library (the Exercises tab).
+/// When opened from the Community tab a like button sits above the Download
+/// button, on the trailing edge, and Download copies the exercise into the user's
+/// own library (the Exercises tab).
 struct ExerciseIntroView: View {
     let exercise: Exercise
     /// Public id of the community exercise the like button acts on; nil (every
@@ -35,10 +35,6 @@ struct ExerciseIntroView: View {
                     Text(exercise.name)
                         .font(.largeTitle.weight(.bold))
 
-                    if let likeID {
-                        likeButton(for: likeID)
-                    }
-
                     if trimmedDetails.isEmpty {
                         Text("No description.")
                             .font(.body)
@@ -55,6 +51,15 @@ struct ExerciseIntroView: View {
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding()
+            }
+
+            if let likeID {
+                HStack {
+                    Spacer()
+                    likeButton(for: likeID)
+                }
+                .padding(.horizontal)
+                .padding(.bottom, 8)
             }
 
             if let onDownload {
