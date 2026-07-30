@@ -20,6 +20,10 @@ struct UserProfile: Codable {
     /// The Home tab's category display order. Optional so profiles written
     /// before the order was synced still decode.
     var homeCategoryOrder: [String]? = nil
+    /// Public ids (lowercase UUID strings) of the Community exercises this user
+    /// has liked, so the hearts stay filled across launches and reinstalls.
+    /// Owned by CommunitySync; optional so older profiles still decode.
+    var likedExercises: [String]? = nil
 
     static var fileURL: URL {
         FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]

@@ -716,6 +716,151 @@ final class Learn2SingUITests: XCTestCase {
         saveScreenshot("community-refreshed")
     }
 
+    // MARK: - Community likes
+
+    private static let likeBaseURL =
+        "https://echolex.api.phrase-by-phrase.com/api/v1/learn2Sing"
+
+    /// POSTs one SHARED_EXERCISE document in the current per-exercise format,
+    /// keyed by `exerciseID` (which is also the exercise's own id, exactly as
+    /// CommunitySync publishes it), and waits for the server to accept it.
+    private func postSharedExerciseDoc(userID: String, exerciseID: String,
+                                       name: String, likes: Int) {
+        let doc = """
+        {"userID":"\(userID)","exercise":{"id":"\(exerciseID)","name":"\(name)",\
+        "details":"Like test","category":"No Category","pitchShift":0,"bpm":120,\
+        "repeatCount":1,"transposePerRepeat":0,"switchDirectionAfter":0,\
+        "beatsBetweenReps":0,"visibility":"public","uploaderName":"LikeTester"},\
+        "midi":[{"id":"\(UUID().uuidString.lowercased())","pitch":60,"beat":0,"length":1}],\
+        "likes":\(likes)}
+        """
+        var components = URLComponents(string: "\(Self.likeBaseURL)/persist/\(exerciseID)/SHARED_EXERCISE")!
+        components.queryItems = [
+            URLQueryItem(name: "customId1", value: userID),
+            URLQueryItem(name: "customName", value: name),
+            URLQueryItem(name: "customId2", value: exerciseID),
+        ]
+        var request = URLRequest(url: components.url!)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.httpBody = Data(doc.utf8)
+        let posted = expectation(description: "posted shared exercise")
+        URLSession.shared.dataTask(with: request) { _, response, error in
+            XCTAssertNil(error, "POST failed: \(String(describing: error))")
+            XCTAssertEqual((response as? HTTPURLResponse)?.statusCode, 200)
+            posted.fulfill()
+        }.resume()
+        wait(for: [posted], timeout: 15)
+    }
+
+    /// Overwrites the test's shared exercise with a tombstone, the same way the
+    /// app retires an exercise that went private, so the run leaves nothing
+    /// behind on everyone else's Community tab.
+    private func postTombstone(userID: String, exerciseID: String) {
+        var request = URLRequest(url: URL(string:
+            "\(Self.likeBaseURL)/persist/\(exerciseID)/SHARED_EXERCISE?customId1=\(userID)&customId2=\(exerciseID)")!)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.httpBody = Data(#"{"userID":"\#(userID)"}"#.utf8)
+        let posted = expectation(description: "posted tombstone")
+        URLSession.shared.dataTask(with: request) { _, _, _ in posted.fulfill() }.resume()
+        wait(for: [posted], timeout: 15)
+    }
+
+    /// The `likes` value the server currently holds for one shared exercise.
+    private func serverLikes(forExercise exerciseID: String) -> Int? {
+        var components = URLComponents(string: "\(Self.likeBaseURL)/fetch-public/SHARED_EXERCISE")!
+        components.queryItems = [URLQueryItem(name: "customId2", value: exerciseID)]
+        var likes: Int?
+        let fetched = expectation(description: "fetched shared exercise")
+        URLSession.shared.dataTask(with: components.url!) { data, _, _ in
+            defer { fetched.fulfill() }
+            guard let data,
+                  let records = try? JSONSerialization.jsonObject(with: data) as? [[String: Any]],
+                  let json = records.first?["jsonData"] as? String,
+                  let doc = try? JSONSerialization.jsonObject(with: Data(json.utf8)) as? [String: Any]
+            else { return }
+            likes = doc["likes"] as? Int
+        }.resume()
+        wait(for: [fetched], timeout: 15)
+        return likes
+    }
+
+    /// Liking a community exercise from its intro screen bumps the count shown,
+    /// writes the new count into the shared document on the server, and is
+    /// remembered locally so the heart is still filled after a relaunch.
+    func testCommunityExerciseLike() throws {
+        // Fixed ids (the test plays another device): each run replaces the
+        // previous run's record instead of piling up on the public feed, and the
+        // tombstone at the end removes it again.
+        let userID = "dddddddd-4444-4555-8666-777777777777"
+        let exerciseID = "dddddddd-4444-4555-8666-aaaaaaaaaaaa"
+        let name = "Like Test \(Int(Date().timeIntervalSince1970))"
+        postSharedExerciseDoc(userID: userID, exerciseID: exerciseID, name: name, likes: 3)
+        defer { postTombstone(userID: userID, exerciseID: exerciseID) }
+
+        var app = XCUIApplication()
+        app.launch()
+        app.buttons["Community"].tap()
+        XCTAssertTrue(app.navigationBars["Community"].waitForExistence(timeout: 5))
+        let row = app.cells.containing(.staticText, identifier: name).firstMatch
+        XCTAssertTrue(row.waitForExistence(timeout: 15),
+                      "\(name) not listed on the Community tab")
+        row.tap()
+
+        // The intro screen shows the server's count, unliked.
+        let like = app.buttons["Like"].firstMatch
+        XCTAssertTrue(like.waitForExistence(timeout: 5),
+                      "the intro screen of a community exercise should offer a Like button")
+        XCTAssertTrue(app.staticTexts["3"].firstMatch.exists,
+                      "the like count fetched from the server (3) should be shown")
+        saveScreenshot("community-like-before")
+
+        like.tap()
+        let unlike = app.buttons["Unlike"].firstMatch
+        XCTAssertTrue(unlike.waitForExistence(timeout: 3),
+                      "after liking, the button should offer to Unlike")
+        XCTAssertTrue(app.staticTexts["4"].firstMatch.waitForExistence(timeout: 3),
+                      "the count should read 4 right after the tap")
+        saveScreenshot("community-like-after")
+
+        // The new count reached the server's copy of the shared exercise.
+        var uploaded: Int?
+        for _ in 0..<5 {
+            uploaded = serverLikes(forExercise: exerciseID)
+            if uploaded == 4 { break }
+            sleep(2)
+        }
+        XCTAssertEqual(uploaded, 4, "the like should be stored in the shared exercise document")
+
+        // The like itself is remembered across a relaunch (it lives in the
+        // profile JSON, which is also what gets uploaded and restored).
+        app.terminate()
+        app = XCUIApplication()
+        app.launch()
+        app.buttons["Community"].tap()
+        XCTAssertTrue(app.navigationBars["Community"].waitForExistence(timeout: 5))
+        let rowAgain = app.cells.containing(.staticText, identifier: name).firstMatch
+        XCTAssertTrue(rowAgain.waitForExistence(timeout: 15))
+        rowAgain.tap()
+        XCTAssertTrue(app.buttons["Unlike"].firstMatch.waitForExistence(timeout: 5),
+                      "the like should survive a relaunch")
+
+        // Unliking takes it back down, locally and on the server.
+        app.buttons["Unlike"].firstMatch.tap()
+        XCTAssertTrue(app.buttons["Like"].firstMatch.waitForExistence(timeout: 3),
+                      "unliking should return the button to Like")
+        XCTAssertTrue(app.staticTexts["3"].firstMatch.waitForExistence(timeout: 3),
+                      "the count should be back to 3")
+        var afterUnlike: Int?
+        for _ in 0..<5 {
+            afterUnlike = serverLikes(forExercise: exerciseID)
+            if afterUnlike == 3 { break }
+            sleep(2)
+        }
+        XCTAssertEqual(afterUnlike, 3, "the unlike should be stored on the server too")
+    }
+
     /// Making an exercise public is refused with a warning when another of the
     /// user's public exercises already has the same name: the alert appears and
     /// the visibility stays Private. Bundled exercises have no visibility

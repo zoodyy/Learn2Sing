@@ -18,6 +18,12 @@ struct SharedExerciseDoc: Codable {
     var exercise: Exercise? = nil
     var midi: [MIDINote] = []
     var texts: [MIDIText]? = nil
+    /// How many users have liked this exercise. The whole document is rewritten
+    /// on every like — by whoever tapped the heart, not just the uploader — so
+    /// the uploader must carry the last known count forward on its own uploads
+    /// (see `likeCounts`). Optional so documents written before likes existed
+    /// still decode; treat nil as zero.
+    var likes: Int? = nil
 }
 
 /// The document each user keeps on the server under PUBLIC_NAME: their current
@@ -53,12 +59,21 @@ final class CommunitySync: ObservableObject {
     /// server; persisted so exercises unshared or deleted while offline (or in
     /// a previous session) still get their tombstone on the next upload.
     private static let uploadedExerciseIDsKey = "communityUploadedExerciseIDs"
+    /// Last known like count per public exercise id, persisted so a launch whose
+    /// fetch fails doesn't upload this device's exercises with the count zeroed.
+    private static let likeCountsKey = "communityLikeCounts"
 
     /// Every device's public exercises as last fetched, in the order the server
     /// returns them. Empty until the first fetch of the session succeeds.
     @Published private(set) var exercises: [Exercise] = []
     /// true while a fetch is on the wire; drives the tab's initial spinner.
     @Published private(set) var isFetching = false
+    /// Like count per public exercise id, as of the last fetch plus this
+    /// session's own likes.
+    @Published private(set) var likeCounts: [UUID: Int] = [:]
+    /// Public ids of the exercises this user has liked. Mirrored into the
+    /// profile JSON (and so onto the server) on every change.
+    @Published private(set) var likedExerciseIDs: Set<UUID> = []
 
     private weak var store: ExerciseStore?
     private var storeObservation: AnyCancellable?
@@ -71,10 +86,18 @@ final class CommunitySync: ObservableObject {
     private var lastUploadedBodies: [String: Data] = [:]
     /// Same skip-if-unchanged guard for the PUBLIC_NAME document.
     private var lastUploadedName: Data?
+    /// The documents behind `exercises`, by public exercise id. A like rewrites
+    /// the whole document — including exercises this device doesn't own — so the
+    /// fetched body has to be kept around to post back with a new count.
+    private var fetchedDocs: [UUID: SharedExerciseDoc] = [:]
 
     private init() {
         // An earlier version persisted the fetched list under this key.
         UserDefaults.standard.removeObject(forKey: "communityExercises")
+        let stored = UserDefaults.standard.dictionary(forKey: Self.likeCountsKey) as? [String: Int] ?? [:]
+        likeCounts = stored.reduce(into: [:]) { counts, entry in
+            if let id = UUID(uuidString: entry.key) { counts[id] = entry.value }
+        }
     }
 
     /// Call once at launch, after ProfileSync has restored the library (so a
@@ -84,6 +107,9 @@ final class CommunitySync: ObservableObject {
     func start(with store: ExerciseStore) async {
         guard self.store == nil else { return }
         self.store = store
+        // Read back the likes after ProfileSync's restore, so a fresh install
+        // picks up the set that came down with the profile.
+        likedExerciseIDs = Set((UserProfile.load().likedExercises ?? []).compactMap(UUID.init(uuidString:)))
 
         // Coalesce bursts of edits into one upload.
         uploadDebounce = uploadTrigger
@@ -140,13 +166,21 @@ final class CommunitySync: ObservableObject {
             let doc = SharedExerciseDoc(userID: userID,
                                         exercise: shared,
                                         midi: store.notes(for: exercise.id),
-                                        texts: t.isEmpty ? nil : t)
+                                        texts: t.isEmpty ? nil : t,
+                                        // Likes are written into this same
+                                        // document by other users, so carry the
+                                        // last known count forward instead of
+                                        // resetting it on every edit.
+                                        likes: likeCounts[shared.id] ?? 0)
             guard let body = try? encoder.encode(doc) else { continue }
             if body == lastUploadedBodies[idString] {
                 onServer.insert(idString)
                 continue
             }
-            if await post(body: body, exerciseID: idString, exerciseName: exercise.name) {
+            if await post(body: body,
+                          publicExerciseID: shared.id.uuidString.lowercased(),
+                          userID: userID,
+                          exerciseName: exercise.name) {
                 lastUploadedBodies[idString] = body
                 onServer.insert(idString)
             }
@@ -155,7 +189,10 @@ final class CommunitySync: ObservableObject {
         let publicIDs = Set(publicExercises.map { $0.id.uuidString })
         for idString in onServer.subtracting(publicIDs) {
             guard let body = try? encoder.encode(SharedExerciseDoc(userID: userID)) else { continue }
-            if await post(body: body, exerciseID: idString, exerciseName: "") {
+            if await post(body: body,
+                          publicExerciseID: PublicIdentifier.exerciseID(idString),
+                          userID: userID,
+                          exerciseName: "") {
                 lastUploadedBodies.removeValue(forKey: idString)
                 onServer.remove(idString)
             }
@@ -164,14 +201,13 @@ final class CommunitySync: ObservableObject {
     }
 
     /// POSTs one per-exercise document to the persist endpoint; returns whether
-    /// the server accepted it.
-    private func post(body: Data, exerciseID: String, exerciseName: String) async -> Bool {
-        // The document is keyed and queried by public ids only; `exerciseID`
-        // (the raw id) is used just for local logging.
-        let publicExerciseID = PublicIdentifier.exerciseID(exerciseID)
+    /// the server accepted it. `userID` is the *uploader's* public id, which stays
+    /// stamped on the record even when this device rewrites the document to like
+    /// someone else's exercise.
+    private func post(body: Data, publicExerciseID: String, userID: String, exerciseName: String) async -> Bool {
         var components = URLComponents(string: "\(Self.baseURL)/persist/\(publicExerciseID)/SHARED_EXERCISE")
         components?.queryItems = [
-            URLQueryItem(name: "customId1", value: PublicIdentifier.user),
+            URLQueryItem(name: "customId1", value: userID),
             URLQueryItem(name: "customName", value: exerciseName),
             URLQueryItem(name: "customId2", value: publicExerciseID),
         ]
@@ -186,10 +222,10 @@ final class CommunitySync: ObservableObject {
                 return true
             }
             if let http = response as? HTTPURLResponse {
-                print("CommunitySync: upload of \(exerciseID) failed with status \(http.statusCode)")
+                print("CommunitySync: upload of \(publicExerciseID) failed with status \(http.statusCode)")
             }
         } catch {
-            print("CommunitySync: upload of \(exerciseID) failed: \(error)")
+            print("CommunitySync: upload of \(publicExerciseID) failed: \(error)")
         }
         return false
     }
@@ -218,6 +254,59 @@ final class CommunitySync: ObservableObject {
         } catch {
             print("CommunitySync: name upload failed: \(error)")
         }
+    }
+
+    // MARK: - Likes
+
+    /// Adds or removes this user's like on a community exercise, addressed by
+    /// its public id. The heart and count update immediately; the new count is
+    /// written into the exercise's shared document on the server and the liked
+    /// set into the profile JSON (which ProfileSync uploads).
+    func toggleLike(for publicExerciseID: UUID) {
+        let wasLiked = likedExerciseIDs.contains(publicExerciseID)
+        if wasLiked {
+            likedExerciseIDs.remove(publicExerciseID)
+        } else {
+            likedExerciseIDs.insert(publicExerciseID)
+        }
+        let count = max(0, (likeCounts[publicExerciseID] ?? 0) + (wasLiked ? -1 : 1))
+        likeCounts[publicExerciseID] = count
+        persistLikeCounts()
+        saveLikedExercises()
+        Task { await postLike(for: publicExerciseID, count: count) }
+    }
+
+    /// Rewrites the exercise's shared document with the new count, leaving the
+    /// rest of it exactly as fetched. The backend has no atomic increment, so
+    /// two devices liking within the same fetch cycle can lose one of the two
+    /// likes; the next fetch makes every device agree again on whatever landed.
+    private func postLike(for publicExerciseID: UUID, count: Int) async {
+        guard var doc = fetchedDocs[publicExerciseID] else { return }
+        doc.likes = count
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = [.sortedKeys]
+        guard let body = try? encoder.encode(doc) else { return }
+        _ = await post(body: body,
+                       publicExerciseID: publicExerciseID.uuidString.lowercased(),
+                       userID: doc.userID,
+                       exerciseName: doc.exercise?.name ?? "")
+        fetchedDocs[publicExerciseID] = doc
+    }
+
+    private func persistLikeCounts() {
+        let stored = likeCounts.reduce(into: [String: Int]()) { dict, entry in
+            dict[entry.key.uuidString.lowercased()] = entry.value
+        }
+        UserDefaults.standard.set(stored, forKey: Self.likeCountsKey)
+    }
+
+    /// Mirrors the liked set into the profile JSON and asks ProfileSync to push
+    /// it, so the hearts come back after a reinstall.
+    private func saveLikedExercises() {
+        var profile = UserProfile.load()
+        profile.likedExercises = likedExerciseIDs.map { $0.uuidString.lowercased() }.sorted()
+        profile.save()
+        ProfileSync.shared.scheduleUpload()
     }
 
     // MARK: - Fetch
@@ -300,11 +389,15 @@ final class CommunitySync: ObservableObject {
         var seenExercises = Set<UUID>()
         var fetched: [Exercise] = []
         var cachedIDs: [String] = []
+        var counts: [UUID: Int] = [:]
+        var latestDocs: [UUID: SharedExerciseDoc] = [:]
         for doc in docs {
             guard var exercise = doc.exercise, exercise.visibility == .public,
                   seenExercises.insert(exercise.id).inserted else { continue }
             if let name = names[doc.userID] { exercise.uploaderName = name }
             fetched.append(exercise)
+            counts[exercise.id] = doc.likes ?? 0
+            latestDocs[exercise.id] = doc
             // Every fetched exercise carries its public id, a namespace distinct
             // from any local raw id, so caching the server pattern here can never
             // clobber a local one — even for this device's own uploads.
@@ -327,5 +420,8 @@ final class CommunitySync: ObservableObject {
         }
         defaults.set(cachedIDs, forKey: Self.cachedPatternIDsKey)
         exercises = fetched
+        likeCounts = counts
+        fetchedDocs = latestDocs
+        persistLikeCounts()
     }
 }

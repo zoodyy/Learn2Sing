@@ -144,6 +144,8 @@ final class ProfileSync {
             profile.username = remote.username
         }
         profile.exercises = remote.exercises
+        // CommunitySync reads this back when it starts, right after the restore.
+        profile.likedExercises = remote.likedExercises
         profile.save()
         if let bundle = remote.exercises {
             store.importBundle(bundle)

@@ -163,6 +163,7 @@ struct CommunityView: View {
                 case .play(let id):
                     if let ex = exercise(for: id) {
                         ExerciseIntroView(exercise: ex,
+                                          likeID: ex.id,
                                           onDownload: { store.downloadCopy(of: ex) }) {
                             navigationPath.append(ExerciseRoute.playback(id))
                         }

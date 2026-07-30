@@ -2,12 +2,20 @@ import SwiftUI
 
 /// Shown right after an exercise is tapped, before playback begins. Presents the
 /// exercise's description so the singer knows what to do, with a button to start.
-/// When opened from the Community tab a Download button appears above Start,
-/// copying the exercise into the user's own library (the Exercises tab).
+/// When opened from the Community tab a like button sits under the title and a
+/// Download button appears above Start, copying the exercise into the user's own
+/// library (the Exercises tab).
 struct ExerciseIntroView: View {
     let exercise: Exercise
+    /// Public id of the community exercise the like button acts on; nil (every
+    /// tab but Community) hides the button.
+    var likeID: UUID? = nil
     var onDownload: (() -> Void)? = nil
     let onStart: () -> Void
+
+    /// Source of the like count and of whether this user already liked it; both
+    /// change as soon as the heart is tapped.
+    @ObservedObject private var community = CommunitySync.shared
 
     /// Flips after a download so the button confirms instead of copying again.
     @State private var isDownloaded = false
@@ -26,6 +34,10 @@ struct ExerciseIntroView: View {
                 VStack(alignment: .leading, spacing: 16) {
                     Text(exercise.name)
                         .font(.largeTitle.weight(.bold))
+
+                    if let likeID {
+                        likeButton(for: likeID)
+                    }
 
                     if trimmedDetails.isEmpty {
                         Text("No description.")
@@ -85,6 +97,33 @@ struct ExerciseIntroView: View {
                 }
             }
         }
+    }
+
+    /// Heart plus the exercise's like count. Tapping toggles this user's like:
+    /// CommunitySync updates the count on the server and remembers the like in
+    /// the profile, so it survives a reinstall.
+    private func likeButton(for likeID: UUID) -> some View {
+        let isLiked = community.likedExerciseIDs.contains(likeID)
+        let count = community.likeCounts[likeID] ?? 0
+        return Button {
+            withAnimation(.snappy) { community.toggleLike(for: likeID) }
+        } label: {
+            HStack(spacing: 6) {
+                Image(systemName: isLiked ? "heart.fill" : "heart")
+                    .symbolEffect(.bounce, value: isLiked)
+                Text(count.formatted())
+                    .contentTransition(.numericText())
+                    .monospacedDigit()
+            }
+            .font(.headline)
+            .foregroundStyle(isLiked ? Color.red : Color.secondary)
+            .padding(.horizontal, 14)
+            .padding(.vertical, 8)
+            .background(.fill.tertiary, in: Capsule())
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(isLiked ? "Unlike" : "Like")
+        .accessibilityValue("\(count) likes")
     }
 
     /// The same score-history chart shown on the result screen, kept on a black
