@@ -17,6 +17,9 @@ struct UserProfile: Codable {
     /// Snapshot of the Exercises tab (exercises, categories, MIDI patterns,
     /// text labels). Optional so profiles written before sync existed decode.
     var exercises: ExerciseBundle? = nil
+    /// The Home tab's category display order. Optional so profiles written
+    /// before the order was synced still decode.
+    var homeCategoryOrder: [String]? = nil
 
     static var fileURL: URL {
         FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
@@ -24,12 +27,14 @@ struct UserProfile: Codable {
     }
 
     /// Loads the stored profile (or a fresh one) and stamps in the device ID,
-    /// a UUID kept in the Keychain so it survives reinstalls.
+    /// a UUID kept in the Keychain so it survives reinstalls, plus the live
+    /// Home category order, which lives in UserDefaults.
     static func load() -> UserProfile {
         var profile = (try? Data(contentsOf: fileURL))
             .flatMap { try? JSONDecoder().decode(UserProfile.self, from: $0) }
             ?? UserProfile()
         profile.deviceID = DeviceIdentifier.uuidString
+        profile.homeCategoryOrder = HomeCategories.stored
         return profile
     }
 
@@ -63,6 +68,7 @@ struct ProfileView: View {
     private var fullProfile: UserProfile {
         var full = profile
         full.exercises = store.exportBundle()
+        full.homeCategoryOrder = HomeCategories.stored
         return full
     }
 

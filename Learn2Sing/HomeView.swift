@@ -7,6 +7,40 @@
 
 import SwiftUI
 
+/// The Home tab's built-in categories and the user's display order for them.
+/// The order lives in UserDefaults (so it survives app restarts) and rides along
+/// in the profile JSON ProfileSync uploads (so it survives reinstalls too).
+enum HomeCategories {
+    static let recent = "Recent"
+    static let routines = "Routines"
+    static let favourites = "Favourites"
+    static let recommended = "Recommended"
+
+    /// Every built-in category, in the order a user who never rearranged them sees.
+    static let all = [recent, routines, favourites, recommended]
+
+    static let orderKey = "homeCategoryOrder"
+
+    /// A stored order as a category list: unknown names are dropped and any
+    /// category the stored order predates is appended, so a list saved by an
+    /// older version still shows every category.
+    static func parse(_ raw: String) -> [String] {
+        let stored = raw.split(separator: "\n").map(String.init).filter(all.contains)
+        return stored + all.filter { !stored.contains($0) }
+    }
+
+    static func raw(_ order: [String]) -> String {
+        order.joined(separator: "\n")
+    }
+
+    /// The user's order as stored — read when building the profile JSON, written
+    /// when restoring one.
+    static var stored: [String] {
+        get { parse(UserDefaults.standard.string(forKey: orderKey) ?? "") }
+        set { UserDefaults.standard.set(raw(newValue), forKey: orderKey) }
+    }
+}
+
 /// The Home tab: built-in categories over the user's library — "Recent" (the
 /// last five exercises that played through to the end), "Routines" (the
 /// user's own ordered exercise lists, created via the + button; swipe right on
@@ -25,16 +59,14 @@ struct HomeView: View {
     // Typed (not NavigationPath) so pops can be inspected for the saved toasts.
     @State private var navigationPath: [ExerciseRoute] = []
 
-    private static let recentCategory = "Recent"
-    private static let routinesCategory = "Routines"
-    private static let favouritesCategory = "Favourites"
-    private static let recommendedCategory = "Recommended"
+    /// The built-in categories in the user's display order, persisted as a
+    /// newline-joined list so a rearrangement outlives the app launch it was made in.
+    @AppStorage(HomeCategories.orderKey) private var categoryOrderRaw = ""
 
-    /// The built-in categories in the user's display order.
-    @State private var categories: [String] = [HomeView.recentCategory,
-                                               HomeView.routinesCategory,
-                                               HomeView.favouritesCategory,
-                                               HomeView.recommendedCategory]
+    private var categories: [String] {
+        get { HomeCategories.parse(categoryOrderRaw) }
+        nonmutating set { categoryOrderRaw = HomeCategories.raw(newValue) }
+    }
 
     /// How many exercises "Recommended" shows, from Settings ▸ Exercises.
     @AppStorage(RecommendedExercises.amountKey)
@@ -129,13 +161,13 @@ struct HomeView: View {
 
     private func rows(in category: String) -> [ExerciseListRow] {
         switch category {
-        case Self.recentCategory:
+        case HomeCategories.recent:
             recentExercises.map { ExerciseListRow(exercise: $0, pattern: store.notes(for: $0.id)) }
-        case Self.routinesCategory:
+        case HomeCategories.routines:
             store.routines.map(routineRow)
-        case Self.favouritesCategory:
+        case HomeCategories.favourites:
             favouriteExercises.map { ExerciseListRow(exercise: $0, pattern: store.notes(for: $0.id)) }
-        case Self.recommendedCategory:
+        case HomeCategories.recommended:
             recommendedExercises.map { ExerciseListRow(exercise: $0, pattern: store.notes(for: $0.id)) }
         default:
             []
@@ -151,8 +183,8 @@ struct HomeView: View {
                                        totalCount: items.count,
                                        items: isCollapsed ? [] : items,
                                        showsCount: false,
-                                       showsAdd: category == Self.routinesCategory
-                                           || category == Self.favouritesCategory)
+                                       showsAdd: category == HomeCategories.routines
+                                           || category == HomeCategories.favourites)
         }
     }
 
@@ -249,7 +281,11 @@ struct HomeView: View {
                     reorderRow(category)
                 }
                 .onMove { source, destination in
-                    categories.move(fromOffsets: source, toOffset: destination)
+                    var reordered = categories
+                    reordered.move(fromOffsets: source, toOffset: destination)
+                    categories = reordered
+                    // The new order belongs in the profile document too.
+                    ProfileSync.shared.scheduleUpload()
                 }
             }
             .environment(\.editMode, $editMode)
@@ -272,7 +308,7 @@ struct HomeView: View {
                 },
                 onHeaderLongPress: { enterReorderMode() },
                 onAdd: { category in
-                    if category == Self.favouritesCategory {
+                    if category == HomeCategories.favourites {
                         navigationPath.append(ExerciseRoute.favourites)
                     } else {
                         newRoutineName = ""

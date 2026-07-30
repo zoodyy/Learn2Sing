@@ -2165,4 +2165,82 @@ final class Learn2SingUITests: XCTestCase {
                           "\(category) did not come back to Home")
         }
     }
+
+    /// Rearranging the Home categories sticks: the new order is still there after
+    /// the app is killed and relaunched.
+    func testHomeCategoryOrderPersistsAcrossLaunches() throws {
+        let app = XCUIApplication()
+        app.launch()
+        let tab = app.buttons["Home"]
+        XCTAssertTrue(tab.waitForExistence(timeout: 5), "Home tab not found")
+        tab.tap()
+        XCTAssertTrue(app.navigationBars["Home"].waitForExistence(timeout: 5))
+
+        let categories = ["Recent", "Routines", "Favourites", "Recommended"]
+
+        /// The category headers on the Home list, top to bottom.
+        func homeOrder() -> [String] {
+            app.staticTexts.allElementsBoundByIndex
+                .filter { $0.frame.height > 0 && categories.contains($0.label) }
+                .sorted { $0.frame.midY < $1.frame.midY }
+                .map(\.label)
+        }
+
+        /// The rows on the edit-categories screen, top to bottom.
+        func editOrder() -> [String] {
+            app.cells.allElementsBoundByIndex
+                .filter { $0.frame.height > 0 }
+                .compactMap { cell -> (label: String, y: CGFloat)? in
+                    let text = cell.staticTexts.firstMatch
+                    guard text.exists, categories.contains(text.label) else { return nil }
+                    return (text.label, cell.frame.midY)
+                }
+                .sorted { $0.y < $1.y }
+                .map(\.label)
+        }
+
+        let visibleBefore = homeOrder()
+        XCTAssertFalse(visibleBefore.isEmpty, "Home list has no categories")
+
+        app.staticTexts[visibleBefore[0]].press(forDuration: 0.8)
+        XCTAssertTrue(app.navigationBars["Edit Categories"].waitForExistence(timeout: 5),
+                      "long press did not open Edit Categories")
+
+        let orderBefore = editOrder()
+        XCTAssertEqual(orderBefore.count, categories.count,
+                       "edit screen should list every category, got \(orderBefore)")
+
+        // Drag the bottom category to the top by its trailing reorder handle.
+        let moved = orderBefore[orderBefore.count - 1]
+        let source = app.cells.containing(.staticText, identifier: moved).firstMatch
+        let target = app.cells.containing(.staticText, identifier: orderBefore[0]).firstMatch
+        for _ in 0..<3 {
+            let from = source.coordinate(withNormalizedOffset: CGVector(dx: 0.93, dy: 0.5))
+            let to = target.coordinate(withNormalizedOffset: CGVector(dx: 0.93, dy: 0.1))
+            from.press(forDuration: 0.7, thenDragTo: to, withVelocity: .slow,
+                       thenHoldForDuration: 0.6)
+            sleep(2)
+            if editOrder().first == moved { break }
+        }
+        let orderAfter = editOrder()
+        XCTAssertEqual(orderAfter.first, moved,
+                       "drag did not move \(moved) to the top, got \(orderAfter)")
+        saveScreenshot("home-categories-reordered")
+
+        // Back on Home, the visible categories follow the new order.
+        app.navigationBars["Edit Categories"].buttons.firstMatch.tap()
+        XCTAssertTrue(app.navigationBars["Home"].waitForExistence(timeout: 5))
+        let expected = orderAfter.filter { visibleBefore.contains($0) }
+        XCTAssertEqual(homeOrder(), expected, "Home did not adopt the new category order")
+
+        // And the order is still there after a relaunch.
+        app.terminate()
+        app.launch()
+        app.buttons["Home"].tap()
+        XCTAssertTrue(app.navigationBars["Home"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.staticTexts[expected[0]].waitForExistence(timeout: 5))
+        XCTAssertEqual(homeOrder(), expected,
+                       "the category order was lost across a relaunch")
+        saveScreenshot("home-categories-order-after-relaunch")
+    }
 }
