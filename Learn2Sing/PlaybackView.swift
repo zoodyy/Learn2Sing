@@ -732,6 +732,9 @@ struct PlaybackView: View {
     /// Set while the user has playback paused via the toolbar button. Freezes the
     /// TimelineView (so the canvas holds its last frame) alongside the audio.
     @State private var isPaused = false
+    /// Screen y of the pause button's frame, measured in the toolbar so the playhead
+    /// line can stop level with the bar's buttons instead of at the screen edge.
+    @State private var pauseButtonBottom: CGFloat? = nil
     @State private var lastDrawnBeat = LastDrawnBeat()
     // Vertical centre of each repetition's pitch range, plus one repetition's length
     // in beats — used by "follow notes vertically" to recentre once per repetition.
@@ -750,6 +753,10 @@ struct PlaybackView: View {
 
     private let leadIn: Double = 6       // silent beats before first note
     private let pianoW: CGFloat = 38
+    // Navigation-bar metrics for placing the top of the playhead line.
+    private let navBarHeight: CGFloat = 54
+    private let barButtonHeight: CGFloat = 44
+    private let barButtonGlassInset: CGFloat = 4
     private let beatPx: CGFloat = 40     // pixels per beat in playback view
 
     // Delay-test layout: a run of equally spaced metronome ticks the user claps to.
@@ -811,7 +818,8 @@ struct PlaybackView: View {
                 Canvas { ctx, size in
                     lastDrawnBeat.value = beat
                     drawScene(ctx: ctx, size: size, beat: beat, singerPitch: singerPitch,
-                              safeTop: geo.safeAreaInsets.top, safeBottom: geo.safeAreaInsets.bottom)
+                              safeTop: geo.safeAreaInsets.top, safeBottom: geo.safeAreaInsets.bottom,
+                              playheadTop: playheadTop(safeTop: geo.safeAreaInsets.top))
                 }
                 .ignoresSafeArea()
             }
@@ -829,6 +837,15 @@ struct PlaybackView: View {
                     } label: {
                         Image(systemName: isPaused ? "play.fill" : "pause.fill")
                     }
+                    .background(
+                        GeometryReader { g in
+                            Color.clear
+                                .onAppear { pauseButtonBottom = g.frame(in: .global).maxY }
+                                .onChange(of: g.frame(in: .global).maxY) { _, y in
+                                    pauseButtonBottom = y
+                                }
+                        }
+                    )
                 }
             }
         }
@@ -919,8 +936,21 @@ struct PlaybackView: View {
 
     // MARK: - Drawing
 
+    /// Y at which the playhead line starts: the bottom edge of the back/pause buttons
+    /// in the navigation bar. Taken from the pause button's measured frame, grown by
+    /// the inset between a bar button and the glass capsule drawn around it. The delay
+    /// test has no pause button, so there it falls back to the gap the bar leaves below
+    /// its buttons.
+    private func playheadTop(safeTop: CGFloat) -> CGFloat {
+        guard let bottom = pauseButtonBottom else {
+            return max(0, safeTop - (navBarHeight - barButtonHeight))
+        }
+        return max(0, bottom + barButtonGlassInset)
+    }
+
     private func drawScene(ctx: GraphicsContext, size: CGSize, beat: Double,
-                           singerPitch: Double?, safeTop: CGFloat = 0, safeBottom: CGFloat = 0) {
+                           singerPitch: Double?, safeTop: CGFloat = 0, safeBottom: CGFloat = 0,
+                           playheadTop: CGFloat = 0) {
         let s = visuals
 
         // Layout scalars from the visual settings: rows scale with vertical zoom,
@@ -998,7 +1028,8 @@ struct PlaybackView: View {
 
         drawPlaybackScene(ctx: ctx, layout: layout, beat: beat, notes: notes, texts: texts,
                           trailPath: trailPath, singerPitch: singerPitch, settings: s,
-                          repetition: repetition, safeTop: safeTop, safeBottom: safeBottom)
+                          repetition: repetition, safeTop: safeTop, safeBottom: safeBottom,
+                          playheadTop: playheadTop)
     }
 
     // MARK: - Teardown

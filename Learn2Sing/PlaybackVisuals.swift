@@ -251,12 +251,15 @@ final class VerticalFollower {
 /// and the counter is enabled, a "current / total" badge is drawn at the configured
 /// corner. Callers pass nil to hide it (e.g. exercises that don't repeat). `safeTop`
 /// and `safeBottom` keep that badge clear of on-screen chrome in the live view.
+/// `playheadTop` is the y at which the playhead line begins, so the live view can stop
+/// it level with the top of the toolbar buttons instead of running to the screen edge.
 func drawPlaybackScene(ctx: GraphicsContext, layout: SceneLayout, beat: Double,
                        notes: [MIDINote], texts: [MIDIText],
                        trailPath: Path, singerPitch: Double?,
                        settings: VisualSettings,
                        repetition: (current: Int, total: Int)? = nil,
-                       safeTop: CGFloat = 0, safeBottom: CGFloat = 0) {
+                       safeTop: CGFloat = 0, safeBottom: CGFloat = 0,
+                       playheadTop: CGFloat = 0) {
     let size = layout.size
     let pianoW = layout.pianoW
     let rowH = layout.rowH
@@ -369,12 +372,13 @@ func drawPlaybackScene(ctx: GraphicsContext, layout: SceneLayout, beat: Double,
     }
 
     // ── Playhead ────────────────────────────────────────────────────────────
+    let headTop = min(max(0, playheadTop), size.height)
     var glow = Path()
-    glow.move(to: CGPoint(x: layout.playheadX, y: 0))
+    glow.move(to: CGPoint(x: layout.playheadX, y: headTop))
     glow.addLine(to: CGPoint(x: layout.playheadX, y: size.height))
     ctx.stroke(glow, with: .color(.white.opacity(0.12)), lineWidth: 10)
     var line = Path()
-    line.move(to: CGPoint(x: layout.playheadX, y: 0))
+    line.move(to: CGPoint(x: layout.playheadX, y: headTop))
     line.addLine(to: CGPoint(x: layout.playheadX, y: size.height))
     ctx.stroke(line, with: .color(.white), lineWidth: 2)
 
