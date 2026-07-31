@@ -30,6 +30,8 @@ struct VisualTemplate: Codable, Identifiable, Hashable {
     var singerInnerColor: String
     var singerOuterColor: String
     var singerLineColor: String
+    var playheadColor: String
+    var playheadStyle: String
     var showRepetitionCounter: Bool
     var repetitionCounterPosition: String
 
@@ -40,6 +42,7 @@ struct VisualTemplate: Codable, Identifiable, Hashable {
          textColor: String, textFont: String,
          singerSize: Double, singerInnerColor: String,
          singerOuterColor: String, singerLineColor: String,
+         playheadColor: String, playheadStyle: String,
          showRepetitionCounter: Bool, repetitionCounterPosition: String) {
         self.id = id
         self.name = name
@@ -59,6 +62,8 @@ struct VisualTemplate: Codable, Identifiable, Hashable {
         self.singerInnerColor = singerInnerColor
         self.singerOuterColor = singerOuterColor
         self.singerLineColor = singerLineColor
+        self.playheadColor = playheadColor
+        self.playheadStyle = playheadStyle
         self.showRepetitionCounter = showRepetitionCounter
         self.repetitionCounterPosition = repetitionCounterPosition
     }
@@ -86,6 +91,8 @@ struct VisualTemplate: Codable, Identifiable, Hashable {
         singerInnerColor = try c.decodeIfPresent(String.self, forKey: .singerInnerColor) ?? VisualDefaults.singerInnerColor
         singerOuterColor = try c.decodeIfPresent(String.self, forKey: .singerOuterColor) ?? VisualDefaults.singerOuterColor
         singerLineColor = try c.decodeIfPresent(String.self, forKey: .singerLineColor) ?? VisualDefaults.singerLineColor
+        playheadColor = try c.decodeIfPresent(String.self, forKey: .playheadColor) ?? VisualDefaults.playheadColor
+        playheadStyle = try c.decodeIfPresent(String.self, forKey: .playheadStyle) ?? VisualDefaults.playheadStyle
         showRepetitionCounter = try c.decodeIfPresent(Bool.self, forKey: .showRepetitionCounter) ?? VisualDefaults.showRepetitionCounter
         repetitionCounterPosition = try c.decodeIfPresent(String.self, forKey: .repetitionCounterPosition) ?? VisualDefaults.repetitionCounterPosition
     }
@@ -116,6 +123,8 @@ struct VisualTemplate: Codable, Identifiable, Hashable {
             singerInnerColor: str(VisualKeys.singerInnerColor, VisualDefaults.singerInnerColor),
             singerOuterColor: str(VisualKeys.singerOuterColor, VisualDefaults.singerOuterColor),
             singerLineColor: str(VisualKeys.singerLineColor, VisualDefaults.singerLineColor),
+            playheadColor: str(VisualKeys.playheadColor, VisualDefaults.playheadColor),
+            playheadStyle: str(VisualKeys.playheadStyle, VisualDefaults.playheadStyle),
             showRepetitionCounter: bool(VisualKeys.showRepetitionCounter, VisualDefaults.showRepetitionCounter),
             repetitionCounterPosition: str(VisualKeys.repetitionCounterPosition, VisualDefaults.repetitionCounterPosition))
     }
@@ -141,6 +150,8 @@ struct VisualTemplate: Codable, Identifiable, Hashable {
         d.set(singerInnerColor, forKey: VisualKeys.singerInnerColor)
         d.set(singerOuterColor, forKey: VisualKeys.singerOuterColor)
         d.set(singerLineColor, forKey: VisualKeys.singerLineColor)
+        d.set(playheadColor, forKey: VisualKeys.playheadColor)
+        d.set(playheadStyle, forKey: VisualKeys.playheadStyle)
         d.set(showRepetitionCounter, forKey: VisualKeys.showRepetitionCounter)
         d.set(repetitionCounterPosition, forKey: VisualKeys.repetitionCounterPosition)
     }

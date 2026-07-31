@@ -2129,6 +2129,81 @@ final class Learn2SingUITests: XCTestCase {
     /// Must match VisualKeys.hideTabBar in the app target.
     private let hideTabBarKey = "vis_hideTabBar"
 
+    // MARK: - Playhead (the vertical line under the singing indicator)
+
+    /// Must match VisualKeys.playheadStyle / .playheadColor in the app target.
+    private let playheadStyleKey = "vis_playheadStyle"
+    private let playheadColorKey = "vis_playheadColor"
+
+    /// Visuals → Playback offers a "Vertical line" section with a colour picker and
+    /// a Line/Dots style picker, and switching to Dots is reflected in the preview.
+    func testPlayheadStyleSetting() throws {
+        let app = XCUIApplication()
+        app.launch()
+        app.buttons["Settings"].firstMatch.tap()
+        let visuals = app.buttons["Visuals"].firstMatch
+        XCTAssertTrue(visuals.waitForExistence(timeout: 5))
+        visuals.tap()
+        let playback = app.buttons["Playback"].firstMatch
+        XCTAssertTrue(playback.waitForExistence(timeout: 5))
+        playback.tap()
+
+        // The form renders lazily; scroll until the new section is on screen.
+        let stylePicker = app.buttons.matching(
+            NSPredicate(format: "label BEGINSWITH %@", "Style")).firstMatch
+        for _ in 0..<8 where !stylePicker.exists {
+            app.swipeUp()
+        }
+        XCTAssertTrue(stylePicker.waitForExistence(timeout: 5),
+                      "Visuals → Playback should offer the vertical line's Style picker")
+        XCTAssertTrue(app.staticTexts["Vertical line"].exists,
+                      "the vertical line settings should sit in their own section")
+        XCTAssertTrue(app.buttons.matching(
+            NSPredicate(format: "label BEGINSWITH %@", "Colour")).firstMatch.exists,
+            "the vertical line section should offer a colour picker")
+        sleep(1)
+        saveScreenshot("visuals-playhead-line")
+
+        // Switching to Dots sticks, and the preview above redraws with it.
+        stylePicker.tap()
+        let dots = app.buttons["Dots"].firstMatch
+        XCTAssertTrue(dots.waitForExistence(timeout: 5), "Style picker has no Dots option")
+        dots.tap()
+        sleep(1)
+        XCTAssertTrue(app.buttons.matching(
+            NSPredicate(format: "label CONTAINS %@", "Dots")).firstMatch.exists,
+            "the Style picker did not keep the Dots choice")
+        saveScreenshot("visuals-playhead-dots")
+
+        // Restore the default so the simulator's persistent defaults aren't left changed.
+        app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "Style")).firstMatch.tap()
+        app.buttons["Line"].firstMatch.tap()
+    }
+
+    /// The live playback screen honours the dots style and the chosen colour. The
+    /// settings are forced through the argument domain, leaving the simulator's
+    /// persistent defaults untouched.
+    func testPlayheadDotsDuringPlayback() throws {
+        let app = XCUIApplication()
+        app.launchArguments = ["-\(playheadStyleKey)", "Dots",
+                               "-\(playheadColorKey)", "#FF3B30FF"]
+        app.launch()
+        let tab = app.buttons["Exercises"]
+        XCTAssertTrue(tab.waitForExistence(timeout: 5))
+        tab.tap()
+        XCTAssertTrue(app.navigationBars["Exercises"].waitForExistence(timeout: 5))
+
+        let firstCell = app.cells.firstMatch
+        XCTAssertTrue(firstCell.waitForExistence(timeout: 5))
+        firstCell.tap()
+        let start = app.buttons["Start"].firstMatch
+        XCTAssertTrue(start.waitForExistence(timeout: 5), "intro Start button not found")
+        start.tap()
+        XCTAssertTrue(start.waitForNonExistence(timeout: 5), "playback did not start")
+        sleep(3)
+        saveScreenshot("playback-playhead-dots")
+    }
+
     // MARK: - Settings categories
 
     /// A row on a Settings screen, found by label. Rows whose label matches a tab

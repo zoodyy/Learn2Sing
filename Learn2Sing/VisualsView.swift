@@ -95,6 +95,8 @@ struct PlaybackVisualsView: View {
     @AppStorage(VisualKeys.singerInnerColor) private var singerInnerColor = VisualDefaults.singerInnerColor
     @AppStorage(VisualKeys.singerOuterColor) private var singerOuterColor = VisualDefaults.singerOuterColor
     @AppStorage(VisualKeys.singerLineColor)  private var singerLineColor  = VisualDefaults.singerLineColor
+    @AppStorage(VisualKeys.playheadColor)  private var playheadColor  = VisualDefaults.playheadColor
+    @AppStorage(VisualKeys.playheadStyle)  private var playheadStyle  = VisualDefaults.playheadStyle
     @AppStorage(VisualKeys.showRepetitionCounter)     private var showRepetitionCounter     = VisualDefaults.showRepetitionCounter
     @AppStorage(VisualKeys.repetitionCounterPosition) private var repetitionCounterPosition = VisualDefaults.repetitionCounterPosition
     @AppStorage(VisualKeys.hideTabBar)     private var hideTabBar     = VisualDefaults.hideTabBar
@@ -138,6 +140,8 @@ struct PlaybackVisualsView: View {
             singerInnerColor: Color(hex: singerInnerColor),
             singerOuterColor: Color(hex: singerOuterColor),
             singerLineColor: Color(hex: singerLineColor),
+            playheadColor: Color(hex: playheadColor),
+            playheadStyle: PlayheadStyle(rawValue: playheadStyle) ?? .line,
             showRepetitionCounter: showRepetitionCounter,
             repetitionCounterPosition: RepetitionCounterPosition(rawValue: repetitionCounterPosition) ?? .bottomRight)
     }
@@ -273,6 +277,19 @@ struct PlaybackVisualsView: View {
                 ColorPicker("Inner colour", selection: opacityColorBinding($singerInnerColor), supportsOpacity: true)
                 ColorPicker("Outer colour", selection: opacityColorBinding($singerOuterColor), supportsOpacity: true)
                 ColorPicker("Line colour", selection: opacityColorBinding($singerLineColor), supportsOpacity: true)
+            }
+
+            Section {
+                ColorPicker("Colour", selection: opacityColorBinding($playheadColor), supportsOpacity: true)
+                    .settingHelp("Sets the colour of the vertical line the singing indicator runs along.")
+                Picker("Style", selection: $playheadStyle) {
+                    ForEach(PlayheadStyle.allCases) { style in
+                        Text(style.rawValue).tag(style.rawValue)
+                    }
+                }
+                .settingHelp("“Line” draws one continuous line. “Dots” replaces it with a dot in the middle of every pitch.")
+            } header: {
+                Text("Vertical line")
             }
 
             Section {

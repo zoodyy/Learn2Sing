@@ -27,6 +27,17 @@ enum PlaybackFont: String, CaseIterable, Identifiable {
     }
 }
 
+// MARK: - Playhead style
+
+/// How the vertical line under the singing indicator is drawn: as one continuous
+/// line, or as a column of dots with one dot centred on every pitch row.
+enum PlayheadStyle: String, CaseIterable, Identifiable {
+    case line = "Line"
+    case dots = "Dots"
+
+    var id: String { rawValue }
+}
+
 // MARK: - Repetition counter placement
 
 /// Where the "current / total repetitions" counter sits on the playback screen.
@@ -101,6 +112,8 @@ enum VisualKeys {
     static let singerInnerColor  = "vis_singerInnerColor"
     static let singerOuterColor  = "vis_singerOuterColor"
     static let singerLineColor   = "vis_singerLineColor"
+    static let playheadColor  = "vis_playheadColor"
+    static let playheadStyle  = "vis_playheadStyle"
     static let showRepetitionCounter    = "vis_showRepetitionCounter"
     static let repetitionCounterPosition = "vis_repetitionCounterPosition"
     static let hideTabBar     = "vis_hideTabBar"
@@ -125,6 +138,8 @@ enum VisualDefaults {
     static let singerInnerColor  = "#00FFFFFF"  // cyan, the original dot fill
     static let singerOuterColor  = "#FFFFFFFF"  // white, the original dot border
     static let singerLineColor   = "#00FFFFB2"  // cyan at ~70% opacity, the original trail
+    static let playheadColor  = "#FFFFFFFF"     // white, the original playhead line
+    static let playheadStyle  = PlayheadStyle.line.rawValue
     static let showRepetitionCounter    = false
     static let repetitionCounterPosition = RepetitionCounterPosition.bottomRight.rawValue
     static let hideTabBar     = false
@@ -151,6 +166,8 @@ struct VisualSettings {
     var singerInnerColor: Color
     var singerOuterColor: Color
     var singerLineColor: Color
+    var playheadColor: Color
+    var playheadStyle: PlayheadStyle
     var showRepetitionCounter: Bool
     var repetitionCounterPosition: RepetitionCounterPosition
     // Hides the tab bar while an exercise plays. Not part of the drawn scene (so the
@@ -181,6 +198,9 @@ struct VisualSettings {
             singerInnerColor: Color(hex: str(VisualKeys.singerInnerColor, VisualDefaults.singerInnerColor)),
             singerOuterColor: Color(hex: str(VisualKeys.singerOuterColor, VisualDefaults.singerOuterColor)),
             singerLineColor: Color(hex: str(VisualKeys.singerLineColor, VisualDefaults.singerLineColor)),
+            playheadColor: Color(hex: str(VisualKeys.playheadColor, VisualDefaults.playheadColor)),
+            playheadStyle: PlayheadStyle(
+                rawValue: str(VisualKeys.playheadStyle, VisualDefaults.playheadStyle)) ?? .line,
             showRepetitionCounter: bool(VisualKeys.showRepetitionCounter, VisualDefaults.showRepetitionCounter),
             repetitionCounterPosition: RepetitionCounterPosition(
                 rawValue: str(VisualKeys.repetitionCounterPosition, VisualDefaults.repetitionCounterPosition)) ?? .bottomRight,
@@ -372,15 +392,40 @@ func drawPlaybackScene(ctx: GraphicsContext, layout: SceneLayout, beat: Double,
     }
 
     // ── Playhead ────────────────────────────────────────────────────────────
+    // Either a continuous line from `headTop` to the bottom edge, or — in "dots"
+    // style — a column of dots, one centred on each pitch row. Both carry the same
+    // soft glow behind them, tinted with the chosen colour.
     let headTop = min(max(0, playheadTop), size.height)
-    var glow = Path()
-    glow.move(to: CGPoint(x: layout.playheadX, y: headTop))
-    glow.addLine(to: CGPoint(x: layout.playheadX, y: size.height))
-    ctx.stroke(glow, with: .color(.white.opacity(0.12)), lineWidth: 10)
-    var line = Path()
-    line.move(to: CGPoint(x: layout.playheadX, y: headTop))
-    line.addLine(to: CGPoint(x: layout.playheadX, y: size.height))
-    ctx.stroke(line, with: .color(.white), lineWidth: 2)
+    let headColor = settings.playheadColor
+    switch settings.playheadStyle {
+    case .line:
+        var glow = Path()
+        glow.move(to: CGPoint(x: layout.playheadX, y: headTop))
+        glow.addLine(to: CGPoint(x: layout.playheadX, y: size.height))
+        ctx.stroke(glow, with: .color(headColor.opacity(0.12)), lineWidth: 10)
+        var line = Path()
+        line.move(to: CGPoint(x: layout.playheadX, y: headTop))
+        line.addLine(to: CGPoint(x: layout.playheadX, y: size.height))
+        ctx.stroke(line, with: .color(headColor), lineWidth: 2)
+    case .dots:
+        // Dots scale with the row height so they stay clear of each other at any
+        // vertical zoom, capped so they don't swell into blobs when zoomed right in.
+        let r = max(1, min(rowH * 0.18, 4))
+        let glowR = r + 3
+        var dots = Path()
+        var glow = Path()
+        for pitch in lo...hi {
+            let y = layout.y(Double(pitch))
+            // Skip rows above the line's starting point (behind the toolbar buttons).
+            guard y >= headTop, y <= size.height else { continue }
+            dots.addEllipse(in: CGRect(x: layout.playheadX - r, y: y - r,
+                                       width: 2 * r, height: 2 * r))
+            glow.addEllipse(in: CGRect(x: layout.playheadX - glowR, y: y - glowR,
+                                       width: 2 * glowR, height: 2 * glowR))
+        }
+        ctx.fill(glow, with: .color(headColor.opacity(0.12)))
+        ctx.fill(dots, with: .color(headColor))
+    }
 
     // ── Singer's pitch history (trailing line) ───────────────────────────────
     ctx.drawLayer { layer in
