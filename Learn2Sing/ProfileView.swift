@@ -24,6 +24,11 @@ struct UserProfile: Codable {
     /// has liked, so the hearts stay filled across launches and reinstalls.
     /// Owned by CommunitySync; optional so older profiles still decode.
     var likedExercises: [String]? = nil
+    /// Public ids (lowercase UUID strings) of the Community exercises this user
+    /// has downloaded, so a second download — including after a reinstall —
+    /// doesn't count towards the exercise's download total again. Owned by
+    /// CommunitySync; optional so older profiles still decode.
+    var downloadedExercises: [String]? = nil
 
     static var fileURL: URL {
         FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]

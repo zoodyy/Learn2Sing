@@ -24,6 +24,18 @@ struct SharedExerciseDoc: Codable {
     /// (see `likeCounts`). Optional so documents written before likes existed
     /// still decode; treat nil as zero.
     var likes: Int? = nil
+    /// How many users have downloaded this exercise into their own library.
+    /// Written by the downloader in the same rewrite-the-whole-document way as
+    /// `likes`, and likewise carried forward by the uploader. Optional so
+    /// documents written before downloads were counted still decode; treat nil
+    /// as zero.
+    var downloads: Int? = nil
+    /// When the exercise was first shared, as seconds since 1970. Stamped by the
+    /// uploader on the first upload and then carried forward unchanged (edits
+    /// don't reset it), so the Community tab can sort by age. Optional: exercises
+    /// shared before this field existed have no date until their next upload, and
+    /// sort as the oldest.
+    var createdAt: Double? = nil
 }
 
 /// The document each user keeps on the server under PUBLIC_NAME: their current
@@ -62,6 +74,11 @@ final class CommunitySync: ObservableObject {
     /// Last known like count per public exercise id, persisted so a launch whose
     /// fetch fails doesn't upload this device's exercises with the count zeroed.
     private static let likeCountsKey = "communityLikeCounts"
+    /// Same, for the download count.
+    private static let downloadCountsKey = "communityDownloadCounts"
+    /// Share date (seconds since 1970) per public exercise id, so re-uploading an
+    /// edited exercise keeps the date it was first shared.
+    private static let shareDatesKey = "communityShareDates"
 
     /// Every device's public exercises as last fetched, in the order the server
     /// returns them. Empty until the first fetch of the session succeeds.
@@ -71,9 +88,19 @@ final class CommunitySync: ObservableObject {
     /// Like count per public exercise id, as of the last fetch plus this
     /// session's own likes.
     @Published private(set) var likeCounts: [UUID: Int] = [:]
+    /// Download count per public exercise id, as of the last fetch plus this
+    /// session's own downloads.
+    @Published private(set) var downloadCounts: [UUID: Int] = [:]
     /// Public ids of the exercises this user has liked. Mirrored into the
     /// profile JSON (and so onto the server) on every change.
     @Published private(set) var likedExerciseIDs: Set<UUID> = []
+    /// Public ids of the exercises this user has downloaded. Mirrored into the
+    /// profile JSON like the likes, so downloading the same exercise again —
+    /// including after a reinstall — doesn't count twice.
+    @Published private(set) var downloadedExerciseIDs: Set<UUID> = []
+    /// When each fetched exercise was first shared. Missing for exercises shared
+    /// before the date was recorded; they sort as the oldest.
+    @Published private(set) var shareDates: [UUID: Date] = [:]
 
     private weak var store: ExerciseStore?
     private var storeObservation: AnyCancellable?
@@ -90,12 +117,25 @@ final class CommunitySync: ObservableObject {
     /// the whole document — including exercises this device doesn't own — so the
     /// fetched body has to be kept around to post back with a new count.
     private var fetchedDocs: [UUID: SharedExerciseDoc] = [:]
+    /// Whether a fetch has succeeded since launch; gates stamping share dates.
+    private var hasFetched = false
 
     private init() {
         // An earlier version persisted the fetched list under this key.
         UserDefaults.standard.removeObject(forKey: "communityExercises")
-        let stored = UserDefaults.standard.dictionary(forKey: Self.likeCountsKey) as? [String: Int] ?? [:]
-        likeCounts = stored.reduce(into: [:]) { counts, entry in
+        likeCounts = Self.storedCounts(forKey: Self.likeCountsKey)
+        downloadCounts = Self.storedCounts(forKey: Self.downloadCountsKey)
+        let dates = UserDefaults.standard.dictionary(forKey: Self.shareDatesKey) as? [String: Double] ?? [:]
+        shareDates = dates.reduce(into: [:]) { result, entry in
+            if let id = UUID(uuidString: entry.key) {
+                result[id] = Date(timeIntervalSince1970: entry.value)
+            }
+        }
+    }
+
+    private static func storedCounts(forKey key: String) -> [UUID: Int] {
+        let stored = UserDefaults.standard.dictionary(forKey: key) as? [String: Int] ?? [:]
+        return stored.reduce(into: [:]) { counts, entry in
             if let id = UUID(uuidString: entry.key) { counts[id] = entry.value }
         }
     }
@@ -107,9 +147,11 @@ final class CommunitySync: ObservableObject {
     func start(with store: ExerciseStore) async {
         guard self.store == nil else { return }
         self.store = store
-        // Read back the likes after ProfileSync's restore, so a fresh install
-        // picks up the set that came down with the profile.
-        likedExerciseIDs = Set((UserProfile.load().likedExercises ?? []).compactMap(UUID.init(uuidString:)))
+        // Read back the likes and downloads after ProfileSync's restore, so a
+        // fresh install picks up the sets that came down with the profile.
+        let profile = UserProfile.load()
+        likedExerciseIDs = Set((profile.likedExercises ?? []).compactMap(UUID.init(uuidString:)))
+        downloadedExerciseIDs = Set((profile.downloadedExercises ?? []).compactMap(UUID.init(uuidString:)))
 
         // Coalesce bursts of edits into one upload.
         uploadDebounce = uploadTrigger
@@ -167,11 +209,14 @@ final class CommunitySync: ObservableObject {
                                         exercise: shared,
                                         midi: store.notes(for: exercise.id),
                                         texts: t.isEmpty ? nil : t,
-                                        // Likes are written into this same
-                                        // document by other users, so carry the
-                                        // last known count forward instead of
-                                        // resetting it on every edit.
-                                        likes: likeCounts[shared.id] ?? 0)
+                                        // Likes and downloads are written into
+                                        // this same document by other users, so
+                                        // carry the last known counts forward
+                                        // instead of resetting them on every
+                                        // edit.
+                                        likes: likeCounts[shared.id] ?? 0,
+                                        downloads: downloadCounts[shared.id] ?? 0,
+                                        createdAt: shareDate(for: shared.id)?.timeIntervalSince1970)
             guard let body = try? encoder.encode(doc) else { continue }
             if body == lastUploadedBodies[idString] {
                 onServer.insert(idString)
@@ -198,6 +243,21 @@ final class CommunitySync: ObservableObject {
             }
         }
         defaults.set(onServer.sorted(), forKey: Self.uploadedExerciseIDsKey)
+    }
+
+    /// When this exercise was first shared: the date the last fetch found on the
+    /// server, otherwise now — stamped once and persisted, so later uploads of an
+    /// edited exercise keep it. nil until a fetch has succeeded this session, so
+    /// an upload made before the app has seen the server can't overwrite a date
+    /// this install doesn't know about yet (a reinstall, or a launch whose fetch
+    /// failed); the next upload after a successful fetch fills it in.
+    private func shareDate(for publicExerciseID: UUID) -> Date? {
+        if let date = shareDates[publicExerciseID] { return date }
+        guard hasFetched else { return nil }
+        let now = Date()
+        shareDates[publicExerciseID] = now
+        persistShareDates()
+        return now
     }
 
     /// POSTs one per-exercise document to the persist endpoint; returns whether
@@ -256,7 +316,7 @@ final class CommunitySync: ObservableObject {
         }
     }
 
-    // MARK: - Likes
+    // MARK: - Likes & downloads
 
     /// Adds or removes this user's like on a community exercise, addressed by
     /// its public id. The heart and count update immediately; the new count is
@@ -269,20 +329,33 @@ final class CommunitySync: ObservableObject {
         } else {
             likedExerciseIDs.insert(publicExerciseID)
         }
-        let count = max(0, (likeCounts[publicExerciseID] ?? 0) + (wasLiked ? -1 : 1))
-        likeCounts[publicExerciseID] = count
-        persistLikeCounts()
-        saveLikedExercises()
-        Task { await postLike(for: publicExerciseID, count: count) }
+        likeCounts[publicExerciseID] = max(0, (likeCounts[publicExerciseID] ?? 0) + (wasLiked ? -1 : 1))
+        persistCounts()
+        saveProfileSets()
+        Task { await postCounts(for: publicExerciseID) }
     }
 
-    /// Rewrites the exercise's shared document with the new count, leaving the
-    /// rest of it exactly as fetched. The backend has no atomic increment, so
-    /// two devices liking within the same fetch cycle can lose one of the two
-    /// likes; the next fetch makes every device agree again on whatever landed.
-    private func postLike(for publicExerciseID: UUID, count: Int) async {
+    /// Counts a download of a community exercise, addressed by its public id.
+    /// Only the user's first download of a given exercise counts — the set of
+    /// downloaded ids rides along in the profile JSON, so downloading the same
+    /// exercise again, on this or a reinstalled device, doesn't inflate it.
+    func registerDownload(for publicExerciseID: UUID) {
+        guard downloadedExerciseIDs.insert(publicExerciseID).inserted else { return }
+        downloadCounts[publicExerciseID] = (downloadCounts[publicExerciseID] ?? 0) + 1
+        persistCounts()
+        saveProfileSets()
+        Task { await postCounts(for: publicExerciseID) }
+    }
+
+    /// Rewrites the exercise's shared document with the current like and download
+    /// counts, leaving the rest of it exactly as fetched. The backend has no
+    /// atomic increment, so two devices liking or downloading within the same
+    /// fetch cycle can lose one of the two; the next fetch makes every device
+    /// agree again on whatever landed.
+    private func postCounts(for publicExerciseID: UUID) async {
         guard var doc = fetchedDocs[publicExerciseID] else { return }
-        doc.likes = count
+        doc.likes = likeCounts[publicExerciseID] ?? 0
+        doc.downloads = downloadCounts[publicExerciseID] ?? 0
         let encoder = JSONEncoder()
         encoder.outputFormatting = [.sortedKeys]
         guard let body = try? encoder.encode(doc) else { return }
@@ -293,18 +366,31 @@ final class CommunitySync: ObservableObject {
         fetchedDocs[publicExerciseID] = doc
     }
 
-    private func persistLikeCounts() {
-        let stored = likeCounts.reduce(into: [String: Int]()) { dict, entry in
-            dict[entry.key.uuidString.lowercased()] = entry.value
+    private func persistCounts() {
+        func store(_ counts: [UUID: Int], forKey key: String) {
+            let stored = counts.reduce(into: [String: Int]()) { dict, entry in
+                dict[entry.key.uuidString.lowercased()] = entry.value
+            }
+            UserDefaults.standard.set(stored, forKey: key)
         }
-        UserDefaults.standard.set(stored, forKey: Self.likeCountsKey)
+        store(likeCounts, forKey: Self.likeCountsKey)
+        store(downloadCounts, forKey: Self.downloadCountsKey)
     }
 
-    /// Mirrors the liked set into the profile JSON and asks ProfileSync to push
-    /// it, so the hearts come back after a reinstall.
-    private func saveLikedExercises() {
+    private func persistShareDates() {
+        let stored = shareDates.reduce(into: [String: Double]()) { dict, entry in
+            dict[entry.key.uuidString.lowercased()] = entry.value.timeIntervalSince1970
+        }
+        UserDefaults.standard.set(stored, forKey: Self.shareDatesKey)
+    }
+
+    /// Mirrors the liked and downloaded sets into the profile JSON and asks
+    /// ProfileSync to push them, so the hearts — and the "already counted"
+    /// downloads — come back after a reinstall.
+    private func saveProfileSets() {
         var profile = UserProfile.load()
         profile.likedExercises = likedExerciseIDs.map { $0.uuidString.lowercased() }.sorted()
+        profile.downloadedExercises = downloadedExerciseIDs.map { $0.uuidString.lowercased() }.sorted()
         profile.save()
         ProfileSync.shared.scheduleUpload()
     }
@@ -390,6 +476,8 @@ final class CommunitySync: ObservableObject {
         var fetched: [Exercise] = []
         var cachedIDs: [String] = []
         var counts: [UUID: Int] = [:]
+        var downloads: [UUID: Int] = [:]
+        var dates: [UUID: Date] = [:]
         var latestDocs: [UUID: SharedExerciseDoc] = [:]
         for doc in docs {
             guard var exercise = doc.exercise, exercise.visibility == .public,
@@ -397,6 +485,10 @@ final class CommunitySync: ObservableObject {
             if let name = names[doc.userID] { exercise.uploaderName = name }
             fetched.append(exercise)
             counts[exercise.id] = doc.likes ?? 0
+            downloads[exercise.id] = doc.downloads ?? 0
+            if let createdAt = doc.createdAt {
+                dates[exercise.id] = Date(timeIntervalSince1970: createdAt)
+            }
             latestDocs[exercise.id] = doc
             // Every fetched exercise carries its public id, a namespace distinct
             // from any local raw id, so caching the server pattern here can never
@@ -421,7 +513,46 @@ final class CommunitySync: ObservableObject {
         defaults.set(cachedIDs, forKey: Self.cachedPatternIDsKey)
         exercises = fetched
         likeCounts = counts
+        downloadCounts = downloads
+        // Dates this device stamped but hasn't uploaded yet (or whose upload the
+        // server hasn't handed back yet) are kept, so an exercise doesn't lose
+        // its date between the stamp and the next fetch.
+        shareDates = shareDates.merging(dates) { _, fetched in fetched }
         fetchedDocs = latestDocs
-        persistLikeCounts()
+        hasFetched = true
+        persistCounts()
+        persistShareDates()
+    }
+
+    // MARK: - Sorting
+
+    /// The community exercises in the order the given sort asks for. Exercises
+    /// with no recorded share date (shared before dates existed) count as the
+    /// oldest, and ties break by name so the order never jitters between fetches.
+    func sorted(_ exercises: [Exercise], by sort: CommunitySort) -> [Exercise] {
+        func byName(_ a: Exercise, _ b: Exercise) -> Bool {
+            a.name.localizedStandardCompare(b.name) == .orderedAscending
+        }
+        func date(_ exercise: Exercise) -> Date {
+            shareDates[exercise.id] ?? .distantPast
+        }
+        return exercises.sorted { a, b in
+            switch sort {
+            case .mostLiked:
+                let (x, y) = (likeCounts[a.id] ?? 0, likeCounts[b.id] ?? 0)
+                return x == y ? byName(a, b) : x > y
+            case .mostDownloaded:
+                let (x, y) = (downloadCounts[a.id] ?? 0, downloadCounts[b.id] ?? 0)
+                return x == y ? byName(a, b) : x > y
+            case .newest:
+                let (x, y) = (date(a), date(b))
+                return x == y ? byName(a, b) : x > y
+            case .oldest:
+                let (x, y) = (date(a), date(b))
+                return x == y ? byName(a, b) : x < y
+            case .alphabetical:
+                return byName(a, b)
+            }
+        }
     }
 }

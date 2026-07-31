@@ -13,9 +13,20 @@ struct CommunityView: View {
     @ObservedObject private var community = CommunitySync.shared
     @State private var navigationPath = NavigationPath()
     @State private var searchText = ""
+    /// The order the list is shown in, picked from the toolbar's sort menu.
+    /// Persisted, so it survives launches (and applies on the uploader profiles
+    /// pushed from here, which read the same key).
+    @AppStorage("communitySort") private var sort: CommunitySort = .newest
 
     private func exercise(for id: UUID) -> Exercise? {
         community.exercises.first { $0.id == id }
+    }
+
+    /// Copies a community exercise into the user's library and counts the
+    /// download towards its total (only the first time this user downloads it).
+    private func download(_ exercise: Exercise) {
+        _ = store.downloadCopy(of: exercise)
+        community.registerDownload(for: exercise.id)
     }
 
     /// Case- and diacritic-insensitive substring match, so "jose" finds "José".
@@ -56,9 +67,10 @@ struct CommunityView: View {
             }
         }
 
+        let sortedExercises = community.sorted(community.exercises, by: sort)
         let query = searchText.trimmingCharacters(in: .whitespaces)
         guard !query.isEmpty else {
-            let rows = exerciseRows(community.exercises)
+            let rows = exerciseRows(sortedExercises)
             guard !rows.isEmpty else { return ([], [:]) }
             return ([ExerciseListSection(category: "",
                                          isCollapsed: false,
@@ -89,7 +101,7 @@ struct CommunityView: View {
                                                 showsChevron: false))
         }
 
-        let exerciseMatches = exerciseRows(community.exercises.filter {
+        let exerciseMatches = exerciseRows(sortedExercises.filter {
             Self.matches($0.name, query) || Self.matches($0.details, query)
         })
         if !exerciseMatches.isEmpty {
@@ -154,6 +166,21 @@ struct CommunityView: View {
             .searchable(text: $searchText,
                         placement: .navigationBarDrawer(displayMode: .always),
                         prompt: "Users, Exercises, Descriptions")
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Menu {
+                        Picker("Sort By", selection: $sort) {
+                            ForEach(CommunitySort.allCases) { option in
+                                Label(option.label, systemImage: option.systemImage)
+                                    .tag(option)
+                            }
+                        }
+                    } label: {
+                        Image(systemName: "arrow.up.arrow.down.circle")
+                    }
+                    .accessibilityLabel("Sort")
+                }
+            }
             .stableTopEdgeFade()
             // Reload from the server each time the tab is visited; the previous
             // list stays up while (and if) the fetch fails.
@@ -164,7 +191,7 @@ struct CommunityView: View {
                     if let ex = exercise(for: id) {
                         ExerciseIntroView(exercise: ex,
                                           likeID: ex.id,
-                                          onDownload: { store.downloadCopy(of: ex) }) {
+                                          onDownload: { download(ex) }) {
                             navigationPath.append(ExerciseRoute.playback(id))
                         }
                     }
@@ -174,7 +201,7 @@ struct CommunityView: View {
                         // where the exercise was tapped (the list or a user profile).
                         PlaybackView(exercise: ex,
                                      onScoreExit: { navigationPath.removeLast(2) },
-                                     onScoreDownload: { store.downloadCopy(of: ex) })
+                                     onScoreDownload: { download(ex) })
                     }
                 case .user(let username):
                     CommunityUserProfileView(username: username) {
@@ -201,10 +228,12 @@ struct CommunityUserProfileView: View {
     let username: String
     /// Called with the tapped exercise's id; the Community stack pushes playback.
     let onSelect: (UUID) -> Void
+    /// The order picked in the Community tab's sort menu, applied here too.
+    @AppStorage("communitySort") private var sort: CommunitySort = .newest
 
     private var listSections: [ExerciseListSection] {
-        let rows = community.exercises
-            .filter { $0.uploaderName == username }
+        let rows = community
+            .sorted(community.exercises.filter { $0.uploaderName == username }, by: sort)
             .map { exercise in
                 ExerciseListRow(exercise: exercise,
                                 pattern: store.notes(for: exercise.id))

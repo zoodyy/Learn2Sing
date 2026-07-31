@@ -54,8 +54,9 @@ struct ExerciseIntroView: View {
             }
 
             if let likeID {
-                HStack {
+                HStack(spacing: 8) {
                     Spacer()
+                    downloadCount(for: likeID)
                     likeButton(for: likeID)
                 }
                 .padding(.horizontal)
@@ -129,6 +130,27 @@ struct ExerciseIntroView: View {
         .buttonStyle(.plain)
         .accessibilityLabel(isLiked ? "Unlike" : "Like")
         .accessibilityValue("\(count) likes")
+    }
+
+    /// How often this exercise has been downloaded — the same number the
+    /// Community tab can sort by. Display only; the count goes up when the
+    /// Download button below is used.
+    private func downloadCount(for likeID: UUID) -> some View {
+        let count = community.downloadCounts[likeID] ?? 0
+        return HStack(spacing: 6) {
+            Image(systemName: "arrow.down.circle")
+            Text(count.formatted())
+                .contentTransition(.numericText())
+                .monospacedDigit()
+        }
+        .font(.headline)
+        .foregroundStyle(.secondary)
+        .padding(.horizontal, 14)
+        .padding(.vertical, 8)
+        .background(.fill.tertiary, in: Capsule())
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("Downloads")
+        .accessibilityValue("\(count)")
     }
 
     /// The same score-history chart shown on the result screen, kept on a black
