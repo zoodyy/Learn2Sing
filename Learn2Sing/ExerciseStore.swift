@@ -7,8 +7,25 @@ import Combine
 struct Routine: Identifiable, Hashable, Codable {
     var id = UUID()
     var name: String
+    /// Shown on the routine's intro screen, like an exercise's `details`.
+    var details: String = ""
     /// The routine's exercises in the user's order. Never contains duplicates.
     var exerciseIDs: [UUID] = []
+
+    init(name: String) { self.name = name }
+
+    private enum CodingKeys: String, CodingKey {
+        case id, name, details, exerciseIDs
+    }
+
+    /// Hand-written so routines saved before a field existed still decode.
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        id = try c.decodeIfPresent(UUID.self, forKey: .id) ?? UUID()
+        name = try c.decode(String.self, forKey: .name)
+        details = try c.decodeIfPresent(String.self, forKey: .details) ?? ""
+        exerciseIDs = try c.decodeIfPresent([UUID].self, forKey: .exerciseIDs) ?? []
+    }
 }
 
 /// Single source of truth for the user's exercises and their MIDI patterns.
@@ -343,6 +360,15 @@ final class ExerciseStore: ObservableObject {
         guard !newName.isEmpty,
               let idx = routines.firstIndex(where: { $0.id == id }) else { return }
         routines[idx].name = newName
+        saveRoutines()
+    }
+
+    /// Set a routine's description — the text its intro screen shows. Any text
+    /// is allowed, empty included.
+    func setRoutineDetails(_ id: UUID, to newDetails: String) {
+        guard let idx = routines.firstIndex(where: { $0.id == id }),
+              routines[idx].details != newDetails else { return }
+        routines[idx].details = newDetails
         saveRoutines()
     }
 

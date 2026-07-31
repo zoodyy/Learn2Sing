@@ -40,11 +40,36 @@ private struct RoutineNameField: View {
     }
 }
 
+/// The inline-editable routine description, sitting under the name field on the
+/// edit-routine screen. Commits (via the store) when focus moves away; unlike the
+/// name, an empty description is allowed.
+private struct RoutineDetailsField: View {
+    @EnvironmentObject private var store: ExerciseStore
+    let routineID: UUID
+    @State private var details: String
+    @FocusState private var isFocused: Bool
+
+    init(routineID: UUID, details: String) {
+        self.routineID = routineID
+        _details = State(initialValue: details)
+    }
+
+    var body: some View {
+        TextField("Shown before the routine starts", text: $details, axis: .vertical)
+            .lineLimit(3...8)
+            .focused($isFocused)
+            .onChange(of: isFocused) { _, focused in
+                if !focused { store.setRoutineDetails(routineID, to: details) }
+            }
+    }
+}
+
 /// Edit screen for one routine, reached by swiping right on it in the Home tab.
 /// Deliberately the same layout as the Exercises tab's edit-categories screen —
 /// draggable rows, a trash toggle that swaps the drag handles for delete buttons,
-/// and a + button — minus the per-row counts, with the routine's name editable in
-/// a field at the top and the rows being the routine's exercises instead.
+/// and a + button — minus the per-row counts, with the routine's name and
+/// description editable in fields at the top and the rows being the routine's
+/// exercises instead.
 struct RoutineEditView: View {
     @EnvironmentObject private var store: ExerciseStore
     let routineID: UUID
@@ -93,6 +118,7 @@ struct RoutineEditView: View {
             if let routine {
                 Section {
                     RoutineNameField(routineID: routineID, name: routine.name)
+                    RoutineDetailsField(routineID: routineID, details: routine.details)
                 }
                 Section {
                     ForEach(routine.exerciseIDs, id: \.self) { exerciseID in
@@ -123,6 +149,101 @@ struct RoutineEditView: View {
                 }
             }
         }
+    }
+}
+
+/// Shown when a routine that has exercises is tapped in the Home tab, before the
+/// first exercise's own intro screen. The routine's counterpart to
+/// ExerciseIntroView: name, description, and a start button at the bottom, with
+/// an "Exercises" section in between listing what will play, in the same
+/// draggable rows as the edit-routine screen.
+///
+/// Reordering here — by dragging or with the header's shuffle button — changes
+/// `order` only, which the Home tab keeps for this play-through and resets the
+/// next time the routine is opened; the routine's stored order is untouched.
+struct RoutineIntroView: View {
+    @EnvironmentObject private var store: ExerciseStore
+    let routine: Routine
+    /// The exercises to play, in this play-through's order.
+    @Binding var order: [UUID]
+    let onStart: () -> Void
+
+    /// Always active so the exercise rows show drag handles, exactly like the
+    /// edit-routine screen.
+    @State private var editMode: EditMode = .active
+
+    private var trimmedDetails: String {
+        routine.details.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
+    /// The routine's name and description, styled exactly like the exercise
+    /// intro screen's. Sits on the list's own background rather than in a cell,
+    /// so it reads as a heading and not as another row.
+    private var headerRow: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            Text(routine.name)
+                .font(.largeTitle.weight(.bold))
+
+            Text(trimmedDetails.isEmpty ? "No description." : trimmedDetails)
+                .font(.body)
+                .foregroundStyle(.secondary)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.vertical, 8)
+        .listRowBackground(Color.clear)
+        .listRowSeparator(.hidden)
+    }
+
+    private var exercisesHeader: some View {
+        HStack {
+            Text("Exercises")
+            Spacer()
+            Button {
+                withAnimation { order.shuffle() }
+            } label: {
+                Image(systemName: "shuffle")
+            }
+            .buttonStyle(.borderless)
+            .accessibilityLabel("Shuffle exercises")
+        }
+        .textCase(nil)
+    }
+
+    var body: some View {
+        VStack(spacing: 0) {
+            List {
+                Section {
+                    headerRow
+                }
+                Section {
+                    ForEach(order, id: \.self) { exerciseID in
+                        Text(store.exercises.first { $0.id == exerciseID }?.name ?? "")
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                    }
+                    .onMove { source, destination in
+                        order.move(fromOffsets: source, toOffset: destination)
+                    }
+                } header: {
+                    exercisesHeader
+                }
+            }
+            .environment(\.editMode, $editMode)
+
+            Button(action: onStart) {
+                Text("Start Routine")
+                    .font(.headline)
+                    .frame(maxWidth: .infinity)
+                    .padding()
+                    .background(.tint, in: RoundedRectangle(cornerRadius: 14))
+                    .foregroundStyle(.white)
+            }
+            .padding(.horizontal)
+            .padding(.bottom)
+        }
+        // So the strip the button sits on matches the list above it.
+        .background(Color(.systemGroupedBackground))
+        .navigationTitle(routine.name)
+        .navigationBarTitleDisplayMode(.inline)
     }
 }
 

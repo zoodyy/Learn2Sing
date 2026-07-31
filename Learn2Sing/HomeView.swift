@@ -82,6 +82,12 @@ struct HomeView: View {
     @State private var routinePendingDelete: Routine?
     @State private var isConfirmingRoutineDelete = false
 
+    /// The exercise order each routine's intro screen is currently showing,
+    /// keyed by routine id. Reordering or shuffling there only touches this —
+    /// the routine's own order stays as saved — and opening a routine resets
+    /// its entry, so a change lasts for one play-through.
+    @State private var routinePlayOrders: [UUID: [UUID]] = [:]
+
     /// Categories the user has collapsed. Their exercises are hidden; unlike the
     /// Exercises tab, no count appears in the header.
     @State private var collapsedCategories: Set<String> = []
@@ -188,21 +194,36 @@ struct HomeView: View {
         }
     }
 
-    /// A routine's exercises that still exist in the library, in routine order —
-    /// what actually plays. The routine-play routes index into this list.
+    /// A routine's exercises that still exist in the library, in the order this
+    /// play-through uses — what actually plays. The routine-play routes index
+    /// into this list.
     private func routineExercises(_ routineID: UUID) -> [Exercise] {
-        (store.routines.first(where: { $0.id == routineID })?.exerciseIDs ?? [])
-            .compactMap { id in store.exercises.first { $0.id == id } }
+        routineOrder(routineID).compactMap { id in store.exercises.first { $0.id == id } }
     }
 
-    /// Tap on a routine: play its exercises in order, starting with the first
-    /// one's intro screen. An empty routine opens its editor instead, since
-    /// there's nothing to play yet.
+    /// The exercise order the routine's intro screen is showing, falling back to
+    /// the routine's stored order before that screen has been opened.
+    private func routineOrder(_ routineID: UUID) -> [UUID] {
+        routinePlayOrders[routineID]
+            ?? store.routines.first(where: { $0.id == routineID })?.exerciseIDs
+            ?? []
+    }
+
+    /// Tap on a routine: open its intro screen, where the description is shown
+    /// and the order for this play-through can be changed before starting. An
+    /// empty routine opens its editor instead, since there's nothing to play yet.
     private func openRoutine(_ id: UUID) {
-        if routineExercises(id).isEmpty {
+        guard let routine = store.routines.first(where: { $0.id == id }) else { return }
+        let playable = routine.exerciseIDs.filter { exerciseID in
+            store.exercises.contains { $0.id == exerciseID }
+        }
+        if playable.isEmpty {
             navigationPath.append(ExerciseRoute.routine(id))
         } else {
-            navigationPath.append(ExerciseRoute.routinePlay(id, 0))
+            // A fresh play-through always starts from the routine's own order:
+            // whatever the last one was dragged or shuffled into is discarded.
+            routinePlayOrders[id] = playable
+            navigationPath.append(ExerciseRoute.routineIntro(id))
         }
     }
 
@@ -395,6 +416,15 @@ struct HomeView: View {
                 RoutineEditView(routineID: id) {
                     navigationPath.append(ExerciseRoute.routinePicker(id))
                 }
+            }
+        case .routineIntro(let id):
+            if let routine = store.routines.first(where: { $0.id == id }) {
+                RoutineIntroView(
+                    routine: routine,
+                    order: Binding(get: { routineOrder(id) },
+                                   set: { routinePlayOrders[id] = $0 }),
+                    onStart: { navigationPath.append(ExerciseRoute.routinePlay(id, 0)) }
+                )
             }
         case .routinePlay(let id, let index):
             let exercises = routineExercises(id)

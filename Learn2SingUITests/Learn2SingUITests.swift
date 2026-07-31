@@ -1823,6 +1823,107 @@ final class Learn2SingUITests: XCTestCase {
                       "the routine's exercise should survive a relaunch")
     }
 
+    /// Tapping a routine that has exercises opens its intro screen: name,
+    /// description, the routine's exercises under an "Exercises" header, and a
+    /// "Start Routine" button. Shuffling reorders the list for this play-through
+    /// only — the routine's stored order is unchanged, as reopening it shows.
+    func testRoutineIntroScreen() throws {
+        let app = XCUIApplication()
+        app.launch()
+        XCTAssertTrue(app.navigationBars["Home"].waitForExistence(timeout: 5))
+        sleep(2)
+
+        // Create a routine. UserDefaults persist between runs, so the name is
+        // unique per run.
+        let routineName = "Intro \(Int(Date().timeIntervalSince1970))"
+        let add = app.collectionViews.buttons["Add"].firstMatch
+        XCTAssertTrue(add.waitForExistence(timeout: 3))
+        add.tap()
+        let alert = app.alerts["New Routine"]
+        XCTAssertTrue(alert.waitForExistence(timeout: 3))
+        alert.textFields.firstMatch.tap()
+        alert.textFields.firstMatch.typeText(routineName)
+        alert.buttons["Create"].tap()
+        sleep(1)
+
+        // Fill it from the edit screen, and give it a description there.
+        cell(app, named: routineName).swipeRight()
+        let edit = app.collectionViews.buttons["Edit"].firstMatch
+        XCTAssertTrue(edit.waitForExistence(timeout: 3))
+        edit.tap()
+        XCTAssertTrue(app.navigationBars["Edit Routine"].waitForExistence(timeout: 3))
+        let placeholder = "Shown before the routine starts"
+        let detailsField = app.textFields[placeholder]
+        let detailsView = app.textViews[placeholder]
+        XCTAssertTrue(detailsField.waitForExistence(timeout: 3) || detailsView.exists,
+                      "the edit screen should show a description field under the name")
+        let details = detailsField.exists ? detailsField : detailsView
+        details.tap()
+        details.typeText("Warm up, then belt.")
+        app.navigationBars["Edit Routine"].buttons["Add"].tap()
+        XCTAssertTrue(app.navigationBars["Add Exercises"].waitForExistence(timeout: 3))
+        sleep(2)
+        let picks = Array(visibleCellOrder(app).prefix(3))
+        XCTAssertEqual(picks.count, 3, "need three visible exercises to pick")
+        for pick in picks {
+            cell(app, named: pick).tap()
+            usleep(500_000)
+        }
+        app.navigationBars["Add Exercises"].buttons.firstMatch.tap()
+        XCTAssertTrue(app.navigationBars["Edit Routine"].waitForExistence(timeout: 3))
+
+        // Back to Home — relaunching is the reliable way to pop.
+        app.terminate()
+        app.launch()
+        XCTAssertTrue(app.navigationBars["Home"].waitForExistence(timeout: 5))
+        sleep(2)
+
+        // Tapping the routine opens the intro screen instead of playing straight away.
+        cell(app, named: routineName).tap()
+        sleep(2)
+        XCTAssertTrue(app.staticTexts["Warm up, then belt."].waitForExistence(timeout: 3),
+                      "the intro screen should show the routine's description")
+        XCTAssertTrue(app.staticTexts["Exercises"].exists,
+                      "the intro screen should show an Exercises header")
+        let start = app.buttons["Start Routine"].firstMatch
+        XCTAssertTrue(start.exists, "the intro screen should show a Start Routine button")
+        XCTAssertEqual(visibleCellOrder(app).filter(picks.contains), picks,
+                       "the intro screen should list the routine's exercises in its own order")
+        saveScreenshot("routine-intro")
+
+        // Shuffle reorders the listed exercises (retried: a shuffle can land on
+        // the order it started from).
+        let shuffle = app.buttons["Shuffle exercises"].firstMatch
+        XCTAssertTrue(shuffle.exists, "the Exercises header should show a shuffle button")
+        var shuffled = picks
+        for _ in 0..<6 where shuffled == picks {
+            shuffle.tap()
+            usleep(700_000)
+            shuffled = visibleCellOrder(app).filter(picks.contains)
+        }
+        XCTAssertEqual(Set(shuffled), Set(picks), "shuffling must not add or drop exercises")
+        XCTAssertNotEqual(shuffled, picks, "shuffling should change the order")
+        saveScreenshot("routine-intro-shuffled")
+
+        // Start Routine plays the shuffled order: the first exercise's own intro
+        // screen comes up for whatever ended up first.
+        start.tap()
+        sleep(2)
+        XCTAssertTrue(app.navigationBars[shuffled[0]].waitForExistence(timeout: 5),
+                      "Start Routine should open the first exercise of the shuffled order")
+
+        // The shuffle was for that play-through only: the routine still holds
+        // the order it was built in.
+        app.terminate()
+        app.launch()
+        XCTAssertTrue(app.navigationBars["Home"].waitForExistence(timeout: 5))
+        sleep(2)
+        cell(app, named: routineName).tap()
+        sleep(2)
+        XCTAssertEqual(visibleCellOrder(app).filter(picks.contains), picks,
+                       "a new play-through should start from the routine's stored order")
+    }
+
     /// Swiping left on a routine reveals a Delete action that asks for
     /// confirmation first: Cancel keeps the routine, Delete removes it — and it
     /// stays gone after a relaunch.
