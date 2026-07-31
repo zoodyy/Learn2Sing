@@ -418,7 +418,7 @@ struct PlaybackVisualsView: View {
         let totalSlack = slackAbove + slackBelow
         let topCrop = totalSlack > 0 ? cropped * slackAbove / totalSlack : 0
 
-        return previewCanvas
+        return previewCanvas(topCrop: topCrop, bottomCrop: cropped - topCrop)
             .frame(width: width, height: fullHeight)
             .offset(y: -topCrop)
             .frame(width: width, height: visibleHeight, alignment: .top)
@@ -431,7 +431,18 @@ struct PlaybackVisualsView: View {
             .background(Color(.systemGroupedBackground))
     }
 
-    private var previewCanvas: some View {
+    /// The demo singer's pitch at a given beat: a gentle bob around the demo notes.
+    /// Expressed as a function of the beat (rather than of the current frame) so the
+    /// same curve can be replayed backwards to draw the trail behind the indicator.
+    private func demoSingerPitch(at beat: Double) -> Double {
+        demoCenter + 2.5 * sin(beat * 1.6)
+    }
+
+    /// `topCrop` / `bottomCrop` are how much of the full-height canvas the collapsing
+    /// preview hides above and below; they're passed through as the scene's safe-area
+    /// insets so the repetition badge stays inside the visible strip while the form
+    /// scrolls, instead of being cropped away with the empty canvas.
+    private func previewCanvas(topCrop: CGFloat, bottomCrop: CGFloat) -> some View {
         TimelineView(.animation) { timeline in
             let beat = timeline.date.timeIntervalSince(start) * 0.7   // slow scroll
             Canvas { ctx, size in
@@ -445,14 +456,33 @@ struct PlaybackVisualsView: View {
                 let layout = SceneLayout(size: size, pianoW: pW, rowH: rowH, beatPx: beatPx,
                                          playheadX: size.width / 3, centerPitch: center)
                 // A gently bobbing dot so the singer indicator is visible too.
-                let singer = demoCenter + 2.5 * sin(beat * 1.6)
+                let singer = demoSingerPitch(at: beat)
+
+                // The same curve sampled backwards from the playhead to the left edge
+                // of the note area, so the indicator drags its pitch history behind it
+                // just as it does during real playback. Sampled every couple of points
+                // of width, and clamped to the canvas the same way the live view does.
+                let trailSpan = max(0, layout.playheadX - pW)
+                let steps = max(2, Int(trailSpan / 2))
+                let trailBeats = Double(trailSpan / beatPx)
+                let dotR = min(rowH * 0.85, 11)
+                var trailPath = Path()
+                for i in 0...steps {
+                    let sampleBeat = beat - trailBeats * (1 - Double(i) / Double(steps))
+                    let y = min(max(layout.y(demoSingerPitch(at: sampleBeat)), dotR),
+                                size.height - dotR)
+                    let pt = CGPoint(x: layout.x(sampleBeat, beat: beat), y: y)
+                    if i == 0 { trailPath.move(to: pt) } else { trailPath.addLine(to: pt) }
+                }
+
                 // Cycle a demo counter (1/4 … 4/4) so the badge previews live.
                 let demoTotal = 4
                 let demoCurrent = min(demoTotal, Int(beat / 4) % demoTotal + 1)
                 drawPlaybackScene(ctx: ctx, layout: layout, beat: beat,
                                   notes: demoNotes, texts: demoTexts,
-                                  trailPath: Path(), singerPitch: singer, settings: settings,
-                                  repetition: (current: demoCurrent, total: demoTotal))
+                                  trailPath: trailPath, singerPitch: singer, settings: settings,
+                                  repetition: (current: demoCurrent, total: demoTotal),
+                                  safeTop: topCrop, safeBottom: bottomCrop)
             }
         }
     }
