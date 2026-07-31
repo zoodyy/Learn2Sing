@@ -1936,7 +1936,11 @@ final class Learn2SingUITests: XCTestCase {
         // Create a routine to delete. UserDefaults persist between runs, so the
         // name is unique per run.
         let routineName = "Doomed \(Int(Date().timeIntervalSince1970))"
-        app.navigationBars["Home"].buttons["Add"].firstMatch.tap()
+        // The + lives in the Routines section header, not the navigation bar.
+        let add = app.collectionViews.buttons["Add"].firstMatch
+        XCTAssertTrue(add.waitForExistence(timeout: 3),
+                      "the Routines header should show a + button")
+        add.tap()
         let nameAlert = app.alerts["New Routine"]
         XCTAssertTrue(nameAlert.waitForExistence(timeout: 3))
         nameAlert.textFields.firstMatch.tap()
