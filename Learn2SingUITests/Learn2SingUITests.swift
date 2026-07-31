@@ -1924,6 +1924,83 @@ final class Learn2SingUITests: XCTestCase {
                        "a new play-through should start from the routine's stored order")
     }
 
+    /// A description typed on the edit-routine screen is kept when the screen is
+    /// left straight away with the back button — the usual way out of a routine
+    /// that has no exercises yet, where there is nothing to tap to end editing
+    /// first.
+    func testRoutineDescriptionSurvivesBackWithoutExercises() throws {
+        let app = XCUIApplication()
+        app.launch()
+        XCTAssertTrue(app.navigationBars["Home"].waitForExistence(timeout: 5))
+        sleep(2)
+
+        // Create a routine and leave it empty. UserDefaults persist between runs,
+        // so the name is unique per run.
+        let routineName = "Empty \(Int(Date().timeIntervalSince1970))"
+        let add = app.collectionViews.buttons["Add"].firstMatch
+        XCTAssertTrue(add.waitForExistence(timeout: 3))
+        add.tap()
+        let alert = app.alerts["New Routine"]
+        XCTAssertTrue(alert.waitForExistence(timeout: 3))
+        alert.textFields.firstMatch.tap()
+        alert.textFields.firstMatch.typeText(routineName)
+        alert.buttons["Create"].tap()
+        sleep(1)
+
+        // Type a description, then go straight back without touching anything else.
+        cell(app, named: routineName).swipeRight()
+        let edit = app.collectionViews.buttons["Edit"].firstMatch
+        XCTAssertTrue(edit.waitForExistence(timeout: 3))
+        edit.tap()
+        XCTAssertTrue(app.navigationBars["Edit Routine"].waitForExistence(timeout: 3))
+        let placeholder = "Shown before the routine starts"
+        let detailsField = app.textFields[placeholder]
+        let detailsView = app.textViews[placeholder]
+        XCTAssertTrue(detailsField.waitForExistence(timeout: 3) || detailsView.exists,
+                      "the edit screen should show a description field under the name")
+        let details = detailsField.exists ? detailsField : detailsView
+        let typed = "Nothing in here yet."
+        details.tap()
+        details.typeText(typed)
+        app.navigationBars["Edit Routine"].buttons.firstMatch.tap()
+        XCTAssertTrue(app.navigationBars["Home"].waitForExistence(timeout: 3),
+                      "back should return to Home")
+        sleep(1)
+
+        // Reopening the edit screen shows the description that was typed.
+        cell(app, named: routineName).swipeRight()
+        let editAgain = app.collectionViews.buttons["Edit"].firstMatch
+        XCTAssertTrue(editAgain.waitForExistence(timeout: 3))
+        editAgain.tap()
+        XCTAssertTrue(app.navigationBars["Edit Routine"].waitForExistence(timeout: 3))
+        sleep(1)
+        XCTAssertTrue(editableValues(app).contains(typed),
+                      "the description should have been saved when the screen was left")
+        saveScreenshot("routine-edit-description-kept")
+
+        // And it survives a relaunch, so it really reached the store.
+        app.terminate()
+        app.launch()
+        XCTAssertTrue(app.navigationBars["Home"].waitForExistence(timeout: 5))
+        sleep(2)
+        cell(app, named: routineName).swipeRight()
+        let editAfterRelaunch = app.collectionViews.buttons["Edit"].firstMatch
+        XCTAssertTrue(editAfterRelaunch.waitForExistence(timeout: 3))
+        editAfterRelaunch.tap()
+        XCTAssertTrue(app.navigationBars["Edit Routine"].waitForExistence(timeout: 3))
+        sleep(1)
+        XCTAssertTrue(editableValues(app).contains(typed),
+                      "the description should survive a relaunch")
+    }
+
+    /// The text every field on screen currently holds. Fields are looked up by
+    /// their placeholder while empty, which stops matching once they have
+    /// content, so filled-in text is checked through this instead.
+    private func editableValues(_ app: XCUIApplication) -> [String] {
+        (app.textFields.allElementsBoundByIndex + app.textViews.allElementsBoundByIndex)
+            .compactMap { $0.value as? String }
+    }
+
     /// Swiping left on a routine reveals a Delete action that asks for
     /// confirmation first: Cancel keeps the routine, Delete removes it — and it
     /// stays gone after a relaunch.

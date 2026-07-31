@@ -6,7 +6,8 @@
 import SwiftUI
 
 /// The inline-editable routine name at the top of the edit-routine screen.
-/// Commits (via the store) when the user submits or focus moves away; an empty
+/// Commits (via the store) when the user submits, focus moves away, or the
+/// screen goes away — see RoutineDetailsField for why leaving counts. An empty
 /// name is refused and the text reverts.
 private struct RoutineNameField: View {
     @EnvironmentObject private var store: ExerciseStore
@@ -26,6 +27,7 @@ private struct RoutineNameField: View {
             .onChange(of: isFocused) { _, focused in
                 if !focused { commit() }
             }
+            .onDisappear(perform: commit)
     }
 
     private func commit() {
@@ -41,8 +43,11 @@ private struct RoutineNameField: View {
 }
 
 /// The inline-editable routine description, sitting under the name field on the
-/// edit-routine screen. Commits (via the store) when focus moves away; unlike the
-/// name, an empty description is allowed.
+/// edit-routine screen. Commits (via the store) when focus moves away or the
+/// screen goes away — leaving while still editing is the norm for a routine with
+/// no exercises, where there's nothing else on screen to tap to end editing, and
+/// popping the screen doesn't report the lost focus. Unlike the name, an empty
+/// description is allowed.
 private struct RoutineDetailsField: View {
     @EnvironmentObject private var store: ExerciseStore
     let routineID: UUID
@@ -59,8 +64,13 @@ private struct RoutineDetailsField: View {
             .lineLimit(3...8)
             .focused($isFocused)
             .onChange(of: isFocused) { _, focused in
-                if !focused { store.setRoutineDetails(routineID, to: details) }
+                if !focused { commit() }
             }
+            .onDisappear(perform: commit)
+    }
+
+    private func commit() {
+        store.setRoutineDetails(routineID, to: details)
     }
 }
 
