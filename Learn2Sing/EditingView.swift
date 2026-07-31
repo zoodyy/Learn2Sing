@@ -58,6 +58,10 @@ private let totalRows = hiPitch - loPitch + 1
 private let gridH = CGFloat(totalRows) * rowH
 private let textFontSize: CGFloat = 12
 private let rulerH: CGFloat = 26
+/// Shortest note the grid can hold, matching the 1/4-beat snap.
+private let minLength: Double = 0.25
+/// Slack for comparing snapped beat positions, so touching notes don't read as overlapping.
+private let beatEpsilon: Double = 1e-9
 
 
 // MARK: - EditingView
@@ -69,6 +73,16 @@ struct EditingView: View {
     @State private var texts: [MIDIText] = []
     @State private var interaction: Interaction = .idle
     @State private var tool: Tool = .pen
+
+    // The pattern as it was when the editor opened. Edits are written through to
+    // UserDefaults as they happen, so leaving without saving means putting this
+    // snapshot back.
+    @State private var savedNotes: [MIDINote] = []
+    @State private var savedTexts: [MIDIText] = []
+    @State private var didLoad = false
+    @State private var showOverlapWarning = false
+    @Environment(\.dismiss) private var dismiss
+    @EnvironmentObject private var toasts: ToastCenter
 
     // Text-entry sheet state.
     @State private var showTextEditor = false
@@ -167,7 +181,14 @@ struct EditingView: View {
         .background(Color.black)
         .navigationTitle(exercise?.name ?? "Editing")
         .navigationBarTitleDisplayMode(.inline)
+        .navigationBarBackButtonHidden(true)
         .toolbar {
+            ToolbarItem(placement: .topBarLeading) {
+                Button { attemptLeave() } label: {
+                    Label("Back", systemImage: "chevron.backward")
+                        .labelStyle(.titleAndIcon)
+                }
+            }
             ToolbarItem(placement: .topBarTrailing) {
                 HStack(spacing: 2) {
                     toolButton(.pen,   system: "pencil")
@@ -184,9 +205,26 @@ struct EditingView: View {
         } message: {
             Text("Enter text to place on the grid")
         }
+        .alert("Overlapping Notes", isPresented: $showOverlapWarning) {
+            Button("Stay in Editor", role: .cancel) { }
+            Button("Leave Without Saving", role: .destructive) { leaveDiscardingChanges() }
+        } message: {
+            Text("""
+                 The sections marked red are sung at the same time as another note. \
+                 An exercise can only have one note sounding at a time, so it can't be \
+                 saved like this.
+
+                 Go back and fix the red sections, or leave and discard the changes you \
+                 made in this editor.
+                 """)
+        }
         .onAppear {
+            guard !didLoad else { return }
+            didLoad = true
             loadNotes()
             loadTexts()
+            savedNotes = notes
+            savedTexts = texts
         }
         .onDisappear {
             isPlaying = false
@@ -264,6 +302,31 @@ struct EditingView: View {
             let target = max(0, x - scrollGeom.width * 0.2)
             withAnimation(.easeInOut(duration: 0.2)) { scrollPos.scrollTo(x: target) }
         }
+    }
+
+    // MARK: - Leaving the editor
+
+    /// The back button saves by leaving the written-through edits in place — unless
+    /// notes are still sounding on top of each other, which the exercise can't
+    /// represent, in which case the user has to choose what happens.
+    private func attemptLeave() {
+        if isPlaying { stopPlayback() }
+        if hasOverlappingNotes {
+            showOverlapWarning = true
+        } else {
+            dismiss()
+        }
+    }
+
+    /// Put the pattern back the way it was when the editor opened, then pop. The
+    /// pop's "Midi Saved!" toast is swallowed — nothing was saved.
+    private func leaveDiscardingChanges() {
+        notes = savedNotes
+        texts = savedTexts
+        writeNotes(savedNotes)
+        writeTexts(savedTexts)
+        toasts.suppressNext()
+        dismiss()
     }
 
     // MARK: - Ruler & transport bar
@@ -430,7 +493,9 @@ struct EditingView: View {
     // MARK: - Piano roll grid canvas
 
     private var rollCanvas: some View {
-        Canvas { ctx, _ in
+        let shown = liveNotes
+        let overlaps = overlapSpans(in: shown)
+        return Canvas { ctx, _ in
             // Row backgrounds
             for row in 0..<totalRows {
                 let pitch = hiPitch - row
@@ -461,13 +526,28 @@ struct EditingView: View {
             }
 
             // Notes
-            for note in liveNotes {
+            for note in shown {
                 let rect = rect(for: note)
                 let inner = rect.insetBy(dx: 1, dy: 1)
                 let dimmed = note.id == inProgressID
                 let notePath = Path(roundedRect: inner, cornerRadius: 3)
                 ctx.fill(notePath, with: .color(.green.opacity(dimmed ? 0.6 : 0.88)))
                 ctx.stroke(notePath, with: .color(.green), lineWidth: 1)
+
+                // Paint the stretches another note sounds over, so it's clear which
+                // part of the note is the problem rather than just which notes are.
+                if let spans = overlaps[note.id] {
+                    for span in spans {
+                        let x0 = max(inner.minX, CGFloat(span.start) * beatW)
+                        let x1 = min(inner.maxX, CGFloat(span.end) * beatW)
+                        guard x1 > x0 else { continue }
+                        let bad = CGRect(x: x0, y: inner.minY,
+                                         width: x1 - x0, height: inner.height)
+                        ctx.fill(Path(roundedRect: bad, cornerRadius: 2),
+                                 with: .color(.red.opacity(dimmed ? 0.7 : 0.95)))
+                    }
+                    ctx.stroke(notePath, with: .color(.red), lineWidth: 1.5)
+                }
 
                 if inner.width > 20 {
                     ctx.draw(
@@ -532,28 +612,37 @@ struct EditingView: View {
                                               grabDX: beatValue(v.startLocation.x) - hit.beat)
                 }
             } else {
+                // Only one note may sound at a time, so a press that lands on a beat
+                // another note already covers — even several rows away — starts nothing.
+                let start = snappedBeat(v.startLocation.x)
+                guard !isOccupied(start), spaceAfter(start) >= minLength else { break }
                 let note = MIDINote(
                     pitch: pitchAt(v.startLocation.y),
-                    beat: snappedBeat(v.startLocation.x),
-                    length: 0.25
+                    beat: start,
+                    length: minLength
                 )
                 interaction = .creating(note)
             }
 
         case .creating(var note):
             let endBeat = beatValue(v.location.x)
-            note.length = max(0.25, snapped(endBeat - note.beat))
+            note.length = min(max(minLength, snapped(endBeat - note.beat)),
+                              spaceAfter(note.beat))
             interaction = .creating(note)
 
         case .resizing(let id):
             if let i = notes.firstIndex(where: { $0.id == id }) {
                 let endBeat = beatValue(v.location.x)
-                notes[i].length = max(0.25, snapped(endBeat - notes[i].beat))
+                notes[i].length = min(max(minLength, snapped(endBeat - notes[i].beat)),
+                                      spaceAfter(notes[i].beat, excluding: id))
             }
 
         case .movingNote(let id, let grabDX):
             if let i = notes.firstIndex(where: { $0.id == id }) {
-                notes[i].beat = max(0, snapped(beatValue(v.location.x) - grabDX))
+                let desired = max(0, snapped(beatValue(v.location.x) - grabDX))
+                notes[i].beat = placement(desired: desired,
+                                          length: notes[i].length,
+                                          excluding: id) ?? notes[i].beat
                 notes[i].pitch = pitchAt(v.location.y)
             }
 
@@ -647,6 +736,97 @@ struct EditingView: View {
         interaction = .erasing
     }
 
+    // MARK: - Overlap rules
+    //
+    // An exercise is sung, so only one note may sound at any moment: two notes must
+    // never share a stretch of the timeline, no matter how far apart their pitches
+    // are. Editing clamps every placement to keep that true; anything that slipped
+    // through anyway (an older pattern, a downloaded one) is drawn red instead.
+
+    /// Free stretches of the timeline, as `(start, end)` beat pairs, with `id`'s own
+    /// note left out. The last stretch runs to infinity.
+    private func freeGaps(excluding id: UUID?) -> [(start: Double, end: Double)] {
+        var gaps: [(start: Double, end: Double)] = []
+        var cursor = 0.0
+        for note in notes.filter({ $0.id != id }).sorted(by: { $0.beat < $1.beat }) {
+            if note.beat > cursor + beatEpsilon { gaps.append((cursor, note.beat)) }
+            cursor = max(cursor, note.beat + note.length)
+        }
+        gaps.append((cursor, .infinity))
+        return gaps
+    }
+
+    /// Is some note already sounding at `beat`?
+    private func isOccupied(_ beat: Double, excluding id: UUID? = nil) -> Bool {
+        notes.contains { note in
+            note.id != id
+                && beat >= note.beat - beatEpsilon
+                && beat < note.beat + note.length - beatEpsilon
+        }
+    }
+
+    /// How long a note starting at `beat` may grow before it runs into the next one.
+    private func spaceAfter(_ beat: Double, excluding id: UUID? = nil) -> Double {
+        let next = notes
+            .filter { $0.id != id && $0.beat > beat + beatEpsilon }
+            .map(\.beat)
+            .min()
+        return (next ?? .infinity) - beat
+    }
+
+    /// Where a note of `length` dragged to `desired` may actually land: inside the free
+    /// gap the drag is centred on, or the nearest gap big enough if that one is taken.
+    /// `nil` when nothing on the timeline can hold it.
+    private func placement(desired: Double, length: Double, excluding id: UUID?) -> Double? {
+        let fitting = freeGaps(excluding: id).filter { $0.end - $0.start >= length - beatEpsilon }
+        guard !fitting.isEmpty else { return nil }
+        let centre = desired + length / 2
+        let gap = fitting.first { centre >= $0.start && centre <= $0.end }
+            ?? fitting.min { distance(from: centre, to: $0) < distance(from: centre, to: $1) }!
+        return min(max(desired, gap.start), gap.end - length)
+    }
+
+    private func distance(from beat: Double, to gap: (start: Double, end: Double)) -> Double {
+        if beat < gap.start { return gap.start - beat }
+        if beat > gap.end { return beat - gap.end }
+        return 0
+    }
+
+    /// Stretches of each note that another note is sounding over, merged per note so
+    /// the red overlay is drawn once per region.
+    private func overlapSpans(in all: [MIDINote]) -> [UUID: [(start: Double, end: Double)]] {
+        var result: [UUID: [(start: Double, end: Double)]] = [:]
+        for (i, a) in all.enumerated() {
+            var spans: [(start: Double, end: Double)] = []
+            for (j, b) in all.enumerated() where i != j {
+                let start = max(a.beat, b.beat)
+                let end = min(a.beat + a.length, b.beat + b.length)
+                if end - start > beatEpsilon { spans.append((start, end)) }
+            }
+            guard !spans.isEmpty else { continue }
+            var merged: [(start: Double, end: Double)] = []
+            for span in spans.sorted(by: { $0.start < $1.start }) {
+                if let last = merged.last, span.start <= last.end + beatEpsilon {
+                    merged[merged.count - 1].end = max(last.end, span.end)
+                } else {
+                    merged.append(span)
+                }
+            }
+            result[a.id] = merged
+        }
+        return result
+    }
+
+    /// Whether any two notes currently sound at the same time.
+    private var hasOverlappingNotes: Bool {
+        var cursor = -Double.infinity
+        for note in notes.sorted(by: { $0.beat < $1.beat }) {
+            if note.beat < cursor - beatEpsilon { return true }
+            cursor = max(cursor, note.beat + note.length)
+        }
+        return false
+    }
+
     // MARK: - Coordinate helpers
 
     private func rect(for note: MIDINote) -> CGRect {
@@ -707,8 +887,10 @@ struct EditingView: View {
         "miditext_\(exercise?.id.uuidString ?? "standalone")"
     }
 
-    private func saveNotes() {
-        guard let data = try? JSONEncoder().encode(notes) else { return }
+    private func saveNotes() { writeNotes(notes) }
+
+    private func writeNotes(_ value: [MIDINote]) {
+        guard let data = try? JSONEncoder().encode(value) else { return }
         UserDefaults.standard.set(data, forKey: saveKey)
         scheduleServerSync()
     }
@@ -720,8 +902,10 @@ struct EditingView: View {
         notes = saved
     }
 
-    private func saveTexts() {
-        guard let data = try? JSONEncoder().encode(texts) else { return }
+    private func saveTexts() { writeTexts(texts) }
+
+    private func writeTexts(_ value: [MIDIText]) {
+        guard let data = try? JSONEncoder().encode(value) else { return }
         UserDefaults.standard.set(data, forKey: textSaveKey)
         scheduleServerSync()
     }
