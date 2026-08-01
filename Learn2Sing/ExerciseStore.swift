@@ -87,15 +87,19 @@ final class ExerciseStore: ObservableObject {
 
     // MARK: - Bundled exercises
 
+    /// The exercise bundle shipped inside the app — the library exactly as a fresh
+    /// install seeds it. Decoded once and kept, since Settings ▸ Reset compares
+    /// against it to find the bundled exercises the user has changed.
+    static let bundledBundle: ExerciseBundle? = {
+        guard let url = Bundle.main.url(forResource: "BundledExercises", withExtension: "json"),
+              let data = try? Data(contentsOf: url)
+        else { return nil }
+        return try? JSONDecoder().decode(ExerciseBundle.self, from: data)
+    }()
+
     /// Ids of the exercises shipped in the app bundle. The JSON carries fixed
     /// UUIDs, so these are identical on every install and survive renames.
-    static let bundledExerciseIDs: Set<UUID> = {
-        guard let url = Bundle.main.url(forResource: "BundledExercises", withExtension: "json"),
-              let data = try? Data(contentsOf: url),
-              let bundle = try? JSONDecoder().decode(ExerciseBundle.self, from: data)
-        else { return [] }
-        return Set(bundle.exercises.map(\.id))
-    }()
+    static let bundledExerciseIDs: Set<UUID> = Set(bundledBundle?.exercises.map(\.id) ?? [])
 
     /// Bundled exercises can't be shared: their settings show no visibility
     /// picker (a copy made via Download can be shared — it gets a fresh id).
@@ -135,10 +139,8 @@ final class ExerciseStore: ObservableObject {
     /// bundle. Gated by a flag so a user's later edits/deletions are never undone.
     private func importBundledIfNeeded() {
         guard !UserDefaults.standard.bool(forKey: bundledImportedKey) else { return }
-        guard let url = Bundle.main.url(forResource: "BundledExercises", withExtension: "json"),
-              let data = try? Data(contentsOf: url),
-              importData(data)
-        else { return }
+        guard let bundle = Self.bundledBundle else { return }
+        importBundle(bundle)
         UserDefaults.standard.set(true, forKey: bundledImportedKey)
     }
 
@@ -457,6 +459,13 @@ final class ExerciseStore: ObservableObject {
         UserDefaults.standard.set(true, forKey: whitelistSeededKey)
     }
 
+    /// Put the whitelist back to the exercises that shipped with the app, which is
+    /// how it starts out. Used by Settings ▸ Reset ▸ Settings ▸ Exercises.
+    func resetRecommendationWhitelist() {
+        recommendationWhitelist = Self.bundledExerciseIDs
+        saveWhitelist()
+    }
+
     /// Add the exercise to the recommendation pool, or remove it if already in it.
     /// Backs the picker's tap-to-select rows, which is why membership toggles.
     func toggleWhitelisted(_ exerciseID: UUID) {
@@ -553,6 +562,109 @@ final class ExerciseStore: ObservableObject {
                 self.save()
             }
         )
+    }
+
+    // MARK: - Reset
+
+    /// The exercises the user made themselves: neither shipped with the app nor
+    /// copied in from the Community tab.
+    var ownExerciseIDs: [UUID] {
+        exercises.filter { !isBundled($0.id) && $0.downloadedFrom == nil }.map(\.id)
+    }
+
+    /// The exercises copied into the library from the Community tab.
+    var downloadedExerciseIDs: [UUID] {
+        exercises.filter { !isBundled($0.id) && $0.downloadedFrom != nil }.map(\.id)
+    }
+
+    /// Delete every exercise the user made themselves, each with its pattern,
+    /// scores and place in the user's lists. Bundled and downloaded ones stay.
+    func deleteOwnExercises() {
+        for id in ownExerciseIDs { delete(id: id) }
+    }
+
+    /// Delete every exercise downloaded from the Community tab, under the same
+    /// rules as `deleteOwnExercises`.
+    func deleteDownloadedExercises() {
+        for id in downloadedExerciseIDs { delete(id: id) }
+    }
+
+    /// A bundled exercise exactly as it ships, or nil for an id that isn't one.
+    static func bundledOriginal(_ id: UUID) -> Exercise? {
+        bundledBundle?.exercises.first { $0.id == id }
+    }
+
+    /// Whether the user has changed a bundled exercise from how it ships — edited
+    /// its settings, notes or text labels, or deleted it outright.
+    func isBundledChanged(_ id: UUID) -> Bool {
+        guard let original = Self.bundledOriginal(id) else { return false }
+        // A deleted bundled exercise counts as changed: reverting brings it back.
+        guard let current = exercises.first(where: { $0.id == id }) else { return true }
+        return current != original
+            || notes(for: id) != Self.bundledNotes(id)
+            || texts(for: id) != Self.bundledTexts(id)
+    }
+
+    /// The bundled exercises the user has changed, in the order they ship. Ids
+    /// rather than exercises, since a deleted one is no longer in the library.
+    var changedBundledIDs: [UUID] {
+        (Self.bundledBundle?.exercises.map(\.id) ?? []).filter(isBundledChanged)
+    }
+
+    /// Put a bundled exercise back to how it ships — its settings, MIDI pattern and
+    /// text labels — restoring it if the user deleted it. Where it sits in the
+    /// user's own lists (favourites, routines, the recommendation whitelist) is
+    /// left alone; those are reset from their own screens.
+    func revertBundled(_ id: UUID) {
+        guard let original = Self.bundledOriginal(id) else { return }
+        if let idx = exercises.firstIndex(where: { $0.id == id }) {
+            exercises[idx] = original
+        } else {
+            exercises.append(original)
+        }
+        setNotes(Self.bundledNotes(id), for: id)
+        setTexts(Self.bundledTexts(id), for: id)
+        // The group it belongs to may have been renamed or deleted since.
+        addCategory(original.category)
+        save()
+    }
+
+    /// Put every bundled exercise back to how it ships.
+    func revertAllBundled() {
+        for id in Self.bundledBundle?.exercises.map(\.id) ?? [] {
+            revertBundled(id)
+        }
+    }
+
+    private static func bundledNotes(_ id: UUID) -> [MIDINote] {
+        bundledBundle?.midi[id.uuidString] ?? []
+    }
+
+    private static func bundledTexts(_ id: UUID) -> [MIDIText] {
+        bundledBundle?.texts?[id.uuidString] ?? []
+    }
+
+    /// Empty the Home tab's "Favourites" list. The exercises themselves stay.
+    func clearFavourites() {
+        guard !favourites.isEmpty else { return }
+        favourites = []
+        saveFavourites()
+    }
+
+    /// Delete every routine. Their exercises stay in the library.
+    func clearRoutines() {
+        guard !routines.isEmpty else { return }
+        routines = []
+        saveRoutines()
+    }
+
+    /// Forget what was played when: both the Home tab's "Recent" list and the
+    /// timestamps "Recommended" orders by.
+    func clearPlayHistory() {
+        recentlyPlayed = []
+        saveRecentlyPlayed()
+        lastPlayed = [:]
+        saveLastPlayed()
     }
 
     // MARK: - MIDI pattern access

@@ -117,6 +117,16 @@ enum VisualKeys {
     static let showRepetitionCounter    = "vis_showRepetitionCounter"
     static let repetitionCounterPosition = "vis_repetitionCounterPosition"
     static let hideTabBar     = "vis_hideTabBar"
+
+    /// Every key above, so Settings ▸ Reset can clear the lot without naming them
+    /// one by one. Add new keys here as well as above.
+    static let all = [
+        noteColor, playingNoteColor, noteRoundness, verticalZoom, horizontalZoom,
+        followVertical, showLines, background, showKeyboard, showPitches,
+        textColor, textFont, singerSize, singerInnerColor, singerOuterColor,
+        singerLineColor, playheadColor, playheadStyle,
+        showRepetitionCounter, repetitionCounterPosition, hideTabBar,
+    ]
 }
 
 /// Default values, used both for the @AppStorage controls and when resolving the

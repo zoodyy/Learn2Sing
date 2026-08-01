@@ -41,6 +41,9 @@ struct SettingsView: View {
                     hubLink(L("Backup"), systemImage: "externaldrive", route: .backup)
                         .settingHelp(L("Export your exercise library to a file, or import one."))
 
+                    hubLink(L("Reset"), systemImage: "arrow.counterclockwise", route: .reset)
+                        .settingHelp(L("Delete your scores, exercises and Home tab lists, or put your settings back to how the app started out."))
+
                     hubLink(L("Language"), systemImage: "globe", route: .language)
                         .settingHelp(L("The language the app is displayed in. Kept on this device only."))
                 }
@@ -86,6 +89,20 @@ struct SettingsView: View {
                     RecommendationWhitelistView()
                 case .backup:
                     BackupSettingsView()
+                case .reset:
+                    ResetSettingsView(
+                        openScores: { settingsPath.append(SettingsRoute.resetScores) },
+                        openSettings: { settingsPath.append(SettingsRoute.resetSettings) },
+                        openExercises: { settingsPath.append(SettingsRoute.resetExercises) },
+                        openHome: { settingsPath.append(SettingsRoute.resetHome) })
+                case .resetScores:
+                    ScoresResetView()
+                case .resetSettings:
+                    SettingsResetView()
+                case .resetExercises:
+                    ExercisesResetView()
+                case .resetHome:
+                    HomeResetView()
                 case .language:
                     LanguageSettingsView()
                 }
@@ -108,24 +125,15 @@ struct SettingsView: View {
 
     /// A row that pushes a settings category screen onto the navigation stack.
     private func hubLink(_ title: String, systemImage: String, route: SettingsRoute) -> some View {
-        Button {
+        SettingsHubRow(title: title, systemImage: systemImage) {
             settingsPath.append(route)
-        } label: {
-            HStack {
-                Label(title, systemImage: systemImage)
-                Spacer()
-                Image(systemName: "chevron.right")
-                    .font(.footnote.weight(.semibold))
-                    .foregroundStyle(.tertiary)
-            }
         }
-        .foregroundStyle(.primary)
     }
 
     /// Screens pushed onto the Settings navigation stack: the category hubs
     /// (Audio with its instruments screens, Visuals, Voice, Exercises, Backup,
-    /// Language, Profile) and the microphone-delay and vocal-range tests they
-    /// lead to.
+    /// Reset with its four screens, Language, Profile) and the microphone-delay
+    /// and vocal-range tests they lead to.
     private enum SettingsRoute: Hashable {
         case audio
         case instruments
@@ -141,6 +149,11 @@ struct SettingsView: View {
         case exercises
         case recommendationWhitelist
         case backup
+        case reset
+        case resetScores
+        case resetSettings
+        case resetExercises
+        case resetHome
         case language
     }
 
@@ -166,6 +179,30 @@ struct SettingsView: View {
         up by the microphone, and clap firmly.
         """)
         return exercise
+    }
+}
+
+/// A row that pushes another settings screen onto the navigation stack: a label
+/// on the leading edge and a chevron on the trailing one. Shared by the Settings
+/// hub and the Reset screens so they look identical. The title arrives already
+/// translated (via `L(_:)`), since a `Label` built from a plain `String` is shown
+/// verbatim.
+struct SettingsHubRow: View {
+    let title: String
+    let systemImage: String
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            HStack {
+                Label(title, systemImage: systemImage)
+                Spacer()
+                Image(systemName: "chevron.right")
+                    .font(.footnote.weight(.semibold))
+                    .foregroundStyle(.tertiary)
+            }
+        }
+        .foregroundStyle(.primary)
     }
 }
 

@@ -7,7 +7,7 @@ import json, pathlib, subprocess, sys
 
 sys.path.insert(0, str(pathlib.Path(__file__).parent))
 import trbase
-import tr_common, tr_settings, tr_visuals, tr_library, tr_community, tr_bundled  # noqa: F401
+import tr_common, tr_settings, tr_visuals, tr_library, tr_community, tr_bundled, tr_reset  # noqa: F401
 
 HERE = pathlib.Path(__file__).resolve().parent
 APP = HERE.parents[1] / "Learn2Sing"

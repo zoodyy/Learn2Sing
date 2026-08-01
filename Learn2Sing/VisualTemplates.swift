@@ -194,16 +194,22 @@ final class VisualTemplateStore: ObservableObject {
         seedBundledIfNeeded()
     }
 
+    /// The template shipped in the app bundle: the playback look a fresh install
+    /// starts on, which is also what Settings ▸ Reset puts the visuals back to.
+    static var bundledTemplate: VisualTemplate? {
+        guard let url = Bundle.main.url(forResource: "SimplestTemplate", withExtension: "json"),
+              let data = try? Data(contentsOf: url)
+        else { return nil }
+        return VisualTemplate.decode(from: data)
+    }
+
     /// On first launch, add the template shipped in the app bundle and apply it as the
     /// starting look for the playback visuals. Gated by a flag so the user's later
     /// edits or deletion of it are never undone.
     private func seedBundledIfNeeded() {
         guard !UserDefaults.standard.bool(forKey: Self.bundledSeededKey) else { return }
         defer { UserDefaults.standard.set(true, forKey: Self.bundledSeededKey) }
-        guard let url = Bundle.main.url(forResource: "SimplestTemplate", withExtension: "json"),
-              let data = try? Data(contentsOf: url),
-              let template = VisualTemplate.decode(from: data)
-        else { return }
+        guard let template = Self.bundledTemplate else { return }
         templates.append(template)
         persist()
         template.apply()

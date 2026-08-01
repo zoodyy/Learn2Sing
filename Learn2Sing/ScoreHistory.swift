@@ -18,7 +18,9 @@ struct ScoreEntry: Codable {
 /// Score history storage, kept in UserDefaults under `scores_<uuid>` alongside the
 /// exercise list and MIDI patterns that ExerciseStore manages.
 enum ScoreHistory {
-    static func key(_ id: UUID) -> String { "scores_\(id.uuidString)" }
+    private static let keyPrefix = "scores_"
+
+    static func key(_ id: UUID) -> String { keyPrefix + id.uuidString }
 
     static func entries(for id: UUID) -> [ScoreEntry] {
         guard let data = UserDefaults.standard.data(forKey: key(id)),
@@ -39,6 +41,15 @@ enum ScoreHistory {
 
     static func delete(for id: UUID) {
         UserDefaults.standard.removeObject(forKey: key(id))
+    }
+
+    /// Wipes every recorded score, including any left behind by exercises that
+    /// are no longer in the library. Used by Settings ▸ Reset ▸ Scores.
+    static func deleteAll() {
+        let defaults = UserDefaults.standard
+        for key in defaults.dictionaryRepresentation().keys where key.hasPrefix(keyPrefix) {
+            defaults.removeObject(forKey: key)
+        }
     }
 }
 
