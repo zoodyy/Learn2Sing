@@ -1,9 +1,9 @@
 import Foundation
 
 /// A filter the Community tab's list can be narrowed by, picked from the filter
-/// menu in the toolbar. The cases form a single group — whether this user has
-/// liked the public exercise — so the picks are OR'd: picking nothing (the
-/// default) or both shows every exercise, and picking one shows just those.
+/// menu in the toolbar. The cases are whether this user has liked the public
+/// exercise, so they're mutually exclusive: the menu turns one off when the
+/// other is picked, and picking neither (the default) shows every exercise.
 /// CommunitySync owns the liked set the filter is based on.
 enum CommunityFilter: String, CaseIterable, Identifiable {
     case liked

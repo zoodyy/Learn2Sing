@@ -69,13 +69,15 @@ struct CommunityView: View {
         }
     }
 
-    /// Menu toggle state for one filter.
+    /// Menu toggle state for one filter. The picks are mutually exclusive — an
+    /// exercise is either liked or not — so turning one on turns the other off
+    /// rather than leaving both on, which would show the whole list anyway.
     private func filterBinding(_ filter: CommunityFilter) -> Binding<Bool> {
         Binding(
             get: { activeFilters.contains(filter) },
             set: { isOn in
                 if isOn {
-                    activeFilters.insert(filter)
+                    activeFilters = [filter]
                 } else {
                     activeFilters.remove(filter)
                 }
