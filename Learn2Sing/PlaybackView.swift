@@ -1265,6 +1265,12 @@ private struct ScoreView: View {
         ScoreHistoryChart(entries: history, tint: tint)
     }
 
+    /// Height of every button in the bottom row. Fixed rather than left to the
+    /// labels' own padding, so a title that shrank to fit can't make its button
+    /// shorter than the ones beside it — and it's the replay button's width too,
+    /// which makes that one square.
+    private let buttonHeight: CGFloat = 54
+
     /// One of the filled buttons along the bottom. The title shrinks rather than
     /// wraps, since a third button (Next) leaves each of them a narrow share of
     /// the row in the longer-worded languages.
@@ -1274,11 +1280,25 @@ private struct ScoreView: View {
                 .font(.headline)
                 .lineLimit(1)
                 .minimumScaleFactor(0.6)
+                .padding(.horizontal, 8)
                 .frame(maxWidth: .infinity)
-                .padding()
+                .frame(height: buttonHeight)
                 .background(.tint, in: RoundedRectangle(cornerRadius: 14))
                 .foregroundStyle(.white)
         }
+    }
+
+    /// Replay, as a square icon button: with three buttons in the row, spelling
+    /// it out would squeeze the other two.
+    private var playAgainButton: some View {
+        Button(action: onPlayAgain) {
+            Image(systemName: "arrow.counterclockwise")
+                .font(.headline)
+                .frame(width: buttonHeight, height: buttonHeight)
+                .background(.tint, in: RoundedRectangle(cornerRadius: 14))
+                .foregroundStyle(.white)
+        }
+        .accessibilityLabel(L("Play Again"))
     }
 
     var body: some View {
@@ -1317,7 +1337,7 @@ private struct ScoreView: View {
             }
 
             HStack(spacing: 12) {
-                actionButton(L("Play Again"), action: onPlayAgain)
+                playAgainButton
                 if let onNext {
                     actionButton(L("Next"), action: onNext)
                 }
