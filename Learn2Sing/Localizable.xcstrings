@@ -15866,6 +15866,7 @@
       }
     },
     "Play Again" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {

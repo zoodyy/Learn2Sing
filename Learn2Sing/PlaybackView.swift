@@ -717,6 +717,11 @@ struct PlaybackView: View {
     /// What the score screen's exit button does instead of popping this screen
     /// (routines advance to the next exercise). nil keeps the default dismiss.
     var onScoreExit: (() -> Void)? = nil
+    /// Opens the intro screen of the exercise listed below this one, shown as an
+    /// extra "Next" button on the score screen. nil (the last exercise of the list
+    /// this one was played from) leaves the button out. Routines don't use this —
+    /// there the exit button itself becomes "Next".
+    var onScoreNext: (() -> Void)? = nil
     /// When set (playing from the Community tab), the score screen shows a Download
     /// button — same as the intro screen's — copying the exercise into the library.
     var onScoreDownload: (() -> Void)? = nil
@@ -784,6 +789,7 @@ struct PlaybackView: View {
                           history: ScoreHistory.entries(for: exercise.id),
                           exitTitle: scoreExitTitle,
                           onDownload: onScoreDownload,
+                          onNext: onScoreNext,
                           onPlayAgain: {
                               // Drop the previous run's trail/indicator so no ghost line
                               // shows up; clearing the score remounts `playback`, whose
@@ -1226,6 +1232,10 @@ private struct ScoreView: View {
     /// When set (playing from the Community tab), a Download button appears above
     /// the Play Again/Exit row, copying the exercise into the user's own library.
     var onDownload: (() -> Void)? = nil
+    /// When set, a "Next" button between Play Again and Exit opens the intro screen
+    /// of the exercise listed below this one. nil (the last one in the list it was
+    /// played from) leaves that row at two buttons.
+    var onNext: (() -> Void)? = nil
     let onPlayAgain: () -> Void
     let onExit: () -> Void
 
@@ -1253,6 +1263,22 @@ private struct ScoreView: View {
 
     private var chart: some View {
         ScoreHistoryChart(entries: history, tint: tint)
+    }
+
+    /// One of the filled buttons along the bottom. The title shrinks rather than
+    /// wraps, since a third button (Next) leaves each of them a narrow share of
+    /// the row in the longer-worded languages.
+    private func actionButton(_ title: String, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            Text(title)
+                .font(.headline)
+                .lineLimit(1)
+                .minimumScaleFactor(0.6)
+                .frame(maxWidth: .infinity)
+                .padding()
+                .background(.tint, in: RoundedRectangle(cornerRadius: 14))
+                .foregroundStyle(.white)
+        }
     }
 
     var body: some View {
@@ -1291,23 +1317,11 @@ private struct ScoreView: View {
             }
 
             HStack(spacing: 12) {
-                Button(action: onPlayAgain) {
-                    Text("Play Again")
-                        .font(.headline)
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(.tint, in: RoundedRectangle(cornerRadius: 14))
-                        .foregroundStyle(.white)
+                actionButton(L("Play Again"), action: onPlayAgain)
+                if let onNext {
+                    actionButton(L("Next"), action: onNext)
                 }
-
-                Button(action: onExit) {
-                    Text(exitTitle)
-                        .font(.headline)
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(.tint, in: RoundedRectangle(cornerRadius: 14))
-                        .foregroundStyle(.white)
-                }
+                actionButton(exitTitle, action: onExit)
             }
             .padding(.horizontal, 40)
             .padding(.bottom, verticalSizeClass == .compact ? 16 : 50)

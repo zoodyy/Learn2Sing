@@ -29,9 +29,28 @@ struct CommunityView: View {
     /// missing; for the same reason it stays on this list and isn't carried into
     /// the uploader profiles pushed from here.
     @State private var activeFilters: Set<CommunityFilter> = []
+    /// The exercises of the list the user started playing from — this tab's own
+    /// list or an uploader's profile — in the order it showed them, which is what
+    /// the score screen's "Next" button walks along. Captured on the tap, so a
+    /// refresh arriving mid-play can't reorder it.
+    @State private var playQueue: [UUID] = []
 
     private func exercise(for id: UUID) -> Exercise? {
         community.exercises.first { $0.id == id }
+    }
+
+    /// The exercise listed below `id`, skipping any that a refresh has since
+    /// dropped. nil at the end of the list, where the Next button is left out.
+    private func nextExercise(after id: UUID) -> UUID? {
+        guard let index = playQueue.firstIndex(of: id) else { return nil }
+        return playQueue[(index + 1)...].first { exercise(for: $0) != nil }
+    }
+
+    /// The score screen's Next button: swap the finished exercise's intro/playback
+    /// pair for the next exercise's intro screen.
+    private func advance(to id: UUID) {
+        navigationPath.removeLast(2)
+        navigationPath.append(ExerciseRoute.play(id))
     }
 
     /// Copies a community exercise into the user's library and counts the
@@ -195,12 +214,17 @@ struct CommunityView: View {
                 } else {
                     ExerciseCollectionList(
                         sections: results.sections,
-                        onSelect: { id in
+                        onSelect: { id, _ in
                             // A user row opens the uploader's profile; anything
                             // else is an exercise.
                             if let username = results.users[id] {
                                 navigationPath.append(ExerciseRoute.user(username))
                             } else {
+                                // The listed exercises (never the user rows) are
+                                // what "Next" walks along afterwards.
+                                playQueue = results.sections
+                                    .flatMap { $0.items.map(\.id) }
+                                    .filter { results.users[$0] == nil }
                                 navigationPath.append(ExerciseRoute.play(id))
                             }
                         },
@@ -277,11 +301,15 @@ struct CommunityView: View {
                         // where the exercise was tapped (the list or a user profile).
                         PlaybackView(exercise: ex,
                                      onScoreExit: { navigationPath.removeLast(2) },
+                                     onScoreNext: nextExercise(after: id).map { next in
+                                         { advance(to: next) }
+                                     },
                                      onScoreDownload: { download(ex) })
                     }
                 case .user(let username):
-                    CommunityUserProfileView(username: username) {
-                        navigationPath.append(ExerciseRoute.play($0))
+                    CommunityUserProfileView(username: username) { id, listed in
+                        playQueue = listed
+                        navigationPath.append(ExerciseRoute.play(id))
                     }
                 case .settings, .edit, .routine, .routineIntro, .routinePicker, .routinePlay,
                      .routinePlayback, .favourites, .favouritesPicker:
@@ -306,8 +334,10 @@ struct CommunityUserProfileView: View {
     @EnvironmentObject private var store: ExerciseStore
     @ObservedObject private var community = CommunitySync.shared
     let username: String
-    /// Called with the tapped exercise's id; the Community stack pushes playback.
-    let onSelect: (UUID) -> Void
+    /// Called with the tapped exercise's id and every exercise this profile lists,
+    /// in display order; the Community stack pushes playback and lets the score
+    /// screen's "Next" button carry on down that list.
+    let onSelect: (UUID, [UUID]) -> Void
     /// The order picked in the Community tab's sort menu, applied here too.
     @AppStorage("communitySort") private var sort: CommunitySort = .newest
 
@@ -334,9 +364,12 @@ struct CommunityUserProfileView: View {
                     description: Text(L("%@ has no public exercises right now.", username))
                 )
             } else {
+                let sections = listSections
                 ExerciseCollectionList(
-                    sections: listSections,
-                    onSelect: onSelect
+                    sections: sections,
+                    onSelect: { id, _ in
+                        onSelect(id, sections.flatMap { $0.items.map(\.id) })
+                    }
                 )
                 // Span the full screen like a List so content scrolls under the
                 // navigation and tab bars.

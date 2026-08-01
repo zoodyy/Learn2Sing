@@ -403,7 +403,7 @@ struct ExerciseMultiPickerList: View {
     var body: some View {
         ExerciseCollectionList(
             sections: listSections,
-            onSelect: onToggle,
+            onSelect: { id, _ in onToggle(id) },
             onToggleCollapse: { category in
                 if collapsedCategories.contains(category) {
                     collapsedCategories.remove(category)

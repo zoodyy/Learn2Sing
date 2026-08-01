@@ -92,6 +92,13 @@ struct HomeView: View {
     /// its entry, so a change lasts for one play-through.
     @State private var routinePlayOrders: [UUID: [UUID]] = [:]
 
+    /// The exercises of the category the user last started playing from, in the
+    /// order that category showed them — what the score screen's "Next" button
+    /// walks along. Captured on the tap rather than recomputed later, since
+    /// finishing an exercise reshuffles "Recent" and "Recommended" underneath.
+    /// Never spans categories: the last exercise of one gets no Next button.
+    @State private var playQueue: [UUID] = []
+
     /// Categories the user has collapsed. Their exercises are hidden; unlike the
     /// Exercises tab, no count appears in the header.
     @State private var collapsedCategories: Set<String> = []
@@ -256,6 +263,23 @@ struct HomeView: View {
         }
     }
 
+    /// The exercise listed below `id` in the category it was started from, skipping
+    /// any that have been deleted since. nil once the end of that category is
+    /// reached — the Next button is left out there.
+    private func nextExercise(after id: UUID) -> UUID? {
+        guard let index = playQueue.firstIndex(of: id) else { return nil }
+        return playQueue[(index + 1)...].first { next in
+            store.exercises.contains { $0.id == next }
+        }
+    }
+
+    /// The score screen's Next button: swap the finished exercise's intro/playback
+    /// pair for the next exercise's intro screen.
+    private func advance(to id: UUID) {
+        navigationPath.removeLast(2)
+        navigationPath.append(ExerciseRoute.play(id))
+    }
+
     private func enterReorderMode() {
         guard !isReordering else { return }
         collapsedBeforeReorder = collapsedCategories
@@ -319,7 +343,12 @@ struct HomeView: View {
         } else {
             ExerciseCollectionList(
                 sections: listSections,
-                onSelect: { open($0, asExercise: .play($0)) },
+                onSelect: { id, category in
+                    // Remember the tapped row's category, in the order it showed
+                    // its exercises, so "Next" can walk it (and stop at its end).
+                    playQueue = rows(in: category).map(\.id)
+                    open(id, asExercise: .play(id))
+                },
                 onSettings: { open($0, asExercise: .settings($0)) },
                 onDelete: { id in
                     guard let routine = store.routines.first(where: { $0.id == id }) else { return }
@@ -407,7 +436,10 @@ struct HomeView: View {
                 // Pop the intro screen along with playback so Exit lands back
                 // on the list the exercise was tapped from.
                 PlaybackView(exercise: ex,
-                             onScoreExit: { navigationPath.removeLast(2) })
+                             onScoreExit: { navigationPath.removeLast(2) },
+                             onScoreNext: nextExercise(after: id).map { next in
+                                 { advance(to: next) }
+                             })
             }
         case .settings(let id):
             if store.exercises.contains(where: { $0.id == id }) {

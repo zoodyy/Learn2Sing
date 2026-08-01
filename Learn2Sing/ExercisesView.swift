@@ -143,6 +143,15 @@ struct ExercisesView: View {
     // Typed (not NavigationPath) so pops can be inspected for the saved toasts.
     @State private var navigationPath: [ExerciseRoute] = []
 
+    /// Every exercise the list was showing when the user started playing one, in
+    /// list order — what the score screen's "Next" button walks along. It runs
+    /// straight through the category boundaries, so the last exercise of a
+    /// category leads to the first one of the category below it; a collapsed
+    /// category shows no exercises and so contributes none. Captured on the tap
+    /// rather than recomputed later, so a filter or search change can't reorder it
+    /// mid-play.
+    @State private var playQueue: [UUID] = []
+
     /// Categories the user has collapsed. Their exercises are hidden and the
     /// header shows the exercise count in parentheses instead.
     @State private var collapsedCategories: Set<String> = []
@@ -246,6 +255,23 @@ struct ExercisesView: View {
                                               items: rows(uncategorized)))
         }
         return result
+    }
+
+    /// The exercise listed below `id` — in the next category, if `id` was the last
+    /// one of its own — skipping any that have been deleted since. nil at the very
+    /// end of the list, where the Next button is left out.
+    private func nextExercise(after id: UUID) -> UUID? {
+        guard let index = playQueue.firstIndex(of: id) else { return nil }
+        return playQueue[(index + 1)...].first { next in
+            store.exercises.contains { $0.id == next }
+        }
+    }
+
+    /// The score screen's Next button: swap the finished exercise's intro/playback
+    /// pair for the next exercise's intro screen.
+    private func advance(to id: UUID) {
+        navigationPath.removeLast(2)
+        navigationPath.append(ExerciseRoute.play(id))
     }
 
     /// Menu toggle state for one filter.
@@ -406,7 +432,12 @@ struct ExercisesView: View {
                 } else {
                     ExerciseCollectionList(
                         sections: sections,
-                        onSelect: { navigationPath.append(ExerciseRoute.play($0)) },
+                        onSelect: { id, _ in
+                            // Everything on screen, categories in order, so "Next"
+                            // can carry on into the category below.
+                            playQueue = sections.flatMap { $0.items.map(\.id) }
+                            navigationPath.append(ExerciseRoute.play(id))
+                        },
                         onSettings: { navigationPath.append(ExerciseRoute.settings($0)) },
                         onToggleCollapse: { category in
                             if collapsedCategories.contains(category) {
@@ -548,7 +579,10 @@ struct ExercisesView: View {
                         // Pop the intro screen along with playback so Exit lands back
                         // on the list the exercise was tapped from.
                         PlaybackView(exercise: ex,
-                                     onScoreExit: { navigationPath.removeLast(2) })
+                                     onScoreExit: { navigationPath.removeLast(2) },
+                                     onScoreNext: nextExercise(after: id).map { next in
+                                         { advance(to: next) }
+                                     })
                     }
                 case .settings(let id):
                     if store.exercises.contains(where: { $0.id == id }) {

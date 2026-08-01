@@ -58,7 +58,10 @@ struct ExerciseListSection: Equatable {
 /// or dropped into another one (including onto a collapsed category's header).
 struct ExerciseCollectionList: UIViewControllerRepresentable {
     var sections: [ExerciseListSection]
-    var onSelect: (UUID) -> Void
+    /// Row taps: the exercise, and the category of the section it was tapped in —
+    /// which the Home tab needs, since the same exercise can be listed under
+    /// several of its categories at once.
+    var onSelect: (UUID, String) -> Void
     /// Tap on a row's grey uploader name (Community tab). nil leaves the name inert.
     var onSelectUploader: ((String) -> Void)? = nil
     /// Pull-to-refresh handler (Community tab); the spinner stays until it
@@ -129,7 +132,7 @@ nonisolated private struct ItemID: Hashable {
 }
 
 final class ExerciseListController: UIViewController {
-    var onSelect: ((UUID) -> Void)?
+    var onSelect: ((UUID, String) -> Void)?
     var onSelectUploader: ((String) -> Void)?
     var onRefresh: (() async -> Void)?
     var onSettings: ((UUID) -> Void)?
@@ -512,8 +515,8 @@ final class ExerciseListController: UIViewController {
 extension ExerciseListController: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         collectionView.deselectItem(at: indexPath, animated: true)
-        guard let id = dataSource.itemIdentifier(for: indexPath)?.id else { return }
-        onSelect?(id)
+        guard let item = dataSource.itemIdentifier(for: indexPath) else { return }
+        onSelect?(item.id, item.section)
     }
 }
 
