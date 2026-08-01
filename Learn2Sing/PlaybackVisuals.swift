@@ -340,13 +340,38 @@ func drawPlaybackScene(ctx: GraphicsContext, layout: SceneLayout, beat: Double,
         ctx.stroke(border, with: .color(.gray.opacity(0.4)), lineWidth: 1)
     }
 
+    // ── Vertical extent shared by the pitch names and the playhead ─────────
+    // A row only counts as visible when everything belonging to it fits between the
+    // top of the playhead line (clear of the toolbar buttons) and the bottom edge:
+    // the whole row band, from the horizontal separator above it to the one below,
+    // plus the name drawn on it when that text is taller than the row. Names go on
+    // exactly those rows; the dotted playhead puts one dot on each of them, so its
+    // last dot is level with the last name; and the continuous line runs from the
+    // separator above the first row to the separator below the last. With names
+    // hidden (or rows too short for legible text) there is nothing to align to, so
+    // the line spans everything below the toolbar as before.
+    let headTop = min(max(0, playheadTop), size.height)
+    let nameFontSize = min(rowH * 0.55, 11)
+    // Clearance a row needs either side of its centre: half a row, or half the name's
+    // text height where that overflows the row.
+    let rowMargin = max(rowH / 2, nameFontSize * 0.7)
+    let namePitches: [Int] = (settings.showPitches && rowH >= 9)
+        ? (lo...hi).filter { pitch in
+              let y = layout.y(Double(pitch))
+              return y - rowMargin >= headTop && y + rowMargin <= size.height
+          }
+        : []
+    // `namePitches` runs low → high pitch, i.e. bottom → top of the screen.
+    let headLineTop = namePitches.last.map { layout.y(Double($0)) - rowH / 2 } ?? headTop
+    let headBottom = namePitches.first.map { layout.y(Double($0)) + rowH / 2 } ?? size.height
+
     // ── Pitch names ───────────────────────────────────────────────────────
     // Drawn on the keys when the keyboard is shown, otherwise along the left edge
-    // over the background. Skipped when rows are too short to fit legible text.
-    if settings.showPitches && rowH >= 9 {
-        let fontSize = min(rowH * 0.55, 11)
+    // over the background.
+    if !namePitches.isEmpty {
+        let fontSize = nameFontSize
         ctx.drawLayer { layer in
-            for pitch in lo...hi {
+            for pitch in namePitches {
                 let y = layout.y(Double(pitch))
                 if settings.showKeyboard && pianoW > 0 {
                     let color: Color = isBlack(pitch) ? .white.opacity(0.85) : .black.opacity(0.7)
@@ -405,20 +430,20 @@ func drawPlaybackScene(ctx: GraphicsContext, layout: SceneLayout, beat: Double,
     }
 
     // ── Playhead ────────────────────────────────────────────────────────────
-    // Either a continuous line from `headTop` to the bottom edge, or — in "dots"
-    // style — a column of dots, one centred on each pitch row. Both carry the same
-    // soft glow behind them, tinted with the chosen colour.
-    let headTop = min(max(0, playheadTop), size.height)
+    // Either a continuous line from `headLineTop` to `headBottom`, or — in "dots"
+    // style — a column of dots, one centred on each named pitch row. Both carry the
+    // same soft glow behind them, tinted with the chosen colour.
     let headColor = settings.playheadColor
     switch settings.playheadStyle {
     case .line:
+        guard headBottom > headLineTop else { break }
         var glow = Path()
-        glow.move(to: CGPoint(x: layout.playheadX, y: headTop))
-        glow.addLine(to: CGPoint(x: layout.playheadX, y: size.height))
+        glow.move(to: CGPoint(x: layout.playheadX, y: headLineTop))
+        glow.addLine(to: CGPoint(x: layout.playheadX, y: headBottom))
         ctx.stroke(glow, with: .color(headColor.opacity(0.12)), lineWidth: 10)
         var line = Path()
-        line.move(to: CGPoint(x: layout.playheadX, y: headTop))
-        line.addLine(to: CGPoint(x: layout.playheadX, y: size.height))
+        line.move(to: CGPoint(x: layout.playheadX, y: headLineTop))
+        line.addLine(to: CGPoint(x: layout.playheadX, y: headBottom))
         ctx.stroke(line, with: .color(headColor), lineWidth: 2)
     case .dots:
         // Dots scale with the row height so they stay clear of each other at any
@@ -427,10 +452,13 @@ func drawPlaybackScene(ctx: GraphicsContext, layout: SceneLayout, beat: Double,
         let glowR = r + 3
         var dots = Path()
         var glow = Path()
-        for pitch in lo...hi {
+        // One dot per named row; with names hidden, every row between the toolbar
+        // and the bottom edge gets one.
+        let dotPitches = namePitches.isEmpty
+            ? (lo...hi).filter { (headTop...size.height).contains(layout.y(Double($0))) }
+            : namePitches
+        for pitch in dotPitches {
             let y = layout.y(Double(pitch))
-            // Skip rows above the line's starting point (behind the toolbar buttons).
-            guard y >= headTop, y <= size.height else { continue }
             dots.addEllipse(in: CGRect(x: layout.playheadX - r, y: y - r,
                                        width: 2 * r, height: 2 * r))
             glow.addEllipse(in: CGRect(x: layout.playheadX - glowR, y: y - glowR,
