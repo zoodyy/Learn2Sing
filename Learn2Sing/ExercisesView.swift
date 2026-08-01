@@ -346,6 +346,11 @@ struct ExercisesView: View {
     /// (no setting, name, description, or MIDI change) is silently discarded.
     @State private var pendingNewExercise: Exercise?
 
+    /// The exercise the list should scroll to and flash: a newly created one,
+    /// which otherwise lands at the bottom of its category off screen. Cleared
+    /// once the flash is over so it isn't repeated.
+    @State private var highlightedExerciseID: UUID?
+
     /// Create the exercise immediately and open its settings, where the user
     /// picks the name and everything else.
     private func addExercise() {
@@ -356,6 +361,23 @@ struct ExercisesView: View {
         let exercise = store.add(name: L("New Exercise"))
         pendingNewExercise = exercise
         navigationPath.append(ExerciseRoute.settings(exercise.id))
+    }
+
+    /// Ask the list to scroll to a just-created exercise and flash it. Its
+    /// category is expanded first — otherwise the row it should point at isn't in
+    /// the list at all.
+    private func revealCreatedExercise(_ id: UUID) {
+        guard let exercise = store.exercises.first(where: { $0.id == id }) else { return }
+        if collapsedCategories.contains(exercise.category) {
+            withAnimation { _ = collapsedCategories.remove(exercise.category) }
+        }
+        highlightedExerciseID = id
+        // Long enough for the scroll and the flash to have finished, so a later
+        // rebuild of the list (switching tabs and back) doesn't replay them.
+        Task {
+            try? await Task.sleep(for: .seconds(3.5))
+            if highlightedExerciseID == id { highlightedExerciseID = nil }
+        }
     }
 
     var body: some View {
@@ -397,7 +419,8 @@ struct ExercisesView: View {
                         onMove: { id, category, before in
                             store.moveExercise(id, toCategory: category, before: before)
                         },
-                        hidesSearchBarInitially: true
+                        hidesSearchBarInitially: true,
+                        highlightedID: highlightedExerciseID
                     )
                     // Span the full screen like a List so content scrolls under the
                     // navigation and tab bars.
@@ -506,6 +529,9 @@ struct ExercisesView: View {
                     pendingNewExercise = nil
                     store.discardIfUntouched(created)
                     if !store.exercises.contains(where: { $0.id == created.id }) { return }
+                    // Kept: point it out, since it lands at the bottom of its
+                    // category and is very likely off screen.
+                    revealCreatedExercise(created.id)
                 }
                 toasts.routesPopped(from: old, to: new)
             }

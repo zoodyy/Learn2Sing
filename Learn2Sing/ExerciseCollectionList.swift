@@ -79,6 +79,10 @@ struct ExerciseCollectionList: UIViewControllerRepresentable {
     /// true starts the list scrolled just past the navigation bar's search drawer,
     /// so the field only appears when the user pulls down (Exercises tab).
     var hidesSearchBarInitially = false
+    /// Set to an exercise to scroll it into view and flash it once — how a
+    /// just-created exercise is pointed out when its settings screen is popped
+    /// (Exercises tab). Each id is acted on only once.
+    var highlightedID: UUID? = nil
     /// Captured when SwiftUI rebuilds this view. Cell text and headers are
     /// translated as they're written into UIKit, and the section data itself is
     /// unchanged by a language switch, so the controller is told separately.
@@ -107,6 +111,9 @@ struct ExerciseCollectionList: UIViewControllerRepresentable {
         controller.hidesSearchBarInitially = hidesSearchBarInitially
         controller.setLanguage(language)
         controller.setSections(sections, animated: true)
+        if let highlightedID {
+            controller.highlight(highlightedID)
+        }
     }
 }
 
@@ -208,6 +215,12 @@ final class ExerciseListController: UIViewController {
 
         let cellRegistration = UICollectionView.CellRegistration<UICollectionViewListCell, ItemID> {
             [weak self] cell, _, itemID in
+            // Drop any leftover flash tint (see flash(at:)) if this cell is being
+            // recycled for another row mid-highlight.
+            if !cell.automaticallyUpdatesBackgroundConfiguration {
+                cell.automaticallyUpdatesBackgroundConfiguration = true
+                cell.setNeedsUpdateConfiguration()
+            }
             let row = self?.rowsByID[itemID.id]
             if let row, let uploader = row.uploaderName, !uploader.isEmpty {
                 // The uploader's name rides along in grey right after the
@@ -381,6 +394,58 @@ final class ExerciseListController: UIViewController {
         header.onTap = { [weak self] in self?.onToggleCollapse?(section.category) }
         header.onLongPress = { [weak self] in self?.onHeaderLongPress?() }
         header.onAdd = section.showsAdd ? { [weak self] in self?.onAdd?(section.category) } : nil
+    }
+
+    // MARK: - Highlight
+
+    /// The last id `highlight(_:)` acted on, so the repeated calls SwiftUI makes
+    /// on every update flash the row only once.
+    private var highlightedID: UUID?
+
+    /// Scroll `id` into view and flash it, to point out a row the user can't be
+    /// expected to find on their own (a just-created exercise, which lands at the
+    /// bottom of its category).
+    func highlight(_ id: UUID) {
+        guard id != highlightedID else { return }
+        highlightedID = id
+        // The list is still behind the screen being popped, and the snapshot for
+        // the exercise's final category may not have been applied yet: let both
+        // land first, so the scroll is something the user actually sees happen.
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) { [weak self] in
+            guard let self, let location = self.location(of: id) else { return }
+            let indexPath = IndexPath(item: location.item, section: location.section)
+            self.collectionView.scrollToItem(at: indexPath, at: .centeredVertically, animated: true)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) { [weak self] in
+                self?.flash(at: indexPath)
+            }
+        }
+    }
+
+    /// Tint the row in the accent colour and fade back out. Done through the
+    /// cell's background configuration rather than an overlay view so the tint
+    /// picks up the inset-grouped rounded corners on a category's first/last row.
+    private func flash(at indexPath: IndexPath) {
+        guard let cell = collectionView.cellForItem(at: indexPath) as? UICollectionViewListCell
+        else { return }
+        let base = cell.defaultBackgroundConfiguration()
+        var tinted = base
+        tinted.backgroundColor = UIColor.tintColor.withAlphaComponent(0.3)
+        // The cell would otherwise recompute its background from its state at any
+        // moment and drop the tint mid-fade.
+        cell.automaticallyUpdatesBackgroundConfiguration = false
+        UIView.animate(withDuration: 0.25) {
+            cell.backgroundConfiguration = tinted
+        }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) {
+            UIView.animate(withDuration: 0.4) {
+                cell.backgroundConfiguration = base
+            } completion: { _ in
+                // Hand the background back to the cell, so selection and highlight
+                // states drive it again.
+                cell.automaticallyUpdatesBackgroundConfiguration = true
+                cell.setNeedsUpdateConfiguration()
+            }
+        }
     }
 
     private func location(of id: UUID) -> (section: Int, item: Int)? {
