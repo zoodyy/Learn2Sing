@@ -59,8 +59,8 @@ struct ExerciseIntroView: View {
 
             if let likeID {
                 HStack(spacing: 8) {
-                    Spacer()
                     downloadCount(for: likeID)
+                    Spacer()
                     likeButton(for: likeID)
                 }
                 .padding(.horizontal)
@@ -137,8 +137,9 @@ struct ExerciseIntroView: View {
     }
 
     /// How often this exercise has been downloaded — the same number the
-    /// Community tab can sort by. Display only; the count goes up when the
-    /// Download button below is used.
+    /// Community tab can sort by. Display only, so it sits plain on the leading
+    /// edge with no capsule behind it: a background would read as a button.
+    /// The count goes up when the Download button below is used.
     private func downloadCount(for likeID: UUID) -> some View {
         let count = community.downloadCounts[likeID] ?? 0
         return HStack(spacing: 6) {
@@ -149,9 +150,7 @@ struct ExerciseIntroView: View {
         }
         .font(.headline)
         .foregroundStyle(.secondary)
-        .padding(.horizontal, 14)
         .padding(.vertical, 8)
-        .background(.fill.tertiary, in: Capsule())
         .accessibilityElement(children: .ignore)
         .accessibilityLabel("Downloads")
         .accessibilityValue(count.formatted())
