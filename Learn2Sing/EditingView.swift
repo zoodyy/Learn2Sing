@@ -113,7 +113,9 @@ struct EditingView: View {
 
     private enum Interaction {
         case idle
-        case creating(MIDINote)
+        // `anchor` is the beat the press landed on; the note grows right from it, or
+        // left from the right edge it started with.
+        case creating(note: MIDINote, anchor: Double)
         case resizing(UUID)
         case movingNote(id: UUID, grabDX: Double)
         case pendingText(CGPoint)
@@ -123,12 +125,12 @@ struct EditingView: View {
 
     // Notes visible during an in-progress drag
     private var liveNotes: [MIDINote] {
-        if case .creating(let n) = interaction { return notes + [n] }
+        if case .creating(let n, _) = interaction { return notes + [n] }
         return notes
     }
 
     private var inProgressID: UUID? {
-        if case .creating(let n) = interaction { return n.id }
+        if case .creating(let n, _) = interaction { return n.id }
         return nil
     }
 
@@ -621,14 +623,24 @@ struct EditingView: View {
                     beat: start,
                     length: minLength
                 )
-                interaction = .creating(note)
+                interaction = .creating(note: note, anchor: start)
             }
 
-        case .creating(var note):
-            let endBeat = beatValue(v.location.x)
-            note.length = min(max(minLength, snapped(endBeat - note.beat)),
-                              spaceAfter(note.beat))
-            interaction = .creating(note)
+        case .creating(var note, let anchor):
+            let pointer = beatValue(v.location.x)
+            if pointer >= anchor {
+                // Growing right: the left edge stays put at the anchor.
+                note.beat = anchor
+                note.length = min(max(minLength, snapped(pointer - anchor)),
+                                  spaceAfter(anchor))
+            } else {
+                // Growing left: the right edge stays where the press put it.
+                let rightEdge = anchor + minLength
+                let leftLimit = rightEdge - spaceBefore(rightEdge)
+                note.beat = min(max(snapped(pointer), leftLimit), anchor)
+                note.length = rightEdge - note.beat
+            }
+            interaction = .creating(note: note, anchor: anchor)
 
         case .resizing(let id):
             if let i = notes.firstIndex(where: { $0.id == id }) {
@@ -652,7 +664,7 @@ struct EditingView: View {
     }
 
     private func penEnded(_ v: DragGesture.Value) {
-        if case .creating(let note) = interaction { notes.append(note) }
+        if case .creating(let note, _) = interaction { notes.append(note) }
         interaction = .idle
     }
 
@@ -772,6 +784,16 @@ struct EditingView: View {
             .map(\.beat)
             .min()
         return (next ?? .infinity) - beat
+    }
+
+    /// How far a note ending at `beat` may grow leftwards before it runs into the
+    /// previous one, or the start of the timeline.
+    private func spaceBefore(_ beat: Double, excluding id: UUID? = nil) -> Double {
+        let previousEnd = notes
+            .filter { $0.id != id && $0.beat + $0.length < beat + beatEpsilon }
+            .map { $0.beat + $0.length }
+            .max()
+        return beat - max(0, previousEnd ?? 0)
     }
 
     /// Where a note of `length` dragged to `desired` may actually land: inside the free
