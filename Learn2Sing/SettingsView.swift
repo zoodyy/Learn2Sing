@@ -62,7 +62,11 @@ struct SettingsView: View {
                 case .vocalRangeTest:
                     VocalRangeTestView { settingsPath = NavigationPath() }
                 case .visualsHub:
-                    VisualsHubView { settingsPath.append(SettingsRoute.visualsPlayback) }
+                    VisualsHubView(
+                        openMenus: { settingsPath.append(SettingsRoute.visualsMenus) },
+                        openPlayback: { settingsPath.append(SettingsRoute.visualsPlayback) })
+                case .visualsMenus:
+                    MenusVisualsView()
                 case .visualsPlayback:
                     PlaybackVisualsView()
                 case .profile:
@@ -121,6 +125,7 @@ struct SettingsView: View {
         case voice
         case vocalRangeTest
         case visualsHub
+        case visualsMenus
         case visualsPlayback
         case profile
         case exercises

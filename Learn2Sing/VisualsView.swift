@@ -28,6 +28,9 @@ struct VisualsHubView: View {
     @AppStorage(AppTheme.storageKey) private var themeRaw = AppTheme.system.rawValue
     @AppStorage(OrientationLock.storageKey) private var orientationLockRaw = OrientationLock.none.rawValue
 
+    /// Push the menus-visuals screen onto the shared Settings navigation stack.
+    let openMenus: () -> Void
+
     /// Push the playback-visuals screen onto the shared Settings navigation stack.
     let openPlayback: () -> Void
 
@@ -56,7 +59,20 @@ struct VisualsHubView: View {
                 Text("Orientation")
             }
 
+            // One section, so "Menus" sits directly above "Playback" with no gap.
             Section {
+                Button(action: openMenus) {
+                    HStack {
+                        Label("Menus", systemImage: "list.bullet.rectangle")
+                        Spacer()
+                        Image(systemName: "chevron.right")
+                            .font(.footnote.weight(.semibold))
+                            .foregroundStyle(.tertiary)
+                    }
+                }
+                .foregroundStyle(.primary)
+                .settingHelp("Customise how the app's own screens and lists look.")
+
                 Button(action: openPlayback) {
                     HStack {
                         Label("Playback", systemImage: "play.rectangle")
@@ -71,6 +87,29 @@ struct VisualsHubView: View {
             }
         }
         .navigationTitle("Visuals")
+        .navigationBarTitleDisplayMode(.inline)
+    }
+}
+
+/// Customises the look of the app's menus — the lists and screens outside of
+/// playback. Reached from the Visuals hub.
+struct MenusVisualsView: View {
+    @AppStorage(MenuVisualKeys.exercisePreviewColor)
+    private var exercisePreviewColor = MenuVisualDefaults.exercisePreviewColor
+
+    var body: some View {
+        Form {
+            Section {
+                ColorPicker("Exercise preview colour",
+                            selection: Binding(get: { Color(hex: exercisePreviewColor) },
+                                               set: { exercisePreviewColor = $0.hexString }),
+                            supportsOpacity: false)
+                .settingHelp("Sets the colour of the small note pattern drawn beside each exercise in the lists.")
+            } header: {
+                Text("Exercise lists")
+            }
+        }
+        .navigationTitle("Menus")
         .navigationBarTitleDisplayMode(.inline)
     }
 }

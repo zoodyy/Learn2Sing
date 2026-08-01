@@ -145,6 +145,19 @@ enum VisualDefaults {
     static let hideTabBar     = false
 }
 
+// MARK: - Menu visuals
+
+/// Stored keys for the "Menus" visual settings — the look of the app's own lists
+/// and screens, as opposed to the playback canvas. Kept apart from `VisualKeys`
+/// so visual templates, which capture the playback settings, don't carry them.
+enum MenuVisualKeys {
+    static let exercisePreviewColor = "menu_exercisePreviewColor"
+}
+
+enum MenuVisualDefaults {
+    static let exercisePreviewColor = "#E292FE"
+}
+
 // MARK: - Resolved settings
 
 /// The visual settings as ready-to-use values (Colors, Bools, numbers), resolved

@@ -600,7 +600,7 @@ private final class NameUploaderContentView: UIView, UIContentView {
 // MARK: - Pattern thumbnail
 
 /// A miniature piano-roll of an exercise's MIDI pattern, shown on the trailing
-/// edge of its row. Notes are drawn in `.label` so they match the row text color.
+/// edge of its row. Notes are drawn in the colour chosen under Visuals > Menus.
 private final class MIDIPatternView: UIView {
     private let notes: [MIDINote]
 
@@ -609,9 +609,20 @@ private final class MIDIPatternView: UIView {
         super.init(frame: CGRect(origin: .zero, size: Self.size))
         isOpaque = false
         backgroundColor = .clear
-        registerForTraitChanges([UITraitUserInterfaceStyle.self]) { (self: MIDIPatternView, _) in
-            self.setNeedsDisplay()
-        }
+        // Repaint when the colour is changed in Settings, so returning to the list
+        // shows the new one without the cells having to be reconfigured.
+        NotificationCenter.default.addObserver(
+            self, selector: #selector(setNeedsDisplayNow),
+            name: UserDefaults.didChangeNotification, object: nil)
+    }
+
+    @objc private func setNeedsDisplayNow() { setNeedsDisplay() }
+
+    /// The pattern colour as stored by the Menus visual settings.
+    private var patternColor: UIColor {
+        let hex = UserDefaults.standard.string(forKey: MenuVisualKeys.exercisePreviewColor)
+            ?? MenuVisualDefaults.exercisePreviewColor
+        return UIColor(Color(hex: hex))
     }
 
     @available(*, unavailable)
@@ -639,7 +650,7 @@ private final class MIDIPatternView: UIView {
 
         // Thin bars, so patterns spanning many rows still read at this size.
         let noteH = min(max(content.height / CGFloat(pitchSpan + 1), 2), 4)
-        UIColor.label.setFill()
+        patternColor.setFill()
         for note in notes {
             let x = (note.beat - minBeat) / beatSpan * content.width
             let w = max(note.length / beatSpan * content.width - 1, 2)
