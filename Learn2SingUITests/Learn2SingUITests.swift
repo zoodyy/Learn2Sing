@@ -393,6 +393,67 @@ final class Learn2SingUITests: XCTestCase {
         saveScreenshot("toast-exercise-saved")
     }
 
+    /// Tapping a beat another note already covers can't place a note — the editor
+    /// says so instead of ignoring the tap.
+    func testOverlapBlockedShowsToast() throws {
+        let app = XCUIApplication()
+        app.launchEnvironment["TOAST_SECONDS"] = "5"
+        app.launch()
+        openMIDIEditor(app)
+
+        // A point well inside the grid: right of the piano keys, clear of the
+        // ruler above and the transport bar below.
+        let window = app.windows.firstMatch.frame
+        let spot = app.coordinate(withNormalizedOffset: .zero)
+            .withOffset(CGVector(dx: window.midX + 40, dy: window.midY))
+        let toast = app.staticTexts["Notes Can't Overlap"]
+
+        spot.tap()
+        if toast.exists {
+            // The tap already landed on an occupied beat — that's the case under
+            // test, nothing more to set up.
+            saveScreenshot("toast-overlap-blocked")
+            return
+        }
+        XCTAssertTrue(toast.waitForNonExistence(timeout: 8), "stray toast before the overlap tap")
+
+        // Same beat, three rows up: a free row, but the beat is now taken.
+        spot.withOffset(CGVector(dx: 0, dy: -66)).tap()
+        XCTAssertTrue(toast.waitForExistence(timeout: 3),
+                      "a blocked placement should explain why nothing appeared")
+        saveScreenshot("toast-overlap-blocked")
+    }
+
+    /// Exercises tab → first exercise's settings → MIDI editor.
+    private func openMIDIEditor(_ app: XCUIApplication) {
+        let tab = app.buttons["Exercises"]
+        XCTAssertTrue(tab.waitForExistence(timeout: 5), "Exercises tab not found")
+        tab.tap()
+        XCTAssertTrue(app.navigationBars["Exercises"].waitForExistence(timeout: 5))
+        sleep(2)
+        let snap = snapshotList(app)
+        guard let category = snap.headers.first(where: { !(snap.items[$0] ?? []).isEmpty }),
+              let name = snap.items[category]?.first else {
+            XCTFail("no visible exercise"); return
+        }
+        cell(app, named: name).swipeRight()
+        let settings = app.collectionViews.buttons["Settings"].firstMatch
+        XCTAssertTrue(settings.waitForExistence(timeout: 3), "leading swipe should reveal Settings")
+        settings.tap()
+        XCTAssertTrue(app.navigationBars[name].waitForExistence(timeout: 3))
+        sleep(1)
+        var editMIDI = app.buttons["Edit MIDI"].firstMatch
+        for _ in 0..<4 where !editMIDI.exists {
+            app.swipeUp()
+            usleep(500_000)
+            editMIDI = app.buttons["Edit MIDI"].firstMatch
+        }
+        XCTAssertTrue(editMIDI.waitForExistence(timeout: 3), "settings should offer Edit MIDI")
+        editMIDI.tap()
+        XCTAssertTrue(app.buttons["Play"].firstMatch.waitForExistence(timeout: 3),
+                      "editor should be showing")
+    }
+
     /// The visible exercise names, top to bottom.
     private func visibleCellOrder(_ app: XCUIApplication) -> [String] {
         let contentTop = app.navigationBars.firstMatch.frame.maxY

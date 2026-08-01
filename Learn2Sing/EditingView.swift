@@ -615,9 +615,13 @@ struct EditingView: View {
                 }
             } else {
                 // Only one note may sound at a time, so a press that lands on a beat
-                // another note already covers — even several rows away — starts nothing.
+                // another note already covers — even several rows away — starts nothing,
+                // and says why: the press looks like it should have worked.
                 let start = snappedBeat(v.startLocation.x)
-                guard !isOccupied(start), spaceAfter(start) >= minLength else { break }
+                guard !isOccupied(start), spaceAfter(start) >= minLength else {
+                    toasts.show("Notes Can't Overlap", icon: "exclamationmark.triangle.fill")
+                    break
+                }
                 let note = MIDINote(
                     pitch: pitchAt(v.startLocation.y),
                     beat: start,
