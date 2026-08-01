@@ -163,12 +163,37 @@ struct ExercisesView: View {
     /// relaunch would look like exercises had gone missing.
     @State private var activeFilters: Set<ExerciseFilter> = []
 
-    /// The exercises the list may show, narrowed by the active filters.
+    /// The search field's text. Unlike the Community tab's field — which also
+    /// looks up uploaders — this one only matches exercise names and descriptions,
+    /// since everything here is the user's own.
+    @State private var searchText = ""
+
+    /// `searchText` without surrounding whitespace; empty means "not searching".
+    private var query: String {
+        searchText.trimmingCharacters(in: .whitespaces)
+    }
+
+    /// Case- and diacritic-insensitive substring match, so "jose" finds "José".
+    private static func matches(_ text: String, _ query: String) -> Bool {
+        text.range(of: query, options: [.caseInsensitive, .diacriticInsensitive]) != nil
+    }
+
+    /// The exercises the list may show, narrowed by the active filters and the
+    /// search text.
     private var visibleExercises: [Exercise] {
-        guard !activeFilters.isEmpty else { return store.exercises }
-        return store.exercises.filter {
-            activeFilters.matches($0, isBundled: store.isBundled($0.id))
+        var result = store.exercises
+        if !activeFilters.isEmpty {
+            result = result.filter {
+                activeFilters.matches($0, isBundled: store.isBundled($0.id))
+            }
         }
+        let query = self.query
+        if !query.isEmpty {
+            result = result.filter {
+                Self.matches($0.name, query) || Self.matches($0.details, query)
+            }
+        }
+        return result
     }
 
     /// The list content in normal mode: one section per category (in the user's
@@ -181,14 +206,18 @@ struct ExercisesView: View {
             exercises.map { ExerciseListRow(exercise: $0, pattern: store.notes(for: $0.id)) }
         }
         let exercises = visibleExercises
-        let isFiltering = !activeFilters.isEmpty
+        let isSearching = !query.isEmpty
+        let isFiltering = !activeFilters.isEmpty || isSearching
         var result: [ExerciseListSection] = []
         for category in store.categories {
             let items = exercises.filter { $0.category == category }
             // Empty categories normally stay visible (showing "(0)"), but while
             // filtering a category with no match left is just noise.
             if items.isEmpty && isFiltering { continue }
-            let isCollapsed = collapsedCategories.contains(category)
+            // A collapsed category would hide its matches, so results are always
+            // shown expanded; the collapse state is left untouched underneath and
+            // comes back when the field is cleared.
+            let isCollapsed = !isSearching && collapsedCategories.contains(category)
             result.append(ExerciseListSection(category: category,
                                               isCollapsed: isCollapsed,
                                               totalCount: items.count,
@@ -254,6 +283,9 @@ struct ExercisesView: View {
     private func enterReorderMode() {
         guard !isReordering else { return }
         collapsedBeforeReorder = collapsedCategories
+        // The reorder screen lists every category, so a leftover search would
+        // only be misleading there.
+        searchText = ""
         withAnimation {
             collapsedCategories = Set(store.categories)
             isReordering = true
@@ -304,9 +336,10 @@ struct ExercisesView: View {
     /// Create the exercise immediately and open its settings, where the user
     /// picks the name and everything else.
     private func addExercise() {
-        // A filter the new exercise doesn't match would hide it the moment the
-        // user came back from its settings, so adding one drops the filters.
+        // A filter (or search) the new exercise doesn't match would hide it the
+        // moment the user came back from its settings, so adding one drops both.
         activeFilters.removeAll()
+        searchText = ""
         let exercise = store.add(name: "New Exercise")
         pendingNewExercise = exercise
         navigationPath.append(ExerciseRoute.settings(exercise.id))
@@ -325,6 +358,8 @@ struct ExercisesView: View {
                         .onMove(perform: moveCategory)
                     }
                     .environment(\.editMode, $editMode)
+                } else if sections.isEmpty && !query.isEmpty {
+                    ContentUnavailableView.search(text: query)
                 } else if sections.isEmpty && !activeFilters.isEmpty {
                     ContentUnavailableView {
                         Label("No Matching Exercises", systemImage: "line.3.horizontal.decrease.circle")
@@ -348,7 +383,8 @@ struct ExercisesView: View {
                         onHeaderLongPress: { enterReorderMode() },
                         onMove: { id, category, before in
                             store.moveExercise(id, toCategory: category, before: before)
-                        }
+                        },
+                        hidesSearchBarInitially: true
                     )
                     // Span the full screen like a List so content scrolls under the
                     // navigation and tab bars.
@@ -357,6 +393,12 @@ struct ExercisesView: View {
             }
             .navigationTitle(isReordering ? "Edit Categories" : "Exercises")
             .navigationBarTitleDisplayMode(.inline)
+            // Unlike Community's always-visible field, this one starts scrolled
+            // out of sight (see ExerciseCollectionList's hidesSearchBarInitially)
+            // and is revealed by pulling the list down.
+            .searchable(text: $searchText,
+                        placement: .navigationBarDrawer(displayMode: .automatic),
+                        prompt: "Exercises, Descriptions")
             .stableTopEdgeFade()
             .toolbar {
                 if isReordering {

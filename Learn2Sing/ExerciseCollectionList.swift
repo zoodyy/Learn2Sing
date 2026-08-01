@@ -71,6 +71,9 @@ struct ExerciseCollectionList: UIViewControllerRepresentable {
     /// (exercise, newCategory, idOfExerciseItNowPrecedes — nil appends).
     /// nil disables drag & drop entirely (Community tab).
     var onMove: ((UUID, String, UUID?) -> Void)? = nil
+    /// true starts the list scrolled just past the navigation bar's search drawer,
+    /// so the field only appears when the user pulls down (Exercises tab).
+    var hidesSearchBarInitially = false
 
     func makeUIViewController(context: Context) -> ExerciseListController {
         let controller = ExerciseListController()
@@ -92,6 +95,7 @@ struct ExerciseCollectionList: UIViewControllerRepresentable {
         controller.onHeaderLongPress = onHeaderLongPress
         controller.onAdd = onAdd
         controller.onMove = onMove
+        controller.hidesSearchBarInitially = hidesSearchBarInitially
         controller.setSections(sections, animated: true)
     }
 }
@@ -117,6 +121,11 @@ final class ExerciseListController: UIViewController {
     var onHeaderLongPress: (() -> Void)?
     var onAdd: ((String) -> Void)?
     var onMove: ((UUID, String, UUID?) -> Void)?
+    var hidesSearchBarInitially = false
+
+    /// Set once the initial scroll past the search drawer has been performed, so
+    /// later layout passes leave the user's scroll position alone.
+    private var hasHiddenSearchBar = false
 
     private var sections: [ExerciseListSection] = []
     private var rowsByID: [UUID: ExerciseListRow] = [:]
@@ -241,6 +250,40 @@ final class ExerciseListController: UIViewController {
         }
 
         applySnapshot(animated: false, reconfiguring: [])
+    }
+
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        hideSearchBarIfNeeded()
+    }
+
+    /// SwiftUI's `.searchable` puts the field in the navigation bar's drawer and
+    /// leaves it visible at the top of the list. Scrolling the list down by its
+    /// height once — on the first layout that has both a search bar and content —
+    /// gives the Messages-style behaviour instead: hidden by default, revealed by
+    /// pulling down. Bails out (and retries next pass) until everything it needs
+    /// exists, since SwiftUI installs the search controller after this view loads.
+    private func hideSearchBarIfNeeded() {
+        guard hidesSearchBarInitially, !hasHiddenSearchBar, let collectionView,
+              collectionView.bounds.height > 0, collectionView.contentSize.height > 0
+        else { return }
+        // The search controller sits on the navigation item of the SwiftUI
+        // hosting controller, one of this controller's ancestors.
+        var searchBar: UISearchBar?
+        var ancestor: UIViewController? = self
+        while let vc = ancestor, searchBar == nil {
+            searchBar = vc.navigationItem.searchController?.searchBar
+            ancestor = vc.parent
+        }
+        guard let searchBar, searchBar.bounds.height > 0 else { return }
+        hasHiddenSearchBar = true
+        // Never past the end: with only a handful of exercises there's nothing to
+        // scroll, and the field simply stays visible (as it would in Mail).
+        let insets = collectionView.adjustedContentInset
+        let maxOffset = max(-insets.top,
+                            collectionView.contentSize.height + insets.bottom - collectionView.bounds.height)
+        collectionView.contentOffset.y = min(collectionView.contentOffset.y + searchBar.bounds.height,
+                                             maxOffset)
     }
 
     // MARK: - Data
