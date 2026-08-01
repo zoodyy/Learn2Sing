@@ -460,7 +460,7 @@ func drawPlaybackScene(ctx: GraphicsContext, layout: SceneLayout, beat: Double,
     // sits above the notes; only shown when enabled and the exercise actually repeats.
     if settings.showRepetitionCounter, let rep = repetition, rep.total > 1 {
         let resolved = ctx.resolve(
-            Text("\(rep.current)/\(rep.total)")
+            Text(verbatim: "\(rep.current)/\(rep.total)")
                 .font(.system(size: 15, weight: .semibold, design: settings.textFont.design))
                 .foregroundColor(.white))
         let textSize = resolved.measure(in: size)

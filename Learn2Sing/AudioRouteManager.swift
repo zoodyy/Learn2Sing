@@ -24,6 +24,16 @@ final class AudioRouteManager: ObservableObject {
     /// Input sentinel: always the phone's built-in microphone.
     static let builtInMic = "iPhone Microphone"
 
+    /// What to show for a route in the pickers. The three sentinels double as the
+    /// values stored in UserDefaults, so they're translated only on the way to the
+    /// screen; everything else is a port name from the system, already localised.
+    static func displayName(for option: String) -> String {
+        switch option {
+        case automatic, builtInSpeaker, builtInMic: L(option)
+        default: option
+        }
+    }
+
     private let session = AVAudioSession.sharedInstance()
     private var observer: NSObjectProtocol?
 

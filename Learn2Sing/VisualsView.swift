@@ -25,6 +25,10 @@ enum AppTheme: String, CaseIterable, Identifiable {
 /// orientation choices and an entry to the Playback-visuals screen; it's a screen
 /// of its own so further visual areas can be added.
 struct VisualsHubView: View {
+    /// Re-renders this screen when the language is changed in Settings; the
+    /// strings are resolved when the body runs, so SwiftUI needs telling.
+    @ObservedObject private var appLanguage = LanguageManager.shared
+
     @AppStorage(AppTheme.storageKey) private var themeRaw = AppTheme.system.rawValue
     @AppStorage(OrientationLock.storageKey) private var orientationLockRaw = OrientationLock.none.rawValue
 
@@ -39,22 +43,22 @@ struct VisualsHubView: View {
             Section {
                 Picker("Theme", selection: $themeRaw) {
                     ForEach(AppTheme.allCases) { theme in
-                        Text(theme.rawValue).tag(theme.rawValue)
+                        Text(L(theme.rawValue)).tag(theme.rawValue)
                     }
                 }
-                .settingHelp("Sets the app's appearance. “System” matches your device's light or dark setting.")
+                .settingHelp(L("Sets the app's appearance. “System” matches your device's light or dark setting."))
             }
 
             Section {
                 Picker("Lock orientation", selection: $orientationLockRaw) {
                     ForEach(OrientationLock.allCases) { lock in
-                        Text(lock.rawValue).tag(lock.rawValue)
+                        Text(L(lock.rawValue)).tag(lock.rawValue)
                     }
                 }
                 .onChange(of: orientationLockRaw) { _, newValue in
                     OrientationLockManager.apply(OrientationLock(rawValue: newValue) ?? .none)
                 }
-                .settingHelp("Keeps the app in the chosen orientation. “Don't lock” lets it rotate with your device.")
+                .settingHelp(L("Keeps the app in the chosen orientation. “Don't lock” lets it rotate with your device."))
             } header: {
                 Text("Orientation")
             }
@@ -71,7 +75,7 @@ struct VisualsHubView: View {
                     }
                 }
                 .foregroundStyle(.primary)
-                .settingHelp("Customise how the app's own screens and lists look.")
+                .settingHelp(L("Customise how the app's own screens and lists look."))
 
                 Button(action: openPlayback) {
                     HStack {
@@ -83,10 +87,10 @@ struct VisualsHubView: View {
                     }
                 }
                 .foregroundStyle(.primary)
-                .settingHelp("Customise how the note-scrolling playback screen looks.")
+                .settingHelp(L("Customise how the note-scrolling playback screen looks."))
             }
         }
-        .navigationTitle("Visuals")
+        .navigationTitle(L("Visuals"))
         .navigationBarTitleDisplayMode(.inline)
     }
 }
@@ -94,6 +98,10 @@ struct VisualsHubView: View {
 /// Customises the look of the app's menus — the lists and screens outside of
 /// playback. Reached from the Visuals hub.
 struct MenusVisualsView: View {
+    /// Re-renders this screen when the language is changed in Settings; the
+    /// strings are resolved when the body runs, so SwiftUI needs telling.
+    @ObservedObject private var appLanguage = LanguageManager.shared
+
     @AppStorage(MenuVisualKeys.exercisePreviewColor)
     private var exercisePreviewColor = MenuVisualDefaults.exercisePreviewColor
 
@@ -104,12 +112,12 @@ struct MenusVisualsView: View {
                             selection: Binding(get: { Color(hex: exercisePreviewColor) },
                                                set: { exercisePreviewColor = $0.hexString }),
                             supportsOpacity: false)
-                .settingHelp("Sets the colour of the small note pattern drawn beside each exercise in the lists.")
+                .settingHelp(L("Sets the colour of the small note pattern drawn beside each exercise in the lists."))
             } header: {
                 Text("Exercise lists")
             }
         }
-        .navigationTitle("Menus")
+        .navigationTitle(L("Menus"))
         .navigationBarTitleDisplayMode(.inline)
     }
 }
@@ -118,6 +126,10 @@ struct MenusVisualsView: View {
 /// square cut-out of the real playback rendering — updates as the controls below
 /// are changed, so the effect of each setting is immediately visible.
 struct PlaybackVisualsView: View {
+    /// Re-renders this screen when the language is changed in Settings; the
+    /// strings are resolved when the body runs, so SwiftUI needs telling.
+    @ObservedObject private var appLanguage = LanguageManager.shared
+
     @AppStorage(VisualKeys.noteColor)        private var noteColor        = VisualDefaults.noteColor
     @AppStorage(VisualKeys.playingNoteColor) private var playingNoteColor = VisualDefaults.playingNoteColor
     @AppStorage(VisualKeys.noteRoundness)  private var noteRoundness  = VisualDefaults.noteRoundness
@@ -232,7 +244,7 @@ struct PlaybackVisualsView: View {
                     collapsiblePreview(width: previewWidth, fullHeight: previewWidth)
                 }
         }
-        .navigationTitle("Playback")
+        .navigationTitle(L("Playback"))
         .navigationBarTitleDisplayMode(.inline)
         .alert("New Template", isPresented: $isNamingTemplate) {
             TextField("Name", text: $newTemplateName)
@@ -248,7 +260,7 @@ struct PlaybackVisualsView: View {
             defaultFilename: exportFilename
         ) { result in
             if case .failure(let error) = result {
-                templateAlert = "Export failed: \(error.localizedDescription)"
+                templateAlert = L("Export failed: %@", error.localizedDescription)
             }
         }
         .fileImporter(
@@ -261,12 +273,12 @@ struct PlaybackVisualsView: View {
                 defer { if accessed { url.stopAccessingSecurityScopedResource() } }
                 guard let data = try? Data(contentsOf: url),
                       let template = VisualTemplate.decode(from: data) else {
-                    templateAlert = "That file isn’t a valid visual template."
+                    templateAlert = L("That file isn’t a valid visual template.")
                     return
                 }
                 templates.add(imported: template).apply()
             case .failure(let error):
-                templateAlert = "Import failed: \(error.localizedDescription)"
+                templateAlert = L("Import failed: %@", error.localizedDescription)
             }
         }
         .alert("Templates", isPresented: Binding(
@@ -284,12 +296,12 @@ struct PlaybackVisualsView: View {
             Section("Notes") {
                 ColorPicker("Note colour", selection: colorBinding($noteColor), supportsOpacity: false)
                 ColorPicker("Playing note colour", selection: colorBinding($playingNoteColor), supportsOpacity: false)
-                sliderRow("Note roundness", value: $noteRoundness, range: 0...1)
+                sliderRow(L("Note roundness"), value: $noteRoundness, range: 0...1)
             }
 
             Section("Zoom & position") {
-                sliderRow("Vertical zoom", value: $verticalZoom, range: 0.5...3)
-                sliderRow("Horizontal zoom", value: $horizontalZoom, range: 0.4...3)
+                sliderRow(L("Vertical zoom"), value: $verticalZoom, range: 0.5...3)
+                sliderRow(L("Horizontal zoom"), value: $horizontalZoom, range: 0.4...3)
                 Toggle("Follow notes vertically", isOn: $followVertical)
             }
 
@@ -306,13 +318,13 @@ struct PlaybackVisualsView: View {
                 ColorPicker("Text colour", selection: colorBinding($textColor), supportsOpacity: false)
                 Picker("Text font", selection: $textFont) {
                     ForEach(PlaybackFont.allCases) { font in
-                        Text(font.rawValue).tag(font.rawValue)
+                        Text(L(font.rawValue)).tag(font.rawValue)
                     }
                 }
             }
 
             Section("Singing indicator") {
-                sliderRow("Size", value: $singerSize, range: 0.5...3)
+                sliderRow(L("Size"), value: $singerSize, range: 0.5...3)
                 ColorPicker("Inner colour", selection: opacityColorBinding($singerInnerColor), supportsOpacity: true)
                 ColorPicker("Outer colour", selection: opacityColorBinding($singerOuterColor), supportsOpacity: true)
                 ColorPicker("Line colour", selection: opacityColorBinding($singerLineColor), supportsOpacity: true)
@@ -320,27 +332,27 @@ struct PlaybackVisualsView: View {
 
             Section {
                 ColorPicker("Colour", selection: opacityColorBinding($playheadColor), supportsOpacity: true)
-                    .settingHelp("Sets the colour of the vertical line the singing indicator runs along.")
+                    .settingHelp(L("Sets the colour of the vertical line the singing indicator runs along."))
                 Picker("Style", selection: $playheadStyle) {
                     ForEach(PlayheadStyle.allCases) { style in
-                        Text(style.rawValue).tag(style.rawValue)
+                        Text(L(style.rawValue)).tag(style.rawValue)
                     }
                 }
-                .settingHelp("“Line” draws one continuous line. “Dots” replaces it with a dot in the middle of every pitch.")
+                .settingHelp(L("“Line” draws one continuous line. “Dots” replaces it with a dot in the middle of every pitch."))
             } header: {
                 Text("Vertical line")
             }
 
             Section {
                 Toggle("Show repetition counter", isOn: $showRepetitionCounter)
-                    .settingHelp("Shows which repetition you're on out of the total, e.g. “2/5”. Hidden for exercises that don't repeat.")
+                    .settingHelp(L("Shows which repetition you're on out of the total, e.g. “2/5”. Hidden for exercises that don't repeat."))
                 if showRepetitionCounter {
                     Picker("Position", selection: $repetitionCounterPosition) {
                         ForEach(RepetitionCounterPosition.allCases) { position in
-                            Text(position.rawValue).tag(position.rawValue)
+                            Text(L(position.rawValue)).tag(position.rawValue)
                         }
                     }
-                    .settingHelp("Shows which repetition you're on out of the total, e.g. “2/5”. Hidden for exercises that don't repeat.")
+                    .settingHelp(L("Shows which repetition you're on out of the total, e.g. “2/5”. Hidden for exercises that don't repeat."))
                 }
             } header: {
                 Text("Repetitions")
@@ -348,7 +360,7 @@ struct PlaybackVisualsView: View {
 
             Section {
                 Toggle("Hide tab bar", isOn: $hideTabBar)
-                    .settingHelp("Hides the Home, Exercises, Community and Settings tabs at the bottom of the screen while an exercise plays.")
+                    .settingHelp(L("Hides the Home, Exercises, Community and Settings tabs at the bottom of the screen while an exercise plays."))
             } header: {
                 Text("Screen")
             }
@@ -361,14 +373,14 @@ struct PlaybackVisualsView: View {
                 } label: {
                     Label("Export template", systemImage: "square.and.arrow.up")
                 }
-                .settingHelp("Export saves the current visual settings as a template file you can share. Import loads a template file and applies it.")
+                .settingHelp(L("Export saves the current visual settings as a template file you can share. Import loads a template file and applies it."))
 
                 Button {
                     isImportingTemplate = true
                 } label: {
                     Label("Import template", systemImage: "square.and.arrow.down")
                 }
-                .settingHelp("Export saves the current visual settings as a template file you can share. Import loads a template file and applies it.")
+                .settingHelp(L("Export saves the current visual settings as a template file you can share. Import loads a template file and applies it."))
             }
         }
     }
@@ -382,7 +394,7 @@ struct PlaybackVisualsView: View {
                     template.apply()
                 } label: {
                     HStack {
-                        Text(template.name)
+                        Text(VisualTemplateName.localized(template.name))
                             .foregroundStyle(.primary)
                         Spacer()
                         if template.matchesCurrent {
@@ -401,7 +413,7 @@ struct PlaybackVisualsView: View {
             } label: {
                 Label("Save current as template", systemImage: "plus")
             }
-            .settingHelp("Select a template to apply it, or save the current settings as a new one.")
+            .settingHelp(L("Select a template to apply it, or save the current settings as a new one."))
         } header: {
             Text("Templates")
         }
@@ -420,7 +432,7 @@ struct PlaybackVisualsView: View {
         let name = current?.name ?? "Custom"
         let template = VisualTemplate.capturingCurrent(name: name)
         guard let data = template.jsonData() else {
-            templateAlert = "Could not prepare the template file."
+            templateAlert = L("Could not prepare the template file.")
             return
         }
         exportFilename = name

@@ -11,6 +11,10 @@ import SwiftUI
 /// and the toolbar's filter menu narrows it to the ones this user has (or hasn't)
 /// liked.
 struct CommunityView: View {
+    /// Re-renders this screen when the language is changed in Settings; the
+    /// strings are resolved when the body runs, so SwiftUI needs telling.
+    @ObservedObject private var appLanguage = LanguageManager.shared
+
     @EnvironmentObject private var store: ExerciseStore
     @ObservedObject private var community = CommunitySync.shared
     @State private var navigationPath = NavigationPath()
@@ -132,7 +136,8 @@ struct CommunityView: View {
                                                 totalCount: rows.count,
                                                 items: rows,
                                                 showsCount: false,
-                                                showsChevron: false))
+                                                showsChevron: false,
+                                                displayName: L("Users")))
         }
 
         let exerciseMatches = exerciseRows(sortedExercises.filter {
@@ -144,7 +149,8 @@ struct CommunityView: View {
                                                 totalCount: exerciseMatches.count,
                                                 items: exerciseMatches,
                                                 showsCount: false,
-                                                showsChevron: false))
+                                                showsChevron: false,
+                                                displayName: L("Exercises")))
         }
         return (sections, users)
     }
@@ -206,11 +212,11 @@ struct CommunityView: View {
                     .ignoresSafeArea()
                 }
             }
-            .navigationTitle("Community")
+            .navigationTitle(L("Community"))
             .navigationBarTitleDisplayMode(.inline)
             .searchable(text: $searchText,
                         placement: .navigationBarDrawer(displayMode: .always),
-                        prompt: "Users, Exercises, Descriptions")
+                        prompt: L("Users, Exercises, Descriptions"))
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Menu {
@@ -293,6 +299,10 @@ struct CommunityView: View {
 /// uploader name on each row. Pushed onto the Community stack, so the standard
 /// back button appears top-left.
 struct CommunityUserProfileView: View {
+    /// Re-renders this screen when the language is changed in Settings; the
+    /// strings are resolved when the body runs, so SwiftUI needs telling.
+    @ObservedObject private var appLanguage = LanguageManager.shared
+
     @EnvironmentObject private var store: ExerciseStore
     @ObservedObject private var community = CommunitySync.shared
     let username: String
@@ -321,7 +331,7 @@ struct CommunityUserProfileView: View {
                 ContentUnavailableView(
                     "No Public Exercises",
                     systemImage: "person.crop.circle",
-                    description: Text("\(username) has no public exercises right now.")
+                    description: Text(L("%@ has no public exercises right now.", username))
                 )
             } else {
                 ExerciseCollectionList(

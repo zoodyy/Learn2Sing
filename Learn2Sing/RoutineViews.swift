@@ -81,6 +81,10 @@ private struct RoutineDetailsField: View {
 /// description editable in fields at the top and the rows being the routine's
 /// exercises instead.
 struct RoutineEditView: View {
+    /// Re-renders this screen when the language is changed in Settings; the
+    /// strings are resolved when the body runs, so SwiftUI needs telling.
+    @ObservedObject private var appLanguage = LanguageManager.shared
+
     @EnvironmentObject private var store: ExerciseStore
     let routineID: UUID
     /// Called by the + button; the Home stack pushes the exercise picker.
@@ -100,7 +104,7 @@ struct RoutineEditView: View {
 
     private func exerciseRow(_ exerciseID: UUID) -> some View {
         HStack {
-            Text(store.exercises.first { $0.id == exerciseID }?.name ?? "")
+            Text(store.exercises.first { $0.id == exerciseID }?.localizedName ?? "")
                 .frame(maxWidth: .infinity, alignment: .leading)
             if isDeletingExercises {
                 Button {
@@ -141,7 +145,7 @@ struct RoutineEditView: View {
             }
         }
         .environment(\.editMode, $editMode)
-        .navigationTitle("Edit Routine")
+        .navigationTitle(L("Edit Routine"))
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
@@ -172,6 +176,10 @@ struct RoutineEditView: View {
 /// `order` only, which the Home tab keeps for this play-through and resets the
 /// next time the routine is opened; the routine's stored order is untouched.
 struct RoutineIntroView: View {
+    /// Re-renders this screen when the language is changed in Settings; the
+    /// strings are resolved when the body runs, so SwiftUI needs telling.
+    @ObservedObject private var appLanguage = LanguageManager.shared
+
     @EnvironmentObject private var store: ExerciseStore
     let routine: Routine
     /// The exercises to play, in this play-through's order.
@@ -194,7 +202,7 @@ struct RoutineIntroView: View {
             Text(routine.name)
                 .font(.largeTitle.weight(.bold))
 
-            Text(trimmedDetails.isEmpty ? "No description." : trimmedDetails)
+            Text(trimmedDetails.isEmpty ? L("No description.") : trimmedDetails)
                 .font(.body)
                 .foregroundStyle(.secondary)
         }
@@ -227,7 +235,7 @@ struct RoutineIntroView: View {
                 }
                 Section {
                     ForEach(order, id: \.self) { exerciseID in
-                        Text(store.exercises.first { $0.id == exerciseID }?.name ?? "")
+                        Text(store.exercises.first { $0.id == exerciseID }?.localizedName ?? "")
                             .frame(maxWidth: .infinity, alignment: .leading)
                     }
                     .onMove { source, destination in
@@ -263,6 +271,10 @@ struct RoutineIntroView: View {
 /// buttons, and a + button pushing the exercise picker — minus the name field,
 /// since the built-in category can't be renamed.
 struct FavouritesEditView: View {
+    /// Re-renders this screen when the language is changed in Settings; the
+    /// strings are resolved when the body runs, so SwiftUI needs telling.
+    @ObservedObject private var appLanguage = LanguageManager.shared
+
     @EnvironmentObject private var store: ExerciseStore
     /// Called by the + button; the Home stack pushes the exercise picker.
     let onAddExercises: () -> Void
@@ -277,7 +289,7 @@ struct FavouritesEditView: View {
 
     private func exerciseRow(_ exerciseID: UUID) -> some View {
         HStack {
-            Text(store.exercises.first { $0.id == exerciseID }?.name ?? "")
+            Text(store.exercises.first { $0.id == exerciseID }?.localizedName ?? "")
                 .frame(maxWidth: .infinity, alignment: .leading)
             if isDeletingExercises {
                 Button {
@@ -312,7 +324,7 @@ struct FavouritesEditView: View {
             }
         }
         .environment(\.editMode, $editMode)
-        .navigationTitle("Edit Favourites")
+        .navigationTitle(L("Edit Favourites"))
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
@@ -342,10 +354,14 @@ struct FavouritesEditView: View {
 /// whitelist, which titles it differently because it deselects as much as it
 /// adds.
 struct ExerciseMultiPickerList: View {
+    /// Re-renders this screen when the language is changed in Settings; the
+    /// strings are resolved when the body runs, so SwiftUI needs telling.
+    @ObservedObject private var appLanguage = LanguageManager.shared
+
     @EnvironmentObject private var store: ExerciseStore
     let selectedIDs: Set<UUID>
     let onToggle: (UUID) -> Void
-    var title = "Add Exercises"
+    var title = L("Add Exercises")
 
     /// Categories the user has collapsed. Their exercises are hidden and the
     /// header shows the exercise count in parentheses instead.
@@ -442,7 +458,7 @@ struct RecommendationWhitelistView: View {
         ExerciseMultiPickerList(
             selectedIDs: store.recommendationWhitelist,
             onToggle: { store.toggleWhitelisted($0) },
-            title: "Whitelisted Exercises"
+            title: L("Whitelisted Exercises")
         )
     }
 }

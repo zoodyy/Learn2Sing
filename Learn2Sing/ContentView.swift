@@ -12,6 +12,8 @@ struct ContentView: View {
     /// Renders "Saved!" confirmations above every tab, so they outlive the
     /// screen (settings / MIDI editor) whose pop triggered them.
     @StateObject private var toasts = ToastCenter()
+    /// Observed here so picking a language in Settings repaints the whole tree.
+    @StateObject private var languages = LanguageManager.shared
 
     var body: some View {
         TabView {
@@ -32,6 +34,11 @@ struct ContentView: View {
             }
         }
         .environmentObject(toasts)
+        .environmentObject(languages)
+        // Every `Text("…")` in the app resolves its key against this locale, so
+        // changing it re-renders the screens that are already on screen — unlike
+        // re-identifying the root, which would throw away navigation state.
+        .environment(\.locale, languages.language.locale)
         .overlay { ToastOverlay(toasts: toasts) }
         // nil for "System" lets the device's light/dark setting through.
         .preferredColorScheme((AppTheme(rawValue: themeRaw) ?? .system).colorScheme)

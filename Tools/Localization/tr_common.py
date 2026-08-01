@@ -1,0 +1,68 @@
+# Batch 1: navigation, common actions, tabs, short labels.
+from trbase import T
+
+T("Settings", "Einstellungen", "Ajustes", "Réglages", "Impostazioni", "Ajustes", "Instellingen", "Настройки", "Ustawienia", "Ayarlar", "Inställningar", "設定", "설정", "设置")
+T("Home", "Start", "Inicio", "Accueil", "Home", "Início", "Start", "Главная", "Start", "Ana Sayfa", "Hem", "ホーム", "홈", "首页")
+T("Exercises", "Übungen", "Ejercicios", "Exercices", "Esercizi", "Exercícios", "Oefeningen", "Упражнения", "Ćwiczenia", "Egzersizler", "Övningar", "エクササイズ", "연습", "练习")
+T("Community", "Community", "Comunidad", "Communauté", "Comunità", "Comunidade", "Community", "Сообщество", "Społeczność", "Topluluk", "Community", "コミュニティ", "커뮤니티", "社区")
+T("Profile", "Profil", "Perfil", "Profil", "Profilo", "Perfil", "Profiel", "Профиль", "Profil", "Profil", "Profil", "プロフィール", "프로필", "个人资料")
+T("Audio", "Audio", "Audio", "Audio", "Audio", "Áudio", "Audio", "Аудио", "Dźwięk", "Ses", "Ljud", "オーディオ", "오디오", "音频")
+T("Visuals", "Darstellung", "Apariencia", "Apparence", "Aspetto", "Aparência", "Weergave", "Оформление", "Wygląd", "Görünüm", "Utseende", "表示", "화면", "视觉")
+T("Voice", "Stimme", "Voz", "Voix", "Voce", "Voz", "Stem", "Голос", "Głos", "Ses", "Röst", "声", "음성", "嗓音")
+T("Backup", "Sicherung", "Copia de seguridad", "Sauvegarde", "Backup", "Backup", "Back-up", "Резервная копия", "Kopia zapasowa", "Yedekleme", "Säkerhetskopia", "バックアップ", "백업", "备份")
+T("Language", "Sprache", "Idioma", "Langue", "Lingua", "Idioma", "Taal", "Язык", "Język", "Dil", "Språk", "言語", "언어", "语言")
+T("App Language", "App-Sprache", "Idioma de la app", "Langue de l’app", "Lingua dell’app", "Idioma do app", "App-taal", "Язык приложения", "Język aplikacji", "Uygulama dili", "Appspråk", "アプリの言語", "앱 언어", "应用语言")
+
+T("OK", "OK", "OK", "OK", "OK", "OK", "OK", "OK", "OK", "Tamam", "OK", "OK", "확인", "好")
+T("Cancel", "Abbrechen", "Cancelar", "Annuler", "Annulla", "Cancelar", "Annuleren", "Отмена", "Anuluj", "İptal", "Avbryt", "キャンセル", "취소", "取消")
+T("Delete", "Löschen", "Eliminar", "Supprimer", "Elimina", "Excluir", "Verwijderen", "Удалить", "Usuń", "Sil", "Radera", "削除", "삭제", "删除")
+T("Done", "Fertig", "Listo", "Terminé", "Fatto", "Concluído", "Klaar", "Готово", "Gotowe", "Bitti", "Klar", "完了", "완료", "完成")
+T("Save", "Sichern", "Guardar", "Enregistrer", "Salva", "Salvar", "Bewaren", "Сохранить", "Zapisz", "Kaydet", "Spara", "保存", "저장", "保存")
+T("Create", "Erstellen", "Crear", "Créer", "Crea", "Criar", "Aanmaken", "Создать", "Utwórz", "Oluştur", "Skapa", "作成", "만들기", "创建")
+T("Edit", "Bearbeiten", "Editar", "Modifier", "Modifica", "Editar", "Bewerken", "Изменить", "Edytuj", "Düzenle", "Redigera", "編集", "편집", "编辑")
+T("Add", "Hinzufügen", "Añadir", "Ajouter", "Aggiungi", "Adicionar", "Toevoegen", "Добавить", "Dodaj", "Ekle", "Lägg till", "追加", "추가", "添加")
+T("Back", "Zurück", "Atrás", "Retour", "Indietro", "Voltar", "Terug", "Назад", "Wstecz", "Geri", "Tillbaka", "戻る", "뒤로", "返回")
+T("Start", "Starten", "Empezar", "Démarrer", "Inizia", "Iniciar", "Starten", "Начать", "Rozpocznij", "Başlat", "Starta", "開始", "시작", "开始")
+T("Exit", "Beenden", "Salir", "Quitter", "Esci", "Sair", "Sluiten", "Выйти", "Zakończ", "Çık", "Avsluta", "終了", "나가기", "退出")
+T("Next", "Weiter", "Siguiente", "Suivant", "Avanti", "Próximo", "Volgende", "Далее", "Dalej", "İleri", "Nästa", "次へ", "다음", "下一个")
+T("Play", "Abspielen", "Reproducir", "Lecture", "Riproduci", "Reproduzir", "Afspelen", "Воспроизвести", "Odtwórz", "Oynat", "Spela", "再生", "재생", "播放")
+T("Stop", "Stopp", "Detener", "Arrêter", "Ferma", "Parar", "Stoppen", "Стоп", "Zatrzymaj", "Durdur", "Stoppa", "停止", "정지", "停止")
+T("Name", "Name", "Nombre", "Nom", "Nome", "Nome", "Naam", "Название", "Nazwa", "Ad", "Namn", "名前", "이름", "名称")
+T("Text", "Text", "Texto", "Texte", "Testo", "Texto", "Tekst", "Текст", "Tekst", "Metin", "Text", "テキスト", "텍스트", "文本")
+T("Label", "Beschriftung", "Etiqueta", "Libellé", "Etichetta", "Rótulo", "Label", "Подпись", "Etykieta", "Etiket", "Etikett", "ラベル", "레이블", "标签")
+T("Description", "Beschreibung", "Descripción", "Description", "Descrizione", "Descrição", "Beschrijving", "Описание", "Opis", "Açıklama", "Beskrivning", "説明", "설명", "说明")
+T("Username", "Benutzername", "Nombre de usuario", "Nom d’utilisateur", "Nome utente", "Nome de usuário", "Gebruikersnaam", "Имя пользователя", "Nazwa użytkownika", "Kullanıcı adı", "Användarnamn", "ユーザー名", "사용자 이름", "用户名")
+T("Device", "Gerät", "Dispositivo", "Appareil", "Dispositivo", "Dispositivo", "Apparaat", "Устройство", "Urządzenie", "Cihaz", "Enhet", "デバイス", "기기", "设备")
+T("Device ID", "Geräte-ID", "ID del dispositivo", "Identifiant de l’appareil", "ID dispositivo", "ID do dispositivo", "Apparaat-ID", "Идентификатор устройства", "Identyfikator urządzenia", "Cihaz kimliği", "Enhets-ID", "デバイスID", "기기 ID", "设备 ID")
+T("Unavailable", "Nicht verfügbar", "No disponible", "Indisponible", "Non disponibile", "Indisponível", "Niet beschikbaar", "Недоступно", "Niedostępny", "Kullanılamıyor", "Ej tillgängligt", "利用できません", "사용할 수 없음", "不可用")
+T("Download Profile", "Profil laden", "Descargar perfil", "Télécharger le profil", "Scarica profilo", "Baixar perfil", "Profiel downloaden", "Скачать профиль", "Pobierz profil", "Profili indir", "Ladda ner profil", "プロフィールを保存", "프로필 내려받기", "下载个人资料")
+T("Saves your profile as a JSON file using the share sheet.", "Sichert dein Profil über das Teilen-Menü als JSON-Datei.", "Guarda tu perfil como archivo JSON mediante el menú para compartir.", "Enregistre votre profil dans un fichier JSON via la feuille de partage.", "Salva il tuo profilo come file JSON tramite il menu di condivisione.", "Salva seu perfil como arquivo JSON pela folha de compartilhamento.", "Bewaart je profiel als JSON-bestand via het deelmenu.", "Сохраняет профиль в виде файла JSON через меню общего доступа.", "Zapisuje profil jako plik JSON za pomocą arkusza udostępniania.", "Profilinizi paylaşım sayfası aracılığıyla JSON dosyası olarak kaydeder.", "Sparar din profil som en JSON-fil via delningsmenyn.", "共有シートを使ってプロフィールをJSONファイルとして保存します。", "공유 시트를 사용해 프로필을 JSON 파일로 저장합니다.", "通过共享表单将你的个人资料保存为 JSON 文件。")
+
+T("Applies to the app's own screens and the exercises it came with. Your own exercise names and notes are left as you wrote them. This setting is kept on this device only, so reinstalling the app returns it to English.",
+  "Gilt für die Bildschirme der App und die mitgelieferten Übungen. Eigene Übungsnamen und Notizen bleiben so, wie du sie geschrieben hast. Diese Einstellung wird nur auf diesem Gerät gespeichert; nach einer Neuinstallation ist wieder Englisch eingestellt.",
+  "Se aplica a las pantallas de la app y a los ejercicios incluidos. Los nombres y las notas de tus propios ejercicios se conservan tal como los escribiste. Este ajuste solo se guarda en este dispositivo, así que al reinstalar la app vuelve al inglés.",
+  "S’applique aux écrans de l’app et aux exercices fournis. Les noms et notes de vos propres exercices restent tels que vous les avez écrits. Ce réglage est conservé uniquement sur cet appareil : après une réinstallation, l’app revient à l’anglais.",
+  "Vale per le schermate dell’app e per gli esercizi inclusi. I nomi e le note dei tuoi esercizi restano come li hai scritti. Questa impostazione è salvata solo su questo dispositivo, quindi reinstallando l’app si torna all’inglese.",
+  "Aplica-se às telas do app e aos exercícios que vieram com ele. Os nomes e as anotações dos seus próprios exercícios permanecem como você escreveu. Esta configuração fica apenas neste dispositivo, então reinstalar o app volta para o inglês.",
+  "Geldt voor de schermen van de app en de meegeleverde oefeningen. Namen en notities van je eigen oefeningen blijven zoals je ze hebt geschreven. Deze instelling staat alleen op dit apparaat, dus na opnieuw installeren staat de app weer op Engels.",
+  "Применяется к экранам приложения и к упражнениям, которые входят в комплект. Названия и заметки ваших собственных упражнений остаются такими, как вы их написали. Эта настройка хранится только на этом устройстве, поэтому после переустановки приложение снова будет на английском.",
+  "Dotyczy ekranów aplikacji i dołączonych ćwiczeń. Nazwy i notatki twoich własnych ćwiczeń pozostają takie, jak je zapisałeś. To ustawienie jest przechowywane tylko na tym urządzeniu, więc po ponownej instalacji aplikacja wróci do angielskiego.",
+  "Uygulamanın kendi ekranları ve uygulamayla gelen egzersizler için geçerlidir. Kendi egzersiz adlarınız ve notlarınız yazdığınız gibi kalır. Bu ayar yalnızca bu cihazda tutulur; uygulamayı yeniden yüklediğinizde İngilizceye döner.",
+  "Gäller appens egna skärmar och de övningar som följde med. Namn och anteckningar på dina egna övningar lämnas som du skrev dem. Inställningen sparas bara på den här enheten, så om du installerar om appen återgår den till engelska.",
+  "アプリの画面と、アプリに付属するエクササイズに適用されます。自分で作成したエクササイズ名やメモは、書いたままの状態で残ります。この設定はこの端末にのみ保存されるため、アプリを再インストールすると英語に戻ります。",
+  "앱의 화면과 앱에 포함된 연습에 적용됩니다. 직접 만든 연습 이름과 메모는 작성한 그대로 유지됩니다. 이 설정은 이 기기에만 저장되므로 앱을 다시 설치하면 영어로 돌아갑니다.",
+  "适用于应用自身的界面以及随应用附带的练习。你自己的练习名称和备注会保持你写下的原样。此设置仅保存在本设备上，因此重新安装应用后会恢复为英语。")
+T("The language the app is displayed in. Kept on this device only.",
+  "Die Sprache, in der die App angezeigt wird. Wird nur auf diesem Gerät gespeichert.",
+  "El idioma en el que se muestra la app. Solo se guarda en este dispositivo.",
+  "La langue d’affichage de l’app. Conservée uniquement sur cet appareil.",
+  "La lingua in cui viene mostrata l’app. Salvata solo su questo dispositivo.",
+  "O idioma em que o app é exibido. Fica apenas neste dispositivo.",
+  "De taal waarin de app wordt getoond. Staat alleen op dit apparaat.",
+  "Язык, на котором отображается приложение. Хранится только на этом устройстве.",
+  "Język, w którym wyświetlana jest aplikacja. Przechowywany tylko na tym urządzeniu.",
+  "Uygulamanın gösterildiği dil. Yalnızca bu cihazda tutulur.",
+  "Språket som appen visas på. Sparas bara på den här enheten.",
+  "アプリを表示する言語。この端末にのみ保存されます。",
+  "앱이 표시되는 언어입니다. 이 기기에만 저장됩니다.",
+  "应用显示所用的语言。仅保存在本设备上。")

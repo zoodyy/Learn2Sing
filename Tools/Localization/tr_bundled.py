@@ -1,0 +1,145 @@
+# Batch 6: the exercises that ship in BundledExercises.json.
+#
+# The vowel-syllable names ("May", "Mum", "Yum Ya", …) are the sounds the singer
+# actually sings, so they stay as they are in every language; only the words
+# around them are translated.
+from trbase import T
+
+T("Major Ascending", "Dur aufsteigend", "Mayor ascendente", "Majeur ascendant", "Maggiore ascendente", "Maior ascendente", "Majeur stijgend", "Мажор вверх", "Durowa w górę", "Majör çıkıcı", "Dur uppåt", "長調 上行", "장조 상행", "大调上行")
+T("Major Descending", "Dur absteigend", "Mayor descendente", "Majeur descendant", "Maggiore discendente", "Maior descendente", "Majeur dalend", "Мажор вниз", "Durowa w dół", "Majör inici", "Dur nedåt", "長調 下行", "장조 하행", "大调下行")
+T("Minor Ascending", "Moll aufsteigend", "Menor ascendente", "Mineur ascendant", "Minore ascendente", "Menor ascendente", "Mineur stijgend", "Минор вверх", "Molowa w górę", "Minör çıkıcı", "Moll uppåt", "短調 上行", "단조 상행", "小调上行")
+T("Minor Descending", "Moll absteigend", "Menor descendente", "Mineur descendant", "Minore discendente", "Menor descendente", "Mineur dalend", "Минор вниз", "Molowa w dół", "Minör inici", "Moll nedåt", "短調 下行", "단조 하행", "小调下行")
+T("Bumblebee", "Hummel", "Abejorro", "Bourdon", "Calabrone", "Zangão", "Hommel", "Шмель", "Trzmiel", "Yaban arısı", "Humla", "マルハナバチ", "호박벌", "大黄蜂")
+T("Three-Note Run", "Dreiton-Lauf", "Carrerilla de tres notas", "Trait de trois notes", "Volata di tre note", "Corrida de três notas", "Loopje van drie noten", "Пробежка из трёх нот", "Przebieg trzech dźwięków", "Üç notalı geçiş", "Trenotslinga", "3音のラン", "3음 런", "三音跑动")
+T("Ascending Run", "Aufsteigender Lauf", "Carrerilla ascendente", "Trait ascendant", "Volata ascendente", "Corrida ascendente", "Stijgend loopje", "Восходящая пробежка", "Przebieg wznoszący", "Çıkıcı geçiş", "Stigande slinga", "上行のラン", "상행 런", "上行跑动")
+T("Octave Repeat Nay", "Oktavwiederholung Nay", "Octava repetida Nay", "Octave répétée Nay", "Ottava ripetuta Nay", "Oitava repetida Nay", "Octaafherhaling Nay", "Повтор октавы Nay", "Powtórzenie oktawy Nay", "Oktav tekrarı Nay", "Oktavupprepning Nay", "オクターブ反復 Nay", "옥타브 반복 Nay", "八度重复 Nay")
+T("Octave Alternate Ee", "Oktavwechsel Ee", "Octava alterna Ee", "Octave alternée Ee", "Ottava alternata Ee", "Oitava alternada Ee", "Octaafwisseling Ee", "Чередование октав Ee", "Naprzemienna oktawa Ee", "Oktav değişimi Ee", "Oktavväxling Ee", "オクターブ交互 Ee", "옥타브 교대 Ee", "八度交替 Ee")
+T("Test", "Test", "Prueba", "Test", "Test", "Teste", "Test", "Тест", "Test", "Test", "Test", "テスト", "테스트", "测试")
+T("Test 2", "Test 2", "Prueba 2", "Test 2", "Test 2", "Teste 2", "Test 2", "Тест 2", "Test 2", "Test 2", "Test 2", "テスト 2", "테스트 2", "测试 2")
+
+T("Keep your jaw and throat relaxed, lowering your larynx. You should feel some resonance in your lips.",
+  "Halte Kiefer und Kehle entspannt und senke den Kehlkopf. Du solltest etwas Resonanz in den Lippen spüren.",
+  "Mantén relajados la mandíbula y la garganta, bajando la laringe. Deberías notar algo de resonancia en los labios.",
+  "Gardez la mâchoire et la gorge détendues, en abaissant le larynx. Vous devriez sentir une résonance dans les lèvres.",
+  "Tieni mascella e gola rilassate, abbassando la laringe. Dovresti sentire una certa risonanza sulle labbra.",
+  "Mantenha o maxilar e a garganta relaxados, abaixando a laringe. Você deve sentir alguma ressonância nos lábios.",
+  "Houd je kaak en keel ontspannen en laat je strottenhoofd zakken. Je hoort en voelt wat resonantie in je lippen.",
+  "Держите челюсть и горло расслабленными, опуская гортань. Вы должны почувствовать резонанс в губах.",
+  "Trzymaj szczękę i gardło rozluźnione, obniżając krtań. Powinieneś czuć rezonans w wargach.",
+  "Çenenizi ve boğazınızı gevşek tutun, gırtlağınızı aşağıda tutun. Dudaklarınızda bir miktar rezonans hissetmelisiniz.",
+  "Håll käken och halsen avslappnade och sänk struphuvudet. Du ska känna viss resonans i läpparna.",
+  "あごとのどをリラックスさせ、喉頭を下げます。唇に少し響きを感じるはずです。",
+  "턱과 목을 편안하게 유지하고 후두를 낮추세요. 입술에서 약간의 울림이 느껴져야 합니다.",
+  "保持下颌和喉咙放松，并降低喉头。你应该能感觉到嘴唇有一些共鸣。")
+T("Move your jaw freely on the \"Yum\" and maintain the relaxed feeling on the \"Ya.\"",
+  "Bewege den Kiefer beim „Yum“ frei und behalte das entspannte Gefühl beim „Ya“ bei.",
+  "Mueve la mandíbula con libertad en el «Yum» y mantén esa sensación relajada en el «Ya».",
+  "Bougez librement la mâchoire sur le « Yum » et gardez cette sensation de détente sur le « Ya ».",
+  "Muovi liberamente la mascella sul “Yum” e mantieni la sensazione di rilassamento sul “Ya”.",
+  "Mova o maxilar livremente no “Yum” e mantenha a sensação relaxada no “Ya”.",
+  "Beweeg je kaak vrij bij de ‘Yum’ en houd dat ontspannen gevoel vast bij de ‘Ya’.",
+  "Свободно двигайте челюстью на «Yum» и сохраняйте это расслабленное ощущение на «Ya».",
+  "Poruszaj swobodnie szczęką na „Yum” i utrzymaj to rozluźnione odczucie na „Ya”.",
+  "“Yum” hecesinde çenenizi serbestçe hareket ettirin ve “Ya” hecesinde bu gevşek hissi koruyun.",
+  "Rör käken fritt på ”Yum” och behåll den avslappnade känslan på ”Ya”.",
+  "「Yum」ではあごを自由に動かし、「Ya」でもそのリラックスした感覚を保ちます。",
+  "“Yum”에서는 턱을 자유롭게 움직이고, “Ya”에서도 그 편안한 느낌을 유지하세요.",
+  "在“Yum”上自由活动下颌，并在“Ya”上保持这种放松的感觉。")
+T("Focus on smooth jaw movement and keep it free of tension.",
+  "Achte auf eine geschmeidige Kieferbewegung und halte ihn frei von Spannung.",
+  "Céntrate en un movimiento suave de la mandíbula y mantenla sin tensión.",
+  "Concentrez-vous sur un mouvement souple de la mâchoire et gardez-la sans tension.",
+  "Concentrati su un movimento fluido della mascella e mantienila priva di tensione.",
+  "Concentre-se em um movimento suave do maxilar e mantenha-o sem tensão.",
+  "Let op een soepele kaakbeweging en houd je kaak spanningsvrij.",
+  "Следите за плавным движением челюсти и не допускайте в ней напряжения.",
+  "Skup się na płynnym ruchu szczęki i utrzymuj ją bez napięcia.",
+  "Çenenizin akıcı hareketine odaklanın ve gergin olmasına izin vermeyin.",
+  "Fokusera på en mjuk käkrörelse och håll käken fri från spänning.",
+  "あごをなめらかに動かすことに集中し、力みを入れないようにします。",
+  "턱을 부드럽게 움직이는 데 집중하고 긴장을 주지 마세요.",
+  "专注于下颌的顺畅活动，并保持没有紧张感。")
+T("Widen your nasal cavities and envision the sound projecting into the nose and forehead.",
+  "Weite die Nasenhöhlen und stell dir vor, wie der Klang in Nase und Stirn strömt.",
+  "Ensancha las fosas nasales e imagina que el sonido se proyecta hacia la nariz y la frente.",
+  "Élargissez vos cavités nasales et imaginez le son se projeter vers le nez et le front.",
+  "Allarga le cavità nasali e immagina il suono proiettarsi verso naso e fronte.",
+  "Alargue as cavidades nasais e imagine o som se projetando para o nariz e a testa.",
+  "Verwijd je neusholtes en stel je voor dat het geluid naar je neus en voorhoofd wordt geprojecteerd.",
+  "Расширьте носовые полости и представьте, что звук направляется в нос и лоб.",
+  "Poszerz jamy nosowe i wyobraź sobie, że dźwięk kieruje się do nosa i czoła.",
+  "Burun boşluklarınızı genişletin ve sesin buruna ve alna doğru yayıldığını hayal edin.",
+  "Vidga näshålorna och föreställ dig att ljudet projiceras upp mot näsa och panna.",
+  "鼻腔を広げ、音が鼻と額へ向かって響いていくのをイメージします。",
+  "비강을 넓히고 소리가 코와 이마 쪽으로 퍼져 나가는 것을 상상하세요.",
+  "扩张鼻腔，并想象声音投射到鼻子和额头。")
+T("Focus on keeping your lips flexible and your larynx low.",
+  "Achte darauf, die Lippen locker und den Kehlkopf tief zu halten.",
+  "Concéntrate en mantener los labios flexibles y la laringe baja.",
+  "Veillez à garder les lèvres souples et le larynx bas.",
+  "Concentrati sul mantenere le labbra flessibili e la laringe bassa.",
+  "Concentre-se em manter os lábios flexíveis e a laringe baixa.",
+  "Let erop dat je lippen soepel blijven en je strottenhoofd laag.",
+  "Старайтесь держать губы подвижными, а гортань — низко.",
+  "Skup się na utrzymaniu elastycznych warg i niskiej krtani.",
+  "Dudaklarınızı esnek ve gırtlağınızı aşağıda tutmaya odaklanın.",
+  "Fokusera på att hålla läpparna följsamma och struphuvudet lågt.",
+  "唇を柔らかく保ち、喉頭を低く保つことに集中します。",
+  "입술을 유연하게, 후두는 낮게 유지하는 데 집중하세요.",
+  "专注于保持嘴唇灵活、喉头放低。")
+T("Maintain a steady airflow and consistent mouth placement.",
+  "Halte einen gleichmäßigen Luftstrom und eine gleichbleibende Mundstellung.",
+  "Mantén un flujo de aire constante y una posición de la boca estable.",
+  "Maintenez un flux d’air régulier et une position de bouche constante.",
+  "Mantieni un flusso d’aria costante e una posizione della bocca uniforme.",
+  "Mantenha um fluxo de ar constante e a posição da boca estável.",
+  "Houd een gelijkmatige luchtstroom en een constante mondstand aan.",
+  "Поддерживайте ровный поток воздуха и неизменное положение рта.",
+  "Utrzymuj równy przepływ powietrza i stałe ułożenie ust.",
+  "Düzenli bir hava akışı ve tutarlı bir ağız konumu koruyun.",
+  "Håll ett jämnt luftflöde och en konsekvent munställning.",
+  "息の流れを一定に保ち、口の形も変えないようにします。",
+  "일정한 호흡 흐름과 변함없는 입 모양을 유지하세요.",
+  "保持稳定的气流和一致的口型位置。")
+T("Sing each repetition on a different vowel. Maintain a steady airflow and consistent mouth placement.",
+  "Singe jede Wiederholung auf einem anderen Vokal. Halte einen gleichmäßigen Luftstrom und eine gleichbleibende Mundstellung.",
+  "Canta cada repetición con una vocal distinta. Mantén un flujo de aire constante y una posición de la boca estable.",
+  "Chantez chaque répétition sur une voyelle différente. Maintenez un flux d’air régulier et une position de bouche constante.",
+  "Canta ogni ripetizione su una vocale diversa. Mantieni un flusso d’aria costante e una posizione della bocca uniforme.",
+  "Cante cada repetição em uma vogal diferente. Mantenha um fluxo de ar constante e a posição da boca estável.",
+  "Zing elke herhaling op een andere klinker. Houd een gelijkmatige luchtstroom en een constante mondstand aan.",
+  "Пойте каждый повтор на другой гласной. Поддерживайте ровный поток воздуха и неизменное положение рта.",
+  "Śpiewaj każde powtórzenie na innej samogłosce. Utrzymuj równy przepływ powietrza i stałe ułożenie ust.",
+  "Her tekrarı farklı bir ünlüyle söyleyin. Düzenli bir hava akışı ve tutarlı bir ağız konumu koruyun.",
+  "Sjung varje repetition på en ny vokal. Håll ett jämnt luftflöde och en konsekvent munställning.",
+  "繰り返しごとに母音を変えて歌います。息の流れを一定に保ち、口の形も変えないようにします。",
+  "반복할 때마다 다른 모음으로 부르세요. 일정한 호흡 흐름과 변함없는 입 모양을 유지하세요.",
+  "每次重复都用不同的元音演唱。保持稳定的气流和一致的口型位置。")
+T("Make a bratty \"Nay\" sound. You should feel some buzzing in your nose.",
+  "Erzeuge ein freches „Nay“. Du solltest ein Kribbeln in der Nase spüren.",
+  "Haz un «Nay» descarado. Deberías notar un cosquilleo en la nariz.",
+  "Produisez un « Nay » insolent. Vous devriez sentir un léger bourdonnement dans le nez.",
+  "Produci un “Nay” sfacciato. Dovresti sentire un ronzio nel naso.",
+  "Faça um “Nay” atrevido. Você deve sentir uma vibração no nariz.",
+  "Maak een brutaal ‘Nay’-geluid. Je voelt daarbij wat gezoem in je neus.",
+  "Издайте дерзкое «Nay». Вы должны почувствовать лёгкое жужжание в носу.",
+  "Wydaj bezczelne „Nay”. Powinieneś czuć brzęczenie w nosie.",
+  "Şımarık bir “Nay” sesi çıkarın. Burnunuzda bir titreşim hissetmelisiniz.",
+  "Gör ett näsvist ”Nay”-ljud. Du ska känna ett surrande i näsan.",
+  "生意気な感じの「Nay」を出します。鼻にビリビリした響きを感じるはずです。",
+  "짓궂은 느낌의 “Nay” 소리를 내세요. 코에서 약간의 진동이 느껴져야 합니다.",
+  "发出略带调皮的“Nay”。你应该能感觉到鼻子里有些嗡嗡的振动。")
+T("Make a nasty \"Ee\" sound. You should feel some resonance in your nose.",
+  "Erzeuge ein garstiges „Ee“. Du solltest etwas Resonanz in der Nase spüren.",
+  "Haz un «Ee» desagradable. Deberías notar algo de resonancia en la nariz.",
+  "Produisez un « Ee » désagréable. Vous devriez sentir une résonance dans le nez.",
+  "Produci un “Ee” sgradevole. Dovresti sentire una certa risonanza nel naso.",
+  "Faça um “Ee” áspero. Você deve sentir alguma ressonância no nariz.",
+  "Maak een venijnig ‘Ee’-geluid. Je voelt daarbij wat resonantie in je neus.",
+  "Издайте резкое «Ee». Вы должны почувствовать резонанс в носу.",
+  "Wydaj nieprzyjemne „Ee”. Powinieneś czuć rezonans w nosie.",
+  "Sert bir “Ee” sesi çıkarın. Burnunuzda bir miktar rezonans hissetmelisiniz.",
+  "Gör ett vasst ”Ee”-ljud. Du ska känna viss resonans i näsan.",
+  "きつい感じの「Ee」を出します。鼻に響きを感じるはずです。",
+  "날카로운 느낌의 “Ee” 소리를 내세요. 코에서 울림이 느껴져야 합니다.",
+  "发出较尖锐的“Ee”。你应该能感觉到鼻子里有共鸣。")

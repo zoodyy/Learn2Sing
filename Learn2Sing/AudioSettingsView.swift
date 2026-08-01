@@ -9,6 +9,10 @@ import UIKit
 /// The "Audio" hub reached from Settings: the playback instrument, the input and
 /// output devices, and the microphone-delay compensation used for scoring.
 struct AudioSettingsView: View {
+    /// Re-renders this screen when the language is changed in Settings; the
+    /// strings are resolved when the body runs, so SwiftUI needs telling.
+    @ObservedObject private var appLanguage = LanguageManager.shared
+
     @AppStorage(AudioRouteManager.speakerKey) private var speaker = AudioRouteManager.automatic
     @AppStorage(AudioRouteManager.micKey) private var microphone = AudioRouteManager.builtInMic
     @AppStorage(microphoneDelayKey) private var micDelayMs = 0.0
@@ -33,22 +37,22 @@ struct AudioSettingsView: View {
                     }
                 }
                 .foregroundStyle(.primary)
-                .settingHelp("Choose the sound that plays the notes, or upload your own.")
+                .settingHelp(L("Choose the sound that plays the notes, or upload your own."))
             }
 
             Section {
                 Picker("Speaker", selection: $speaker) {
                     ForEach(options(routes.outputOptions, including: speaker), id: \.self) {
-                        Text($0).tag($0)
+                        Text(AudioRouteManager.displayName(for: $0)).tag($0)
                     }
                 }
-                .settingHelp("“Automatic” uses connected earphones (e.g. AirPods) when available, otherwise the phone.")
+                .settingHelp(L("“Automatic” uses connected earphones (e.g. AirPods) when available, otherwise the phone."))
                 Picker("Microphone", selection: $microphone) {
                     ForEach(options(routes.inputOptions, including: microphone), id: \.self) {
-                        Text($0).tag($0)
+                        Text(AudioRouteManager.displayName(for: $0)).tag($0)
                     }
                 }
-                .settingHelp("“Automatic” uses connected earphones (e.g. AirPods) when available, otherwise the phone.")
+                .settingHelp(L("“Automatic” uses connected earphones (e.g. AirPods) when available, otherwise the phone."))
             } header: {
                 Text("Devices")
             }
@@ -64,17 +68,17 @@ struct AudioSettingsView: View {
                         .frame(width: 70)
                     Text("ms").foregroundStyle(.secondary)
                 }
-                .settingHelp("Compensates for the lag between singing and pitch detection. Only the score is affected — playback and visuals are unchanged. Run the test to measure it automatically.")
+                .settingHelp(L("Compensates for the lag between singing and pitch detection. Only the score is affected — playback and visuals are unchanged. Run the test to measure it automatically."))
 
                 Button(action: openDelayTest) {
                     Label("Test for delay", systemImage: "metronome")
                 }
-                .settingHelp("Compensates for the lag between singing and pitch detection. Only the score is affected — playback and visuals are unchanged. Run the test to measure it automatically.")
+                .settingHelp(L("Compensates for the lag between singing and pitch detection. Only the score is affected — playback and visuals are unchanged. Run the test to measure it automatically."))
             } header: {
                 Text("Scoring")
             }
         }
-        .navigationTitle("Audio")
+        .navigationTitle(L("Audio"))
         .navigationBarTitleDisplayMode(.inline)
         // The decimal pad has no return key: show a Done bar pinned above the
         // keyboard while the delay field is edited, and let a scroll dismiss it.

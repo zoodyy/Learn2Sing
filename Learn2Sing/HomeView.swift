@@ -54,6 +54,10 @@ enum HomeCategories {
 /// fixed, though each one's eye button hides it from this tab (never the last
 /// visible one).
 struct HomeView: View {
+    /// Re-renders this screen when the language is changed in Settings; the
+    /// strings are resolved when the body runs, so SwiftUI needs telling.
+    @ObservedObject private var appLanguage = LanguageManager.shared
+
     @EnvironmentObject private var store: ExerciseStore
     @EnvironmentObject private var toasts: ToastCenter
     // Typed (not NavigationPath) so pops can be inspected for the saved toasts.
@@ -150,7 +154,7 @@ struct HomeView: View {
         var placeholder = Exercise(name: routine.name)
         placeholder.id = routine.id
         return ExerciseListRow(exercise: placeholder, pattern: [],
-                               swipeActionTitle: "Edit", swipeActionImage: "pencil",
+                               swipeActionTitle: L("Edit"), swipeActionImage: "pencil",
                                showsDelete: true)
     }
 
@@ -277,7 +281,7 @@ struct HomeView: View {
     private func reorderRow(_ category: String) -> some View {
         let isHidden = hiddenCategories.contains(category)
         return HStack {
-            Text(category)
+            Text(ExerciseCategoryName.localized(category))
                 .foregroundStyle(isHidden ? .secondary : .primary)
             Spacer()
             Button {
@@ -287,7 +291,9 @@ struct HomeView: View {
             }
             .buttonStyle(.borderless)
             .disabled(!canToggleHidden(category))
-            .accessibilityLabel(isHidden ? "Show \(category)" : "Hide \(category)")
+            .accessibilityLabel(isHidden
+                                ? L("Show %@", ExerciseCategoryName.localized(category))
+                                : L("Hide %@", ExerciseCategoryName.localized(category)))
         }
     }
 
@@ -346,7 +352,7 @@ struct HomeView: View {
     var body: some View {
         NavigationStack(path: $navigationPath) {
             listContent
-            .navigationTitle(isReordering ? "Edit Categories" : "Home")
+            .navigationTitle(isReordering ? L("Edit Categories") : L("Home"))
             .navigationBarTitleDisplayMode(.inline)
             .stableTopEdgeFade()
             .toolbar {
@@ -376,7 +382,7 @@ struct HomeView: View {
                 }
                 Button("Cancel", role: .cancel) {}
             } message: { routine in
-                Text("\"\(routine.name)\" will be deleted. Its exercises stay in your library. This cannot be undone.")
+                Text(L("\"%@\" will be deleted. Its exercises stay in your library. This cannot be undone.", routine.name))
             }
             .onChange(of: navigationPath) { old, new in
                 toasts.routesPopped(from: old, to: new)
@@ -437,7 +443,7 @@ struct HomeView: View {
             let exercises = routineExercises(id)
             if index < exercises.count {
                 PlaybackView(exercise: exercises[index],
-                             scoreExitTitle: index + 1 < exercises.count ? "Next" : "Exit",
+                             scoreExitTitle: index + 1 < exercises.count ? L("Next") : L("Exit"),
                              onScoreExit: { advanceRoutine(id, after: index) })
             }
         case .routinePicker(let id):

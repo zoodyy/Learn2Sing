@@ -23,11 +23,11 @@ enum ExerciseFilter: String, CaseIterable, Identifiable {
 
     var label: String {
         switch self {
-        case .bundled: "Bundled Exercises"
-        case .community: "Community Exercises"
-        case .own: "Own Exercises"
-        case .public: "Public Exercises"
-        case .private: "Private Exercises"
+        case .bundled: L("Bundled Exercises")
+        case .community: L("Community Exercises")
+        case .own: L("Own Exercises")
+        case .public: L("Public Exercises")
+        case .private: L("Private Exercises")
         }
     }
 

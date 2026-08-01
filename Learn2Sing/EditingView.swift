@@ -67,6 +67,10 @@ private let beatEpsilon: Double = 1e-9
 // MARK: - EditingView
 
 struct EditingView: View {
+    /// Re-renders this screen when the language is changed in Settings; the
+    /// strings are resolved when the body runs, so SwiftUI needs telling.
+    @ObservedObject private var appLanguage = LanguageManager.shared
+
     var exercise: Exercise? = nil
 
     @State private var notes: [MIDINote] = []
@@ -181,7 +185,7 @@ struct EditingView: View {
             transportBar
         }
         .background(Color.black)
-        .navigationTitle(exercise?.name ?? "Editing")
+        .navigationTitle(exercise?.localizedName ?? L("Editing"))
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden(true)
         .toolbar {
@@ -356,7 +360,7 @@ struct EditingView: View {
                             ctx.stroke(tick, with: .color(white: isBar ? 0.6 : 0.35), lineWidth: 1)
                             if isBar {
                                 ctx.draw(
-                                    Text("\(beat / beatsPerMeasure + 1)")
+                                    Text(verbatim: "\(beat / beatsPerMeasure + 1)")
                                         .font(.system(size: 9, weight: .medium))
                                         .foregroundColor(.gray),
                                     at: CGPoint(x: x + 3, y: 1),
@@ -427,14 +431,14 @@ struct EditingView: View {
                     .frame(width: 28)
             }
             .disabled(notes.isEmpty)
-            .accessibilityLabel(isPlaying ? "Stop" : "Play")
+            .accessibilityLabel(isPlaying ? L("Stop") : L("Play"))
             TimelineView(.animation(minimumInterval: 0.1, paused: !isPlaying)) { _ in
-                Text(positionLabel(for: displayBeat))
+                Text(verbatim: positionLabel(for: displayBeat))
                     .font(.system(.footnote, design: .monospaced))
                     .foregroundStyle(.secondary)
             }
             Spacer()
-            Text("\(Int(bpm)) BPM")
+            Text(L("%d BPM", Int(bpm)))
                 .font(.footnote)
                 .foregroundStyle(.secondary)
         }
@@ -619,7 +623,7 @@ struct EditingView: View {
                 // and says why: the press looks like it should have worked.
                 let start = snappedBeat(v.startLocation.x)
                 guard !isOccupied(start), spaceAfter(start) >= minLength else {
-                    toasts.show("Notes Can't Overlap", icon: "exclamationmark.triangle.fill")
+                    toasts.show(L("Notes Can't Overlap"), icon: "exclamationmark.triangle.fill")
                     break
                 }
                 let note = MIDINote(

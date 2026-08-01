@@ -14,11 +14,11 @@ enum CommunitySort: String, CaseIterable, Identifiable {
 
     var label: String {
         switch self {
-        case .newest: "Newest First"
-        case .oldest: "Oldest First"
-        case .mostLiked: "Most Liked"
-        case .mostDownloaded: "Most Downloaded"
-        case .alphabetical: "Alphabetical"
+        case .newest: L("Newest First")
+        case .oldest: L("Oldest First")
+        case .mostLiked: L("Most Liked")
+        case .mostDownloaded: L("Most Downloaded")
+        case .alphabetical: L("Alphabetical")
         }
     }
 

@@ -15,7 +15,7 @@ struct ExerciseListRow: Equatable {
     var isSelected: Bool? = nil
     /// Title and symbol of the leading "Settings" swipe action, so rows that
     /// aren't exercises (routines on the Home tab) can label it differently.
-    var swipeActionTitle = "Settings"
+    var swipeActionTitle = L("Settings")
     var swipeActionImage = "slider.horizontal.3"
     /// true adds a trailing "Delete" swipe action (routines on the Home tab).
     var showsDelete = false
@@ -41,6 +41,11 @@ struct ExerciseListSection: Equatable {
     /// false drops the collapse chevron from the header, for sections that only
     /// label a group and can't be collapsed (the Community search results).
     var showsChevron = true
+    /// What the header reads, when it isn't the category name itself. `category`
+    /// stays the English identifier the sections are diffed and grouped by, so a
+    /// section whose heading is a fixed piece of UI text (the Community search
+    /// results) passes its translated heading here instead.
+    var displayName: String? = nil
 }
 
 /// The normal-mode exercise list. This is intentionally NOT a SwiftUI List: a
@@ -74,6 +79,10 @@ struct ExerciseCollectionList: UIViewControllerRepresentable {
     /// true starts the list scrolled just past the navigation bar's search drawer,
     /// so the field only appears when the user pulls down (Exercises tab).
     var hidesSearchBarInitially = false
+    /// Captured when SwiftUI rebuilds this view. Cell text and headers are
+    /// translated as they're written into UIKit, and the section data itself is
+    /// unchanged by a language switch, so the controller is told separately.
+    var language = LanguageManager.shared.language
 
     func makeUIViewController(context: Context) -> ExerciseListController {
         let controller = ExerciseListController()
@@ -96,6 +105,7 @@ struct ExerciseCollectionList: UIViewControllerRepresentable {
         controller.onAdd = onAdd
         controller.onMove = onMove
         controller.hidesSearchBarInitially = hidesSearchBarInitially
+        controller.setLanguage(language)
         controller.setSections(sections, animated: true)
     }
 }
@@ -126,6 +136,22 @@ final class ExerciseListController: UIViewController {
     /// Set once the initial scroll past the search drawer has been performed, so
     /// later layout passes leave the user's scroll position alone.
     private var hasHiddenSearchBar = false
+
+    /// The language the visible cells and headers were rendered in.
+    private var language = LanguageManager.shared.language
+
+    /// Redraw everything after a language change. The sections are identical —
+    /// exercise names are stored in English and translated on the way into the
+    /// cell — so the diffable data source has to be told to reconfigure by hand.
+    func setLanguage(_ new: AppLanguage) {
+        guard new != language else { return }
+        language = new
+        guard dataSource != nil else { return }
+        var snapshot = dataSource.snapshot()
+        snapshot.reconfigureItems(snapshot.itemIdentifiers)
+        dataSource.apply(snapshot, animatingDifferences: false)
+        updateVisibleHeaders(animated: false)
+    }
 
     private var sections: [ExerciseListSection] = []
     private var rowsByID: [UUID: ExerciseListRow] = [:]
@@ -189,7 +215,7 @@ final class ExerciseListController: UIViewController {
                 // exercise name truncates with "…" while the uploader's name
                 // always stays fully visible.
                 cell.contentConfiguration = NameUploaderConfiguration(
-                    name: row.exercise.name, uploader: uploader,
+                    name: row.exercise.localizedName, uploader: uploader,
                     onTapUploader: self?.onSelectUploader.map { open in
                         { open(uploader) }
                     }
@@ -199,7 +225,7 @@ final class ExerciseListController: UIViewController {
                 // Long exercise names truncate with "…" instead of wrapping.
                 content.textProperties.numberOfLines = 1
                 content.textProperties.lineBreakMode = .byTruncatingTail
-                content.text = row?.exercise.name
+                content.text = row?.exercise.localizedName
                 cell.contentConfiguration = content
             }
             var accessories: [UICellAccessory] = []
@@ -348,7 +374,8 @@ final class ExerciseListController: UIViewController {
     private func configure(header: ExerciseSectionHeaderView, forSection sectionIndex: Int, animated: Bool) {
         guard sectionIndex < sections.count else { return }
         let section = sections[sectionIndex]
-        header.configure(name: section.category, count: section.totalCount,
+        header.configure(name: section.displayName ?? ExerciseCategoryName.localized(section.category),
+                         count: section.totalCount,
                          isCollapsed: section.isCollapsed, showsCount: section.showsCount,
                          showsChevron: section.showsChevron, animated: animated)
         header.onTap = { [weak self] in self?.onToggleCollapse?(section.category) }
@@ -402,7 +429,7 @@ final class ExerciseListController: UIViewController {
         guard onDelete != nil,
               let id = dataSource.itemIdentifier(for: indexPath)?.id,
               rowsByID[id]?.showsDelete == true else { return nil }
-        let action = UIContextualAction(style: .destructive, title: "Delete") { [weak self] _, _, done in
+        let action = UIContextualAction(style: .destructive, title: L("Delete")) { [weak self] _, _, done in
             self?.onDelete?(id)
             // false, so the row isn't removed here: a confirmation alert follows,
             // and the row only leaves once the store update flows back in.
@@ -748,7 +775,7 @@ final class ExerciseSectionHeaderView: UICollectionReusableView {
             forImageIn: .normal
         )
         addButton.setContentHuggingPriority(.required, for: .horizontal)
-        addButton.accessibilityLabel = "Add"
+        addButton.accessibilityLabel = L("Add")
         addButton.isHidden = true
         addButton.addTarget(self, action: #selector(addTapped), for: .touchUpInside)
 

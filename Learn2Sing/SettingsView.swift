@@ -10,6 +10,10 @@ import UIKit
 import UniformTypeIdentifiers
 
 struct SettingsView: View {
+    /// Re-renders this screen when the language is changed in Settings; the
+    /// strings are resolved when the body runs, so SwiftUI needs telling.
+    @ObservedObject private var appLanguage = LanguageManager.shared
+
     @State private var settingsPath = NavigationPath()
 
     /// The exercise driving the microphone-delay test. Built once so the intro and
@@ -20,25 +24,28 @@ struct SettingsView: View {
         NavigationStack(path: $settingsPath) {
             Form {
                 Section {
-                    hubLink("Profile", systemImage: "person.crop.circle", route: .profile)
+                    hubLink(L("Profile"), systemImage: "person.crop.circle", route: .profile)
 
-                    hubLink("Audio", systemImage: "speaker.wave.2", route: .audio)
-                        .settingHelp("Instruments, playback and recording devices, and the microphone delay used for scoring.")
+                    hubLink(L("Audio"), systemImage: "speaker.wave.2", route: .audio)
+                        .settingHelp(L("Instruments, playback and recording devices, and the microphone delay used for scoring."))
 
-                    hubLink("Visuals", systemImage: "paintpalette", route: .visualsHub)
-                        .settingHelp("Theme, orientation and the look of the playback screen.")
+                    hubLink(L("Visuals"), systemImage: "paintpalette", route: .visualsHub)
+                        .settingHelp(L("Theme, orientation and the look of the playback screen."))
 
-                    hubLink("Voice", systemImage: "music.mic", route: .voice)
-                        .settingHelp("Your vocal range and the test that measures it.")
+                    hubLink(L("Voice"), systemImage: "music.mic", route: .voice)
+                        .settingHelp(L("Your vocal range and the test that measures it."))
 
-                    hubLink("Exercises", systemImage: "list.bullet", route: .exercises)
-                        .settingHelp("How your exercise library is presented, including the Home tab's recommendations.")
+                    hubLink(L("Exercises"), systemImage: "list.bullet", route: .exercises)
+                        .settingHelp(L("How your exercise library is presented, including the Home tab's recommendations."))
 
-                    hubLink("Backup", systemImage: "externaldrive", route: .backup)
-                        .settingHelp("Export your exercise library to a file, or import one.")
+                    hubLink(L("Backup"), systemImage: "externaldrive", route: .backup)
+                        .settingHelp(L("Export your exercise library to a file, or import one."))
+
+                    hubLink(L("Language"), systemImage: "globe", route: .language)
+                        .settingHelp(L("The language the app is displayed in. Kept on this device only."))
                 }
             }
-            .navigationTitle("Settings")
+            .navigationTitle(L("Settings"))
             .navigationBarTitleDisplayMode(.inline)
             .stableTopEdgeFade()
             .navigationDestination(for: SettingsRoute.self) { route in
@@ -79,6 +86,8 @@ struct SettingsView: View {
                     RecommendationWhitelistView()
                 case .backup:
                     BackupSettingsView()
+                case .language:
+                    LanguageSettingsView()
                 }
             }
             // Select the whole number when a numeric field anywhere on this stack is
@@ -115,7 +124,8 @@ struct SettingsView: View {
 
     /// Screens pushed onto the Settings navigation stack: the category hubs
     /// (Audio with its instruments screens, Visuals, Voice, Exercises, Backup,
-    /// Profile) and the microphone-delay and vocal-range tests they lead to.
+    /// Language, Profile) and the microphone-delay and vocal-range tests they
+    /// lead to.
     private enum SettingsRoute: Hashable {
         case audio
         case instruments
@@ -131,15 +141,16 @@ struct SettingsView: View {
         case exercises
         case recommendationWhitelist
         case backup
+        case language
     }
 
     /// The throwaway exercise that drives the delay test, with the description shown
     /// on its intro screen. Its notes are generated in PlaybackView's delay-test
     /// mode rather than loaded from storage, so it never enters the user's library.
     private static func makeDelayTestExercise() -> Exercise {
-        var exercise = Exercise(name: "Microphone Delay Test")
+        var exercise = Exercise(name: L("Microphone Delay Test"))
         exercise.bpm = 80
-        exercise.details = """
+        exercise.details = L("""
         This test measures how long it takes your microphone to pick up sound, so \
         the app can line your singing up with the notes when scoring.
 
@@ -153,7 +164,7 @@ struct SettingsView: View {
 
         For the most accurate result, use headphones so the metronome isn't picked \
         up by the microphone, and clap firmly.
-        """
+        """)
         return exercise
     }
 }
@@ -161,6 +172,10 @@ struct SettingsView: View {
 /// The "Voice" hub reached from Settings: the user's vocal range and the test
 /// that measures it. A screen of its own so further voice areas can be added.
 struct VoiceSettingsView: View {
+    /// Re-renders this screen when the language is changed in Settings; the
+    /// strings are resolved when the body runs, so SwiftUI needs telling.
+    @ObservedObject private var appLanguage = LanguageManager.shared
+
     @AppStorage(VocalRange.storageKey) private var vocalRangeRaw = ""
     @AppStorage(VocalRange.customLowKey)  private var customLow  = VocalRange.customDefault.low
     @AppStorage(VocalRange.customHighKey) private var customHigh = VocalRange.customDefault.high
@@ -176,15 +191,15 @@ struct VoiceSettingsView: View {
                 Picker("Vocal range", selection: $vocalRangeRaw) {
                     Text("Not set").tag("")
                     ForEach(VocalRange.allCases) { range in
-                        Text(range.rawValue).tag(range.rawValue)
+                        Text(L(range.rawValue)).tag(range.rawValue)
                     }
                 }
-                .settingHelp("Choose your voice type, or pick “Custom” to enter your own lowest and highest notes. The test below can fill this in for you.")
+                .settingHelp(L("Choose your voice type, or pick “Custom” to enter your own lowest and highest notes. The test below can fill this in for you."))
 
                 if isCustom {
                     Picker("Lowest note", selection: $customLow) {
                         ForEach(loPitch...hiPitch, id: \.self) { pitch in
-                            Text(pitchName(pitch)).tag(pitch)
+                            Text(verbatim: pitchName(pitch)).tag(pitch)
                         }
                     }
                     .onChange(of: customLow) { _, newLow in
@@ -193,24 +208,24 @@ struct VoiceSettingsView: View {
 
                     Picker("Highest note", selection: $customHigh) {
                         ForEach(loPitch...hiPitch, id: \.self) { pitch in
-                            Text(pitchName(pitch)).tag(pitch)
+                            Text(verbatim: pitchName(pitch)).tag(pitch)
                         }
                     }
                     .onChange(of: customHigh) { _, newHigh in
                         if newHigh < customLow { customLow = newHigh }
                     }
-                    .settingHelp("The lowest and highest notes you can comfortably sing. Exercises are transposed to fit between them.")
+                    .settingHelp(L("The lowest and highest notes you can comfortably sing. Exercises are transposed to fit between them."))
                 }
 
                 Button(action: openRangeTest) {
                     Label("Test Vocal Range", systemImage: "waveform")
                 }
-                .settingHelp("Sing your lowest and highest notes and the app sets them as your custom vocal range above.")
+                .settingHelp(L("Sing your lowest and highest notes and the app sets them as your custom vocal range above."))
             } header: {
                 Text("Vocal Range")
             }
         }
-        .navigationTitle("Voice")
+        .navigationTitle(L("Voice"))
         .navigationBarTitleDisplayMode(.inline)
     }
 }
@@ -219,6 +234,10 @@ struct VoiceSettingsView: View {
 /// presented — the size of the Home tab's "Recommended" category and which
 /// exercises it may draw from.
 struct ExercisesSettingsView: View {
+    /// Re-renders this screen when the language is changed in Settings; the
+    /// strings are resolved when the body runs, so SwiftUI needs telling.
+    @ObservedObject private var appLanguage = LanguageManager.shared
+
     @EnvironmentObject private var store: ExerciseStore
     @AppStorage(RecommendedExercises.amountKey)
     private var recommendedAmount = RecommendedExercises.defaultAmount
@@ -233,16 +252,16 @@ struct ExercisesSettingsView: View {
                     HStack {
                         Text("Recommended exercises amount")
                         Spacer()
-                        Text("\(recommendedAmount)").foregroundStyle(.secondary)
+                        Text(verbatim: "\(recommendedAmount)").foregroundStyle(.secondary)
                     }
                 }
-                .settingHelp("How many exercises the Home tab's “Recommended” category suggests. It picks the whitelisted exercises you haven't practised in the longest.")
+                .settingHelp(L("How many exercises the Home tab's “Recommended” category suggests. It picks the whitelisted exercises you haven't practised in the longest."))
 
                 Button(action: openWhitelist) {
                     HStack {
                         Text("Whitelisted exercises")
                         Spacer()
-                        Text("\(store.recommendationWhitelist.count)")
+                        Text(verbatim: "\(store.recommendationWhitelist.count)")
                             .foregroundStyle(.secondary)
                         Image(systemName: "chevron.right")
                             .font(.footnote.weight(.semibold))
@@ -250,12 +269,12 @@ struct ExercisesSettingsView: View {
                     }
                 }
                 .foregroundStyle(.primary)
-                .settingHelp("The exercises recommendations are picked from. Everything that came with the app starts out selected; tap an exercise to add or remove it.")
+                .settingHelp(L("The exercises recommendations are picked from. Everything that came with the app starts out selected; tap an exercise to add or remove it."))
             } header: {
                 Text("Recommendations")
             }
         }
-        .navigationTitle("Exercises")
+        .navigationTitle(L("Exercises"))
         .navigationBarTitleDisplayMode(.inline)
     }
 }
@@ -263,6 +282,10 @@ struct ExercisesSettingsView: View {
 /// The "Backup" hub reached from Settings: exporting the exercise library to a
 /// file and importing one back in.
 struct BackupSettingsView: View {
+    /// Re-renders this screen when the language is changed in Settings; the
+    /// strings are resolved when the body runs, so SwiftUI needs telling.
+    @ObservedObject private var appLanguage = LanguageManager.shared
+
     @EnvironmentObject private var store: ExerciseStore
 
     @State private var exportDocument: ExerciseDocument?
@@ -278,33 +301,33 @@ struct BackupSettingsView: View {
                         exportDocument = ExerciseDocument(data: data)
                         isExporting = true
                     } else {
-                        alertMessage = "Could not prepare the export file."
+                        alertMessage = L("Could not prepare the export file.")
                     }
                 } label: {
                     Label("Export Exercises", systemImage: "square.and.arrow.up")
                 }
-                .settingHelp("Export saves every exercise and its settings to a file. Import merges exercises from a file into your library.")
+                .settingHelp(L("Export saves every exercise and its settings to a file. Import merges exercises from a file into your library."))
 
                 Button {
                     isImporting = true
                 } label: {
                     Label("Import Exercises", systemImage: "square.and.arrow.down")
                 }
-                .settingHelp("Export saves every exercise and its settings to a file. Import merges exercises from a file into your library.")
+                .settingHelp(L("Export saves every exercise and its settings to a file. Import merges exercises from a file into your library."))
             } header: {
                 Text("Exercises")
             }
         }
-        .navigationTitle("Backup")
+        .navigationTitle(L("Backup"))
         .navigationBarTitleDisplayMode(.inline)
         .fileExporter(
             isPresented: $isExporting,
             document: exportDocument,
             contentType: .json,
-            defaultFilename: "Learn2Sing Exercises"
+            defaultFilename: L("Learn2Sing Exercises")
         ) { result in
             if case .failure(let error) = result {
-                alertMessage = "Export failed: \(error.localizedDescription)"
+                alertMessage = L("Export failed: %@", error.localizedDescription)
             }
         }
         .fileImporter(
@@ -316,11 +339,11 @@ struct BackupSettingsView: View {
                 let accessed = url.startAccessingSecurityScopedResource()
                 defer { if accessed { url.stopAccessingSecurityScopedResource() } }
                 guard let data = try? Data(contentsOf: url), store.importData(data) else {
-                    alertMessage = "That file could not be imported."
+                    alertMessage = L("That file could not be imported.")
                     return
                 }
             case .failure(let error):
-                alertMessage = "Import failed: \(error.localizedDescription)"
+                alertMessage = L("Import failed: %@", error.localizedDescription)
             }
         }
         .alert("Exercises", isPresented: Binding(

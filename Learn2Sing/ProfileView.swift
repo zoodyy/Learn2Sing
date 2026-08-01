@@ -69,6 +69,10 @@ struct ProfileFile: Transferable {
 }
 
 struct ProfileView: View {
+    /// Re-renders this screen when the language is changed in Settings; the
+    /// strings are resolved when the body runs, so SwiftUI needs telling.
+    @ObservedObject private var appLanguage = LanguageManager.shared
+
     @EnvironmentObject private var store: ExerciseStore
     @State private var profile = UserProfile.load()
 
@@ -90,7 +94,7 @@ struct ProfileView: View {
 
             Section("Device") {
                 LabeledContent("Device ID") {
-                    Text(profile.deviceID.isEmpty ? "Unavailable" : profile.deviceID)
+                    Text(profile.deviceID.isEmpty ? L("Unavailable") : profile.deviceID)
                         .font(.footnote.monospaced())
                         .textSelection(.enabled)
                 }
@@ -103,10 +107,10 @@ struct ProfileView: View {
                 ) {
                     Label("Download Profile", systemImage: "square.and.arrow.up")
                 }
-                .settingHelp("Saves your profile as a JSON file using the share sheet.")
+                .settingHelp(L("Saves your profile as a JSON file using the share sheet."))
             }
         }
-        .navigationTitle("Profile")
+        .navigationTitle(L("Profile"))
         .navigationBarTitleDisplayMode(.inline)
         .stableTopEdgeFade()
         .onAppear { profile.save() }

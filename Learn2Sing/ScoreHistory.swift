@@ -84,7 +84,7 @@ struct ScoreHistoryChart: View {
         VStack(spacing: 10) {
             Picker("Range", selection: $range) {
                 ForEach(ScoreRange.allCases) { r in
-                    Text(r.rawValue).tag(r)
+                    Text(L(r.rawValue)).tag(r)
                 }
             }
             .pickerStyle(.segmented)
@@ -121,7 +121,7 @@ struct ScoreHistoryChart: View {
             AxisMarks(position: .leading, values: [0, 25, 50, 75, 100]) { value in
                 AxisGridLine().foregroundStyle(.white.opacity(0.15))
                 AxisValueLabel {
-                    if let v = value.as(Int.self) { Text("\(v)%") }
+                    if let v = value.as(Int.self) { Text(verbatim: "\(v)%") }
                 }
                 .foregroundStyle(.white.opacity(0.5))
             }

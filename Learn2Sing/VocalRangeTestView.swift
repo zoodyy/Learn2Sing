@@ -7,6 +7,10 @@ import Combine
 /// the singer's custom `VocalRange` in Settings. Purely measures the voice; it
 /// doesn't change how any exercise plays.
 struct VocalRangeTestView: View {
+    /// Re-renders this screen when the language is changed in Settings; the
+    /// strings are resolved when the body runs, so SwiftUI needs telling.
+    @ObservedObject private var appLanguage = LanguageManager.shared
+
     /// Called when the test is finished/dismissed, so the caller can pop the stack.
     let onFinish: () -> Void
 
@@ -43,23 +47,23 @@ struct VocalRangeTestView: View {
             switch phase {
             case .lowIntro:
                 intro(
-                    title: "Lowest Note",
-                    instruction: "When you’re ready, sing the lowest note you can and hold it steadily for 2 seconds.",
+                    title: L("Lowest Note"),
+                    instruction: L("When you’re ready, sing the lowest note you can and hold it steadily for 2 seconds."),
                     icon: "arrow.down.circle.fill"
                 ) { beginRecording(.lowRecording) }
 
             case .highIntro:
                 intro(
-                    title: "Highest Note",
-                    instruction: "Now sing the highest note you can and hold it steadily for 2 seconds.",
+                    title: L("Highest Note"),
+                    instruction: L("Now sing the highest note you can and hold it steadily for 2 seconds."),
                     icon: "arrow.up.circle.fill"
                 ) { beginRecording(.highRecording) }
 
             case .lowRecording:
-                recording(prompt: "Sing your lowest note")
+                recording(prompt: L("Sing your lowest note"))
 
             case .highRecording:
-                recording(prompt: "Sing your highest note")
+                recording(prompt: L("Sing your highest note"))
 
             case .result:
                 result
@@ -67,7 +71,7 @@ struct VocalRangeTestView: View {
         }
         .padding()
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .navigationTitle("Vocal Range Test")
+        .navigationTitle(L("Vocal Range Test"))
         .navigationBarTitleDisplayMode(.inline)
         .onReceive(tick) { _ in collectSample() }
         .onAppear {
@@ -139,10 +143,10 @@ struct VocalRangeTestView: View {
                     .animation(.linear(duration: pollInterval), value: voicedTime)
 
                 VStack(spacing: 4) {
-                    Text(displayPitch.map { pitchName(Int($0.rounded())) } ?? "—")
+                    Text(verbatim: displayPitch.map { pitchName(Int($0.rounded())) } ?? "—")
                         .font(.system(size: 44, weight: .bold, design: .rounded))
                         .contentTransition(.numericText())
-                    Text(displayPitch == nil ? "Listening…" : "Hold it")
+                    Text(displayPitch == nil ? L("Listening…") : L("Hold it"))
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                 }
@@ -166,12 +170,12 @@ struct VocalRangeTestView: View {
                 .foregroundStyle(.secondary)
 
             if let low = lowMIDI, let high = highMIDI {
-                Text("\(pitchName(Int(low.rounded()))) – \(pitchName(Int(high.rounded())))")
+                Text(verbatim: "\(pitchName(Int(low.rounded()))) – \(pitchName(Int(high.rounded())))")
                     .font(.system(size: 56, weight: .bold, design: .rounded))
                     .foregroundStyle(.tint)
                     .multilineTextAlignment(.center)
             } else {
-                Text("—")
+                Text(verbatim: "—")
                     .font(.system(size: 56, weight: .bold, design: .rounded))
                     .foregroundStyle(.tint)
             }

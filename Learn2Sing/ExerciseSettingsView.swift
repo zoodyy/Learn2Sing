@@ -2,6 +2,10 @@ import SwiftUI
 import UIKit
 
 struct ExerciseSettingsView: View {
+    /// Re-renders this screen when the language is changed in Settings; the
+    /// strings are resolved when the body runs, so SwiftUI needs telling.
+    @ObservedObject private var appLanguage = LanguageManager.shared
+
     @Binding var exercise: Exercise
     @EnvironmentObject private var store: ExerciseStore
     @EnvironmentObject private var toasts: ToastCenter
@@ -25,7 +29,7 @@ struct ExerciseSettingsView: View {
     private var pitchLabel: String {
         let s = exercise.pitchShift
         let sign = s > 0 ? "+" : ""
-        let unit = abs(s) == 1 ? "semitone" : "semitones"
+        let unit = abs(s) == 1 ? L("semitone") : L("semitones")
         return "\(sign)\(s) \(unit)"
     }
 
@@ -63,7 +67,7 @@ struct ExerciseSettingsView: View {
                 HStack {
                     Text("Tempo")
                     Spacer()
-                    Text("\(Int(exercise.bpm)) BPM").foregroundStyle(.secondary)
+                    Text(L("%d BPM", Int(exercise.bpm))).foregroundStyle(.secondary)
                 }
                 Slider(value: $exercise.bpm, in: 40...240, step: 1)
             }
@@ -142,7 +146,7 @@ struct ExerciseSettingsView: View {
                             Text(visibility.label).tag(visibility)
                         }
                     }
-                    .settingHelp("Public exercises appear on the Community tab.")
+                    .settingHelp(L("Public exercises appear on the Community tab."))
                 } header: {
                     Text("Visibility")
                 }
@@ -168,7 +172,7 @@ struct ExerciseSettingsView: View {
             }
             Button("Cancel", role: .cancel) {}
         } message: {
-            Text("\"\(exercise.name)\" and its MIDI pattern will be deleted. This cannot be undone.")
+            Text(L("\"%@\" and its MIDI pattern will be deleted. This cannot be undone.", exercise.name))
         }
         // Publishing stamps the current profile username as the uploader shown
         // next to the exercise on the Community tab — unless the user already
@@ -190,9 +194,9 @@ struct ExerciseSettingsView: View {
         .alert("Name Already Public", isPresented: $isWarningDuplicateName) {
             Button("OK", role: .cancel) {}
         } message: {
-            Text("You already have a public exercise named \"\(exercise.name)\". Each of your public exercises needs a unique name, so this one stays private.")
+            Text(L("You already have a public exercise named \"%@\". Each of your public exercises needs a unique name, so this one stays private.", exercise.name))
         }
-        .navigationTitle(exercise.name)
+        .navigationTitle(exercise.localizedName)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItemGroup(placement: .keyboard) {

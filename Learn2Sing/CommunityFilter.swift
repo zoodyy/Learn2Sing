@@ -13,8 +13,8 @@ enum CommunityFilter: String, CaseIterable, Identifiable {
 
     var label: String {
         switch self {
-        case .liked: "Liked"
-        case .notLiked: "Not Liked"
+        case .liked: L("Liked")
+        case .notLiked: L("Not Liked")
         }
     }
 

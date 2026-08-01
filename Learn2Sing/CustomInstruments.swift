@@ -169,6 +169,10 @@ func pitchInputText(_ hz: Double) -> String {
 /// playback sounds, or manage the uploaded ones — add via the file picker, swipe
 /// to delete, tap a row to edit its name and pitch on the detail screen.
 struct InstrumentsView: View {
+    /// Re-renders this screen when the language is changed in Settings; the
+    /// strings are resolved when the body runs, so SwiftUI needs telling.
+    @ObservedObject private var appLanguage = LanguageManager.shared
+
     @ObservedObject private var store = CustomInstrumentStore.shared
     @AppStorage(Instrument.storageKey) private var instrumentRaw = Instrument.piano.rawValue
 
@@ -186,7 +190,7 @@ struct InstrumentsView: View {
                         instrumentRaw = instrument.rawValue
                     } label: {
                         HStack {
-                            Text(instrument.rawValue)
+                            Text(L(instrument.rawValue))
                             Spacer()
                             if instrumentRaw == instrument.rawValue {
                                 Image(systemName: "checkmark")
@@ -229,10 +233,10 @@ struct InstrumentsView: View {
                 }
             } header: {
                 Text("Custom")
-                    .settingHelp("Upload an MP3 or WAV file containing a single sound. Playback shifts it up and down from its pitch to reach every note. After uploading, set the pitch the recording actually has.")
+                    .settingHelp(L("Upload an MP3 or WAV file containing a single sound. Playback shifts it up and down from its pitch to reach every note. After uploading, set the pitch the recording actually has."))
             }
         }
-        .navigationTitle("Instruments")
+        .navigationTitle(L("Instruments"))
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
@@ -255,10 +259,10 @@ struct InstrumentsView: View {
                     let instrument = try store.importFile(at: url)
                     onSelect(instrument.id)   // straight to naming & pitch
                 } catch {
-                    alertMessage = "That file could not be imported: \(error.localizedDescription)"
+                    alertMessage = L("That file could not be imported: %@", error.localizedDescription)
                 }
             case .failure(let error):
-                alertMessage = "Import failed: \(error.localizedDescription)"
+                alertMessage = L("Import failed: %@", error.localizedDescription)
             }
         }
         .alert("Instruments", isPresented: Binding(
@@ -275,6 +279,10 @@ struct InstrumentsView: View {
 /// Edit screen for one uploaded instrument: display name, the recording's pitch
 /// (note name or Hz), selecting it for playback, and deleting it.
 struct CustomInstrumentDetailView: View {
+    /// Re-renders this screen when the language is changed in Settings; the
+    /// strings are resolved when the body runs, so SwiftUI needs telling.
+    @ObservedObject private var appLanguage = LanguageManager.shared
+
     @Binding var instrument: CustomInstrument
     @ObservedObject private var store = CustomInstrumentStore.shared
     @AppStorage(Instrument.storageKey) private var instrumentRaw = Instrument.piano.rawValue
@@ -302,7 +310,7 @@ struct CustomInstrumentDetailView: View {
                             instrument.baseFrequency = hz
                         }
                     }
-                    .settingHelp("The note (e.g. C3) or frequency in Hz (e.g. 130.81) of the recorded sound. Playback shifts the recording up or down from here to reach each note.")
+                    .settingHelp(L("The note (e.g. C3) or frequency in Hz (e.g. 130.81) of the recorded sound. Playback shifts the recording up or down from here to reach each note."))
                 HStack {
                     Text("Interpreted as")
                     Spacer()
@@ -312,7 +320,7 @@ struct CustomInstrumentDetailView: View {
                         Text("Not recognized").foregroundStyle(.red)
                     }
                 }
-                .settingHelp("The note (e.g. C3) or frequency in Hz (e.g. 130.81) of the recorded sound. Playback shifts the recording up or down from here to reach each note.")
+                .settingHelp(L("The note (e.g. C3) or frequency in Hz (e.g. 130.81) of the recorded sound. Playback shifts the recording up or down from here to reach each note."))
             } header: {
                 Text("Pitch of the Recording")
             }
@@ -354,7 +362,7 @@ struct CustomInstrumentDetailView: View {
             }
             Button("Cancel", role: .cancel) {}
         } message: {
-            Text("\"\(instrument.name)\" and its audio file will be deleted. This cannot be undone.")
+            Text(L("\"%@\" and its audio file will be deleted. This cannot be undone.", instrument.name))
         }
     }
 }

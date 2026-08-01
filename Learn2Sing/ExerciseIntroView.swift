@@ -6,6 +6,10 @@ import SwiftUI
 /// button, on the trailing edge, and Download copies the exercise into the user's
 /// own library (the Exercises tab).
 struct ExerciseIntroView: View {
+    /// Re-renders this screen when the language is changed in Settings; the
+    /// strings are resolved when the body runs, so SwiftUI needs telling.
+    @ObservedObject private var appLanguage = LanguageManager.shared
+
     let exercise: Exercise
     /// Public id of the community exercise the like button acts on; nil (every
     /// tab but Community) hides the button.
@@ -25,14 +29,14 @@ struct ExerciseIntroView: View {
     @State private var showScore = false
 
     private var trimmedDetails: String {
-        exercise.details.trimmingCharacters(in: .whitespacesAndNewlines)
+        exercise.localizedDetails.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
     var body: some View {
         VStack(spacing: 0) {
             ScrollView {
                 VStack(alignment: .leading, spacing: 16) {
-                    Text(exercise.name)
+                    Text(exercise.localizedName)
                         .font(.largeTitle.weight(.bold))
 
                     if trimmedDetails.isEmpty {
@@ -68,7 +72,7 @@ struct ExerciseIntroView: View {
                     onDownload()
                     withAnimation { isDownloaded = true }
                 } label: {
-                    Label(isDownloaded ? "Added to Exercises" : "Download",
+                    Label(isDownloaded ? L("Added to Exercises") : L("Download"),
                           systemImage: isDownloaded ? "checkmark" : "arrow.down.circle")
                         .font(.headline)
                         .frame(maxWidth: .infinity)
@@ -92,7 +96,7 @@ struct ExerciseIntroView: View {
             .padding(.horizontal)
             .padding(.bottom)
         }
-        .navigationTitle(exercise.name)
+        .navigationTitle(exercise.localizedName)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
@@ -128,8 +132,8 @@ struct ExerciseIntroView: View {
             .background(.fill.tertiary, in: Capsule())
         }
         .buttonStyle(.plain)
-        .accessibilityLabel(isLiked ? "Unlike" : "Like")
-        .accessibilityValue("\(count) likes")
+        .accessibilityLabel(isLiked ? L("Unlike") : L("Like"))
+        .accessibilityValue(L("%d likes", count))
     }
 
     /// How often this exercise has been downloaded — the same number the
@@ -150,7 +154,7 @@ struct ExerciseIntroView: View {
         .background(.fill.tertiary, in: Capsule())
         .accessibilityElement(children: .ignore)
         .accessibilityLabel("Downloads")
-        .accessibilityValue("\(count)")
+        .accessibilityValue(count.formatted())
     }
 
     /// The same score-history chart shown on the result screen, kept on a black

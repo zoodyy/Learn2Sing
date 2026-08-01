@@ -705,11 +705,15 @@ private final class LastDrawnBeat {
 }
 
 struct PlaybackView: View {
+    /// Re-renders this screen when the language is changed in Settings; the
+    /// strings are resolved when the body runs, so SwiftUI needs telling.
+    @ObservedObject private var appLanguage = LanguageManager.shared
+
     let exercise: Exercise
     var mode: PlaybackMode = .normal
     /// Title of the score screen's exit button ("Next" while a routine has more
     /// exercises to play).
-    var scoreExitTitle = "Exit"
+    var scoreExitTitle = L("Exit")
     /// What the score screen's exit button does instead of popping this screen
     /// (routines advance to the next exercise). nil keeps the default dismiss.
     var onScoreExit: (() -> Void)? = nil
@@ -825,7 +829,7 @@ struct PlaybackView: View {
             }
         }
         .background(Color.black.ignoresSafeArea())
-        .navigationTitle(exercise.name)
+        .navigationTitle(exercise.localizedName)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             // No pause during the delay test: re-anchoring the clock mid-test would
@@ -1069,7 +1073,7 @@ struct PlaybackView: View {
         var ts: [MIDIText] = []
         for i in 0..<totalClaps {
             ns.append(MIDINote(pitch: delayTestPitch, beat: Double(i), length: 0.1))
-            ts.append(MIDIText(text: "*clap*", pitch: delayTestPitch + 3, beat: Double(i)))
+            ts.append(MIDIText(text: L("*clap*"), pitch: delayTestPitch + 3, beat: Double(i)))
         }
         notes = ns
         texts = ts
@@ -1218,7 +1222,7 @@ struct PlaybackView: View {
 private struct ScoreView: View {
     let score: Int
     let history: [ScoreEntry]
-    var exitTitle = "Exit"
+    var exitTitle = L("Exit")
     /// When set (playing from the Community tab), a Download button appears above
     /// the Play Again/Exit row, copying the exercise into the user's own library.
     var onDownload: (() -> Void)? = nil
@@ -1240,7 +1244,7 @@ private struct ScoreView: View {
                 .font(.title2.weight(.semibold))
                 .foregroundStyle(.white.opacity(0.7))
 
-            Text("\(score)%")
+            Text(verbatim: "\(score)%")
                 .font(.system(size: 80, weight: .bold, design: .rounded))
                 .foregroundStyle(tint)
                 .contentTransition(.numericText())
@@ -1274,7 +1278,7 @@ private struct ScoreView: View {
                     onDownload()
                     withAnimation { isDownloaded = true }
                 } label: {
-                    Label(isDownloaded ? "Added to Exercises" : "Download",
+                    Label(isDownloaded ? L("Added to Exercises") : L("Download"),
                           systemImage: isDownloaded ? "checkmark" : "arrow.down.circle")
                         .font(.headline)
                         .frame(maxWidth: .infinity)
@@ -1333,7 +1337,7 @@ private struct DelayResultView: View {
                 .font(.title2.weight(.semibold))
                 .foregroundStyle(.white.opacity(0.7))
 
-            Text("\(Int(delayMs)) ms")
+            Text(L("%d ms", Int(delayMs)))
                 .font(.system(size: 80, weight: .bold, design: .rounded))
                 .foregroundStyle(.cyan)
                 .contentTransition(.numericText())

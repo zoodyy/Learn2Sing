@@ -5,7 +5,7 @@ import SwiftUI
 enum ExerciseVisibility: String, Codable, CaseIterable {
     case `private`, `public`
 
-    var label: String { rawValue.capitalized }
+    var label: String { L(rawValue.capitalized) }
 }
 
 struct Exercise: Identifiable, Hashable, Codable {
@@ -102,10 +102,15 @@ private struct CategoryNameField: View {
     @State private var name: String
     @FocusState private var isFocused: Bool
 
+    /// What the field shows, and what an edit is measured against. The app's own
+    /// categories are stored in English and displayed translated, so leaving the
+    /// field untouched must not read as a rename.
+    private var displayName: String { ExerciseCategoryName.localized(category) }
+
     init(category: String, onRename: @escaping (String) -> Void) {
         self.category = category
         self.onRename = onRename
-        _name = State(initialValue: category)
+        _name = State(initialValue: ExerciseCategoryName.localized(category))
     }
 
     var body: some View {
@@ -119,16 +124,20 @@ private struct CategoryNameField: View {
 
     private func commit() {
         let trimmed = name.trimmingCharacters(in: .whitespaces)
-        if !trimmed.isEmpty, trimmed != category {
+        if !trimmed.isEmpty, trimmed != displayName {
             onRename(trimmed)
         }
         // On success the row is replaced (its ForEach identity is the name), so
         // this only shows through when the rename was refused: revert.
-        name = category
+        name = displayName
     }
 }
 
 struct ExercisesView: View {
+    /// Re-renders this screen when the language is changed in Settings; the
+    /// strings are resolved when the body runs, so SwiftUI needs telling.
+    @ObservedObject private var appLanguage = LanguageManager.shared
+
     @EnvironmentObject private var store: ExerciseStore
     @EnvironmentObject private var toasts: ToastCenter
     // Typed (not NavigationPath) so pops can be inspected for the saved toasts.
@@ -189,8 +198,12 @@ struct ExercisesView: View {
         }
         let query = self.query
         if !query.isEmpty {
+            // Bundled exercises are shown under their translated name, so the
+            // search has to look at that as well as the stored English one.
             result = result.filter {
                 Self.matches($0.name, query) || Self.matches($0.details, query)
+                    || Self.matches($0.localizedName, query)
+                    || Self.matches($0.localizedDetails, query)
             }
         }
         return result
@@ -259,14 +272,14 @@ struct ExercisesView: View {
         return HStack {
             if category == ExerciseStore.noCategoryName {
                 // Fill the row like the text field does so the count stays trailing.
-                Text(category)
+                Text(ExerciseCategoryName.localized(category))
                     .frame(maxWidth: .infinity, alignment: .leading)
             } else {
                 CategoryNameField(category: category) { newName in
                     renameCategory(category, to: newName)
                 }
             }
-            Text("(\(count))")
+            Text(verbatim: "(\(count))")
                 .foregroundStyle(.secondary)
             if isDeletingCategories && category != ExerciseStore.noCategoryName {
                 Button {
@@ -340,7 +353,7 @@ struct ExercisesView: View {
         // moment the user came back from its settings, so adding one drops both.
         activeFilters.removeAll()
         searchText = ""
-        let exercise = store.add(name: "New Exercise")
+        let exercise = store.add(name: L("New Exercise"))
         pendingNewExercise = exercise
         navigationPath.append(ExerciseRoute.settings(exercise.id))
     }
@@ -391,14 +404,14 @@ struct ExercisesView: View {
                     .ignoresSafeArea()
                 }
             }
-            .navigationTitle(isReordering ? "Edit Categories" : "Exercises")
+            .navigationTitle(isReordering ? L("Edit Categories") : L("Exercises"))
             .navigationBarTitleDisplayMode(.inline)
             // Unlike Community's always-visible field, this one starts scrolled
             // out of sight (see ExerciseCollectionList's hidesSearchBarInitially)
             // and is revealed by pulling the list down.
             .searchable(text: $searchText,
                         placement: .navigationBarDrawer(displayMode: .automatic),
-                        prompt: "Exercises, Descriptions")
+                        prompt: L("Exercises, Descriptions"))
             .stableTopEdgeFade()
             .toolbar {
                 if isReordering {

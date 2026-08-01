@@ -51,10 +51,10 @@ final class ToastCenter: ObservableObject {
         for route in old[new.count...] {
             switch route {
             case .settings:
-                show("Exercise Saved!")
+                show(L("Exercise Saved!"))
                 return
             case .edit:
-                show("Midi Saved!")
+                show(L("Midi Saved!"))
                 return
             default:
                 continue
