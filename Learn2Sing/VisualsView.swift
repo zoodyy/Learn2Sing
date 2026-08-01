@@ -1,5 +1,6 @@
 import SwiftUI
 import UniformTypeIdentifiers
+import Combine
 
 /// App-wide appearance choice. "System" follows the device's light/dark setting.
 enum AppTheme: String, CaseIterable, Identifiable {
@@ -160,6 +161,15 @@ struct PlaybackVisualsView: View {
     @State private var isNamingTemplate = false
     @State private var newTemplateName = ""
 
+    /// A template the user tapped while the settings on screen weren't saved in any
+    /// template. Non-nil while the warning alert is up; the template is only applied
+    /// once the user confirms (or after they've saved the current look first).
+    @State private var templateToSelect: VisualTemplate?
+
+    /// Set when the user answered that warning with "Save current as template": the
+    /// template to select once the new one has been named and saved.
+    @State private var selectAfterSaving: VisualTemplate?
+
     /// Share-sheet / file-dialog state for export & import of a single template.
     @State private var exportDocument: ExerciseDocument?
     @State private var exportFilename = "Visual Template"
@@ -246,12 +256,33 @@ struct PlaybackVisualsView: View {
         }
         .navigationTitle(L("Playback"))
         .navigationBarTitleDisplayMode(.inline)
+        // Every change to a control on this screen goes through UserDefaults, so one
+        // observer is enough to keep the selected template up to date with all of them.
+        .onReceive(NotificationCenter.default.publisher(for: UserDefaults.didChangeNotification)) { _ in
+            templates.syncSelectedWithCurrent()
+        }
         .alert("New Template", isPresented: $isNamingTemplate) {
             TextField("Name", text: $newTemplateName)
             Button("Save") { saveCurrentAsTemplate() }
-            Button("Cancel", role: .cancel) { }
+            Button("Cancel", role: .cancel) { selectAfterSaving = nil }
         } message: {
             Text("Save the current visual settings as a template.")
+        }
+        .alert("Replace current settings?", isPresented: Binding(
+            get: { templateToSelect != nil },
+            set: { if !$0 { templateToSelect = nil } }
+        ), presenting: templateToSelect) { template in
+            Button("Save current as template") {
+                selectAfterSaving = template
+                newTemplateName = ""
+                // Next runloop turn, so this alert is gone before the naming one is
+                // asked for — SwiftUI drops a second alert presented in the same one.
+                DispatchQueue.main.async { isNamingTemplate = true }
+            }
+            Button("Select anyway", role: .destructive) { templates.select(template) }
+            Button("Cancel", role: .cancel) { }
+        } message: { _ in
+            Text("Your current visual settings aren’t saved in any template. Selecting this one replaces them.")
         }
         .fileExporter(
             isPresented: $isExportingTemplate,
@@ -276,7 +307,7 @@ struct PlaybackVisualsView: View {
                     templateAlert = L("That file isn’t a valid visual template.")
                     return
                 }
-                templates.add(imported: template).apply()
+                templates.select(templates.add(imported: template))
             case .failure(let error):
                 templateAlert = L("Import failed: %@", error.localizedDescription)
             }
@@ -390,46 +421,69 @@ struct PlaybackVisualsView: View {
     private var templatesSection: some View {
         Section {
             ForEach(templates.templates) { template in
+                let isSelected = templates.selectedID == template.id
                 Button {
-                    template.apply()
+                    tap(template)
                 } label: {
                     HStack {
                         Text(VisualTemplateName.localized(template.name))
                             .foregroundStyle(.primary)
                         Spacer()
-                        if template.matchesCurrent {
+                        if isSelected {
                             Image(systemName: "checkmark")
                                 .font(.footnote.weight(.semibold))
                                 .foregroundStyle(.tint)
                         }
                     }
                 }
+                // The checkmark is the only thing marking the selected row, and it
+                // carries no label of its own, so state the selection outright.
+                .accessibilityAddTraits(isSelected ? [.isSelected] : [])
             }
             .onDelete { templates.remove(atOffsets: $0) }
 
             Button {
+                selectAfterSaving = nil
                 newTemplateName = ""
                 isNamingTemplate = true
             } label: {
                 Label("Save current as template", systemImage: "plus")
             }
-            .settingHelp(L("Select a template to apply it, or save the current settings as a new one."))
+            .settingHelp(L("Tap a template to switch to it, or tap the selected one to deselect it. While a template is selected, the settings on this screen are saved into it as you change them."))
         } header: {
             Text("Templates")
         }
     }
 
-    /// Captures the current settings under the entered name and stores them.
+    /// A tap on a template row: deselects it if it's the selected one, otherwise
+    /// switches to it — first warning if that would throw away settings the user has
+    /// changed without saving them anywhere.
+    private func tap(_ template: VisualTemplate) {
+        if templates.selectedID == template.id {
+            templates.deselect()
+        } else if templates.currentSettingsAreSaved {
+            templates.select(template)
+        } else {
+            templateToSelect = template
+        }
+    }
+
+    /// Captures the current settings under the entered name and stores them, selecting
+    /// the new template so further edits keep going into it. When the naming came from
+    /// the "replace current settings?" warning, the template that was tapped is
+    /// selected once the current look is safely saved.
     private func saveCurrentAsTemplate() {
+        let pending = selectAfterSaving
+        selectAfterSaving = nil
         let name = newTemplateName.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !name.isEmpty else { return }
         templates.add(.capturingCurrent(name: name))
+        if let pending { templates.select(pending) }
     }
 
     /// Prepares a JSON document of the current settings and presents the share dialog.
     private func exportCurrentTemplate() {
-        let current = templates.templates.first(where: \.matchesCurrent)
-        let name = current?.name ?? "Custom"
+        let name = templates.selected?.name ?? "Custom"
         let template = VisualTemplate.capturingCurrent(name: name)
         guard let data = template.jsonData() else {
             templateAlert = L("Could not prepare the template file.")

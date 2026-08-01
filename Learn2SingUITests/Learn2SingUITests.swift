@@ -2706,4 +2706,92 @@ final class Learn2SingUITests: XCTestCase {
                        "the category order was lost across a relaunch")
         saveScreenshot("home-categories-order-after-relaunch")
     }
+
+    // MARK: - Visual templates
+
+    /// Settings ▸ Visuals ▸ Playback: exactly one template is selected at a time —
+    /// including right after saving a new one — a tap on the selected template
+    /// deselects it, deleting it clears the selection, and the selection survives a
+    /// relaunch. (The controls on this screen don't respond to synthesised taps, so
+    /// the "changes are saved into the selected template" half is only exercised
+    /// through the template rows themselves.)
+    func testPlaybackTemplateSelection() throws {
+        let app = XCUIApplication()
+        app.launch()
+        app.buttons["Settings"].tap()
+        XCTAssertTrue(app.navigationBars["Settings"].waitForExistence(timeout: 5))
+        app.buttons["Visuals"].firstMatch.tap()
+        XCTAssertTrue(app.navigationBars["Visuals"].waitForExistence(timeout: 5))
+        app.buttons["Playback"].firstMatch.tap()
+        XCTAssertTrue(app.navigationBars["Playback"].waitForExistence(timeout: 5))
+
+        // Both the "Screen" toggle and the template rows sit at the bottom of the form.
+        for _ in 0..<4 { app.swipeUp() }
+
+        // The bundled template is seeded and selected on a fresh install, and it
+        // turns the tab bar off.
+        let bundled = app.buttons.matching(
+            NSPredicate(format: "label BEGINSWITH %@", "Simplest")).firstMatch
+        XCTAssertTrue(bundled.waitForExistence(timeout: 5), "bundled template row not found")
+        let hideTabBar = app.switches.matching(
+            NSPredicate(format: "label BEGINSWITH %@", "Hide tab bar")).firstMatch
+        XCTAssertTrue(hideTabBar.waitForExistence(timeout: 5), "Hide tab bar toggle not found")
+        XCTAssertEqual(hideTabBar.value as? String, "1",
+                       "the bundled template should hide the tab bar")
+
+        // Saving the current look adds a second template and moves the selection to
+        // it — one checkmark, not two.
+        func isSelected(_ row: XCUIElement) -> Bool { row.isSelected }
+        XCTAssertTrue(isSelected(bundled), "the bundled template starts out selected")
+        app.buttons["Save current as template"].tap()
+        let nameField = app.textFields.firstMatch
+        XCTAssertTrue(nameField.waitForExistence(timeout: 3))
+        nameField.typeText("Copy")
+        app.buttons["Save"].tap()
+        let copy = app.buttons.matching(
+            NSPredicate(format: "label BEGINSWITH %@", "Copy")).firstMatch
+        XCTAssertTrue(copy.waitForExistence(timeout: 3), "the saved template row not found")
+        XCTAssertTrue(isSelected(copy), "the newly saved template should be the selected one")
+        XCTAssertFalse(isSelected(bundled), "two templates are selected at once")
+
+        // Switching between templates moves the single checkmark along, and a tap on
+        // the selected template deselects it without disturbing the look on screen.
+        bundled.tap()
+        XCTAssertTrue(isSelected(bundled), "tapping a template didn't select it")
+        XCTAssertFalse(isSelected(copy))
+        bundled.tap()
+        XCTAssertFalse(isSelected(bundled), "the selected template didn't deselect")
+        XCTAssertEqual(hideTabBar.value as? String, "1", "deselecting changed the settings")
+
+        // With nothing selected but the look still stored in a template, selecting one
+        // needs no warning.
+        copy.tap()
+        XCTAssertTrue(isSelected(copy))
+        XCTAssertFalse(app.alerts.firstMatch.exists, "warned even though the look was saved")
+
+        // Deleting the selected template leaves its look on screen with nothing
+        // selected, and doesn't hand the selection to another template.
+        copy.swipeLeft()
+        let delete = app.buttons["Delete"].firstMatch
+        XCTAssertTrue(delete.waitForExistence(timeout: 3), "no Delete action on the row")
+        delete.tap()
+        XCTAssertFalse(copy.exists, "the template wasn't deleted")
+        XCTAssertFalse(isSelected(bundled), "deleting moved the selection elsewhere")
+        XCTAssertEqual(hideTabBar.value as? String, "1", "deleting changed the settings")
+
+        // The selection survives a relaunch.
+        bundled.tap()
+        XCTAssertTrue(isSelected(bundled))
+        app.terminate()
+        app.launch()
+        app.buttons["Settings"].tap()
+        app.buttons["Visuals"].firstMatch.tap()
+        app.buttons["Playback"].firstMatch.tap()
+        XCTAssertTrue(app.navigationBars["Playback"].waitForExistence(timeout: 5))
+        for _ in 0..<4 { app.swipeUp() }
+        let reopened = app.buttons.matching(
+            NSPredicate(format: "label BEGINSWITH %@", "Simplest")).firstMatch
+        XCTAssertTrue(reopened.waitForExistence(timeout: 5))
+        XCTAssertTrue(isSelected(reopened), "the selection was lost across a relaunch")
+    }
 }

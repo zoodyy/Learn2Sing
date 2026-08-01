@@ -20580,6 +20580,88 @@
         }
       }
     },
+    "Replace current settings?" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aktuelle Einstellungen ersetzen?"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¿Reemplazar los ajustes actuales?"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Remplacer les réglages actuels ?"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sostituire le impostazioni attuali?"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "現在の設定を置き換えますか？"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "현재 설정을 대체할까요?"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Huidige instellingen vervangen?"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zastąpić bieżące ustawienia?"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Substituir as configurações atuais?"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Заменить текущие настройки?"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ersätta nuvarande inställningar?"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Geçerli ayarlar değiştirilsin mi?"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "要替换当前设置吗？"
+          }
+        }
+      }
+    },
     "Reset" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -21899,85 +21981,84 @@
         }
       }
     },
-    "Select a template to apply it, or save the current settings as a new one." : {
-      "extractionState" : "stale",
+    "Select anyway" : {
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Wähle eine Vorlage aus, um sie anzuwenden, oder sichere die aktuellen Einstellungen als neue Vorlage."
+            "value" : "Trotzdem auswählen"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Selecciona una plantilla para aplicarla, o guarda los ajustes actuales como una nueva."
+            "value" : "Seleccionar de todos modos"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sélectionnez un modèle pour l’appliquer, ou enregistrez les réglages actuels comme nouveau modèle."
+            "value" : "Sélectionner quand même"
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Seleziona un modello per applicarlo, oppure salva le impostazioni attuali come nuovo modello."
+            "value" : "Seleziona comunque"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "適用するテンプレートを選ぶか、現在の設定を新しいテンプレートとして保存します。"
+            "value" : "それでも選択"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "적용할 템플릿을 선택하거나 현재 설정을 새 템플릿으로 저장하세요."
+            "value" : "그래도 선택"
           }
         },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Kies een sjabloon om het toe te passen, of bewaar de huidige instellingen als nieuw sjabloon."
+            "value" : "Toch selecteren"
           }
         },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Wybierz szablon, aby go zastosować, lub zapisz bieżące ustawienia jako nowy."
+            "value" : "Wybierz mimo to"
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Selecione um modelo para aplicá-lo ou salve as configurações atuais como um novo."
+            "value" : "Selecionar mesmo assim"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Выберите шаблон, чтобы применить его, или сохраните текущие настройки как новый."
+            "value" : "Всё равно выбрать"
           }
         },
         "sv" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Välj en mall för att använda den, eller spara de nuvarande inställningarna som en ny."
+            "value" : "Välj ändå"
           }
         },
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Uygulamak için bir şablon seçin ya da geçerli ayarları yeni bir şablon olarak kaydedin."
+            "value" : "Yine de seç"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "选择一个模板以应用，或将当前设置保存为新模板。"
+            "value" : "仍然选择"
           }
         }
       }
@@ -25030,6 +25111,89 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "系统"
+          }
+        }
+      }
+    },
+    "Tap a template to switch to it, or tap the selected one to deselect it. While a template is selected, the settings on this screen are saved into it as you change them." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tippe auf eine Vorlage, um zu ihr zu wechseln, oder auf die ausgewählte, um die Auswahl aufzuheben. Solange eine Vorlage ausgewählt ist, werden Änderungen auf diesem Bildschirm darin gesichert."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Toca una plantilla para cambiar a ella, o toca la seleccionada para deseleccionarla. Mientras una plantilla esté seleccionada, los ajustes de esta pantalla se guardan en ella a medida que los cambias."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Touchez un modèle pour y passer, ou le modèle sélectionné pour le désélectionner. Tant qu’un modèle est sélectionné, les réglages de cet écran y sont enregistrés au fur et à mesure."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tocca un modello per passare a quello, oppure tocca quello selezionato per deselezionarlo. Finché un modello è selezionato, le impostazioni di questa schermata vengono salvate al suo interno mentre le modifichi."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "テンプレートをタップすると切り替わり、選択中のテンプレートをタップすると選択が解除されます。テンプレートが選択されている間、この画面の設定は変更するたびにそのテンプレートへ保存されます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "템플릿을 탭하면 해당 템플릿으로 전환되고, 선택된 템플릿을 탭하면 선택이 해제됩니다. 템플릿이 선택되어 있는 동안에는 이 화면의 설정이 변경할 때마다 해당 템플릿에 저장됩니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tik op een sjabloon om ernaartoe te wisselen, of op het geselecteerde sjabloon om de selectie op te heffen. Zolang een sjabloon is geselecteerd, worden de instellingen op dit scherm erin bewaard terwijl je ze wijzigt."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dotknij szablonu, aby się na niego przełączyć, lub wybranego, aby anulować wybór. Gdy szablon jest wybrany, ustawienia na tym ekranie są w nim zapisywane na bieżąco."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Toque em um modelo para mudar para ele, ou toque no selecionado para desmarcá-lo. Enquanto um modelo estiver selecionado, as configurações desta tela são salvas nele conforme você as altera."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Нажмите на шаблон, чтобы переключиться на него, или на выбранный, чтобы снять выбор. Пока шаблон выбран, настройки на этом экране сохраняются в него по мере изменения."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tryck på en mall för att byta till den, eller på den valda för att avmarkera den. När en mall är vald sparas inställningarna på den här skärmen i den medan du ändrar dem."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bir şablona geçmek için ona dokunun, seçimi kaldırmak için seçili olana dokunun. Bir şablon seçiliyken bu ekrandaki ayarlar, siz değiştirdikçe o şablona kaydedilir."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "点按模板即可切换到该模板，点按已选中的模板可取消选择。模板处于选中状态时，此界面的设置会随改动自动保存到该模板中。"
           }
         }
       }
@@ -29494,6 +29658,88 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "你尚未更改任何应用自带的练习。"
+          }
+        }
+      }
+    },
+    "Your current visual settings aren’t saved in any template. Selecting this one replaces them." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deine aktuellen Darstellungseinstellungen sind in keiner Vorlage gesichert. Wenn du diese auswählst, werden sie ersetzt."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tus ajustes de apariencia actuales no están guardados en ninguna plantilla. Si seleccionas esta, se reemplazarán."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vos réglages d’apparence actuels ne sont enregistrés dans aucun modèle. Sélectionner celui-ci les remplacera."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le tue impostazioni di aspetto attuali non sono salvate in nessun modello. Selezionando questo verranno sostituite."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "現在の表示設定はどのテンプレートにも保存されていません。これを選ぶと設定が置き換わります。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "현재 화면 설정이 어떤 템플릿에도 저장되어 있지 않습니다. 이 템플릿을 선택하면 설정이 대체됩니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Je huidige weergave-instellingen zijn in geen enkel sjabloon bewaard. Als je dit sjabloon kiest, worden ze vervangen."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Twoje bieżące ustawienia wyglądu nie są zapisane w żadnym szablonie. Wybranie tego zastąpi je."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Suas configurações de aparência atuais não estão salvas em nenhum modelo. Selecionar este vai substituí-las."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ваши текущие настройки оформления не сохранены ни в одном шаблоне. Если выбрать этот, они будут заменены."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dina nuvarande utseendeinställningar är inte sparade i någon mall. Om du väljer den här ersätts de."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Geçerli görünüm ayarlarınız hiçbir şablonda kayıtlı değil. Bunu seçerseniz ayarlarınız değiştirilir."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "你当前的视觉设置尚未保存到任何模板中。选择此模板将会替换它们。"
           }
         }
       }

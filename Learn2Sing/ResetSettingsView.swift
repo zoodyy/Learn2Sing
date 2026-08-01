@@ -196,7 +196,7 @@ enum ResettableSettings: String, CaseIterable, Identifiable {
     /// Remove the stored values so every setting in the category reads as its
     /// default again, which is exactly what an untouched install shows.
     @MainActor
-    func reset(store: ExerciseStore) {
+    func reset(store: ExerciseStore, templates: VisualTemplateStore) {
         let defaults = UserDefaults.standard
         switch self {
         case .profile:
@@ -213,6 +213,9 @@ enum ResettableSettings: String, CaseIterable, Identifiable {
                 defaults.removeObject(forKey: key)
             }
         case .visuals:
+            // Detach from the selected template before clearing the keys, so the
+            // cleared values aren't saved into it as an edit.
+            templates.deselect()
             for key in [AppTheme.storageKey, OrientationLock.storageKey,
                         MenuVisualKeys.exercisePreviewColor] + VisualKeys.all {
                 defaults.removeObject(forKey: key)
@@ -220,8 +223,9 @@ enum ResettableSettings: String, CaseIterable, Identifiable {
             OrientationLockManager.apply(.none)
             // A fresh install doesn't sit on the raw playback defaults: the
             // template shipped in the app bundle is applied on first launch, so
-            // that — not `VisualDefaults` — is the look to come back to.
-            VisualTemplateStore.bundledTemplate?.apply()
+            // that — not `VisualDefaults` — is the look to come back to. It also
+            // becomes the selected template again if the user still has it.
+            templates.resetToBundled()
         case .voice:
             for key in [VocalRange.storageKey, VocalRange.customLowKey,
                         VocalRange.customHighKey] {
@@ -247,6 +251,9 @@ struct SettingsResetView: View {
     @ObservedObject private var appLanguage = LanguageManager.shared
 
     @EnvironmentObject private var store: ExerciseStore
+    /// Resetting the visuals puts the bundled template back and re-selects it, so the
+    /// live store — not just UserDefaults — has to hear about it.
+    @EnvironmentObject private var visualTemplates: VisualTemplateStore
 
     private enum Reset {
         case one(ResettableSettings)
@@ -291,8 +298,8 @@ struct SettingsResetView: View {
             }
         } perform: { reset in
             switch reset {
-            case .one(let category): category.reset(store: store)
-            case .all: ResettableSettings.allCases.forEach { $0.reset(store: store) }
+            case .one(let category): category.reset(store: store, templates: visualTemplates)
+            case .all: ResettableSettings.allCases.forEach { $0.reset(store: store, templates: visualTemplates) }
             }
         }
     }

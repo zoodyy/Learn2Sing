@@ -34,6 +34,7 @@ struct VisualTemplate: Codable, Identifiable, Hashable {
     var playheadStyle: String
     var showRepetitionCounter: Bool
     var repetitionCounterPosition: String
+    var hideTabBar: Bool
 
     init(id: UUID = UUID(), name: String,
          noteColor: String, playingNoteColor: String, noteRoundness: Double,
@@ -43,7 +44,8 @@ struct VisualTemplate: Codable, Identifiable, Hashable {
          singerSize: Double, singerInnerColor: String,
          singerOuterColor: String, singerLineColor: String,
          playheadColor: String, playheadStyle: String,
-         showRepetitionCounter: Bool, repetitionCounterPosition: String) {
+         showRepetitionCounter: Bool, repetitionCounterPosition: String,
+         hideTabBar: Bool) {
         self.id = id
         self.name = name
         self.noteColor = noteColor
@@ -66,6 +68,7 @@ struct VisualTemplate: Codable, Identifiable, Hashable {
         self.playheadStyle = playheadStyle
         self.showRepetitionCounter = showRepetitionCounter
         self.repetitionCounterPosition = repetitionCounterPosition
+        self.hideTabBar = hideTabBar
     }
 
     /// Custom decoding so templates saved (or bundled) before a setting existed still
@@ -95,6 +98,7 @@ struct VisualTemplate: Codable, Identifiable, Hashable {
         playheadStyle = try c.decodeIfPresent(String.self, forKey: .playheadStyle) ?? VisualDefaults.playheadStyle
         showRepetitionCounter = try c.decodeIfPresent(Bool.self, forKey: .showRepetitionCounter) ?? VisualDefaults.showRepetitionCounter
         repetitionCounterPosition = try c.decodeIfPresent(String.self, forKey: .repetitionCounterPosition) ?? VisualDefaults.repetitionCounterPosition
+        hideTabBar = try c.decodeIfPresent(Bool.self, forKey: .hideTabBar) ?? VisualDefaults.hideTabBar
     }
 
     /// Captures the settings currently stored in UserDefaults into a new template,
@@ -126,7 +130,8 @@ struct VisualTemplate: Codable, Identifiable, Hashable {
             playheadColor: str(VisualKeys.playheadColor, VisualDefaults.playheadColor),
             playheadStyle: str(VisualKeys.playheadStyle, VisualDefaults.playheadStyle),
             showRepetitionCounter: bool(VisualKeys.showRepetitionCounter, VisualDefaults.showRepetitionCounter),
-            repetitionCounterPosition: str(VisualKeys.repetitionCounterPosition, VisualDefaults.repetitionCounterPosition))
+            repetitionCounterPosition: str(VisualKeys.repetitionCounterPosition, VisualDefaults.repetitionCounterPosition),
+            hideTabBar: bool(VisualKeys.hideTabBar, VisualDefaults.hideTabBar))
     }
 
     /// Writes this template's values into UserDefaults under the `VisualKeys`. The
@@ -154,11 +159,13 @@ struct VisualTemplate: Codable, Identifiable, Hashable {
         d.set(playheadStyle, forKey: VisualKeys.playheadStyle)
         d.set(showRepetitionCounter, forKey: VisualKeys.showRepetitionCounter)
         d.set(repetitionCounterPosition, forKey: VisualKeys.repetitionCounterPosition)
+        d.set(hideTabBar, forKey: VisualKeys.hideTabBar)
     }
 
     /// True when this template's stored values match what is currently in UserDefaults,
-    /// i.e. it is the look on screen right now. Used to mark the selected template and
-    /// to clear the selection once the user starts editing again.
+    /// i.e. it is the look on screen right now. The selection itself is explicit (see
+    /// `VisualTemplateStore.selectedID`); this only answers whether the settings on
+    /// screen are already stored somewhere, so nothing is lost by switching template.
     var matchesCurrent: Bool {
         var current = VisualTemplate.capturingCurrent(name: name)
         current.id = id
@@ -180,18 +187,48 @@ struct VisualTemplate: Codable, Identifiable, Hashable {
 
 /// Holds the user's saved visual templates, persisting the list to UserDefaults as
 /// JSON so it survives across launches.
+///
+/// Exactly one template can be *selected* at a time, and the selection is stored by
+/// id rather than inferred from the values on screen — so a template stays selected
+/// while it is being edited, and a newly saved template doesn't make every other
+/// template that happens to hold the same values look selected too. While a template
+/// is selected, `syncSelectedWithCurrent()` writes each change on the visuals screen
+/// straight back into it.
 final class VisualTemplateStore: ObservableObject {
     @Published private(set) var templates: [VisualTemplate] = []
 
+    /// The template the playback visuals are currently being edited *as*, or `nil`
+    /// when the settings on screen belong to no template.
+    @Published private(set) var selectedID: UUID?
+
     private static let storageKey = "vis_templates"
     private static let bundledSeededKey = "didSeedBundledVisualTemplates"
+    /// The selected template's id (a UUID string), so the selection survives launches.
+    static let selectionKey = "vis_selectedTemplate"
 
     init() {
         if let data = UserDefaults.standard.data(forKey: Self.storageKey),
            let decoded = try? JSONDecoder().decode([VisualTemplate].self, from: data) {
             templates = decoded
         }
+        if let raw = UserDefaults.standard.string(forKey: Self.selectionKey),
+           let id = UUID(uuidString: raw), templates.contains(where: { $0.id == id }) {
+            selectedID = id
+        }
         seedBundledIfNeeded()
+    }
+
+    /// The selected template, if any.
+    var selected: VisualTemplate? {
+        templates.first { $0.id == selectedID }
+    }
+
+    /// True when the settings currently on screen are stored in a template: either
+    /// the selected one (which they are written into as they change), or — with
+    /// nothing selected — a template that happens to hold exactly these values.
+    /// When this is false, switching to a template would throw the settings away.
+    var currentSettingsAreSaved: Bool {
+        selectedID != nil || templates.contains(where: \.matchesCurrent)
     }
 
     /// The template shipped in the app bundle: the playback look a fresh install
@@ -203,26 +240,69 @@ final class VisualTemplateStore: ObservableObject {
         return VisualTemplate.decode(from: data)
     }
 
-    /// On first launch, add the template shipped in the app bundle and apply it as the
-    /// starting look for the playback visuals. Gated by a flag so the user's later
-    /// edits or deletion of it are never undone.
+    /// On first launch, add the template shipped in the app bundle, apply it as the
+    /// starting look for the playback visuals and select it, so edits on the visuals
+    /// screen go into it. Gated by a flag so the user's later edits or deletion of it
+    /// are never undone.
     private func seedBundledIfNeeded() {
         guard !UserDefaults.standard.bool(forKey: Self.bundledSeededKey) else { return }
         defer { UserDefaults.standard.set(true, forKey: Self.bundledSeededKey) }
         guard let template = Self.bundledTemplate else { return }
         templates.append(template)
         persist()
+        select(template)
+    }
+
+    /// Applies `template` and makes it the selected one, so every later change on the
+    /// visuals screen is saved back into it. The selection moves *before* the values
+    /// are written: applying changes UserDefaults, and that change comes back through
+    /// `syncSelectedWithCurrent()` — which would otherwise write the new look into the
+    /// template the user is switching away from.
+    func select(_ template: VisualTemplate) {
+        selectedID = template.id
+        persistSelection()
         template.apply()
     }
 
-    func add(_ template: VisualTemplate) {
-        templates.append(template)
+    /// Detaches from the selected template. The settings on screen stay exactly as
+    /// they are; they just stop being written into a template.
+    func deselect() {
+        selectedID = nil
+        persistSelection()
+    }
+
+    /// Writes the settings currently in UserDefaults into the selected template, which
+    /// is what makes edits on the visuals screen save themselves. Does nothing when no
+    /// template is selected or when nothing actually changed, so it is safe to call on
+    /// every `UserDefaults` change.
+    func syncSelectedWithCurrent() {
+        guard let id = selectedID,
+              let index = templates.firstIndex(where: { $0.id == id }) else { return }
+        var updated = VisualTemplate.capturingCurrent(name: templates[index].name)
+        updated.id = id
+        guard updated != templates[index] else { return }
+        templates[index] = updated
         persist()
     }
 
+    /// Adds a newly saved template and selects it: its values are the ones on screen,
+    /// so from here on they belong to it.
+    func add(_ template: VisualTemplate) {
+        templates.append(template)
+        persist()
+        select(template)
+    }
+
     func remove(atOffsets offsets: IndexSet) {
+        let removed = offsets.map { templates[$0].id }
         templates.remove(atOffsets: offsets)
         persist()
+        // Deleting the selected template leaves its look on screen, but with nothing
+        // to save changes into.
+        if let id = selectedID, removed.contains(id) {
+            selectedID = nil
+            persistSelection()
+        }
     }
 
     /// Adds an imported template, giving it a fresh id so importing the same file more
@@ -237,9 +317,30 @@ final class VisualTemplateStore: ObservableObject {
         return copy
     }
 
+    /// Settings ▸ Reset ▸ Visuals: back to the look a fresh install starts on. If a
+    /// stored template still holds exactly that look — normally the seeded bundled one,
+    /// untouched — it becomes the selected template again; otherwise the reset settings
+    /// belong to no template, and the user's own templates are left alone.
+    func resetToBundled() {
+        // Detach first, so the reset values aren't saved into whatever was selected.
+        selectedID = nil
+        Self.bundledTemplate?.apply()
+        selectedID = templates.first(where: \.matchesCurrent)?.id
+        persistSelection()
+    }
+
     private func persist() {
         if let data = try? JSONEncoder().encode(templates) {
             UserDefaults.standard.set(data, forKey: Self.storageKey)
+        }
+    }
+
+    private func persistSelection() {
+        let defaults = UserDefaults.standard
+        if let selectedID {
+            defaults.set(selectedID.uuidString, forKey: Self.selectionKey)
+        } else {
+            defaults.removeObject(forKey: Self.selectionKey)
         }
     }
 }
