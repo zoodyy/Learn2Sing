@@ -7,7 +7,9 @@ import SwiftUI
 /// no add button, no settings swipe, no drag & drop — and each row shows the
 /// uploader's username in grey between the name and the pattern thumbnail.
 /// The search field filters the list to matching uploaders (as tappable rows
-/// leading to their profile) and to exercises whose name or description matches.
+/// leading to their profile) and to exercises whose name or description matches,
+/// and the toolbar's filter menu narrows it to the ones this user has (or hasn't)
+/// liked.
 struct CommunityView: View {
     @EnvironmentObject private var store: ExerciseStore
     @ObservedObject private var community = CommunitySync.shared
@@ -17,6 +19,12 @@ struct CommunityView: View {
     /// Persisted, so it survives launches (and applies on the uploader profiles
     /// pushed from here, which read the same key).
     @AppStorage("communitySort") private var sort: CommunitySort = .newest
+    /// The filters picked in the toolbar's filter menu. Empty (the default) shows
+    /// the whole list. Deliberately not persisted — unlike the sort — since a
+    /// filter that survived a relaunch would look like exercises had gone
+    /// missing; for the same reason it stays on this list and isn't carried into
+    /// the uploader profiles pushed from here.
+    @State private var activeFilters: Set<CommunityFilter> = []
 
     private func exercise(for id: UUID) -> Exercise? {
         community.exercises.first { $0.id == id }
@@ -53,6 +61,28 @@ struct CommunityView: View {
                            bytes[12], bytes[13], bytes[14], bytes[15]))
     }
 
+    /// The fetched exercises the list may show, narrowed by the active filters.
+    private var visibleExercises: [Exercise] {
+        guard !activeFilters.isEmpty else { return community.exercises }
+        return community.exercises.filter {
+            activeFilters.matches($0, likedIDs: community.likedExerciseIDs)
+        }
+    }
+
+    /// Menu toggle state for one filter.
+    private func filterBinding(_ filter: CommunityFilter) -> Binding<Bool> {
+        Binding(
+            get: { activeFilters.contains(filter) },
+            set: { isOn in
+                if isOn {
+                    activeFilters.insert(filter)
+                } else {
+                    activeFilters.remove(filter)
+                }
+            }
+        )
+    }
+
     /// What the list shows for the current search text: every fetched exercise in
     /// one unlabelled section while the field is empty (an empty `category` makes
     /// the list render no header), otherwise a "Users" section of the matching
@@ -67,7 +97,7 @@ struct CommunityView: View {
             }
         }
 
-        let sortedExercises = community.sorted(community.exercises, by: sort)
+        let sortedExercises = community.sorted(visibleExercises, by: sort)
         let query = searchText.trimmingCharacters(in: .whitespaces)
         guard !query.isEmpty else {
             let rows = exerciseRows(sortedExercises)
@@ -82,7 +112,9 @@ struct CommunityView: View {
         var users: [UUID: String] = [:]
 
         // Only uploaders present in the fetched list, which by definition are the
-        // users with at least one public exercise.
+        // users with at least one public exercise. Not narrowed by the filters:
+        // these rows lead to a profile, which shows the uploader's exercises
+        // unfiltered anyway.
         let usernames = Set(community.exercises.map(\.uploaderName))
             .filter { !$0.isEmpty && Self.matches($0, query) }
             .sorted { $0.localizedStandardCompare($1) == .orderedAscending }
@@ -127,6 +159,17 @@ struct CommunityView: View {
                             Group {
                                 if !searchText.trimmingCharacters(in: .whitespaces).isEmpty {
                                     ContentUnavailableView.search(text: searchText)
+                                } else if !activeFilters.isEmpty && !community.exercises.isEmpty {
+                                    // Something was fetched, the filters just left
+                                    // nothing of it.
+                                    ContentUnavailableView {
+                                        Label("No Matching Exercises",
+                                              systemImage: "line.3.horizontal.decrease.circle")
+                                    } description: {
+                                        Text("No public exercise matches the selected filters.")
+                                    } actions: {
+                                        Button("Clear Filters") { activeFilters.removeAll() }
+                                    }
                                 } else if community.isFetching {
                                     ProgressView()
                                 } else {
@@ -167,6 +210,31 @@ struct CommunityView: View {
                         placement: .navigationBarDrawer(displayMode: .always),
                         prompt: "Users, Exercises, Descriptions")
             .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Menu {
+                        Section("Likes") {
+                            ForEach(CommunityFilter.allCases) { filter in
+                                Toggle(isOn: filterBinding(filter)) {
+                                    Label(filter.label, systemImage: filter.systemImage)
+                                }
+                            }
+                        }
+                        if !activeFilters.isEmpty {
+                            Section {
+                                Button(role: .destructive) {
+                                    activeFilters.removeAll()
+                                } label: {
+                                    Label("Clear Filters", systemImage: "xmark.circle")
+                                }
+                            }
+                        }
+                    } label: {
+                        Image(systemName: activeFilters.isEmpty
+                              ? "line.3.horizontal.decrease.circle"
+                              : "line.3.horizontal.decrease.circle.fill")
+                    }
+                    .accessibilityLabel("Filter")
+                }
                 ToolbarItem(placement: .topBarTrailing) {
                     Menu {
                         Picker("Sort By", selection: $sort) {
