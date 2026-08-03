@@ -1,9 +1,9 @@
 import Foundation
 
 /// The order the Community tab's list is shown in, picked from the sort menu in
-/// the toolbar and remembered across launches. CommunitySync applies it (it owns
-/// the like counts, download counts and share dates the orders are based on),
-/// except for the two the server alone can work out — see `isServerOrdered`.
+/// the toolbar and remembered across launches. CommunitySync applies the two it
+/// can (it owns the share dates "Newest First" goes by), and leaves the rest in
+/// the order the server returned them — see `isServerOrdered`.
 enum CommunitySort: String, CaseIterable, Identifiable {
     case hot
     case newest
@@ -113,14 +113,17 @@ extension CommunitySort {
     ///
     /// `hot` is the server's own ranking of recency against engagement, and
     /// `recentlyUpdated` goes by the record's server-side write time — neither
-    /// number is in what the fetch hands back. Picking one of these refetches
-    /// (see CommunityView), which is what keeps the held list in the order the
-    /// menu is asking for — the reverse switch included, since the fetch is what
-    /// carries it as `sortDirection`.
+    /// number is in what the fetch hands back. The three count orders are the
+    /// server's too: the app knows a like/play/download total only for the
+    /// exercises that have been opened on this device (the tally is fetched per
+    /// exercise — see CommunitySync.refreshSummary), so it has nothing to rank
+    /// the list on. Picking any of these refetches (see CommunityView), which is
+    /// what keeps the held list in the order the menu is asking for — the reverse
+    /// switch included, since the fetch is what carries it as `sortDirection`.
     var isServerOrdered: Bool {
         switch self {
-        case .hot, .recentlyUpdated: true
-        case .newest, .mostLiked, .mostPlayed, .mostDownloaded, .alphabetical: false
+        case .hot, .recentlyUpdated, .mostLiked, .mostPlayed, .mostDownloaded: true
+        case .newest, .alphabetical: false
         }
     }
 }

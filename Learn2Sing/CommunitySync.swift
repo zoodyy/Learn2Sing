@@ -56,7 +56,14 @@ enum UserEventType: String {
 
 /// The server's tally for one public exercise, from the `event-summary`
 /// endpoint. The counts every user sees come from here; this device's own taps
-/// are applied optimistically on top until the next refresh.
+/// are applied optimistically on top until the next fetch.
+///
+/// One call answers for one exercise, so it is fetched when an exercise is
+/// opened rather than for the whole list — the counts appear on the intro
+/// screen only, and summarising a few hundred exercises to draw none of them
+/// meant a few hundred calls on every refresh (every change of sort order
+/// included). The orders that rank on these counts are the server's to work out
+/// (see `CommunitySort.isServerOrdered`).
 nonisolated struct EventSummary: Decodable {
     var totalLikes: Int
     var totalDownloads: Int
@@ -114,13 +121,16 @@ final class CommunitySync: ObservableObject {
     @Published private(set) var exercises: [Exercise] = []
     /// true while a fetch is on the wire; drives the tab's initial spinner.
     @Published private(set) var isFetching = false
-    /// Like count per public exercise id, as the server summarised it at the last
-    /// fetch plus this session's own likes.
+    /// Like count per public exercise id: the server's tally as of the last time
+    /// that exercise was opened (see `refreshSummary(for:)`), plus this device's
+    /// own likes. Exercises never opened on this device have no entry until one
+    /// is, which is why nothing but the intro screen shows the number.
     @Published private(set) var likeCounts: [UUID: Int] = [:]
     /// Download count per public exercise id, from the same summaries.
     @Published private(set) var downloadCounts: [UUID: Int] = [:]
-    /// Play count per public exercise id, from the same summaries. Not shown on
-    /// any row — the sort menu's "Most Played" order is what they are for.
+    /// Play count per public exercise id, from the same summaries. Not shown
+    /// anywhere; kept so a play registered this session is reflected the moment
+    /// the exercise is reopened.
     @Published private(set) var playCounts: [UUID: Int] = [:]
     /// Public ids of the exercises this user has liked. Mirrored into the
     /// profile JSON (and so onto the server) on every change.
@@ -363,6 +373,30 @@ final class CommunitySync: ObservableObject {
 
     // MARK: - Likes, downloads & plays
 
+    /// Brings one exercise's like/download/play counts up to date from the
+    /// server. Called when a community exercise is opened — the intro screen is
+    /// the only place the numbers are shown, and the endpoint answers for one
+    /// exercise at a time, so asking for the whole list on every refresh was one
+    /// call per exercise to draw nothing.
+    ///
+    /// A failed call, or one the user has tapped through while it was on the
+    /// wire, leaves the counts alone: the optimistic bump from a like, download
+    /// or play made meanwhile is the newer truth, and the server's tally comes
+    /// back on the next open.
+    func refreshSummary(for publicExerciseID: UUID) async {
+        let before = (likeCounts[publicExerciseID],
+                      downloadCounts[publicExerciseID],
+                      playCounts[publicExerciseID])
+        guard let summary = await Self.fetchEventSummary(for: publicExerciseID) else { return }
+        guard before == (likeCounts[publicExerciseID],
+                         downloadCounts[publicExerciseID],
+                         playCounts[publicExerciseID]) else { return }
+        likeCounts[publicExerciseID] = summary.totalLikes
+        downloadCounts[publicExerciseID] = summary.totalDownloads
+        playCounts[publicExerciseID] = summary.totalPlays
+        persistCounts()
+    }
+
     /// Adds or removes this user's like on a community exercise, addressed by
     /// its public id. The heart and count update immediately; the like itself is
     /// posted to the server as a user event (which owns the total) and the liked
@@ -530,20 +564,19 @@ final class CommunitySync: ObservableObject {
                                               sortDirection: topUp.serverSortDirection(reversed: false),
                                               extraQuery: userQuery + filterQuery) {
             let listed = Set(records.map(\.entityId))
-            records += rest.filter { !listed.contains($0.entityId) }
+            let remainder = rest.filter { !listed.contains($0.entityId) }
+            // What the first fetch left out has no events at all, so its tally is
+            // zero: the tail of a most-liked/played/downloaded order, but the head
+            // of a reversed one. (`hot` is never reversed — its remainder always
+            // goes last, ranked the way that order would rank it.)
+            records = reversed ? remainder + records : records + remainder
         }
         let docs = Self.decodeDocs(from: records)
-        async let names = Self.fetchPublicNames(for: Set(docs.map(\.userID)))
-        async let summaries = Self.fetchEventSummaries(for: docs.compactMap { $0.exercise?.id })
-        let (fetchedNames, fetchedSummaries) = (await names, await summaries)
+        let fetchedNames = await Self.fetchPublicNames(for: Set(docs.map(\.userID)))
         // A newer refresh started while this one was on the wire, so this list is
         // in an order the menu has already moved on from.
         guard generation == refreshGeneration else { return }
-        apply(docs: docs,
-              names: fetchedNames,
-              summaries: fetchedSummaries,
-              sort: sort,
-              reversed: reversed)
+        apply(docs: docs, names: fetchedNames, sort: sort, reversed: reversed)
     }
 
     /// Walks every page of one public storage type and returns the records in the
@@ -627,27 +660,15 @@ final class CommunitySync: ObservableObject {
         }
     }
 
-    /// Fetches the server's like/download/play tally for each exercise in
-    /// parallel. Exercises whose summary fails to load are absent, and keep the
-    /// counts already on screen.
-    private static func fetchEventSummaries(for ids: [UUID]) async -> [UUID: EventSummary] {
-        await withTaskGroup(of: (UUID, EventSummary)?.self) { group in
-            for id in ids {
-                group.addTask {
-                    guard let url = URL(string: "\(baseURL)/event-summary/\(id.uuidString.lowercased())"),
-                          let (data, response) = try? await URLSession.shared.data(from: url),
-                          let http = response as? HTTPURLResponse, (200...299).contains(http.statusCode),
-                          let summary = try? JSONDecoder().decode(EventSummary.self, from: data)
-                    else { return nil }
-                    return (id, summary)
-                }
-            }
-            var summaries: [UUID: EventSummary] = [:]
-            for await pair in group {
-                if let (id, summary) = pair { summaries[id] = summary }
-            }
-            return summaries
-        }
+    /// Fetches the server's like/download/play tally for one exercise, or nil if
+    /// the call fails — in which case the caller keeps the counts it has.
+    private static func fetchEventSummary(for id: UUID) async -> EventSummary? {
+        guard let url = URL(string: "\(baseURL)/event-summary/\(id.uuidString.lowercased())"),
+              let (data, response) = try? await URLSession.shared.data(from: url),
+              let http = response as? HTTPURLResponse, (200...299).contains(http.statusCode),
+              let summary = try? JSONDecoder().decode(EventSummary.self, from: data)
+        else { return nil }
+        return summary
     }
 
     /// One document per record; tombstones and documents that fail to decode
@@ -661,14 +682,12 @@ final class CommunitySync: ObservableObject {
     }
 
     /// Publishes the fetched exercises — relabelled with each uploader's current
-    /// PUBLIC_NAME where one was fetched, and counted by the server's event
-    /// summaries — and swaps their patterns into the UserDefaults cache,
-    /// dropping patterns of exercises no longer shared.
+    /// PUBLIC_NAME where one was fetched — and swaps their patterns into the
+    /// UserDefaults cache, dropping patterns of exercises no longer shared.
     /// `sort` and `reversed` are what this fetch asked the server for, remembered
     /// alongside the list so `sorted(_:by:reversed:)` knows what order it is in.
     private func apply(docs: [SharedExerciseDoc],
                        names: [String: String],
-                       summaries: [UUID: EventSummary],
                        sort: CommunitySort,
                        reversed: Bool) {
         let defaults = UserDefaults.standard
@@ -684,11 +703,13 @@ final class CommunitySync: ObservableObject {
                   seenExercises.insert(exercise.id).inserted else { continue }
             if let name = names[doc.userID] { exercise.uploaderName = name }
             fetched.append(exercise)
-            // An exercise whose summary didn't load keeps whatever count is on
-            // screen instead of dropping to zero.
-            counts[exercise.id] = summaries[exercise.id]?.totalLikes ?? likeCounts[exercise.id] ?? 0
-            downloads[exercise.id] = summaries[exercise.id]?.totalDownloads ?? downloadCounts[exercise.id] ?? 0
-            plays[exercise.id] = summaries[exercise.id]?.totalPlays ?? playCounts[exercise.id] ?? 0
+            // Counts come from opening an exercise, not from listing it: carry
+            // over what is known and leave the rest to `refreshSummary(for:)`.
+            // Rebuilding the dictionaries here is what drops the counts of
+            // exercises that have left the community list.
+            if let count = likeCounts[exercise.id] { counts[exercise.id] = count }
+            if let count = downloadCounts[exercise.id] { downloads[exercise.id] = count }
+            if let count = playCounts[exercise.id] { plays[exercise.id] = count }
             if let createdAt = doc.createdAt {
                 dates[exercise.id] = Date(timeIntervalSince1970: createdAt)
             }
@@ -739,14 +760,14 @@ final class CommunitySync: ObservableObject {
     /// filters, the per-uploader profiles, and the moments between changing the
     /// sort menu and the next refresh.
     ///
-    /// The two server-only orders (see `isServerOrdered`) are instead kept as
-    /// the fetch returned them — a subset of a sorted list is still sorted, so
-    /// the searches and profiles come out right without the app knowing what the
+    /// The server-only orders (see `isServerOrdered`) are instead kept as the
+    /// fetch returned them — a subset of a sorted list is still sorted, so the
+    /// searches and profiles come out right without the app knowing what the
     /// server ranked on. `reversed` is already in that order too, having been
     /// fetched as `sortDirection`, so it's applied to every *other* order only.
     ///
-    /// Which is also why picking one of those two shows the list in the order it
-    /// is already in until the refetch lands: their ranking isn't in what came
+    /// Which is also why picking one of those shows the list in the order it is
+    /// already in until the refetch lands: their ranking isn't in what came
     /// back, so the held list can't be put in it, and ranking by the positions it
     /// happens to have would shuffle the rows into an order that is neither the
     /// old one nor the new one — a visible reshuffle a moment before the real one.
@@ -775,18 +796,9 @@ final class CommunitySync: ObservableObject {
         }
         let ordered = exercises.sorted { a, b in
             switch sort {
-            case .hot, .recentlyUpdated:
+            case .hot, .recentlyUpdated, .mostLiked, .mostPlayed, .mostDownloaded:
                 let (x, y) = (fetchedRank[a.id] ?? .max, fetchedRank[b.id] ?? .max)
                 return x == y ? byName(a, b) : x < y
-            case .mostPlayed:
-                let (x, y) = (playCounts[a.id] ?? 0, playCounts[b.id] ?? 0)
-                return x == y ? byName(a, b) : x > y
-            case .mostLiked:
-                let (x, y) = (likeCounts[a.id] ?? 0, likeCounts[b.id] ?? 0)
-                return x == y ? byName(a, b) : x > y
-            case .mostDownloaded:
-                let (x, y) = (downloadCounts[a.id] ?? 0, downloadCounts[b.id] ?? 0)
-                return x == y ? byName(a, b) : x > y
             case .newest:
                 let (x, y) = (date(a), date(b))
                 return x == y ? byName(a, b) : x > y

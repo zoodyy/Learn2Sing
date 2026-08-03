@@ -98,6 +98,13 @@ struct ExerciseIntroView: View {
         }
         .navigationTitle(exercise.localizedName)
         .navigationBarTitleDisplayMode(.inline)
+        // This screen is the only place the community counts are shown, and the
+        // server summarises one exercise per call, so the tally is fetched here
+        // — on the exercise that was tapped — instead of for the whole list on
+        // every Community refresh.
+        .task {
+            if let likeID { await community.refreshSummary(for: likeID) }
+        }
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Button {
