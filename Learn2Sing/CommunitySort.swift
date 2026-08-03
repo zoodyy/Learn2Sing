@@ -89,15 +89,22 @@ extension CommunitySort {
         }
     }
 
-    /// Whether the server derives this order from the user-event tables. Those
-    /// sorts return *only* exercises with at least one event of that type, so a
-    /// fetch using one has to be topped up with the rest of the list (see
-    /// CommunitySync.refresh). `hot` is event-based too but outer-joined — it
-    /// hands back the whole list — so it isn't one of these.
-    var isServerEventSorted: Bool {
+    /// The order to fetch the rest of the list in, for the orders the server
+    /// derives from the user-event tables — or nil for the ones that already come
+    /// back whole.
+    ///
+    /// Those orders return *only* exercises with at least one event row, which is
+    /// how they are meant to work but would drop everything untouched out of the
+    /// tab, a just-published exercise included. So a fetch using one is followed
+    /// by a second fetch in this order and topped up with whatever the first left
+    /// out (see CommunitySync.refresh). `hot` ranks recency against engagement, so
+    /// its remainder is topped up in the order it would rank them in; the count
+    /// orders put theirs, all of them zero, at the tail newest first.
+    var topUpSort: CommunitySort? {
         switch self {
-        case .mostLiked, .mostPlayed, .mostDownloaded: true
-        case .hot, .newest, .recentlyUpdated, .alphabetical: false
+        case .hot: .recentlyUpdated
+        case .mostLiked, .mostPlayed, .mostDownloaded: .newest
+        case .newest, .recentlyUpdated, .alphabetical: nil
         }
     }
 

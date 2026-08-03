@@ -517,16 +517,17 @@ final class CommunitySync: ObservableObject {
                                                     sortDirection: sort.serverSortDirection(reversed: reversed),
                                                     extraQuery: userQuery + filterQuery)
         else { return }
-        // The like/download orders come out of the event tables and so list only
-        // exercises that have been liked (or downloaded) at least once. Everything
-        // else has a count of zero and belongs at the tail of the descending order
-        // anyway, so top the list up rather than let those exercises vanish from
-        // the tab. Drop this once the server outer-joins. The `filter` narrowing
-        // above is taken at its word — what it returns is the list.
-        if sort.isServerEventSorted,
+        // The hot and like/download orders come out of the event tables and so
+        // list only exercises with an event on them — no likes, plays or downloads
+        // yet and the server leaves it out, which is how those orders are meant to
+        // rank but would keep a just-published exercise off the tab entirely. So
+        // fetch the rest of the list in that order's top-up order and append what
+        // the first fetch left out. The `filter` narrowing above is taken at its
+        // word — what it returns is the list.
+        if let topUp = sort.topUpSort,
            let rest = await Self.fetchRecords(storageType: "SHARED_EXERCISE",
-                                              sortBy: CommunitySort.newest.serverSortBy,
-                                              sortDirection: CommunitySort.newest.serverSortDirection(reversed: false),
+                                              sortBy: topUp.serverSortBy,
+                                              sortDirection: topUp.serverSortDirection(reversed: false),
                                               extraQuery: userQuery + filterQuery) {
             let listed = Set(records.map(\.entityId))
             records += rest.filter { !listed.contains($0.entityId) }
