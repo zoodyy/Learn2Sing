@@ -117,9 +117,8 @@ final class CommunitySync: ObservableObject {
     @Published private(set) var likeCounts: [UUID: Int] = [:]
     /// Download count per public exercise id, from the same summaries.
     @Published private(set) var downloadCounts: [UUID: Int] = [:]
-    /// Play count per public exercise id, from the same summaries. Not shown
-    /// anywhere yet — the server counts plays, so keeping them here is what a
-    /// "Most Played" order would need.
+    /// Play count per public exercise id, from the same summaries. Not shown on
+    /// any row — the sort menu's "Most Played" order is what they are for.
     @Published private(set) var playCounts: [UUID: Int] = [:]
     /// Public ids of the exercises this user has liked. Mirrored into the
     /// profile JSON (and so onto the server) on every change.
@@ -454,7 +453,7 @@ final class CommunitySync: ObservableObject {
     /// fetch hands to the server. Read straight from the @AppStorage key rather
     /// than passed in, so every existing caller of `refresh()` picks it up.
     private static var currentSort: CommunitySort {
-        CommunitySort(rawValue: UserDefaults.standard.string(forKey: sortKey) ?? "") ?? .newest
+        CommunitySort(rawValue: UserDefaults.standard.string(forKey: sortKey) ?? "") ?? .hot
     }
 
     /// Picks (or clears) the filter menu's narrowing and refetches, since the
@@ -690,6 +689,11 @@ final class CommunitySync: ObservableObject {
     /// needed for things the server can't sort: the search results, the like
     /// filters, the per-uploader profiles, and the moments between changing the
     /// sort menu and the next refresh.
+    ///
+    /// The two server-only orders (see `isServerOrdered`) are instead kept as
+    /// the fetch returned them — a subset of a sorted list is still sorted, so
+    /// the searches and profiles come out right without the app knowing what the
+    /// server ranked on.
     func sorted(_ exercises: [Exercise], by sort: CommunitySort) -> [Exercise] {
         func byName(_ a: Exercise, _ b: Exercise) -> Bool {
             a.name.localizedStandardCompare(b.name) == .orderedAscending
@@ -697,8 +701,22 @@ final class CommunitySync: ObservableObject {
         func date(_ exercise: Exercise) -> Date {
             shareDates[exercise.id] ?? .distantPast
         }
+        // Position in the fetched list, for the orders only the server knows.
+        // Exercises absent from it (there are none today) go to the tail.
+        var fetchedRank: [UUID: Int] = [:]
+        if sort.isServerOrdered {
+            for (index, exercise) in self.exercises.enumerated() where fetchedRank[exercise.id] == nil {
+                fetchedRank[exercise.id] = index
+            }
+        }
         return exercises.sorted { a, b in
             switch sort {
+            case .hot, .recentlyUpdated:
+                let (x, y) = (fetchedRank[a.id] ?? .max, fetchedRank[b.id] ?? .max)
+                return x == y ? byName(a, b) : x < y
+            case .mostPlayed:
+                let (x, y) = (playCounts[a.id] ?? 0, playCounts[b.id] ?? 0)
+                return x == y ? byName(a, b) : x > y
             case .mostLiked:
                 let (x, y) = (likeCounts[a.id] ?? 0, likeCounts[b.id] ?? 0)
                 return x == y ? byName(a, b) : x > y

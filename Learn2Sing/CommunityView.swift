@@ -22,8 +22,9 @@ struct CommunityView: View {
     @State private var searchText = ""
     /// The order the list is shown in, picked from the toolbar's sort menu.
     /// Persisted, so it survives launches (and applies on the uploader profiles
-    /// pushed from here, which read the same key).
-    @AppStorage("communitySort") private var sort: CommunitySort = .newest
+    /// pushed from here, which read the same key). Changing it refetches, since
+    /// the server is what puts "Hot" and "Recently Updated" in order.
+    @AppStorage("communitySort") private var sort: CommunitySort = .hot
     /// The filter picked in the toolbar's filter menu, held by CommunitySync
     /// because the server is what applies it: picking one refetches, and what
     /// comes back is the list. Everything reading that list therefore shows the
@@ -274,6 +275,10 @@ struct CommunityView: View {
             // Reload from the server each time the tab is visited; the previous
             // list stays up while (and if) the fetch fails.
             .task { await community.refresh() }
+            // The fetch asks the server for the picked order, so a new pick has
+            // to go back to it — the orders it ranks itself ("Hot", "Recently
+            // Updated") can't be worked out from the list already held.
+            .onChange(of: sort) { Task { await community.refresh() } }
             .navigationDestination(for: ExerciseRoute.self) { route in
                 switch route {
                 case .play(let id):
@@ -333,7 +338,7 @@ struct CommunityUserProfileView: View {
     /// screen's "Next" button carry on down that list.
     let onSelect: (UUID, [UUID]) -> Void
     /// The order picked in the Community tab's sort menu, applied here too.
-    @AppStorage("communitySort") private var sort: CommunitySort = .newest
+    @AppStorage("communitySort") private var sort: CommunitySort = .hot
 
     private var listSections: [ExerciseListSection] {
         let rows = community
