@@ -151,6 +151,19 @@ final class CommunitySync: ObservableObject {
     private var lastUploadedName: Data?
     /// Whether a fetch has succeeded since launch; gates stamping share dates.
     private var hasFetched = false
+    /// The order the held `exercises` array is actually in: what the fetch that
+    /// produced it asked the server for, reverse switch included. nil until the
+    /// first fetch of the session lands. `sorted(_:by:reversed:)` falls back to
+    /// it for the orders only the server can work out.
+    private var fetchedSort: CommunitySort?
+    private var fetchedReversed = false
+    /// Bumped by every refresh, so only the newest one's response is applied: a
+    /// slow fetch for an order the user has already moved on from must not land
+    /// on top of a newer one and leave `fetchedSort` describing the wrong list.
+    private var refreshGeneration = 0
+    /// How many refreshes are on the wire; `isFetching` is true while any is, so
+    /// an abandoned one finishing can't take the initial spinner down with it.
+    private var activeFetches = 0
 
     private init() {
         // An earlier version persisted the fetched list under this key.
@@ -483,8 +496,14 @@ final class CommunitySync: ObservableObject {
     /// the Community tab appears, when the filter changes, and on pull-to-refresh;
     /// a failure keeps the list from the last successful fetch of this session.
     func refresh() async {
+        activeFetches += 1
         isFetching = true
-        defer { isFetching = false }
+        defer {
+            activeFetches -= 1
+            isFetching = activeFetches > 0
+        }
+        refreshGeneration += 1
+        let generation = refreshGeneration
         let sort = Self.currentSort
         let reversed = Self.currentReversed
         let filter = activeFilter
@@ -515,7 +534,15 @@ final class CommunitySync: ObservableObject {
         let docs = Self.decodeDocs(from: records)
         async let names = Self.fetchPublicNames(for: Set(docs.map(\.userID)))
         async let summaries = Self.fetchEventSummaries(for: docs.compactMap { $0.exercise?.id })
-        apply(docs: docs, names: await names, summaries: await summaries)
+        let (fetchedNames, fetchedSummaries) = (await names, await summaries)
+        // A newer refresh started while this one was on the wire, so this list is
+        // in an order the menu has already moved on from.
+        guard generation == refreshGeneration else { return }
+        apply(docs: docs,
+              names: fetchedNames,
+              summaries: fetchedSummaries,
+              sort: sort,
+              reversed: reversed)
     }
 
     /// Walks every page of one public storage type and returns the records in the
@@ -636,9 +663,13 @@ final class CommunitySync: ObservableObject {
     /// PUBLIC_NAME where one was fetched, and counted by the server's event
     /// summaries — and swaps their patterns into the UserDefaults cache,
     /// dropping patterns of exercises no longer shared.
+    /// `sort` and `reversed` are what this fetch asked the server for, remembered
+    /// alongside the list so `sorted(_:by:reversed:)` knows what order it is in.
     private func apply(docs: [SharedExerciseDoc],
                        names: [String: String],
-                       summaries: [UUID: EventSummary]) {
+                       summaries: [UUID: EventSummary],
+                       sort: CommunitySort,
+                       reversed: Bool) {
         let defaults = UserDefaults.standard
         var seenExercises = Set<UUID>()
         var fetched: [Exercise] = []
@@ -682,6 +713,8 @@ final class CommunitySync: ObservableObject {
         }
         defaults.set(cachedIDs, forKey: Self.cachedPatternIDsKey)
         exercises = fetched
+        fetchedSort = sort
+        fetchedReversed = reversed
         likeCounts = counts
         downloadCounts = downloads
         playCounts = plays
@@ -710,7 +743,21 @@ final class CommunitySync: ObservableObject {
     /// the searches and profiles come out right without the app knowing what the
     /// server ranked on. `reversed` is already in that order too, having been
     /// fetched as `sortDirection`, so it's applied to every *other* order only.
+    ///
+    /// Which is also why picking one of those two shows the list in the order it
+    /// is already in until the refetch lands: their ranking isn't in what came
+    /// back, so the held list can't be put in it, and ranking by the positions it
+    /// happens to have would shuffle the rows into an order that is neither the
+    /// old one nor the new one — a visible reshuffle a moment before the real one.
     func sorted(_ exercises: [Exercise], by sort: CommunitySort, reversed: Bool) -> [Exercise] {
+        var sort = sort
+        var reversed = reversed
+        if sort.isServerOrdered, let fetchedSort,
+           (sort, reversed) != (fetchedSort, fetchedReversed) {
+            sort = fetchedSort
+            reversed = fetchedReversed
+        }
+
         func byName(_ a: Exercise, _ b: Exercise) -> Bool {
             a.name.localizedStandardCompare(b.name) == .orderedAscending
         }

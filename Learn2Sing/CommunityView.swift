@@ -32,6 +32,15 @@ struct CommunityView: View {
     @AppStorage("communitySortReversed") private var isReversed = false
     /// The reverse switch as it actually applies to the current order.
     private var reversed: Bool { sort.isReversible && isReversed }
+    /// The order to fetch in: the picked sort together with the reverse switch as
+    /// it applies to it. Watched as one value because picking an order that
+    /// doesn't offer the switch changes both at once, and two `onChange`s would
+    /// then fire two identical refreshes.
+    private struct SortRequest: Equatable {
+        var sort: CommunitySort
+        var reversed: Bool
+    }
+    private var sortRequest: SortRequest { SortRequest(sort: sort, reversed: reversed) }
     /// The filter picked in the toolbar's filter menu, held by CommunitySync
     /// because the server is what applies it: picking one refetches, and what
     /// comes back is the list. Everything reading that list therefore shows the
@@ -295,8 +304,7 @@ struct CommunityView: View {
             // to go back to it — the orders it ranks itself ("Hot", "Recently
             // Updated") can't be worked out from the list already held. The
             // reverse switch rides along as the fetch's `sortDirection`.
-            .onChange(of: sort) { Task { await community.refresh() } }
-            .onChange(of: reversed) { Task { await community.refresh() } }
+            .onChange(of: sortRequest) { Task { await community.refresh() } }
             .navigationDestination(for: ExerciseRoute.self) { route in
                 switch route {
                 case .play(let id):
