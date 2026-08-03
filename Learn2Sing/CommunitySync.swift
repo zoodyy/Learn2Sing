@@ -11,6 +11,13 @@ import Combine
 /// nil in a tombstone — the overwrite posted when an exercise is made private
 /// or deleted, since the server has no delete and keeps one latest record per
 /// ID.
+///
+/// Like and download counts used to live in here too, written back by whoever
+/// tapped the heart; they are now the server's own tally of the user events
+/// this app posts (see `UserEventType` / `EventSummary`), so nothing but the
+/// uploader ever writes this document. Documents written by older versions
+/// still carry their `likes`/`downloads` keys — decoding simply ignores them,
+/// and the next upload drops them.
 struct SharedExerciseDoc: Codable {
     /// The uploader's public user id (see PublicIdentifier) — never the raw
     /// device id. `exercise.id` likewise carries the public exercise id.
@@ -18,18 +25,6 @@ struct SharedExerciseDoc: Codable {
     var exercise: Exercise? = nil
     var midi: [MIDINote] = []
     var texts: [MIDIText]? = nil
-    /// How many users have liked this exercise. The whole document is rewritten
-    /// on every like — by whoever tapped the heart, not just the uploader — so
-    /// the uploader must carry the last known count forward on its own uploads
-    /// (see `likeCounts`). Optional so documents written before likes existed
-    /// still decode; treat nil as zero.
-    var likes: Int? = nil
-    /// How many users have downloaded this exercise into their own library.
-    /// Written by the downloader in the same rewrite-the-whole-document way as
-    /// `likes`, and likewise carried forward by the uploader. Optional so
-    /// documents written before downloads were counted still decode; treat nil
-    /// as zero.
-    var downloads: Int? = nil
     /// When the exercise was first shared, as seconds since 1970. Stamped by the
     /// uploader on the first upload and then carried forward unchanged (edits
     /// don't reset it), so the Community tab can sort by age. Optional: exercises
@@ -41,11 +36,31 @@ struct SharedExerciseDoc: Codable {
 /// The document each user keeps on the server under PUBLIC_NAME: their current
 /// profile username. Fetched per user on refresh, so renaming yourself in the
 /// profile updates the label on your exercises for everyone.
-struct PublicNameDoc: Codable {
+nonisolated struct PublicNameDoc: Codable {
     /// The uploader's public user id (see PublicIdentifier), matching the
     /// `userID` stamped on their shared exercises.
     var userID: String
     var username: String
+}
+
+/// What a user did to a public exercise. Posted one call per action to the
+/// `user-event` endpoint, which owns the counting: the server keeps one row per
+/// user, exercise and event type, so it — not this app — decides what a like or
+/// a download total is.
+enum UserEventType: String {
+    case addLike = "ADD_LIKE"
+    case removeLike = "REMOVE_LIKE"
+    case addDownload = "ADD_DOWNLOAD"
+    case addPlay = "ADD_PLAY"
+}
+
+/// The server's tally for one public exercise, from the `event-summary`
+/// endpoint. The counts every user sees come from here; this device's own taps
+/// are applied optimistically on top until the next refresh.
+nonisolated struct EventSummary: Decodable {
+    var totalLikes: Int
+    var totalDownloads: Int
+    var totalPlays: Int
 }
 
 /// Connects the Community tab to the server. Each device persists one
@@ -63,7 +78,7 @@ struct PublicNameDoc: Codable {
 final class CommunitySync: ObservableObject {
     static let shared = CommunitySync()
 
-    private static let baseURL = "https://echolex.api.phrase-by-phrase.com/api/v1/learn2Sing"
+    nonisolated private static let baseURL = "https://echolex.api.phrase-by-phrase.com/api/v1/learn2Sing"
     /// UUID strings whose midi/miditext keys were written by a fetch, so a later
     /// fetch can clean up patterns of exercises that left the community list.
     private static let cachedPatternIDsKey = "communityPatternIDs"
@@ -71,26 +86,41 @@ final class CommunitySync: ObservableObject {
     /// server; persisted so exercises unshared or deleted while offline (or in
     /// a previous session) still get their tombstone on the next upload.
     private static let uploadedExerciseIDsKey = "communityUploadedExerciseIDs"
-    /// Last known like count per public exercise id, persisted so a launch whose
-    /// fetch fails doesn't upload this device's exercises with the count zeroed.
+    /// Last known like count per public exercise id, persisted so the hearts show
+    /// a number straight away at launch instead of flashing zero until the first
+    /// event summaries land (and so a failed fetch leaves the last known totals up).
     private static let likeCountsKey = "communityLikeCounts"
     /// Same, for the download count.
     private static let downloadCountsKey = "communityDownloadCounts"
+    /// Same, for the play count.
+    private static let playCountsKey = "communityPlayCounts"
     /// Share date (seconds since 1970) per public exercise id, so re-uploading an
     /// edited exercise keeps the date it was first shared.
     private static let shareDatesKey = "communityShareDates"
+    /// The key the Community tab's sort menu writes with @AppStorage; the fetch
+    /// reads it so the server can do the sorting.
+    private static let sortKey = "communitySort"
+    /// Records per page of the public fetch, and the ceiling on how many pages one
+    /// refresh walks. The tab searches, filters and groups the whole community by
+    /// uploader, so it needs the full list in memory; paging is how the endpoint
+    /// hands it over, not something the UI scrolls through.
+    private static let pageSize = 100
+    private static let maxPages = 100
 
     /// Every device's public exercises as last fetched, in the order the server
     /// returns them. Empty until the first fetch of the session succeeds.
     @Published private(set) var exercises: [Exercise] = []
     /// true while a fetch is on the wire; drives the tab's initial spinner.
     @Published private(set) var isFetching = false
-    /// Like count per public exercise id, as of the last fetch plus this
-    /// session's own likes.
+    /// Like count per public exercise id, as the server summarised it at the last
+    /// fetch plus this session's own likes.
     @Published private(set) var likeCounts: [UUID: Int] = [:]
-    /// Download count per public exercise id, as of the last fetch plus this
-    /// session's own downloads.
+    /// Download count per public exercise id, from the same summaries.
     @Published private(set) var downloadCounts: [UUID: Int] = [:]
+    /// Play count per public exercise id, from the same summaries. Not shown
+    /// anywhere yet — the server counts plays, so keeping them here is what a
+    /// "Most Played" order would need.
+    @Published private(set) var playCounts: [UUID: Int] = [:]
     /// Public ids of the exercises this user has liked. Mirrored into the
     /// profile JSON (and so onto the server) on every change.
     @Published private(set) var likedExerciseIDs: Set<UUID> = []
@@ -101,6 +131,11 @@ final class CommunitySync: ObservableObject {
     /// When each fetched exercise was first shared. Missing for exercises shared
     /// before the date was recorded; they sort as the oldest.
     @Published private(set) var shareDates: [UUID: Date] = [:]
+    /// The narrowing picked in the Community tab's filter menu, nil for the whole
+    /// list. Handed to the server on every fetch; deliberately not persisted, so a
+    /// relaunch never looks like exercises have gone missing. Set it through
+    /// `setFilter(_:)`, which refetches.
+    @Published private(set) var activeFilter: CommunityFilter?
 
     private weak var store: ExerciseStore?
     private var storeObservation: AnyCancellable?
@@ -113,10 +148,6 @@ final class CommunitySync: ObservableObject {
     private var lastUploadedBodies: [String: Data] = [:]
     /// Same skip-if-unchanged guard for the PUBLIC_NAME document.
     private var lastUploadedName: Data?
-    /// The documents behind `exercises`, by public exercise id. A like rewrites
-    /// the whole document — including exercises this device doesn't own — so the
-    /// fetched body has to be kept around to post back with a new count.
-    private var fetchedDocs: [UUID: SharedExerciseDoc] = [:]
     /// Whether a fetch has succeeded since launch; gates stamping share dates.
     private var hasFetched = false
 
@@ -125,6 +156,7 @@ final class CommunitySync: ObservableObject {
         UserDefaults.standard.removeObject(forKey: "communityExercises")
         likeCounts = Self.storedCounts(forKey: Self.likeCountsKey)
         downloadCounts = Self.storedCounts(forKey: Self.downloadCountsKey)
+        playCounts = Self.storedCounts(forKey: Self.playCountsKey)
         let dates = UserDefaults.standard.dictionary(forKey: Self.shareDatesKey) as? [String: Double] ?? [:]
         shareDates = dates.reduce(into: [:]) { result, entry in
             if let id = UUID(uuidString: entry.key) {
@@ -209,13 +241,6 @@ final class CommunitySync: ObservableObject {
                                         exercise: shared,
                                         midi: store.notes(for: exercise.id),
                                         texts: t.isEmpty ? nil : t,
-                                        // Likes and downloads are written into
-                                        // this same document by other users, so
-                                        // carry the last known counts forward
-                                        // instead of resetting them on every
-                                        // edit.
-                                        likes: likeCounts[shared.id] ?? 0,
-                                        downloads: downloadCounts[shared.id] ?? 0,
                                         createdAt: shareDate(for: shared.id)?.timeIntervalSince1970)
             guard let body = try? encoder.encode(doc) else { continue }
             if body == lastUploadedBodies[idString] {
@@ -316,12 +341,12 @@ final class CommunitySync: ObservableObject {
         }
     }
 
-    // MARK: - Likes & downloads
+    // MARK: - Likes, downloads & plays
 
     /// Adds or removes this user's like on a community exercise, addressed by
-    /// its public id. The heart and count update immediately; the new count is
-    /// written into the exercise's shared document on the server and the liked
-    /// set into the profile JSON (which ProfileSync uploads).
+    /// its public id. The heart and count update immediately; the like itself is
+    /// posted to the server as a user event (which owns the total) and the liked
+    /// set goes into the profile JSON (which ProfileSync uploads).
     func toggleLike(for publicExerciseID: UUID) {
         let wasLiked = likedExerciseIDs.contains(publicExerciseID)
         if wasLiked {
@@ -332,38 +357,55 @@ final class CommunitySync: ObservableObject {
         likeCounts[publicExerciseID] = max(0, (likeCounts[publicExerciseID] ?? 0) + (wasLiked ? -1 : 1))
         persistCounts()
         saveProfileSets()
-        Task { await postCounts(for: publicExerciseID) }
+        Task { await postEvent(wasLiked ? .removeLike : .addLike, for: publicExerciseID) }
     }
 
     /// Counts a download of a community exercise, addressed by its public id.
     /// Only the user's first download of a given exercise counts — the set of
     /// downloaded ids rides along in the profile JSON, so downloading the same
-    /// exercise again, on this or a reinstalled device, doesn't inflate it.
+    /// exercise again, on this or a reinstalled device, doesn't post a second
+    /// event.
     func registerDownload(for publicExerciseID: UUID) {
         guard downloadedExerciseIDs.insert(publicExerciseID).inserted else { return }
         downloadCounts[publicExerciseID] = (downloadCounts[publicExerciseID] ?? 0) + 1
         persistCounts()
         saveProfileSets()
-        Task { await postCounts(for: publicExerciseID) }
+        Task { await postEvent(.addDownload, for: publicExerciseID) }
     }
 
-    /// Rewrites the exercise's shared document with the current like and download
-    /// counts, leaving the rest of it exactly as fetched. The backend has no
-    /// atomic increment, so two devices liking or downloading within the same
-    /// fetch cycle can lose one of the two; the next fetch makes every device
-    /// agree again on whatever landed.
-    private func postCounts(for publicExerciseID: UUID) async {
-        guard var doc = fetchedDocs[publicExerciseID] else { return }
-        doc.likes = likeCounts[publicExerciseID] ?? 0
-        doc.downloads = downloadCounts[publicExerciseID] ?? 0
-        let encoder = JSONEncoder()
-        encoder.outputFormatting = [.sortedKeys]
-        guard let body = try? encoder.encode(doc) else { return }
-        _ = await post(body: body,
-                       publicExerciseID: publicExerciseID.uuidString.lowercased(),
-                       userID: doc.userID,
-                       exerciseName: doc.exercise?.name ?? "")
-        fetchedDocs[publicExerciseID] = doc
+    /// Counts a play of a community exercise, addressed by its public id. Called
+    /// when playback starts from the Community tab and again when the score
+    /// screen's replay button restarts it. Unlike likes and downloads every play
+    /// counts, so there is nothing to remember locally.
+    func registerPlay(for publicExerciseID: UUID) {
+        playCounts[publicExerciseID] = (playCounts[publicExerciseID] ?? 0) + 1
+        persistCounts()
+        Task { await postEvent(.addPlay, for: publicExerciseID) }
+    }
+
+    /// POSTs one user event. The counts themselves are the server's business —
+    /// it holds a row per user, exercise and event type — so this says only what
+    /// happened and nothing about totals; a failed post shows up as the local
+    /// count snapping back to the server's on the next refresh.
+    ///
+    /// The id in the path is this install's *public* user id, not the Keychain
+    /// device id: it identifies the user just as uniquely (the mapping is 1:1
+    /// and stable), and the device id must never reach a public endpoint —
+    /// see PublicIdentifier for why.
+    private func postEvent(_ event: UserEventType, for publicExerciseID: UUID) async {
+        let exerciseID = publicExerciseID.uuidString.lowercased()
+        guard let url = URL(string: "\(Self.baseURL)/user-event/\(PublicIdentifier.user)/\(exerciseID)/\(event.rawValue)")
+        else { return }
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        do {
+            let (_, response) = try await URLSession.shared.data(for: request)
+            if let http = response as? HTTPURLResponse, !(200...299).contains(http.statusCode) {
+                print("CommunitySync: \(event.rawValue) on \(exerciseID) failed with status \(http.statusCode)")
+            }
+        } catch {
+            print("CommunitySync: \(event.rawValue) on \(exerciseID) failed: \(error)")
+        }
     }
 
     private func persistCounts() {
@@ -375,6 +417,7 @@ final class CommunitySync: ObservableObject {
         }
         store(likeCounts, forKey: Self.likeCountsKey)
         store(downloadCounts, forKey: Self.downloadCountsKey)
+        store(playCounts, forKey: Self.playCountsKey)
     }
 
     private func persistShareDates() {
@@ -398,32 +441,120 @@ final class CommunitySync: ObservableObject {
     // MARK: - Fetch
 
     /// A record as returned by the fetch endpoint: the stored document sits in
-    /// `jsonData` as a JSON string.
+    /// `jsonData` as a JSON string. `entityId` is the id it was persisted under
+    /// (the public exercise id for SHARED_EXERCISE), and `storageType` says which
+    /// kind of document it is — which has to be checked, see `fetchRecords`.
     private struct PersistRecord: Decodable {
+        var storageType: String
+        var entityId: String
         var jsonData: String
     }
 
-    /// Reloads the community list from the server. Called at launch, whenever
-    /// the Community tab appears, and on pull-to-refresh; a failure keeps the
-    /// list from the last successful fetch of this session.
+    /// The order the Community tab's sort menu currently asks for, which the
+    /// fetch hands to the server. Read straight from the @AppStorage key rather
+    /// than passed in, so every existing caller of `refresh()` picks it up.
+    private static var currentSort: CommunitySort {
+        CommunitySort(rawValue: UserDefaults.standard.string(forKey: sortKey) ?? "") ?? .newest
+    }
+
+    /// Picks (or clears) the filter menu's narrowing and refetches, since the
+    /// server is the one applying it.
+    func setFilter(_ filter: CommunityFilter?) {
+        guard filter != activeFilter else { return }
+        activeFilter = filter
+        Task { await refresh() }
+    }
+
+    /// Reloads the community list from the server, in the order the sort menu is
+    /// set to and narrowed to the filter menu's pick. Called at launch, whenever
+    /// the Community tab appears, when the filter changes, and on pull-to-refresh;
+    /// a failure keeps the list from the last successful fetch of this session.
     func refresh() async {
-        guard let url = URL(string: "\(Self.baseURL)/fetch-public/SHARED_EXERCISE") else { return }
         isFetching = true
         defer { isFetching = false }
-        do {
-            let (data, response) = try await URLSession.shared.data(from: url)
-            guard let http = response as? HTTPURLResponse, (200...299).contains(http.statusCode) else {
-                if let http = response as? HTTPURLResponse {
-                    print("CommunitySync: fetch failed with status \(http.statusCode)")
-                }
-                return
-            }
-            let docs = Self.decodeDocs(from: data)
-            let names = await Self.fetchPublicNames(for: Set(docs.map(\.userID)))
-            apply(docs: docs, names: names)
-        } catch {
-            print("CommunitySync: fetch failed: \(error)")
+        let sort = Self.currentSort
+        let filter = activeFilter
+        // `filter` only means anything next to the id of the user whose likes are
+        // being asked about — the same public id the PUBLIC_NAME document is
+        // persisted under.
+        let userQuery = [URLQueryItem(name: "userId", value: PublicIdentifier.user)]
+        guard var records = await Self.fetchRecords(
+            storageType: "SHARED_EXERCISE",
+            sortBy: sort.serverSortBy,
+            sortDirection: sort.serverSortDirection,
+            extraQuery: userQuery + (filter.map { [URLQueryItem(name: "filter", value: $0.serverValue)] } ?? [])
+        ) else { return }
+        // Both narrowings drop rows the tab still needs. The like/download orders
+        // come out of the event tables and list only exercises with an event of
+        // that type; NOT_LIKED likewise answers from the like rows, so it omits
+        // every exercise this user has never touched — most of the list — rather
+        // than including it as not liked. So fetch the remainder and append it:
+        // the counts are zero and the likes absent, which is exactly where those
+        // exercises belong, and the local sort and filter below put them right.
+        // Everything here can go once the server outer-joins.
+        if sort.isServerEventSorted || filter != nil,
+           let rest = await Self.fetchRecords(storageType: "SHARED_EXERCISE",
+                                              sortBy: CommunitySort.newest.serverSortBy,
+                                              sortDirection: CommunitySort.newest.serverSortDirection,
+                                              extraQuery: userQuery) {
+            let listed = Set(records.map(\.entityId))
+            records += rest.filter { !listed.contains($0.entityId) }
         }
+        let docs = Self.decodeDocs(from: records)
+        async let names = Self.fetchPublicNames(for: Set(docs.map(\.userID)))
+        async let summaries = Self.fetchEventSummaries(for: docs.compactMap { $0.exercise?.id })
+        apply(docs: docs, names: await names, summaries: await summaries)
+    }
+
+    /// Walks every page of one public storage type and returns the records in the
+    /// server's order, or nil if any page failed — the caller keeps its previous
+    /// list rather than showing half of a new one.
+    ///
+    /// The endpoint requires `sortBy`, `sortDirection`, `page` and `pageSize`;
+    /// without them it answers 500. It also ignores the storage type in the path
+    /// once those are present, handing back documents of every kind, so the
+    /// records are filtered by `storageType` here.
+    private static func fetchRecords(storageType: String,
+                                     sortBy: [String],
+                                     sortDirection: String,
+                                     extraQuery: [URLQueryItem] = []) async -> [PersistRecord]? {
+        var sortKeys = sortBy
+        var all: [PersistRecord] = []
+        var page = 0
+        while page < maxPages {
+            guard let sortKey = sortKeys.first else { return nil }
+            var components = URLComponents(string: "\(baseURL)/fetch-public/\(storageType)")
+            components?.queryItems = extraQuery + [
+                URLQueryItem(name: "sortBy", value: sortKey),
+                URLQueryItem(name: "sortDirection", value: sortDirection),
+                URLQueryItem(name: "page", value: String(page)),
+                URLQueryItem(name: "pageSize", value: String(pageSize)),
+            ]
+            guard let url = components?.url else { return nil }
+            do {
+                let (data, response) = try await URLSession.shared.data(from: url)
+                guard let http = response as? HTTPURLResponse else { return nil }
+                // A rejected sort key means this backend spells it the other way;
+                // retry the same page with the next candidate.
+                if http.statusCode == 400, sortKeys.count > 1 {
+                    sortKeys.removeFirst()
+                    continue
+                }
+                guard (200...299).contains(http.statusCode) else {
+                    print("CommunitySync: fetch of \(storageType) page \(page) failed with status \(http.statusCode)")
+                    return nil
+                }
+                guard let records = try? JSONDecoder().decode([PersistRecord].self, from: data) else { return nil }
+                all += records.filter { $0.storageType == storageType }
+                // A short page is the last one.
+                if records.count < pageSize { return all }
+                page += 1
+            } catch {
+                print("CommunitySync: fetch of \(storageType) page \(page) failed: \(error)")
+                return nil
+            }
+        }
+        return all
     }
 
     /// Fetches every uploader's PUBLIC_NAME document in parallel and returns the
@@ -433,15 +564,16 @@ final class CommunitySync: ObservableObject {
         await withTaskGroup(of: (String, String)?.self) { group in
             for userID in userIDs {
                 group.addTask {
-                    guard let url = URL(string: "\(baseURL)/fetch-public/PUBLIC_NAME?customId1=\(userID)"),
-                          let (data, response) = try? await URLSession.shared.data(from: url),
-                          let http = response as? HTTPURLResponse, (200...299).contains(http.statusCode)
-                    else { return nil }
-                    let decoder = JSONDecoder()
-                    // The endpoint keeps one latest record per id, so the first
-                    // record is the current name.
-                    guard let record = (try? decoder.decode([PersistRecord].self, from: data))?.first,
-                          let doc = try? decoder.decode(PublicNameDoc.self, from: Data(record.jsonData.utf8)),
+                    // The endpoint keeps one latest record per id, so one page of
+                    // one record is the current name.
+                    guard let record = await fetchRecords(
+                        storageType: "PUBLIC_NAME",
+                        sortBy: CommunitySort.newest.serverSortBy,
+                        sortDirection: CommunitySort.newest.serverSortDirection,
+                        extraQuery: [URLQueryItem(name: "customId1", value: userID)]
+                    )?.first,
+                          let doc = try? JSONDecoder().decode(PublicNameDoc.self,
+                                                              from: Data(record.jsonData.utf8)),
                           !doc.username.isEmpty
                     else { return nil }
                     return (userID, doc.username)
@@ -455,41 +587,67 @@ final class CommunitySync: ObservableObject {
         }
     }
 
-    /// The fetch endpoint answers with an array of records, one per exercise;
-    /// tombstones and documents that fail to decode (e.g. the pre-split
-    /// whole-library documents, or ones written by a newer app version) are
-    /// skipped.
-    private static func decodeDocs(from data: Data) -> [SharedExerciseDoc] {
+    /// Fetches the server's like/download/play tally for each exercise in
+    /// parallel. Exercises whose summary fails to load are absent, and keep the
+    /// counts already on screen.
+    private static func fetchEventSummaries(for ids: [UUID]) async -> [UUID: EventSummary] {
+        await withTaskGroup(of: (UUID, EventSummary)?.self) { group in
+            for id in ids {
+                group.addTask {
+                    guard let url = URL(string: "\(baseURL)/event-summary/\(id.uuidString.lowercased())"),
+                          let (data, response) = try? await URLSession.shared.data(from: url),
+                          let http = response as? HTTPURLResponse, (200...299).contains(http.statusCode),
+                          let summary = try? JSONDecoder().decode(EventSummary.self, from: data)
+                    else { return nil }
+                    return (id, summary)
+                }
+            }
+            var summaries: [UUID: EventSummary] = [:]
+            for await pair in group {
+                if let (id, summary) = pair { summaries[id] = summary }
+            }
+            return summaries
+        }
+    }
+
+    /// One document per record; tombstones and documents that fail to decode
+    /// (e.g. the pre-split whole-library documents, or ones written by a newer
+    /// app version) are skipped.
+    private static func decodeDocs(from records: [PersistRecord]) -> [SharedExerciseDoc] {
         let decoder = JSONDecoder()
-        guard let records = try? decoder.decode([PersistRecord].self, from: data) else { return [] }
         return records.compactMap {
             try? decoder.decode(SharedExerciseDoc.self, from: Data($0.jsonData.utf8))
         }
     }
 
     /// Publishes the fetched exercises — relabelled with each uploader's current
-    /// PUBLIC_NAME where one was fetched — and swaps their patterns into the
-    /// UserDefaults cache, dropping patterns of exercises no longer shared.
-    private func apply(docs: [SharedExerciseDoc], names: [String: String]) {
+    /// PUBLIC_NAME where one was fetched, and counted by the server's event
+    /// summaries — and swaps their patterns into the UserDefaults cache,
+    /// dropping patterns of exercises no longer shared.
+    private func apply(docs: [SharedExerciseDoc],
+                       names: [String: String],
+                       summaries: [UUID: EventSummary]) {
         let defaults = UserDefaults.standard
         var seenExercises = Set<UUID>()
         var fetched: [Exercise] = []
         var cachedIDs: [String] = []
         var counts: [UUID: Int] = [:]
         var downloads: [UUID: Int] = [:]
+        var plays: [UUID: Int] = [:]
         var dates: [UUID: Date] = [:]
-        var latestDocs: [UUID: SharedExerciseDoc] = [:]
         for doc in docs {
             guard var exercise = doc.exercise, exercise.visibility == .public,
                   seenExercises.insert(exercise.id).inserted else { continue }
             if let name = names[doc.userID] { exercise.uploaderName = name }
             fetched.append(exercise)
-            counts[exercise.id] = doc.likes ?? 0
-            downloads[exercise.id] = doc.downloads ?? 0
+            // An exercise whose summary didn't load keeps whatever count is on
+            // screen instead of dropping to zero.
+            counts[exercise.id] = summaries[exercise.id]?.totalLikes ?? likeCounts[exercise.id] ?? 0
+            downloads[exercise.id] = summaries[exercise.id]?.totalDownloads ?? downloadCounts[exercise.id] ?? 0
+            plays[exercise.id] = summaries[exercise.id]?.totalPlays ?? playCounts[exercise.id] ?? 0
             if let createdAt = doc.createdAt {
                 dates[exercise.id] = Date(timeIntervalSince1970: createdAt)
             }
-            latestDocs[exercise.id] = doc
             // Every fetched exercise carries its public id, a namespace distinct
             // from any local raw id, so caching the server pattern here can never
             // clobber a local one — even for this device's own uploads.
@@ -514,11 +672,11 @@ final class CommunitySync: ObservableObject {
         exercises = fetched
         likeCounts = counts
         downloadCounts = downloads
+        playCounts = plays
         // Dates this device stamped but hasn't uploaded yet (or whose upload the
         // server hasn't handed back yet) are kept, so an exercise doesn't lose
         // its date between the stamp and the next fetch.
         shareDates = shareDates.merging(dates) { _, fetched in fetched }
-        fetchedDocs = latestDocs
         hasFetched = true
         persistCounts()
         persistShareDates()
@@ -529,6 +687,11 @@ final class CommunitySync: ObservableObject {
     /// The community exercises in the order the given sort asks for. Exercises
     /// with no recorded share date (shared before dates existed) count as the
     /// oldest, and ties break by name so the order never jitters between fetches.
+    ///
+    /// The fetch already asks the server for this order, but the same ordering is
+    /// needed for things the server can't sort: the search results, the like
+    /// filters, the per-uploader profiles, and the moments between changing the
+    /// sort menu and the next refresh.
     func sorted(_ exercises: [Exercise], by sort: CommunitySort) -> [Exercise] {
         func byName(_ a: Exercise, _ b: Exercise) -> Bool {
             a.name.localizedStandardCompare(b.name) == .orderedAscending

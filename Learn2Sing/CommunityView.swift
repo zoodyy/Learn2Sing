@@ -23,12 +23,10 @@ struct CommunityView: View {
     /// Persisted, so it survives launches (and applies on the uploader profiles
     /// pushed from here, which read the same key).
     @AppStorage("communitySort") private var sort: CommunitySort = .newest
-    /// The filters picked in the toolbar's filter menu. Empty (the default) shows
-    /// the whole list. Deliberately not persisted — unlike the sort — since a
-    /// filter that survived a relaunch would look like exercises had gone
-    /// missing; for the same reason it stays on this list and isn't carried into
-    /// the uploader profiles pushed from here.
-    @State private var activeFilters: Set<CommunityFilter> = []
+    /// The filter picked in the toolbar's filter menu, held by CommunitySync
+    /// because the server applies it too (changing it refetches). It stays on
+    /// this list and isn't carried into the uploader profiles pushed from here.
+    private var activeFilter: CommunityFilter? { community.activeFilter }
     /// The exercises of the list the user started playing from — this tab's own
     /// list or an uploader's profile — in the order it showed them, which is what
     /// the score screen's "Next" button walks along. Captured on the tap, so a
@@ -84,11 +82,14 @@ struct CommunityView: View {
                            bytes[12], bytes[13], bytes[14], bytes[15]))
     }
 
-    /// The fetched exercises the list may show, narrowed by the active filters.
+    /// The fetched exercises the list may show, narrowed by the active filter.
+    /// The server has already been asked for the same narrowing; this applies it
+    /// again so the list reacts the moment a heart is tapped, without waiting for
+    /// a refetch.
     private var visibleExercises: [Exercise] {
-        guard !activeFilters.isEmpty else { return community.exercises }
+        guard let activeFilter else { return community.exercises }
         return community.exercises.filter {
-            activeFilters.matches($0, likedIDs: community.likedExerciseIDs)
+            activeFilter.matches($0, likedIDs: community.likedExerciseIDs)
         }
     }
 
@@ -97,14 +98,8 @@ struct CommunityView: View {
     /// rather than leaving both on, which would show the whole list anyway.
     private func filterBinding(_ filter: CommunityFilter) -> Binding<Bool> {
         Binding(
-            get: { activeFilters.contains(filter) },
-            set: { isOn in
-                if isOn {
-                    activeFilters = [filter]
-                } else {
-                    activeFilters.remove(filter)
-                }
-            }
+            get: { activeFilter == filter },
+            set: { isOn in community.setFilter(isOn ? filter : nil) }
         )
     }
 
@@ -186,7 +181,7 @@ struct CommunityView: View {
                             Group {
                                 if !searchText.trimmingCharacters(in: .whitespaces).isEmpty {
                                     ContentUnavailableView.search(text: searchText)
-                                } else if !activeFilters.isEmpty && !community.exercises.isEmpty {
+                                } else if activeFilter != nil && !community.exercises.isEmpty {
                                     // Something was fetched, the filters just left
                                     // nothing of it.
                                     ContentUnavailableView {
@@ -195,7 +190,7 @@ struct CommunityView: View {
                                     } description: {
                                         Text("No public exercise matches the selected filters.")
                                     } actions: {
-                                        Button("Clear Filters") { activeFilters.removeAll() }
+                                        Button("Clear Filters") { community.setFilter(nil) }
                                     }
                                 } else if community.isFetching {
                                     ProgressView()
@@ -251,17 +246,17 @@ struct CommunityView: View {
                                 }
                             }
                         }
-                        if !activeFilters.isEmpty {
+                        if activeFilter != nil {
                             Section {
                                 Button(role: .destructive) {
-                                    activeFilters.removeAll()
+                                    community.setFilter(nil)
                                 } label: {
                                     Label("Clear Filters", systemImage: "xmark.circle")
                                 }
                             }
                         }
                     } label: {
-                        Image(systemName: activeFilters.isEmpty
+                        Image(systemName: activeFilter == nil
                               ? "line.3.horizontal.decrease.circle"
                               : "line.3.horizontal.decrease.circle.fill")
                     }
@@ -292,6 +287,10 @@ struct CommunityView: View {
                         ExerciseIntroView(exercise: ex,
                                           likeID: ex.id,
                                           onDownload: { download(ex) }) {
+                            // The one door into playback from this tab, uploader
+                            // profiles included, so every play started here is
+                            // counted towards the exercise's total on the server.
+                            community.registerPlay(for: ex.id)
                             navigationPath.append(ExerciseRoute.playback(id))
                         }
                     }
@@ -304,7 +303,8 @@ struct CommunityView: View {
                                      onScoreNext: nextExercise(after: id).map { next in
                                          { advance(to: next) }
                                      },
-                                     onScoreDownload: { download(ex) })
+                                     onScoreDownload: { download(ex) },
+                                     onScoreReplay: { community.registerPlay(for: ex.id) })
                     }
                 case .user(let username):
                     CommunityUserProfileView(username: username) { id, listed in

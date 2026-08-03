@@ -725,6 +725,10 @@ struct PlaybackView: View {
     /// When set (playing from the Community tab), the score screen shows a Download
     /// button — same as the intro screen's — copying the exercise into the library.
     var onScoreDownload: (() -> Void)? = nil
+    /// Called when the score screen's replay button restarts the exercise, so the
+    /// Community tab can count that as another play. Replaying never leaves this
+    /// screen, so it's the only place a second play is visible from outside.
+    var onScoreReplay: (() -> Void)? = nil
 
     @State private var player = ExercisePlayer()
     @StateObject private var pitchDetector = PitchDetector()
@@ -797,6 +801,7 @@ struct PlaybackView: View {
                               trail = PitchTrail()
                               indicator = SingerIndicator()
                               self.finalScore = nil
+                              onScoreReplay?()
                           }) {
                     if let onScoreExit { onScoreExit() } else { dismiss() }
                 }

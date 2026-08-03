@@ -4,12 +4,23 @@ import Foundation
 /// menu in the toolbar. The cases are whether this user has liked the public
 /// exercise, so they're mutually exclusive: the menu turns one off when the
 /// other is picked, and picking neither (the default) shows every exercise.
-/// CommunitySync owns the liked set the filter is based on.
+/// CommunitySync owns the pick, hands it to the server on the next fetch, and
+/// owns the liked set the same filter is applied from locally.
 enum CommunityFilter: String, CaseIterable, Identifiable {
     case liked
     case notLiked
 
     var id: String { rawValue }
+
+    /// The public fetch endpoint's `filter` value for this pick. Sent alongside
+    /// `userId`, which is what makes it mean *this* user's likes; the endpoint
+    /// ignores a `filter` that arrives without one.
+    var serverValue: String {
+        switch self {
+        case .liked: "LIKED"
+        case .notLiked: "NOT_LIKED"
+        }
+    }
 
     var label: String {
         switch self {
@@ -32,13 +43,5 @@ enum CommunityFilter: String, CaseIterable, Identifiable {
         case .liked: likedIDs.contains(exercise.id)
         case .notLiked: !likedIDs.contains(exercise.id)
         }
-    }
-}
-
-extension Set<CommunityFilter> {
-    /// Whether the exercise satisfies the picks in this set; an empty set doesn't
-    /// restrict anything.
-    func matches(_ exercise: Exercise, likedIDs: Set<UUID>) -> Bool {
-        isEmpty || contains { $0.matches(exercise, likedIDs: likedIDs) }
     }
 }
