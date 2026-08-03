@@ -7,7 +7,6 @@ import Foundation
 enum CommunitySort: String, CaseIterable, Identifiable {
     case hot
     case newest
-    case oldest
     case recentlyUpdated
     case mostLiked
     case mostPlayed
@@ -20,7 +19,6 @@ enum CommunitySort: String, CaseIterable, Identifiable {
         switch self {
         case .hot: L("Hot")
         case .newest: L("Newest First")
-        case .oldest: L("Oldest First")
         case .recentlyUpdated: L("Recently Updated")
         case .mostLiked: L("Most Liked")
         case .mostPlayed: L("Most Played")
@@ -33,7 +31,6 @@ enum CommunitySort: String, CaseIterable, Identifiable {
         switch self {
         case .hot: "flame"
         case .newest: "clock"
-        case .oldest: "clock.arrow.circlepath"
         case .recentlyUpdated: "arrow.triangle.2.circlepath"
         case .mostLiked: "heart"
         case .mostPlayed: "play.circle"
@@ -59,7 +56,7 @@ extension CommunitySort {
     var serverSortBy: [String] {
         switch self {
         case .hot: ["HOT"]
-        case .newest, .oldest: ["CREATED_AT", "DATE_CREATED_AT"]
+        case .newest: ["CREATED_AT", "DATE_CREATED_AT"]
         case .recentlyUpdated: ["UPDATED_AT", "DATE_UPDATED_AT"]
         case .mostLiked: ["LIKED"]
         case .mostPlayed: ["PLAYED"]
@@ -68,10 +65,27 @@ extension CommunitySort {
         }
     }
 
-    var serverSortDirection: String {
+    /// The direction to fetch in, with the sort menu's reverse switch applied —
+    /// which is what turns "Newest First" into oldest first, or the alphabetical
+    /// order into Z to A. A `reversed` that doesn't apply here (see
+    /// `isReversible`) is ignored rather than obeyed.
+    func serverSortDirection(reversed: Bool) -> String {
+        let flipped = reversed && isReversible
         switch self {
-        case .oldest, .alphabetical: "ASC"
-        case .hot, .newest, .recentlyUpdated, .mostLiked, .mostPlayed, .mostDownloaded: "DESC"
+        case .alphabetical: return flipped ? "DESC" : "ASC"
+        case .hot, .newest, .recentlyUpdated, .mostLiked, .mostPlayed, .mostDownloaded:
+            return flipped ? "ASC" : "DESC"
+        }
+    }
+
+    /// Whether the sort menu offers its reverse switch for this order. Upside
+    /// down, the server's own "Hot" ranking isn't a "coldest" list anyone asked
+    /// for, so the switch is hidden — and a remembered one ignored — while it's
+    /// the pick.
+    var isReversible: Bool {
+        switch self {
+        case .hot: false
+        case .newest, .recentlyUpdated, .mostLiked, .mostPlayed, .mostDownloaded, .alphabetical: true
         }
     }
 
@@ -83,7 +97,7 @@ extension CommunitySort {
     var isServerEventSorted: Bool {
         switch self {
         case .mostLiked, .mostPlayed, .mostDownloaded: true
-        case .hot, .newest, .oldest, .recentlyUpdated, .alphabetical: false
+        case .hot, .newest, .recentlyUpdated, .alphabetical: false
         }
     }
 
@@ -94,11 +108,12 @@ extension CommunitySort {
     /// `recentlyUpdated` goes by the record's server-side write time — neither
     /// number is in what the fetch hands back. Picking one of these refetches
     /// (see CommunityView), which is what keeps the held list in the order the
-    /// menu is asking for.
+    /// menu is asking for — the reverse switch included, since the fetch is what
+    /// carries it as `sortDirection`.
     var isServerOrdered: Bool {
         switch self {
         case .hot, .recentlyUpdated: true
-        case .newest, .oldest, .mostLiked, .mostPlayed, .mostDownloaded, .alphabetical: false
+        case .newest, .mostLiked, .mostPlayed, .mostDownloaded, .alphabetical: false
         }
     }
 }

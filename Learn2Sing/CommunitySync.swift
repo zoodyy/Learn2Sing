@@ -100,6 +100,8 @@ final class CommunitySync: ObservableObject {
     /// The key the Community tab's sort menu writes with @AppStorage; the fetch
     /// reads it so the server can do the sorting.
     private static let sortKey = "communitySort"
+    /// Same, for the menu's reverse switch.
+    private static let reversedKey = "communitySortReversed"
     /// Records per page of the public fetch, and the ceiling on how many pages one
     /// refresh walks. The tab searches, filters and groups the whole community by
     /// uploader, so it needs the full list in memory; paging is how the endpoint
@@ -153,6 +155,12 @@ final class CommunitySync: ObservableObject {
     private init() {
         // An earlier version persisted the fetched list under this key.
         UserDefaults.standard.removeObject(forKey: "communityExercises")
+        // "Oldest First" is now the reverse switch on top of "Newest First";
+        // carry anyone left on it over rather than dropping them to the default.
+        if UserDefaults.standard.string(forKey: Self.sortKey) == "oldest" {
+            UserDefaults.standard.set(CommunitySort.newest.rawValue, forKey: Self.sortKey)
+            UserDefaults.standard.set(true, forKey: Self.reversedKey)
+        }
         likeCounts = Self.storedCounts(forKey: Self.likeCountsKey)
         downloadCounts = Self.storedCounts(forKey: Self.downloadCountsKey)
         playCounts = Self.storedCounts(forKey: Self.playCountsKey)
@@ -456,6 +464,12 @@ final class CommunitySync: ObservableObject {
         CommunitySort(rawValue: UserDefaults.standard.string(forKey: sortKey) ?? "") ?? .hot
     }
 
+    /// Whether the sort menu's reverse switch is on, read the same way. False
+    /// for the orders that don't offer it, whatever was last remembered.
+    private static var currentReversed: Bool {
+        currentSort.isReversible && UserDefaults.standard.bool(forKey: reversedKey)
+    }
+
     /// Picks (or clears) the filter menu's narrowing and refetches, since the
     /// server is the one applying it.
     func setFilter(_ filter: CommunityFilter?) {
@@ -472,6 +486,7 @@ final class CommunitySync: ObservableObject {
         isFetching = true
         defer { isFetching = false }
         let sort = Self.currentSort
+        let reversed = Self.currentReversed
         let filter = activeFilter
         // `filter` only means anything next to the id of the user whose likes are
         // being asked about — the same public id the PUBLIC_NAME document is
@@ -480,7 +495,7 @@ final class CommunitySync: ObservableObject {
         let filterQuery = filter.map { [URLQueryItem(name: "filter", value: $0.serverValue)] } ?? []
         guard var records = await Self.fetchRecords(storageType: "SHARED_EXERCISE",
                                                     sortBy: sort.serverSortBy,
-                                                    sortDirection: sort.serverSortDirection,
+                                                    sortDirection: sort.serverSortDirection(reversed: reversed),
                                                     extraQuery: userQuery + filterQuery)
         else { return }
         // The like/download orders come out of the event tables and so list only
@@ -492,7 +507,7 @@ final class CommunitySync: ObservableObject {
         if sort.isServerEventSorted,
            let rest = await Self.fetchRecords(storageType: "SHARED_EXERCISE",
                                               sortBy: CommunitySort.newest.serverSortBy,
-                                              sortDirection: CommunitySort.newest.serverSortDirection,
+                                              sortDirection: CommunitySort.newest.serverSortDirection(reversed: false),
                                               extraQuery: userQuery + filterQuery) {
             let listed = Set(records.map(\.entityId))
             records += rest.filter { !listed.contains($0.entityId) }
@@ -566,7 +581,7 @@ final class CommunitySync: ObservableObject {
                     guard let record = await fetchRecords(
                         storageType: "PUBLIC_NAME",
                         sortBy: CommunitySort.newest.serverSortBy,
-                        sortDirection: CommunitySort.newest.serverSortDirection,
+                        sortDirection: CommunitySort.newest.serverSortDirection(reversed: false),
                         extraQuery: [URLQueryItem(name: "customId1", value: userID)]
                     )?.first,
                           let doc = try? JSONDecoder().decode(PublicNameDoc.self,
@@ -693,8 +708,9 @@ final class CommunitySync: ObservableObject {
     /// The two server-only orders (see `isServerOrdered`) are instead kept as
     /// the fetch returned them — a subset of a sorted list is still sorted, so
     /// the searches and profiles come out right without the app knowing what the
-    /// server ranked on.
-    func sorted(_ exercises: [Exercise], by sort: CommunitySort) -> [Exercise] {
+    /// server ranked on. `reversed` is already in that order too, having been
+    /// fetched as `sortDirection`, so it's applied to every *other* order only.
+    func sorted(_ exercises: [Exercise], by sort: CommunitySort, reversed: Bool) -> [Exercise] {
         func byName(_ a: Exercise, _ b: Exercise) -> Bool {
             a.name.localizedStandardCompare(b.name) == .orderedAscending
         }
@@ -709,7 +725,7 @@ final class CommunitySync: ObservableObject {
                 fetchedRank[exercise.id] = index
             }
         }
-        return exercises.sorted { a, b in
+        let ordered = exercises.sorted { a, b in
             switch sort {
             case .hot, .recentlyUpdated:
                 let (x, y) = (fetchedRank[a.id] ?? .max, fetchedRank[b.id] ?? .max)
@@ -726,12 +742,10 @@ final class CommunitySync: ObservableObject {
             case .newest:
                 let (x, y) = (date(a), date(b))
                 return x == y ? byName(a, b) : x > y
-            case .oldest:
-                let (x, y) = (date(a), date(b))
-                return x == y ? byName(a, b) : x < y
             case .alphabetical:
                 return byName(a, b)
             }
         }
+        return reversed && !sort.isServerOrdered ? ordered.reversed() : ordered
     }
 }

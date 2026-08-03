@@ -25,6 +25,13 @@ struct CommunityView: View {
     /// pushed from here, which read the same key). Changing it refetches, since
     /// the server is what puts "Hot" and "Recently Updated" in order.
     @AppStorage("communitySort") private var sort: CommunitySort = .hot
+    /// The sort menu's reverse switch, persisted alongside the order it flips.
+    /// Off to begin with, and ignored while an order that doesn't offer it is
+    /// picked — the switch is hidden there rather than reset, so it comes back
+    /// as it was left.
+    @AppStorage("communitySortReversed") private var isReversed = false
+    /// The reverse switch as it actually applies to the current order.
+    private var reversed: Bool { sort.isReversible && isReversed }
     /// The filter picked in the toolbar's filter menu, held by CommunitySync
     /// because the server is what applies it: picking one refetches, and what
     /// comes back is the list. Everything reading that list therefore shows the
@@ -110,7 +117,7 @@ struct CommunityView: View {
             }
         }
 
-        let sortedExercises = community.sorted(community.exercises, by: sort)
+        let sortedExercises = community.sorted(community.exercises, by: sort, reversed: reversed)
         let query = searchText.trimmingCharacters(in: .whitespaces)
         guard !query.isEmpty else {
             let rows = exerciseRows(sortedExercises)
@@ -265,6 +272,15 @@ struct CommunityView: View {
                                     .tag(option)
                             }
                         }
+                        // "Hot" is the server's own ranking and has no sensible
+                        // other end, so it goes without the switch entirely.
+                        if sort.isReversible {
+                            Section {
+                                Toggle(isOn: $isReversed) {
+                                    Label("Reverse Order", systemImage: "arrow.up.arrow.down")
+                                }
+                            }
+                        }
                     } label: {
                         Image(systemName: "arrow.up.arrow.down.circle")
                     }
@@ -277,8 +293,10 @@ struct CommunityView: View {
             .task { await community.refresh() }
             // The fetch asks the server for the picked order, so a new pick has
             // to go back to it — the orders it ranks itself ("Hot", "Recently
-            // Updated") can't be worked out from the list already held.
+            // Updated") can't be worked out from the list already held. The
+            // reverse switch rides along as the fetch's `sortDirection`.
             .onChange(of: sort) { Task { await community.refresh() } }
+            .onChange(of: reversed) { Task { await community.refresh() } }
             .navigationDestination(for: ExerciseRoute.self) { route in
                 switch route {
                 case .play(let id):
@@ -337,12 +355,16 @@ struct CommunityUserProfileView: View {
     /// in display order; the Community stack pushes playback and lets the score
     /// screen's "Next" button carry on down that list.
     let onSelect: (UUID, [UUID]) -> Void
-    /// The order picked in the Community tab's sort menu, applied here too.
+    /// The order picked in the Community tab's sort menu, reverse switch and
+    /// all, applied here too.
     @AppStorage("communitySort") private var sort: CommunitySort = .hot
+    @AppStorage("communitySortReversed") private var isReversed = false
 
     private var listSections: [ExerciseListSection] {
         let rows = community
-            .sorted(community.exercises.filter { $0.uploaderName == username }, by: sort)
+            .sorted(community.exercises.filter { $0.uploaderName == username },
+                    by: sort,
+                    reversed: sort.isReversible && isReversed)
             .map { exercise in
                 ExerciseListRow(exercise: exercise,
                                 pattern: store.notes(for: exercise.id))
