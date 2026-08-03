@@ -478,25 +478,23 @@ final class CommunitySync: ObservableObject {
         // being asked about — the same public id the PUBLIC_NAME document is
         // persisted under.
         let userQuery = [URLQueryItem(name: "userId", value: PublicIdentifier.user)]
-        guard var records = await Self.fetchRecords(
-            storageType: "SHARED_EXERCISE",
-            sortBy: sort.serverSortBy,
-            sortDirection: sort.serverSortDirection,
-            extraQuery: userQuery + (filter.map { [URLQueryItem(name: "filter", value: $0.serverValue)] } ?? [])
-        ) else { return }
-        // Both narrowings drop rows the tab still needs. The like/download orders
-        // come out of the event tables and list only exercises with an event of
-        // that type; NOT_LIKED likewise answers from the like rows, so it omits
-        // every exercise this user has never touched — most of the list — rather
-        // than including it as not liked. So fetch the remainder and append it:
-        // the counts are zero and the likes absent, which is exactly where those
-        // exercises belong, and the local sort and filter below put them right.
-        // Everything here can go once the server outer-joins.
-        if sort.isServerEventSorted || filter != nil,
+        let filterQuery = filter.map { [URLQueryItem(name: "filter", value: $0.serverValue)] } ?? []
+        guard var records = await Self.fetchRecords(storageType: "SHARED_EXERCISE",
+                                                    sortBy: sort.serverSortBy,
+                                                    sortDirection: sort.serverSortDirection,
+                                                    extraQuery: userQuery + filterQuery)
+        else { return }
+        // The like/download orders come out of the event tables and so list only
+        // exercises that have been liked (or downloaded) at least once. Everything
+        // else has a count of zero and belongs at the tail of the descending order
+        // anyway, so top the list up rather than let those exercises vanish from
+        // the tab. Drop this once the server outer-joins. The `filter` narrowing
+        // above is taken at its word — what it returns is the list.
+        if sort.isServerEventSorted,
            let rest = await Self.fetchRecords(storageType: "SHARED_EXERCISE",
                                               sortBy: CommunitySort.newest.serverSortBy,
                                               sortDirection: CommunitySort.newest.serverSortDirection,
-                                              extraQuery: userQuery) {
+                                              extraQuery: userQuery + filterQuery) {
             let listed = Set(records.map(\.entityId))
             records += rest.filter { !listed.contains($0.entityId) }
         }

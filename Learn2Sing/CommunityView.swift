@@ -9,7 +9,8 @@ import SwiftUI
 /// The search field filters the list to matching uploaders (as tappable rows
 /// leading to their profile) and to exercises whose name or description matches,
 /// and the toolbar's filter menu narrows it to the ones this user has (or hasn't)
-/// liked.
+/// liked — that one is applied by the server, so it narrows what the tab holds
+/// rather than just what this screen draws.
 struct CommunityView: View {
     /// Re-renders this screen when the language is changed in Settings; the
     /// strings are resolved when the body runs, so SwiftUI needs telling.
@@ -24,8 +25,10 @@ struct CommunityView: View {
     /// pushed from here, which read the same key).
     @AppStorage("communitySort") private var sort: CommunitySort = .newest
     /// The filter picked in the toolbar's filter menu, held by CommunitySync
-    /// because the server applies it too (changing it refetches). It stays on
-    /// this list and isn't carried into the uploader profiles pushed from here.
+    /// because the server is what applies it: picking one refetches, and what
+    /// comes back is the list. Everything reading that list therefore shows the
+    /// filtered set — the search results and the uploader profiles pushed from
+    /// here included. Not persisted, so a relaunch always starts unfiltered.
     private var activeFilter: CommunityFilter? { community.activeFilter }
     /// The exercises of the list the user started playing from — this tab's own
     /// list or an uploader's profile — in the order it showed them, which is what
@@ -82,17 +85,6 @@ struct CommunityView: View {
                            bytes[12], bytes[13], bytes[14], bytes[15]))
     }
 
-    /// The fetched exercises the list may show, narrowed by the active filter.
-    /// The server has already been asked for the same narrowing; this applies it
-    /// again so the list reacts the moment a heart is tapped, without waiting for
-    /// a refetch.
-    private var visibleExercises: [Exercise] {
-        guard let activeFilter else { return community.exercises }
-        return community.exercises.filter {
-            activeFilter.matches($0, likedIDs: community.likedExerciseIDs)
-        }
-    }
-
     /// Menu toggle state for one filter. The picks are mutually exclusive — an
     /// exercise is either liked or not — so turning one on turns the other off
     /// rather than leaving both on, which would show the whole list anyway.
@@ -117,7 +109,7 @@ struct CommunityView: View {
             }
         }
 
-        let sortedExercises = community.sorted(visibleExercises, by: sort)
+        let sortedExercises = community.sorted(community.exercises, by: sort)
         let query = searchText.trimmingCharacters(in: .whitespaces)
         guard !query.isEmpty else {
             let rows = exerciseRows(sortedExercises)
@@ -181,9 +173,13 @@ struct CommunityView: View {
                             Group {
                                 if !searchText.trimmingCharacters(in: .whitespaces).isEmpty {
                                     ContentUnavailableView.search(text: searchText)
-                                } else if activeFilter != nil && !community.exercises.isEmpty {
-                                    // Something was fetched, the filters just left
-                                    // nothing of it.
+                                } else if community.isFetching {
+                                    ProgressView()
+                                } else if activeFilter != nil {
+                                    // The fetch asked the server for the filtered
+                                    // list and it came back with nothing, so the
+                                    // filter — not a missing fetch — is what left
+                                    // the list empty.
                                     ContentUnavailableView {
                                         Label("No Matching Exercises",
                                               systemImage: "line.3.horizontal.decrease.circle")
@@ -192,8 +188,6 @@ struct CommunityView: View {
                                     } actions: {
                                         Button("Clear Filters") { community.setFilter(nil) }
                                     }
-                                } else if community.isFetching {
-                                    ProgressView()
                                 } else {
                                     ContentUnavailableView(
                                         "No Community Exercises",
