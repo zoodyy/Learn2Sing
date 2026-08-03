@@ -34,8 +34,12 @@ struct SharedExerciseDoc: Codable {
 }
 
 /// The document each user keeps on the server under PUBLIC_NAME: their current
-/// profile username. Fetched per user on refresh, so renaming yourself in the
-/// profile updates the label on your exercises for everyone.
+/// profile username, so renaming yourself in the profile updates the label on
+/// your exercises for everyone. There is one document per user and so one fetch
+/// per uploader: the names are cached and looked up once a session rather than
+/// on every refresh (see `CommunitySync.refreshUploaderNames`), which means
+/// someone else's rename shows up on their next launch, and this device's own
+/// goes into the cache as it is uploaded.
 nonisolated struct PublicNameDoc: Codable {
     /// The uploader's public user id (see PublicIdentifier), matching the
     /// `userID` stamped on their shared exercises.
@@ -104,6 +108,10 @@ final class CommunitySync: ObservableObject {
     /// Share date (seconds since 1970) per public exercise id, so re-uploading an
     /// edited exercise keeps the date it was first shared.
     private static let shareDatesKey = "communityShareDates"
+    /// Username per public user id as last fetched, persisted so a relaunch —
+    /// and every refresh after the first of a session — can label the list
+    /// without a PUBLIC_NAME call per uploader.
+    private static let uploaderNamesKey = "communityUploaderNames"
     /// The key the Community tab's sort menu writes with @AppStorage; the fetch
     /// reads it so the server can do the sorting.
     private static let sortKey = "communitySort"
@@ -174,6 +182,29 @@ final class CommunitySync: ObservableObject {
     /// How many refreshes are on the wire; `isFetching` is true while any is, so
     /// an abandoned one finishing can't take the initial spinner down with it.
     private var activeFetches = 0
+    /// Each uploader's current username by public user id, as last fetched.
+    /// Persisted (see `uploaderNamesKey`), because one PUBLIC_NAME document per
+    /// uploader is one call per uploader — worth making once a session, not on
+    /// every refresh.
+    private var uploaderNames: [String: String] = [:]
+    /// Which uploader each listed exercise belongs to, so names arriving after
+    /// the list can be put on the right rows.
+    private var uploaderIDs: [UUID: String] = [:]
+    /// Whether this session has been through the uploaders once already; after
+    /// that only uploaders with no cached name are looked up.
+    private var hasRefreshedNames = false
+    /// The fetched JSON each exercise was last decoded from, hashed, with what it
+    /// decoded to. A refresh handing back a document already in here — which is
+    /// all of them when only the sort order changed — skips both the decode and
+    /// the re-encode of its pattern into UserDefaults, since both would produce
+    /// exactly what is already there. In-session only: hash seeds differ between
+    /// launches, and the first refresh of a session should write the cache anyway.
+    private var decodedDocs: [String: (source: Int, doc: SharedExerciseDoc)] = [:]
+    /// The hash of the JSON each exercise's cached `midi_<uuid>` /
+    /// `miditext_<uuid>` pattern was written from, so a refresh that hands the
+    /// same document back doesn't encode and rewrite it. In-session only, like
+    /// `decodedDocs`.
+    private var cachedPatternSources: [UUID: Int] = [:]
 
     private init() {
         // An earlier version persisted the fetched list under this key.
@@ -187,6 +218,7 @@ final class CommunitySync: ObservableObject {
         likeCounts = Self.storedCounts(forKey: Self.likeCountsKey)
         downloadCounts = Self.storedCounts(forKey: Self.downloadCountsKey)
         playCounts = Self.storedCounts(forKey: Self.playCountsKey)
+        uploaderNames = UserDefaults.standard.dictionary(forKey: Self.uploaderNamesKey) as? [String: String] ?? [:]
         let dates = UserDefaults.standard.dictionary(forKey: Self.shareDatesKey) as? [String: Double] ?? [:]
         shareDates = dates.reduce(into: [:]) { result, entry in
             if let id = UUID(uuidString: entry.key) {
@@ -363,6 +395,11 @@ final class CommunitySync: ObservableObject {
             let (_, response) = try await URLSession.shared.data(for: request)
             if let http = response as? HTTPURLResponse, (200...299).contains(http.statusCode) {
                 lastUploadedName = body
+                // This device's own rename, straight into the cache the list is
+                // labelled from — otherwise the tab would keep showing the old
+                // name on this user's own exercises until the next session, since
+                // the names are no longer refetched on every refresh.
+                remember(names: [userID: doc.username])
             } else if let http = response as? HTTPURLResponse {
                 print("CommunitySync: name upload failed with status \(http.statusCode)")
             }
@@ -546,23 +583,26 @@ final class CommunitySync: ObservableObject {
         // persisted under.
         let userQuery = [URLQueryItem(name: "userId", value: PublicIdentifier.user)]
         let filterQuery = filter.map { [URLQueryItem(name: "filter", value: $0.serverValue)] } ?? []
-        guard var records = await Self.fetchRecords(storageType: "SHARED_EXERCISE",
-                                                    sortBy: sort.serverSortBy,
-                                                    sortDirection: sort.serverSortDirection(reversed: reversed),
-                                                    extraQuery: userQuery + filterQuery)
-        else { return }
+        let query = userQuery + filterQuery
         // The hot and like/download orders come out of the event tables and so
         // list only exercises with an event on them — no likes, plays or downloads
         // yet and the server leaves it out, which is how those orders are meant to
         // rank but would keep a just-published exercise off the tab entirely. So
-        // fetch the rest of the list in that order's top-up order and append what
+        // fetch the rest of the list in that order's top-up order and merge in what
         // the first fetch left out. The `filter` narrowing above is taken at its
         // word — what it returns is the list.
-        if let topUp = sort.topUpSort,
-           let rest = await Self.fetchRecords(storageType: "SHARED_EXERCISE",
-                                              sortBy: topUp.serverSortBy,
-                                              sortDirection: topUp.serverSortDirection(reversed: false),
-                                              extraQuery: userQuery + filterQuery) {
+        //
+        // Both go out at once: the top-up is only ever used to *remove* what the
+        // first fetch already listed, so it doesn't need to see it first, and
+        // waiting one round trip to start the second doubled the time a sort
+        // switch takes to show anything.
+        async let primary = Self.fetchRecords(storageType: "SHARED_EXERCISE",
+                                              sortBy: sort.serverSortBy,
+                                              sortDirection: sort.serverSortDirection(reversed: reversed),
+                                              extraQuery: query)
+        async let topUp = Self.topUpRecords(for: sort, extraQuery: query)
+        guard var records = await primary else { return }
+        if let rest = await topUp {
             let listed = Set(records.map(\.entityId))
             let remainder = rest.filter { !listed.contains($0.entityId) }
             // What the first fetch left out has no events at all, so its tally is
@@ -571,12 +611,27 @@ final class CommunitySync: ObservableObject {
             // goes last, ranked the way that order would rank it.)
             records = reversed ? remainder + records : records + remainder
         }
-        let docs = Self.decodeDocs(from: records)
-        let fetchedNames = await Self.fetchPublicNames(for: Set(docs.map(\.userID)))
+        let docs = decodeDocs(from: records)
         // A newer refresh started while this one was on the wire, so this list is
         // in an order the menu has already moved on from.
         guard generation == refreshGeneration else { return }
-        apply(docs: docs, names: fetchedNames, sort: sort, reversed: reversed)
+        apply(docs: docs, sort: sort, reversed: reversed)
+        // Only once the list is on screen, and only for uploaders whose name
+        // isn't already known: a rename is worth one pass a session, not one
+        // call per uploader every time the sort order changes.
+        await refreshUploaderNames(for: Set(docs.map(\.doc.userID)))
+    }
+
+    /// The second fetch behind the orders the server derives from the user-event
+    /// tables, in the order their remainder belongs in — or nil for the orders
+    /// that come back whole. See `CommunitySort.topUpSort`.
+    private static func topUpRecords(for sort: CommunitySort,
+                                     extraQuery: [URLQueryItem]) async -> [PersistRecord]? {
+        guard let topUp = sort.topUpSort else { return nil }
+        return await fetchRecords(storageType: "SHARED_EXERCISE",
+                                  sortBy: topUp.serverSortBy,
+                                  sortDirection: topUp.serverSortDirection(reversed: false),
+                                  extraQuery: extraQuery)
     }
 
     /// Walks every page of one public storage type and returns the records in the
@@ -630,6 +685,51 @@ final class CommunitySync: ObservableObject {
         return all
     }
 
+    /// Brings the uploader names up to date and relabels the list with them.
+    ///
+    /// A username changes only when its owner renames themselves, so the whole
+    /// set is looked up once a session and cached (and persisted) from then on;
+    /// later refreshes ask only about uploaders never seen before, which is
+    /// usually none at all. That matters because there is one document per
+    /// uploader and so one call per uploader: doing it on every refresh put a
+    /// wave of them — six at a time, as many waves as it took — between picking a
+    /// sort order and seeing it.
+    private func refreshUploaderNames(for userIDs: Set<String>) async {
+        let wanted = hasRefreshedNames ? userIDs.subtracting(uploaderNames.keys) : userIDs
+        // Set before the fetch, not after: it makes the two refreshes that race
+        // at launch (start(with:) and the tab appearing) share one pass, and a
+        // name that fails to load simply stays unknown and is asked for again by
+        // the next refresh.
+        hasRefreshedNames = true
+        guard !wanted.isEmpty else { return }
+        let fetched = await Self.fetchPublicNames(for: wanted)
+        guard !fetched.isEmpty else { return }
+        remember(names: fetched)
+    }
+
+    /// Caches usernames and puts them on the rows they belong to. Applied to
+    /// whatever the list holds now, however many refreshes later: a name belongs
+    /// to an uploader, not to the order their exercises are in.
+    private func remember(names: [String: String]) {
+        // An empty username is no username: the row keeps the name stamped on the
+        // exercise at publish time, the same as when the fetch can't find one.
+        let names = names.filter { !$0.value.isEmpty }
+        guard !names.isEmpty else { return }
+        uploaderNames.merge(names) { _, new in new }
+        UserDefaults.standard.set(uploaderNames, forKey: Self.uploaderNamesKey)
+        var relabelled = exercises
+        var changed = false
+        for index in relabelled.indices {
+            guard let userID = uploaderIDs[relabelled[index].id],
+                  let name = uploaderNames[userID],
+                  relabelled[index].uploaderName != name
+            else { continue }
+            relabelled[index].uploaderName = name
+            changed = true
+        }
+        if changed { exercises = relabelled }
+    }
+
     /// Fetches every uploader's PUBLIC_NAME document in parallel and returns the
     /// non-empty usernames by public user id. Users whose fetch fails are simply
     /// absent, so their exercises keep the name stamped at publish time.
@@ -671,37 +771,67 @@ final class CommunitySync: ObservableObject {
         return summary
     }
 
+    /// A fetched document together with the hash of the JSON it came from, which
+    /// tells `apply` whether this session has already cached its pattern.
+    private struct FetchedDoc {
+        var doc: SharedExerciseDoc
+        var source: Int
+    }
+
     /// One document per record; tombstones and documents that fail to decode
     /// (e.g. the pre-split whole-library documents, or ones written by a newer
     /// app version) are skipped.
-    private static func decodeDocs(from records: [PersistRecord]) -> [SharedExerciseDoc] {
+    ///
+    /// Records whose JSON is byte for byte what this session already decoded come
+    /// straight out of `decodedDocs` — which, on a sort switch, is every one of
+    /// them: the same documents came back, only in a different order, and
+    /// decoding a whole community's patterns again (on the main actor, since this
+    /// class is @MainActor) is time spent producing what is already in hand.
+    private func decodeDocs(from records: [PersistRecord]) -> [FetchedDoc] {
         let decoder = JSONDecoder()
-        return records.compactMap {
-            try? decoder.decode(SharedExerciseDoc.self, from: Data($0.jsonData.utf8))
+        var docs: [FetchedDoc] = []
+        docs.reserveCapacity(records.count)
+        for record in records {
+            let source = record.jsonData.hashValue
+            if let cached = decodedDocs[record.entityId], cached.source == source {
+                docs.append(FetchedDoc(doc: cached.doc, source: source))
+                continue
+            }
+            guard let doc = try? decoder.decode(SharedExerciseDoc.self,
+                                                from: Data(record.jsonData.utf8))
+            else { continue }
+            decodedDocs[record.entityId] = (source, doc)
+            docs.append(FetchedDoc(doc: doc, source: source))
         }
+        // Don't hold documents of exercises that have left the community.
+        let listed = Set(records.map(\.entityId))
+        decodedDocs = decodedDocs.filter { listed.contains($0.key) }
+        return docs
     }
 
     /// Publishes the fetched exercises — relabelled with each uploader's current
-    /// PUBLIC_NAME where one was fetched — and swaps their patterns into the
+    /// PUBLIC_NAME where one is known — and swaps their patterns into the
     /// UserDefaults cache, dropping patterns of exercises no longer shared.
     /// `sort` and `reversed` are what this fetch asked the server for, remembered
     /// alongside the list so `sorted(_:by:reversed:)` knows what order it is in.
-    private func apply(docs: [SharedExerciseDoc],
-                       names: [String: String],
+    private func apply(docs: [FetchedDoc],
                        sort: CommunitySort,
                        reversed: Bool) {
         let defaults = UserDefaults.standard
         var seenExercises = Set<UUID>()
         var fetched: [Exercise] = []
         var cachedIDs: [String] = []
+        var uploaders: [UUID: String] = [:]
         var counts: [UUID: Int] = [:]
         var downloads: [UUID: Int] = [:]
         var plays: [UUID: Int] = [:]
         var dates: [UUID: Date] = [:]
-        for doc in docs {
+        for fetchedDoc in docs {
+            let doc = fetchedDoc.doc
             guard var exercise = doc.exercise, exercise.visibility == .public,
                   seenExercises.insert(exercise.id).inserted else { continue }
-            if let name = names[doc.userID] { exercise.uploaderName = name }
+            if let name = uploaderNames[doc.userID] { exercise.uploaderName = name }
+            uploaders[exercise.id] = doc.userID
             fetched.append(exercise)
             // Counts come from opening an exercise, not from listing it: carry
             // over what is known and leave the rest to `refreshSummary(for:)`.
@@ -717,6 +847,11 @@ final class CommunitySync: ObservableObject {
             // from any local raw id, so caching the server pattern here can never
             // clobber a local one — even for this device's own uploads.
             cachedIDs.append(exercise.id.uuidString)
+            // The pattern already in UserDefaults was written from this very
+            // JSON, so re-encoding it would write back what is already there.
+            // Skipping that is what keeps a sort switch — where every document
+            // comes back unchanged — from re-encoding the whole community.
+            guard cachedPatternSources[exercise.id] != fetchedDoc.source else { continue }
             if let data = try? JSONEncoder().encode(doc.midi) {
                 defaults.set(data, forKey: ExerciseStore.midiKey(exercise.id))
             }
@@ -725,6 +860,7 @@ final class CommunitySync: ObservableObject {
             } else {
                 defaults.removeObject(forKey: ExerciseStore.midiTextKey(exercise.id))
             }
+            cachedPatternSources[exercise.id] = fetchedDoc.source
         }
         let stale = Set(defaults.stringArray(forKey: Self.cachedPatternIDsKey) ?? [])
             .subtracting(cachedIDs)
@@ -732,9 +868,13 @@ final class CommunitySync: ObservableObject {
             guard let id = UUID(uuidString: idString) else { continue }
             defaults.removeObject(forKey: ExerciseStore.midiKey(id))
             defaults.removeObject(forKey: ExerciseStore.midiTextKey(id))
+            // The pattern is gone, so the next fetch that lists this exercise
+            // again has to write it back even if the document hasn't changed.
+            cachedPatternSources.removeValue(forKey: id)
         }
         defaults.set(cachedIDs, forKey: Self.cachedPatternIDsKey)
         exercises = fetched
+        uploaderIDs = uploaders
         fetchedSort = sort
         fetchedReversed = reversed
         likeCounts = counts
