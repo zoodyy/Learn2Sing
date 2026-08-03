@@ -77,9 +77,9 @@ private struct RoutineDetailsField: View {
 /// Edit screen for one routine, reached by swiping right on it in the Home tab.
 /// Deliberately the same layout as the Exercises tab's edit-categories screen —
 /// draggable rows, a trash toggle that swaps the drag handles for delete buttons,
-/// and a + button — minus the per-row counts, with the routine's name and
-/// description editable in fields at the top and the rows being the routine's
-/// exercises instead.
+/// and a + button — minus the per-row counts, with the rows being the routine's
+/// exercises instead. Sectioned like the exercise settings screen: the name and
+/// description sit in their own labelled sections above the "Exercises" one.
 struct RoutineEditView: View {
     /// Re-renders this screen when the language is changed in Settings; the
     /// strings are resolved when the body runs, so SwiftUI needs telling.
@@ -130,11 +130,13 @@ struct RoutineEditView: View {
     var body: some View {
         List {
             if let routine {
-                Section {
+                Section("Name") {
                     RoutineNameField(routineID: routineID, name: routine.name)
+                }
+                Section("Description") {
                     RoutineDetailsField(routineID: routineID, details: routine.details)
                 }
-                Section {
+                Section("Exercises") {
                     ForEach(routine.exerciseIDs, id: \.self) { exerciseID in
                         exerciseRow(exerciseID)
                     }
