@@ -196,26 +196,32 @@ struct ExercisesView: View {
         text.range(of: query, options: [.caseInsensitive, .diacriticInsensitive]) != nil
     }
 
-    /// The exercises the list may show, narrowed by the active filters and the
-    /// search text.
-    private var visibleExercises: [Exercise] {
-        var result = store.exercises
-        if !activeFilters.isEmpty {
-            result = result.filter {
-                activeFilters.matches($0, isBundled: store.isBundled($0.id))
-            }
+    /// The exercises the list may show, narrowed by the active filters only. The
+    /// search is applied per category on top of this, since a category whose own
+    /// name matches keeps all of its exercises.
+    private var filteredExercises: [Exercise] {
+        guard !activeFilters.isEmpty else { return store.exercises }
+        return store.exercises.filter {
+            activeFilters.matches($0, isBundled: store.isBundled($0.id))
         }
-        let query = self.query
-        if !query.isEmpty {
-            // Bundled exercises are shown under their translated name, so the
-            // search has to look at that as well as the stored English one.
-            result = result.filter {
-                Self.matches($0.name, query) || Self.matches($0.details, query)
-                    || Self.matches($0.localizedName, query)
-                    || Self.matches($0.localizedDetails, query)
-            }
-        }
-        return result
+    }
+
+    /// Does this exercise match the search text? Bundled exercises are shown
+    /// under their translated name, so the search has to look at that as well as
+    /// the stored English one.
+    private func matchesQuery(_ exercise: Exercise, _ query: String) -> Bool {
+        Self.matches(exercise.name, query) || Self.matches(exercise.details, query)
+            || Self.matches(exercise.localizedName, query)
+            || Self.matches(exercise.localizedDetails, query)
+    }
+
+    /// Does the category's own name match the search text? App-provided
+    /// categories are listed under their translated name, so — as with exercises
+    /// — both that and the stored English one are checked.
+    private func matchesQuery(category: String, _ query: String) -> Bool {
+        !category.isEmpty
+            && (Self.matches(category, query)
+                || Self.matches(ExerciseCategoryName.localized(category), query))
     }
 
     /// The list content in normal mode: one section per category (in the user's
@@ -227,15 +233,24 @@ struct ExercisesView: View {
         func rows(_ exercises: [Exercise]) -> [ExerciseListRow] {
             exercises.map { ExerciseListRow(exercise: $0, pattern: store.notes(for: $0.id)) }
         }
-        let exercises = visibleExercises
+        let exercises = filteredExercises
+        let query = self.query
         let isSearching = !query.isEmpty
         let isFiltering = !activeFilters.isEmpty || isSearching
         var result: [ExerciseListSection] = []
         for category in store.categories {
-            let items = exercises.filter { $0.category == category }
+            let inCategory = exercises.filter { $0.category == category }
+            // A category the search text names is shown whole — the user asked
+            // for the category, not for exercises inside it — and stays visible
+            // even when it's empty, so the name they typed doesn't come back
+            // "no results".
+            let categoryMatches = isSearching && matchesQuery(category: category, query)
+            let items = isSearching && !categoryMatches
+                ? inCategory.filter { matchesQuery($0, query) }
+                : inCategory
             // Empty categories normally stay visible (showing "(0)"), but while
             // filtering a category with no match left is just noise.
-            if items.isEmpty && isFiltering { continue }
+            if items.isEmpty && isFiltering && !categoryMatches { continue }
             // A collapsed category would hide its matches, so results are always
             // shown expanded; the collapse state is left untouched underneath and
             // comes back when the field is cleared.
@@ -243,10 +258,16 @@ struct ExercisesView: View {
             result.append(ExerciseListSection(category: category,
                                               isCollapsed: isCollapsed,
                                               totalCount: items.count,
-                                              items: isCollapsed ? [] : rows(items)))
+                                              items: isCollapsed ? [] : rows(items),
+                                              // While searching there's nothing
+                                              // to collapse — the chevron would
+                                              // only offer an action that does
+                                              // nothing until the field clears.
+                                              showsChevron: !isSearching))
         }
         let uncategorized = exercises.filter {
-            $0.category.isEmpty || !store.categories.contains($0.category)
+            ($0.category.isEmpty || !store.categories.contains($0.category))
+                && (!isSearching || matchesQuery($0, query))
         }
         if !uncategorized.isEmpty {
             result.append(ExerciseListSection(category: "",
@@ -440,6 +461,10 @@ struct ExercisesView: View {
                         },
                         onSettings: { navigationPath.append(ExerciseRoute.settings($0)) },
                         onToggleCollapse: { category in
+                            // The chevron is hidden while searching; a header tap
+                            // there must not quietly change a state the user
+                            // can't see until the field is cleared.
+                            guard query.isEmpty else { return }
                             if collapsedCategories.contains(category) {
                                 collapsedCategories.remove(category)
                             } else {
