@@ -837,11 +837,19 @@ final class ExerciseSectionHeaderView: UICollectionReusableView {
         chevron.tintColor = .tertiaryLabel
         chevron.setContentHuggingPriority(.required, for: .horizontal)
 
-        addButton.setImage(UIImage(systemName: "plus"), for: .normal)
-        addButton.setPreferredSymbolConfiguration(
-            UIImage.SymbolConfiguration(font: headerDefaults.textProperties.font),
-            forImageIn: .normal
-        )
+        // A grey circle behind the + marks it as tappable, the same way the like
+        // button on the exercise intro sits on a `.fill.tertiary` capsule.
+        var addConfig = UIButton.Configuration.plain()
+        addConfig.image = UIImage(systemName: "plus")
+        addConfig.preferredSymbolConfigurationForImage =
+            UIImage.SymbolConfiguration(font: headerDefaults.textProperties.font)
+        addConfig.contentInsets = NSDirectionalEdgeInsets(top: 4, leading: 4, bottom: 4, trailing: 4)
+        addConfig.background.backgroundColor = .tertiarySystemFill
+        addConfig.cornerStyle = .capsule
+        addButton.configuration = addConfig
+        // The plus glyph is narrower than it is tall, so match the width to the
+        // height to keep the capsule a circle rather than a stubby pill.
+        addButton.widthAnchor.constraint(equalTo: addButton.heightAnchor).isActive = true
         addButton.setContentHuggingPriority(.required, for: .horizontal)
         addButton.accessibilityLabel = L("Add")
         addButton.isHidden = true
