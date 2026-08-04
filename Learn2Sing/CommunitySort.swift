@@ -95,11 +95,16 @@ extension CommunitySort {
     ///
     /// Those orders return *only* exercises with at least one event row, which is
     /// how they are meant to work but would drop everything untouched out of the
-    /// tab, a just-published exercise included. So a fetch using one is followed
-    /// by a second fetch in this order and topped up with whatever the first left
-    /// out (see CommunitySync.refresh). `hot` ranks recency against engagement, so
-    /// its remainder is topped up in the order it would rank them in; the count
-    /// orders put theirs, all of them zero, at the tail newest first.
+    /// tab, a just-published exercise included. So the query for one is followed
+    /// by a second in this order, topped up with whatever the first left out as
+    /// it is paged (see CommunitySync.makeFeed). `hot` ranks recency against
+    /// engagement, so its remainder is topped up in the order it would rank them
+    /// in; the count orders put theirs, all of them zero, at the tail newest
+    /// first.
+    ///
+    /// Not used when the reverse switch is on: upside down the remainder belongs
+    /// at the head, which can't be worked out without the whole ranking, so the
+    /// reversed count orders list what their own query returns and nothing else.
     var topUpSort: CommunitySort? {
         switch self {
         case .hot: .recentlyUpdated

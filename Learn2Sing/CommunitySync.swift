@@ -593,15 +593,9 @@ final class CommunitySync: ObservableObject {
         var query: [URLQueryItem]
         var stages: [FeedStage]
         var stageIndex = 0
-        /// Records fetched whole up front and held back for the end of the list —
-        /// only the count orders' own ranking, and only reversed (see `makeFeed`).
-        var deferred: [PersistRecord] = []
-        /// Their ids, so the stage read before them doesn't list them twice.
-        var deferredIDs: Set<String> = []
         /// Whether the whole community (as this order and filter see it) has been
-        /// read: every stage walked to its last page and the held-back block, if
-        /// any, handed over.
-        var isExhausted: Bool { stageIndex >= stages.count && deferred.isEmpty }
+        /// read: every stage walked to its last page.
+        var isExhausted: Bool { stageIndex >= stages.count }
     }
 
     /// What one call for one page came back with.
@@ -671,16 +665,11 @@ final class CommunitySync: ObservableObject {
         let generation = refreshGeneration
         let sort = Self.currentSort
         let reversed = Self.currentReversed
-        guard let newFeed = await makeFeed(sort: sort, reversed: reversed, filter: activeFilter),
-              // A newer refresh started while this one was on the wire, so this
-              // list is in an order the menu has already moved on from.
-              generation == refreshGeneration
-        else { return }
         // Read the new feed from its first page, keeping the old one until the
         // page lands: a failed refresh leaves the tab exactly as it was, still
         // able to page on from where the user has scrolled to.
         let previous = (feed: feed, docs: loadedDocs, entityIDs: loadedEntityIDs)
-        feed = newFeed
+        feed = makeFeed(sort: sort, reversed: reversed, filter: activeFilter)
         loadedDocs = []
         loadedEntityIDs = []
         guard let records = await nextRecords(generation: generation) else {
@@ -711,18 +700,18 @@ final class CommunitySync: ObservableObject {
     /// skipped as it is paged. The `filter` narrowing is taken at its word — what
     /// it returns is the list.
     ///
-    /// Reversed, those leftovers belong at the *head* of the list instead: they
-    /// have no events at all, so their tally is zero. Which exercises they are can
-    /// only be told from the whole answer to the order's own query, so that one is
-    /// fetched in full up front and held back for the end of the list — the one
-    /// case that can't be read a page at a time. (`hot` is never reversed, so its
-    /// leftovers always go last, ranked the way that order would rank them.)
-    ///
-    /// nil if that up-front fetch failed; every other order needs no call to set
-    /// its feed up.
+    /// Reversed, those leftovers would belong at the *head* of the list instead:
+    /// they have no events at all, so their tally is zero. Which exercises they
+    /// are can only be told from the whole answer to the order's own query, so
+    /// there is no topping one up a page at a time — and that order is therefore
+    /// taken at its word, listing what the query returns and nothing else. It is
+    /// the server's to get right (the query leaving out what it has no events for
+    /// is a bug there, being fixed), and the tab shows whatever it hands back.
+    /// (`hot` is never reversed, so its leftovers always go last, ranked the way
+    /// that order would rank them.)
     private func makeFeed(sort: CommunitySort,
                           reversed: Bool,
-                          filter: CommunityFilter?) async -> Feed? {
+                          filter: CommunityFilter?) -> Feed {
         // `filter` only means anything next to the id of the user whose likes are
         // being asked about — the same public id the PUBLIC_NAME document is
         // persisted under.
@@ -730,21 +719,12 @@ final class CommunitySync: ObservableObject {
             + (filter.map { [URLQueryItem(name: "filter", value: $0.serverValue)] } ?? [])
         let ranked = FeedStage(sortBy: sort.serverSortBy,
                                sortDirection: sort.serverSortDirection(reversed: reversed))
-        guard let topUp = sort.topUpSort else {
+        guard let topUp = sort.topUpSort, !reversed else {
             return Feed(sort: sort, reversed: reversed, query: query, stages: [ranked])
         }
         let leftovers = FeedStage(sortBy: topUp.serverSortBy,
                                   sortDirection: topUp.serverSortDirection(reversed: false))
-        guard reversed else {
-            return Feed(sort: sort, reversed: reversed, query: query, stages: [ranked, leftovers])
-        }
-        guard let records = await Self.fetchAllRecords(storageType: "SHARED_EXERCISE",
-                                                       sortBy: ranked.sortBy,
-                                                       sortDirection: ranked.sortDirection,
-                                                       extraQuery: query)
-        else { return nil }
-        return Feed(sort: sort, reversed: reversed, query: query, stages: [leftovers],
-                    deferred: records, deferredIDs: Set(records.map(\.entityId)))
+        return Feed(sort: sort, reversed: reversed, query: query, stages: [ranked, leftovers])
     }
 
     /// Reads on from the feed until it has a page's worth of records the list
@@ -771,19 +751,11 @@ final class CommunitySync: ObservableObject {
         return new
     }
 
-    /// Reads one page of the feed's current stage — or hands over the block held
-    /// back for a reversed count order, once its stages are done — and returns
-    /// the records the list doesn't already hold. Empty means the page held
-    /// nothing new; nil that the call failed.
+    /// Reads one page of the feed's current stage and returns the records the
+    /// list doesn't already hold. Empty means the page held nothing new; nil that
+    /// the call failed.
     private func advanceFeed(generation: Int) async -> [PersistRecord]? {
         guard var feed, !feed.isExhausted else { return [] }
-        guard feed.stageIndex < feed.stages.count else {
-            let deferred = feed.deferred
-            feed.deferred = []
-            feed.deferredIDs = []
-            self.feed = feed
-            return read(deferred)
-        }
         let stage = feed.stages[feed.stageIndex]
         guard let sortKey = stage.sortBy.first, stage.page < Self.maxPages else {
             feed.stageIndex += 1
@@ -813,7 +785,7 @@ final class CommunitySync: ObservableObject {
                 feed.stages[feed.stageIndex].page += 1
             }
             self.feed = feed
-            return read(records.filter { !feed.deferredIDs.contains($0.entityId) })
+            return read(records)
         }
     }
 
@@ -866,10 +838,9 @@ final class CommunitySync: ObservableObject {
         }
     }
 
-    /// Walks every page of one query, for the two callers that need the whole
-    /// answer in hand rather than a page of it: the one-record PUBLIC_NAME
-    /// lookups, and a reversed count order's own ranking (see `makeFeed`). nil if
-    /// any page failed.
+    /// Walks every page of one query, for the caller that wants the whole answer
+    /// rather than a page of it: the one-record PUBLIC_NAME lookups. nil if any
+    /// page failed.
     private static func fetchAllRecords(storageType: String,
                                         sortBy: [String],
                                         sortDirection: String,
