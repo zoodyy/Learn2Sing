@@ -74,6 +74,41 @@ nonisolated struct EventSummary: Decodable {
     var totalPlays: Int
 }
 
+/// The like/download/play tallies and this user's own likes and downloads,
+/// published on their own object rather than as part of CommunitySync.
+///
+/// They change on a tap — the heart on the intro screen — and that screen is the
+/// only thing that draws them, while the Community tab's list rebuilds every row
+/// (reading every pattern back out of UserDefaults) whenever CommunitySync
+/// publishes. Keeping the counts out of that made the difference between a heart
+/// that fills on the next frame and one that waits for a few hundred rows to be
+/// rebuilt first.
+///
+/// Held by CommunitySync as a plain `let`, which is what keeps a change here
+/// from publishing there as well; only CommunitySync writes to it.
+@MainActor
+final class CommunityCounts: ObservableObject {
+    /// Like count per public exercise id: the server's tally as of the last time
+    /// that exercise was opened (see `CommunitySync.refreshSummary(for:)`), plus
+    /// this device's own likes. Exercises never opened on this device have no
+    /// entry until one is, which is why nothing but the intro screen shows the
+    /// number.
+    @Published fileprivate(set) var likeCounts: [UUID: Int] = [:]
+    /// Download count per public exercise id, from the same summaries.
+    @Published fileprivate(set) var downloadCounts: [UUID: Int] = [:]
+    /// Play count per public exercise id, from the same summaries. Not shown
+    /// anywhere; kept so a play registered this session is reflected the moment
+    /// the exercise is reopened.
+    @Published fileprivate(set) var playCounts: [UUID: Int] = [:]
+    /// Public ids of the exercises this user has liked. Mirrored into the
+    /// profile JSON (and so onto the server) on every change.
+    @Published fileprivate(set) var likedExerciseIDs: Set<UUID> = []
+    /// Public ids of the exercises this user has downloaded. Mirrored into the
+    /// profile JSON like the likes, so downloading the same exercise again —
+    /// including after a reinstall — doesn't count twice.
+    @Published fileprivate(set) var downloadedExerciseIDs: Set<UUID> = []
+}
+
 /// Connects the Community tab to the server. Each device persists one
 /// SHARED_EXERCISE document per public exercise, keyed by the exercise's public
 /// ID (see PublicIdentifier — the raw id and device id never leave the device)
@@ -134,24 +169,31 @@ final class CommunitySync: ObservableObject {
     @Published private(set) var exercises: [Exercise] = []
     /// true while a fetch is on the wire; drives the tab's initial spinner.
     @Published private(set) var isFetching = false
-    /// Like count per public exercise id: the server's tally as of the last time
-    /// that exercise was opened (see `refreshSummary(for:)`), plus this device's
-    /// own likes. Exercises never opened on this device have no entry until one
-    /// is, which is why nothing but the intro screen shows the number.
-    @Published private(set) var likeCounts: [UUID: Int] = [:]
-    /// Download count per public exercise id, from the same summaries.
-    @Published private(set) var downloadCounts: [UUID: Int] = [:]
-    /// Play count per public exercise id, from the same summaries. Not shown
-    /// anywhere; kept so a play registered this session is reflected the moment
-    /// the exercise is reopened.
-    @Published private(set) var playCounts: [UUID: Int] = [:]
-    /// Public ids of the exercises this user has liked. Mirrored into the
-    /// profile JSON (and so onto the server) on every change.
-    @Published private(set) var likedExerciseIDs: Set<UUID> = []
-    /// Public ids of the exercises this user has downloaded. Mirrored into the
-    /// profile JSON like the likes, so downloading the same exercise again —
-    /// including after a reinstall — doesn't count twice.
-    @Published private(set) var downloadedExerciseIDs: Set<UUID> = []
+    /// The tallies and this user's likes and downloads. Its own observable
+    /// object, so the heart can fill without the whole Community list being
+    /// rebuilt — see CommunityCounts. The properties below read and write
+    /// through to it.
+    let counts = CommunityCounts()
+    private var likeCounts: [UUID: Int] {
+        get { counts.likeCounts }
+        set { counts.likeCounts = newValue }
+    }
+    private var downloadCounts: [UUID: Int] {
+        get { counts.downloadCounts }
+        set { counts.downloadCounts = newValue }
+    }
+    private var playCounts: [UUID: Int] {
+        get { counts.playCounts }
+        set { counts.playCounts = newValue }
+    }
+    private var likedExerciseIDs: Set<UUID> {
+        get { counts.likedExerciseIDs }
+        set { counts.likedExerciseIDs = newValue }
+    }
+    private var downloadedExerciseIDs: Set<UUID> {
+        get { counts.downloadedExerciseIDs }
+        set { counts.downloadedExerciseIDs = newValue }
+    }
     /// When each fetched exercise was first shared. Missing for exercises shared
     /// before the date was recorded; they sort as the oldest.
     @Published private(set) var shareDates: [UUID: Date] = [:]
@@ -160,6 +202,16 @@ final class CommunitySync: ObservableObject {
     /// relaunch never looks like exercises have gone missing. Set it through
     /// `setFilter(_:)`, which refetches.
     @Published private(set) var activeFilter: CommunityFilter?
+
+    /// Which tap on each exercise's heart is the live one, bumped by every
+    /// toggle. A post or a tally that comes back for an older tap has been
+    /// overtaken and is dropped — see `settleLike`.
+    private var likeGenerations: [UUID: Int] = [:]
+    /// Exercises whose like hasn't been settled with the server yet. While an id
+    /// is in here the only tally allowed to land on it is the one fetched to
+    /// settle it; anything else was asked for before the like was counted and
+    /// would undo the tap on screen.
+    private var pendingLikes: Set<UUID> = []
 
     private weak var store: ExerciseStore?
     private var storeObservation: AnyCancellable?
@@ -467,13 +519,18 @@ final class CommunitySync: ObservableObject {
     /// A failed call, or one the user has tapped through while it was on the
     /// wire, leaves the counts alone: the optimistic bump from a like, download
     /// or play made meanwhile is the newer truth, and the server's tally comes
-    /// back on the next open.
+    /// back on the next open. A like still on the wire does the same — the tally
+    /// that settles it is the one `settleLike` fetches, after the event has been
+    /// posted and so counted.
     func refreshSummary(for publicExerciseID: UUID) async {
+        let generation = likeGenerations[publicExerciseID]
         let before = (likeCounts[publicExerciseID],
                       downloadCounts[publicExerciseID],
                       playCounts[publicExerciseID])
         guard let summary = await Self.fetchEventSummary(for: publicExerciseID) else { return }
-        guard before == (likeCounts[publicExerciseID],
+        guard generation == likeGenerations[publicExerciseID],
+              !pendingLikes.contains(publicExerciseID),
+              before == (likeCounts[publicExerciseID],
                          downloadCounts[publicExerciseID],
                          playCounts[publicExerciseID]) else { return }
         likeCounts[publicExerciseID] = summary.totalLikes
@@ -483,20 +540,71 @@ final class CommunitySync: ObservableObject {
     }
 
     /// Adds or removes this user's like on a community exercise, addressed by
-    /// its public id. The heart and count update immediately; the like itself is
-    /// posted to the server as a user event (which owns the total) and the liked
-    /// set goes into the profile JSON (which ProfileSync uploads).
+    /// its public id.
+    ///
+    /// The tap is taken at face value: the heart and the count change on this
+    /// frame, and nothing else — not the write to UserDefaults, not the profile
+    /// JSON, and certainly not the server — happens before they do. Posting the
+    /// event and settling the count against the server's tally is left to
+    /// `settleLike`, which also puts the tap back if the post never lands.
     func toggleLike(for publicExerciseID: UUID) {
-        let wasLiked = likedExerciseIDs.contains(publicExerciseID)
-        if wasLiked {
-            likedExerciseIDs.remove(publicExerciseID)
-        } else {
-            likedExerciseIDs.insert(publicExerciseID)
+        let liked = !likedExerciseIDs.contains(publicExerciseID)
+        let generation = (likeGenerations[publicExerciseID] ?? 0) + 1
+        likeGenerations[publicExerciseID] = generation
+        pendingLikes.insert(publicExerciseID)
+        apply(like: liked, for: publicExerciseID)
+        Task {
+            // Off the tap itself: the profile JSON is read, rewritten and
+            // written back whole, which is work the heart shouldn't wait on.
+            persistCounts()
+            saveProfileSets()
+            await settleLike(liked, for: publicExerciseID, generation: generation)
         }
-        likeCounts[publicExerciseID] = max(0, (likeCounts[publicExerciseID] ?? 0) + (wasLiked ? -1 : 1))
+    }
+
+    /// The local half of a like: this user's heart and the exercise's count,
+    /// which is all the button draws from. Also how a like that the server never
+    /// took is undone.
+    private func apply(like liked: Bool, for publicExerciseID: UUID) {
+        if liked {
+            likedExerciseIDs.insert(publicExerciseID)
+        } else {
+            likedExerciseIDs.remove(publicExerciseID)
+        }
+        likeCounts[publicExerciseID] = max(0, (likeCounts[publicExerciseID] ?? 0) + (liked ? 1 : -1))
+    }
+
+    /// Settles a like the user has already seen take effect: posts the event the
+    /// server counts, then reads back the tally it produced so the number on
+    /// screen becomes the server's rather than this device's arithmetic — which
+    /// is off by every like made from another device since the exercise was
+    /// opened.
+    ///
+    /// A post that fails takes the heart back off: the liked set rides along in
+    /// the profile JSON, so a like the server never counted would otherwise
+    /// outlive the session and even a reinstall.
+    ///
+    /// `generation` is the tap this is settling. A newer tap on the same
+    /// exercise makes this one stale — the newer one owns the state, the pending
+    /// mark and the settling from then on, so everything below is dropped.
+    private func settleLike(_ liked: Bool, for publicExerciseID: UUID, generation: Int) async {
+        let posted = await postEvent(liked ? .addLike : .removeLike, for: publicExerciseID)
+        guard likeGenerations[publicExerciseID] == generation else { return }
+        guard posted else {
+            pendingLikes.remove(publicExerciseID)
+            apply(like: !liked, for: publicExerciseID)
+            persistCounts()
+            saveProfileSets()
+            return
+        }
+        let summary = await Self.fetchEventSummary(for: publicExerciseID)
+        guard likeGenerations[publicExerciseID] == generation else { return }
+        pendingLikes.remove(publicExerciseID)
+        guard let summary else { return }
+        likeCounts[publicExerciseID] = summary.totalLikes
+        downloadCounts[publicExerciseID] = summary.totalDownloads
+        playCounts[publicExerciseID] = summary.totalPlays
         persistCounts()
-        saveProfileSets()
-        Task { await postEvent(wasLiked ? .removeLike : .addLike, for: publicExerciseID) }
     }
 
     /// Counts a download of a community exercise, addressed by its public id.
@@ -522,28 +630,34 @@ final class CommunitySync: ObservableObject {
         Task { await postEvent(.addPlay, for: publicExerciseID) }
     }
 
-    /// POSTs one user event. The counts themselves are the server's business —
-    /// it holds a row per user, exercise and event type — so this says only what
-    /// happened and nothing about totals; a failed post shows up as the local
-    /// count snapping back to the server's on the next refresh.
+    /// POSTs one user event, reporting whether the server took it. The counts
+    /// themselves are the server's business — it holds a row per user, exercise
+    /// and event type — so this says only what happened and nothing about
+    /// totals; a failed post shows up as the local count snapping back to the
+    /// server's on the next refresh (for a like, straight away — see
+    /// `settleLike`).
     ///
     /// The id in the path is this install's *public* user id, not the Keychain
     /// device id: it identifies the user just as uniquely (the mapping is 1:1
     /// and stable), and the device id must never reach a public endpoint —
     /// see PublicIdentifier for why.
-    private func postEvent(_ event: UserEventType, for publicExerciseID: UUID) async {
+    @discardableResult
+    private func postEvent(_ event: UserEventType, for publicExerciseID: UUID) async -> Bool {
         let exerciseID = publicExerciseID.uuidString.lowercased()
         guard let url = URL(string: "\(Self.baseURL)/user-event/\(PublicIdentifier.user)/\(exerciseID)/\(event.rawValue)")
-        else { return }
+        else { return false }
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         do {
             let (_, response) = try await URLSession.shared.data(for: request)
             if let http = response as? HTTPURLResponse, !(200...299).contains(http.statusCode) {
                 print("CommunitySync: \(event.rawValue) on \(exerciseID) failed with status \(http.statusCode)")
+                return false
             }
+            return true
         } catch {
             print("CommunitySync: \(event.rawValue) on \(exerciseID) failed: \(error)")
+            return false
         }
     }
 
@@ -1135,7 +1249,7 @@ final class CommunitySync: ObservableObject {
         var fetched: [Exercise] = []
         var cachedIDs: [String] = []
         var uploaders: [UUID: String] = [:]
-        var counts: [UUID: Int] = [:]
+        var likes: [UUID: Int] = [:]
         var downloads: [UUID: Int] = [:]
         var plays: [UUID: Int] = [:]
         var dates: [UUID: Date] = [:]
@@ -1150,7 +1264,7 @@ final class CommunitySync: ObservableObject {
             // over what is known and leave the rest to `refreshSummary(for:)`.
             // Rebuilding the dictionaries — once the whole list is in — is what
             // drops the counts of exercises that have left the community.
-            if let count = likeCounts[exercise.id] { counts[exercise.id] = count }
+            if let count = likeCounts[exercise.id] { likes[exercise.id] = count }
             if let count = downloadCounts[exercise.id] { downloads[exercise.id] = count }
             if let count = playCounts[exercise.id] { plays[exercise.id] = count }
             if let createdAt = doc.createdAt {
@@ -1195,7 +1309,7 @@ final class CommunitySync: ObservableObject {
         fetchedSort = sort
         fetchedReversed = reversed
         if isComplete {
-            likeCounts = counts
+            likeCounts = likes
             downloadCounts = downloads
             playCounts = plays
         }

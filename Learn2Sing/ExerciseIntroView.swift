@@ -18,8 +18,11 @@ struct ExerciseIntroView: View {
     let onStart: () -> Void
 
     /// Source of the like count and of whether this user already liked it; both
-    /// change as soon as the heart is tapped.
-    @ObservedObject private var community = CommunitySync.shared
+    /// change as soon as the heart is tapped. Observed on CommunitySync's counts
+    /// object rather than on CommunitySync itself, so a tap redraws this screen
+    /// and not the Community list behind it.
+    @ObservedObject private var counts = CommunitySync.shared.counts
+    private var community: CommunitySync { .shared }
 
     /// Flips after a download so the button confirms instead of copying again.
     @State private var isDownloaded = false
@@ -120,8 +123,8 @@ struct ExerciseIntroView: View {
     /// CommunitySync updates the count on the server and remembers the like in
     /// the profile, so it survives a reinstall.
     private func likeButton(for likeID: UUID) -> some View {
-        let isLiked = community.likedExerciseIDs.contains(likeID)
-        let count = community.likeCounts[likeID] ?? 0
+        let isLiked = counts.likedExerciseIDs.contains(likeID)
+        let count = counts.likeCounts[likeID] ?? 0
         return Button {
             withAnimation(.snappy) { community.toggleLike(for: likeID) }
         } label: {
@@ -148,7 +151,7 @@ struct ExerciseIntroView: View {
     /// edge with no capsule behind it: a background would read as a button.
     /// The count goes up when the Download button below is used.
     private func downloadCount(for likeID: UUID) -> some View {
-        let count = community.downloadCounts[likeID] ?? 0
+        let count = counts.downloadCounts[likeID] ?? 0
         return HStack(spacing: 6) {
             Image(systemName: "arrow.down.circle")
             Text(count.formatted())
