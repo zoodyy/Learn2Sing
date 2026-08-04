@@ -9,8 +9,9 @@ import SwiftUI
 /// The search field filters the list to matching uploaders (as tappable rows
 /// leading to their profile) and to exercises whose name or description matches,
 /// and the toolbar's filter menu narrows it to the ones this user has (or hasn't)
-/// liked — that one is applied by the server, so it narrows what the tab holds
-/// rather than just what this screen draws.
+/// liked. Both are applied by the server — the search field's text rides along on
+/// the fetch as `searchTerm` — so they narrow what the tab holds rather than just
+/// what this screen draws.
 struct CommunityView: View {
     /// Re-renders this screen when the language is changed in Settings; the
     /// strings are resolved when the body runs, so SwiftUI needs telling.
@@ -319,6 +320,18 @@ struct CommunityView: View {
             // mean fetching them all again. Pull down to reload deliberately.
             .task { await community.refreshIfNeeded() }
             .onChange(of: isSearching) { community.setNeedsFullList(isSearching, for: .search) }
+            // The search runs on the server — the term goes into the fetch, which
+            // comes back narrowed to the exercises whose uploader name, name or
+            // description matches. Held off briefly because each new term is a
+            // refetch, which typing a word straight through would otherwise cost
+            // one of per letter; `.task(id:)` cancels the pending one on the next
+            // keystroke. The sections below keep filtering what's held in the
+            // meantime, so the list narrows as the user types either way.
+            .task(id: searchText) {
+                try? await Task.sleep(for: .milliseconds(400))
+                guard !Task.isCancelled else { return }
+                community.setSearchTerm(searchText)
+            }
             // The fetch asks the server for the picked order, so a new pick has
             // to go back to it — the orders it ranks itself ("Hot", "Recently
             // Updated") can't be worked out from the list already held. The

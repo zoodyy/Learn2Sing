@@ -202,6 +202,12 @@ final class CommunitySync: ObservableObject {
     /// relaunch never looks like exercises have gone missing. Set it through
     /// `setFilter(_:)`, which refetches.
     @Published private(set) var activeFilter: CommunityFilter?
+    /// What the Community tab's search field holds, trimmed; "" while it is
+    /// empty. Handed to the server on every fetch, which narrows the list to the
+    /// exercises whose uploader name, exercise name or description matches — so
+    /// searching narrows what the tab holds rather than just what it draws. Set
+    /// it through `setSearchTerm(_:)`, which refetches.
+    private(set) var activeSearchTerm = ""
 
     /// Which tap on each exercise's heart is the live one, bumped by every
     /// toggle. A post or a tally that comes back for an older tap has been
@@ -412,7 +418,8 @@ final class CommunitySync: ObservableObject {
             if await post(body: body,
                           publicExerciseID: shared.id.uuidString.lowercased(),
                           userID: userID,
-                          exerciseName: exercise.name) {
+                          exerciseName: exercise.name,
+                          description: exercise.details) {
                 lastUploadedBodies[idString] = body
                 onServer.insert(idString)
             }
@@ -424,7 +431,8 @@ final class CommunitySync: ObservableObject {
             if await post(body: body,
                           publicExerciseID: PublicIdentifier.exerciseID(idString),
                           userID: userID,
-                          exerciseName: "") {
+                          exerciseName: "",
+                          description: "") {
                 lastUploadedBodies.removeValue(forKey: idString)
                 onServer.remove(idString)
             }
@@ -451,11 +459,20 @@ final class CommunitySync: ObservableObject {
     /// the server accepted it. `userID` is the *uploader's* public id, which stays
     /// stamped on the record even when this device rewrites the document to like
     /// someone else's exercise.
-    private func post(body: Data, publicExerciseID: String, userID: String, exerciseName: String) async -> Bool {
+    ///
+    /// The name and description go in query parameters as well as in the document
+    /// body: that is what the server indexes, and so what a fetch's `searchTerm`
+    /// is matched against (see `makeFeed`).
+    private func post(body: Data,
+                      publicExerciseID: String,
+                      userID: String,
+                      exerciseName: String,
+                      description: String) async -> Bool {
         var components = URLComponents(string: "\(Self.baseURL)/persist/\(publicExerciseID)/SHARED_EXERCISE")
         components?.queryItems = [
             URLQueryItem(name: "customId1", value: userID),
             URLQueryItem(name: "customName", value: exerciseName),
+            URLQueryItem(name: "description", value: description),
             URLQueryItem(name: "customId2", value: publicExerciseID),
         ]
         guard let url = components?.url else { return false }
@@ -787,6 +804,17 @@ final class CommunitySync: ObservableObject {
         Task { await refresh() }
     }
 
+    /// Hands the search field's text (or "", once it is cleared) to the server
+    /// and refetches, for the same reason: the search looks through the whole
+    /// community, and the server is what holds it. The caller coalesces
+    /// keystrokes — see the Community tab's `.task(id:)`.
+    func setSearchTerm(_ term: String) {
+        let trimmed = term.trimmingCharacters(in: .whitespaces)
+        guard trimmed != activeSearchTerm else { return }
+        activeSearchTerm = trimmed
+        Task { await refresh() }
+    }
+
     /// Reloads the community list from the server, in the order the sort menu is
     /// set to and narrowed to the filter menu's pick: the list starts again at its
     /// first page, and the rest is read as the user scrolls. Called at launch,
@@ -822,7 +850,10 @@ final class CommunitySync: ObservableObject {
         // Pulling down (or picking another order) is a deliberate retry, so it
         // isn't held off by a page that failed before it.
         lastPageFailure = nil
-        feed = makeFeed(sort: sort, reversed: reversed, filter: activeFilter)
+        feed = makeFeed(sort: sort,
+                        reversed: reversed,
+                        filter: activeFilter,
+                        searchTerm: activeSearchTerm)
         loadedDocs = []
         loadedEntityIDs = []
         guard let records = await nextRecords(generation: generation) else {
@@ -858,14 +889,21 @@ final class CommunitySync: ObservableObject {
     /// is a bug there, being fixed), and the tab shows whatever it hands back.
     /// (`hot` is never reversed, so its leftovers always go last, ranked the way
     /// that order would rank them.)
+    ///
+    /// `searchTerm` narrows the same way the filter does — the server matches it
+    /// against the uploader's name, the exercise name and the description it was
+    /// persisted with (see `post`) — and is left out entirely while the search
+    /// field is empty.
     private func makeFeed(sort: CommunitySort,
                           reversed: Bool,
-                          filter: CommunityFilter?) -> Feed {
+                          filter: CommunityFilter?,
+                          searchTerm: String) -> Feed {
         // `filter` only means anything next to the id of the user whose likes are
         // being asked about — the same public id the PUBLIC_NAME document is
         // persisted under.
         let query = [URLQueryItem(name: "userId", value: PublicIdentifier.user)]
             + (filter.map { [URLQueryItem(name: "filter", value: $0.serverValue)] } ?? [])
+            + (searchTerm.isEmpty ? [] : [URLQueryItem(name: "searchTerm", value: searchTerm)])
         let ranked = FeedStage(sortBy: sort.serverSortBy,
                                sortDirection: sort.serverSortDirection(reversed: reversed))
         guard let topUp = sort.topUpSort, !reversed else {
