@@ -19,6 +19,10 @@ struct CommunityView: View {
 
     @EnvironmentObject private var store: ExerciseStore
     @ObservedObject private var community = CommunitySync.shared
+    /// The whole community, as fetched. The uploader profiles pushed from here
+    /// fetch their own (see CommunityFeed), so nothing they are sorted, filtered
+    /// or searched by touches this list.
+    @ObservedObject private var list = CommunitySync.shared.list
     @State private var navigationPath = NavigationPath()
     @State private var searchText = ""
     /// The order the list is shown in, picked from the toolbar's sort menu.
@@ -37,33 +41,30 @@ struct CommunityView: View {
     /// it applies to it. Watched as one value because picking an order that
     /// doesn't offer the switch changes both at once, and two `onChange`s would
     /// then fire two identical refreshes.
-    private struct SortRequest: Equatable {
-        var sort: CommunitySort
-        var reversed: Bool
+    private var sortRequest: CommunitySortRequest {
+        CommunitySortRequest(sort: sort, reversed: reversed)
     }
-    private var sortRequest: SortRequest { SortRequest(sort: sort, reversed: reversed) }
-    /// The filter picked in the toolbar's filter menu, held by CommunitySync
-    /// because the server is what applies it: picking one refetches, and what
-    /// comes back is the list. Everything reading that list therefore shows the
-    /// filtered set — the search results and the uploader profiles pushed from
-    /// here included. Not persisted, so a relaunch always starts unfiltered.
-    private var activeFilter: CommunityFilter? { community.activeFilter }
     /// The exercises of the list the user started playing from — this tab's own
     /// list or an uploader's profile — in the order it showed them, which is what
     /// the score screen's "Next" button walks along. Captured on the tap, so a
     /// refresh arriving mid-play can't reorder it.
     @State private var playQueue: [UUID] = []
 
-    /// Whether the search field has something in it. The results are drawn from
-    /// every exercise in the community rather than the page of it the list has
-    /// scrolled to, so while this is true CommunitySync keeps loading the rest in
-    /// the background.
+    /// Whether the search field has something in it. The matches are drawn from
+    /// every matching exercise in the community rather than the page of them the
+    /// list has scrolled to — the "Users" section is a summary of the whole
+    /// result — so while this is true the feed keeps loading the rest in the
+    /// background.
     private var isSearching: Bool {
         !searchText.trimmingCharacters(in: .whitespaces).isEmpty
     }
 
+    /// The exercise behind a pushed route. Looked up across every list fetched
+    /// this session rather than in the tab's own: the route may have been pushed
+    /// from an uploader's profile, which fetches separately, and a search or a
+    /// filter can narrow this list out from under a screen already open on it.
     private func exercise(for id: UUID) -> Exercise? {
-        community.exercises.first { $0.id == id }
+        community.exercise(for: id)
     }
 
     /// The exercise listed below `id`, skipping any that a refresh has since
@@ -88,7 +89,7 @@ struct CommunityView: View {
     }
 
     /// Case- and diacritic-insensitive substring match, so "jose" finds "José".
-    private static func matches(_ text: String, _ query: String) -> Bool {
+    static func matches(_ text: String, _ query: String) -> Bool {
         text.range(of: query, options: [.caseInsensitive, .diacriticInsensitive]) != nil
     }
 
@@ -111,22 +112,26 @@ struct CommunityView: View {
                            bytes[12], bytes[13], bytes[14], bytes[15]))
     }
 
-    /// Menu toggle state for one filter. The picks are mutually exclusive — an
-    /// exercise is either liked or not — so turning one on turns the other off
-    /// rather than leaving both on, which would show the whole list anyway.
-    private func filterBinding(_ filter: CommunityFilter) -> Binding<Bool> {
-        Binding(
-            get: { activeFilter == filter },
-            set: { isOn in community.setFilter(isOn ? filter : nil) }
-        )
+    /// The public id of the uploader whose rows carry `username`, since a profile
+    /// is fetched by id rather than by name. Taken from the very rows the tap
+    /// came from, so it is always one the current list carried.
+    private func uploaderID(named username: String) -> String? {
+        list.exercises
+            .first { $0.uploaderName == username }
+            .flatMap { list.uploaderIDs[$0.id] }
     }
 
     /// What the list shows for the current search text: every fetched exercise in
     /// one unlabelled section while the field is empty (an empty `category` makes
     /// the list render no header), otherwise a "Users" section of the matching
     /// uploaders followed by the exercises whose name or description matches.
-    /// `users` maps each user row's id back to its username, for selection.
-    private var results: (sections: [ExerciseListSection], users: [UUID: String]) {
+    /// `users` maps each user row's id back to the uploader it opens.
+    ///
+    /// The server has already narrowed the fetched list to the search term, so
+    /// this is what splits its answer into the two sections — and what keeps the
+    /// list narrowing as the user types, in the moment before the refetch that
+    /// each new term triggers lands.
+    private var results: (sections: [ExerciseListSection], users: [UUID: CommunityUploader]) {
         func exerciseRows(_ exercises: [Exercise]) -> [ExerciseListRow] {
             exercises.map { exercise in
                 ExerciseListRow(exercise: exercise,
@@ -135,7 +140,7 @@ struct CommunityView: View {
             }
         }
 
-        let sortedExercises = community.sorted(community.exercises, by: sort, reversed: reversed)
+        let sortedExercises = list.sorted(list.exercises, by: sort, reversed: reversed)
         let query = searchText.trimmingCharacters(in: .whitespaces)
         guard !query.isEmpty else {
             let rows = exerciseRows(sortedExercises)
@@ -147,22 +152,30 @@ struct CommunityView: View {
         }
 
         var sections: [ExerciseListSection] = []
-        var users: [UUID: String] = [:]
+        var users: [UUID: CommunityUploader] = [:]
 
         // Only uploaders present in the fetched list, which by definition are the
         // users with at least one public exercise. Not narrowed by the filters:
-        // these rows lead to a profile, which shows the uploader's exercises
+        // these rows lead to a profile, which fetches that uploader's exercises
         // unfiltered anyway.
-        let usernames = Set(community.exercises.map(\.uploaderName))
-            .filter { !$0.isEmpty && Self.matches($0, query) }
-            .sorted { $0.localizedStandardCompare($1) == .orderedAscending }
-        if !usernames.isEmpty {
-            let rows = usernames.map { username in
-                var placeholder = Exercise(name: username)
-                placeholder.id = Self.userRowID(for: username)
-                users[placeholder.id] = username
-                return ExerciseListRow(exercise: placeholder, pattern: [])
-            }
+        var uploaders: [String: String] = [:]
+        for exercise in list.exercises {
+            guard !exercise.uploaderName.isEmpty,
+                  Self.matches(exercise.uploaderName, query),
+                  let id = list.uploaderIDs[exercise.id]
+            else { continue }
+            uploaders[id] = exercise.uploaderName
+        }
+        if !uploaders.isEmpty {
+            let rows = uploaders
+                .map { CommunityUploader(id: $0.key, name: $0.value) }
+                .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
+                .map { uploader in
+                    var placeholder = Exercise(name: uploader.name)
+                    placeholder.id = Self.userRowID(for: uploader.name)
+                    users[placeholder.id] = uploader
+                    return ExerciseListRow(exercise: placeholder, pattern: [])
+                }
             sections.append(ExerciseListSection(category: "Users",
                                                 isCollapsed: false,
                                                 totalCount: rows.count,
@@ -192,39 +205,12 @@ struct CommunityView: View {
         NavigationStack(path: $navigationPath) {
             Group {
                 if results.sections.isEmpty {
-                    // A scroll view so pull-to-refresh also works while the list
-                    // is empty (e.g. after launching without a connection).
-                    GeometryReader { geo in
-                        ScrollView {
-                            Group {
-                                if !searchText.trimmingCharacters(in: .whitespaces).isEmpty {
-                                    ContentUnavailableView.search(text: searchText)
-                                } else if community.isFetching {
-                                    ProgressView()
-                                } else if activeFilter != nil {
-                                    // The fetch asked the server for the filtered
-                                    // list and it came back with nothing, so the
-                                    // filter — not a missing fetch — is what left
-                                    // the list empty.
-                                    ContentUnavailableView {
-                                        Label("No Matching Exercises",
-                                              systemImage: "line.3.horizontal.decrease.circle")
-                                    } description: {
-                                        Text("No public exercise matches the selected filters.")
-                                    } actions: {
-                                        Button("Clear Filters") { community.setFilter(nil) }
-                                    }
-                                } else {
-                                    ContentUnavailableView(
-                                        "No Community Exercises",
-                                        systemImage: "person.3",
-                                        description: Text("Public exercises shared by all users appear here. Pull down to refresh.")
-                                    )
-                                }
-                            }
-                            .frame(width: geo.size.width, height: geo.size.height)
-                        }
-                        .refreshable { await community.refresh() }
+                    CommunityEmptyState(list: list, searchText: searchText) {
+                        ContentUnavailableView(
+                            "No Community Exercises",
+                            systemImage: "person.3",
+                            description: Text("Public exercises shared by all users appear here. Pull down to refresh.")
+                        )
                     }
                 } else {
                     ExerciseCollectionList(
@@ -232,8 +218,9 @@ struct CommunityView: View {
                         onSelect: { id, _ in
                             // A user row opens the uploader's profile; anything
                             // else is an exercise.
-                            if let username = results.users[id] {
-                                navigationPath.append(ExerciseRoute.user(username))
+                            if let uploader = results.users[id] {
+                                navigationPath.append(ExerciseRoute.user(id: uploader.id,
+                                                                        name: uploader.name))
                             } else {
                                 // The listed exercises (never the user rows) are
                                 // what "Next" walks along afterwards.
@@ -243,16 +230,19 @@ struct CommunityView: View {
                                 navigationPath.append(ExerciseRoute.play(id))
                             }
                         },
-                        onSelectUploader: { navigationPath.append(ExerciseRoute.user($0)) },
-                        onRefresh: { await community.refresh() },
+                        onSelectUploader: { name in
+                            guard let id = uploaderID(named: name) else { return }
+                            navigationPath.append(ExerciseRoute.user(id: id, name: name))
+                        },
+                        onRefresh: { await list.refresh() },
                         // The list is a page of the community at a time, topped
                         // up as the user scrolls towards the end of it. Not while
-                        // searching: those results are drawn from the whole
-                        // community, which is being loaded anyway (see below), and
-                        // how far down them the user has scrolled says nothing
-                        // about how much of it is left.
-                        onLoadMore: isSearching ? nil : { Task { await community.loadNextPage() } },
-                        loadMoreThreshold: CommunitySync.pageSize
+                        // searching: the "Users" section summarises every match,
+                        // so the whole (already narrowed) result is being loaded
+                        // anyway — see below — and how far down it the user has
+                        // scrolled says nothing about how much is left.
+                        onLoadMore: isSearching ? nil : { Task { await list.loadNextPage() } },
+                        loadMoreThreshold: CommunityFeed.pageSize
                     )
                     // Span the full screen like a List so content scrolls under the
                     // navigation and tab bars.
@@ -266,51 +256,10 @@ struct CommunityView: View {
                         prompt: L("Users, Exercises, Descriptions"))
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
-                    Menu {
-                        Section("Likes") {
-                            ForEach(CommunityFilter.allCases) { filter in
-                                Toggle(isOn: filterBinding(filter)) {
-                                    Label(filter.label, systemImage: filter.systemImage)
-                                }
-                            }
-                        }
-                        if activeFilter != nil {
-                            Section {
-                                Button(role: .destructive) {
-                                    community.setFilter(nil)
-                                } label: {
-                                    Label("Clear Filters", systemImage: "xmark.circle")
-                                }
-                            }
-                        }
-                    } label: {
-                        Image(systemName: activeFilter == nil
-                              ? "line.3.horizontal.decrease.circle"
-                              : "line.3.horizontal.decrease.circle.fill")
-                    }
-                    .accessibilityLabel("Filter")
+                    CommunityFilterMenu(list: list)
                 }
                 ToolbarItem(placement: .topBarTrailing) {
-                    Menu {
-                        Picker("Sort By", selection: $sort) {
-                            ForEach(CommunitySort.allCases) { option in
-                                Label(option.label, systemImage: option.systemImage)
-                                    .tag(option)
-                            }
-                        }
-                        // "Hot" is the server's own ranking and has no sensible
-                        // other end, so it goes without the switch entirely.
-                        if sort.isReversible {
-                            Section {
-                                Toggle(isOn: $isReversed) {
-                                    Label("Reverse Order", systemImage: "arrow.up.arrow.down")
-                                }
-                            }
-                        }
-                    } label: {
-                        Image(systemName: "arrow.up.arrow.down.circle")
-                    }
-                    .accessibilityLabel("Sort")
+                    CommunitySortMenu(sort: $sort, isReversed: $isReversed)
                 }
             }
             .stableTopEdgeFade()
@@ -318,25 +267,16 @@ struct CommunityView: View {
             // that failed; a visit to a tab already showing one leaves it — and
             // the pages scrolled through since — alone, since reloading it would
             // mean fetching them all again. Pull down to reload deliberately.
-            .task { await community.refreshIfNeeded() }
-            .onChange(of: isSearching) { community.setNeedsFullList(isSearching, for: .search) }
-            // The search runs on the server — the term goes into the fetch, which
-            // comes back narrowed to the exercises whose uploader name, name or
-            // description matches. Held off briefly because each new term is a
-            // refetch, which typing a word straight through would otherwise cost
-            // one of per letter; `.task(id:)` cancels the pending one on the next
-            // keystroke. The sections below keep filtering what's held in the
-            // meantime, so the list narrows as the user types either way.
-            .task(id: searchText) {
-                try? await Task.sleep(for: .milliseconds(400))
-                guard !Task.isCancelled else { return }
-                community.setSearchTerm(searchText)
-            }
+            .task { await list.refreshIfNeeded() }
+            .onChange(of: isSearching) { list.setNeedsFullList(isSearching, for: .search) }
+            // The search runs on the server; the term goes into the fetch and
+            // what comes back is the result.
+            .communitySearchTerm(searchText, on: list)
             // The fetch asks the server for the picked order, so a new pick has
             // to go back to it — the orders it ranks itself ("Hot", "Recently
             // Updated") can't be worked out from the list already held. The
             // reverse switch rides along as the fetch's `sortDirection`.
-            .onChange(of: sortRequest) { Task { await community.refresh() } }
+            .onChange(of: sortRequest) { Task { await list.refresh() } }
             .navigationDestination(for: ExerciseRoute.self) { route in
                 switch route {
                 case .play(let id):
@@ -363,8 +303,8 @@ struct CommunityView: View {
                                      onScoreDownload: { download(ex) },
                                      onScoreReplay: { community.registerPlay(for: ex.id) })
                     }
-                case .user(let username):
-                    CommunityUserProfileView(username: username) { id, listed in
+                case .user(let id, let name):
+                    CommunityUserProfileView(uploaderID: id, username: name) { id, listed in
                         playQueue = listed
                         navigationPath.append(ExerciseRoute.play(id))
                     }
@@ -379,32 +319,70 @@ struct CommunityView: View {
     }
 }
 
-/// A community uploader's profile: their username as the title and all of their
-/// public exercises, rendered like the Community list but without the redundant
-/// uploader name on each row. Pushed onto the Community stack, so the standard
-/// back button appears top-left.
+/// A community uploader as a list row leads to one: the public id their exercises
+/// are fetched by, and the username the row and the profile's title show.
+struct CommunityUploader: Hashable {
+    var id: String
+    var name: String
+}
+
+/// The order to fetch in — the picked sort together with the reverse switch as it
+/// applies to it — watched as one value so picking an order that doesn't offer
+/// the switch fires one refresh rather than two.
+struct CommunitySortRequest: Equatable {
+    var sort: CommunitySort
+    var reversed: Bool
+}
+
+/// A community uploader's profile: their username as the title and their public
+/// exercises, rendered like the Community list but without the redundant uploader
+/// name on each row. Pushed onto the Community stack, so the standard back button
+/// appears top-left.
+///
+/// It fetches its own list rather than sifting the tab's, scoped to this
+/// uploader's public id (see `CommunityFeed.uploaderID`), and carries the same
+/// three controls the tab does — search, sort and filter — every one of them
+/// applied by the server. The list starts clean: whatever the tab was searching
+/// for when the profile was opened narrows the tab, not this.
 struct CommunityUserProfileView: View {
     /// Re-renders this screen when the language is changed in Settings; the
     /// strings are resolved when the body runs, so SwiftUI needs telling.
     @ObservedObject private var appLanguage = LanguageManager.shared
 
     @EnvironmentObject private var store: ExerciseStore
-    @ObservedObject private var community = CommunitySync.shared
+    /// This uploader's exercises, fetched on their own. A @StateObject, so it
+    /// lives exactly as long as the profile screen and its paging isn't shared
+    /// with — or reset by — anything else on the stack.
+    @StateObject private var list: CommunityFeed
     let username: String
     /// Called with the tapped exercise's id and every exercise this profile lists,
     /// in display order; the Community stack pushes playback and lets the score
     /// screen's "Next" button carry on down that list.
     let onSelect: (UUID, [UUID]) -> Void
     /// The order picked in the Community tab's sort menu, reverse switch and
-    /// all, applied here too.
+    /// all, applied here too — this screen's menu writes the same keys, so the
+    /// tab and every profile stay in one order.
     @AppStorage("communitySort") private var sort: CommunitySort = .hot
     @AppStorage("communitySortReversed") private var isReversed = false
+    @State private var searchText = ""
 
+    init(uploaderID: String, username: String, onSelect: @escaping (UUID, [UUID]) -> Void) {
+        _list = StateObject(wrappedValue: CommunityFeed(uploaderID: uploaderID))
+        self.username = username
+        self.onSelect = onSelect
+    }
+
+    private var reversed: Bool { sort.isReversible && isReversed }
+    private var sortRequest: CommunitySortRequest {
+        CommunitySortRequest(sort: sort, reversed: reversed)
+    }
+
+    /// The fetched exercises as one unlabelled section. Nothing is filtered out
+    /// here: the search term, the like filter and the order are all the server's,
+    /// so what came back is the list — including the exercises it matched on this
+    /// uploader's name rather than on their own.
     private var listSections: [ExerciseListSection] {
-        let rows = community
-            .sorted(community.exercises.filter { $0.uploaderName == username },
-                    by: sort,
-                    reversed: sort.isReversible && isReversed)
+        let rows = list.sorted(list.exercises, by: sort, reversed: reversed)
             .map { exercise in
                 ExerciseListRow(exercise: exercise,
                                 pattern: store.notes(for: exercise.id))
@@ -419,18 +397,23 @@ struct CommunityUserProfileView: View {
     var body: some View {
         Group {
             if listSections.isEmpty {
-                ContentUnavailableView(
-                    "No Public Exercises",
-                    systemImage: "person.crop.circle",
-                    description: Text(L("%@ has no public exercises right now.", username))
-                )
+                CommunityEmptyState(list: list, searchText: searchText) {
+                    ContentUnavailableView(
+                        "No Public Exercises",
+                        systemImage: "person.crop.circle",
+                        description: Text(L("%@ has no public exercises right now.", username))
+                    )
+                }
             } else {
                 let sections = listSections
                 ExerciseCollectionList(
                     sections: sections,
                     onSelect: { id, _ in
                         onSelect(id, sections.flatMap { $0.items.map(\.id) })
-                    }
+                    },
+                    onRefresh: { await list.refresh() },
+                    onLoadMore: { Task { await list.loadNextPage() } },
+                    loadMoreThreshold: CommunityFeed.pageSize
                 )
                 // Span the full screen like a List so content scrolls under the
                 // navigation and tab bars.
@@ -439,11 +422,158 @@ struct CommunityUserProfileView: View {
         }
         .navigationTitle(username)
         .navigationBarTitleDisplayMode(.inline)
+        .searchable(text: $searchText,
+                    placement: .navigationBarDrawer(displayMode: .always),
+                    prompt: L("Exercises, Descriptions"))
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                CommunityFilterMenu(list: list)
+            }
+            ToolbarItem(placement: .topBarTrailing) {
+                CommunitySortMenu(sort: $sort, isReversed: $isReversed)
+            }
+        }
         .stableTopEdgeFade()
-        // This uploader's exercises can sit anywhere in the community list, so
-        // the profile shows what it can and the rest of the list loads behind it
-        // — rather than only the part of it the Community tab was scrolled to.
-        .onAppear { community.setNeedsFullList(true, for: .profile) }
-        .onDisappear { community.setNeedsFullList(false, for: .profile) }
+        .task { await list.refreshIfNeeded() }
+        // This uploader's exercises can sit anywhere in what the fetch hands
+        // back, since the server doesn't act on the scope it is asked for yet
+        // (see `CommunityFeed.uploaderID`), so the profile shows what it can and
+        // the rest loads behind it.
+        .onAppear { list.setNeedsFullList(true, for: .profile) }
+        .onDisappear { list.setNeedsFullList(false, for: .profile) }
+        .communitySearchTerm(searchText, on: list)
+        .onChange(of: sortRequest) { Task { await list.refresh() } }
+    }
+}
+
+/// The toolbar's like filter, for the Community tab and for an uploader profile.
+/// The pick belongs to the list it narrows, because the server is what applies
+/// it: picking one refetches, and what comes back is the list.
+private struct CommunityFilterMenu: View {
+    @ObservedObject var list: CommunityFeed
+
+    /// Menu toggle state for one filter. The picks are mutually exclusive — an
+    /// exercise is either liked or not — so turning one on turns the other off
+    /// rather than leaving both on, which would show the whole list anyway.
+    private func binding(_ filter: CommunityFilter) -> Binding<Bool> {
+        Binding(
+            get: { list.activeFilter == filter },
+            set: { isOn in list.setFilter(isOn ? filter : nil) }
+        )
+    }
+
+    var body: some View {
+        Menu {
+            Section("Likes") {
+                ForEach(CommunityFilter.allCases) { filter in
+                    Toggle(isOn: binding(filter)) {
+                        Label(filter.label, systemImage: filter.systemImage)
+                    }
+                }
+            }
+            if list.activeFilter != nil {
+                Section {
+                    Button(role: .destructive) {
+                        list.setFilter(nil)
+                    } label: {
+                        Label("Clear Filters", systemImage: "xmark.circle")
+                    }
+                }
+            }
+        } label: {
+            Image(systemName: list.activeFilter == nil
+                  ? "line.3.horizontal.decrease.circle"
+                  : "line.3.horizontal.decrease.circle.fill")
+        }
+        .accessibilityLabel("Filter")
+    }
+}
+
+/// The toolbar's order menu. Both screens write the same @AppStorage keys, which
+/// is what the fetch reads, so the tab and the profiles stay in one order.
+private struct CommunitySortMenu: View {
+    @Binding var sort: CommunitySort
+    @Binding var isReversed: Bool
+
+    var body: some View {
+        Menu {
+            Picker("Sort By", selection: $sort) {
+                ForEach(CommunitySort.allCases) { option in
+                    Label(option.label, systemImage: option.systemImage)
+                        .tag(option)
+                }
+            }
+            // "Hot" is the server's own ranking and has no sensible other end,
+            // so it goes without the switch entirely.
+            if sort.isReversible {
+                Section {
+                    Toggle(isOn: $isReversed) {
+                        Label("Reverse Order", systemImage: "arrow.up.arrow.down")
+                    }
+                }
+            }
+        } label: {
+            Image(systemName: "arrow.up.arrow.down.circle")
+        }
+        .accessibilityLabel("Sort")
+    }
+}
+
+/// What a community list shows when it has no rows: the search came back empty,
+/// the fetch is still running, the filter matched nothing, or there is genuinely
+/// nothing there. A scroll view, so pull-to-refresh also works while the list is
+/// empty (e.g. after launching without a connection).
+private struct CommunityEmptyState<Empty: View>: View {
+    @ObservedObject var list: CommunityFeed
+    let searchText: String
+    /// What to show when the list is simply empty — nothing fetched, nothing
+    /// searched for, nothing filtered out. Passed in rather than described by
+    /// parameters so each screen's wording stays a literal at its call site,
+    /// which is what the localization tooling extracts (see
+    /// Tools/Localization/README.md).
+    @ViewBuilder let empty: Empty
+
+    var body: some View {
+        GeometryReader { geo in
+            ScrollView {
+                Group {
+                    if !searchText.trimmingCharacters(in: .whitespaces).isEmpty {
+                        ContentUnavailableView.search(text: searchText)
+                    } else if list.isFetching {
+                        ProgressView()
+                    } else if list.activeFilter != nil {
+                        // The fetch asked the server for the filtered list and it
+                        // came back with nothing, so the filter — not a missing
+                        // fetch — is what left the list empty.
+                        ContentUnavailableView {
+                            Label("No Matching Exercises",
+                                  systemImage: "line.3.horizontal.decrease.circle")
+                        } description: {
+                            Text("No public exercise matches the selected filters.")
+                        } actions: {
+                            Button("Clear Filters") { list.setFilter(nil) }
+                        }
+                    } else {
+                        empty
+                    }
+                }
+                .frame(width: geo.size.width, height: geo.size.height)
+            }
+            .refreshable { await list.refresh() }
+        }
+    }
+}
+
+private extension View {
+    /// Hands a search field's text to the list it searches, held off briefly.
+    /// Each new term is a refetch — the search is the server's — which typing a
+    /// word straight through would otherwise cost one of per letter;
+    /// `.task(id:)` cancels the pending one on the next keystroke.
+    func communitySearchTerm(_ text: String, on list: CommunityFeed) -> some View {
+        task(id: text) {
+            try? await Task.sleep(for: .milliseconds(400))
+            guard !Task.isCancelled else { return }
+            list.setSearchTerm(text)
+        }
     }
 }

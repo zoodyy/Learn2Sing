@@ -130,7 +130,7 @@ final class CommunityCounts: ObservableObject {
 final class CommunitySync: ObservableObject {
     static let shared = CommunitySync()
 
-    nonisolated private static let baseURL = "https://echolex.api.phrase-by-phrase.com/api/v1/learn2Sing"
+    nonisolated static let baseURL = "https://echolex.api.phrase-by-phrase.com/api/v1/learn2Sing"
     /// UUID strings whose midi/miditext keys were written by a fetch, so a later
     /// fetch can clean up patterns of exercises that left the community list.
     private static let cachedPatternIDsKey = "communityPatternIDs"
@@ -149,26 +149,16 @@ final class CommunitySync: ObservableObject {
     /// Share date (seconds since 1970) per public exercise id, so re-uploading an
     /// edited exercise keeps the date it was first shared.
     private static let shareDatesKey = "communityShareDates"
-    /// The key the Community tab's sort menu writes with @AppStorage; the fetch
-    /// reads it so the server can do the sorting.
-    private static let sortKey = "communitySort"
-    /// Same, for the menu's reverse switch.
-    private static let reversedKey = "communitySortReversed"
-    /// Records per page of the public fetch, and so the size of the chunk the
-    /// Community tab loads at a time: opening the tab — or picking another order —
-    /// costs one call, and the next page is asked for as the user scrolls towards
-    /// the end of what's loaded (see `loadNextPage`), rather than every exercise in
-    /// the community being fetched before anything can be shown.
-    static let pageSize = 30
-    /// The ceiling on how many pages one query is walked for, so a server that
-    /// never reports a last page can't be paged forever.
-    private static let maxPages = 300
 
-    /// Every device's public exercises as last fetched, in the order the server
-    /// returns them. Empty until the first fetch of the session succeeds.
-    @Published private(set) var exercises: [Exercise] = []
-    /// true while a fetch is on the wire; drives the tab's initial spinner.
-    @Published private(set) var isFetching = false
+    /// The whole community, as the Community tab lists it. Its own object, like
+    /// the per-uploader lists `profileFeed(for:)` hands out — see CommunityFeed.
+    let list = CommunityFeed()
+    /// Every exercise any feed has fetched this session, by public id. The lists
+    /// come and go (a profile is fetched on its own, a search narrows the tab to
+    /// a slice of the community), but a screen pushed from one of them has to
+    /// keep resolving its exercise after the list behind it has moved on — so
+    /// what has been seen is remembered here for the session.
+    private var fetchedExercises: [UUID: Exercise] = [:]
     /// The tallies and this user's likes and downloads. Its own observable
     /// object, so the heart can fill without the whole Community list being
     /// rebuilt — see CommunityCounts. The properties below read and write
@@ -197,17 +187,6 @@ final class CommunitySync: ObservableObject {
     /// When each fetched exercise was first shared. Missing for exercises shared
     /// before the date was recorded; they sort as the oldest.
     @Published private(set) var shareDates: [UUID: Date] = [:]
-    /// The narrowing picked in the Community tab's filter menu, nil for the whole
-    /// list. Handed to the server on every fetch; deliberately not persisted, so a
-    /// relaunch never looks like exercises have gone missing. Set it through
-    /// `setFilter(_:)`, which refetches.
-    @Published private(set) var activeFilter: CommunityFilter?
-    /// What the Community tab's search field holds, trimmed; "" while it is
-    /// empty. Handed to the server on every fetch, which narrows the list to the
-    /// exercises whose uploader name, exercise name or description matches — so
-    /// searching narrows what the tab holds rather than just what it draws. Set
-    /// it through `setSearchTerm(_:)`, which refetches.
-    private(set) var activeSearchTerm = ""
 
     /// Which tap on each exercise's heart is the live one, bumped by every
     /// toggle. A post or a tally that comes back for an older tap has been
@@ -232,71 +211,12 @@ final class CommunitySync: ObservableObject {
     private var lastUploadedName: Data?
     /// Whether a fetch has succeeded since launch; gates stamping share dates.
     private var hasFetched = false
-    /// The order the held `exercises` array is actually in: what the fetch that
-    /// produced it asked the server for, reverse switch included. nil until the
-    /// first fetch of the session lands. `sorted(_:by:reversed:)` falls back to
-    /// it for the orders only the server can work out.
-    private var fetchedSort: CommunitySort?
-    private var fetchedReversed = false
-    /// Bumped by every refresh, so only the newest one's response is applied: a
-    /// slow fetch for an order the user has already moved on from must not land
-    /// on top of a newer one and leave `fetchedSort` describing the wrong list.
-    private var refreshGeneration = 0
-    /// How many refreshes are on the wire; `isFetching` is true while any is, so
-    /// an abandoned one finishing can't take the initial spinner down with it.
-    private var activeFetches = 0
-    /// How far through the server's list the tab has read, and what's left to
-    /// read. Replaced by every refresh; nil until the first one succeeds.
-    private var feed: Feed?
-    /// The documents behind `exercises`, in the order they were loaded: what the
-    /// refresh's first page returned, plus every page appended since.
-    private var loadedDocs: [FetchedDoc] = []
-    /// The ids of every record read since the last refresh — the ones that
-    /// decoded to nothing (tombstones and the like) included, since a record
-    /// already read shouldn't be read again when a later query re-lists it.
-    private var loadedEntityIDs: Set<String> = []
-    /// true while a page is on the wire, so the list asking for more with every
-    /// row it displays costs one fetch rather than one per row.
-    ///
-    /// Published because turning an ask down has to be temporary: the list only
-    /// asks as rows come into view, and by the time it runs out of rows to bring
-    /// into view it has none left to ask off the back of. This flipping back to
-    /// false is what has it look again at how much is left below the screen (see
-    /// `ExerciseListController.checkLoadMore`), so the page that landed while a
-    /// fetch was on the wire is followed by the next one without the user having
-    /// to nudge the list.
-    @Published private(set) var isLoadingPage = false
-    /// When the last page fetch failed, if it hasn't been followed by one that
-    /// worked. The list looks again at what's left below the screen every time
-    /// anything about it changes, so without a pause a server that's down — or a
-    /// device that's offline — would be asked again the instant each attempt
-    /// came back.
-    private var lastPageFailure: Date?
-    /// How long to leave a failed page alone for. Short enough that scrolling on
-    /// after a blip picks the list back up, long enough that a list parked at
-    /// its end doesn't retry in a tight loop.
-    private static let failedPageRetryDelay: TimeInterval = 3
-    /// Set when the list asked for a page and something else was on the wire.
-    /// The ask has to be remembered rather than dropped: the list only asks as
-    /// rows come into view, and it has none left to bring into view — that's why
-    /// it asked.
-    private var wantsAnotherPage = false
-    /// What's on screen that looks through more of the community than the list
-    /// has been scrolled to; while it isn't empty the feed reads itself to the
-    /// end in the background (see `continueFullLoad`).
-    private var fullListNeeds: Set<FullListNeed> = []
-    /// true while `continueFullLoad` is walking the feed, so the requests that
-    /// start it don't start a second walk.
-    private var isFullLoading = false
     /// Each uploader's current username by public user id, as the fetched
-    /// records carried it (see `publicNames(in:)`). In-session only: it is
-    /// filled from the same call that fills the list, so there is nothing a
-    /// relaunch could usefully remember, and this device's own rename is put
-    /// in as it is uploaded.
+    /// records carried it (see `CommunityFeed.publicNames(in:)`). In-session
+    /// only: it is filled from the same call that fills the list, so there is
+    /// nothing a relaunch could usefully remember, and this device's own rename
+    /// is put in as it is uploaded.
     private var uploaderNames: [String: String] = [:]
-    /// Which uploader each listed exercise belongs to, so a name arriving after
-    /// the list — this device's own rename — can be put on the right rows.
-    private var uploaderIDs: [UUID: String] = [:]
     /// The fetched JSON each exercise was last decoded from, hashed, with what it
     /// decoded to. A refresh handing back a document already in here — which is
     /// all of them when only the sort order changed — skips both the decode and
@@ -318,9 +238,9 @@ final class CommunitySync: ObservableObject {
         UserDefaults.standard.removeObject(forKey: "communityUploaderNames")
         // "Oldest First" is now the reverse switch on top of "Newest First";
         // carry anyone left on it over rather than dropping them to the default.
-        if UserDefaults.standard.string(forKey: Self.sortKey) == "oldest" {
-            UserDefaults.standard.set(CommunitySort.newest.rawValue, forKey: Self.sortKey)
-            UserDefaults.standard.set(true, forKey: Self.reversedKey)
+        if UserDefaults.standard.string(forKey: CommunityFeed.sortKey) == "oldest" {
+            UserDefaults.standard.set(CommunitySort.newest.rawValue, forKey: CommunityFeed.sortKey)
+            UserDefaults.standard.set(true, forKey: CommunityFeed.reversedKey)
         }
         likeCounts = Self.storedCounts(forKey: Self.likeCountsKey)
         downloadCounts = Self.storedCounts(forKey: Self.downloadCountsKey)
@@ -364,13 +284,40 @@ final class CommunitySync: ObservableObject {
         // One upload per launch so pattern edits (which bypass the store's
         // published properties) and changes made while offline catch up.
         scheduleUpload()
-        await refresh()
+        await list.refresh()
     }
 
     /// Request an upload soon; safe to call from any change handler.
     func scheduleUpload() {
         guard readyToUpload else { return }
         uploadTrigger.send()
+    }
+
+    /// A list of one uploader's public exercises, scoped by their public user id
+    /// — the `customId1` their records are persisted with. A fresh one per
+    /// profile screen, so its own order, filter and search term start clean and
+    /// nothing it does touches the Community tab behind it.
+    func profileFeed(for uploaderID: String) -> CommunityFeed {
+        CommunityFeed(uploaderID: uploaderID)
+    }
+
+    /// A community exercise by its public id, from whichever list turned it up.
+    /// Used by the screens pushed off a list — the intro, playback and score
+    /// screens — which outlive the list they were opened from: a refresh, a
+    /// search or a filter can narrow it out from under them.
+    func exercise(for publicExerciseID: UUID) -> Exercise? {
+        fetchedExercises[publicExerciseID]
+    }
+
+    /// The public user id of whoever uploaded the exercises going by `username`
+    /// in the lists loaded so far, so a tap on a row's uploader name can open
+    /// their profile — which is fetched by id.
+    func uploaderID(named username: String, in feed: CommunityFeed) -> String? {
+        guard !username.isEmpty else { return nil }
+        for exercise in feed.exercises where exercise.uploaderName == username {
+            if let id = feed.uploaderIDs[exercise.id] { return id }
+        }
+        return uploaderNames.first { $0.value == username }?.key
     }
 
     // MARK: - Upload
@@ -525,7 +472,7 @@ final class CommunitySync: ObservableObject {
                 // labelled from — otherwise the tab would keep showing the old
                 // name on this user's own exercises until the next refresh
                 // brought the records (and with them the names) back down.
-                remember(names: [userID: doc.username])
+                remember(ownName: doc.username, for: userID)
             } else if let http = response as? HTTPURLResponse {
                 print("CommunitySync: name upload failed with status \(http.statusCode)")
             }
@@ -717,449 +664,24 @@ final class CommunitySync: ObservableObject {
         ProfileSync.shared.scheduleUpload()
     }
 
-    // MARK: - Fetch
-
-    /// A record as returned by the fetch endpoint: the stored document sits in
-    /// `jsonData` as a JSON string. `entityId` is the id it was persisted under
-    /// (the public exercise id for SHARED_EXERCISE), and `storageType` says which
-    /// kind of document it is — which has to be checked, see `fetchPage`.
-    ///
-    /// `customId1` is the query parameter the record was posted with — the
-    /// uploader's public user id — and `customName1` is the server's lookup of
-    /// it: the `customName` that user's PUBLIC_NAME document was posted with,
-    /// which is to say their username. That is where the Community tab's
-    /// uploader labels come from; a user with no PUBLIC_NAME document gets the
-    /// id echoed back instead, or nothing at all (see `publicNames(in:)`).
-    private struct PersistRecord: Decodable {
-        var storageType: String
-        var entityId: String
-        var jsonData: String
-        var customId1: String?
-        var customName1: String?
-    }
-
-    /// One server query the list is filled from, and how far through its pages
-    /// the tab has read.
-    private struct FeedStage {
-        /// The endpoint's `sortBy` values to try, most likely first — see
-        /// `CommunitySort.serverSortBy`. A rejected one is dropped and the same
-        /// page asked for again with the next.
-        var sortBy: [String]
-        var sortDirection: String
-        var page = 0
-    }
-
-    /// How the Community tab's list is being filled: the queries behind the
-    /// picked order, in the order their records belong in, and how far through
-    /// them the list has read. A refresh builds one of these and reads its first
-    /// page; the rest are read as the user scrolls towards the end of the list.
-    private struct Feed {
-        var sort: CommunitySort
-        var reversed: Bool
-        /// The user and filter query items every page of every stage carries.
-        var query: [URLQueryItem]
-        var stages: [FeedStage]
-        var stageIndex = 0
-        /// Whether the whole community (as this order and filter see it) has been
-        /// read: every stage walked to its last page.
-        var isExhausted: Bool { stageIndex >= stages.count }
-    }
-
-    /// What one call for one page came back with.
-    private enum PageResult {
-        case page(records: [PersistRecord], isLast: Bool)
-        /// This backend spells the `sortBy` the other way; try the next candidate.
-        case unknownSortKey
-        case failed
-    }
-
-    /// The order the Community tab's sort menu currently asks for, which the
-    /// fetch hands to the server. Read straight from the @AppStorage key rather
-    /// than passed in, so every existing caller of `refresh()` picks it up.
-    private static var currentSort: CommunitySort {
-        CommunitySort(rawValue: UserDefaults.standard.string(forKey: sortKey) ?? "") ?? .hot
-    }
-
-    /// Whether the sort menu's reverse switch is on, read the same way. False
-    /// for the orders that don't offer it, whatever was last remembered.
-    private static var currentReversed: Bool {
-        currentSort.isReversible && UserDefaults.standard.bool(forKey: reversedKey)
-    }
-
-    /// Loads the list only if the tab has nothing to show yet — the first visit of
-    /// the session, or one after a fetch that failed. Visiting the tab is not
-    /// worth throwing away the pages the user has already scrolled through and
-    /// paying for them again: a deliberate reload is pull-to-refresh, and picking
-    /// another order or filter refetches on its own.
-    func refreshIfNeeded() async {
-        guard feed == nil else { return }
-        await refresh()
-    }
-
-    /// Picks (or clears) the filter menu's narrowing and refetches, since the
-    /// server is the one applying it.
-    func setFilter(_ filter: CommunityFilter?) {
-        guard filter != activeFilter else { return }
-        activeFilter = filter
-        Task { await refresh() }
-    }
-
-    /// Hands the search field's text (or "", once it is cleared) to the server
-    /// and refetches, for the same reason: the search looks through the whole
-    /// community, and the server is what holds it. The caller coalesces
-    /// keystrokes — see the Community tab's `.task(id:)`.
-    func setSearchTerm(_ term: String) {
-        let trimmed = term.trimmingCharacters(in: .whitespaces)
-        guard trimmed != activeSearchTerm else { return }
-        activeSearchTerm = trimmed
-        Task { await refresh() }
-    }
-
-    /// Reloads the community list from the server, in the order the sort menu is
-    /// set to and narrowed to the filter menu's pick: the list starts again at its
-    /// first page, and the rest is read as the user scrolls. Called at launch,
-    /// when the sort or filter changes, and on pull-to-refresh; a failure keeps
-    /// the list — and the pages already read — from the last successful fetch.
-    func refresh() async {
-        await performRefresh()
-        // The list draws the first page while the refresh is still finishing off
-        // (the uploader names), so an ask that arrived then is waiting on this.
-        loadPendingPage()
-        // A screen that looks through the whole community may be up (see
-        // `setNeedsFullList`), in which case it wants the rest of the list the
-        // refresh just went back to the first page of. Started rather than
-        // awaited, so pull-to-refresh's spinner isn't held down by it.
-        Task { await continueFullLoad() }
-    }
-
-    private func performRefresh() async {
-        activeFetches += 1
-        isFetching = true
-        defer {
-            activeFetches -= 1
-            isFetching = activeFetches > 0
-        }
-        refreshGeneration += 1
-        let generation = refreshGeneration
-        let sort = Self.currentSort
-        let reversed = Self.currentReversed
-        // Read the new feed from its first page, keeping the old one until the
-        // page lands: a failed refresh leaves the tab exactly as it was, still
-        // able to page on from where the user has scrolled to.
-        let previous = (feed: feed, docs: loadedDocs, entityIDs: loadedEntityIDs)
-        // Pulling down (or picking another order) is a deliberate retry, so it
-        // isn't held off by a page that failed before it.
-        lastPageFailure = nil
-        feed = makeFeed(sort: sort,
-                        reversed: reversed,
-                        filter: activeFilter,
-                        searchTerm: activeSearchTerm)
-        loadedDocs = []
-        loadedEntityIDs = []
-        guard let records = await nextRecords(generation: generation) else {
-            if generation == refreshGeneration {
-                (feed, loadedDocs, loadedEntityIDs) = previous
-            }
-            return
-        }
-        guard generation == refreshGeneration else { return }
-        // Applied even when empty: an order and filter the server has nothing for
-        // is an empty tab, not a failed fetch.
-        append(records: records, sort: sort, reversed: reversed)
-    }
-
-    /// The queries the picked order's list is filled from, in the order their
-    /// records belong in.
-    ///
-    /// The hot and like/play/download orders come out of the event tables and so
-    /// list only exercises with an event on them — no likes, plays or downloads
-    /// yet and the server leaves it out, which is how those orders are meant to
-    /// rank but would keep a just-published exercise off the tab entirely. So the
-    /// order's own query is followed by a second one in its top-up order (see
-    /// `CommunitySort.topUpSort`), with the records the first already listed
-    /// skipped as it is paged. The `filter` narrowing is taken at its word — what
-    /// it returns is the list.
-    ///
-    /// Reversed, those leftovers would belong at the *head* of the list instead:
-    /// they have no events at all, so their tally is zero. Which exercises they
-    /// are can only be told from the whole answer to the order's own query, so
-    /// there is no topping one up a page at a time — and that order is therefore
-    /// taken at its word, listing what the query returns and nothing else. It is
-    /// the server's to get right (the query leaving out what it has no events for
-    /// is a bug there, being fixed), and the tab shows whatever it hands back.
-    /// (`hot` is never reversed, so its leftovers always go last, ranked the way
-    /// that order would rank them.)
-    ///
-    /// `searchTerm` narrows the same way the filter does — the server matches it
-    /// against the uploader's name, the exercise name and the description it was
-    /// persisted with (see `post`) — and is left out entirely while the search
-    /// field is empty.
-    private func makeFeed(sort: CommunitySort,
-                          reversed: Bool,
-                          filter: CommunityFilter?,
-                          searchTerm: String) -> Feed {
-        // `filter` only means anything next to the id of the user whose likes are
-        // being asked about — the same public id the PUBLIC_NAME document is
-        // persisted under.
-        let query = [URLQueryItem(name: "userId", value: PublicIdentifier.user)]
-            + (filter.map { [URLQueryItem(name: "filter", value: $0.serverValue)] } ?? [])
-            + (searchTerm.isEmpty ? [] : [URLQueryItem(name: "searchTerm", value: searchTerm)])
-        let ranked = FeedStage(sortBy: sort.serverSortBy,
-                               sortDirection: sort.serverSortDirection(reversed: reversed))
-        guard let topUp = sort.topUpSort, !reversed else {
-            return Feed(sort: sort, reversed: reversed, query: query, stages: [ranked])
-        }
-        let leftovers = FeedStage(sortBy: topUp.serverSortBy,
-                                  sortDirection: topUp.serverSortDirection(reversed: false))
-        return Feed(sort: sort, reversed: reversed, query: query, stages: [ranked, leftovers])
-    }
-
-    /// Reads on from the feed until it has a page's worth of records the list
-    /// doesn't hold yet, or the feed runs out. nil means a call failed — the
-    /// caller keeps what it has and the next scroll or refresh tries again.
-    ///
-    /// It takes more than one page to fill one where the queries overlap: the
-    /// top-up query lists everything the order's own query already returned, so
-    /// towards the end of the list a whole page can hold one new exercise or
-    /// none. Reading on until there are enough is what keeps that stretch from
-    /// growing the list a row at a time, one round trip each.
-    private func nextRecords(generation: Int) async -> [PersistRecord]? {
-        var new: [PersistRecord] = []
-        while new.count < Self.pageSize {
-            guard generation == refreshGeneration, feed?.isExhausted == false else { break }
-            // A page that failed part way through a fill is still a page short,
-            // not a page lost: the feed has moved past what did arrive, so hand
-            // that over and leave the rest to the next scroll or refresh.
-            guard let records = await advanceFeed(generation: generation) else {
-                return new.isEmpty ? nil : new
-            }
-            new += records
-        }
-        return new
-    }
-
-    /// Reads one page of the feed's current stage and returns the records the
-    /// list doesn't already hold. Empty means the page held nothing new; nil that
-    /// the call failed.
-    private func advanceFeed(generation: Int) async -> [PersistRecord]? {
-        guard var feed, !feed.isExhausted else { return [] }
-        let stage = feed.stages[feed.stageIndex]
-        guard let sortKey = stage.sortBy.first, stage.page < Self.maxPages else {
-            feed.stageIndex += 1
-            self.feed = feed
-            return []
-        }
-        let result = await Self.fetchPage(storageType: "SHARED_EXERCISE",
-                                          sortBy: sortKey,
-                                          sortDirection: stage.sortDirection,
-                                          page: stage.page,
-                                          extraQuery: feed.query)
-        // Only a refresh replaces the feed, and it bumps the generation before it
-        // does, so an unchanged generation means the copy taken above is still it.
-        guard generation == refreshGeneration else { return nil }
-        switch result {
-        case .failed:
-            return nil
-        case .unknownSortKey:
-            guard feed.stages[feed.stageIndex].sortBy.count > 1 else { return nil }
-            feed.stages[feed.stageIndex].sortBy.removeFirst()
-            self.feed = feed
-            return []
-        case .page(let records, let isLast):
-            if isLast {
-                feed.stageIndex += 1
-            } else {
-                feed.stages[feed.stageIndex].page += 1
-            }
-            self.feed = feed
-            return read(records)
-        }
-    }
-
-    /// Takes the records of a page the list hasn't seen — dropping the ones it
-    /// has — and marks them read. Marked here rather than where they are put on
-    /// screen, because filling one page of the list can take several of the
-    /// server's (see `nextRecords`) and the later ones have to know what the
-    /// earlier ones already turned up.
-    private func read(_ records: [PersistRecord]) -> [PersistRecord] {
-        let new = records.filter { !loadedEntityIDs.contains($0.entityId) }
-        loadedEntityIDs.formUnion(new.map(\.entityId))
-        return new
-    }
-
-    /// Fetches one page of one public storage type.
-    ///
-    /// The endpoint requires `sortBy`, `sortDirection`, `page` and `pageSize`;
-    /// without them it answers 500. It also ignores the storage type in the path
-    /// once those are present, handing back documents of every kind, so the
-    /// records are filtered by `storageType` here — while whether this was the
-    /// last page is judged on what the server actually returned.
-    private static func fetchPage(storageType: String,
-                                  sortBy: String,
-                                  sortDirection: String,
-                                  page: Int,
-                                  extraQuery: [URLQueryItem]) async -> PageResult {
-        var components = URLComponents(string: "\(baseURL)/fetch-public/\(storageType)")
-        components?.queryItems = extraQuery + [
-            URLQueryItem(name: "sortBy", value: sortBy),
-            URLQueryItem(name: "sortDirection", value: sortDirection),
-            URLQueryItem(name: "page", value: String(page)),
-            URLQueryItem(name: "pageSize", value: String(pageSize)),
-        ]
-        guard let url = components?.url else { return .failed }
-        do {
-            let (data, response) = try await URLSession.shared.data(from: url)
-            guard let http = response as? HTTPURLResponse else { return .failed }
-            if http.statusCode == 400 { return .unknownSortKey }
-            guard (200...299).contains(http.statusCode) else {
-                print("CommunitySync: fetch of \(storageType) page \(page) failed with status \(http.statusCode)")
-                return .failed
-            }
-            guard let records = try? JSONDecoder().decode([PersistRecord].self, from: data) else { return .failed }
-            // A short page is the last one.
-            return .page(records: records.filter { $0.storageType == storageType },
-                         isLast: records.count < pageSize)
-        } catch {
-            print("CommunitySync: fetch of \(storageType) page \(page) failed: \(error)")
-            return .failed
-        }
-    }
-
-    // MARK: - Paging
-
-    /// Loads the next page of the community list and appends it to what's on
-    /// screen. Called by the tab as the user scrolls towards the end of the list;
-    /// does nothing once the whole community is in hand, while another page is on
-    /// the wire, or while a refresh — which takes the list back to its first page —
-    /// is.
-    func loadNextPage() async {
-        guard let feed, !feed.isExhausted else { return }
-        // A refresh is on the wire, and what it puts on screen is a first page
-        // the list will have to ask past all over again — but it asks as rows
-        // come into view, and it has run out of those. So this one is kept.
-        guard !isFetching else {
-            wantsAnotherPage = true
-            return
-        }
-        // The page already on its way brings rows with it, and the list looks
-        // again at how much is left below the screen once it lands — and again
-        // when `isLoadingPage` goes back to false, which is what picks the
-        // paging back up if the page that landed wasn't enough.
-        guard !isLoadingPage else { return }
-        if let lastPageFailure, Date().timeIntervalSince(lastPageFailure) < Self.failedPageRetryDelay {
-            return
-        }
-        isLoadingPage = true
-        defer {
-            isLoadingPage = false
-            loadPendingPage()
-        }
-        let generation = refreshGeneration
-        let sort = feed.sort
-        let reversed = feed.reversed
-        let records = await nextRecords(generation: generation)
-        // nil is a call that failed; the list is left as it is and the next look
-        // at it — once the pause above is up — tries again.
-        lastPageFailure = records == nil ? Date() : nil
-        guard let records, !records.isEmpty, generation == refreshGeneration else { return }
-        append(records: records, sort: sort, reversed: reversed)
-    }
-
-    /// Loads the page the list asked for while a fetch was already on the wire —
-    /// a refresh, or the page before it — now that one is done.
-    private func loadPendingPage() {
-        guard wantsAnotherPage else { return }
-        wantsAnotherPage = false
-        Task { await loadNextPage() }
-    }
-
-    /// Puts a page's records into the list, after the ones already loaded, and
-    /// publishes the result. The uploader names ride along on the records, so
-    /// they are taken here and the list is labelled with them as it is applied.
-    private func append(records: [PersistRecord],
-                        sort: CommunitySort,
-                        reversed: Bool) {
-        uploaderNames.merge(Self.publicNames(in: records)) { _, new in new }
-        loadedDocs += decodeDocs(from: records)
-        apply(docs: loadedDocs, sort: sort, reversed: reversed)
-    }
-
-    /// The username per public user id carried by a page of records: the
-    /// server's lookup of each record's `customId1` (see `PersistRecord`).
-    ///
-    /// A user who has never posted a PUBLIC_NAME document has no name to look
-    /// up, and the endpoint answers with their id — or with nothing — rather
-    /// than leaving the field out, so both are dropped here. Their rows keep the
-    /// name stamped on the exercise when it was published.
-    private static func publicNames(in records: [PersistRecord]) -> [String: String] {
-        records.reduce(into: [String: String]()) { names, record in
-            guard let userID = record.customId1, let name = record.customName1,
-                  !name.isEmpty, name != userID
-            else { return }
-            names[userID] = name
-        }
-    }
-
-    /// Something on screen that shows more of the community than the list has
-    /// been scrolled to, and so needs the whole thing loaded.
-    enum FullListNeed {
-        /// The search field: it looks through every exercise's name and
-        /// description, and lists the uploaders it finds.
-        case search
-        /// An uploader's profile: their exercises can be anywhere in the list.
-        case profile
-    }
-
-    /// Says whether a screen needing the whole community is up. While one is, the
-    /// feed reads itself to the end in the background instead of waiting to be
-    /// scrolled, so those screens see what they saw when every exercise was
-    /// fetched before the tab drew anything.
-    func setNeedsFullList(_ needed: Bool, for need: FullListNeed) {
-        if needed {
-            guard fullListNeeds.insert(need).inserted else { return }
-            Task { await continueFullLoad() }
-        } else {
-            fullListNeeds.remove(need)
-        }
-    }
-
-    /// Reads the rest of the feed, a page at a time, for as long as something
-    /// needs the whole list. Stops on the first page that adds nothing — a failed
-    /// call or a feed that has run out — leaving the next refresh to try again.
-    private func continueFullLoad() async {
-        guard !fullListNeeds.isEmpty, !isFullLoading else { return }
-        isFullLoading = true
-        defer { isFullLoading = false }
-        while !fullListNeeds.isEmpty, !isFetching, feed?.isExhausted == false {
-            let loaded = loadedEntityIDs.count
-            await loadNextPage()
-            if loadedEntityIDs.count == loaded { return }
-        }
-    }
-
-    /// Holds on to usernames and puts them on the rows they belong to. Applied
-    /// to whatever the list holds now, however many refreshes later: a name
-    /// belongs to an uploader, not to the order their exercises are in.
-    ///
-    /// Only this device's own rename comes through here; every other name
-    /// arrives with the records it labels (see `append`).
-    private func remember(names: [String: String]) {
-        // An empty username is no username: the row keeps the name stamped on the
-        // exercise at publish time, the same as when the fetch can't find one.
-        let names = names.filter { !$0.value.isEmpty }
+    /// Holds on to the usernames a page of records carried, so `applyFetched`
+    /// can label the rows with them. Every uploader's name arrives this way; the
+    /// one exception is this device's own rename, see `remember(ownName:for:)`.
+    func remember(fetchedNames names: [String: String]) {
         guard !names.isEmpty else { return }
         uploaderNames.merge(names) { _, new in new }
-        var relabelled = exercises
-        var changed = false
-        for index in relabelled.indices {
-            guard let userID = uploaderIDs[relabelled[index].id],
-                  let name = uploaderNames[userID],
-                  relabelled[index].uploaderName != name
-            else { continue }
-            relabelled[index].uploaderName = name
-            changed = true
-        }
-        if changed { exercises = relabelled }
+    }
+
+    /// Puts this device's own rename straight onto the rows it labels, without
+    /// waiting for a refetch to carry it back down. Applied to whatever the
+    /// community list holds now, however many refreshes later: a name belongs to
+    /// an uploader, not to the order their exercises are in.
+    private func remember(ownName name: String, for userID: String) {
+        // An empty username is no username: the row keeps the name stamped on the
+        // exercise at publish time, the same as when the fetch can't find one.
+        guard !name.isEmpty else { return }
+        uploaderNames[userID] = name
+        list.relabel(with: [userID: name])
     }
 
     /// Fetches the server's like/download/play tally for one exercise, or nil if
@@ -1173,13 +695,6 @@ final class CommunitySync: ObservableObject {
         return summary
     }
 
-    /// A fetched document together with the hash of the JSON it came from, which
-    /// tells `apply` whether this session has already cached its pattern.
-    private struct FetchedDoc {
-        var doc: SharedExerciseDoc
-        var source: Int
-    }
-
     /// One document per record; tombstones and documents that fail to decode
     /// (e.g. the pre-split whole-library documents, or ones written by a newer
     /// app version) are skipped.
@@ -1189,7 +704,7 @@ final class CommunitySync: ObservableObject {
     /// them: the same documents came back, only in a different order, and
     /// decoding a whole community's patterns again (on the main actor, since this
     /// class is @MainActor) is time spent producing what is already in hand.
-    private func decodeDocs(from records: [PersistRecord]) -> [FetchedDoc] {
+    func decodeDocs(from records: [PersistRecord]) -> [FetchedDoc] {
         let decoder = JSONDecoder()
         var docs: [FetchedDoc] = []
         docs.reserveCapacity(records.count)
@@ -1208,25 +723,28 @@ final class CommunitySync: ObservableObject {
         return docs
     }
 
-    /// Publishes the exercises loaded so far — relabelled with each uploader's
-    /// current PUBLIC_NAME where one is known — and swaps their patterns into the
-    /// UserDefaults cache. `sort` and `reversed` are what the fetch behind them
-    /// asked the server for, remembered alongside the list so
-    /// `sorted(_:by:reversed:)` knows what order it is in.
+    /// Turns the documents a feed has loaded into the exercises it lists —
+    /// relabelled with each uploader's current PUBLIC_NAME where one is known —
+    /// and swaps their patterns into the UserDefaults cache. Also everything
+    /// about them that belongs to the session rather than to one list: the share
+    /// dates, the tallies, and the exercises the pushed screens resolve through
+    /// (see `exercise(for:)`).
     ///
-    /// `docs` is the whole list, not the page that has just arrived: the pattern
-    /// cache and the counts are keyed off what the tab holds, and re-applying a
-    /// page already applied costs nothing (see `cachedPatternSources`).
+    /// `docs` is the feed's whole list, not the page that has just arrived: the
+    /// pattern cache and the counts are keyed off what it holds, and re-applying
+    /// a page already applied costs nothing (see `cachedPatternSources`).
     ///
     /// Everything that means "no longer in the community" — dropping a cached
-    /// pattern, a count, a decoded document — waits until the whole list has been
-    /// read. Until then an exercise missing from it is one the user simply hasn't
-    /// scrolled to yet, and throwing its pattern away would only mean fetching it
+    /// pattern, a count, a decoded document — waits for `isComplete`: the whole
+    /// community read to its last page with nothing narrowing it. Until then an
+    /// exercise missing from the list is one the user simply hasn't scrolled to
+    /// yet — or one this list was never asking about, since a profile, a filter
+    /// and a search term each fetch a slice of the community rather than the
+    /// whole of it — and throwing its pattern away would only mean fetching it
     /// again a page later.
-    private func apply(docs: [FetchedDoc],
-                       sort: CommunitySort,
-                       reversed: Bool) {
-        let isComplete = feed?.isExhausted ?? false
+    func applyFetched(docs: [FetchedDoc],
+                      entityIDs: Set<String>,
+                      isComplete: Bool) -> (exercises: [Exercise], uploaderIDs: [UUID: String]) {
         let defaults = UserDefaults.standard
         var seenExercises = Set<UUID>()
         var fetched: [Exercise] = []
@@ -1243,6 +761,7 @@ final class CommunitySync: ObservableObject {
             if let name = uploaderNames[doc.userID] { exercise.uploaderName = name }
             uploaders[exercise.id] = doc.userID
             fetched.append(exercise)
+            fetchedExercises[exercise.id] = exercise
             // Counts come from opening an exercise, not from listing it: carry
             // over what is known and leave the rest to `refreshSummary(for:)`.
             // Rebuilding the dictionaries — once the whole list is in — is what
@@ -1283,14 +802,10 @@ final class CommunitySync: ObservableObject {
                 cachedPatternSources.removeValue(forKey: id)
             }
             defaults.set(cachedIDs, forKey: Self.cachedPatternIDsKey)
-            decodedDocs = decodedDocs.filter { loadedEntityIDs.contains($0.key) }
+            decodedDocs = decodedDocs.filter { entityIDs.contains($0.key) }
         } else {
             defaults.set(cached.union(cachedIDs).sorted(), forKey: Self.cachedPatternIDsKey)
         }
-        exercises = fetched
-        uploaderIDs = uploaders
-        fetchedSort = sort
-        fetchedReversed = reversed
         if isComplete {
             likeCounts = likes
             downloadCounts = downloads
@@ -1303,65 +818,6 @@ final class CommunitySync: ObservableObject {
         hasFetched = true
         persistCounts()
         persistShareDates()
-    }
-
-    // MARK: - Sorting
-
-    /// The community exercises in the order the given sort asks for. Exercises
-    /// with no recorded share date (shared before dates existed) count as the
-    /// oldest, and ties break by name so the order never jitters between fetches.
-    ///
-    /// The fetch already asks the server for this order, but the same ordering is
-    /// needed for things the server can't sort: the search results, the like
-    /// filters, the per-uploader profiles, and the moments between changing the
-    /// sort menu and the next refresh.
-    ///
-    /// The server-only orders (see `isServerOrdered`) are instead kept as the
-    /// fetch returned them — a subset of a sorted list is still sorted, so the
-    /// searches and profiles come out right without the app knowing what the
-    /// server ranked on. `reversed` is already in that order too, having been
-    /// fetched as `sortDirection`, so it's applied to every *other* order only.
-    ///
-    /// Which is also why picking one of those shows the list in the order it is
-    /// already in until the refetch lands: their ranking isn't in what came
-    /// back, so the held list can't be put in it, and ranking by the positions it
-    /// happens to have would shuffle the rows into an order that is neither the
-    /// old one nor the new one — a visible reshuffle a moment before the real one.
-    func sorted(_ exercises: [Exercise], by sort: CommunitySort, reversed: Bool) -> [Exercise] {
-        var sort = sort
-        var reversed = reversed
-        if sort.isServerOrdered, let fetchedSort,
-           (sort, reversed) != (fetchedSort, fetchedReversed) {
-            sort = fetchedSort
-            reversed = fetchedReversed
-        }
-
-        func byName(_ a: Exercise, _ b: Exercise) -> Bool {
-            a.name.localizedStandardCompare(b.name) == .orderedAscending
-        }
-        func date(_ exercise: Exercise) -> Date {
-            shareDates[exercise.id] ?? .distantPast
-        }
-        // Position in the fetched list, for the orders only the server knows.
-        // Exercises absent from it (there are none today) go to the tail.
-        var fetchedRank: [UUID: Int] = [:]
-        if sort.isServerOrdered {
-            for (index, exercise) in self.exercises.enumerated() where fetchedRank[exercise.id] == nil {
-                fetchedRank[exercise.id] = index
-            }
-        }
-        let ordered = exercises.sorted { a, b in
-            switch sort {
-            case .hot, .recentlyUpdated, .mostLiked, .mostPlayed, .mostDownloaded:
-                let (x, y) = (fetchedRank[a.id] ?? .max, fetchedRank[b.id] ?? .max)
-                return x == y ? byName(a, b) : x < y
-            case .newest:
-                let (x, y) = (date(a), date(b))
-                return x == y ? byName(a, b) : x > y
-            case .alphabetical:
-                return byName(a, b)
-            }
-        }
-        return reversed && !sort.isServerOrdered ? ordered.reversed() : ordered
+        return (fetched, uploaders)
     }
 }

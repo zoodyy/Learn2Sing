@@ -81,7 +81,11 @@ enum ExerciseRoute: Hashable {
     case playback(UUID)  // the actual note-scrolling playback screen
     case settings(UUID)
     case edit(UUID)
-    case user(String)    // a community uploader's profile, by username
+    // A community uploader's profile. Carries the public user id their exercises
+    // are fetched by as well as the username the screen is titled with, since the
+    // profile asks the server for that id's records rather than sifting the
+    // Community tab's list for a matching name.
+    case user(id: String, name: String)
     case routine(UUID)         // a routine's edit screen (Home tab)
     case routineIntro(UUID)    // a routine's description/exercise-order screen (Home tab)
     case routinePicker(UUID)   // multi-select exercise picker for a routine (Home tab)
