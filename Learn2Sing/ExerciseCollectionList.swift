@@ -79,6 +79,15 @@ struct ExerciseCollectionList: UIViewControllerRepresentable {
     /// (exercise, newCategory, idOfExerciseItNowPrecedes — nil appends).
     /// nil disables drag & drop entirely (Community tab).
     var onMove: ((UUID, String, UUID?) -> Void)? = nil
+    /// Called as the list runs out of rows to scroll through — fewer than
+    /// `loadMoreThreshold` of them left below the ones on screen — so the
+    /// Community tab can fetch its next page. May be called many times over
+    /// before that page arrives. nil (every other tab, whose lists are complete)
+    /// never asks for more.
+    var onLoadMore: (() -> Void)? = nil
+    /// How few rows may be left below the bottom of the screen before `onLoadMore`
+    /// is called.
+    var loadMoreThreshold = 30
     /// true starts the list scrolled just past the navigation bar's search drawer,
     /// so the field only appears when the user pulls down (Exercises tab).
     var hidesSearchBarInitially = false
@@ -111,6 +120,8 @@ struct ExerciseCollectionList: UIViewControllerRepresentable {
         controller.onHeaderLongPress = onHeaderLongPress
         controller.onAdd = onAdd
         controller.onMove = onMove
+        controller.onLoadMore = onLoadMore
+        controller.loadMoreThreshold = loadMoreThreshold
         controller.hidesSearchBarInitially = hidesSearchBarInitially
         controller.setLanguage(language)
         controller.setSections(sections, animated: true)
@@ -141,6 +152,8 @@ final class ExerciseListController: UIViewController {
     var onHeaderLongPress: (() -> Void)?
     var onAdd: ((String) -> Void)?
     var onMove: ((UUID, String, UUID?) -> Void)?
+    var onLoadMore: (() -> Void)?
+    var loadMoreThreshold = 30
     var hidesSearchBarInitially = false
 
     /// Set once the initial scroll past the search drawer has been performed, so
@@ -372,6 +385,23 @@ final class ExerciseListController: UIViewController {
         snapshot.reconfigureItems(reconfiguring)
         dataSource.apply(snapshot, animatingDifferences: animated)
         updateVisibleHeaders(animated: animated)
+        // Rows appended below the screen never come into view on their own, so
+        // arriving is their only chance to say how few of them are left.
+        loadMoreIfNeeded(displaying: collectionView.indexPathsForVisibleItems.max())
+    }
+
+    /// Asks for the next page if the list is running out of rows below the ones
+    /// on screen. `indexPath` is the lowest row in view — the one with the fewest
+    /// rows under it — or nil when there are none to count from.
+    private func loadMoreIfNeeded(displaying indexPath: IndexPath?) {
+        guard let onLoadMore, let indexPath, indexPath.section < sections.count,
+              indexPath.item < sections[indexPath.section].items.count
+        else { return }
+        var below = sections[indexPath.section].items.count - indexPath.item - 1
+        for section in sections[(indexPath.section + 1)...] {
+            below += section.items.count
+        }
+        if below < loadMoreThreshold { onLoadMore() }
     }
 
     /// Snapshots don't cover supplementaries, so collapse toggles and count
@@ -517,6 +547,16 @@ extension ExerciseListController: UICollectionViewDelegate {
         collectionView.deselectItem(at: indexPath, animated: true)
         guard let item = dataSource.itemIdentifier(for: indexPath) else { return }
         onSelect?(item.id, item.section)
+    }
+
+    /// Asks for the next page once the rows left below the bottom of the screen
+    /// run low (Community tab). Counted from each row as it comes into view, so
+    /// the lowest one on screen — the one with the fewest rows under it — is what
+    /// decides; a list that doesn't even fill the screen asks straight away.
+    func collectionView(_ collectionView: UICollectionView,
+                        willDisplay cell: UICollectionViewCell,
+                        forItemAt indexPath: IndexPath) {
+        loadMoreIfNeeded(displaying: indexPath)
     }
 }
 

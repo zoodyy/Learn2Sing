@@ -53,6 +53,14 @@ struct CommunityView: View {
     /// refresh arriving mid-play can't reorder it.
     @State private var playQueue: [UUID] = []
 
+    /// Whether the search field has something in it. The results are drawn from
+    /// every exercise in the community rather than the page of it the list has
+    /// scrolled to, so while this is true CommunitySync keeps loading the rest in
+    /// the background.
+    private var isSearching: Bool {
+        !searchText.trimmingCharacters(in: .whitespaces).isEmpty
+    }
+
     private func exercise(for id: UUID) -> Exercise? {
         community.exercises.first { $0.id == id }
     }
@@ -235,7 +243,15 @@ struct CommunityView: View {
                             }
                         },
                         onSelectUploader: { navigationPath.append(ExerciseRoute.user($0)) },
-                        onRefresh: { await community.refresh() }
+                        onRefresh: { await community.refresh() },
+                        // The list is a page of the community at a time, topped
+                        // up as the user scrolls towards the end of it. Not while
+                        // searching: those results are drawn from the whole
+                        // community, which is being loaded anyway (see below), and
+                        // how far down them the user has scrolled says nothing
+                        // about how much of it is left.
+                        onLoadMore: isSearching ? nil : { Task { await community.loadNextPage() } },
+                        loadMoreThreshold: CommunitySync.pageSize
                     )
                     // Span the full screen like a List so content scrolls under the
                     // navigation and tab bars.
@@ -297,9 +313,12 @@ struct CommunityView: View {
                 }
             }
             .stableTopEdgeFade()
-            // Reload from the server each time the tab is visited; the previous
-            // list stays up while (and if) the fetch fails.
-            .task { await community.refresh() }
+            // Load the list the first time the tab is visited, and after a fetch
+            // that failed; a visit to a tab already showing one leaves it — and
+            // the pages scrolled through since — alone, since reloading it would
+            // mean fetching them all again. Pull down to reload deliberately.
+            .task { await community.refreshIfNeeded() }
+            .onChange(of: isSearching) { community.setNeedsFullList(isSearching, for: .search) }
             // The fetch asks the server for the picked order, so a new pick has
             // to go back to it — the orders it ranks itself ("Hot", "Recently
             // Updated") can't be worked out from the list already held. The
@@ -408,5 +427,10 @@ struct CommunityUserProfileView: View {
         .navigationTitle(username)
         .navigationBarTitleDisplayMode(.inline)
         .stableTopEdgeFade()
+        // This uploader's exercises can sit anywhere in the community list, so
+        // the profile shows what it can and the rest of the list loads behind it
+        // — rather than only the part of it the Community tab was scrolled to.
+        .onAppear { community.setNeedsFullList(true, for: .profile) }
+        .onDisappear { community.setNeedsFullList(false, for: .profile) }
     }
 }
