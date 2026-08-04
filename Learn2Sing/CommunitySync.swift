@@ -484,8 +484,13 @@ final class CommunitySync: ObservableObject {
         let doc = PublicNameDoc(userID: userID, username: UserProfile.load().username)
         let encoder = JSONEncoder()
         encoder.outputFormatting = [.sortedKeys]
+        var components = URLComponents(string: "\(Self.baseURL)/persist/\(userID)/PUBLIC_NAME")
+        components?.queryItems = [
+            URLQueryItem(name: "customId1", value: userID),
+            URLQueryItem(name: "customName", value: doc.username),
+        ]
         guard let body = try? encoder.encode(doc), body != lastUploadedName,
-              let url = URL(string: "\(Self.baseURL)/persist/\(userID)/PUBLIC_NAME?customId1=\(userID)")
+              let url = components?.url
         else { return }
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
