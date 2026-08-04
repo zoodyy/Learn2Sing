@@ -199,7 +199,25 @@ final class CommunitySync: ObservableObject {
     private var loadedEntityIDs: Set<String> = []
     /// true while a page is on the wire, so the list asking for more with every
     /// row it displays costs one fetch rather than one per row.
-    private var isLoadingPage = false
+    ///
+    /// Published because turning an ask down has to be temporary: the list only
+    /// asks as rows come into view, and by the time it runs out of rows to bring
+    /// into view it has none left to ask off the back of. This flipping back to
+    /// false is what has it look again at how much is left below the screen (see
+    /// `ExerciseListController.checkLoadMore`), so the page that landed while a
+    /// fetch was on the wire is followed by the next one without the user having
+    /// to nudge the list.
+    @Published private(set) var isLoadingPage = false
+    /// When the last page fetch failed, if it hasn't been followed by one that
+    /// worked. The list looks again at what's left below the screen every time
+    /// anything about it changes, so without a pause a server that's down — or a
+    /// device that's offline — would be asked again the instant each attempt
+    /// came back.
+    private var lastPageFailure: Date?
+    /// How long to leave a failed page alone for. Short enough that scrolling on
+    /// after a blip picks the list back up, long enough that a list parked at
+    /// its end doesn't retry in a tight loop.
+    private static let failedPageRetryDelay: TimeInterval = 3
     /// Set when the list asked for a page and something else was on the wire.
     /// The ask has to be remembered rather than dropped: the list only asks as
     /// rows come into view, and it has none left to bring into view — that's why
@@ -669,6 +687,9 @@ final class CommunitySync: ObservableObject {
         // page lands: a failed refresh leaves the tab exactly as it was, still
         // able to page on from where the user has scrolled to.
         let previous = (feed: feed, docs: loadedDocs, entityIDs: loadedEntityIDs)
+        // Pulling down (or picking another order) is a deliberate retry, so it
+        // isn't held off by a page that failed before it.
+        lastPageFailure = nil
         feed = makeFeed(sort: sort, reversed: reversed, filter: activeFilter)
         loadedDocs = []
         loadedEntityIDs = []
@@ -887,9 +908,14 @@ final class CommunitySync: ObservableObject {
             wantsAnotherPage = true
             return
         }
-        // The page already on its way brings rows with it, and the list asks
-        // again off the back of them if it still needs more.
+        // The page already on its way brings rows with it, and the list looks
+        // again at how much is left below the screen once it lands — and again
+        // when `isLoadingPage` goes back to false, which is what picks the
+        // paging back up if the page that landed wasn't enough.
         guard !isLoadingPage else { return }
+        if let lastPageFailure, Date().timeIntervalSince(lastPageFailure) < Self.failedPageRetryDelay {
+            return
+        }
         isLoadingPage = true
         defer {
             isLoadingPage = false
@@ -898,9 +924,11 @@ final class CommunitySync: ObservableObject {
         let generation = refreshGeneration
         let sort = feed.sort
         let reversed = feed.reversed
-        guard let records = await nextRecords(generation: generation), !records.isEmpty,
-              generation == refreshGeneration
-        else { return }
+        let records = await nextRecords(generation: generation)
+        // nil is a call that failed; the list is left as it is and the next look
+        // at it — once the pause above is up — tries again.
+        lastPageFailure = records == nil ? Date() : nil
+        guard let records, !records.isEmpty, generation == refreshGeneration else { return }
         let docs = append(records: records, sort: sort, reversed: reversed)
         await refreshUploaderNames(for: Set(docs.map(\.doc.userID)))
     }

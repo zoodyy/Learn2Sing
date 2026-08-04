@@ -128,6 +128,11 @@ struct ExerciseCollectionList: UIViewControllerRepresentable {
         if let highlightedID {
             controller.highlight(highlightedID)
         }
+        // Every update is a chance to notice that the list is running out of rows
+        // below the screen — including the one that follows a page finishing
+        // loading, which is where a list parked at its end would otherwise sit
+        // waiting to be scrolled (see `checkLoadMore`).
+        controller.checkLoadMore()
     }
 }
 
@@ -386,7 +391,21 @@ final class ExerciseListController: UIViewController {
         dataSource.apply(snapshot, animatingDifferences: animated)
         updateVisibleHeaders(animated: animated)
         // Rows appended below the screen never come into view on their own, so
-        // arriving is their only chance to say how few of them are left.
+        // nothing else is going to say how few of them are left.
+        checkLoadMore()
+    }
+
+    /// Looks at how many rows are left below the screen as things stand, and asks
+    /// for the next page if that has run low.
+    ///
+    /// Whether more is wanted is a fact about where the list has been scrolled to,
+    /// not an event: a row coming into view is only one of the things that can
+    /// change it. So this is called from every SwiftUI update too — which is what
+    /// picks the paging back up when the ask made while a page was already on the
+    /// wire was turned down, and the user has stopped scrolling at the end of the
+    /// list with no rows left to bring into view and ask again off the back of.
+    func checkLoadMore() {
+        guard let collectionView else { return }
         loadMoreIfNeeded(displaying: collectionView.indexPathsForVisibleItems.max())
     }
 
