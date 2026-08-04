@@ -35,11 +35,15 @@ struct SharedExerciseDoc: Codable {
 
 /// The document each user keeps on the server under PUBLIC_NAME: their current
 /// profile username, so renaming yourself in the profile updates the label on
-/// your exercises for everyone. There is one document per user and so one fetch
-/// per uploader: the names are cached and looked up once a session rather than
-/// on every refresh (see `CommunitySync.refreshUploaderNames`), which means
-/// someone else's rename shows up on their next launch, and this device's own
-/// goes into the cache as it is uploaded.
+/// your exercises for everyone.
+///
+/// It is never fetched. The username is posted as the document's `customName`
+/// as well as in its JSON, and the server resolves the `customId1` stamped on
+/// each shared exercise — the uploader's public user id — to that name, handing
+/// it back as `customName1` on every SHARED_EXERCISE record (see
+/// `PersistRecord`). So the names arrive with the list itself, and someone
+/// else's rename shows up on the next refresh rather than costing a call per
+/// uploader to find.
 nonisolated struct PublicNameDoc: Codable {
     /// The uploader's public user id (see PublicIdentifier), matching the
     /// `userID` stamped on their shared exercises.
@@ -145,10 +149,6 @@ final class CommunitySync: ObservableObject {
     /// Share date (seconds since 1970) per public exercise id, so re-uploading an
     /// edited exercise keeps the date it was first shared.
     private static let shareDatesKey = "communityShareDates"
-    /// Username per public user id as last fetched, persisted so a relaunch —
-    /// and every refresh after the first of a session — can label the list
-    /// without a PUBLIC_NAME call per uploader.
-    private static let uploaderNamesKey = "communityUploaderNames"
     /// The key the Community tab's sort menu writes with @AppStorage; the fetch
     /// reads it so the server can do the sorting.
     private static let sortKey = "communitySort"
@@ -282,17 +282,15 @@ final class CommunitySync: ObservableObject {
     /// true while `continueFullLoad` is walking the feed, so the requests that
     /// start it don't start a second walk.
     private var isFullLoading = false
-    /// Each uploader's current username by public user id, as last fetched.
-    /// Persisted (see `uploaderNamesKey`), because one PUBLIC_NAME document per
-    /// uploader is one call per uploader — worth making once a session, not on
-    /// every refresh.
+    /// Each uploader's current username by public user id, as the fetched
+    /// records carried it (see `publicNames(in:)`). In-session only: it is
+    /// filled from the same call that fills the list, so there is nothing a
+    /// relaunch could usefully remember, and this device's own rename is put
+    /// in as it is uploaded.
     private var uploaderNames: [String: String] = [:]
-    /// Which uploader each listed exercise belongs to, so names arriving after
-    /// the list can be put on the right rows.
+    /// Which uploader each listed exercise belongs to, so a name arriving after
+    /// the list — this device's own rename — can be put on the right rows.
     private var uploaderIDs: [UUID: String] = [:]
-    /// Whether this session has been through the uploaders once already; after
-    /// that only uploaders with no cached name are looked up.
-    private var hasRefreshedNames = false
     /// The fetched JSON each exercise was last decoded from, hashed, with what it
     /// decoded to. A refresh handing back a document already in here — which is
     /// all of them when only the sort order changed — skips both the decode and
@@ -309,6 +307,9 @@ final class CommunitySync: ObservableObject {
     private init() {
         // An earlier version persisted the fetched list under this key.
         UserDefaults.standard.removeObject(forKey: "communityExercises")
+        // And the uploader names under this one, back when finding them cost a
+        // PUBLIC_NAME fetch per uploader; they now come with the list.
+        UserDefaults.standard.removeObject(forKey: "communityUploaderNames")
         // "Oldest First" is now the reverse switch on top of "Newest First";
         // carry anyone left on it over rather than dropping them to the default.
         if UserDefaults.standard.string(forKey: Self.sortKey) == "oldest" {
@@ -318,7 +319,6 @@ final class CommunitySync: ObservableObject {
         likeCounts = Self.storedCounts(forKey: Self.likeCountsKey)
         downloadCounts = Self.storedCounts(forKey: Self.downloadCountsKey)
         playCounts = Self.storedCounts(forKey: Self.playCountsKey)
-        uploaderNames = UserDefaults.standard.dictionary(forKey: Self.uploaderNamesKey) as? [String: String] ?? [:]
         let dates = UserDefaults.standard.dictionary(forKey: Self.shareDatesKey) as? [String: Double] ?? [:]
         shareDates = dates.reduce(into: [:]) { result, entry in
             if let id = UUID(uuidString: entry.key) {
@@ -477,7 +477,11 @@ final class CommunitySync: ObservableObject {
         return false
     }
 
-    /// POSTs the profile username as this device's PUBLIC_NAME document.
+    /// POSTs the profile username as this device's PUBLIC_NAME document. The
+    /// name goes in the `customName` query parameter as well as in the document
+    /// itself: that parameter is what the server resolves this user's id to on
+    /// every shared exercise they have uploaded, and so what labels their rows
+    /// in everyone's Community tab (see `PublicNameDoc`).
     private func uploadPublicName() async {
         guard readyToUpload else { return }
         let userID = PublicIdentifier.user
@@ -500,10 +504,10 @@ final class CommunitySync: ObservableObject {
             let (_, response) = try await URLSession.shared.data(for: request)
             if let http = response as? HTTPURLResponse, (200...299).contains(http.statusCode) {
                 lastUploadedName = body
-                // This device's own rename, straight into the cache the list is
+                // This device's own rename, straight into the names the list is
                 // labelled from — otherwise the tab would keep showing the old
-                // name on this user's own exercises until the next session, since
-                // the names are no longer refetched on every refresh.
+                // name on this user's own exercises until the next refresh
+                // brought the records (and with them the names) back down.
                 remember(names: [userID: doc.username])
             } else if let http = response as? HTTPURLResponse {
                 print("CommunitySync: name upload failed with status \(http.statusCode)")
@@ -702,10 +706,19 @@ final class CommunitySync: ObservableObject {
     /// `jsonData` as a JSON string. `entityId` is the id it was persisted under
     /// (the public exercise id for SHARED_EXERCISE), and `storageType` says which
     /// kind of document it is — which has to be checked, see `fetchPage`.
+    ///
+    /// `customId1` is the query parameter the record was posted with — the
+    /// uploader's public user id — and `customName1` is the server's lookup of
+    /// it: the `customName` that user's PUBLIC_NAME document was posted with,
+    /// which is to say their username. That is where the Community tab's
+    /// uploader labels come from; a user with no PUBLIC_NAME document gets the
+    /// id echoed back instead, or nothing at all (see `publicNames(in:)`).
     private struct PersistRecord: Decodable {
         var storageType: String
         var entityId: String
         var jsonData: String
+        var customId1: String?
+        var customName1: String?
     }
 
     /// One server query the list is filled from, and how far through its pages
@@ -821,11 +834,7 @@ final class CommunitySync: ObservableObject {
         guard generation == refreshGeneration else { return }
         // Applied even when empty: an order and filter the server has nothing for
         // is an empty tab, not a failed fetch.
-        let docs = append(records: records, sort: sort, reversed: reversed)
-        // Only once the list is on screen, and only for uploaders whose name
-        // isn't already known: a rename is worth one pass a session, not one
-        // call per uploader every time the sort order changes.
-        await refreshUploaderNames(for: Set(docs.map(\.doc.userID)))
+        append(records: records, sort: sort, reversed: reversed)
     }
 
     /// The queries the picked order's list is filled from, in the order their
@@ -978,39 +987,6 @@ final class CommunitySync: ObservableObject {
         }
     }
 
-    /// Walks every page of one query, for the caller that wants the whole answer
-    /// rather than a page of it: the one-record PUBLIC_NAME lookups. nil if any
-    /// page failed.
-    private static func fetchAllRecords(storageType: String,
-                                        sortBy: [String],
-                                        sortDirection: String,
-                                        extraQuery: [URLQueryItem] = []) async -> [PersistRecord]? {
-        var sortKeys = sortBy
-        var all: [PersistRecord] = []
-        var page = 0
-        while page < maxPages {
-            guard let sortKey = sortKeys.first else { return nil }
-            switch await fetchPage(storageType: storageType,
-                                   sortBy: sortKey,
-                                   sortDirection: sortDirection,
-                                   page: page,
-                                   extraQuery: extraQuery) {
-            case .failed:
-                return nil
-            // A rejected sort key means this backend spells it the other way;
-            // retry the same page with the next candidate.
-            case .unknownSortKey:
-                guard sortKeys.count > 1 else { return nil }
-                sortKeys.removeFirst()
-            case .page(let records, let isLast):
-                all += records
-                if isLast { return all }
-                page += 1
-            }
-        }
-        return all
-    }
-
     // MARK: - Paging
 
     /// Loads the next page of the community list and appends it to what's on
@@ -1048,8 +1024,7 @@ final class CommunitySync: ObservableObject {
         // at it — once the pause above is up — tries again.
         lastPageFailure = records == nil ? Date() : nil
         guard let records, !records.isEmpty, generation == refreshGeneration else { return }
-        let docs = append(records: records, sort: sort, reversed: reversed)
-        await refreshUploaderNames(for: Set(docs.map(\.doc.userID)))
+        append(records: records, sort: sort, reversed: reversed)
     }
 
     /// Loads the page the list asked for while a fetch was already on the wire —
@@ -1061,15 +1036,30 @@ final class CommunitySync: ObservableObject {
     }
 
     /// Puts a page's records into the list, after the ones already loaded, and
-    /// publishes the result. Returns the documents this page decoded to, for the
-    /// uploader-name pass.
+    /// publishes the result. The uploader names ride along on the records, so
+    /// they are taken here and the list is labelled with them as it is applied.
     private func append(records: [PersistRecord],
                         sort: CommunitySort,
-                        reversed: Bool) -> [FetchedDoc] {
-        let docs = decodeDocs(from: records)
-        loadedDocs += docs
+                        reversed: Bool) {
+        uploaderNames.merge(Self.publicNames(in: records)) { _, new in new }
+        loadedDocs += decodeDocs(from: records)
         apply(docs: loadedDocs, sort: sort, reversed: reversed)
-        return docs
+    }
+
+    /// The username per public user id carried by a page of records: the
+    /// server's lookup of each record's `customId1` (see `PersistRecord`).
+    ///
+    /// A user who has never posted a PUBLIC_NAME document has no name to look
+    /// up, and the endpoint answers with their id — or with nothing — rather
+    /// than leaving the field out, so both are dropped here. Their rows keep the
+    /// name stamped on the exercise when it was published.
+    private static func publicNames(in records: [PersistRecord]) -> [String: String] {
+        records.reduce(into: [String: String]()) { names, record in
+            guard let userID = record.customId1, let name = record.customName1,
+                  !name.isEmpty, name != userID
+            else { return }
+            names[userID] = name
+        }
     }
 
     /// Something on screen that shows more of the community than the list has
@@ -1109,38 +1099,18 @@ final class CommunitySync: ObservableObject {
         }
     }
 
-    /// Brings the uploader names up to date and relabels the list with them.
+    /// Holds on to usernames and puts them on the rows they belong to. Applied
+    /// to whatever the list holds now, however many refreshes later: a name
+    /// belongs to an uploader, not to the order their exercises are in.
     ///
-    /// A username changes only when its owner renames themselves, so the whole
-    /// set is looked up once a session and cached (and persisted) from then on;
-    /// later refreshes ask only about uploaders never seen before, which is
-    /// usually none at all. That matters because there is one document per
-    /// uploader and so one call per uploader: doing it on every refresh put a
-    /// wave of them — six at a time, as many waves as it took — between picking a
-    /// sort order and seeing it.
-    private func refreshUploaderNames(for userIDs: Set<String>) async {
-        let wanted = hasRefreshedNames ? userIDs.subtracting(uploaderNames.keys) : userIDs
-        // Set before the fetch, not after: it makes the two refreshes that race
-        // at launch (start(with:) and the tab appearing) share one pass, and a
-        // name that fails to load simply stays unknown and is asked for again by
-        // the next refresh.
-        hasRefreshedNames = true
-        guard !wanted.isEmpty else { return }
-        let fetched = await Self.fetchPublicNames(for: wanted)
-        guard !fetched.isEmpty else { return }
-        remember(names: fetched)
-    }
-
-    /// Caches usernames and puts them on the rows they belong to. Applied to
-    /// whatever the list holds now, however many refreshes later: a name belongs
-    /// to an uploader, not to the order their exercises are in.
+    /// Only this device's own rename comes through here; every other name
+    /// arrives with the records it labels (see `append`).
     private func remember(names: [String: String]) {
         // An empty username is no username: the row keeps the name stamped on the
         // exercise at publish time, the same as when the fetch can't find one.
         let names = names.filter { !$0.value.isEmpty }
         guard !names.isEmpty else { return }
         uploaderNames.merge(names) { _, new in new }
-        UserDefaults.standard.set(uploaderNames, forKey: Self.uploaderNamesKey)
         var relabelled = exercises
         var changed = false
         for index in relabelled.indices {
@@ -1152,36 +1122,6 @@ final class CommunitySync: ObservableObject {
             changed = true
         }
         if changed { exercises = relabelled }
-    }
-
-    /// Fetches every uploader's PUBLIC_NAME document in parallel and returns the
-    /// non-empty usernames by public user id. Users whose fetch fails are simply
-    /// absent, so their exercises keep the name stamped at publish time.
-    private static func fetchPublicNames(for userIDs: Set<String>) async -> [String: String] {
-        await withTaskGroup(of: (String, String)?.self) { group in
-            for userID in userIDs {
-                group.addTask {
-                    // The endpoint keeps one latest record per id, so one page of
-                    // one record is the current name.
-                    guard let record = await fetchAllRecords(
-                        storageType: "PUBLIC_NAME",
-                        sortBy: CommunitySort.newest.serverSortBy,
-                        sortDirection: CommunitySort.newest.serverSortDirection(reversed: false),
-                        extraQuery: [URLQueryItem(name: "customId1", value: userID)]
-                    )?.first,
-                          let doc = try? JSONDecoder().decode(PublicNameDoc.self,
-                                                              from: Data(record.jsonData.utf8)),
-                          !doc.username.isEmpty
-                    else { return nil }
-                    return (userID, doc.username)
-                }
-            }
-            var names: [String: String] = [:]
-            for await pair in group {
-                if let (userID, username) = pair { names[userID] = username }
-            }
-            return names
-        }
     }
 
     /// Fetches the server's like/download/play tally for one exercise, or nil if
