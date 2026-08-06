@@ -81,15 +81,33 @@ enum ScoreRange: String, CaseIterable, Identifiable {
 /// 100 runs spans no more width than a day with 1), the y axis is score in %.
 /// Runs that would land on the same x position are averaged into one point, and
 /// the lowest 5% of scores in the window are dropped as outliers.
+///
+/// Tapping a plotted point marks it and shows its score and time in a bubble
+/// pointing at it; tapping away from every point puts the bubble away again.
 struct ScoreHistoryChart: View {
     let entries: [ScoreEntry]
     let tint: Color
 
     @State private var range: ScoreRange = .all
 
+    /// The tapped point, held by date rather than by index because `points` is
+    /// recomputed on every redraw (the chart keys its marks by date too, and the
+    /// averaging below leaves one point per slot, so dates stay unique).
+    @State private var selectedDate: Date?
+
+    /// Measured size of the bubble, needed to place it above the point and keep
+    /// it inside the chart. Zero until the first layout pass, which is why the
+    /// bubble stays hidden that long.
+    @State private var bubbleSize: CGSize = .zero
+
     /// Upper bound on plotted points: the window is split into this many equal
     /// time slots and runs sharing a slot are averaged together.
     private let maxPoints = 60
+
+    /// How far from a point a tap still counts as hitting it. A comfortable
+    /// touch target, and doubles as the "tapped nothing" threshold that
+    /// dismisses the bubble.
+    private let hitRadius: CGFloat = 44
 
     var body: some View {
         VStack(spacing: 10) {
@@ -144,7 +162,122 @@ struct ScoreHistoryChart: View {
                     .foregroundStyle(.white.opacity(0.5))
             }
         }
+        .chartOverlay { proxy in
+            GeometryReader { geo in
+                selectionLayer(marks: markPositions(proxy: proxy, in: geo),
+                               size: geo.size)
+            }
+        }
+        // A different window plots different points, so whatever was selected in
+        // the old one no longer has a mark to point at.
+        .onChange(of: range) { selectedDate = nil }
         .frame(minHeight: 120)
+    }
+
+    // MARK: - Point selection
+
+    /// A plotted point together with where it ended up on screen.
+    private struct MarkPosition {
+        let entry: ScoreEntry
+        let position: CGPoint
+    }
+
+    /// Screen position of every plotted point, in the coordinate space of the
+    /// overlay's `GeometryReader`.
+    private func markPositions(proxy: ChartProxy, in geo: GeometryProxy) -> [MarkPosition] {
+        guard let plotAnchor = proxy.plotFrame else { return [] }
+        let plot = geo[plotAnchor]
+        return points.compactMap { entry in
+            guard let x = proxy.position(forX: entry.date),
+                  let y = proxy.position(forY: entry.score)
+            else { return nil }
+            return MarkPosition(entry: entry,
+                                position: CGPoint(x: plot.minX + x, y: plot.minY + y))
+        }
+    }
+
+    /// The tap target laid over the plot, plus the marker and bubble for the
+    /// point that is currently selected.
+    private func selectionLayer(marks: [MarkPosition], size: CGSize) -> some View {
+        let selected = selectedDate.flatMap { date in
+            marks.first { $0.entry.date == date }
+        }
+        return ZStack {
+            Rectangle()
+                .fill(.clear)
+                .contentShape(Rectangle())
+                .onTapGesture { location in
+                    let hit = nearestMark(to: location, among: marks)
+                    withAnimation(.snappy(duration: 0.2)) {
+                        selectedDate = hit?.entry.date
+                    }
+                }
+
+            if let selected {
+                marker.position(selected.position)
+                bubble(for: selected.entry, at: selected.position, in: size)
+            }
+        }
+    }
+
+    /// The nearest point to a tap, or nil when the tap landed near none of them.
+    private func nearestMark(to location: CGPoint, among marks: [MarkPosition]) -> MarkPosition? {
+        marks
+            .map { ($0, hypot($0.position.x - location.x, $0.position.y - location.y)) }
+            .filter { $0.1 <= hitRadius }
+            .min { $0.1 < $1.1 }?.0
+    }
+
+    /// Ring drawn over the selected point, so it stays identifiable while the
+    /// bubble is up (the chart hides its own dots once the line gets dense).
+    private var marker: some View {
+        Circle()
+            .fill(tint)
+            .frame(width: 9, height: 9)
+            .overlay(Circle().stroke(.white.opacity(0.9), lineWidth: 2))
+            .allowsHitTesting(false)
+    }
+
+    /// The bubble itself: score and time, with its tail on the selected point.
+    /// It sits above the point when there is room and flips below when there
+    /// isn't, and slides sideways to stay inside the chart — the tail follows,
+    /// so it keeps pointing at the point either way.
+    private func bubble(for entry: ScoreEntry, at point: CGPoint, in size: CGSize) -> some View {
+        let tailHeight: CGFloat = 7
+        let gap: CGFloat = 7          // clearance between the marker and the tail tip
+        let inset: CGFloat = 2        // keeps the bubble off the chart's own edges
+        let pointsUp = point.y - gap - bubbleSize.height < 0
+        let top = pointsUp ? point.y + gap : point.y - gap - bubbleSize.height
+        let centerX = min(max(point.x, bubbleSize.width / 2 + inset),
+                          max(size.width - bubbleSize.width / 2 - inset,
+                              bubbleSize.width / 2 + inset))
+        let shape = SpeechBubble(tailX: point.x - (centerX - bubbleSize.width / 2),
+                                 tailPointsUp: pointsUp,
+                                 tailHeight: tailHeight)
+
+        return VStack(spacing: 1) {
+            Text(verbatim: "\(entry.score)%")
+                .font(.subheadline.weight(.semibold))
+                .foregroundStyle(tint)
+            Text(entry.date, format: .dateTime.day().month(.abbreviated).year()
+                                              .hour().minute())
+                .font(.caption2)
+                .foregroundStyle(.white.opacity(0.7))
+        }
+        .lineLimit(1)
+        .fixedSize()
+        .padding(.horizontal, 10)
+        .padding(.vertical, 6)
+        .padding(pointsUp ? .top : .bottom, tailHeight)
+        .background(shape.fill(Color(white: 0.16)))
+        .overlay(shape.stroke(tint.opacity(0.8), lineWidth: 1))
+        .onGeometryChange(for: CGSize.self) { $0.size } action: { bubbleSize = $0 }
+        // Hidden until measured, otherwise the first frame flashes in the
+        // wrong place.
+        .opacity(bubbleSize == .zero ? 0 : 1)
+        .position(x: centerX, y: top + bubbleSize.height / 2)
+        // Taps belong to the layer underneath, which dismisses the bubble.
+        .allowsHitTesting(false)
     }
 
     /// Fixed windows always span exactly their duration up to now, so the line sits
@@ -198,5 +331,62 @@ struct ScoreHistoryChart: View {
                 / Double(group.count)
             return ScoreEntry(date: Date(timeIntervalSince1970: meanTime), score: meanScore)
         }
+    }
+}
+
+/// Rounded rectangle with a triangular tail on one of the horizontal edges,
+/// drawn as a single outline so it fills and strokes as one shape.
+///
+/// `rect` covers the tail as well: the body is inset by `tailHeight` on the side
+/// the tail sticks out of, which is what the matching `.padding` at the call site
+/// leaves room for.
+private struct SpeechBubble: Shape {
+    /// Where the tail's tip sits horizontally, in the shape's own coordinates.
+    /// Clamped to the straight part of the edge, so the tail can't grow out of a
+    /// rounded corner when the bubble has slid sideways to stay on screen.
+    var tailX: CGFloat
+    /// Tail on the top edge (bubble below the point) rather than the bottom.
+    var tailPointsUp: Bool
+    var tailHeight: CGFloat
+    var tailWidth: CGFloat = 13
+    var cornerRadius: CGFloat = 9
+
+    func path(in rect: CGRect) -> Path {
+        let body = CGRect(x: rect.minX,
+                          y: tailPointsUp ? rect.minY + tailHeight : rect.minY,
+                          width: rect.width,
+                          height: max(rect.height - tailHeight, 0))
+        let r = min(cornerRadius, min(body.width, body.height) / 2)
+        let tip = min(max(tailX, body.minX + r + tailWidth / 2),
+                      max(body.maxX - r - tailWidth / 2, body.minX + r + tailWidth / 2))
+
+        var path = Path()
+        // Clockwise from the top-left corner, cutting the tail into whichever
+        // horizontal edge it belongs on.
+        path.move(to: CGPoint(x: body.minX + r, y: body.minY))
+        if tailPointsUp {
+            path.addLine(to: CGPoint(x: tip - tailWidth / 2, y: body.minY))
+            path.addLine(to: CGPoint(x: tip, y: rect.minY))
+            path.addLine(to: CGPoint(x: tip + tailWidth / 2, y: body.minY))
+        }
+        path.addLine(to: CGPoint(x: body.maxX - r, y: body.minY))
+        path.addArc(center: CGPoint(x: body.maxX - r, y: body.minY + r), radius: r,
+                    startAngle: .degrees(-90), endAngle: .degrees(0), clockwise: false)
+        path.addLine(to: CGPoint(x: body.maxX, y: body.maxY - r))
+        path.addArc(center: CGPoint(x: body.maxX - r, y: body.maxY - r), radius: r,
+                    startAngle: .degrees(0), endAngle: .degrees(90), clockwise: false)
+        if !tailPointsUp {
+            path.addLine(to: CGPoint(x: tip + tailWidth / 2, y: body.maxY))
+            path.addLine(to: CGPoint(x: tip, y: rect.maxY))
+            path.addLine(to: CGPoint(x: tip - tailWidth / 2, y: body.maxY))
+        }
+        path.addLine(to: CGPoint(x: body.minX + r, y: body.maxY))
+        path.addArc(center: CGPoint(x: body.minX + r, y: body.maxY - r), radius: r,
+                    startAngle: .degrees(90), endAngle: .degrees(180), clockwise: false)
+        path.addLine(to: CGPoint(x: body.minX, y: body.minY + r))
+        path.addArc(center: CGPoint(x: body.minX + r, y: body.minY + r), radius: r,
+                    startAngle: .degrees(180), endAngle: .degrees(270), clockwise: false)
+        path.closeSubpath()
+        return path
     }
 }
