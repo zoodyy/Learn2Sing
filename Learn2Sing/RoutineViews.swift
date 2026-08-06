@@ -209,7 +209,9 @@ struct RoutineIntroView: View {
                 .foregroundStyle(.secondary)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(.vertical, 8)
+        // Matches the exercise intro screen's .padding() around its heading, so
+        // the two titles start at the same height and the same inset.
+        .listRowInsets(EdgeInsets(top: 16, leading: 0, bottom: 16, trailing: 0))
         .listRowBackground(Color.clear)
         .listRowSeparator(.hidden)
     }
@@ -247,6 +249,9 @@ struct RoutineIntroView: View {
                     exercisesHeader
                 }
             }
+            // Drops the list's own top inset so the heading sits as high as the
+            // exercise intro screen's, which is a plain ScrollView.
+            .contentMargins(.top, 0, for: .scrollContent)
             .environment(\.editMode, $editMode)
 
             Button(action: onStart) {
