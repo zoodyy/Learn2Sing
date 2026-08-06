@@ -71,7 +71,9 @@ struct ScoresResetView: View {
     @State private var scored: [ScoredExercise] = []
 
     /// What the confirmation is currently asking about, nil when it's closed.
-    private enum Deletion {
+    /// Equatable so each row can present the dialog for its own case, which is
+    /// what points it at the row the user tapped.
+    private enum Deletion: Equatable {
         case one(id: UUID, name: String)
         case all
     }
@@ -98,6 +100,14 @@ struct ScoresResetView: View {
                         }
                         .foregroundStyle(.primary)
                         .settingHelp(L("Deletes the scores recorded for this exercise. The exercise itself is kept."))
+                        .resetConfirmation(
+                            $pending, for: .one(id: entry.id, name: entry.name),
+                            confirmLabel: L("Delete"),
+                            message: L("The scores recorded for “%@” will be deleted.", entry.name)
+                        ) {
+                            ScoreHistory.delete(for: entry.id)
+                            reload()
+                        }
                     }
                 }
             } header: {
@@ -112,25 +122,19 @@ struct ScoresResetView: View {
                 }
                 .disabled(scored.isEmpty)
                 .settingHelp(L("Deletes the scores of every exercise, including any left behind by exercises you have since deleted. The exercises themselves are kept."))
+                .resetConfirmation(
+                    $pending, for: .all,
+                    confirmLabel: L("Delete"),
+                    message: L("The scores recorded for every exercise will be deleted.")
+                ) {
+                    ScoreHistory.deleteAll()
+                    reload()
+                }
             }
         }
         .navigationTitle(L("Scores"))
         .navigationBarTitleDisplayMode(.inline)
         .onAppear(perform: reload)
-        .resetConfirmation($pending, confirmLabel: { _ in L("Delete") }) { deletion in
-            switch deletion {
-            case .one(_, let name):
-                L("The scores recorded for “%@” will be deleted.", name)
-            case .all:
-                L("The scores recorded for every exercise will be deleted.")
-            }
-        } perform: { deletion in
-            switch deletion {
-            case .one(let id, _): ScoreHistory.delete(for: id)
-            case .all: ScoreHistory.deleteAll()
-            }
-            reload()
-        }
     }
 
     /// The exercises that have at least one recorded score, in library order.
@@ -255,7 +259,9 @@ struct SettingsResetView: View {
     /// live store — not just UserDefaults — has to hear about it.
     @EnvironmentObject private var visualTemplates: VisualTemplateStore
 
-    private enum Reset {
+    /// Equatable so each row can present the dialog for its own case, which is
+    /// what points it at the row the user tapped.
+    private enum Reset: Equatable {
         case one(ResettableSettings)
         case all
     }
@@ -273,6 +279,14 @@ struct SettingsResetView: View {
                     }
                     .foregroundStyle(.primary)
                     .settingHelp(category.help)
+                    .resetConfirmation(
+                        $pending, for: .one(category),
+                        confirmLabel: L("Reset"),
+                        message: L("The settings under “%@” go back to how the app started out.",
+                                   category.title)
+                    ) {
+                        category.reset(store: store, templates: visualTemplates)
+                    }
                 }
             } header: {
                 Text("Categories")
@@ -285,23 +299,17 @@ struct SettingsResetView: View {
                     Label("Reset All Settings", systemImage: "arrow.counterclockwise")
                 }
                 .settingHelp(L("Puts every category above back at once. Your exercises, scores and routines are untouched."))
+                .resetConfirmation(
+                    $pending, for: .all,
+                    confirmLabel: L("Reset"),
+                    message: L("Every setting in the app goes back to how it started out.")
+                ) {
+                    ResettableSettings.allCases.forEach { $0.reset(store: store, templates: visualTemplates) }
+                }
             }
         }
         .navigationTitle(L("Settings"))
         .navigationBarTitleDisplayMode(.inline)
-        .resetConfirmation($pending, confirmLabel: { _ in L("Reset") }) { reset in
-            switch reset {
-            case .one(let category):
-                L("The settings under “%@” go back to how the app started out.", category.title)
-            case .all:
-                L("Every setting in the app goes back to how it started out.")
-            }
-        } perform: { reset in
-            switch reset {
-            case .one(let category): category.reset(store: store, templates: visualTemplates)
-            case .all: ResettableSettings.allCases.forEach { $0.reset(store: store, templates: visualTemplates) }
-            }
-        }
     }
 }
 
@@ -316,7 +324,9 @@ struct ExercisesResetView: View {
 
     @EnvironmentObject private var store: ExerciseStore
 
-    private enum Reset {
+    /// Equatable so each row can present the dialog for its own case, which is
+    /// what points it at the row the user tapped.
+    private enum Reset: Equatable {
         case own
         case downloaded
         case bundled(id: UUID, name: String)
@@ -344,12 +354,26 @@ struct ExercisesResetView: View {
                     pending = .own
                 }
                 .settingHelp(L("Deletes every exercise you created yourself, with its MIDI pattern and scores. Exercises that came with the app or from the Community tab are kept."))
+                .resetConfirmation(
+                    $pending, for: .own,
+                    confirmLabel: L("Delete"),
+                    message: L("Every exercise you created yourself will be deleted, along with its MIDI pattern and scores.")
+                ) {
+                    store.deleteOwnExercises()
+                }
 
                 countedButton(L("Delete Downloaded Exercises"), systemImage: "person.3",
                               count: store.downloadedExerciseIDs.count) {
                     pending = .downloaded
                 }
                 .settingHelp(L("Deletes every exercise you downloaded from the Community tab, with its MIDI pattern and scores. Your own exercises and the ones that came with the app are kept."))
+                .resetConfirmation(
+                    $pending, for: .downloaded,
+                    confirmLabel: L("Delete"),
+                    message: L("Every exercise you downloaded from the Community tab will be deleted, along with its MIDI pattern and scores.")
+                ) {
+                    store.deleteDownloadedExercises()
+                }
             } header: {
                 Text("Your exercises")
             }
@@ -374,6 +398,13 @@ struct ExercisesResetView: View {
                         }
                         .foregroundStyle(.primary)
                         .settingHelp(L("Puts this exercise back to how it came with the app, undoing your edits to its settings and its MIDI pattern."))
+                        .resetConfirmation(
+                            $pending, for: .bundled(id: entry.id, name: entry.name),
+                            confirmLabel: L("Revert"),
+                            message: L("“%@” goes back to how it came with the app.", entry.name)
+                        ) {
+                            store.revertBundled(entry.id)
+                        }
                     }
                 }
 
@@ -384,36 +415,19 @@ struct ExercisesResetView: View {
                 }
                 .disabled(changed.isEmpty)
                 .settingHelp(L("Puts every exercise that came with the app back to how it shipped, bringing back any you deleted."))
+                .resetConfirmation(
+                    $pending, for: .allBundled,
+                    confirmLabel: L("Revert"),
+                    message: L("Every exercise that came with the app goes back to how it shipped, and any you deleted come back.")
+                ) {
+                    store.revertAllBundled()
+                }
             } header: {
                 Text("Bundled Exercises")
             }
         }
         .navigationTitle(L("Exercises"))
         .navigationBarTitleDisplayMode(.inline)
-        .resetConfirmation($pending, confirmLabel: { reset in
-            switch reset {
-            case .own, .downloaded: L("Delete")
-            case .bundled, .allBundled: L("Revert")
-            }
-        }) { reset in
-            switch reset {
-            case .own:
-                L("Every exercise you created yourself will be deleted, along with its MIDI pattern and scores.")
-            case .downloaded:
-                L("Every exercise you downloaded from the Community tab will be deleted, along with its MIDI pattern and scores.")
-            case .bundled(_, let name):
-                L("“%@” goes back to how it came with the app.", name)
-            case .allBundled:
-                L("Every exercise that came with the app goes back to how it shipped, and any you deleted come back.")
-            }
-        } perform: { reset in
-            switch reset {
-            case .own: store.deleteOwnExercises()
-            case .downloaded: store.deleteDownloadedExercises()
-            case .bundled(let id, _): store.revertBundled(id)
-            case .allBundled: store.revertAllBundled()
-            }
-        }
     }
 
     /// A destructive row with the number of exercises it would delete on its
@@ -442,7 +456,9 @@ struct HomeResetView: View {
 
     @EnvironmentObject private var store: ExerciseStore
 
-    private enum Reset {
+    /// Equatable so each row can present the dialog for its own case, which is
+    /// what points it at the row the user tapped.
+    private enum Reset: Equatable {
         case favourites
         case routines
         case history
@@ -458,38 +474,43 @@ struct HomeResetView: View {
                     pending = .favourites
                 }
                 .settingHelp(L("Empties the Home tab's “Favourites” list. The exercises in it are kept."))
+                .resetConfirmation(
+                    $pending, for: .favourites,
+                    confirmLabel: L("Delete"),
+                    message: L("The Home tab's “Favourites” list will be emptied. The exercises in it are kept.")
+                ) {
+                    store.clearFavourites()
+                }
 
                 countedButton(L("Delete Routines"), systemImage: "list.number",
                               count: store.routines.count) {
                     pending = .routines
                 }
                 .settingHelp(L("Deletes every routine you assembled. The exercises they were made of are kept."))
+                .resetConfirmation(
+                    $pending, for: .routines,
+                    confirmLabel: L("Delete"),
+                    message: L("Every routine will be deleted. The exercises they were made of are kept.")
+                ) {
+                    store.clearRoutines()
+                }
 
                 countedButton(L("Clear Recently Played"), systemImage: "clock.arrow.circlepath",
                               count: store.recentlyPlayed.count) {
                     pending = .history
                 }
                 .settingHelp(L("Forgets what you played and when, emptying the Home tab's “Recent” list and the order “Recommended” picks by."))
+                .resetConfirmation(
+                    $pending, for: .history,
+                    confirmLabel: L("Delete"),
+                    message: L("Your play history will be forgotten, emptying the Home tab's “Recent” list.")
+                ) {
+                    store.clearPlayHistory()
+                }
             }
         }
         .navigationTitle(L("Home"))
         .navigationBarTitleDisplayMode(.inline)
-        .resetConfirmation($pending, confirmLabel: { _ in L("Delete") }) { reset in
-            switch reset {
-            case .favourites:
-                L("The Home tab's “Favourites” list will be emptied. The exercises in it are kept.")
-            case .routines:
-                L("Every routine will be deleted. The exercises they were made of are kept.")
-            case .history:
-                L("Your play history will be forgotten, emptying the Home tab's “Recent” list.")
-            }
-        } perform: { reset in
-            switch reset {
-            case .favourites: store.clearFavourites()
-            case .routines: store.clearRoutines()
-            case .history: store.clearPlayHistory()
-            }
-        }
     }
 
     /// A destructive row with the size of the list it would clear on its trailing
@@ -512,30 +533,39 @@ struct HomeResetView: View {
 private extension View {
     /// The confirmation every Reset action goes through: nothing is deleted until
     /// the user picks the destructive button here (dismissing the dialog any other
-    /// way cancels). `pending` holds what was asked for and is cleared whichever
-    /// way the dialog closes, so the same state drives both what is presented and
-    /// whether it's up at all. `confirmLabel` takes the action because one screen's
-    /// rows don't all do the same thing — reverting isn't deleting.
-    func resetConfirmation<Action>(
+    /// way cancels). `pending` holds what the screen was asked for and is cleared
+    /// whichever way the dialog closes.
+    ///
+    /// Applied to the *row* rather than to the screen, and each row names the
+    /// `action` it is the confirmation for: the dialog is drawn as a bubble
+    /// pointing at the view it's attached to, so anchoring it to the whole Form
+    /// left it pointing at nothing in particular. One row's dialog is up at a
+    /// time — the row whose `action` `pending` currently holds — which is the same
+    /// way the press-and-hold help in `settingHelp(_:)` points at its own row.
+    func resetConfirmation<Action: Equatable>(
         _ pending: Binding<Action?>,
-        confirmLabel: @escaping (Action) -> String,
-        message: @escaping (Action) -> String,
-        perform: @escaping (Action) -> Void
+        for action: Action,
+        confirmLabel: String,
+        message: String,
+        perform: @escaping () -> Void
     ) -> some View {
         confirmationDialog(
             Text(L("This can't be undone.")),
-            isPresented: Binding(get: { pending.wrappedValue != nil },
-                                 set: { if !$0 { pending.wrappedValue = nil } }),
-            titleVisibility: .visible,
-            presenting: pending.wrappedValue
-        ) { action in
-            Button(confirmLabel(action), role: .destructive) {
-                perform(action)
+            isPresented: Binding(
+                get: { pending.wrappedValue == action },
+                // Only this row's dialog closing clears the state; a row that
+                // isn't the presented one has no business cancelling it.
+                set: { if !$0 && pending.wrappedValue == action { pending.wrappedValue = nil } }
+            ),
+            titleVisibility: .visible
+        ) {
+            Button(confirmLabel, role: .destructive) {
+                perform()
                 pending.wrappedValue = nil
             }
             Button("Cancel", role: .cancel) { pending.wrappedValue = nil }
-        } message: { action in
-            Text(message(action))
+        } message: {
+            Text(message)
         }
     }
 }
