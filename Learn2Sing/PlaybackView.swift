@@ -1044,7 +1044,7 @@ struct PlaybackView: View {
         drawPlaybackScene(ctx: ctx, layout: layout, beat: beat, notes: notes, texts: texts,
                           trailPath: trailPath, singerPitch: singerPitch, settings: s,
                           repetition: repetition, safeTop: safeTop, safeBottom: safeBottom,
-                          playheadTop: playheadTop)
+                          playheadTop: playheadTop, repeatSpan: repeatSpan)
     }
 
     // MARK: - Teardown

@@ -149,6 +149,7 @@ struct PlaybackVisualsView: View {
     @AppStorage(VisualKeys.singerLineColor)  private var singerLineColor  = VisualDefaults.singerLineColor
     @AppStorage(VisualKeys.playheadColor)  private var playheadColor  = VisualDefaults.playheadColor
     @AppStorage(VisualKeys.playheadStyle)  private var playheadStyle  = VisualDefaults.playheadStyle
+    @AppStorage(VisualKeys.hideUnusedDots) private var hideUnusedDots = VisualDefaults.hideUnusedDots
     @AppStorage(VisualKeys.showRepetitionCounter)     private var showRepetitionCounter     = VisualDefaults.showRepetitionCounter
     @AppStorage(VisualKeys.repetitionCounterPosition) private var repetitionCounterPosition = VisualDefaults.repetitionCounterPosition
     @AppStorage(VisualKeys.hideTabBar)     private var hideTabBar     = VisualDefaults.hideTabBar
@@ -203,6 +204,7 @@ struct PlaybackVisualsView: View {
             singerLineColor: Color(hex: singerLineColor),
             playheadColor: Color(hex: playheadColor),
             playheadStyle: PlayheadStyle(rawValue: playheadStyle) ?? .line,
+            hideUnusedDots: hideUnusedDots,
             showRepetitionCounter: showRepetitionCounter,
             repetitionCounterPosition: RepetitionCounterPosition(rawValue: repetitionCounterPosition) ?? .bottomRight)
     }
@@ -211,11 +213,14 @@ struct PlaybackVisualsView: View {
     // scroll for a long while without running out. The notes sit well above the
     // default centre so "follow notes vertically" visibly recentres them.
     private static let demoPattern: [(pitch: Int, beat: Double)] = [(60, 0), (64, 1), (67, 2)]
+    /// One repetition of the motif, in beats — the fourth beat is the gap before the
+    /// next one. Passed to the renderer so "hide dots in unused pitches" can preview.
+    private static let demoRepeatSpan: Double = 4
     private let demoNotes: [MIDINote] = {
         var ns: [MIDINote] = []
         for k in 0..<200 {
             for note in PlaybackVisualsView.demoPattern {
-                ns.append(MIDINote(pitch: note.pitch, beat: Double(k) * 4 + note.beat, length: 0.9))
+                ns.append(MIDINote(pitch: note.pitch, beat: Double(k) * demoRepeatSpan + note.beat, length: 0.9))
             }
         }
         return ns
@@ -370,6 +375,10 @@ struct PlaybackVisualsView: View {
                     }
                 }
                 .settingHelp(L("“Line” draws one continuous line. “Dots” replaces it with a dot in the middle of every pitch."))
+                if playheadStyle == PlayheadStyle.dots.rawValue {
+                    Toggle("Hide dots in unused pitches", isOn: $hideUnusedDots)
+                        .settingHelp(L("Leaves a dot only on the pitches the repetition you're singing uses. The dots change to the next repetition's pitches as soon as its last note has finished."))
+                }
             } header: {
                 Text("Vertical line")
             }
@@ -587,7 +596,8 @@ struct PlaybackVisualsView: View {
                                   notes: demoNotes, texts: demoTexts,
                                   trailPath: trailPath, singerPitch: singer, settings: settings,
                                   repetition: (current: demoCurrent, total: demoTotal),
-                                  safeTop: topCrop, safeBottom: bottomCrop)
+                                  safeTop: topCrop, safeBottom: bottomCrop,
+                                  repeatSpan: Self.demoRepeatSpan)
             }
         }
     }

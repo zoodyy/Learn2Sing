@@ -32,6 +32,7 @@ struct VisualTemplate: Codable, Identifiable, Hashable {
     var singerLineColor: String
     var playheadColor: String
     var playheadStyle: String
+    var hideUnusedDots: Bool
     var showRepetitionCounter: Bool
     var repetitionCounterPosition: String
     var hideTabBar: Bool
@@ -43,7 +44,7 @@ struct VisualTemplate: Codable, Identifiable, Hashable {
          textColor: String, textFont: String,
          singerSize: Double, singerInnerColor: String,
          singerOuterColor: String, singerLineColor: String,
-         playheadColor: String, playheadStyle: String,
+         playheadColor: String, playheadStyle: String, hideUnusedDots: Bool,
          showRepetitionCounter: Bool, repetitionCounterPosition: String,
          hideTabBar: Bool) {
         self.id = id
@@ -66,6 +67,7 @@ struct VisualTemplate: Codable, Identifiable, Hashable {
         self.singerLineColor = singerLineColor
         self.playheadColor = playheadColor
         self.playheadStyle = playheadStyle
+        self.hideUnusedDots = hideUnusedDots
         self.showRepetitionCounter = showRepetitionCounter
         self.repetitionCounterPosition = repetitionCounterPosition
         self.hideTabBar = hideTabBar
@@ -96,6 +98,7 @@ struct VisualTemplate: Codable, Identifiable, Hashable {
         singerLineColor = try c.decodeIfPresent(String.self, forKey: .singerLineColor) ?? VisualDefaults.singerLineColor
         playheadColor = try c.decodeIfPresent(String.self, forKey: .playheadColor) ?? VisualDefaults.playheadColor
         playheadStyle = try c.decodeIfPresent(String.self, forKey: .playheadStyle) ?? VisualDefaults.playheadStyle
+        hideUnusedDots = try c.decodeIfPresent(Bool.self, forKey: .hideUnusedDots) ?? VisualDefaults.hideUnusedDots
         showRepetitionCounter = try c.decodeIfPresent(Bool.self, forKey: .showRepetitionCounter) ?? VisualDefaults.showRepetitionCounter
         repetitionCounterPosition = try c.decodeIfPresent(String.self, forKey: .repetitionCounterPosition) ?? VisualDefaults.repetitionCounterPosition
         hideTabBar = try c.decodeIfPresent(Bool.self, forKey: .hideTabBar) ?? VisualDefaults.hideTabBar
@@ -129,6 +132,7 @@ struct VisualTemplate: Codable, Identifiable, Hashable {
             singerLineColor: str(VisualKeys.singerLineColor, VisualDefaults.singerLineColor),
             playheadColor: str(VisualKeys.playheadColor, VisualDefaults.playheadColor),
             playheadStyle: str(VisualKeys.playheadStyle, VisualDefaults.playheadStyle),
+            hideUnusedDots: bool(VisualKeys.hideUnusedDots, VisualDefaults.hideUnusedDots),
             showRepetitionCounter: bool(VisualKeys.showRepetitionCounter, VisualDefaults.showRepetitionCounter),
             repetitionCounterPosition: str(VisualKeys.repetitionCounterPosition, VisualDefaults.repetitionCounterPosition),
             hideTabBar: bool(VisualKeys.hideTabBar, VisualDefaults.hideTabBar))
@@ -157,6 +161,7 @@ struct VisualTemplate: Codable, Identifiable, Hashable {
         d.set(singerLineColor, forKey: VisualKeys.singerLineColor)
         d.set(playheadColor, forKey: VisualKeys.playheadColor)
         d.set(playheadStyle, forKey: VisualKeys.playheadStyle)
+        d.set(hideUnusedDots, forKey: VisualKeys.hideUnusedDots)
         d.set(showRepetitionCounter, forKey: VisualKeys.showRepetitionCounter)
         d.set(repetitionCounterPosition, forKey: VisualKeys.repetitionCounterPosition)
         d.set(hideTabBar, forKey: VisualKeys.hideTabBar)

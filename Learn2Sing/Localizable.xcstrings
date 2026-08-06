@@ -10672,6 +10672,88 @@
         }
       }
     },
+    "Hide dots in unused pitches" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Punkte bei ungenutzten Tonhöhen ausblenden"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ocultar los puntos en las notas no usadas"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Masquer les points des hauteurs inutilisées"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nascondi i punti sulle altezze non usate"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "使わない音の点を隠す"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "사용하지 않는 음의 점 숨기기"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stippen bij ongebruikte toonhoogtes verbergen"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ukryj kropki przy nieużywanych wysokościach"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ocultar os pontos nas alturas não usadas"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Скрывать точки на неиспользуемых высотах"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dölj punkter på oanvända tonhöjder"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kullanılmayan perdelerdeki noktaları gizle"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "隐藏未使用音高的圆点"
+          }
+        }
+      }
+    },
     "Hide tab bar" : {
       "localizations" : {
         "de" : {
@@ -12818,6 +12900,89 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "不保存并离开"
+          }
+        }
+      }
+    },
+    "Leaves a dot only on the pitches the repetition you're singing uses. The dots change to the next repetition's pitches as soon as its last note has finished." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lässt nur auf den Tonhöhen einen Punkt, die die gerade gesungene Wiederholung nutzt. Die Punkte wechseln zu den Tonhöhen der nächsten Wiederholung, sobald die letzte Note der aktuellen verklungen ist."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deja un punto solo en las notas que usa la repetición que estás cantando. Los puntos pasan a las de la siguiente repetición en cuanto termina la última nota de la actual."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ne laisse un point que sur les hauteurs utilisées par la répétition que vous chantez. Les points passent à celles de la répétition suivante dès que la dernière note de l’actuelle est terminée."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lascia un punto solo sulle altezze usate dalla ripetizione che stai cantando. I punti passano a quelle della ripetizione successiva appena l’ultima nota di quella attuale è finita."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "いま歌っている繰り返しで使う音にだけ点を残します。現在の繰り返しの最後の音が鳴り終わると、点は次の繰り返しの音に切り替わります。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "지금 부르는 반복에서 사용하는 음에만 점을 남깁니다. 현재 반복의 마지막 음이 끝나는 즉시 점이 다음 반복의 음으로 바뀝니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Laat alleen een stip staan op de toonhoogtes die de herhaling die je zingt gebruikt. De stippen gaan naar die van de volgende herhaling zodra de laatste noot van de huidige klaar is."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zostawia kropkę tylko na wysokościach używanych przez śpiewane powtórzenie. Kropki przechodzą na wysokości następnego powtórzenia, gdy tylko skończy się ostatnia nuta bieżącego."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deixa um ponto apenas nas alturas usadas pela repetição que você está cantando. Os pontos passam para as da próxima repetição assim que a última nota da atual termina."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Оставляет точку только на высотах, которые использует текущий повтор. Точки переходят к высотам следующего повтора, как только отзвучит последняя нота текущего."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lämnar en punkt bara på de tonhöjder som repetitionen du sjunger använder. Punkterna byter till nästa repetitions tonhöjder så snart den aktuellas sista ton har tystnat."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Yalnızca söylediğiniz tekrarın kullandığı perdelerde nokta bırakır. Geçerli tekrarın son notası biter bitmez noktalar sonraki tekrarın perdelerine geçer."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "只在当前所唱重复用到的音高上保留圆点。当前重复的最后一个音结束后，圆点立即切换到下一次重复的音高。"
           }
         }
       }

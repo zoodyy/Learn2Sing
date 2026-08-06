@@ -114,6 +114,7 @@ enum VisualKeys {
     static let singerLineColor   = "vis_singerLineColor"
     static let playheadColor  = "vis_playheadColor"
     static let playheadStyle  = "vis_playheadStyle"
+    static let hideUnusedDots = "vis_hideUnusedDots"
     static let showRepetitionCounter    = "vis_showRepetitionCounter"
     static let repetitionCounterPosition = "vis_repetitionCounterPosition"
     static let hideTabBar     = "vis_hideTabBar"
@@ -124,7 +125,7 @@ enum VisualKeys {
         noteColor, playingNoteColor, noteRoundness, verticalZoom, horizontalZoom,
         followVertical, showLines, background, showKeyboard, showPitches,
         textColor, textFont, singerSize, singerInnerColor, singerOuterColor,
-        singerLineColor, playheadColor, playheadStyle,
+        singerLineColor, playheadColor, playheadStyle, hideUnusedDots,
         showRepetitionCounter, repetitionCounterPosition, hideTabBar,
     ]
 }
@@ -150,6 +151,7 @@ enum VisualDefaults {
     static let singerLineColor   = "#00FFFFB2"  // cyan at ~70% opacity, the original trail
     static let playheadColor  = "#FFFFFFFF"     // white, the original playhead line
     static let playheadStyle  = PlayheadStyle.line.rawValue
+    static let hideUnusedDots = false
     static let showRepetitionCounter    = false
     static let repetitionCounterPosition = RepetitionCounterPosition.bottomRight.rawValue
     static let hideTabBar     = false
@@ -191,6 +193,9 @@ struct VisualSettings {
     var singerLineColor: Color
     var playheadColor: Color
     var playheadStyle: PlayheadStyle
+    /// "Dots" style only: draw a dot on just those rows a note of the current
+    /// repetition passes through, instead of on every row.
+    var hideUnusedDots: Bool
     var showRepetitionCounter: Bool
     var repetitionCounterPosition: RepetitionCounterPosition
     // Hides the tab bar while an exercise plays. Not part of the drawn scene (so the
@@ -224,6 +229,7 @@ struct VisualSettings {
             playheadColor: Color(hex: str(VisualKeys.playheadColor, VisualDefaults.playheadColor)),
             playheadStyle: PlayheadStyle(
                 rawValue: str(VisualKeys.playheadStyle, VisualDefaults.playheadStyle)) ?? .line,
+            hideUnusedDots: bool(VisualKeys.hideUnusedDots, VisualDefaults.hideUnusedDots),
             showRepetitionCounter: bool(VisualKeys.showRepetitionCounter, VisualDefaults.showRepetitionCounter),
             repetitionCounterPosition: RepetitionCounterPosition(
                 rawValue: str(VisualKeys.repetitionCounterPosition, VisualDefaults.repetitionCounterPosition)) ?? .bottomRight,
@@ -284,6 +290,34 @@ final class VerticalFollower {
     func reset() { shown = nil }
 }
 
+// MARK: - Repetition pitches (for the "hide dots in unused pitches" option)
+
+/// The pitches a note lands on during the repetition that is currently being sung.
+/// `repeatSpan` is one repetition's length in beats — including any silence between
+/// repetitions — as used to expand the pattern; with 0 (content that doesn't repeat)
+/// every note counts.
+///
+/// The switch to the next repetition happens as soon as the current one's last note
+/// has stopped sounding, rather than at the span boundary, so during the silence
+/// between two repetitions the dots already show the one about to start. The final
+/// repetition keeps its pitches once it ends — there is nothing after it to show.
+func repetitionPitches(notes: [MIDINote], beat: Double, repeatSpan: Double) -> Set<Int> {
+    guard repeatSpan > 0 else { return Set(notes.map(\.pitch)) }
+    var pitches: [Int: Set<Int>] = [:]   // repetition index → the pitches it uses
+    var lastEnd: [Int: Double] = [:]     // repetition index → beat its last note stops
+    for note in notes {
+        let rep = Int(floor(note.beat / repeatSpan + 1e-6))
+        pitches[rep, default: []].insert(note.pitch)
+        lastEnd[rep] = max(lastEnd[rep] ?? -.infinity, note.beat + note.length)
+    }
+    // Clamped so the lead-in (a negative beat) shows the first repetition's dots and
+    // anything past the end keeps the last one's.
+    guard let firstRep = pitches.keys.min(), let lastRep = pitches.keys.max() else { return [] }
+    var index = min(max(Int(floor(beat / repeatSpan)), firstRep), lastRep)
+    if let end = lastEnd[index], beat >= end, index < lastRep { index += 1 }
+    return pitches[index] ?? []
+}
+
 // MARK: - Shared scene renderer
 
 /// Draws the scrolling note scene used by both the live playback screen and the
@@ -296,13 +330,15 @@ final class VerticalFollower {
 /// and `safeBottom` keep that badge clear of on-screen chrome in the live view.
 /// `playheadTop` is the y at which the playhead line begins, so the live view can stop
 /// it level with the top of the toolbar buttons instead of running to the screen edge.
+/// `repeatSpan` is one repetition's length in beats, needed only by the dotted
+/// playhead's "hide dots in unused pitches" option to tell the repetitions apart.
 func drawPlaybackScene(ctx: GraphicsContext, layout: SceneLayout, beat: Double,
                        notes: [MIDINote], texts: [MIDIText],
                        trailPath: Path, singerPitch: Double?,
                        settings: VisualSettings,
                        repetition: (current: Int, total: Int)? = nil,
                        safeTop: CGFloat = 0, safeBottom: CGFloat = 0,
-                       playheadTop: CGFloat = 0) {
+                       playheadTop: CGFloat = 0, repeatSpan: Double = 0) {
     let size = layout.size
     let pianoW = layout.pianoW
     let rowH = layout.rowH
@@ -464,9 +500,15 @@ func drawPlaybackScene(ctx: GraphicsContext, layout: SceneLayout, beat: Double,
         var glow = Path()
         // One dot per named row; with names hidden, every row between the toolbar
         // and the bottom edge gets one.
-        let dotPitches = namePitches.isEmpty
+        var dotPitches = namePitches.isEmpty
             ? (lo...hi).filter { (headTop...size.height).contains(layout.y(Double($0))) }
             : namePitches
+        // "Hide dots in unused pitches": keep only the rows a note of the repetition
+        // being sung passes through, so the dots spell out the coming pattern.
+        if settings.hideUnusedDots {
+            let used = repetitionPitches(notes: notes, beat: beat, repeatSpan: repeatSpan)
+            dotPitches = dotPitches.filter { used.contains($0) }
+        }
         for pitch in dotPitches {
             let y = layout.y(Double(pitch))
             dots.addEllipse(in: CGRect(x: layout.playheadX - r, y: y - r,
