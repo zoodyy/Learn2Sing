@@ -201,8 +201,12 @@ struct ExerciseReviewView: View {
     /// opening framing, and either way kept over the content — so a rotation that
     /// changes what fits on screen can't leave the view stranded off the end.
     private func resolvedCamera(size: CGSize) -> Camera {
-        var cam = camera ?? framedCamera(size: size)
-        clamp(&cam, size: size)
+        resolvedCamera(size: size, content: measureContent())
+    }
+
+    private func resolvedCamera(size: CGSize, content: Content) -> Camera {
+        var cam = camera ?? framedCamera(size: size, content: content)
+        clamp(&cam, size: size, content: content)
         return cam
     }
 
@@ -210,8 +214,7 @@ struct ExerciseReviewView: View {
     /// (rather than the silent lead-in the recording also covers), centred on the
     /// notes' own pitch range — a stray label or a stray detected pitch shouldn't
     /// be what decides where the review starts.
-    private func framedCamera(size: CGSize) -> Camera {
-        let content = measureContent()
+    private func framedCamera(size: CGSize, content: Content) -> Camera {
         let pitches = notes.map(\.pitch)
         let center: Double
         if let low = pitches.min(), let high = pitches.max() {
@@ -225,29 +228,45 @@ struct ExerciseReviewView: View {
         return Camera(playheadBeat: playhead, centerPitch: center)
     }
 
-    /// How far the drawn content reaches, as the camera limits. In time it covers
-    /// the recording as well as the notes — the run starts singing during the
-    /// lead-in, and all of it should be reachable. In pitch it deliberately
-    /// doesn't: the sung line is drawn pinned to the top or bottom edge when it
-    /// leaves the view, so it is never lost, while letting one stray estimate
-    /// stretch the limits would leave the view free to drift off the exercise.
-    private func measureContent() -> (beats: ClosedRange<Double>, pitches: ClosedRange<Double>) {
+    /// How far the drawn content reaches, as the camera limits.
+    private struct Content {
+        /// The stretch the playhead may travel, so every note and every part of the
+        /// sung line can be brought under it. Each end is whichever of the two — the
+        /// exercise or the line — reaches further.
+        var beats: ClosedRange<Double>
+        var pitches: ClosedRange<Double>
+    }
+
+    /// Measures those limits. Samples with no detected pitch don't count towards
+    /// the line's ends: it only starts where the singer did, not at the silent
+    /// lead-in the recording also covers.
+    ///
+    /// In pitch the limits deliberately ignore the line: it is drawn pinned to the
+    /// top or bottom edge when it leaves the view, so it is never lost, while
+    /// letting one stray estimate stretch the limits would leave the view free to
+    /// drift off the exercise.
+    private func measureContent() -> Content {
         let delay = micDelayBeats(micDelayMs, bpm: bpm)
-        var firstBeat = notes.first?.beat ?? 0
-        var lastBeat = firstBeat
+        var firstBeat = Double.infinity
+        var lastBeat = -Double.infinity
         for note in notes {
             firstBeat = min(firstBeat, note.beat)
             lastBeat = max(lastBeat, note.beat + note.length)
         }
         for label in texts {
             firstBeat = min(firstBeat, label.beat)
-            lastBeat = max(lastBeat, label.beat + 2)   // rough allowance for its width
+            lastBeat = max(lastBeat, label.beat)
         }
-        if let first = samples.first { firstBeat = min(firstBeat, first.beat - delay) }
-        if let last = samples.last { lastBeat = max(lastBeat, last.beat - delay) }
+        if let sung = samples.first(where: { $0.pitch != nil }) {
+            firstBeat = min(firstBeat, sung.beat - delay)
+        }
+        if let sung = samples.last(where: { $0.pitch != nil }) {
+            lastBeat = max(lastBeat, sung.beat - delay)
+        }
+        if firstBeat > lastBeat { firstBeat = 0; lastBeat = 0 }   // nothing drawn at all
 
-        var lowPitch = Double(notes.first?.pitch ?? texts.first?.pitch ?? (hiPitch + loPitch) / 2)
-        var highPitch = lowPitch
+        var lowPitch = Double.infinity
+        var highPitch = -Double.infinity
         for note in notes {
             lowPitch = min(lowPitch, Double(note.pitch))
             highPitch = max(highPitch, Double(note.pitch))
@@ -256,18 +275,22 @@ struct ExerciseReviewView: View {
             lowPitch = min(lowPitch, Double(label.pitch))
             highPitch = max(highPitch, Double(label.pitch))
         }
-        return (min(firstBeat, lastBeat)...max(firstBeat, lastBeat),
-                min(lowPitch, highPitch)...max(lowPitch, highPitch))
+        if lowPitch > highPitch {
+            lowPitch = Double(hiPitch + loPitch) / 2
+            highPitch = lowPitch
+        }
+        return Content(beats: firstBeat...lastBeat, pitches: lowPitch...highPitch)
     }
 
     /// A one-finger drag: the content follows the finger on both axes.
     private func pan(by delta: CGSize) {
         let size = canvasSize
         guard size.width > 0, size.height > 0 else { return }
-        var cam = resolvedCamera(size: size)
+        let content = measureContent()
+        var cam = resolvedCamera(size: size, content: content)
         cam.playheadBeat -= Double(delta.width / beatWidth(zoom: cam.horizontalZoom))
         cam.centerPitch += Double(delta.height / rowHeight(size: size, zoom: cam.verticalZoom))
-        clamp(&cam, size: size)
+        clamp(&cam, size: size, content: content)
         camera = cam
     }
 
@@ -276,7 +299,8 @@ struct ExerciseReviewView: View {
     private func zoom(by factor: CGFloat, axis: Axis, around point: CGPoint) {
         let size = canvasSize
         guard size.width > 0, size.height > 0, factor > 0 else { return }
-        var cam = resolvedCamera(size: size)
+        let content = measureContent()
+        var cam = resolvedCamera(size: size, content: content)
         switch axis {
         case .horizontal:
             let offset = point.x - playheadX(size: size)
@@ -291,7 +315,7 @@ struct ExerciseReviewView: View {
             cam.centerPitch = anchorPitch
                 + Double(offset / rowHeight(size: size, zoom: cam.verticalZoom))
         }
-        clamp(&cam, size: size)
+        clamp(&cam, size: size, content: content)
         camera = cam
     }
 
@@ -309,32 +333,23 @@ struct ExerciseReviewView: View {
                    Double(rowHeightRange.upperBound / base))
     }
 
-    /// Keeps the camera over the content: the visible window may reach a beat and a
-    /// row past it on each side, and content that doesn't fill the window is
+    /// Keeps the camera over the content. Horizontally the limits are on the
+    /// playhead rather than on the visible window: it is the cursor the singer
+    /// reads the run with, so it has to be able to travel the whole way from the
+    /// first thing drawn to the last. Vertically the window may reach a row past
+    /// the content on each side, and content that doesn't fill the window is
     /// centred in it instead of being free to drift around.
-    private func clamp(_ cam: inout Camera, size: CGSize) {
-        let content = measureContent()
-
-        let beatPx = beatWidth(zoom: cam.horizontalZoom)
-        let noteAreaX = playheadX(size: size) - keyboardWidth
-        guard beatPx > 0 else { return }
-        let visibleBeats = Double((size.width - keyboardWidth) / beatPx)
-        let firstBeat = content.beats.lowerBound - 1
-        let lastBeat = content.beats.upperBound + 1
-        // Work in the beat at the left edge of the note area — that's the end of
-        // the content the limits are about — then convert back to the playhead.
-        var left = cam.playheadBeat - Double(noteAreaX / beatPx)
-        left = lastBeat - firstBeat <= visibleBeats
-            ? (firstBeat + lastBeat - visibleBeats) / 2
-            : min(max(left, firstBeat), lastBeat - visibleBeats)
-        cam.playheadBeat = left + Double(noteAreaX / beatPx)
+    private func clamp(_ cam: inout Camera, size: CGSize, content: Content) {
+        cam.playheadBeat = min(max(cam.playheadBeat, content.beats.lowerBound),
+                               content.beats.upperBound)
 
         let rowH = rowHeight(size: size, zoom: cam.verticalZoom)
         guard rowH > 0 else { return }
         let visibleRows = Double(size.height / rowH)
         let lowPitch = content.pitches.lowerBound - 1
         let highPitch = content.pitches.upperBound + 1
-        // Same again vertically, working in the pitch at the top edge.
+        // Worked out in the pitch at the top edge of the window, since it is the
+        // window — not the cursor — that the vertical limits are about.
         var top = cam.centerPitch + visibleRows / 2
         top = highPitch - lowPitch <= visibleRows
             ? (lowPitch + highPitch + visibleRows) / 2
