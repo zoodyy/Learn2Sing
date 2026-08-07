@@ -69,16 +69,33 @@ final class PitchDetector: ObservableObject {
     private var window = [Float](repeating: 0, count: 2048)
     private var filled = 0
 
-    // Scratch space for the decimated copy of the window used by the coarse pitch
-    // search, and for that search's correlation curve. Preallocated so the tap
-    // callback never allocates.
+    // Scratch space for the mean-free copy of the window, its decimated version used
+    // by the coarse pitch search, that search's correlation curve, and the running
+    // energy totals both searches normalise with. Preallocated so the tap callback
+    // never allocates.
+    private var analysis = [Float](repeating: 0, count: 2048)
     private var decimated = [Float](repeating: 0, count: 2048)
-    private var coarseCorr = [Float](repeating: 0, count: 2048)
+    private var coarseCurve = [Float](repeating: 0, count: 2048)
+    private var energyPrefix = [Float](repeating: 0, count: 2049)
+    private var coarseEnergyPrefix = [Float](repeating: 0, count: 2049)
     /// How many coarse peaks at most get re-scored at the full sample rate. Real
     /// singing produces two or three; the cap only bounds the cost on noise.
     private let maxRefinements = 8
+    private var candidateLags = [Int](repeating: 0, count: 8)      // maxRefinements
+    private var candidateScores = [Float](repeating: 0, count: 8)  // maxRefinements
     /// A coarse peak this close to the tallest one is a candidate for the fine pass.
     private let candidateThreshold: Float = 0.6
+    /// A refined peak scoring this close to the best one wins if its lag is shorter,
+    /// which is how an exact multiple of the period is kept from reading an octave low.
+    private let octaveThreshold: Float = 0.9
+    /// Normalised correlation needed to start showing a pitch, and (lower, so a held
+    /// note doesn't flicker out) to keep showing one. Measured against synthesised
+    /// voices from clean to very breathy: real notes score from 1.0 down to about
+    /// 0.38, while the ambiguous windows at a note's edges score below 0.2, so this
+    /// sits in the gap. `clarityToHold` matches the sensitivity of the plain
+    /// correlation test it replaces, so nothing that used to be tracked drops out.
+    private let clarityToStart: Float = 0.45
+    private let clarityToHold: Float = 0.30
     /// How far the window is decimated before the coarse search — chosen in `beginTap`
     /// from the microphone's sample rate so the reduced rate stays around 12 kHz,
     /// comfortably above twice the highest pitch we look for.
@@ -92,6 +109,10 @@ final class PitchDetector: ObservableObject {
     /// display can show, and the view eases between them.
     private let analysisInterval = 0.01
     private var sinceAnalysis = 0
+    /// Whether the last analysis found a pitch, so the clarity bar can be lower for
+    /// keeping one than for starting one. Touched only from the tap callback (and
+    /// reset in `beginTap`, before the tap exists), so it needs no lock.
+    private var pitchIsShowing = false
 
     func start() {
         guard !running else { return }
@@ -121,6 +142,7 @@ final class PitchDetector: ObservableObject {
 
         filled = 0
         sinceAnalysis = 0
+        pitchIsShowing = false
         // Reduce to ~12 kHz for the coarse search (the fine pass runs at full rate),
         // averaging the samples that are folded together so nothing aliases down.
         decimation = max(1, min(4, Int(sampleRate / 12_000.0)))
@@ -219,7 +241,8 @@ final class PitchDetector: ObservableObject {
         os_unfair_lock_unlock(&clapsLock)
     }
 
-    /// Find the lag (period) whose autocorrelation is strongest over the vocal range.
+    /// Find the lag (period) whose normalised correlation is strongest over the vocal
+    /// range.
     ///
     /// Scoring every lag at the full sample rate costs upwards of a million
     /// multiply-adds per analysis, on a real-time thread, whenever the singer is
@@ -228,90 +251,149 @@ final class PitchDetector: ObservableObject {
     /// the handful of lags around the winner are re-scored at full rate, with every
     /// inner loop handed to vDSP's vector units. Same answer, a tiny fraction of the
     /// work, and no dependence on the build's optimisation level.
+    ///
+    /// Lags are scored as a *normalised* correlation (McLeod's NSDF: twice the
+    /// correlation over the energy of the two spans it overlaps) rather than a bare
+    /// dot product. A bare dot product is biased towards short lags — it sums fewer
+    /// terms the further it reaches, and, more damagingly, when the window is not
+    /// stationary the sound only overlaps itself at short lags at all. That is exactly
+    /// the situation at the moment a note starts or stops: the voice fills one end of
+    /// the window and silence the other, so the tallest raw peak sits on the shoulder
+    /// of lag 0 and the note reads back an octave or more too high. Normalising takes
+    /// the energy of each span out of the comparison, so a half-filled window scores
+    /// what it actually contains.
     private func analyze(sampleRate: Double, minFreq: Double, maxFreq: Double, maxLag: Int) {
         let count = windowSize
+        let hadPitch = pitchIsShowing
+        func emit(_ value: Double?) {
+            pitchIsShowing = value != nil
+            publish(value)
+        }
 
         // RMS gate — ignore silence / background noise.
         var sumSq: Float = 0
         vDSP_svesq(window, 1, &sumSq, vDSP_Length(count))
         let rms = sqrtf(sumSq / Float(count))
-        guard rms > 0.012, sumSq > 0 else { publish(nil); return }
+        guard rms > 0.012, sumSq > 0 else { emit(nil); return }
 
         let minLag = max(1, Int(sampleRate / maxFreq))
-        guard maxLag > minLag else { publish(nil); return }
+        guard maxLag > minLag else { emit(nil); return }
+
+        // Analyse a mean-free copy: any DC offset keeps the correlation curve positive
+        // at every lag, and the candidate gate below needs to see where it dips.
+        var mean: Float = 0
+        vDSP_meanv(window, 1, &mean, vDSP_Length(count))
+        var negMean = -mean
+        vDSP_vsadd(window, 1, &negMean, &analysis, 1, vDSP_Length(count))
+
+        // Reduce for the coarse search, averaging the samples that are folded together
+        // so nothing aliases down. (A decimation of 1 makes this a plain copy, which
+        // keeps slow sample rates on the same code path.)
+        let decim = decimation
+        let dCount = count / decim
+        vDSP_desamp(analysis, vDSP_Stride(decim), decimFilter, &decimated,
+                    vDSP_Length(dCount), vDSP_Length(decim))
+
+        // Running energy totals, so normalising a lag costs two lookups.
+        fillEnergyPrefix(analysis, count: count, into: &energyPrefix)
+        fillEnergyPrefix(decimated, count: dCount, into: &coarseEnergyPrefix)
+
+        let coarseLo = max(1, minLag / decim)
+        let coarseHi = min(dCount - 1, maxLag / decim)
+        guard coarseHi > coarseLo else { emit(nil); return }
 
         // ── Coarse search on the decimated window ─────────────────────────────
-        let decim = decimation
-        var coarseLo = 0
-        var coarseHi = -1
-        var coarseMax: Float = 0
-        if decim > 1 {
-            let dCount = count / decim
-            coarseLo = max(1, minLag / decim)
-            coarseHi = min(dCount - 1, maxLag / decim)
-            guard coarseHi > coarseLo else { publish(nil); return }
-
-            window.withUnsafeBufferPointer { src in
-                decimated.withUnsafeMutableBufferPointer { dst in
-                    vDSP_desamp(src.baseAddress!, vDSP_Stride(decim), decimFilter,
-                                dst.baseAddress!, vDSP_Length(dCount), vDSP_Length(decim))
-                }
+        // Scored from lag 1 — below the shortest period we look for — because where
+        // the curve first crosses zero is what separates the descending shoulder of
+        // lag 0 (every signal correlates with a slightly shifted copy of itself) from
+        // a genuine period peak. Only lags past that crossing can be periods.
+        var gate = -1
+        decimated.withUnsafeBufferPointer { buf in
+            let p = buf.baseAddress!
+            for lag in 1...coarseHi {
+                var dot: Float = 0
+                vDSP_dotpr(p, 1, p + lag, 1, &dot, vDSP_Length(dCount - lag))
+                let energy = coarseEnergyPrefix[dCount - lag]
+                    + (coarseEnergyPrefix[dCount] - coarseEnergyPrefix[lag])
+                let score = energy > 0 ? 2 * dot / energy : 0
+                coarseCurve[lag] = score
+                if gate < 0, score < 0 { gate = lag }
             }
-            decimated.withUnsafeBufferPointer { src in
-                coarseCorr.withUnsafeMutableBufferPointer { out in
-                    let p = src.baseAddress!
-                    for lag in coarseLo...coarseHi {
-                        var c: Float = 0
-                        vDSP_dotpr(p, 1, p + lag, 1, &c, vDSP_Length(dCount - lag))
-                        out[lag] = c
-                        if c > coarseMax { coarseMax = c }
-                    }
-                }
-            }
-            guard coarseMax > 0 else { publish(nil); return }
         }
+        // Never dipping means nothing in the window repeats at a period we care about
+        // — it's all still shoulder, which is what an onset or a release looks like.
+        guard gate >= 0 else { emit(nil); return }
+
+        let searchLo = max(coarseLo, gate)
+        guard searchLo < coarseHi else { emit(nil); return }
+        var coarseMax: Float = 0
+        for lag in searchLo...coarseHi where coarseCurve[lag] > coarseMax {
+            coarseMax = coarseCurve[lag]
+        }
+        guard coarseMax > 0 else { emit(nil); return }
+
+        // Every *near*-tallest coarse peak is kept, not just the tallest one.
+        // Quantising the lag attenuates a peak whose period isn't a whole number of
+        // decimated samples, and that alone can leave an exact multiple of it — an
+        // octave down — looking taller. Re-scoring the candidates at full rate settles
+        // it the same way an undecimated search would.
+        var candidates = 0
+        for lag in searchLo...coarseHi {
+            if candidates >= maxRefinements { break }
+            let score = coarseCurve[lag]
+            guard score >= coarseMax * candidateThreshold else { continue }
+            // The bottom of the range is deliberately not allowed to count as a peak:
+            // a boundary is a local maximum of whatever is left of the curve, and the
+            // shoulder only ever descends, so it would hand back the highest pitch in
+            // range every time the window was anything but steady.
+            let prev = lag > 1 ? coarseCurve[lag - 1] : .infinity
+            let next = lag < coarseHi ? coarseCurve[lag + 1] : -.infinity
+            guard score >= prev, score >= next else { continue }   // local maximum only
+            candidateLags[candidates] = lag
+            candidates += 1
+        }
+        guard candidates > 0 else { emit(nil); return }
 
         // ── Fine search at the full sample rate ───────────────────────────────
         var refinedLag = 0.0
-        var bestCorr: Float = 0
-        window.withUnsafeBufferPointer { buf in
+        var clarity: Float = 0
+        analysis.withUnsafeBufferPointer { buf in
             let p = buf.baseAddress!
-            func corr(_ lag: Int) -> Float {
-                var c: Float = 0
-                vDSP_dotpr(p, 1, p + lag, 1, &c, vDSP_Length(count - lag))
-                return c
+            func score(_ lag: Int) -> Float {
+                var dot: Float = 0
+                vDSP_dotpr(p, 1, p + lag, 1, &dot, vDSP_Length(count - lag))
+                let energy = energyPrefix[count - lag] + (energyPrefix[count] - energyPrefix[lag])
+                return energy > 0 ? 2 * dot / energy : 0
             }
 
-            var best = -1
-            var bestC: Float = 0
-            func score(_ lag: Int) {
-                let c = corr(lag)
-                if c > bestC { bestC = c; best = lag }
-            }
-
-            if decim > 1 {
-                // Every *near*-tallest coarse peak gets re-scored, not just the tallest
-                // one. Quantising the lag attenuates a peak whose period isn't a whole
-                // number of decimated samples, and that alone can leave an exact
-                // multiple of it — an octave down — looking taller. Re-scoring the
-                // candidates at full rate settles it the same way an undecimated search
-                // would.
-                var refinements = 0
-                for lag in coarseLo...coarseHi {
-                    if refinements >= maxRefinements { break }
-                    let c = coarseCorr[lag]
-                    guard c >= coarseMax * candidateThreshold else { continue }
-                    let prev = lag > coarseLo ? coarseCorr[lag - 1] : 0
-                    let next = lag < coarseHi ? coarseCorr[lag + 1] : 0
-                    guard c >= prev, c >= next else { continue }   // local maximum only
-                    let center = lag * decim
-                    for l in max(minLag, center - decim)...min(maxLag, center + decim) {
-                        score(l)
-                    }
-                    refinements += 1
+            var bestScore: Float = 0
+            for i in 0..<candidates {
+                let center = candidateLags[i] * decim
+                let lo = max(minLag, center - decim)
+                let hi = min(maxLag, center + decim)
+                guard lo <= hi else { candidateScores[i] = 0; continue }
+                var peakLag = lo
+                var peakScore = -Float.greatestFiniteMagnitude
+                for lag in lo...hi {
+                    let s = score(lag)
+                    if s > peakScore { peakScore = s; peakLag = lag }
                 }
-            } else {
-                for lag in minLag...maxLag { score(lag) }
+                candidateLags[i] = peakLag                 // now a full-rate lag
+                candidateScores[i] = peakScore
+                if peakScore > bestScore { bestScore = peakScore }
+            }
+            guard bestScore > 0 else { return }
+
+            // Of the peaks that score about as well as the best one, take the one at
+            // the shortest lag. A whole multiple of the period correlates nearly as
+            // well as the period itself, so picking the tallest outright reads an
+            // octave (or a twelfth) low now and then.
+            var best = 0
+            var bestClarity: Float = 0
+            for i in 0..<candidates where candidateScores[i] >= bestScore * octaveThreshold {
+                best = candidateLags[i]
+                bestClarity = candidateScores[i]
+                break
             }
             guard best > 0 else { return }
 
@@ -320,23 +402,40 @@ final class PitchDetector: ObservableObject {
             // semitone and makes the singer's dot twitch.
             var delta = 0.0
             if best > minLag, best < maxLag {
-                let cm = Double(corr(best - 1))
-                let c0 = Double(bestC)
-                let cp = Double(corr(best + 1))
+                let cm = Double(score(best - 1))
+                let c0 = Double(bestClarity)
+                let cp = Double(score(best + 1))
                 let denom = cm - 2 * c0 + cp
                 if denom < 0 { delta = max(-0.5, min(0.5, 0.5 * (cm - cp) / denom)) }
             }
             refinedLag = Double(best) + delta
-            bestCorr = bestC
+            clarity = bestClarity
         }
 
-        guard refinedLag > 0 else { publish(nil); return }
-        // Reject weak / noisy peaks by comparing against the signal's own energy.
-        guard bestCorr / sumSq > 0.25 else { publish(nil); return }
+        guard refinedLag > 0 else { emit(nil); return }
+        // Reject weak / noisy peaks. Starting a note takes a clearer peak than keeping
+        // one does, so the ragged instant where a note is only part-way into the window
+        // shows nothing rather than a guess, while a held note doesn't drop out.
+        guard clarity >= (hadPitch ? clarityToHold : clarityToStart) else { emit(nil); return }
 
         let freq = sampleRate / refinedLag
         let midi = 69.0 + 12.0 * log2(freq / 440.0)
-        publish(midi)
+        emit(midi)
+    }
+
+    /// Fill `dst[k]` with the energy of the first `k` samples of `src`, so the energy
+    /// of any span of the window is a single subtraction. Accumulated in double
+    /// precision because the spans the normalisation asks for are differences between
+    /// totals that can be far apart in size.
+    private func fillEnergyPrefix(_ src: UnsafePointer<Float>, count: Int,
+                                  into dst: UnsafeMutablePointer<Float>) {
+        var running = 0.0
+        dst[0] = 0
+        for i in 0..<count {
+            let sample = Double(src[i])
+            running += sample * sample
+            dst[i + 1] = Float(running)
+        }
     }
 
     private func publish(_ value: Double?) {
