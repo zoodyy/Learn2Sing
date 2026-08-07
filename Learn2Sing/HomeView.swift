@@ -20,6 +20,9 @@ enum HomeCategories {
     static let all = [recent, routines, favourites, recommended]
 
     static let orderKey = "homeCategoryOrder"
+    /// The categories hidden from the tab, stored newline-joined like the order and
+    /// likewise carried in the profile JSON (see `UserSettings`).
+    static let hiddenKey = "homeHiddenCategories"
 
     /// A stored order as a category list: unknown names are dropped and any
     /// category the stored order predates is appended, so a list saved by an
@@ -38,6 +41,14 @@ enum HomeCategories {
     static var stored: [String] {
         get { parse(UserDefaults.standard.string(forKey: orderKey) ?? "") }
         set { UserDefaults.standard.set(raw(newValue), forKey: orderKey) }
+    }
+
+    /// The user's hidden categories as stored, read and written the same way and at
+    /// the same points as `stored`. Sorted on the way out so the stored string only
+    /// changes when the set does.
+    static var hidden: Set<String> {
+        get { Set((UserDefaults.standard.string(forKey: hiddenKey) ?? "").split(separator: "\n").map(String.init)) }
+        set { UserDefaults.standard.set(newValue.sorted().joined(separator: "\n"), forKey: hiddenKey) }
     }
 }
 
@@ -118,7 +129,7 @@ struct HomeView: View {
     /// screen. They vanish from the Home list entirely (not just their exercises)
     /// but stay on the edit screen so they can be brought back. Persisted as a
     /// newline-joined list, since a hidden category should stay hidden across launches.
-    @AppStorage("homeHiddenCategories") private var hiddenCategoriesRaw = ""
+    @AppStorage(HomeCategories.hiddenKey) private var hiddenCategoriesRaw = ""
 
     private var hiddenCategories: Set<String> {
         get { Set(hiddenCategoriesRaw.split(separator: "\n").map(String.init)) }

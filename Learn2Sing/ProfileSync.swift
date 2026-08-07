@@ -8,9 +8,9 @@
 import Foundation
 import Combine
 
-/// Keeps the user's profile (username, device ID, and the whole Exercises tab)
-/// mirrored on the server as a single JSON document, keyed by the private
-/// device ID shown in the profile settings. Because that ID lives in the
+/// Keeps the user's profile (username, device ID, the whole Exercises tab and
+/// the settings) mirrored on the server as a single JSON document, keyed by the
+/// private device ID shown in the profile settings. Because that ID lives in the
 /// Keychain it survives reinstalls, so a fresh install can fetch the profile
 /// back and restore the library.
 @MainActor
@@ -27,20 +27,29 @@ final class ProfileSync {
     private static let maxUploadBytes = 60_000
 
     private weak var store: ExerciseStore?
+    /// The live template store, so a restored profile's visual templates land in it
+    /// rather than only in UserDefaults, which it read once at launch.
+    private weak var visualTemplates: VisualTemplateStore?
     private var storeObservation: AnyCancellable?
+    private var settingsObservation: AnyCancellable?
     /// Uploads are held back until the initial restore attempt has finished so a
     /// fresh install can't overwrite the server profile with the seeded library.
     private var readyToUpload = false
     private let uploadTrigger = PassthroughSubject<Void, Never>()
     private var uploadDebounce: AnyCancellable?
+    /// The document the server last accepted, so a change that leaves the profile
+    /// looking exactly the same doesn't cost a request. Both the store and
+    /// UserDefaults change for plenty of reasons the profile doesn't record.
+    private var lastUploadedBody: Data?
 
     private init() {}
 
     /// Call once at launch: restores the profile on a fresh install, then keeps
-    /// the server copy up to date as the profile or exercises change.
-    func start(with store: ExerciseStore) async {
+    /// the server copy up to date as the profile, exercises or settings change.
+    func start(with store: ExerciseStore, templates: VisualTemplateStore) async {
         guard self.store == nil else { return }
         self.store = store
+        self.visualTemplates = templates
 
         // Coalesce bursts of edits into one upload.
         uploadDebounce = uploadTrigger
@@ -48,6 +57,13 @@ final class ProfileSync {
             .sink { Task { @MainActor in await ProfileSync.shared.upload() } }
         storeObservation = store.objectWillChange
             .sink { [weak self] _ in self?.scheduleUpload() }
+        // The settings live in UserDefaults rather than on the store, and every
+        // settings screen writes them straight through @AppStorage — so one
+        // observer covers the lot of them. It hears far more than the settings,
+        // but an upload that would send an unchanged document is dropped below.
+        settingsObservation = NotificationCenter.default
+            .publisher(for: UserDefaults.didChangeNotification)
+            .sink { _ in Task { @MainActor in ProfileSync.shared.scheduleUpload() } }
 
         await restoreIfNeeded()
         readyToUpload = true
@@ -65,8 +81,8 @@ final class ProfileSync {
     // MARK: - Upload
 
     /// Builds the full profile JSON (username + device ID + exercise library +
-    /// the Home tab's routines and favourites + every exercise's scores), saves
-    /// it locally, and POSTs it to the server.
+    /// the Home tab's routines and favourites + every exercise's scores + the
+    /// settings), saves it locally, and POSTs it to the server.
     private func upload() async {
         guard readyToUpload, let store else { return }
         var profile = UserProfile.load()
@@ -75,6 +91,8 @@ final class ProfileSync {
         guard let body = Self.uploadBody(for: profile),
               let url = URL(string: "\(Self.baseURL)/persist/\(profile.deviceID)/PROFILE")
         else { return }
+        // Nothing to say: the last document the server took is this one.
+        guard body != lastUploadedBody else { return }
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
@@ -83,7 +101,9 @@ final class ProfileSync {
             let (_, response) = try await URLSession.shared.data(for: request)
             if let http = response as? HTTPURLResponse, !(200...299).contains(http.statusCode) {
                 print("ProfileSync: upload failed with status \(http.statusCode)")
+                return
             }
+            lastUploadedBody = body
         } catch {
             print("ProfileSync: upload failed: \(error)")
         }
@@ -109,6 +129,9 @@ final class ProfileSync {
     private static func uploadBody(for profile: UserProfile) -> Data? {
         var profile = profile
         let encoder = JSONEncoder()
+        // Sorted keys so an unchanged profile encodes byte for byte the same way
+        // twice, which is what lets `upload()` recognise it as unchanged.
+        encoder.outputFormatting = [.sortedKeys]
         // Newest first, so trimming takes off the end.
         var runs = (profile.scores ?? [:])
             .flatMap { id, doc in doc.entries.map { DatedRun(exerciseID: id, entry: $0) } }
@@ -215,6 +238,12 @@ final class ProfileSync {
         }
         if let scores = remote.scores {
             ScoreHistory.merge(scores.mapValues(\.entries))
+        }
+        // The settings, last: they are the one part that replaces rather than
+        // merges — a setting has a single value, and the restored one is it. The
+        // app's language isn't among them; it stays as this device has it.
+        if let settings = remote.settings, let visualTemplates {
+            settings.apply(store: store, templates: visualTemplates)
         }
     }
 }

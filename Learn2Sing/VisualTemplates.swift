@@ -236,6 +236,27 @@ final class VisualTemplateStore: ObservableObject {
         selectedID != nil || templates.contains(where: \.matchesCurrent)
     }
 
+    /// The saved templates as stored, read when building the profile JSON. The list
+    /// is written on every change, so this is what the live store holds.
+    static var stored: [VisualTemplate] {
+        guard let data = UserDefaults.standard.data(forKey: storageKey),
+              let decoded = try? JSONDecoder().decode([VisualTemplate].self, from: data)
+        else { return [] }
+        return decoded
+    }
+
+    /// Replaces the templates and the selection with a restored profile's, without
+    /// applying the selected one: the playback-visual settings are restored from the
+    /// same profile alongside this (see `UserSettings.apply`), so they already hold
+    /// the selected template's values. A selection naming a template that isn't in
+    /// the restored list is dropped, exactly as `init` drops a stale one.
+    func restore(_ restored: [VisualTemplate], selectedID: UUID?) {
+        templates = restored
+        persist()
+        self.selectedID = restored.contains { $0.id == selectedID } ? selectedID : nil
+        persistSelection()
+    }
+
     /// The template shipped in the app bundle: the playback look a fresh install
     /// starts on, which is also what Settings ▸ Reset puts the visuals back to.
     static var bundledTemplate: VisualTemplate? {

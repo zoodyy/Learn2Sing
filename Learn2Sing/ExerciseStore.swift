@@ -487,6 +487,16 @@ final class ExerciseStore: ObservableObject {
         saveWhitelist()
     }
 
+    /// Replaces the whitelist with one restored from the server. Unlike the Home
+    /// tab's routines and favourites this is a setting rather than a list the user
+    /// adds to, so the restored value simply wins — including over the bundled
+    /// exercises a fresh install seeds it with.
+    func restoreRecommendationWhitelist(_ restored: Set<UUID>) {
+        guard restored != recommendationWhitelist else { return }
+        recommendationWhitelist = restored
+        saveWhitelist()
+    }
+
     /// Add the exercise to the recommendation pool, or remove it if already in it.
     /// Backs the picker's tap-to-select rows, which is why membership toggles.
     func toggleWhitelisted(_ exerciseID: UUID) {

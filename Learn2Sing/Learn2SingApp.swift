@@ -20,7 +20,7 @@ struct Learn2SingApp: App {
                 // sync starts after the restore so a fresh install shares its
                 // restored public exercises instead of an empty list.
                 .task {
-                    await ProfileSync.shared.start(with: store)
+                    await ProfileSync.shared.start(with: store, templates: visualTemplates)
                     await CommunitySync.shared.start(with: store)
                 }
         }
