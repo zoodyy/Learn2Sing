@@ -562,8 +562,8 @@ struct PlaybackVisualsView: View {
             Canvas { ctx, size in
                 let baseRowH = size.height / CGFloat(hiPitch - loPitch + 1)
                 let rowH = baseRowH * CGFloat(settings.verticalZoom)
-                let beatPx = 40 * CGFloat(settings.horizontalZoom)
-                let pW: CGFloat = settings.showKeyboard ? 38 : 0
+                let beatPx = playbackBeatWidth * CGFloat(settings.horizontalZoom)
+                let pW: CGFloat = settings.showKeyboard ? playbackKeyboardWidth : 0
                 let center = settings.followNotesVertically
                     ? demoCenter
                     : Double(hiPitch + loPitch) / 2

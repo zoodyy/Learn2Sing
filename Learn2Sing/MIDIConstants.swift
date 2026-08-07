@@ -26,6 +26,12 @@ func isBlack(_ pitch: Int) -> Bool {
 /// only shifts how the score is computed — playback and visuals are untouched.
 let microphoneDelayKey = "microphoneDelayMs"
 
+/// The microphone-delay setting expressed in beats at `bpm`. Scoring treats every
+/// note as sounding this much later than it is drawn, which is the same comparison
+/// as treating the detected pitch as having happened this much *earlier* — which is
+/// how the review screen lines the sung line up with the notes.
+func micDelayBeats(_ ms: Double, bpm: Double) -> Double { ms / 1000.0 * bpm / 60.0 }
+
 // MARK: - Vocal range
 
 /// The singer's voice type. The preset cases are standard voice categories; the

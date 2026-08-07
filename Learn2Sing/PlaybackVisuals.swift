@@ -239,6 +239,20 @@ struct VisualSettings {
 
 // MARK: - Scene layout
 
+/// The scene's two fixed dimensions, before the zoom settings scale them: the width
+/// of the keyboard column and the width of one beat. Shared so the live playback
+/// screen, the visuals preview and the review screen all lay out identically.
+let playbackKeyboardWidth: CGFloat = 38
+let playbackBeatWidth: CGFloat = 40
+
+/// One estimate from the pitch detector: the musical beat it was heard at, and the
+/// (fractional) MIDI pitch — `nil` where nothing was detected, which breaks the
+/// drawn line instead of jumping it across the gap.
+struct PitchSample {
+    let beat: Double
+    let pitch: Double?
+}
+
 /// Maps musical coordinates (a beat position, a MIDI pitch) to screen points for one
 /// rendered frame, encapsulating the keyboard width, per-semitone height (vertical
 /// zoom), per-beat width (horizontal zoom) and the pitch sitting at the vertical

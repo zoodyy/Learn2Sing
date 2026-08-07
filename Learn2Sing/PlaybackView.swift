@@ -648,11 +648,17 @@ private final class SingerIndicator {
 /// which it was heard, so it scrolls left in lockstep with the notes. A `nil`
 /// pitch marks a gap (no detected pitch) so the line breaks instead of jumping.
 private final class PitchTrail {
-    struct Sample { let beat: Double; let pitch: Double? }
-    private(set) var samples: [Sample] = []
+    private(set) var samples: [PitchSample] = []
+
+    /// The whole run, never pruned, so the review screen can draw the singer's
+    /// complete line once the exercise has finished. `samples` above is only what
+    /// is still on screen behind the indicator.
+    private(set) var recording: [PitchSample] = []
 
     func record(beat: Double, pitch: Double?) {
-        samples.append(Sample(beat: beat, pitch: pitch))
+        let sample = PitchSample(beat: beat, pitch: pitch)
+        samples.append(sample)
+        recording.append(sample)
     }
 
     /// Drop samples that have scrolled off the left edge of the note area.
@@ -772,6 +778,9 @@ struct PlaybackView: View {
     @State private var notes: [MIDINote] = []
     @State private var texts: [MIDIText] = []
     @State private var finalScore: Int? = nil
+    /// Set while the score screen's Review button has the finished run's notes and
+    /// pitch line open in place of the score.
+    @State private var isReviewing = false
     @State private var claps = ClapCollector()
     @State private var delayResultMs: Double? = nil
     @State private var visuals = VisualSettings.current
@@ -799,12 +808,10 @@ struct PlaybackView: View {
     @Environment(\.scenePhase) private var scenePhase
 
     private let leadIn: Double = 6       // silent beats before first note
-    private let pianoW: CGFloat = 38
     // Navigation-bar metrics for placing the top of the playhead line.
     private let navBarHeight: CGFloat = 54
     private let barButtonHeight: CGFloat = 44
     private let barButtonGlassInset: CGFloat = 4
-    private let beatPx: CGFloat = 40     // pixels per beat in playback view
 
     // Delay-test layout: a run of equally spaced metronome ticks the user claps to.
     // The first `warmupClaps` let the singer lock onto the tempo and are excluded
@@ -823,21 +830,30 @@ struct PlaybackView: View {
             if let delayResultMs {
                 DelayResultView(delayMs: delayResultMs) { dismiss() }
             } else if let finalScore {
-                ScoreView(score: finalScore,
-                          history: ScoreHistory.entries(for: exercise.id),
-                          exitTitle: scoreExitTitle,
-                          onDownload: onScoreDownload,
-                          onNext: onScoreNext,
-                          onPlayAgain: {
-                              // Drop the previous run's trail/indicator so no ghost line
-                              // shows up; clearing the score remounts `playback`, whose
-                              // onAppear restarts audio and scoring from scratch.
-                              trail = PitchTrail()
-                              indicator = SingerIndicator()
-                              self.finalScore = nil
-                              onScoreReplay?()
-                          }) {
-                    if let onScoreExit { onScoreExit() } else { dismiss() }
+                if isReviewing {
+                    ExerciseReviewView(exercise: exercise, notes: notes, texts: texts,
+                                       samples: trail.recording, bpm: bpm,
+                                       repeatSpan: repeatSpan) {
+                        isReviewing = false
+                    }
+                } else {
+                    ScoreView(score: finalScore,
+                              history: ScoreHistory.entries(for: exercise.id),
+                              exitTitle: scoreExitTitle,
+                              onDownload: onScoreDownload,
+                              onNext: onScoreNext,
+                              onReview: { isReviewing = true },
+                              onPlayAgain: {
+                                  // Drop the previous run's trail/indicator so no ghost line
+                                  // shows up; clearing the score remounts `playback`, whose
+                                  // onAppear restarts audio and scoring from scratch.
+                                  trail = PitchTrail()
+                                  indicator = SingerIndicator()
+                                  self.finalScore = nil
+                                  onScoreReplay?()
+                              }) {
+                        if let onScoreExit { onScoreExit() } else { dismiss() }
+                    }
                 }
             } else {
                 playback
@@ -1006,8 +1022,8 @@ struct PlaybackView: View {
         // beats with horizontal zoom, and the keyboard column vanishes when hidden.
         let baseRowH = size.height / CGFloat(hiPitch - loPitch + 1)
         var rowH = baseRowH * CGFloat(s.verticalZoom)
-        let beatPxZoom = beatPx * CGFloat(s.horizontalZoom)
-        let pW: CGFloat = s.showKeyboard ? pianoW : 0
+        let beatPxZoom = playbackBeatWidth * CGFloat(s.horizontalZoom)
+        let pW: CGFloat = s.showKeyboard ? playbackKeyboardWidth : 0
         let playheadX = size.width / 3
 
         // Vertical centre. Normally the whole keyboard's midpoint; when "follow notes
@@ -1059,7 +1075,7 @@ struct PlaybackView: View {
         let lineToleranceSemitones = Double(((baseRowH - 2) / 2 + 1.25) / baseRowH)
         // Convert the user's microphone-delay setting (ms) into beats so notes are
         // scored as if shifted that far to the right (later in time).
-        let noteShift = micDelayMs / 1000.0 * bpm / 60.0
+        let noteShift = micDelayBeats(micDelayMs, bpm: bpm)
         if mode == .normal {
             scorer.update(beat: beat, notes: notes, singerPitch: singerPitch,
                           tolerance: lineToleranceSemitones, noteShift: noteShift)
@@ -1275,6 +1291,9 @@ private struct ScoreView: View {
     /// of the exercise listed below this one. nil (the last one in the list it was
     /// played from) leaves that row at two buttons.
     var onNext: (() -> Void)? = nil
+    /// Opens the run just finished as a still picture of the exercise with the sung
+    /// pitch line over it, to look at where the score came from.
+    let onReview: () -> Void
     let onPlayAgain: () -> Void
     let onExit: () -> Void
 
@@ -1327,6 +1346,31 @@ private struct ScoreView: View {
         }
     }
 
+    /// Opens the finished run for a closer look. Spelled out above the button row
+    /// in portrait, where there's room for it to say what it does; landscape has no
+    /// room for another full-width row, so there it joins the row as `reviewIcon`.
+    private var reviewButton: some View {
+        Button(action: onReview) {
+            Label("Review", systemImage: "waveform.path.ecg")
+                .font(.headline)
+                .frame(maxWidth: .infinity)
+                .padding()
+                .background(.tint.opacity(0.15), in: RoundedRectangle(cornerRadius: 14))
+                .foregroundStyle(.tint)
+        }
+    }
+
+    private var reviewIcon: some View {
+        Button(action: onReview) {
+            Image(systemName: "waveform.path.ecg")
+                .font(.headline)
+                .frame(width: buttonHeight, height: buttonHeight)
+                .background(.tint, in: RoundedRectangle(cornerRadius: 14))
+                .foregroundStyle(.white)
+        }
+        .accessibilityLabel(L("Review"))
+    }
+
     /// Replay, as a square icon button: with three buttons in the row, spelling
     /// it out would squeeze the other two.
     private var playAgainButton: some View {
@@ -1358,6 +1402,11 @@ private struct ScoreView: View {
                 Spacer()
             }
 
+            if verticalSizeClass != .compact {
+                reviewButton
+                    .padding(.horizontal, 40)
+            }
+
             if let onDownload {
                 Button {
                     onDownload()
@@ -1377,6 +1426,9 @@ private struct ScoreView: View {
 
             HStack(spacing: 12) {
                 playAgainButton
+                if verticalSizeClass == .compact {
+                    reviewIcon
+                }
                 if let onNext {
                     actionButton(L("Next"), action: onNext)
                 }

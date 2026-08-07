@@ -26,6 +26,7 @@ T("%@ has no public exercises right now.", "%@ hat derzeit keine öffentlichen �
 # --- Playback / score ---
 T("Score", "Punktzahl", "Puntuación", "Note", "Punteggio", "Pontuação", "Score", "Оценка", "Wynik", "Puan", "Poäng", "スコア", "점수", "得分")
 T("Play Again", "Nochmal spielen", "Repetir", "Rejouer", "Riprova", "Jogar de novo", "Opnieuw spelen", "Ещё раз", "Zagraj ponownie", "Tekrar oyna", "Spela igen", "もう一度", "다시 하기", "再来一次")
+T("Review", "Auswerten", "Revisar", "Revoir", "Rivedi", "Revisar", "Terugkijken", "Разбор", "Przejrzyj", "İncele", "Granska", "振り返り", "다시 보기", "回看")
 T("No scores in this period", "Keine Punktzahlen in diesem Zeitraum", "No hay puntuaciones en este periodo", "Aucune note sur cette période", "Nessun punteggio in questo periodo", "Nenhuma pontuação neste período", "Geen scores in deze periode", "За этот период оценок нет", "Brak wyników w tym okresie", "Bu dönemde puan yok", "Inga poäng under den här perioden", "この期間のスコアはありません", "이 기간의 점수가 없습니다", "此期间没有得分")
 T("All", "Alle", "Todo", "Tout", "Tutto", "Tudo", "Alles", "Всё", "Wszystko", "Tümü", "Allt", "全期間", "전체", "全部")
 T("24h", "24 Std.", "24 h", "24 h", "24 h", "24 h", "24 u", "24 ч", "24 godz.", "24 sa", "24 tim", "24時間", "24시간", "24小时")
