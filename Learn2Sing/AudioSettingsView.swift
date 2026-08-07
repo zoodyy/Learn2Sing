@@ -95,7 +95,10 @@ struct AudioSettingsView: View {
                 .background(.bar)
             }
         }
-        .onAppear { routes.refreshOptions() }
+        // Probe for devices the playback configuration hides (a Bluetooth microphone
+        // is only visible while the Hands-Free Profile is allowed), so everything
+        // that's connected can be picked here.
+        .onAppear { routes.refreshOptions(probingDevices: true) }
     }
 
     /// The device list to show in a picker, guaranteeing the current selection is
