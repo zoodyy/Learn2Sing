@@ -11,8 +11,13 @@ func pitchName(_ pitch: Int) -> String {
     "\(_noteLabels[pitch % 12])\((pitch / 12) - 1)"
 }
 
+/// Bit set of the black keys within an octave: C#, D#, F#, G#, A#.
+private let _blackKeyMask = (1 << 1) | (1 << 3) | (1 << 6) | (1 << 8) | (1 << 10)
+
 func isBlack(_ pitch: Int) -> Bool {
-    [1, 3, 6, 8, 10].contains(pitch % 12)
+    // A literal array + `contains` allocates on every call, and the playback canvas
+    // asks this for every visible row twice a frame — so it's a bit test instead.
+    _blackKeyMask & (1 << (((pitch % 12) + 12) % 12)) != 0
 }
 
 // MARK: - Scoring

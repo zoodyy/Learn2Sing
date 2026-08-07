@@ -130,10 +130,24 @@ final class ExercisePlayer {
     // Host time at which sample 0 of the current schedule is played by the engine.
     // Captured in the render block so the on-screen clock can be anchored to the
     // real audio output (which the engine buffers well ahead of "now").
+    //
+    // These three live behind `clockLock` rather than the render lock, which the audio
+    // thread holds for a whole buffer at a time: the view asks for the beat on every
+    // rendered frame, and making it queue behind a render pass put a jitter of up to a
+    // buffer's worth of work into the notes' motion. `clockLock` is only ever held for
+    // a handful of word-sized reads. When both are taken it's always render lock first.
     private var timebase = mach_timebase_info_data_t()
+    private var clockLock = os_unfair_lock_s()
     private var startHostTime: UInt64 = 0
     private var startCaptured = false
     private var needsStartCapture = false
+
+    // Extra delay between a sample leaving the engine and reaching the speaker. Read
+    // from the audio session when the route settles rather than on every frame — it
+    // only changes with the route, and the session's own accessor is not something to
+    // call 60–120 times a second on the main thread.
+    private var cachedOutputLatency: TimeInterval = 0
+    private var routeObserver: NSObjectProtocol?
 
     // The engine should be running between begin() and stop(); used to restart it
     // after the system tears down its IO (e.g. when the mic engine starts and
@@ -167,12 +181,19 @@ final class ExercisePlayer {
             guard let self, self.shouldRun, !self.engine.isRunning else { return }
             try? self.engine.start()
         }
+
+        routeObserver = NotificationCenter.default.addObserver(
+            forName: AVAudioSession.routeChangeNotification, object: nil, queue: .main
+        ) { [weak self] _ in
+            self?.refreshOutputLatency()
+        }
     }
 
     /// Start the audio engine. Call only after the session/route is configured so the
     /// output clock anchors to the correct route from the first buffer onward.
     func begin() {
         shouldRun = true
+        refreshOutputLatency()
         guard !engine.isRunning else { return }
         engine.prepare()
         try? engine.start()
@@ -190,14 +211,15 @@ final class ExercisePlayer {
     /// away. Safe to call only between begin() and stop().
     func resumeFromBackground() {
         guard shouldRun else { return }
-        os_unfair_lock_lock(&lock)
+        refreshOutputLatency()
+        os_unfair_lock_lock(&clockLock)
         needsStartCapture = true   // next render re-anchors startHostTime to the playhead
         // Until that render happens the old anchor is stale (it would include all the
         // paused wall-clock time and read far ahead), so report "no clock" instead —
         // currentBeat returns nil and the view holds its last frame rather than
         // flicking every note to the left for a frame.
         startCaptured = false
-        os_unfair_lock_unlock(&lock)
+        os_unfair_lock_unlock(&clockLock)
         if !engine.isRunning {
             engine.prepare()
             try? engine.start()
@@ -211,7 +233,15 @@ final class ExercisePlayer {
         let twoPi = 2.0 * Double.pi
         let dt = 1.0 / sampleRate
 
+        // The engine's format is non-interleaved stereo, so this is one pointer per
+        // channel. Resolved once per buffer rather than per sample, which is where the
+        // list subscript and pointer rebind used to run tens of thousands of times a
+        // second for no reason.
+        let left = buffers.count > 0 ? buffers[0].mData?.assumingMemoryBound(to: Float.self) : nil
+        let right = buffers.count > 1 ? buffers[1].mData?.assumingMemoryBound(to: Float.self) : nil
+
         os_unfair_lock_lock(&lock)
+        os_unfair_lock_lock(&clockLock)
         if needsStartCapture {
             // `hostTime` is when the first sample of this buffer (sample `playhead`)
             // is played, so the host time for sample 0 is that minus the playhead's
@@ -225,6 +255,7 @@ final class ExercisePlayer {
             startCaptured = true
             needsStartCapture = false
         }
+        os_unfair_lock_unlock(&clockLock)
         let spec = self.spec
         let harmonics = spec.harmonics
         let invHarm = 1.0 / harmonics.reduce(0, +)
@@ -325,10 +356,8 @@ final class ExercisePlayer {
             }
 
             let sample = Float(tanh(out))   // soft-clip the summed output
-            for buffer in buffers {
-                let ptr = buffer.mData!.assumingMemoryBound(to: Float.self)
-                ptr[frame] = sample
-            }
+            left?[frame] = sample
+            right?[frame] = sample
         }
         playhead += frameCount
 
@@ -404,26 +433,26 @@ final class ExercisePlayer {
         os_unfair_lock_unlock(&lock)
     }
 
-    /// Seconds between a sample being rendered and it actually being heard, so the
-    /// Extra delay between a sample leaving the engine and reaching the speaker.
-    private var outputLatency: TimeInterval {
-        AVAudioSession.sharedInstance().outputLatency
+    /// Re-read the route's output latency. Called when the engine starts, when it
+    /// resumes and whenever the route changes — the only times it can differ.
+    private func refreshOutputLatency() {
+        cachedOutputLatency = AVAudioSession.sharedInstance().outputLatency
     }
 
     /// The musical beat currently being *heard*, anchored to the audio engine's own
     /// output clock (so it stays in sync regardless of how far ahead the engine
     /// buffers). Returns nil until playback has actually started.
     func currentBeat(bpm: Double, leadIn: Double) -> Double? {
-        os_unfair_lock_lock(&lock)
+        os_unfair_lock_lock(&clockLock)
         let captured = startCaptured
         let startHost = startHostTime
-        os_unfair_lock_unlock(&lock)
+        os_unfair_lock_unlock(&clockLock)
         guard captured else { return nil }
 
         let now = mach_absolute_time()
         let elapsedTicks = now > startHost ? now - startHost : 0
         let elapsedSec = Double(elapsedTicks) * Double(timebase.numer) / Double(timebase.denom) / 1.0e9
-        let audibleSec = elapsedSec - outputLatency      // account for the DAC delay
+        let audibleSec = elapsedSec - cachedOutputLatency   // account for the DAC delay
         return audibleSec * (bpm / 60.0) - leadIn
     }
 
@@ -433,15 +462,15 @@ final class ExercisePlayer {
     /// clap's position relative to the metronome ticks (which sit on whole beats),
     /// so the gap to the nearest tick is exactly the round-trip microphone delay.
     func beat(forHostTime hostTime: UInt64, bpm: Double, leadIn: Double) -> Double? {
-        os_unfair_lock_lock(&lock)
+        os_unfair_lock_lock(&clockLock)
         let captured = startCaptured
         let startHost = startHostTime
-        os_unfair_lock_unlock(&lock)
+        os_unfair_lock_unlock(&clockLock)
         guard captured else { return nil }
 
         let elapsedTicks = hostTime > startHost ? hostTime - startHost : 0
         let elapsedSec = Double(elapsedTicks) * Double(timebase.numer) / Double(timebase.denom) / 1.0e9
-        let audibleSec = elapsedSec - outputLatency
+        let audibleSec = elapsedSec - cachedOutputLatency
         return audibleSec * (bpm / 60.0) - leadIn
     }
 
@@ -555,8 +584,10 @@ final class ExercisePlayer {
         self.finishSample = finishSample
         self.finished = false
         self.onFinish = onFinish
+        os_unfair_lock_lock(&clockLock)
         self.startCaptured = false
         self.needsStartCapture = true
+        os_unfair_lock_unlock(&clockLock)
         for i in 0..<voices.count { voices[i].active = false }
         os_unfair_lock_unlock(&lock)
     }
@@ -568,8 +599,10 @@ final class ExercisePlayer {
         finishSample = Int.max
         finished = true
         onFinish = nil
+        os_unfair_lock_lock(&clockLock)
         startCaptured = false
         needsStartCapture = false
+        os_unfair_lock_unlock(&clockLock)
         for i in 0..<voices.count { voices[i].active = false }
         os_unfair_lock_unlock(&lock)
     }
@@ -585,6 +618,7 @@ final class ExercisePlayer {
 
     deinit {
         if let configObserver { NotificationCenter.default.removeObserver(configObserver) }
+        if let routeObserver { NotificationCenter.default.removeObserver(routeObserver) }
         stop()
     }
 }

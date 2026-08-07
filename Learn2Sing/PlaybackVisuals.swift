@@ -303,19 +303,34 @@ final class VerticalFollower {
 /// repetition keeps its pitches once it ends — there is nothing after it to show.
 func repetitionPitches(notes: [MIDINote], beat: Double, repeatSpan: Double) -> Set<Int> {
     guard repeatSpan > 0 else { return Set(notes.map(\.pitch)) }
-    var pitches: [Int: Set<Int>] = [:]   // repetition index → the pitches it uses
-    var lastEnd: [Int: Double] = [:]     // repetition index → beat its last note stops
+
+    // Runs on every rendered frame, so it walks the notes a few times rather than
+    // building a dictionary of sets covering every repetition to then use one of them.
+    func repetition(of note: MIDINote) -> Int { Int(floor(note.beat / repeatSpan + 1e-6)) }
+
+    var firstRep = Int.max
+    var lastRep = Int.min
     for note in notes {
-        let rep = Int(floor(note.beat / repeatSpan + 1e-6))
-        pitches[rep, default: []].insert(note.pitch)
-        lastEnd[rep] = max(lastEnd[rep] ?? -.infinity, note.beat + note.length)
+        let rep = repetition(of: note)
+        if rep < firstRep { firstRep = rep }
+        if rep > lastRep { lastRep = rep }
     }
     // Clamped so the lead-in (a negative beat) shows the first repetition's dots and
     // anything past the end keeps the last one's.
-    guard let firstRep = pitches.keys.min(), let lastRep = pitches.keys.max() else { return [] }
+    guard firstRep <= lastRep else { return [] }
     var index = min(max(Int(floor(beat / repeatSpan)), firstRep), lastRep)
-    if let end = lastEnd[index], beat >= end, index < lastRep { index += 1 }
-    return pitches[index] ?? []
+
+    if index < lastRep {
+        var end = -Double.infinity
+        for note in notes where repetition(of: note) == index {
+            end = max(end, note.beat + note.length)
+        }
+        if end > -.infinity, beat >= end { index += 1 }
+    }
+
+    var pitches = Set<Int>()
+    for note in notes where repetition(of: note) == index { pitches.insert(note.pitch) }
+    return pitches
 }
 
 // MARK: - Shared scene renderer
@@ -346,20 +361,23 @@ func drawPlaybackScene(ctx: GraphicsContext, layout: SceneLayout, beat: Double,
     let hi = layout.topPitch
     guard hi >= lo else { return }
 
-    let activePitches = Set(
-        notes.filter { beat >= $0.beat && beat < $0.beat + $0.length }.map { $0.pitch }
-    )
-
     // ── Note-area background ──────────────────────────────────────────────
     // With horizontal lines on, shade alternating black/white-key rows and draw
     // separators (the original look); with them off, fill a single plain colour.
+    // Rows of the same shade go into one path: at a low vertical zoom there are over
+    // a hundred of them, and a fill per row costs far more than the drawing itself.
     if settings.showHorizontalLines {
+        var blackRows = Path()
+        var whiteRows = Path()
+        let rowWidth = size.width - pianoW
         for pitch in lo...hi {
-            let yTop = layout.y(Double(pitch)) - rowH / 2
-            ctx.fill(
-                Path(CGRect(x: pianoW, y: yTop, width: size.width - pianoW, height: rowH)),
-                with: .color(isBlack(pitch) ? Color(white: 0.08) : Color(white: 0.14)))
+            let rect = CGRect(x: pianoW, y: layout.y(Double(pitch)) - rowH / 2,
+                              width: rowWidth, height: rowH)
+            if isBlack(pitch) { blackRows.addRect(rect) } else { whiteRows.addRect(rect) }
         }
+        ctx.fill(blackRows, with: .color(white: 0.08))
+        ctx.fill(whiteRows, with: .color(white: 0.14))
+
         var hLines = Path()
         for pitch in lo...(hi + 1) {
             let y = layout.y(Double(pitch)) + rowH / 2
@@ -374,12 +392,27 @@ func drawPlaybackScene(ctx: GraphicsContext, layout: SceneLayout, beat: Double,
 
     // ── Keyboard column ───────────────────────────────────────────────────
     if settings.showKeyboard && pianoW > 0 {
-        for pitch in lo...hi {
-            let yTop = layout.y(Double(pitch)) - rowH / 2
-            let active = activePitches.contains(pitch)
-            let bg: Color = active ? .yellow : (isBlack(pitch) ? Color(white: 0.07) : Color(white: 0.82))
-            ctx.fill(Path(CGRect(x: 0, y: yTop, width: pianoW - 1, height: rowH)), with: .color(bg))
+        // The sounding pitches are only needed to light up the keys, so they're
+        // gathered here rather than for every frame the keyboard is switched off.
+        var activePitches = Set<Int>()
+        for note in notes where beat >= note.beat && beat < note.beat + note.length {
+            activePitches.insert(note.pitch)
         }
+
+        var activeKeys = Path()
+        var blackKeys = Path()
+        var whiteKeys = Path()
+        for pitch in lo...hi {
+            let rect = CGRect(x: 0, y: layout.y(Double(pitch)) - rowH / 2,
+                              width: pianoW - 1, height: rowH)
+            if activePitches.contains(pitch) { activeKeys.addRect(rect) }
+            else if isBlack(pitch) { blackKeys.addRect(rect) }
+            else { whiteKeys.addRect(rect) }
+        }
+        ctx.fill(whiteKeys, with: .color(white: 0.82))
+        ctx.fill(blackKeys, with: .color(white: 0.07))
+        ctx.fill(activeKeys, with: .color(.yellow))
+
         var border = Path()
         border.move(to: CGPoint(x: pianoW - 0.5, y: 0))
         border.addLine(to: CGPoint(x: pianoW - 0.5, y: size.height))
@@ -460,17 +493,29 @@ func drawPlaybackScene(ctx: GraphicsContext, layout: SceneLayout, beat: Double,
     }
 
     // ── Text labels ───────────────────────────────────────────────────────
+    // Only the labels that can actually land on screen are drawn: laying out a `Text`
+    // is one of the most expensive things in this pass, and a repeated exercise can
+    // carry a hundred labels of which a handful are ever visible. `labelMargin` is a
+    // generous allowance for a label whose start has scrolled past the left edge but
+    // whose tail is still showing.
     if !texts.isEmpty {
-        ctx.drawLayer { layer in
-            layer.clip(to: Path(CGRect(x: pianoW, y: 0, width: size.width - pianoW, height: size.height)))
-            for label in texts {
-                let x = layout.x(label.beat, beat: beat)
-                let y = layout.y(Double(label.pitch))
-                layer.draw(
-                    Text(label.text)
-                        .font(.system(size: 12, weight: .semibold, design: settings.textFont.design))
-                        .foregroundColor(settings.textColor),
-                    at: CGPoint(x: x + 3, y: y), anchor: .leading)
+        let labelMargin: CGFloat = 240
+        let leftBeat = beat + Double((pianoW - labelMargin - layout.playheadX) / layout.beatPx)
+        let rightBeat = beat + Double((size.width - layout.playheadX) / layout.beatPx)
+        let anyVisible = texts.contains { $0.beat > leftBeat && $0.beat < rightBeat }
+        if anyVisible {
+            ctx.drawLayer { layer in
+                layer.clip(to: Path(CGRect(x: pianoW, y: 0,
+                                           width: size.width - pianoW, height: size.height)))
+                for label in texts where label.beat > leftBeat && label.beat < rightBeat {
+                    let y = layout.y(Double(label.pitch))
+                    guard y > -24, y < size.height + 24 else { continue }   // clear of the label's own height
+                    layer.draw(
+                        Text(label.text)
+                            .font(.system(size: 12, weight: .semibold, design: settings.textFont.design))
+                            .foregroundColor(settings.textColor),
+                        at: CGPoint(x: layout.x(label.beat, beat: beat) + 3, y: y), anchor: .leading)
+                }
             }
         }
     }
