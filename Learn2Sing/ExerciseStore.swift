@@ -399,6 +399,18 @@ final class ExerciseStore: ObservableObject {
         saveRoutines()
     }
 
+    /// Adds routines restored from the server that this device doesn't have,
+    /// keeping their stored order. Routines already here are left as they are:
+    /// a restore that failed on an earlier launch is retried on the next one,
+    /// and anything the user built in between should survive it.
+    func mergeRoutines(_ restored: [Routine]) {
+        let known = Set(routines.map(\.id))
+        let missing = restored.filter { !known.contains($0.id) }
+        guard !missing.isEmpty else { return }
+        routines.append(contentsOf: missing)
+        saveRoutines()
+    }
+
     // MARK: - Favourites
 
     private func loadFavourites() {
@@ -432,6 +444,15 @@ final class ExerciseStore: ObservableObject {
 
     func removeFavourite(_ exerciseID: UUID) {
         favourites.removeAll { $0 == exerciseID }
+        saveFavourites()
+    }
+
+    /// Appends favourites restored from the server that aren't already in the
+    /// list, in their stored order — same merge rules as `mergeRoutines`.
+    func mergeFavourites(_ restored: [UUID]) {
+        let missing = restored.filter { !favourites.contains($0) }
+        guard !missing.isEmpty else { return }
+        favourites.append(contentsOf: missing)
         saveFavourites()
     }
 

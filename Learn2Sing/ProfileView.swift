@@ -29,6 +29,17 @@ struct UserProfile: Codable {
     /// doesn't count towards the exercise's download total again. Owned by
     /// CommunitySync; optional so older profiles still decode.
     var downloadedExercises: [String]? = nil
+    /// The Home tab's "Routines" category: the user's routines in display order.
+    /// Optional so profiles written before routines were synced still decode.
+    var routines: [Routine]? = nil
+    /// The Home tab's "Favourites" category: the favourited exercise ids in
+    /// display order. Optional so profiles written before favourites were synced
+    /// still decode.
+    var favourites: [UUID]? = nil
+    /// Every exercise's recorded scores — what the score chart draws — keyed by
+    /// exercise UUID string. Optional so profiles written before scores were
+    /// synced still decode.
+    var scores: [String: ScoreHistoryDoc]? = nil
 
     static var fileURL: URL {
         FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
@@ -45,6 +56,19 @@ struct UserProfile: Codable {
         profile.deviceID = DeviceIdentifier.uuidString
         profile.homeCategoryOrder = HomeCategories.stored
         return profile
+    }
+
+    /// Fills in the parts of the profile that live outside the profile file: the
+    /// exercise library, the Home tab's category order, routines and favourites,
+    /// and every exercise's score history. Used for both the copy ProfileSync
+    /// uploads and the file the profile screen shares.
+    mutating func snapshot(_ store: ExerciseStore) {
+        exercises = store.exportBundle()
+        homeCategoryOrder = HomeCategories.stored
+        routines = store.routines
+        favourites = store.favourites
+        let histories = ScoreHistory.all().mapValues(ScoreHistoryDoc.init)
+        scores = histories.isEmpty ? nil : histories
     }
 
     func jsonData() -> Data? {
@@ -77,11 +101,10 @@ struct ProfileView: View {
     @State private var profile = UserProfile.load()
 
     /// The full profile as uploaded/shared: the stored fields plus a fresh
-    /// snapshot of the exercise library.
+    /// snapshot of the exercise library, the Home tab's lists and the scores.
     private var fullProfile: UserProfile {
         var full = profile
-        full.exercises = store.exportBundle()
-        full.homeCategoryOrder = HomeCategories.stored
+        full.snapshot(store)
         return full
     }
 

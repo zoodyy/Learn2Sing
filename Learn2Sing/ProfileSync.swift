@@ -22,6 +22,10 @@ final class ProfileSync {
     /// which is wiped on reinstall — exactly when a restore should run again.
     private static let restoredKey = "didAttemptProfileRestore"
 
+    /// Ceiling on the uploaded document. The server stores it in a TEXT column
+    /// and answers 500 past roughly 64 KB, so aim short of that rather than at it.
+    private static let maxUploadBytes = 60_000
+
     private weak var store: ExerciseStore?
     private var storeObservation: AnyCancellable?
     /// Uploads are held back until the initial restore attempt has finished so a
@@ -60,16 +64,15 @@ final class ProfileSync {
 
     // MARK: - Upload
 
-    /// Builds the full profile JSON (username + device ID + exercise library),
-    /// saves it locally, and POSTs it to the server.
+    /// Builds the full profile JSON (username + device ID + exercise library +
+    /// the Home tab's routines and favourites + every exercise's scores), saves
+    /// it locally, and POSTs it to the server.
     private func upload() async {
         guard readyToUpload, let store else { return }
         var profile = UserProfile.load()
-        profile.exercises = store.exportBundle()
+        profile.snapshot(store)
         profile.save()
-        // Compact encoding (unlike the pretty-printed local file): the server
-        // rejects documents past roughly 64 KB, so every byte counts.
-        guard let body = try? JSONEncoder().encode(profile),
+        guard let body = Self.uploadBody(for: profile),
               let url = URL(string: "\(Self.baseURL)/persist/\(profile.deviceID)/PROFILE")
         else { return }
         var request = URLRequest(url: url)
@@ -83,6 +86,57 @@ final class ProfileSync {
             }
         } catch {
             print("ProfileSync: upload failed: \(error)")
+        }
+    }
+
+    /// One recorded run together with the exercise it belongs to, so the trimming
+    /// below can rank every exercise's runs against each other.
+    private struct DatedRun {
+        let exerciseID: String
+        let entry: ScoreEntry
+    }
+
+    /// The profile encoded for upload, in compact JSON — unlike the
+    /// pretty-printed local file — with as much score history as fits.
+    ///
+    /// Everything else in the document is bounded by what a user can plausibly
+    /// build by hand, but scores grow with every run, so they are what gives way
+    /// as the document nears the server's size limit: the newest runs are kept
+    /// and older ones left out. Only the upload is trimmed — the device keeps the
+    /// full history and the chart still draws it. nil when even a score-less
+    /// profile is too big to send, since an oversized POST is what once took the
+    /// endpoint down for everyone.
+    private static func uploadBody(for profile: UserProfile) -> Data? {
+        var profile = profile
+        let encoder = JSONEncoder()
+        // Newest first, so trimming takes off the end.
+        var runs = (profile.scores ?? [:])
+            .flatMap { id, doc in doc.entries.map { DatedRun(exerciseID: id, entry: $0) } }
+            .sorted { $0.entry.date > $1.entry.date }
+
+        // What the document costs with no scores in it at all — the floor the
+        // histories have to fit above.
+        profile.scores = nil
+        guard let base = try? encoder.encode(profile) else { return nil }
+        let budget = maxUploadBytes - base.count
+        guard budget > 0 else {
+            print("ProfileSync: profile is \(base.count) bytes before its scores, too large to upload")
+            return nil
+        }
+
+        while true {
+            let kept = Dictionary(grouping: runs, by: \.exerciseID)
+                .mapValues { ScoreHistoryDoc($0.map(\.entry)) }
+            profile.scores = kept.isEmpty ? nil : kept
+            guard let body = try? encoder.encode(profile) else { return nil }
+            let cost = body.count - base.count
+            if cost <= budget { return body }
+            // Scale the run count back by what this pass's runs actually cost.
+            // Measuring beats assuming a size per run: it lands within a few runs
+            // of the budget however long the histories are, and dropping at least
+            // one run per pass closes the rest from there.
+            let fitting = runs.count * budget / cost
+            runs.removeLast(runs.count - min(fitting, runs.count - 1))
         }
     }
 
@@ -149,6 +203,18 @@ final class ProfileSync {
         profile.save()
         if let bundle = remote.exercises {
             store.importBundle(bundle)
+        }
+        // The Home tab's own lists and the score chart's data. Merged rather than
+        // replaced: a restore the server failed on is retried on a later launch,
+        // and whatever the user set up in between should survive it.
+        if let routines = remote.routines {
+            store.mergeRoutines(routines)
+        }
+        if let favourites = remote.favourites {
+            store.mergeFavourites(favourites)
+        }
+        if let scores = remote.scores {
+            ScoreHistory.merge(scores.mapValues(\.entries))
         }
     }
 }

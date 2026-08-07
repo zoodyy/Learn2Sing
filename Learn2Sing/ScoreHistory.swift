@@ -10,7 +10,10 @@ import SwiftUI
 import Charts
 
 /// One completed run of an exercise: when it finished and the score it earned.
-struct ScoreEntry: Codable {
+/// Plain data, so it stays usable from the sorting and mapping closures the
+/// profile document is built out of rather than picking up the module's default
+/// main-actor isolation.
+nonisolated struct ScoreEntry: Codable {
     var date: Date
     var score: Int          // whole-number percentage, 0...100
 }
@@ -37,10 +40,12 @@ enum ScoreHistory {
         all.append(ScoreEntry(date: date, score: score))
         guard let data = try? JSONEncoder().encode(all) else { return }
         UserDefaults.standard.set(data, forKey: key(id))
+        syncChanged()
     }
 
     static func delete(for id: UUID) {
         UserDefaults.standard.removeObject(forKey: key(id))
+        syncChanged()
     }
 
     /// Wipes every recorded score, including any left behind by exercises that
@@ -50,6 +55,86 @@ enum ScoreHistory {
         for key in defaults.dictionaryRepresentation().keys where key.hasPrefix(keyPrefix) {
             defaults.removeObject(forKey: key)
         }
+        syncChanged()
+    }
+
+    // MARK: - Profile sync
+
+    /// Every recorded history, keyed by exercise UUID string — what the profile
+    /// document carries. Histories left behind by deleted exercises are included,
+    /// the same ones `deleteAll` clears, so an exercise that comes back from the
+    /// server brings its scores with it.
+    static func all() -> [String: [ScoreEntry]] {
+        let defaults = UserDefaults.standard
+        var histories: [String: [ScoreEntry]] = [:]
+        for key in defaults.dictionaryRepresentation().keys where key.hasPrefix(keyPrefix) {
+            let idString = String(key.dropFirst(keyPrefix.count))
+            guard let id = UUID(uuidString: idString) else { continue }
+            let saved = entries(for: id)
+            if !saved.isEmpty { histories[idString] = saved }
+        }
+        return histories
+    }
+
+    /// Merges histories restored from the server into whatever this device has.
+    /// Runs already on the device are kept — the server copy carries only as much
+    /// history as fits the profile document, so it can be the shorter of the two.
+    static func merge(_ histories: [String: [ScoreEntry]]) {
+        for (idString, remote) in histories {
+            guard let id = UUID(uuidString: idString) else { continue }
+            var merged = entries(for: id)
+            // A run takes seconds to sing, so the second it finished in tells two
+            // apart — which is as fine as the restored timestamps get.
+            let known = Set(merged.map(second))
+            merged.append(contentsOf: remote.filter { !known.contains(second($0)) })
+            merged.sort { $0.date < $1.date }
+            guard let data = try? JSONEncoder().encode(merged) else { continue }
+            UserDefaults.standard.set(data, forKey: key(id))
+        }
+    }
+
+    private nonisolated static func second(_ entry: ScoreEntry) -> Int {
+        Int(entry.date.timeIntervalSince1970.rounded())
+    }
+
+    /// Scores ride along in the synced profile, so a change to them needs
+    /// uploading just like an exercise edit does.
+    private static func syncChanged() {
+        Task { @MainActor in ProfileSync.shared.scheduleUpload() }
+    }
+}
+
+/// A score history as the profile document carries it: whole-second timestamps
+/// and scores interleaved in one flat array, `[t₀, s₀, t₁, s₁, …]`.
+///
+/// Histories are the only part of the profile that grows without bound, and the
+/// server rejects documents past roughly 64 KB, so they travel as bare numbers —
+/// about a third the size the locally stored `ScoreEntry` objects encode to.
+/// The second a run finished in is all the chart needs.
+nonisolated struct ScoreHistoryDoc: Codable {
+    private var values: [Int]
+
+    init(_ entries: [ScoreEntry]) {
+        values = entries
+            .sorted { $0.date < $1.date }
+            .flatMap { [Int($0.date.timeIntervalSince1970.rounded()), $0.score] }
+    }
+
+    /// The runs it holds, oldest first. A trailing value without its pair (never
+    /// written by this app) is ignored rather than read past.
+    var entries: [ScoreEntry] {
+        stride(from: 0, to: values.count - 1, by: 2).map { i in
+            ScoreEntry(date: Date(timeIntervalSince1970: Double(values[i])), score: values[i + 1])
+        }
+    }
+
+    init(from decoder: Decoder) throws {
+        values = try decoder.singleValueContainer().decode([Int].self)
+    }
+
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.singleValueContainer()
+        try container.encode(values)
     }
 }
 
