@@ -381,6 +381,21 @@ final class ExerciseStore: ObservableObject {
         saveRoutines()
     }
 
+    /// Move a dragged routine so it sits just before the routine `targetID` (or
+    /// at the end of the list when `targetID` is nil) — what the Home tab's
+    /// drag & drop reports, alongside the edit screen's index-based `move`.
+    func moveRoutine(_ id: UUID, before targetID: UUID?) {
+        guard id != targetID,
+              let from = routines.firstIndex(where: { $0.id == id }) else { return }
+        let moved = routines.remove(at: from)
+        if let targetID, let to = routines.firstIndex(where: { $0.id == targetID }) {
+            routines.insert(moved, at: to)
+        } else {
+            routines.append(moved)
+        }
+        saveRoutines()
+    }
+
     /// Add the exercise to the routine's end, or remove it if already present.
     /// Backs the picker's tap-to-select rows, which is why membership toggles.
     func toggleExercise(_ exerciseID: UUID, in routineID: UUID) {
@@ -428,6 +443,20 @@ final class ExerciseStore: ObservableObject {
     /// Reorder the favourites (drives the edit-favourites screen).
     func moveFavourites(from source: IndexSet, to destination: Int) {
         favourites.move(fromOffsets: source, toOffset: destination)
+        saveFavourites()
+    }
+
+    /// Move a dragged favourite so it sits just before the exercise `targetID`
+    /// (or at the end of the list when `targetID` is nil) — the Home tab's
+    /// drag & drop, the same way `moveRoutine(_:before:)` works.
+    func moveFavourite(_ id: UUID, before targetID: UUID?) {
+        guard id != targetID, let from = favourites.firstIndex(of: id) else { return }
+        favourites.remove(at: from)
+        if let targetID, let to = favourites.firstIndex(of: targetID) {
+            favourites.insert(id, at: to)
+        } else {
+            favourites.append(id)
+        }
         saveFavourites()
     }
 

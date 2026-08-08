@@ -46,6 +46,10 @@ struct ExerciseListSection: Equatable {
     /// section whose heading is a fixed piece of UI text (the Community search
     /// results) passes its translated heading here instead.
     var displayName: String? = nil
+    /// false keeps the section out of drag & drop entirely: its rows can't be
+    /// lifted, and nothing can be dropped into it — for sections whose order the
+    /// user doesn't get to arrange (Home's Recent and Recommended, both computed).
+    var allowsReorder = true
 }
 
 /// The normal-mode exercise list. This is intentionally NOT a SwiftUI List: a
@@ -55,7 +59,9 @@ struct ExerciseListSection: Equatable {
 /// UICollectionView in the same insetGrouped list style SwiftUI's List is backed
 /// by — same appearance — with drag & drop driven directly through UIKit's
 /// drag/drop delegates: an exercise can be dragged to reorder within its category
-/// or dropped into another one (including onto a collapsed category's header).
+/// or dropped into another one (including onto a collapsed category's header) —
+/// unless the list keeps moves in their section, in which case a drag can only
+/// rearrange the section it started in (the Home tab).
 struct ExerciseCollectionList: UIViewControllerRepresentable {
     var sections: [ExerciseListSection]
     /// Row taps: the exercise, and the category of the section it was tapped in —
@@ -79,6 +85,11 @@ struct ExerciseCollectionList: UIViewControllerRepresentable {
     /// (exercise, newCategory, idOfExerciseItNowPrecedes — nil appends).
     /// nil disables drag & drop entirely (Community tab).
     var onMove: ((UUID, String, UUID?) -> Void)? = nil
+    /// true refuses every drop outside the section the drag was lifted from, so
+    /// each section is its own separate ordered list (the Home tab, where the
+    /// categories are different kinds of thing and a favourite dropped into
+    /// "Recent" would mean nothing).
+    var movesStayInSection = false
     /// Called as the list runs out of rows to scroll through — fewer than
     /// `loadMoreThreshold` of them left below the ones on screen — so the
     /// Community tab can fetch its next page. May be called many times over
@@ -120,6 +131,7 @@ struct ExerciseCollectionList: UIViewControllerRepresentable {
         controller.onHeaderLongPress = onHeaderLongPress
         controller.onAdd = onAdd
         controller.onMove = onMove
+        controller.movesStayInSection = movesStayInSection
         controller.onLoadMore = onLoadMore
         controller.loadMoreThreshold = loadMoreThreshold
         controller.hidesSearchBarInitially = hidesSearchBarInitially
@@ -157,6 +169,7 @@ final class ExerciseListController: UIViewController {
     var onHeaderLongPress: (() -> Void)?
     var onAdd: ((String) -> Void)?
     var onMove: ((UUID, String, UUID?) -> Void)?
+    var movesStayInSection = false
     var onLoadMore: (() -> Void)?
     var loadMoreThreshold = 30
     var hidesSearchBarInitially = false
@@ -509,6 +522,15 @@ final class ExerciseListController: UIViewController {
         return nil
     }
 
+    /// Where a specific copy of a row sits — the one in its own section, rather
+    /// than whichever section happens to list that exercise first.
+    private func location(of item: ItemID) -> (section: Int, item: Int)? {
+        guard let sectionIndex = sections.firstIndex(where: { $0.category == item.section }),
+              let itemIndex = sections[sectionIndex].items.firstIndex(where: { $0.id == item.id })
+        else { return nil }
+        return (sectionIndex, itemIndex)
+    }
+
     /// The section whose header sits under `point`, for drops that land on a
     /// header (the only way to reach a collapsed category).
     private func headerSection(at point: CGPoint) -> Int? {
@@ -585,10 +607,28 @@ extension ExerciseListController: UICollectionViewDragDelegate, UICollectionView
     func collectionView(_ collectionView: UICollectionView, itemsForBeginning session: UIDragSession,
                         at indexPath: IndexPath) -> [UIDragItem] {
         guard onMove != nil,
-              let id = dataSource.itemIdentifier(for: indexPath)?.id else { return [] }
-        let item = UIDragItem(itemProvider: NSItemProvider(object: id.uuidString as NSString))
-        item.localObject = id
+              indexPath.section < sections.count, sections[indexPath.section].allowsReorder,
+              let itemID = dataSource.itemIdentifier(for: indexPath) else { return [] }
+        let item = UIDragItem(itemProvider: NSItemProvider(object: itemID.id.uuidString as NSString))
+        // The whole ItemID, not just the exercise's: the same exercise can be
+        // listed in two sections at once (Home), so only the pair says which of
+        // its copies was picked up.
+        item.localObject = itemID
         return [item]
+    }
+
+    /// The item a local drag session is carrying, as its list identity.
+    private func draggedItem(in session: UIDropSession) -> ItemID? {
+        session.localDragSession?.items.first?.localObject as? ItemID
+    }
+
+    /// Whether the section at `sectionIndex` takes the row `dragged`: the section
+    /// has to be reorderable at all, and — when moves are kept in their section —
+    /// has to be the one the row was lifted from.
+    private func canDrop(_ dragged: ItemID?, into sectionIndex: Int) -> Bool {
+        guard sectionIndex < sections.count, sections[sectionIndex].allowsReorder else { return false }
+        guard movesStayInSection else { return true }
+        return sections[sectionIndex].category == dragged?.section
     }
 
     func collectionView(_ collectionView: UICollectionView,
@@ -605,10 +645,12 @@ extension ExerciseListController: UICollectionViewDragDelegate, UICollectionView
         guard session.localDragSession != nil else {
             return UICollectionViewDropProposal(operation: .cancel)
         }
-        if destinationIndexPath != nil {
+        let dragged = draggedItem(in: session)
+        if let destinationIndexPath, canDrop(dragged, into: destinationIndexPath.section) {
             return UICollectionViewDropProposal(operation: .move, intent: .insertAtDestinationIndexPath)
         }
-        if headerSection(at: session.location(in: collectionView)) != nil {
+        if let headerHit = headerSection(at: session.location(in: collectionView)),
+           canDrop(dragged, into: headerHit) {
             return UICollectionViewDropProposal(operation: .move, intent: .unspecified)
         }
         return UICollectionViewDropProposal(operation: .cancel)
@@ -617,9 +659,10 @@ extension ExerciseListController: UICollectionViewDragDelegate, UICollectionView
     func collectionView(_ collectionView: UICollectionView,
                         performDropWith coordinator: UICollectionViewDropCoordinator) {
         guard let dropItem = coordinator.items.first,
-              let id = dropItem.dragItem.localObject as? UUID,
-              let source = location(of: id)
+              let dragged = dropItem.dragItem.localObject as? ItemID,
+              let source = location(of: dragged)
         else { return }
+        let id = dragged.id
 
         // Resolve where the item was let go. The header hit-test comes first:
         // when the touch ends on a header no insertion gap was shown, but UIKit
@@ -635,6 +678,7 @@ extension ExerciseListController: UICollectionViewDragDelegate, UICollectionView
         } else {
             return
         }
+        guard canDrop(dragged, into: destinationSection) else { return }
 
         var new = sections
         let moved = new[source.section].items.remove(at: source.item)
@@ -674,11 +718,11 @@ extension ExerciseListController: UICollectionViewDragDelegate, UICollectionView
 
         isPerformingDrop = true
         sections = new
-        rowsByID[id] = {
+        if destinationSection != source.section {
             var updated = moved
             updated.exercise.category = category
-            return updated
-        }()
+            rowsByID[id] = updated
+        }
         applySnapshot(animated: false, reconfiguring: [])
         if let finalIndexPath {
             coordinator.drop(dropItem.dragItem, toItemAt: finalIndexPath)

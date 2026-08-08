@@ -58,7 +58,9 @@ enum HomeCategories {
 /// one to edit it, swipe left to delete it after a confirmation),
 /// "Favourites" (a single ordered exercise list, its + button opening the
 /// edit-favourites screen), and "Recommended" (the whitelisted exercises played
-/// longest ago, as many as Settings ▸ Exercises asks for). The
+/// longest ago, as many as Settings ▸ Exercises asks for). Routines and
+/// favourites are rearranged in place by long-pressing a row and dragging it,
+/// each within its own category — the two computed categories can't be. The
 /// categories look and behave like the Exercises tab's
 /// (tap to collapse, long-press to rearrange) but never show exercise counts,
 /// and the reorder screen has no add, delete, or rename — the categories are
@@ -202,6 +204,13 @@ struct HomeView: View {
         }
     }
 
+    /// The categories the user arranges by hand — the ones that are lists they
+    /// built themselves. "Recent" and "Recommended" are computed orders, so their
+    /// rows can't be dragged at all.
+    private func isReorderable(_ category: String) -> Bool {
+        category == HomeCategories.routines || category == HomeCategories.favourites
+    }
+
     private var listSections: [ExerciseListSection] {
         visibleCategories.map { category in
             let items = rows(in: category)
@@ -212,7 +221,8 @@ struct HomeView: View {
                                        items: isCollapsed ? [] : items,
                                        showsCount: false,
                                        showsAdd: category == HomeCategories.routines
-                                           || category == HomeCategories.favourites)
+                                           || category == HomeCategories.favourites,
+                                       allowsReorder: isReorderable(category))
         }
     }
 
@@ -381,7 +391,19 @@ struct HomeView: View {
                         newRoutineName = ""
                         isNamingNewRoutine = true
                     }
-                }
+                },
+                // Long-press drag rearranges the favourites and the routines,
+                // exactly like the Exercises tab — except each list is its own
+                // (`movesStayInSection`), so nothing can be dragged from one
+                // category into another.
+                onMove: { id, category, before in
+                    switch category {
+                    case HomeCategories.favourites: store.moveFavourite(id, before: before)
+                    case HomeCategories.routines: store.moveRoutine(id, before: before)
+                    default: break
+                    }
+                },
+                movesStayInSection: true
             )
             // Span the full screen like a List so content scrolls under the
             // navigation and tab bars.
