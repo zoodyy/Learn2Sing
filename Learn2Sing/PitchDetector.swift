@@ -25,6 +25,11 @@ final class PitchDetector: ObservableObject {
     private let engine = AVAudioEngine()
     private var running = false
 
+    /// DEBUG RECORDING — remove together with DebugRecording.swift.
+    /// Set while a run is being recorded for debugging: every microphone hop is
+    /// handed to it as it arrives, so the raw input can be written to disk.
+    var debugSink: DebugAudioSink? = nil
+
     // MARK: Clap onset detection (used by the microphone-delay test)
 
     /// When enabled, sharp loud transients (claps) are timestamped so the delay
@@ -153,6 +158,7 @@ final class PitchDetector: ObservableObject {
         os_unfair_lock_lock(&clapsLock)
         _claps.removeAll()
         os_unfair_lock_unlock(&clapsLock)
+        debugSink?.begin(format: format)   // DEBUG RECORDING — remove with DebugRecording.swift
         input.removeTap(onBus: 0)
         // Tiny hop so a fresh estimate lands very frequently; the view interpolates
         // between estimates so the indicator still moves every rendered frame.
@@ -172,6 +178,8 @@ final class PitchDetector: ObservableObject {
         guard let channel = buffer.floatChannelData?[0] else { return }
         let n = Int(buffer.frameLength)
         guard n > 0 else { return }
+
+        debugSink?.append(buffer: buffer, time: time)   // DEBUG RECORDING — remove with DebugRecording.swift
 
         if detectClaps { detectClap(channel: channel, count: n, time: time) }
 

@@ -782,6 +782,9 @@ struct PlaybackView: View {
     /// pitch line open in place of the score.
     @State private var isReviewing = false
     @State private var claps = ClapCollector()
+    // DEBUG RECORDING — remove together with DebugRecording.swift.
+    @State private var debugRecorder = DebugRunRecorder()
+    @State private var debugRecording: DebugRunRecording? = nil
     @State private var delayResultMs: Double? = nil
     @State private var visuals = VisualSettings.current
     @State private var follower = VerticalFollower()
@@ -840,6 +843,8 @@ struct PlaybackView: View {
                     ScoreView(score: finalScore,
                               history: ScoreHistory.entries(for: exercise.id),
                               exitTitle: scoreExitTitle,
+                              // DEBUG RECORDING — remove with DebugRecording.swift
+                              debugRecording: debugRecording,
                               onDownload: onScoreDownload,
                               onNext: onScoreNext,
                               onReview: { isReviewing = true },
@@ -942,6 +947,15 @@ struct PlaybackView: View {
             scorer.reset()
             claps.reset()
             pitchDetector.detectClaps = (mode == .delayTest)
+            // DEBUG RECORDING — remove together with DebugRecording.swift.
+            if mode == .normal {
+                debugRecording = nil
+                let clock = player
+                debugRecorder.start(bpm: bpm) { host in
+                    clock.beat(forHostTime: host, bpm: bpm, leadIn: leadIn)
+                }
+                pitchDetector.debugSink = debugRecorder
+            }
             player.schedule(notes: notes, bpm: bpm, leadIn: leadIn,
                             preview: mode == .normal,
                             repeatSpan: repeatSpan, betweenReps: exercise.beatsBetweenReps) {
@@ -965,6 +979,13 @@ struct PlaybackView: View {
                     // session) is what avoids the intermittent freeze when navigating back.
                     teardownAudio()
                     let score = scorer.score(notes: notes)
+                    // DEBUG RECORDING — remove together with DebugRecording.swift.
+                    // After teardownAudio, so no more microphone hops can arrive.
+                    debugRecording = debugRecorder.finish(
+                        DebugRunContext(exercise: exercise, notes: notes, texts: texts,
+                                        samples: trail.recording, bpm: bpm, leadInBeats: leadIn,
+                                        repeatSpan: repeatSpan, micDelayMs: micDelayMs,
+                                        score: score))
                     // Save before showing the result so the chart includes this run.
                     ScoreHistory.record(score: score, for: exercise.id)
                     // The run played through to the end, so it counts for the
@@ -977,6 +998,11 @@ struct PlaybackView: View {
         }
         .onDisappear {
             teardownAudio()
+            // DEBUG RECORDING — remove together with DebugRecording.swift.
+            // A no-op once the run finished and handed its recording over; this
+            // is what throws away a run the singer walked out of.
+            pitchDetector.debugSink = nil
+            debugRecorder.cancel()
         }
         .onChange(of: scenePhase) { _, phase in
             // The audio engine stops while the app is backgrounded but the on-screen
@@ -1284,6 +1310,10 @@ private struct ScoreView: View {
     let score: Int
     let history: [ScoreEntry]
     var exitTitle = L("Exit")
+    /// DEBUG RECORDING — remove together with DebugRecording.swift.
+    /// The run's microphone capture, notes and pitch estimates, packaged for the
+    /// share sheet. nil until the run has produced one.
+    var debugRecording: DebugRunRecording? = nil
     /// When set (playing from the Community tab), a Download button appears above
     /// the Play Again/Exit row, copying the exercise into the user's own library.
     var onDownload: (() -> Void)? = nil
@@ -1407,6 +1437,12 @@ private struct ScoreView: View {
                     .padding(.horizontal, 40)
             }
 
+            // DEBUG RECORDING — remove together with DebugRecording.swift.
+            if let debugRecording, verticalSizeClass != .compact {
+                DebugRecordingExportButton(recording: debugRecording)
+                    .padding(.horizontal, 40)
+            }
+
             if let onDownload {
                 Button {
                     onDownload()
@@ -1428,6 +1464,10 @@ private struct ScoreView: View {
                 playAgainButton
                 if verticalSizeClass == .compact {
                     reviewIcon
+                }
+                // DEBUG RECORDING — remove together with DebugRecording.swift.
+                if let debugRecording, verticalSizeClass == .compact {
+                    DebugRecordingExportButton(recording: debugRecording, compact: true)
                 }
                 if let onNext {
                     actionButton(L("Next"), action: onNext)
