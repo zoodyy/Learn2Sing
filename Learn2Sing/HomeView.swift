@@ -120,6 +120,10 @@ struct HomeView: View {
     /// a category header, exited via the top-leading ✗ button.
     @State private var isReordering = false
 
+    /// True while a favourite or routine is actually held in a drag, which the
+    /// title says.
+    @State private var isDraggingRow = false
+
     /// Drives the List into edit mode so `.onMove` shows drag handles.
     @State private var editMode: EditMode = .inactive
 
@@ -403,6 +407,7 @@ struct HomeView: View {
                     default: break
                     }
                 },
+                onDragChange: { isDraggingRow = $0 },
                 movesStayInSection: true
             )
             // Span the full screen like a List so content scrolls under the
@@ -418,6 +423,10 @@ struct HomeView: View {
             .navigationBarTitleDisplayMode(.inline)
             .stableTopEdgeFade()
             .toolbar {
+                ToolbarItem(placement: .principal) {
+                    ReorderableListTitle(title: isReordering ? L("Edit Categories") : L("Home"),
+                                         isDragging: isDraggingRow)
+                }
                 if isReordering {
                     ToolbarItem(placement: .topBarLeading) {
                         Button {

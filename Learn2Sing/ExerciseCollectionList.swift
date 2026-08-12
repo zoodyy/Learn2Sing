@@ -85,6 +85,9 @@ struct ExerciseCollectionList: UIViewControllerRepresentable {
     /// (exercise, newCategory, idOfExerciseItNowPrecedes — nil appends).
     /// nil disables drag & drop entirely (Community tab).
     var onMove: ((UUID, String, UUID?) -> Void)? = nil
+    /// true as a row is lifted, false as the drag ends (dropped or cancelled), so
+    /// the screen around the list can show that it's being rearranged.
+    var onDragChange: ((Bool) -> Void)? = nil
     /// true refuses every drop outside the section the drag was lifted from, so
     /// each section is its own separate ordered list (the Home tab, where the
     /// categories are different kinds of thing and a favourite dropped into
@@ -131,6 +134,7 @@ struct ExerciseCollectionList: UIViewControllerRepresentable {
         controller.onHeaderLongPress = onHeaderLongPress
         controller.onAdd = onAdd
         controller.onMove = onMove
+        controller.onDragChange = onDragChange
         controller.movesStayInSection = movesStayInSection
         controller.onLoadMore = onLoadMore
         controller.loadMoreThreshold = loadMoreThreshold
@@ -145,6 +149,40 @@ struct ExerciseCollectionList: UIViewControllerRepresentable {
         // loading, which is where a list parked at its end would otherwise sit
         // waiting to be scrolled (see `checkLoadMore`).
         controller.checkLoadMore()
+    }
+}
+
+/// The navigation-bar title of a tab whose list can be rearranged by dragging:
+/// the tab's own title, which for as long as a row is held becomes an accent-
+/// coloured "Reordering" so it's plain that letting go will move it. Both parts
+/// of the switch — the wording and the colour — cross-fade in a fraction of a
+/// second, quick enough to read as a change rather than a transition.
+///
+/// A `.principal` toolbar item rather than `.navigationTitle`, which is UIKit's
+/// own label and can't be recoloured. The views set both: the title still names
+/// the back button of anything they push.
+struct ReorderableListTitle: View {
+    var title: String
+    var isDragging: Bool
+
+    var body: some View {
+        // Both words are always laid out, one on top of the other, and only their
+        // opacity changes. Swapping the string of a single Text instead makes the
+        // title jump left for a frame as the label resizes around the longer word
+        // mid-fade; stacked, the frame is the wider of the two from the start and
+        // nothing moves.
+        ZStack {
+            Text(title)
+                .foregroundStyle(Color.primary)
+                .opacity(isDragging ? 0 : 1)
+                .accessibilityHidden(isDragging)
+            Text(L("Reordering"))
+                .foregroundStyle(Color.accentColor)
+                .opacity(isDragging ? 1 : 0)
+                .accessibilityHidden(!isDragging)
+        }
+        .font(.headline)
+        .animation(.easeInOut(duration: 0.15), value: isDragging)
     }
 }
 
@@ -169,6 +207,7 @@ final class ExerciseListController: UIViewController {
     var onHeaderLongPress: (() -> Void)?
     var onAdd: ((String) -> Void)?
     var onMove: ((UUID, String, UUID?) -> Void)?
+    var onDragChange: ((Bool) -> Void)?
     var movesStayInSection = false
     var onLoadMore: (() -> Void)?
     var loadMoreThreshold = 30
@@ -232,6 +271,21 @@ final class ExerciseListController: UIViewController {
         cv.dragDelegate = self
         cv.dropDelegate = self
         cv.dragInteractionEnabled = true
+        // UIKit reports nothing when a lift is abandoned — the finger comes up
+        // without ever moving, so no drag session begins and `dragSessionDidEnd`
+        // never arrives. This recognizer is here only to notice that touch ending.
+        // It changes nothing about how touches are handled (it cancels none of
+        // them and runs alongside every other recognizer), and UIKit never lets it
+        // recognize a touch that became a drag, so it stays silent for the whole
+        // of a real one.
+        let liftWatch = UILongPressGestureRecognizer(target: self,
+                                                     action: #selector(liftEndedWithoutDrag(_:)))
+        liftWatch.minimumPressDuration = 0
+        liftWatch.cancelsTouchesInView = false
+        liftWatch.delaysTouchesBegan = false
+        liftWatch.delaysTouchesEnded = false
+        liftWatch.delegate = self
+        cv.addGestureRecognizer(liftWatch)
         // onRefresh is assigned before the view loads (apply() runs inside
         // makeUIViewController), so its presence is known here.
         if onRefresh != nil {
@@ -614,7 +668,35 @@ extension ExerciseListController: UICollectionViewDragDelegate, UICollectionView
         // listed in two sections at once (Home), so only the pair says which of
         // its copies was picked up.
         item.localObject = itemID
+        // The lift — the row swelling under the finger — starts here. The drag
+        // session itself doesn't begin until the finger moves, a second or more
+        // later, which is far too late to say that the list is being rearranged.
+        onDragChange?(true)
         return [item]
+    }
+
+    /// The finger has started moving the row it lifted. Says so again in case
+    /// anything (a second finger touching down mid-lift) cleared it in between.
+    func collectionView(_ collectionView: UICollectionView, dragSessionWillBegin session: UIDragSession) {
+        onDragChange?(true)
+    }
+
+    /// The drag is over — dropped, or sprung back after a cancel.
+    func collectionView(_ collectionView: UICollectionView, dragSessionDidEnd session: UIDragSession) {
+        onDragChange?(false)
+    }
+
+    /// A touch that never became a drag has ended: either a lift the user let go
+    /// of without moving — which gets no session, and so no `dragSessionDidEnd` —
+    /// or an ordinary tap or scroll, for which saying "not dragging" is a no-op.
+    @objc private func liftEndedWithoutDrag(_ recognizer: UIGestureRecognizer) {
+        switch recognizer.state {
+        case .ended, .cancelled, .failed:
+            guard collectionView?.hasActiveDrag != true else { return }
+            onDragChange?(false)
+        default:
+            break
+        }
     }
 
     /// The item a local drag session is carrying, as its list identity.
@@ -751,6 +833,15 @@ extension ExerciseListController: UICollectionViewDragDelegate, UICollectionView
             pendingSections = nil
             setSections(pending, animated: true)
         }
+    }
+}
+
+extension ExerciseListController: UIGestureRecognizerDelegate {
+    /// The lift watcher only observes; it must never make another recognizer —
+    /// the scroll, the drag lift, a swipe action — wait on it or lose to it.
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer,
+                           shouldRecognizeSimultaneouslyWith other: UIGestureRecognizer) -> Bool {
+        true
     }
 }
 

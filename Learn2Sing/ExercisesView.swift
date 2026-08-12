@@ -165,6 +165,9 @@ struct ExercisesView: View {
     /// drag), exited via the top-leading ✗ button.
     @State private var isReordering = false
 
+    /// True while an exercise is actually held in a drag, which the title says.
+    @State private var isDraggingExercise = false
+
     /// Drives the List into edit mode so `.onMove` shows drag handles.
     @State private var editMode: EditMode = .inactive
 
@@ -479,6 +482,7 @@ struct ExercisesView: View {
                         onMove: { id, category, before in
                             store.moveExercise(id, toCategory: category, before: before)
                         },
+                        onDragChange: { isDraggingExercise = $0 },
                         hidesSearchBarInitially: true,
                         highlightedID: highlightedExerciseID
                     )
@@ -497,6 +501,10 @@ struct ExercisesView: View {
                         prompt: L("Exercises, Descriptions"))
             .stableTopEdgeFade()
             .toolbar {
+                ToolbarItem(placement: .principal) {
+                    ReorderableListTitle(title: isReordering ? L("Edit Categories") : L("Exercises"),
+                                         isDragging: isDraggingExercise)
+                }
                 if isReordering {
                     ToolbarItem(placement: .topBarLeading) {
                         Button {
