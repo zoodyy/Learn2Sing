@@ -82,6 +82,15 @@ extension Color {
                       Int((r * 255).rounded()), Int((g * 255).rounded()), Int((b * 255).rounded()))
     }
 
+    /// The app's accent colour, read straight from the asset catalogue. `.accentColor`
+    /// resolves against a view's tint, which there is none of where a stored default
+    /// has to be turned into a hex string, so the colour set is named outright — the
+    /// same name the app's global accent-colour build setting points at.
+    static var appAccent: Color {
+        if let accent = UIColor(named: "AccentColor") { return Color(uiColor: accent) }
+        return .accentColor
+    }
+
     /// "#RRGGBBAA" representation, used for colours whose opacity (including fully
     /// transparent) is meaningful, like the singer indicator's fill/stroke/trail.
     var hexStringWithAlpha: String {
@@ -167,7 +176,12 @@ enum MenuVisualKeys {
 }
 
 enum MenuVisualDefaults {
-    static let exercisePreviewColor = "#CD49FD"   // matches the accent colour
+    /// The accent colour itself rather than a literal copy of it, so the previews
+    /// follow the app's tint if it is ever changed. Resolved afresh on every read:
+    /// a colour the user picked is stored under the key above and stays put, while
+    /// clearing that key — what Settings ▸ Reset does — lands back on whatever the
+    /// accent colour is at the time.
+    static var exercisePreviewColor: String { Color.appAccent.hexString }
 }
 
 // MARK: - Resolved settings
