@@ -805,7 +805,17 @@ extension ExerciseListController: UICollectionViewDragDelegate, UICollectionView
             updated.exercise.category = category
             rowsByID[id] = updated
         }
-        applySnapshot(animated: false, reconfiguring: [])
+        // Animated, even though the rows are already exactly where this snapshot
+        // puts them: while the finger was down, the drag opened a gap at the
+        // destination and closed the one the row left, so every row in between
+        // has been drawn a place along for the whole drag. That offset is the
+        // collection view's, and it only unwinds as the drop finishes. Applied
+        // *without* animation the move lands on top of it, shifting those rows a
+        // second full row and letting them ease back over the drop — the jump
+        // this used to end on. Animated, the update is timed with the drop
+        // instead, and since it asks for the arrangement already on screen,
+        // nothing moves at all.
+        applySnapshot(animated: true, reconfiguring: [])
         if let finalIndexPath {
             coordinator.drop(dropItem.dragItem, toItemAt: finalIndexPath)
         } else if let headerIndex = sections.firstIndex(where: { $0.category == category }),
