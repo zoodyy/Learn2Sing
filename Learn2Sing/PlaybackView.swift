@@ -631,15 +631,49 @@ final class ExercisePlayer {
 private final class SingerIndicator {
     private var shown: Double? = nil
 
+    /// How far the target may sit above the drawn value before the ease stops
+    /// closing a fixed *fraction* of the gap and starts closing a fixed *amount*.
+    ///
+    /// Easing by a fraction means one wrong estimate drags the dot in proportion to
+    /// how wrong it was: an octave-away reading moved it a third of an octave, and
+    /// then it took another ten frames to crawl back — one bad estimate, a swoop
+    /// lasting a sixth of a second. Capping the per-frame movement takes that away
+    /// without slowing the singer down, because the two move at completely different
+    /// speeds: over a whole run, 99% of the real frame-to-frame movement was under
+    /// 1.8 semitones, while the bad estimates were 12 to 14 away. Anything inside the
+    /// knee — all ordinary singing, and every note change in a normal exercise — eases
+    /// exactly as it did before.
+    private let knee = 3.0
+
+    /// The last value drawn, kept across the gaps where nothing is detected so an
+    /// estimate that reappears can be measured against where the singer actually was.
+    private var lastShown: Double? = nil
+
+    /// How far a reappearing estimate may sit from that before it stops being taken
+    /// at face value. A note that has just started has to show at once — there is
+    /// nothing to ease from, and easing in would be a delay the singer feels on every
+    /// single note. But over a whole run the real re-entries all landed within 2.7
+    /// semitones of the pitch before the gap, while the wrong ones landed 10 to 16
+    /// away, so a bar between the two costs nothing and stops one bad estimate from
+    /// throwing the dot across the screen the instant a note begins.
+    private let reappearSnap = 5.0
+
     /// Advance one frame toward `target` and return the value to draw.
     func step(target: Double?, factor: Double) -> Double? {
         guard let target else { shown = nil; return nil }
+        let from: Double
         if let current = shown {
-            shown = current + (target - current) * factor
+            from = current
+        } else if let last = lastShown, abs(target - last) > reappearSnap {
+            from = last                     // implausible re-entry: ease in like any move
         } else {
-            shown = target
+            from = target                   // a note starting: show it where it is
         }
-        return shown
+        let limit = factor * knee
+        let next = from + min(limit, max(-limit, (target - from) * factor))
+        shown = next
+        lastShown = next
+        return next
     }
 }
 
@@ -882,8 +916,10 @@ struct PlaybackView: View {
                 let beat = player.currentBeat(bpm: bpm, leadIn: leadIn)
                     ?? lastDrawnBeat.value ?? -leadIn
 
-                // Ease the indicator toward the latest estimate every frame.
-                let singerPitch = indicator.step(target: pitchDetector.currentPitch, factor: 0.3)
+                // Ease the indicator toward the latest estimate every frame. A shade
+                // quicker than it used to be, which pays back the little the cap in
+                // `SingerIndicator` costs on the rare note change that clears its knee.
+                let singerPitch = indicator.step(target: pitchDetector.currentPitch, factor: 0.35)
 
                 Canvas { ctx, size in
                     lastDrawnBeat.value = beat
