@@ -131,6 +131,7 @@ T("Compensates for the lag between singing and pitch detection. Only the score i
 # --- Instruments screen ---
 T("Built-in", "Integriert", "Integrados", "Intégrés", "Integrati", "Integrados", "Ingebouwd", "Встроенные", "Wbudowane", "Yerleşik", "Inbyggda", "内蔵", "기본 제공", "内置")
 T("Custom", "Eigene", "Personalizado", "Personnalisé", "Personalizzato", "Personalizado", "Aangepast", "Свои", "Własne", "Özel", "Egna", "カスタム", "사용자 지정", "自定义")
+T("Play sample", "Beispiel abspielen", "Reproducir muestra", "Écouter un exemple", "Riproduci esempio", "Reproduzir amostra", "Voorbeeld afspelen", "Прослушать пример", "Odtwórz próbkę", "Örneği çal", "Spela upp exempel", "サンプルを再生", "샘플 재생", "播放示例")
 T("Upload an MP3 or WAV file containing a single sound. Playback shifts it up and down from its pitch to reach every note. After uploading, set the pitch the recording actually has.",
   "Lade eine MP3- oder WAV-Datei mit einem einzelnen Klang hoch. Die Wiedergabe verschiebt ihn von seiner Tonhöhe aus nach oben und unten, um alle Noten zu erreichen. Stelle nach dem Hochladen die tatsächliche Tonhöhe der Aufnahme ein.",
   "Sube un archivo MP3 o WAV con un solo sonido. La reproducción lo desplaza hacia arriba y abajo desde su tono para alcanzar todas las notas. Después de subirlo, indica el tono real de la grabación.",

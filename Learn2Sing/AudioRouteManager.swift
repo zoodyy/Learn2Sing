@@ -41,6 +41,9 @@ final class AudioRouteManager: ObservableObject {
     /// playback: probing for devices (which widens the category) and re-asserting a
     /// route we aren't using.
     private var sessionActive = false
+    /// Whether the active session is the playback-only one, which must never be
+    /// widened back to `.playAndRecord` behind the user's back.
+    private var playbackOnly = false
 
     /// Selectable output / input device names, refreshed as devices connect & disconnect.
     @Published private(set) var outputOptions: [String] = []
@@ -117,6 +120,7 @@ final class AudioRouteManager: ObservableObject {
     /// Configure the shared session for simultaneous record + playback, honouring the
     /// user's speaker / microphone preferences. Call before starting the engine or mic tap.
     func configureSession() {
+        playbackOnly = false
         try? session.setCategory(.playAndRecord, mode: .default, options: categoryOptions())
         try? session.setActive(true)
         sessionActive = true
@@ -124,11 +128,24 @@ final class AudioRouteManager: ObservableObject {
         applyInputRoute()
     }
 
+    /// Configure the shared session for sound that never records — the instrument
+    /// samples in Settings. Activating the recording category would ask a user who
+    /// hasn't granted microphone access for it, which has nothing to do with
+    /// listening to an instrument, so this one only plays. Pairs with
+    /// `deactivateSession` like `configureSession` does.
+    func configurePlaybackSession() {
+        playbackOnly = true
+        try? session.setCategory(.playback, mode: .default)
+        try? session.setActive(true)
+        sessionActive = true
+    }
+
     /// Release the shared session when playback ends. Pairs with `configureSession`
     /// so the mic/route is freed instead of being left active behind the exercise
     /// list. Call only after both audio engines have been stopped.
     func deactivateSession() {
         sessionActive = false
+        playbackOnly = false
         try? session.setActive(false, options: .notifyOthersOnDeactivation)
     }
 
@@ -217,7 +234,7 @@ final class AudioRouteManager: ObservableObject {
     /// input. Only acts when the live route actually disagrees with the preference,
     /// so it settles instead of bouncing off its own route-change notifications.
     private func reapplyRoutesIfNeeded() {
-        guard sessionActive else { return }
+        guard sessionActive, !playbackOnly else { return }
 
         let outputWrong = selectedSpeaker == Self.builtInSpeaker
             && session.currentRoute.outputs.contains(where: Self.isExternalOutput)

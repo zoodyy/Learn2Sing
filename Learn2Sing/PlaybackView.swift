@@ -398,35 +398,7 @@ final class ExercisePlayer {
     /// scheduling; does nothing if the file is missing or can't be decoded.
     func loadClick(named name: String, ext: String = "mp3") {
         guard let url = Bundle.main.url(forResource: name, withExtension: ext),
-              let file = try? AVAudioFile(forReading: url) else { return }
-
-        let inFormat = file.processingFormat
-        let inFrames = AVAudioFrameCount(file.length)
-        guard inFrames > 0,
-              let inBuffer = AVAudioPCMBuffer(pcmFormat: inFormat, frameCapacity: inFrames),
-              (try? file.read(into: inBuffer)) != nil else { return }
-
-        // Convert to mono Float32 at the engine sample rate so it mixes directly.
-        guard let outFormat = AVAudioFormat(commonFormat: .pcmFormatFloat32,
-                                            sampleRate: sampleRate, channels: 1,
-                                            interleaved: false),
-              let converter = AVAudioConverter(from: inFormat, to: outFormat) else { return }
-        let outCapacity = AVAudioFrameCount(Double(inFrames) * sampleRate / inFormat.sampleRate) + 1024
-        guard let outBuffer = AVAudioPCMBuffer(pcmFormat: outFormat, frameCapacity: outCapacity) else { return }
-
-        var supplied = false
-        var error: NSError?
-        converter.convert(to: outBuffer, error: &error) { _, status in
-            if supplied { status.pointee = .noDataNow; return nil }
-            supplied = true
-            status.pointee = .haveData
-            return inBuffer
-        }
-        guard error == nil, let channel = outBuffer.floatChannelData else { return }
-
-        let n = Int(outBuffer.frameLength)
-        var samples = [Float](repeating: 0, count: n)
-        for i in 0..<n { samples[i] = channel[0][i] }
+              let samples = monoSamples(at: url, sampleRate: sampleRate) else { return }
 
         os_unfair_lock_lock(&lock)
         clickSamples = samples

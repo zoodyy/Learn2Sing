@@ -174,6 +174,7 @@ struct InstrumentsView: View {
     @ObservedObject private var appLanguage = LanguageManager.shared
 
     @ObservedObject private var store = CustomInstrumentStore.shared
+    @ObservedObject private var preview = InstrumentPreviewPlayer.shared
     @AppStorage(Instrument.storageKey) private var instrumentRaw = Instrument.piano.rawValue
 
     /// Pushes the detail screen for a custom instrument onto the Settings stack.
@@ -186,45 +187,65 @@ struct InstrumentsView: View {
         Form {
             Section("Built-in") {
                 ForEach(Instrument.allCases) { instrument in
-                    Button {
-                        instrumentRaw = instrument.rawValue
-                    } label: {
-                        HStack {
-                            Text(L(instrument.rawValue))
-                            Spacer()
-                            if instrumentRaw == instrument.rawValue {
-                                Image(systemName: "checkmark")
-                                    .foregroundStyle(.tint)
+                    // Two buttons in the row — pick the instrument, or hear it — so
+                    // both are borderless: the row-wide button style would take the
+                    // whole row for itself and never let the speaker be tapped.
+                    HStack(spacing: 0) {
+                        Button {
+                            instrumentRaw = instrument.rawValue
+                        } label: {
+                            HStack {
+                                Text(L(instrument.rawValue))
+                                Spacer()
+                                if instrumentRaw == instrument.rawValue {
+                                    Image(systemName: "checkmark")
+                                        .foregroundStyle(.tint)
+                                }
                             }
+                            .contentShape(Rectangle())
+                        }
+                        .buttonStyle(.borderless)
+                        .foregroundStyle(.primary)
+
+                        InstrumentSampleButton(isPlaying: preview.isPlaying(instrument)) {
+                            preview.play(instrument)
                         }
                     }
-                    .foregroundStyle(.primary)
                 }
             }
 
             Section {
                 ForEach(store.instruments) { instrument in
-                    Button {
-                        onSelect(instrument.id)
-                    } label: {
-                        HStack {
-                            VStack(alignment: .leading) {
-                                Text(instrument.name)
-                                Text(describePitch(instrument.baseFrequency))
-                                    .font(.footnote)
-                                    .foregroundStyle(.secondary)
+                    HStack(spacing: 0) {
+                        Button {
+                            onSelect(instrument.id)
+                        } label: {
+                            HStack {
+                                VStack(alignment: .leading) {
+                                    Text(instrument.name)
+                                    Text(describePitch(instrument.baseFrequency))
+                                        .font(.footnote)
+                                        .foregroundStyle(.secondary)
+                                }
+                                Spacer()
+                                if instrumentRaw == CustomInstrumentStore.selectionTag(instrument.id) {
+                                    Image(systemName: "checkmark")
+                                        .foregroundStyle(.tint)
+                                }
                             }
-                            Spacer()
-                            if instrumentRaw == CustomInstrumentStore.selectionTag(instrument.id) {
-                                Image(systemName: "checkmark")
-                                    .foregroundStyle(.tint)
-                            }
-                            Image(systemName: "chevron.right")
-                                .font(.footnote.weight(.semibold))
-                                .foregroundStyle(.tertiary)
+                            .contentShape(Rectangle())
                         }
+                        .buttonStyle(.borderless)
+                        .foregroundStyle(.primary)
+
+                        InstrumentSampleButton(isPlaying: preview.isPlaying(instrument)) {
+                            preview.play(instrument)
+                        }
+
+                        Image(systemName: "chevron.right")
+                            .font(.footnote.weight(.semibold))
+                            .foregroundStyle(.tertiary)
                     }
-                    .foregroundStyle(.primary)
                 }
                 .onDelete { offsets in
                     for offset in offsets {
@@ -238,6 +259,9 @@ struct InstrumentsView: View {
         }
         .navigationTitle(L("Instruments"))
         .navigationBarTitleDisplayMode(.inline)
+        // Leaving the screen cuts a sample short and hands the audio session back,
+        // so nothing is left playing behind it.
+        .onDisappear { preview.stop() }
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Button {
