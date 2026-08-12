@@ -2728,21 +2728,28 @@ final class Learn2SingUITests: XCTestCase {
         // Both the "Screen" toggle and the template rows sit at the bottom of the form.
         for _ in 0..<4 { app.swipeUp() }
 
-        // The bundled template is seeded and selected on a fresh install, and it
-        // turns the tab bar off.
-        let bundled = app.buttons.matching(
-            NSPredicate(format: "label BEGINSWITH %@", "Simplest")).firstMatch
-        XCTAssertTrue(bundled.waitForExistence(timeout: 5), "bundled template row not found")
+        // Both bundled templates — the standard look for each appearance — are seeded
+        // on a fresh install, and both turn the tab bar off.
+        func isSelected(_ row: XCUIElement) -> Bool { row.isSelected }
+        let dark = app.buttons["Simplest - dark"].firstMatch
+        let light = app.buttons["Simplest - light"].firstMatch
+        XCTAssertTrue(dark.waitForExistence(timeout: 5), "bundled dark template row not found")
+        XCTAssertTrue(light.exists, "bundled light template row not found")
         let hideTabBar = app.switches.matching(
             NSPredicate(format: "label BEGINSWITH %@", "Hide tab bar")).firstMatch
         XCTAssertTrue(hideTabBar.waitForExistence(timeout: 5), "Hide tab bar toggle not found")
         XCTAssertEqual(hideTabBar.value as? String, "1",
                        "the bundled template should hide the tab bar")
 
-        // Saving the current look adds a second template and moves the selection to
+        // Whichever of the two matches the simulator's appearance is the one selected,
+        // so exactly one checkmark is showing. The rest of the test drives that one.
+        XCTAssertNotEqual(isSelected(dark), isSelected(light),
+                          "exactly one bundled template should be selected on a fresh install")
+        let bundled = isSelected(dark) ? dark : light
+        let bundledLabel = bundled.label
+
+        // Saving the current look adds a third template and moves the selection to
         // it — one checkmark, not two.
-        func isSelected(_ row: XCUIElement) -> Bool { row.isSelected }
-        XCTAssertTrue(isSelected(bundled), "the bundled template starts out selected")
         app.buttons["Save current as template"].tap()
         let nameField = app.textFields.firstMatch
         XCTAssertTrue(nameField.waitForExistence(timeout: 3))
@@ -2789,8 +2796,7 @@ final class Learn2SingUITests: XCTestCase {
         app.buttons["Playback"].firstMatch.tap()
         XCTAssertTrue(app.navigationBars["Playback"].waitForExistence(timeout: 5))
         for _ in 0..<4 { app.swipeUp() }
-        let reopened = app.buttons.matching(
-            NSPredicate(format: "label BEGINSWITH %@", "Simplest")).firstMatch
+        let reopened = app.buttons[bundledLabel].firstMatch
         XCTAssertTrue(reopened.waitForExistence(timeout: 5))
         XCTAssertTrue(isSelected(reopened), "the selection was lost across a relaunch")
     }

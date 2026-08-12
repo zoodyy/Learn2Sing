@@ -225,10 +225,12 @@ enum ResettableSettings: String, CaseIterable, Identifiable {
                 defaults.removeObject(forKey: key)
             }
             OrientationLockManager.apply(.none)
-            // A fresh install doesn't sit on the raw playback defaults: the
-            // template shipped in the app bundle is applied on first launch, so
-            // that — not `VisualDefaults` — is the look to come back to. It also
-            // becomes the selected template again if the user still has it.
+            // A fresh install doesn't sit on the raw playback defaults: the bundled
+            // template matching the app's appearance is applied on first launch, so
+            // that — not `VisualDefaults` — is the look to come back to. The theme
+            // key is cleared just above, so the appearance is the device's own again
+            // by now. The template also becomes the selected one if the user still
+            // has it.
             templates.resetToBundled()
         case .voice:
             for key in [VocalRange.storageKey, VocalRange.customLowKey,

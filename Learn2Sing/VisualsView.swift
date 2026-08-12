@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 import UniformTypeIdentifiers
 import Combine
 
@@ -20,6 +21,33 @@ enum AppTheme: String, CaseIterable, Identifiable {
         case .dark:   return .dark
         }
     }
+
+    /// The appearance this theme actually puts the app in — itself, or the device's own
+    /// setting while following the system. Unlike `colorScheme`, this always names one
+    /// of light and dark, which is what the parts of the app that keep a look per
+    /// appearance (the playback visuals) need.
+    var scheme: ColorScheme { colorScheme ?? AppTheme.deviceScheme }
+
+    /// The theme as stored, defaulting to following the system exactly as the picker does.
+    static var current: AppTheme {
+        AppTheme(rawValue: UserDefaults.standard.string(forKey: storageKey) ?? "") ?? .system
+    }
+
+    /// The appearance the app is in right now.
+    static var currentScheme: ColorScheme { current.scheme }
+
+    /// The device's own light/dark setting. Read from the screen rather than from the
+    /// SwiftUI environment, because the in-app theme override changes the whole window's
+    /// environment colour scheme — the device's setting has to show through that. Before
+    /// a scene is connected, which is where the template store reads this at launch, the
+    /// trait collection at hand answers instead.
+    static var deviceScheme: ColorScheme {
+        let style = UIApplication.shared.connectedScenes
+            .compactMap { $0 as? UIWindowScene }
+            .first?.screen.traitCollection.userInterfaceStyle
+            ?? UITraitCollection.current.userInterfaceStyle
+        return style == .dark ? .dark : .light
+    }
 }
 
 /// The "Visuals" hub reached from Settings. Holds the app-wide theme and
@@ -32,6 +60,14 @@ struct VisualsHubView: View {
 
     @AppStorage(AppTheme.storageKey) private var themeRaw = AppTheme.system.rawValue
     @AppStorage(OrientationLock.storageKey) private var orientationLockRaw = OrientationLock.none.rawValue
+
+    /// The playback screen has a standard look per appearance, so the theme choice
+    /// carries it along — see `handleThemeChange(from:to:)`.
+    @EnvironmentObject private var templates: VisualTemplateStore
+
+    /// Set when a theme change should also switch the playback screen over but the user
+    /// has customised its look — drives the "switch or keep?" alert.
+    @State private var pendingPlaybackScheme: ColorScheme?
 
     /// Push the menus-visuals screen onto the shared Settings navigation stack.
     let openMenus: () -> Void
@@ -46,6 +82,9 @@ struct VisualsHubView: View {
                     ForEach(AppTheme.allCases) { theme in
                         Text(L(theme.rawValue)).tag(theme.rawValue)
                     }
+                }
+                .onChange(of: themeRaw) { oldTheme, newTheme in
+                    handleThemeChange(from: oldTheme, to: newTheme)
                 }
                 .settingHelp(L("Sets the app's appearance. “System” matches your device's light or dark setting."))
             }
@@ -93,6 +132,40 @@ struct VisualsHubView: View {
         }
         .navigationTitle(L("Visuals"))
         .navigationBarTitleDisplayMode(.inline)
+        .alert("Playback screen", isPresented: Binding(
+            get: { pendingPlaybackScheme != nil },
+            set: { if !$0 { pendingPlaybackScheme = nil } }
+        )) {
+            Button("Switch") {
+                if let scheme = pendingPlaybackScheme {
+                    templates.applyStandard(for: scheme)
+                }
+                pendingPlaybackScheme = nil
+            }
+            Button("Keep current", role: .cancel) {
+                pendingPlaybackScheme = nil
+            }
+        } message: {
+            // One whole sentence per appearance rather than the adjective on its own,
+            // which not every language can slot into a sentence unchanged.
+            Text(pendingPlaybackScheme == .dark
+                 ? L("Do you also want to switch the playback screen to the standard dark look? Your customisations will be replaced.")
+                 : L("Do you also want to switch the playback screen to the standard light look? Your customisations will be replaced."))
+        }
+    }
+
+    /// When the theme change actually changes the appearance the app is in: switch an
+    /// uncustomised playback screen over to the new appearance's standard look silently,
+    /// or ask first when the user has made that look their own.
+    private func handleThemeChange(from oldTheme: String, to newTheme: String) {
+        let newScheme = (AppTheme(rawValue: newTheme) ?? .system).scheme
+        guard (AppTheme(rawValue: oldTheme) ?? .system).scheme != newScheme else { return }
+
+        if templates.currentSettingsAreStandard {
+            templates.applyStandard(for: newScheme)
+        } else {
+            pendingPlaybackScheme = newScheme
+        }
     }
 }
 

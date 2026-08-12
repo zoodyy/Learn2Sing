@@ -5,9 +5,9 @@ struct Learn2SingApp: App {
     // Installs the UIKit app delegate that reports the orientation-lock mask.
     @UIApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
     @StateObject private var store = ExerciseStore()
-    // Created at launch so the bundled default template is seeded and applied before
-    // any playback, making it the starting look rather than only after the visuals
-    // settings screen is first opened.
+    // Created at launch so the bundled templates are seeded, and the one matching the
+    // app's appearance applied, before any playback — making it the starting look
+    // rather than only after the visuals settings screen is first opened.
     @StateObject private var visualTemplates = VisualTemplateStore()
 
     var body: some Scene {

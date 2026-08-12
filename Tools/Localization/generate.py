@@ -39,8 +39,8 @@ INDIRECT = [
     # Categories: bundled + Home tab built-ins
     "Tone", "Scales", "Articulation", "Agility", "Range", "No Category",
     "Recent", "Routines", "Favourites", "Recommended",
-    # Bundled visual template
-    "SimplestTemplate",
+    # Bundled visual templates
+    "Simplest - dark", "Simplest - light",
 ]
 
 bundle = json.loads((APP / "Bundled" / "BundledExercises.json").read_text())
