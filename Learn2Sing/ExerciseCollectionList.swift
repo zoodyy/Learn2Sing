@@ -154,9 +154,13 @@ struct ExerciseCollectionList: UIViewControllerRepresentable {
 
 /// The navigation-bar title of a tab whose list can be rearranged by dragging:
 /// the tab's own title, which for as long as a row is held becomes an accent-
-/// coloured "Reordering" so it's plain that letting go will move it. Both parts
-/// of the switch — the wording and the colour — cross-fade in a fraction of a
-/// second, quick enough to read as a change rather than a transition.
+/// coloured "Reordering" so it's plain that letting go will move it.
+///
+/// The two directions are deliberately not mirror images. Picking a row up is
+/// the moment worth announcing, so "Reordering" springs out of nothing —
+/// small, overshooting past its size, settling back — while letting go is just
+/// a quick cross-fade back to the tab's own title, the same understated switch
+/// it always was.
 ///
 /// A `.principal` toolbar item rather than `.navigationTitle`, which is UIKit's
 /// own label and can't be recoloured. The views set both: the title still names
@@ -165,24 +169,46 @@ struct ReorderableListTitle: View {
     var title: String
     var isDragging: Bool
 
+    /// How small "Reordering" sits before it pops. Small enough that the growth
+    /// is the eye-catching part; the word is still fading in at that point, so
+    /// it reads as appearing from nothing rather than as a shrunken label.
+    private let restingScale: CGFloat = 0.4
+
     var body: some View {
         // Both words are always laid out, one on top of the other, and only their
         // opacity changes. Swapping the string of a single Text instead makes the
         // title jump left for a frame as the label resizes around the longer word
         // mid-fade; stacked, the frame is the wider of the two from the start and
-        // nothing moves.
+        // nothing moves. The pop is a `scaleEffect`, which likewise doesn't touch
+        // the layout, so the other title underneath stays put while it plays.
         ZStack {
             Text(title)
                 .foregroundStyle(Color.primary)
                 .opacity(isDragging ? 0 : 1)
+                .animation(.easeInOut(duration: 0.15), value: isDragging)
                 .accessibilityHidden(isDragging)
             Text(L("Reordering"))
                 .foregroundStyle(Color.accentColor)
+                .scaleEffect(isDragging ? 1 : restingScale)
+                // A springy `bounce` is what supplies the overshoot: the word
+                // sails past full size and is pulled back to it. Letting go
+                // instead holds the size until the word is fully invisible and
+                // only then re-arms the small starting scale, so the way back
+                // is a plain fade with no shrinking to see.
+                .animation(isDragging
+                           ? .spring(duration: 0.4, bounce: 0.6)
+                           : .easeOut(duration: 0.01).delay(0.15),
+                           value: isDragging)
+                // Faster than the outgoing title's fade so the word is legible
+                // early and the growth is the part that's actually watched.
                 .opacity(isDragging ? 1 : 0)
+                .animation(isDragging
+                           ? .easeOut(duration: 0.12)
+                           : .easeInOut(duration: 0.15),
+                           value: isDragging)
                 .accessibilityHidden(!isDragging)
         }
         .font(.headline)
-        .animation(.easeInOut(duration: 0.15), value: isDragging)
     }
 }
 
