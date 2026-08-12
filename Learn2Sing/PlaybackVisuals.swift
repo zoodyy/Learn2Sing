@@ -167,7 +167,7 @@ enum MenuVisualKeys {
 }
 
 enum MenuVisualDefaults {
-    static let exercisePreviewColor = "#E292FE"
+    static let exercisePreviewColor = "#CD49FD"   // matches the accent colour
 }
 
 // MARK: - Resolved settings
