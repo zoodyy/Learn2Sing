@@ -32,6 +32,20 @@ T("Text", "Text", "Texto", "Texte", "Testo", "Texto", "Tekst", "Текст", "Te
 T("Label", "Beschriftung", "Etiqueta", "Libellé", "Etichetta", "Rótulo", "Label", "Подпись", "Etykieta", "Etiket", "Etikett", "ラベル", "레이블", "标签")
 T("Description", "Beschreibung", "Descripción", "Description", "Descrizione", "Descrição", "Beschrijving", "Описание", "Opis", "Açıklama", "Beskrivning", "説明", "설명", "说明")
 T("Username", "Benutzername", "Nombre de usuario", "Nom d’utilisateur", "Nome utente", "Nome de usuário", "Gebruikersnaam", "Имя пользователя", "Nazwa użytkownika", "Kullanıcı adı", "Användarnamn", "ユーザー名", "사용자 이름", "用户名")
+T("Username \"%@\" is not available",
+  "Der Benutzername „%@“ ist nicht verfügbar",
+  "El nombre de usuario «%@» no está disponible",
+  "Le nom d’utilisateur « %@ » n’est pas disponible",
+  "Il nome utente “%@” non è disponibile",
+  "O nome de usuário “%@” não está disponível",
+  "De gebruikersnaam ‘%@’ is niet beschikbaar",
+  "Имя пользователя «%@» недоступно",
+  "Nazwa użytkownika „%@” jest niedostępna",
+  "“%@” kullanıcı adı kullanılamıyor",
+  "Användarnamnet ”%@” är inte tillgängligt",
+  "ユーザー名「%@」は使用できません",
+  "사용자 이름 “%@”은(는) 사용할 수 없습니다",
+  "用户名“%@”不可用")
 T("Device", "Gerät", "Dispositivo", "Appareil", "Dispositivo", "Dispositivo", "Apparaat", "Устройство", "Urządzenie", "Cihaz", "Enhet", "デバイス", "기기", "设备")
 T("Device ID", "Geräte-ID", "ID del dispositivo", "Identifiant de l’appareil", "ID dispositivo", "ID do dispositivo", "Apparaat-ID", "Идентификатор устройства", "Identyfikator urządzenia", "Cihaz kimliği", "Enhets-ID", "デバイスID", "기기 ID", "设备 ID")
 T("Unavailable", "Nicht verfügbar", "No disponible", "Indisponible", "Non disponibile", "Indisponível", "Niet beschikbaar", "Недоступно", "Niedostępny", "Kullanılamıyor", "Ej tillgängligt", "利用できません", "사용할 수 없음", "不可用")

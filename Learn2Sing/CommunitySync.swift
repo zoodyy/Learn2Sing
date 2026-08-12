@@ -51,6 +51,31 @@ nonisolated struct PublicNameDoc: Codable {
     var username: String
 }
 
+/// What the server made of a posted username.
+///
+/// A public name belongs to one record: the persist endpoint refuses a
+/// `customName` that already exists with a 412, naming it in the body as
+/// `error.save.public.name.not.unique#<name>`. There is no separate "is this
+/// name free" call, so posting the name *is* the check — which is why the
+/// profile screen keeps a rename only once the server has taken it (see
+/// `CommunitySync.claimUsername(_:)` and `ProfileView`).
+enum UsernameClaimResult {
+    /// The server took the name; it is this user's public name from now on.
+    case accepted
+    /// The name is spoken for. The name is the one the server named in its
+    /// error, falling back to the one that was posted.
+    ///
+    /// It doesn't tell you *by whom*: re-posting the name a record already holds
+    /// is refused just the same, so this is also the answer to "keep my name as
+    /// it is". Only ask about a name the user is actually moving to — which is
+    /// what makes this mean "somebody else has it" where the profile screen
+    /// reads it.
+    case taken(String)
+    /// No answer to go on — offline, or any other status. Whether the name is
+    /// free is unknown, so it isn't held against the user.
+    case failed
+}
+
 /// What a user did to a public exercise. Posted one call per action to the
 /// `user-event` endpoint, which owns the counting: the server keeps one row per
 /// user, exercise and event type, so it — not this app — decides what a like or
@@ -441,15 +466,35 @@ final class CommunitySync: ObservableObject {
         return false
     }
 
-    /// POSTs the profile username as this device's PUBLIC_NAME document. The
-    /// name goes in the `customName` query parameter as well as in the document
-    /// itself: that parameter is what the server resolves this user's id to on
-    /// every shared exercise they have uploaded, and so what labels their rows
-    /// in everyone's Community tab (see `PublicNameDoc`).
+    /// Re-posts the stored profile username, so a rename made while offline —
+    /// or in a build that never got to post it — catches up.
+    ///
+    /// The result is deliberately dropped: the first post of a session is of a
+    /// name the server usually holds already, and it refuses a name that exists
+    /// whoever holds it — this user included (verified against this device's own
+    /// record). So `.taken` here is the ordinary answer for "nothing to change",
+    /// not something to report or act on.
     private func uploadPublicName() async {
         guard readyToUpload else { return }
+        await claimUsername(UserProfile.load().username)
+    }
+
+    /// POSTs `username` as this device's PUBLIC_NAME document and reports what
+    /// the server made of it. The name goes in the `customName` query parameter
+    /// as well as in the document itself: that parameter is what the server
+    /// resolves this user's id to on every shared exercise they have uploaded,
+    /// and so what labels their rows in everyone's Community tab (see
+    /// `PublicNameDoc`).
+    ///
+    /// `customName` is unique across users, so this is also the only way to find
+    /// out whether a name is free — hence the result, which the profile screen
+    /// renames on (see `UsernameClaimResult`). Nothing is remembered locally for
+    /// a name the server didn't take: `lastUploadedName` stays as it was, so the
+    /// next upload asks again rather than assuming the name went through.
+    @discardableResult
+    func claimUsername(_ username: String) async -> UsernameClaimResult {
         let userID = PublicIdentifier.user
-        let doc = PublicNameDoc(userID: userID, username: UserProfile.load().username)
+        let doc = PublicNameDoc(userID: userID, username: username)
         let encoder = JSONEncoder()
         encoder.outputFormatting = [.sortedKeys]
         var components = URLComponents(string: "\(Self.baseURL)/persist/\(userID)/PUBLIC_NAME")
@@ -457,28 +502,51 @@ final class CommunitySync: ObservableObject {
             URLQueryItem(name: "customId1", value: userID),
             URLQueryItem(name: "customName", value: doc.username),
         ]
-        guard let body = try? encoder.encode(doc), body != lastUploadedName,
-              let url = components?.url
-        else { return }
+        guard let body = try? encoder.encode(doc), let url = components?.url else { return .failed }
+        // The name the server last took is this one: it is already this user's.
+        guard body != lastUploadedName else { return .accepted }
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.httpBody = body
         do {
-            let (_, response) = try await URLSession.shared.data(for: request)
-            if let http = response as? HTTPURLResponse, (200...299).contains(http.statusCode) {
+            let (data, response) = try await URLSession.shared.data(for: request)
+            guard let http = response as? HTTPURLResponse else { return .failed }
+            if (200...299).contains(http.statusCode) {
                 lastUploadedName = body
                 // This device's own rename, straight into the names the list is
                 // labelled from — otherwise the tab would keep showing the old
                 // name on this user's own exercises until the next refresh
                 // brought the records (and with them the names) back down.
                 remember(ownName: doc.username, for: userID)
-            } else if let http = response as? HTTPURLResponse {
-                print("CommunitySync: name upload failed with status \(http.statusCode)")
+                return .accepted
             }
+            if http.statusCode == 412 {
+                return .taken(Self.rejectedName(in: data) ?? username)
+            }
+            print("CommunitySync: name upload failed with status \(http.statusCode)")
         } catch {
             print("CommunitySync: name upload failed: \(error)")
         }
+        return .failed
+    }
+
+    /// The name a 412 body names, out of the server's
+    /// `error.save.public.name.not.unique#<name>` token — bare, or as a value
+    /// inside a JSON error object. Only the part after the `#` is of any use to
+    /// a reader; what precedes it is the server's own error code. nil when the
+    /// body carries no such token, leaving the caller to fall back to the name
+    /// it posted.
+    private static func rejectedName(in data: Data) -> String? {
+        guard let body = String(data: data, encoding: .utf8),
+              let marker = body.range(of: "name.not.unique#")
+        else { return nil }
+        // Stop at whatever ends the token: the closing quote or brace of a JSON
+        // error object, or the end of a bare one.
+        let name = body[marker.upperBound...]
+            .prefix { !"\"}\n".contains($0) }
+            .trimmingCharacters(in: .whitespaces)
+        return name.isEmpty ? nil : name
     }
 
     // MARK: - Likes, downloads & plays
