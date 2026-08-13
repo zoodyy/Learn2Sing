@@ -1336,19 +1336,26 @@ private struct ScoreView: View {
     let onExit: () -> Void
 
     @Environment(\.verticalSizeClass) private var verticalSizeClass
+    @Environment(\.colorScheme) private var colorScheme
 
     /// Flips after a download so the button confirms instead of copying again.
     @State private var isDownloaded = false
 
+    /// Red (low) through green (high). The bright end of that ramp was picked
+    /// against a black screen and washes out on a light one, so light mode takes
+    /// the same hue deeper — this is the biggest thing on the screen.
     private var tint: Color {
-        Color(hue: Double(score) / 100.0 * 0.33, saturation: 0.85, brightness: 0.95)
+        let hue = Double(score) / 100.0 * 0.33
+        return colorScheme == .dark
+            ? Color(hue: hue, saturation: 0.85, brightness: 0.95)
+            : Color(hue: hue, saturation: 0.95, brightness: 0.68)
     }
 
     private var scoreLabel: some View {
         VStack {
             Text("Score")
                 .font(.title2.weight(.semibold))
-                .foregroundStyle(.white.opacity(0.7))
+                .foregroundStyle(.secondary)
 
             Text(verbatim: "\(score)%")
                 .font(.system(size: 80, weight: .bold, design: .rounded))
@@ -1486,10 +1493,9 @@ private struct ScoreView: View {
             .padding(.bottom, verticalSizeClass == .compact ? 16 : 50)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color.black.ignoresSafeArea())
-        // The screen is always black, so render controls (the range picker) with
-        // their dark-mode materials regardless of the system appearance.
-        .environment(\.colorScheme, .dark)
+        // Follows the app's theme rather than staying black behind a light UI —
+        // the same surface the intro screen's chart card uses.
+        .background(ScoreHistoryChart.surface(colorScheme).ignoresSafeArea())
         .navigationBarBackButtonHidden(true)
     }
 }

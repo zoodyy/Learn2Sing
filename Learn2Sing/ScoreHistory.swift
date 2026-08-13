@@ -173,6 +173,22 @@ struct ScoreHistoryChart: View {
     let entries: [ScoreEntry]
     let tint: Color
 
+    /// The chart draws its own axes and bubble rather than using the semantic
+    /// label colours, so it has to flip them with the appearance itself.
+    @Environment(\.colorScheme) private var colorScheme
+
+    /// The surface a score chart is drawn on: the black it was designed against
+    /// in dark mode, and a light card in light mode. Shared by the result screen
+    /// (full-bleed) and the exercise intro screen's card, so the chart reads the
+    /// same in both.
+    static func surface(_ scheme: ColorScheme) -> Color {
+        scheme == .dark ? .black : Color(.secondarySystemBackground)
+    }
+
+    /// Everything the chart draws on top of `surface` — axis lines, labels, the
+    /// selection ring — in the colour that contrasts with it.
+    private var ink: Color { colorScheme == .dark ? .white : .black }
+
     @State private var range: ScoreRange = .all
 
     /// The tapped point, held by date rather than by index because `points` is
@@ -206,7 +222,7 @@ struct ScoreHistoryChart: View {
             if points.isEmpty {
                 Text("No scores in this period")
                     .font(.subheadline)
-                    .foregroundStyle(.white.opacity(0.5))
+                    .foregroundStyle(ink.opacity(0.5))
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .frame(minHeight: 120)
             } else {
@@ -233,18 +249,18 @@ struct ScoreHistoryChart: View {
         .chartXScale(domain: xDomain)
         .chartYAxis {
             AxisMarks(position: .leading, values: [0, 25, 50, 75, 100]) { value in
-                AxisGridLine().foregroundStyle(.white.opacity(0.15))
+                AxisGridLine().foregroundStyle(ink.opacity(0.15))
                 AxisValueLabel {
                     if let v = value.as(Int.self) { Text(verbatim: "\(v)%") }
                 }
-                .foregroundStyle(.white.opacity(0.5))
+                .foregroundStyle(ink.opacity(0.5))
             }
         }
         .chartXAxis {
             AxisMarks(values: .automatic(desiredCount: 4)) { _ in
-                AxisGridLine().foregroundStyle(.white.opacity(0.15))
+                AxisGridLine().foregroundStyle(ink.opacity(0.15))
                 AxisValueLabel()
-                    .foregroundStyle(.white.opacity(0.5))
+                    .foregroundStyle(ink.opacity(0.5))
             }
         }
         .chartOverlay { proxy in
@@ -319,7 +335,7 @@ struct ScoreHistoryChart: View {
         Circle()
             .fill(tint)
             .frame(width: 9, height: 9)
-            .overlay(Circle().stroke(.white.opacity(0.9), lineWidth: 2))
+            .overlay(Circle().stroke(ink.opacity(0.9), lineWidth: 2))
             .allowsHitTesting(false)
     }
 
@@ -347,14 +363,16 @@ struct ScoreHistoryChart: View {
             Text(entry.date, format: .dateTime.day().month(.abbreviated).year()
                                               .hour().minute())
                 .font(.caption2)
-                .foregroundStyle(.white.opacity(0.7))
+                .foregroundStyle(ink.opacity(0.7))
         }
         .lineLimit(1)
         .fixedSize()
         .padding(.horizontal, 10)
         .padding(.vertical, 6)
         .padding(pointsUp ? .top : .bottom, tailHeight)
-        .background(shape.fill(Color(white: 0.16)))
+        // A shade off the surface either way, so the bubble lifts off the chart
+        // without competing with the line for attention.
+        .background(shape.fill(Color(white: colorScheme == .dark ? 0.16 : 1.0)))
         .overlay(shape.stroke(tint.opacity(0.8), lineWidth: 1))
         .onGeometryChange(for: CGSize.self) { $0.size } action: { bubbleSize = $0 }
         // Hidden until measured, otherwise the first frame flashes in the

@@ -34,6 +34,20 @@ struct ExerciseIntroView: View {
     /// chart under the description.
     @State private var showScore = false
 
+    @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.verticalSizeClass) private var verticalSizeClass
+
+    /// Height the chart is given, measured off the result screen's portrait
+    /// layout so the two plots come out the same size. (Measured with the
+    /// temporary debug-export button gone — while it is there it squeezes the
+    /// result screen's chart, and this one is the taller of the two.)
+    /// Landscape gets a shorter one: the result screen puts the chart beside the
+    /// score rather than under it, and here the card has to share a short screen
+    /// with the description and the Start button.
+    private var chartHeight: CGFloat {
+        verticalSizeClass == .compact ? 200 : 380
+    }
+
     private var trimmedDetails: String {
         exercise.localizedDetails.trimmingCharacters(in: .whitespacesAndNewlines)
     }
@@ -178,14 +192,17 @@ struct ExerciseIntroView: View {
         .accessibilityValue(count.formatted())
     }
 
-    /// The same score-history chart shown on the result screen, kept on a black
-    /// card with a dark colour scheme because the chart draws its axes in white.
+    /// The same score-history chart shown on the result screen, on the same
+    /// surface so the two read alike. Inside a ScrollView the chart would settle
+    /// at its minimum height, so the plot is given the height it has on the
+    /// result screen instead of being left to shrink.
     private var scoreChartCard: some View {
         ScoreHistoryChart(entries: ScoreHistory.entries(for: exercise.id),
                           tint: .accentColor)
-            .environment(\.colorScheme, .dark)
+            .frame(height: chartHeight)
             .padding()
             .frame(maxWidth: .infinity)
-            .background(Color.black, in: RoundedRectangle(cornerRadius: 14))
+            .background(ScoreHistoryChart.surface(colorScheme),
+                        in: RoundedRectangle(cornerRadius: 14))
     }
 }
