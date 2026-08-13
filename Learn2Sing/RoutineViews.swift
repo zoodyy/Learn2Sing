@@ -186,6 +186,10 @@ struct RoutineIntroView: View {
     let routine: Routine
     /// The exercises to play, in this play-through's order.
     @Binding var order: [UUID]
+    /// Opens this routine's edit screen from the toolbar — the routine's
+    /// counterpart to the settings button on the exercise intro screen, in the
+    /// same place and with the same symbol.
+    let onSettings: () -> Void
     let onStart: () -> Void
 
     /// Always active so the exercise rows show drag handles, exactly like the
@@ -269,6 +273,13 @@ struct RoutineIntroView: View {
         .background(Color(.systemGroupedBackground))
         .navigationTitle(routine.name)
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Button(action: onSettings) {
+                    Label("Edit Routine", systemImage: "slider.horizontal.3")
+                }
+            }
+        }
     }
 }
 

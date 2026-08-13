@@ -458,9 +458,38 @@ struct HomeView: View {
             .onChange(of: navigationPath) { old, new in
                 toasts.routesPopped(from: old, to: new)
             }
+            // A delete is the only thing that can shorten the library, and the
+            // only thing that can leave a route on the path pointing at something
+            // that's gone.
+            .onChange(of: store.exercises.count) { _, _ in
+                dropStaleRoutes()
+            }
             .navigationDestination(for: ExerciseRoute.self) { route in
                 destination(for: route)
             }
+        }
+    }
+
+    /// Deleting an exercise from its settings screen pops that screen but leaves
+    /// the routes it was opened from on the path — an exercise intro screen that
+    /// can no longer find its exercise, or a routine-play route whose index is now
+    /// past the end of the play-through. Those render as a blank screen, so drop
+    /// them and land the user on the nearest one that still resolves.
+    private func dropStaleRoutes() {
+        while let route = navigationPath.last {
+            switch route {
+            case .play(let id), .playback(let id), .settings(let id), .edit(let id):
+                guard !store.exercises.contains(where: { $0.id == id }) else { return }
+            case .routinePlay(let id, let index), .routinePlayback(let id, let index):
+                guard index >= routineExercises(id).count else { return }
+            // A routine with nothing left to play has no intro screen: Start
+            // Routine would push a routine-play route that resolves to nothing.
+            case .routineIntro(let id):
+                guard routineExercises(id).isEmpty else { return }
+            default:
+                return
+            }
+            navigationPath.removeLast()
         }
     }
 
@@ -506,6 +535,7 @@ struct HomeView: View {
                     routine: routine,
                     order: Binding(get: { routineOrder(id) },
                                    set: { routinePlayOrders[id] = $0 }),
+                    onSettings: { navigationPath.append(ExerciseRoute.routine(id)) },
                     onStart: { navigationPath.append(ExerciseRoute.routinePlay(id, 0)) }
                 )
             }

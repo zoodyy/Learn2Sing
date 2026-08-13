@@ -603,6 +603,22 @@ struct ExercisesView: View {
                 }
                 toasts.routesPopped(from: old, to: new)
             }
+            // Deleting an exercise from its settings screen pops that screen but
+            // leaves the intro screen it was opened from on the path, where it can
+            // no longer find its exercise and renders blank. Drop those routes so
+            // the delete lands back on the list. A delete is the only thing that
+            // can shorten the library.
+            .onChange(of: store.exercises.count) { _, _ in
+                while let route = navigationPath.last {
+                    switch route {
+                    case .play(let id), .playback(let id), .settings(let id), .edit(let id):
+                        guard !store.exercises.contains(where: { $0.id == id }) else { return }
+                    default:
+                        return
+                    }
+                    navigationPath.removeLast()
+                }
+            }
             .navigationDestination(for: ExerciseRoute.self) { route in
                 switch route {
                 case .play(let id):
