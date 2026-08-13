@@ -226,6 +226,9 @@ final class VisualTemplateStore: ObservableObject {
     /// there was then — the dark look. Read so an install carrying it is handed only
     /// the light one instead of both.
     private static let legacySeededKey = "didSeedBundledVisualTemplates"
+    /// The bundled templates as this device was last given them — see
+    /// `refreshBundledTemplates()`.
+    private static let asShippedKey = "vis_bundledAsShipped"
     /// The selected template's id (a UUID string), so the selection survives launches.
     static let selectionKey = "vis_selectedTemplate"
 
@@ -238,8 +241,11 @@ final class VisualTemplateStore: ObservableObject {
            let id = UUID(uuidString: raw), templates.contains(where: { $0.id == id }) {
             selectedID = id
         }
+        // Ids first, so seeding and the refresh below recognise a look this device
+        // already has as one of the app's own rather than as a stranger.
+        migrateLegacyBundledIDs()
         seedBundledIfNeeded()
-        if refreshBundledNames() { persist() }
+        refreshBundledTemplates()
     }
 
     /// The selected template, if any.
@@ -279,20 +285,53 @@ final class VisualTemplateStore: ObservableObject {
     /// without is dropped, exactly as `init` drops a stale one.
     func restore(_ restored: [VisualTemplate], selectedID: UUID?) {
         templates = restored
+        // Carried over before the migration, so a selection naming one of the app's own
+        // templates under an id an earlier version shipped it with moves along with it.
+        self.selectedID = selectedID
         // The templates the app ships aren't the user's to carry: a profile written by
         // an earlier version knows neither a look this version has started shipping nor
-        // the name it ships it under, so both are put back rather than restored — the
-        // playback screen has a standard look for each appearance to switch between.
+        // the id or name it ships it under, so all three are put back rather than
+        // restored — the playback screen has a standard look for each appearance to
+        // switch between.
+        migrateLegacyBundledIDs()
         addMissingBundledTemplates()
-        refreshBundledNames()
+        refreshBundledTemplates()
         persist()
         // Checked against the list as it now stands rather than against the restored
         // one, so a selection naming a bundled template the profile didn't carry — it
         // was written before this version started shipping that one — is kept: the
-        // template it names is right there, just put back a line earlier.
-        self.selectedID = templates.contains { $0.id == selectedID } ? selectedID : nil
+        // template it names is right there, just put back a line earlier. The id
+        // checked is likewise the one the migration may have moved it to.
+        self.selectedID = templates.contains { $0.id == self.selectedID } ? self.selectedID : nil
         persistSelection()
     }
+
+    /// The id the look the app ships for `scheme` keeps for good: the identity of its
+    /// row in the list, of its entry in the record of what has been seeded, and of a
+    /// selection pointing at it.
+    ///
+    /// It is pinned here rather than read from the bundled file because exporting a
+    /// template mints a fresh id (`capturingCurrent` gives every capture its own), so
+    /// re-exporting one of these two to update the look it ships used to hand every
+    /// device that already had it a second, identically named copy. The id in the file
+    /// is ignored; ids it has been shipped under before are folded back into this one
+    /// by `migrateLegacyBundledIDs()`.
+    static func bundledID(for scheme: ColorScheme) -> UUID {
+        scheme == .dark
+            ? UUID(uuidString: "28C54FBC-F67E-4664-939A-5A58E1568775")!
+            : UUID(uuidString: "7C8FE5CA-4357-4229-96BF-943DBB39CCAE")!
+    }
+
+    /// The ids these two looks went out under before the ids were pinned, oldest first.
+    /// A list holding one of them holds an earlier copy of a template the app ships, so
+    /// it is folded into the current one rather than left sitting beside it.
+    private static let legacyBundledIDs: [(id: UUID, scheme: ColorScheme)] = [
+        (UUID(uuidString: "7CDFBFB2-F341-4BBD-A115-B32CA3D0E910")!, .dark),  // "Standard"
+        (UUID(uuidString: "496CC35D-8851-45AF-9350-BF13C968F1EA")!, .dark),  // "Custom"
+        (UUID(uuidString: "C99A6176-3CDA-4459-8D15-D8942AAE9756")!, .dark),  // "SimplestTemplate"
+        (UUID(uuidString: "55FE33D2-ACA5-4330-8826-1EB6579ACE1B")!, .dark),  // "Simplest frfr"
+        (UUID(uuidString: "8B0FEFFB-A0C8-448F-8A6A-7552A0542D01")!, .light), // "Simplest - light"
+    ]
 
     /// The standard playback look for an appearance: one of the two templates shipped
     /// in the app bundle. This is the look a fresh install starts on, what Settings ▸
@@ -301,9 +340,11 @@ final class VisualTemplateStore: ObservableObject {
     static func bundledTemplate(for scheme: ColorScheme) -> VisualTemplate? {
         let name = scheme == .dark ? "Simplest - dark" : "Simplest - light"
         guard let url = Bundle.main.url(forResource: name, withExtension: "json"),
-              let data = try? Data(contentsOf: url)
+              let data = try? Data(contentsOf: url),
+              var template = VisualTemplate.decode(from: data)
         else { return nil }
-        return VisualTemplate.decode(from: data)
+        template.id = bundledID(for: scheme)
+        return template
     }
 
     /// Both shipped looks, dark first — the order they're listed in on the visuals
@@ -321,18 +362,22 @@ final class VisualTemplateStore: ObservableObject {
     private func seedBundledIfNeeded() {
         let defaults = UserDefaults.standard
         var seededIDs = Set(defaults.stringArray(forKey: Self.seededIDsKey) ?? [])
-        if seededIDs.isEmpty, defaults.bool(forKey: Self.legacySeededKey),
-           let dark = Self.bundledTemplate(for: .dark) {
-            seededIDs.insert(dark.id.uuidString)
+        if seededIDs.isEmpty, defaults.bool(forKey: Self.legacySeededKey) {
+            seededIDs.insert(Self.bundledID(for: .dark).uuidString)
         }
         // Nothing seeded at all: this is the first launch.
         let isFreshInstall = seededIDs.isEmpty
-        let unseeded = Self.bundledTemplates.filter { !seededIDs.contains($0.id.uuidString) }
-        guard !unseeded.isEmpty else { return }
+        let missing = Self.bundledTemplates.filter { !seededIDs.contains($0.id.uuidString) }
+        guard !missing.isEmpty else { return }
 
-        templates.append(contentsOf: unseeded)
-        persist()
-        defaults.set(seededIDs.union(unseeded.map(\.id.uuidString)).sorted(), forKey: Self.seededIDsKey)
+        // One the list already holds — put back by a profile restore, which doesn't go
+        // through the seeding — is recorded as seeded rather than added a second time.
+        let unseeded = missing.filter { bundled in !templates.contains { $0.id == bundled.id } }
+        if !unseeded.isEmpty {
+            templates.append(contentsOf: unseeded)
+            persist()
+        }
+        defaults.set(seededIDs.union(missing.map(\.id.uuidString)).sorted(), forKey: Self.seededIDsKey)
         // Through the same call the reset and the theme change go through, so the
         // selection lands on the list's own copy of the template in every case.
         if isFreshInstall {
@@ -340,21 +385,98 @@ final class VisualTemplateStore: ObservableObject {
         }
     }
 
-    /// Keeps the app's own templates named the way the current version ships them, so a
-    /// list that gained one under an earlier name still shows the name the rest of the
-    /// app — including the translations — knows it by. Only the two bundled ids are
-    /// touched, so a template the user saved or imported is never renamed. Returns
-    /// whether anything was renamed, leaving persisting to the caller.
-    @discardableResult
-    private func refreshBundledNames() -> Bool {
-        var renamed = false
-        for bundled in Self.bundledTemplates {
-            guard let index = templates.firstIndex(where: { $0.id == bundled.id }),
-                  templates[index].name != bundled.name else { continue }
-            templates[index].name = bundled.name
-            renamed = true
+    /// Folds a copy of one of the app's own templates that this device carries under an
+    /// id an earlier version shipped it with into the copy this version knows, so an
+    /// install that has been through such a change is left with one row per look
+    /// instead of two identically named ones.
+    ///
+    /// Nothing of the user's is thrown away by this: the legacy row *is* the app's
+    /// template, carried across app updates and edited in place while selected, so it
+    /// keeps its values under the current id. Only where this version's row is already
+    /// there beside it — an install that ran a version which added rather than renamed
+    /// — is one of the two dropped, and then it's the one not in use, so the look on
+    /// screen stays put either way.
+    private func migrateLegacyBundledIDs() {
+        let defaults = UserDefaults.standard
+        var seededIDs = defaults.stringArray(forKey: Self.seededIDsKey).map(Set.init)
+        var seedingChanged = false
+        var listChanged = false
+
+        for (legacyID, scheme) in Self.legacyBundledIDs {
+            let currentID = Self.bundledID(for: scheme)
+            // The record of what has been seeded moves over even when the row itself is
+            // long gone, so a look the user deleted isn't handed back as one this
+            // device has never been given.
+            if var ids = seededIDs, ids.remove(legacyID.uuidString) != nil {
+                ids.insert(currentID.uuidString)
+                seededIDs = ids
+                seedingChanged = true
+            }
+            guard let legacyIndex = templates.firstIndex(where: { $0.id == legacyID }) else { continue }
+            var legacy = templates.remove(at: legacyIndex)
+            legacy.id = currentID
+            if let currentIndex = templates.firstIndex(where: { $0.id == currentID }) {
+                // Keep the one in use; with neither in use the row this version added
+                // stays, being the look the app ships now.
+                if selectedID == legacyID { templates[currentIndex] = legacy }
+            } else {
+                templates.insert(legacy, at: legacyIndex)
+            }
+            if selectedID == legacyID {
+                selectedID = currentID
+                persistSelection()
+            }
+            listChanged = true
         }
-        return renamed
+
+        if listChanged { persist() }
+        if seedingChanged, let seededIDs {
+            defaults.set(seededIDs.sorted(), forKey: Self.seededIDsKey)
+        }
+    }
+
+    /// Hands over a shipped look this version has changed, and keeps the app's own
+    /// templates named the way it ships them.
+    ///
+    /// A copy still holding exactly what the app last gave this device hasn't been
+    /// touched, so it is replaced with what is shipped now — that is how improving one
+    /// of the two looks reaches installs sitting on it. A copy that differs is the
+    /// user's: a bundled template is what a fresh install starts on and what every edit
+    /// on the visuals screen is then saved into, so an app update must not paint over
+    /// it. Only the name follows there, so a list that gained one under an earlier name
+    /// still shows the name the rest of the app — including the translations — knows it
+    /// by. Templates the user saved or imported have neither a bundled id nor a shipped
+    /// copy, and are never touched.
+    private func refreshBundledTemplates() {
+        let shipped = Self.bundledTemplates
+        var asShipped: [UUID: VisualTemplate] = [:]
+        if let data = UserDefaults.standard.data(forKey: Self.asShippedKey),
+           let decoded = try? JSONDecoder().decode([VisualTemplate].self, from: data) {
+            asShipped = Dictionary(decoded.map { ($0.id, $0) }, uniquingKeysWith: { first, _ in first })
+        }
+
+        var changed = false
+        for template in shipped {
+            guard let index = templates.firstIndex(where: { $0.id == template.id }),
+                  templates[index] != template else { continue }
+            if templates[index] == asShipped[template.id] {
+                templates[index] = template
+            } else if templates[index].name != template.name {
+                templates[index].name = template.name
+            } else {
+                continue
+            }
+            changed = true
+        }
+        if changed { persist() }
+
+        // Record what this version ships, so the next one can tell an untouched copy
+        // apart again. Written only when it has actually changed: every write is one
+        // more change for the profile upload to look at.
+        if let data = try? JSONEncoder().encode(shipped),
+           data != UserDefaults.standard.data(forKey: Self.asShippedKey) {
+            UserDefaults.standard.set(data, forKey: Self.asShippedKey)
+        }
     }
 
     /// Puts back the bundled templates the list doesn't hold, for a list that didn't

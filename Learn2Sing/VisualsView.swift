@@ -580,7 +580,13 @@ struct PlaybackVisualsView: View {
     /// Prepares a JSON document of the current settings and presents the share dialog.
     private func exportCurrentTemplate() {
         let name = templates.selected?.name ?? "Custom"
-        let template = VisualTemplate.capturingCurrent(name: name)
+        var template = VisualTemplate.capturingCurrent(name: name)
+        // Exporting the selected template exports *it*, id and all, rather than a
+        // like-for-like copy under a new id. Importing gives it a fresh id anyway (see
+        // `add(imported:)`), so this costs nothing there — while a look the app ships,
+        // re-exported to update the file it ships, keeps the identity every install
+        // already knows it by.
+        if let selected = templates.selected { template.id = selected.id }
         guard let data = template.jsonData() else {
             templateAlert = L("Could not prepare the template file.")
             return
