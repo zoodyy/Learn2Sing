@@ -275,8 +275,8 @@ final class VisualTemplateStore: ObservableObject {
     /// Replaces the templates and the selection with a restored profile's, without
     /// applying the selected one: the playback-visual settings are restored from the
     /// same profile alongside this (see `UserSettings.apply`), so they already hold
-    /// the selected template's values. A selection naming a template that isn't in
-    /// the restored list is dropped, exactly as `init` drops a stale one.
+    /// the selected template's values. A selection naming a template the list ends up
+    /// without is dropped, exactly as `init` drops a stale one.
     func restore(_ restored: [VisualTemplate], selectedID: UUID?) {
         templates = restored
         // The templates the app ships aren't the user's to carry: a profile written by
@@ -286,7 +286,11 @@ final class VisualTemplateStore: ObservableObject {
         addMissingBundledTemplates()
         refreshBundledNames()
         persist()
-        self.selectedID = restored.contains { $0.id == selectedID } ? selectedID : nil
+        // Checked against the list as it now stands rather than against the restored
+        // one, so a selection naming a bundled template the profile didn't carry — it
+        // was written before this version started shipping that one — is kept: the
+        // template it names is right there, just put back a line earlier.
+        self.selectedID = templates.contains { $0.id == selectedID } ? selectedID : nil
         persistSelection()
     }
 
@@ -329,8 +333,10 @@ final class VisualTemplateStore: ObservableObject {
         templates.append(contentsOf: unseeded)
         persist()
         defaults.set(seededIDs.union(unseeded.map(\.id.uuidString)).sorted(), forKey: Self.seededIDsKey)
-        if isFreshInstall, let starting = Self.bundledTemplate(for: AppTheme.currentScheme) {
-            select(starting)
+        // Through the same call the reset and the theme change go through, so the
+        // selection lands on the list's own copy of the template in every case.
+        if isFreshInstall {
+            selectStandard(for: AppTheme.currentScheme)
         }
     }
 
@@ -425,15 +431,28 @@ final class VisualTemplateStore: ObservableObject {
         return copy
     }
 
-    /// Puts the playback visuals on the standard look for `scheme`. If a stored template
-    /// holds exactly that look — normally the seeded bundled one, untouched — it becomes
-    /// the selected template; otherwise the applied look belongs to no template, and the
-    /// user's own templates are left alone either way.
-    func applyStandard(for scheme: ColorScheme) {
+    /// Puts the playback visuals on the standard look for `scheme` by *selecting* the
+    /// template the app ships for that appearance — so the visuals screen shows it as
+    /// the selected one and goes on saving every later edit into it, rather than
+    /// landing on a look that belongs to no template.
+    ///
+    /// What is applied is this device's copy of that template, which is the look the
+    /// user last left the appearance on: while it is selected, edits on the visuals
+    /// screen are written into it. `resetToBundled()` is the one caller that first puts
+    /// the shipped values back, being the one time that has to undo those edits.
+    func selectStandard(for scheme: ColorScheme) {
+        guard let bundled = Self.bundledTemplate(for: scheme) else { return }
+        if let stored = templates.first(where: { $0.id == bundled.id }) {
+            select(stored)
+            return
+        }
+        // The user deleted it, and deleting one is never undone — so there is no row
+        // for the checkmark. Apply the shipped look anyway, and let a template of the
+        // user's own that happens to hold exactly it take the selection.
         // Detach first, so the new values aren't saved into whatever was selected as if
         // the user had edited it.
         selectedID = nil
-        Self.bundledTemplate(for: scheme)?.apply()
+        bundled.apply()
         selectedID = templates.first(where: \.matchesCurrent)?.id
         persistSelection()
     }
@@ -442,7 +461,24 @@ final class VisualTemplateStore: ObservableObject {
     /// the standard for the appearance the app is in — the theme is reset alongside
     /// this, so by now that is the device's own light/dark setting.
     func resetToBundled() {
-        applyStandard(for: AppTheme.currentScheme)
+        restoreBundledTemplates()
+        selectStandard(for: AppTheme.currentScheme)
+    }
+
+    /// Puts the shipped values back into this device's copies of the templates the app
+    /// ships. Both are restored, not just the one about to be selected, so the other
+    /// appearance is back to how it started out too — switching the theme after a reset
+    /// finds the standard look rather than what the user had made of it. Templates the
+    /// user saved themselves are untouched, as is one of the app's own they deleted.
+    private func restoreBundledTemplates() {
+        var changed = false
+        for bundled in Self.bundledTemplates {
+            guard let index = templates.firstIndex(where: { $0.id == bundled.id }),
+                  templates[index] != bundled else { continue }
+            templates[index] = bundled
+            changed = true
+        }
+        if changed { persist() }
     }
 
     private func persist() {

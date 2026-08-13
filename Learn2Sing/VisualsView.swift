@@ -138,7 +138,7 @@ struct VisualsHubView: View {
         )) {
             Button("Switch") {
                 if let scheme = pendingPlaybackScheme {
-                    templates.applyStandard(for: scheme)
+                    templates.selectStandard(for: scheme)
                 }
                 pendingPlaybackScheme = nil
             }
@@ -162,7 +162,7 @@ struct VisualsHubView: View {
         guard (AppTheme(rawValue: oldTheme) ?? .system).scheme != newScheme else { return }
 
         if templates.currentSettingsAreStandard {
-            templates.applyStandard(for: newScheme)
+            templates.selectStandard(for: newScheme)
         } else {
             pendingPlaybackScheme = newScheme
         }
