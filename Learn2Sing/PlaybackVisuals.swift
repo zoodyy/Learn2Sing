@@ -115,6 +115,8 @@ enum VisualKeys {
     static let background     = "vis_backgroundColor"
     static let showKeyboard   = "vis_showKeyboard"
     static let showPitches    = "vis_showPitches"
+    static let autoPitchNameColor = "vis_autoPitchNameColor"
+    static let pitchNameColor     = "vis_pitchNameColor"
     static let textColor      = "vis_textColor"
     static let textFont       = "vis_textFont"
     static let singerSize        = "vis_singerSize"
@@ -133,6 +135,7 @@ enum VisualKeys {
     static let all = [
         noteColor, playingNoteColor, noteRoundness, verticalZoom, horizontalZoom,
         followVertical, showLines, background, showKeyboard, showPitches,
+        autoPitchNameColor, pitchNameColor,
         textColor, textFont, singerSize, singerInnerColor, singerOuterColor,
         singerLineColor, playheadColor, playheadStyle, hideUnusedDots,
         showRepetitionCounter, repetitionCounterPosition, hideTabBar,
@@ -152,6 +155,10 @@ enum VisualDefaults {
     static let background     = "#0E0E14"
     static let showKeyboard   = true
     static let showPitches    = false
+    static let autoPitchNameColor = true
+    /// Only used once the automatic colour above is switched off; white at 50%, which
+    /// is what the names are drawn in over the background while it is on.
+    static let pitchNameColor     = "#FFFFFF80"
     static let textColor      = "#FF9500"   // orange, matching the original look
     static let textFont       = PlaybackFont.system.rawValue
     static let singerSize        = 1.0          // multiplier on the original dot radius
@@ -199,6 +206,11 @@ struct VisualSettings {
     var backgroundColor: Color
     var showKeyboard: Bool
     var showPitches: Bool
+    /// Draw the pitch names in a colour that stands out where each one sits — dark on
+    /// the white keys, light on the black ones, light over the background with the
+    /// keyboard hidden — instead of in `pitchNameColor`.
+    var autoPitchNameColor: Bool
+    var pitchNameColor: Color
     var textColor: Color
     var textFont: PlaybackFont
     var singerSize: Double
@@ -234,6 +246,8 @@ struct VisualSettings {
             backgroundColor: Color(hex: str(VisualKeys.background, VisualDefaults.background)),
             showKeyboard: bool(VisualKeys.showKeyboard, VisualDefaults.showKeyboard),
             showPitches: bool(VisualKeys.showPitches, VisualDefaults.showPitches),
+            autoPitchNameColor: bool(VisualKeys.autoPitchNameColor, VisualDefaults.autoPitchNameColor),
+            pitchNameColor: Color(hex: str(VisualKeys.pitchNameColor, VisualDefaults.pitchNameColor)),
             textColor: Color(hex: str(VisualKeys.textColor, VisualDefaults.textColor)),
             textFont: PlaybackFont(rawValue: str(VisualKeys.textFont, VisualDefaults.textFont)) ?? .system,
             singerSize: dbl(VisualKeys.singerSize, VisualDefaults.singerSize),
@@ -474,21 +488,30 @@ func drawPlaybackScene(ctx: GraphicsContext, layout: SceneLayout, beat: Double,
 
     // ── Pitch names ───────────────────────────────────────────────────────
     // Drawn on the keys when the keyboard is shown, otherwise along the left edge
-    // over the background.
+    // over the background. Their colour is the chosen one, or — while it is left
+    // automatic — one that stands out against whatever each name sits on: the keys
+    // are drawn in fixed shades, so on them that means dark on the white ones and
+    // light on the black ones.
     if !namePitches.isEmpty {
         let fontSize = nameFontSize
+        let onKeys = settings.showKeyboard && pianoW > 0
         ctx.drawLayer { layer in
             for pitch in namePitches {
                 let y = layout.y(Double(pitch))
-                if settings.showKeyboard && pianoW > 0 {
-                    let color: Color = isBlack(pitch) ? .white.opacity(0.85) : .black.opacity(0.7)
-                    layer.draw(Text(pitchName(pitch)).font(.system(size: fontSize, weight: .medium))
-                                .foregroundColor(color),
-                               at: CGPoint(x: pianoW / 2, y: y), anchor: .center)
+                let color: Color
+                if !settings.autoPitchNameColor {
+                    color = settings.pitchNameColor
+                } else if onKeys {
+                    color = isBlack(pitch) ? .white.opacity(0.85) : .black.opacity(0.7)
                 } else {
-                    layer.draw(Text(pitchName(pitch)).font(.system(size: fontSize, weight: .medium))
-                                .foregroundColor(.white.opacity(0.5)),
-                               at: CGPoint(x: pianoW + 4, y: y), anchor: .leading)
+                    color = .white.opacity(0.5)
+                }
+                let text = Text(pitchName(pitch)).font(.system(size: fontSize, weight: .medium))
+                    .foregroundColor(color)
+                if onKeys {
+                    layer.draw(text, at: CGPoint(x: pianoW / 2, y: y), anchor: .center)
+                } else {
+                    layer.draw(text, at: CGPoint(x: pianoW + 4, y: y), anchor: .leading)
                 }
             }
         }

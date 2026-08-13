@@ -24,6 +24,8 @@ struct VisualTemplate: Codable, Identifiable, Hashable {
     var background: String
     var showKeyboard: Bool
     var showPitches: Bool
+    var autoPitchNameColor: Bool
+    var pitchNameColor: String
     var textColor: String
     var textFont: String
     var singerSize: Double
@@ -41,6 +43,7 @@ struct VisualTemplate: Codable, Identifiable, Hashable {
          noteColor: String, playingNoteColor: String, noteRoundness: Double,
          verticalZoom: Double, horizontalZoom: Double, followVertical: Bool,
          showLines: Bool, background: String, showKeyboard: Bool, showPitches: Bool,
+         autoPitchNameColor: Bool, pitchNameColor: String,
          textColor: String, textFont: String,
          singerSize: Double, singerInnerColor: String,
          singerOuterColor: String, singerLineColor: String,
@@ -59,6 +62,8 @@ struct VisualTemplate: Codable, Identifiable, Hashable {
         self.background = background
         self.showKeyboard = showKeyboard
         self.showPitches = showPitches
+        self.autoPitchNameColor = autoPitchNameColor
+        self.pitchNameColor = pitchNameColor
         self.textColor = textColor
         self.textFont = textFont
         self.singerSize = singerSize
@@ -90,6 +95,8 @@ struct VisualTemplate: Codable, Identifiable, Hashable {
         background = try c.decodeIfPresent(String.self, forKey: .background) ?? VisualDefaults.background
         showKeyboard = try c.decodeIfPresent(Bool.self, forKey: .showKeyboard) ?? VisualDefaults.showKeyboard
         showPitches = try c.decodeIfPresent(Bool.self, forKey: .showPitches) ?? VisualDefaults.showPitches
+        autoPitchNameColor = try c.decodeIfPresent(Bool.self, forKey: .autoPitchNameColor) ?? VisualDefaults.autoPitchNameColor
+        pitchNameColor = try c.decodeIfPresent(String.self, forKey: .pitchNameColor) ?? VisualDefaults.pitchNameColor
         textColor = try c.decodeIfPresent(String.self, forKey: .textColor) ?? VisualDefaults.textColor
         textFont = try c.decodeIfPresent(String.self, forKey: .textFont) ?? VisualDefaults.textFont
         singerSize = try c.decodeIfPresent(Double.self, forKey: .singerSize) ?? VisualDefaults.singerSize
@@ -124,6 +131,8 @@ struct VisualTemplate: Codable, Identifiable, Hashable {
             background: str(VisualKeys.background, VisualDefaults.background),
             showKeyboard: bool(VisualKeys.showKeyboard, VisualDefaults.showKeyboard),
             showPitches: bool(VisualKeys.showPitches, VisualDefaults.showPitches),
+            autoPitchNameColor: bool(VisualKeys.autoPitchNameColor, VisualDefaults.autoPitchNameColor),
+            pitchNameColor: str(VisualKeys.pitchNameColor, VisualDefaults.pitchNameColor),
             textColor: str(VisualKeys.textColor, VisualDefaults.textColor),
             textFont: str(VisualKeys.textFont, VisualDefaults.textFont),
             singerSize: dbl(VisualKeys.singerSize, VisualDefaults.singerSize),
@@ -153,6 +162,8 @@ struct VisualTemplate: Codable, Identifiable, Hashable {
         d.set(background, forKey: VisualKeys.background)
         d.set(showKeyboard, forKey: VisualKeys.showKeyboard)
         d.set(showPitches, forKey: VisualKeys.showPitches)
+        d.set(autoPitchNameColor, forKey: VisualKeys.autoPitchNameColor)
+        d.set(pitchNameColor, forKey: VisualKeys.pitchNameColor)
         d.set(textColor, forKey: VisualKeys.textColor)
         d.set(textFont, forKey: VisualKeys.textFont)
         d.set(singerSize, forKey: VisualKeys.singerSize)

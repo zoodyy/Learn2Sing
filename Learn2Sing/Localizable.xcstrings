@@ -2413,6 +2413,88 @@
         }
       }
     },
+    "Automatic pitch name colour" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Farbe der Tonnamen automatisch"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Color automático de los nombres de notas"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couleur automatique des noms de notes"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Colore automatico dei nomi delle note"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "音名の色を自動"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "음이름 색상 자동"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Automatische kleur van notennamen"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Automatyczny kolor nazw nut"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cor automática dos nomes das notas"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Автоматический цвет названий нот"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Automatisk färg på tonnamn"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Otomatik nota adı rengi"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "自动音名颜色"
+          }
+        }
+      }
+    },
     "Back" : {
       "localizations" : {
         "de" : {
@@ -7776,6 +7858,89 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "下载次数"
+          }
+        }
+      }
+    },
+    "Draws each pitch name in a colour that stands out where it sits: dark on the white keys, light on the black ones, and light over the background while the keyboard is hidden. Turn it off to pick the colour yourself." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zeichnet jeden Tonnamen in einer Farbe, die sich dort abhebt, wo er steht: dunkel auf den weißen Tasten, hell auf den schwarzen und hell über dem Hintergrund, solange die Klaviatur ausgeblendet ist. Schalte es aus, um die Farbe selbst zu wählen."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dibuja cada nombre de nota en un color que destaque donde está: oscuro sobre las teclas blancas, claro sobre las negras y claro sobre el fondo mientras el teclado está oculto. Desactívalo para elegir tú el color."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trace chaque nom de note dans une couleur qui ressort là où il se trouve : foncée sur les touches blanches, claire sur les noires et claire sur l’arrière-plan tant que le clavier est masqué. Désactivez-le pour choisir la couleur vous-même."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Disegna ogni nome di nota in un colore che risalta dove si trova: scuro sui tasti bianchi, chiaro su quelli neri e chiaro sullo sfondo finché la tastiera è nascosta. Disattivalo per scegliere tu il colore."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "音名をその場所で見やすい色で描きます。白鍵の上では濃く、黒鍵の上では明るく、鍵盤が非表示のときは背景の上に明るく描かれます。オフにすると色を自分で選べます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "각 음이름을 놓인 자리에서 잘 보이는 색으로 그립니다. 흰 건반 위에서는 어둡게, 검은 건반 위에서는 밝게, 건반이 숨겨져 있을 때는 배경 위에 밝게 표시됩니다. 끄면 색을 직접 고를 수 있습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tekent elke notennaam in een kleur die opvalt op de plek waar hij staat: donker op de witte toetsen, licht op de zwarte en licht op de achtergrond zolang het toetsenbord verborgen is. Schakel dit uit om de kleur zelf te kiezen."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rysuje każdą nazwę nuty w kolorze, który wyróżnia się w miejscu, gdzie się znajduje: ciemnym na białych klawiszach, jasnym na czarnych i jasnym na tle, gdy klawiatura jest ukryta. Wyłącz, aby wybrać kolor samodzielnie."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Desenha cada nome de nota em uma cor que se destaca onde ele fica: escura nas teclas brancas, clara nas pretas e clara sobre o fundo enquanto o teclado está oculto. Desative para escolher a cor você mesmo."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Рисует каждое название ноты цветом, который заметен там, где оно находится: тёмным на белых клавишах, светлым на чёрных и светлым на фоне, пока клавиатура скрыта. Выключите, чтобы выбрать цвет самому."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ritar varje tonnamn i en färg som syns där det står: mörk på de vita tangenterna, ljus på de svarta och ljus mot bakgrunden så länge klaviaturen är dold. Stäng av för att välja färgen själv."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Her nota adını bulunduğu yerde öne çıkan bir renkle çizer: beyaz tuşlarda koyu, siyah tuşlarda açık ve klavye gizliyken arka planın üzerinde açık. Rengi kendiniz seçmek için kapatın."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "以在所处位置最醒目的颜色绘制每个音名：白键上为深色，黑键上为浅色，隐藏键盘时在背景上为浅色。关闭后可自行选择颜色。"
           }
         }
       }
@@ -18515,6 +18680,88 @@
         }
       }
     },
+    "Pitch name colour" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Farbe der Tonnamen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Color de los nombres de notas"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couleur des noms de notes"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Colore dei nomi delle note"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "音名の色"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "음이름 색상"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kleur van notennamen"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kolor nazw nut"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cor dos nomes das notas"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Цвет названий нот"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Färg på tonnamn"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nota adı rengi"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "音名颜色"
+          }
+        }
+      }
+    },
     "Pitch of the Recording" : {
       "localizations" : {
         "de" : {
@@ -23464,6 +23711,89 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "设置应用的外观。“系统”会跟随设备的浅色或深色设置。"
+          }
+        }
+      }
+    },
+    "Sets the colour of the pitch names (C4, A3 …) down the left-hand side of the playback screen." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Legt die Farbe der Tonnamen (C4, A3 …) am linken Rand des Wiedergabebildschirms fest."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Define el color de los nombres de notas (C4, A3 …) en el lado izquierdo de la pantalla de reproducción."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Définit la couleur des noms de notes (C4, A3 …) sur le côté gauche de l’écran de lecture."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Imposta il colore dei nomi delle note (C4, A3 …) sul lato sinistro della schermata di riproduzione."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "再生画面の左側に並ぶ音名（C4、A3 …）の色を設定します。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "재생 화면 왼쪽에 표시되는 음이름(C4, A3 …)의 색을 설정합니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bepaalt de kleur van de notennamen (C4, A3 …) langs de linkerkant van het afspeelscherm."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ustawia kolor nazw nut (C4, A3 …) wzdłuż lewej krawędzi ekranu odtwarzania."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Define a cor dos nomes das notas (C4, A3 …) no lado esquerdo da tela de reprodução."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Задаёт цвет названий нот (C4, A3 …) вдоль левого края экрана воспроизведения."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Anger färgen på tonnamnen (C4, A3 …) längs uppspelningsskärmens vänstra kant."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Çalma ekranının sol tarafındaki nota adlarının (C4, A3 …) rengini belirler."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "设置播放界面左侧音名（C4、A3 …）的颜色。"
           }
         }
       }

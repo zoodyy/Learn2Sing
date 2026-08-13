@@ -214,6 +214,8 @@ struct PlaybackVisualsView: View {
     @AppStorage(VisualKeys.background)     private var background      = VisualDefaults.background
     @AppStorage(VisualKeys.showKeyboard)   private var showKeyboard   = VisualDefaults.showKeyboard
     @AppStorage(VisualKeys.showPitches)    private var showPitches     = VisualDefaults.showPitches
+    @AppStorage(VisualKeys.autoPitchNameColor) private var autoPitchNameColor = VisualDefaults.autoPitchNameColor
+    @AppStorage(VisualKeys.pitchNameColor)     private var pitchNameColor     = VisualDefaults.pitchNameColor
     @AppStorage(VisualKeys.textColor)      private var textColor      = VisualDefaults.textColor
     @AppStorage(VisualKeys.textFont)       private var textFont       = VisualDefaults.textFont
     @AppStorage(VisualKeys.singerSize)       private var singerSize       = VisualDefaults.singerSize
@@ -269,6 +271,8 @@ struct PlaybackVisualsView: View {
             backgroundColor: Color(hex: background),
             showKeyboard: showKeyboard,
             showPitches: showPitches,
+            autoPitchNameColor: autoPitchNameColor,
+            pitchNameColor: Color(hex: pitchNameColor),
             textColor: Color(hex: textColor),
             textFont: PlaybackFont(rawValue: textFont) ?? .system,
             singerSize: singerSize,
@@ -421,6 +425,16 @@ struct PlaybackVisualsView: View {
                 }
                 Toggle("Show keyboard", isOn: $showKeyboard)
                 Toggle("Show pitches", isOn: $showPitches)
+                if showPitches {
+                    Toggle("Automatic pitch name colour", isOn: $autoPitchNameColor)
+                        .settingHelp(L("Draws each pitch name in a colour that stands out where it sits: dark on the white keys, light on the black ones, and light over the background while the keyboard is hidden. Turn it off to pick the colour yourself."))
+                    if !autoPitchNameColor {
+                        ColorPicker("Pitch name colour",
+                                    selection: opacityColorBinding($pitchNameColor),
+                                    supportsOpacity: true)
+                        .settingHelp(L("Sets the colour of the pitch names (C4, A3 …) down the left-hand side of the playback screen."))
+                    }
+                }
             }
 
             Section("Text") {
