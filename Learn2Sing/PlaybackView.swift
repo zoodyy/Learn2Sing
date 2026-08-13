@@ -1366,7 +1366,19 @@ private struct ScoreView: View {
 
     private var chart: some View {
         ScoreHistoryChart(entries: history, tint: tint)
+            .onGeometryChange(for: CGRect.self) { $0.frame(in: .named(swipeSpace)) } action: {
+                chartFrame = $0
+            }
     }
+
+    /// Coordinate space the exit swipe and the chart's measured frame are both
+    /// expressed in, so the one can be tested against the other.
+    private let swipeSpace = "scoreSwipe"
+
+    /// Where the chart ended up, so the exit swipe can leave drags that start on
+    /// it alone. It has a range picker that is slid sideways and points that are
+    /// tapped, and a gesture on the screen around it wins over both.
+    @State private var chartFrame: CGRect = .zero
 
     /// Height of every button in the bottom row. Fixed rather than left to the
     /// labels' own padding, so a title that shrank to fit can't make its button
@@ -1414,6 +1426,29 @@ private struct ScoreView: View {
                 .foregroundStyle(.white)
         }
         .accessibilityLabel(L("Review"))
+    }
+
+    /// How far a sideways drag has to travel before it counts as the exit swipe.
+    private let exitSwipeDistance: CGFloat = 60
+
+    /// A rightward flick on this screen leaves it, exactly as the Exit button does
+    /// — so in a routine, where that button reads "Next", the swipe carries on to
+    /// the following exercise rather than dropping out of the run. It stands in for
+    /// the system's back gesture, which this screen turns off along with the back
+    /// button so that leaving goes where Exit goes rather than popping the run.
+    ///
+    /// Only a clearly sideways drag counts, so a finger dragged down the screen
+    /// can't end up leaving it, and one that starts on the chart is the chart's:
+    /// this is attached around everything and would otherwise take the range
+    /// picker's sideways drag off it.
+    private var exitSwipe: some Gesture {
+        DragGesture(minimumDistance: 20, coordinateSpace: .named(swipeSpace))
+            .onEnded { drag in
+                guard !chartFrame.contains(drag.startLocation) else { return }
+                let right = drag.translation.width
+                guard right >= exitSwipeDistance, abs(drag.translation.height) < right else { return }
+                onExit()
+            }
     }
 
     /// Replay, as a square icon button: with three buttons in the row, spelling
@@ -1496,6 +1531,12 @@ private struct ScoreView: View {
         // Follows the app's theme rather than staying black behind a light UI —
         // the same surface the intro screen's chart card uses.
         .background(ScoreHistoryChart.surface(colorScheme).ignoresSafeArea())
+        // Without a shape of its own the stack is only touchable where it has
+        // drawn something, which would leave the swipe working over the score and
+        // the buttons but not the space around them.
+        .contentShape(Rectangle())
+        .coordinateSpace(.named(swipeSpace))
+        .gesture(exitSwipe)
         .navigationBarBackButtonHidden(true)
     }
 }
