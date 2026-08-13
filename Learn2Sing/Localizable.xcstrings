@@ -20582,85 +20582,85 @@
         }
       }
     },
-    "Puts the theme, the orientation lock and the look of the menus and the playback screen back to how they started out. Templates you saved are kept." : {
+    "Puts the theme, the orientation lock and the look of the menus and the playback screen back to how they started out. Templates you saved are deleted, and the app's own two come back as they started out." : {
       "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Setzt das Erscheinungsbild, die Ausrichtungssperre und das Aussehen der Menüs und des Wiedergabebildschirms auf den Anfangszustand zurück. Von dir gespeicherte Vorlagen bleiben erhalten."
+            "value" : "Setzt das Erscheinungsbild, die Ausrichtungssperre und das Aussehen der Menüs und des Wiedergabebildschirms auf den Anfangszustand zurück. Von dir gespeicherte Vorlagen werden gelöscht, und die beiden der App kommen so zurück, wie sie am Anfang waren."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Restablece el tema, el bloqueo de orientación y el aspecto de los menús y de la pantalla de reproducción a como empezaron. Las plantillas que guardaste se conservan."
+            "value" : "Restablece el tema, el bloqueo de orientación y el aspecto de los menús y de la pantalla de reproducción a como empezaron. Las plantillas que guardaste se eliminan, y las dos de la app vuelven a como empezaron."
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Remet le thème, le verrouillage de l’orientation et l’apparence des menus et de l’écran de lecture dans leur état initial. Les modèles que vous avez enregistrés sont conservés."
+            "value" : "Remet le thème, le verrouillage de l’orientation et l’apparence des menus et de l’écran de lecture dans leur état initial. Les modèles que vous avez enregistrés sont supprimés, et les deux modèles de l’app reviennent à leur état initial."
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Riporta il tema, il blocco dell’orientamento e l’aspetto dei menu e della schermata di riproduzione a com’erano all’inizio. I modelli che hai salvato vengono mantenuti."
+            "value" : "Riporta il tema, il blocco dell’orientamento e l’aspetto dei menu e della schermata di riproduzione a com’erano all’inizio. I modelli che hai salvato vengono eliminati e i due dell’app tornano com’erano all’inizio."
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "テーマ、画面の向きのロック、メニューと再生画面の見た目を初期状態に戻します。保存したテンプレートは残ります。"
+            "value" : "テーマ、画面の向きのロック、メニューと再生画面の見た目を初期状態に戻します。保存したテンプレートは削除され、アプリの 2 つのテンプレートは初期状態で戻ります。"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "테마, 화면 방향 잠금, 메뉴와 재생 화면의 모양을 초기 상태로 되돌립니다. 저장한 템플릿은 유지됩니다."
+            "value" : "테마, 화면 방향 잠금, 메뉴와 재생 화면의 모양을 초기 상태로 되돌립니다. 저장한 템플릿은 삭제되고, 앱의 템플릿 두 개는 초기 상태로 돌아옵니다."
           }
         },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Zet het thema, de oriëntatievergrendeling en het uiterlijk van de menu’s en het afspeelscherm terug zoals ze begonnen. Sjablonen die je hebt bewaard blijven behouden."
+            "value" : "Zet het thema, de oriëntatievergrendeling en het uiterlijk van de menu’s en het afspeelscherm terug zoals ze begonnen. Sjablonen die je hebt bewaard worden verwijderd, en de twee van de app komen terug zoals ze begonnen."
           }
         },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Przywraca motyw, blokadę orientacji oraz wygląd menu i ekranu odtwarzania do stanu początkowego. Zapisane przez ciebie szablony pozostają."
+            "value" : "Przywraca motyw, blokadę orientacji oraz wygląd menu i ekranu odtwarzania do stanu początkowego. Zapisane przez ciebie szablony zostają usunięte, a dwa szablony aplikacji wracają w stanie początkowym."
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Volta o tema, o bloqueio de orientação e a aparência dos menus e da tela de reprodução ao estado inicial. Os modelos que você salvou são mantidos."
+            "value" : "Volta o tema, o bloqueio de orientação e a aparência dos menus e da tela de reprodução ao estado inicial. Os modelos que você salvou são excluídos, e os dois do app voltam como eram no início."
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Возвращает оформление, блокировку ориентации и вид меню и экрана воспроизведения к исходному состоянию. Сохранённые вами шаблоны остаются."
+            "value" : "Возвращает оформление, блокировку ориентации и вид меню и экрана воспроизведения к исходному состоянию. Сохранённые вами шаблоны удаляются, а два шаблона приложения возвращаются в исходном виде."
           }
         },
         "sv" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Återställer temat, orienteringslåset och utseendet på menyerna och uppspelningsskärmen till hur de började. Mallar du sparat behålls."
+            "value" : "Återställer temat, orienteringslåset och utseendet på menyerna och uppspelningsskärmen till hur de började. Mallar du sparat tas bort, och appens två egna kommer tillbaka som de började."
           }
         },
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Temayı, yönlendirme kilidini ve menülerle çalma ekranının görünümünü başlangıç durumuna döndürür. Kaydettiğiniz şablonlar kalır."
+            "value" : "Temayı, yönlendirme kilidini ve menülerle çalma ekranının görünümünü başlangıç durumuna döndürür. Kaydettiğiniz şablonlar silinir ve uygulamanın kendi iki şablonu başlangıçtaki hâliyle geri gelir."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "将主题、方向锁定以及菜单和播放界面的外观恢复到最初的状态。你保存的模板会保留。"
+            "value" : "将主题、方向锁定以及菜单和播放界面的外观恢复到最初的状态。你保存的模板会被删除，应用自带的两个模板会恢复到最初的状态。"
           }
         }
       }

@@ -219,8 +219,8 @@ final class VisualTemplateStore: ObservableObject {
 
     private static let storageKey = "vis_templates"
     /// The ids of the bundled templates already added to the list. Remembered per
-    /// template so one the user deletes stays deleted, while a look a later version
-    /// starts shipping still arrives.
+    /// template so one the user deletes isn't handed straight back at the next launch,
+    /// while a look a later version starts shipping still arrives.
     private static let seededIDsKey = "vis_seededBundledTemplates"
     /// The flag an earlier version set once it had seeded the one bundled template
     /// there was then — the dark look. Read so an install carrying it is handed only
@@ -357,8 +357,9 @@ final class VisualTemplateStore: ObservableObject {
     /// install applies the one matching the appearance the app is in and selects it —
     /// so the playback visuals start on that look, with edits on the visuals screen
     /// going into it. An install that only gains a newly shipped template keeps the
-    /// look it is on; and because the seeding is remembered per template, deleting one
-    /// is never undone.
+    /// look it is on; and because the seeding is remembered per template, one the user
+    /// deleted isn't put back here. Asking for the standard look (`selectStandard(for:)`)
+    /// and resetting the visuals are what bring a deleted one back.
     private func seedBundledIfNeeded() {
         let defaults = UserDefaults.standard
         var seededIDs = Set(defaults.stringArray(forKey: Self.seededIDsKey) ?? [])
@@ -562,45 +563,37 @@ final class VisualTemplateStore: ObservableObject {
     /// user last left the appearance on: while it is selected, edits on the visuals
     /// screen are written into it. `resetToBundled()` is the one caller that first puts
     /// the shipped values back, being the one time that has to undo those edits.
+    ///
+    /// A template the user has deleted is put back as the app ships it: the standard
+    /// look is one of the two the playback screen switches between, so there has to be
+    /// a template to be on. Deleting one still holds everywhere else — nothing hands it
+    /// back at launch — it just doesn't outlast asking for the look it holds.
     func selectStandard(for scheme: ColorScheme) {
         guard let bundled = Self.bundledTemplate(for: scheme) else { return }
         if let stored = templates.first(where: { $0.id == bundled.id }) {
             select(stored)
             return
         }
-        // The user deleted it, and deleting one is never undone — so there is no row
-        // for the checkmark. Apply the shipped look anyway, and let a template of the
-        // user's own that happens to hold exactly it take the selection.
-        // Detach first, so the new values aren't saved into whatever was selected as if
-        // the user had edited it.
-        selectedID = nil
-        bundled.apply()
-        selectedID = templates.first(where: \.matchesCurrent)?.id
-        persistSelection()
+        templates.append(bundled)
+        persist()
+        select(bundled)
     }
 
-    /// Settings ▸ Reset ▸ Visuals: back to the look a fresh install starts on, which is
-    /// the standard for the appearance the app is in — the theme is reset alongside
-    /// this, so by now that is the device's own light/dark setting.
+    /// Settings ▸ Reset ▸ Visuals: the templates list as a fresh install finds it —
+    /// the two the app ships, exactly as it ships them, and nothing else.
+    ///
+    /// So the templates the user saved or imported go, the app's own two come back with
+    /// the values they are shipped with however the user had since edited them, and one
+    /// they had deleted is there again. Then the standard look for the appearance the
+    /// app is in is selected; the theme is reset alongside this, so by now that is the
+    /// device's own light/dark setting.
     func resetToBundled() {
-        restoreBundledTemplates()
+        templates = Self.bundledTemplates
+        persist()
+        // Both are in the list, so both count as handed over — otherwise the next launch
+        // would seed a second copy of either.
+        UserDefaults.standard.set(templates.map(\.id.uuidString).sorted(), forKey: Self.seededIDsKey)
         selectStandard(for: AppTheme.currentScheme)
-    }
-
-    /// Puts the shipped values back into this device's copies of the templates the app
-    /// ships. Both are restored, not just the one about to be selected, so the other
-    /// appearance is back to how it started out too — switching the theme after a reset
-    /// finds the standard look rather than what the user had made of it. Templates the
-    /// user saved themselves are untouched, as is one of the app's own they deleted.
-    private func restoreBundledTemplates() {
-        var changed = false
-        for bundled in Self.bundledTemplates {
-            guard let index = templates.firstIndex(where: { $0.id == bundled.id }),
-                  templates[index] != bundled else { continue }
-            templates[index] = bundled
-            changed = true
-        }
-        if changed { persist() }
     }
 
     private func persist() {

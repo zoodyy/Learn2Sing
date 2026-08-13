@@ -187,7 +187,7 @@ enum ResettableSettings: String, CaseIterable, Identifiable {
         case .audio:
             L("Puts the instrument, the playback and recording devices and the microphone delay back to their starting values. Instruments you uploaded are kept.")
         case .visuals:
-            L("Puts the theme, the orientation lock and the look of the menus and the playback screen back to how they started out. Templates you saved are kept.")
+            L("Puts the theme, the orientation lock and the look of the menus and the playback screen back to how they started out. Templates you saved are deleted, and the app's own two come back as they started out.")
         case .voice:
             L("Clears your vocal range, including the custom lowest and highest notes.")
         case .exercises:
@@ -229,8 +229,9 @@ enum ResettableSettings: String, CaseIterable, Identifiable {
             // template matching the app's appearance is applied on first launch, so
             // that — not `VisualDefaults` — is the look to come back to. The theme
             // key is cleared just above, so the appearance is the device's own again
-            // by now. The template also becomes the selected one if the user still
-            // has it.
+            // by now. This puts the templates list back to what that install finds
+            // too — only the app's own two, as it ships them — and selects the one
+            // for the appearance.
             templates.resetToBundled()
         case .voice:
             for key in [VocalRange.storageKey, VocalRange.customLowKey,
