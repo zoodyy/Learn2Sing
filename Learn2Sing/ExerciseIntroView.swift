@@ -15,6 +15,9 @@ struct ExerciseIntroView: View {
     /// tab but Community) hides the button.
     var likeID: UUID? = nil
     var onDownload: (() -> Void)? = nil
+    /// Opens this exercise's settings from the toolbar. nil (Community, where the
+    /// exercise isn't in the user's library yet) hides the button.
+    var onSettings: (() -> Void)? = nil
     let onStart: () -> Void
 
     /// Source of the like count and of whether this user already liked it; both
@@ -114,6 +117,15 @@ struct ExerciseIntroView: View {
                     withAnimation { showScore.toggle() }
                 } label: {
                     Label("See Score", systemImage: "chart.line.uptrend.xyaxis")
+                }
+            }
+            // Same screen the list's "Settings" swipe action opens, and the same
+            // symbol, so the two read as one action.
+            if let onSettings {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button(action: onSettings) {
+                        Label("Settings", systemImage: "slider.horizontal.3")
+                    }
                 }
             }
         }

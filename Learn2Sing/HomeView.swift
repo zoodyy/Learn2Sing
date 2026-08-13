@@ -469,7 +469,10 @@ struct HomeView: View {
         switch route {
         case .play(let id):
             if let ex = store.exercises.first(where: { $0.id == id }) {
-                ExerciseIntroView(exercise: ex) {
+                ExerciseIntroView(
+                    exercise: ex,
+                    onSettings: { navigationPath.append(ExerciseRoute.settings(id)) }
+                ) {
                     navigationPath.append(ExerciseRoute.playback(id))
                 }
             }
