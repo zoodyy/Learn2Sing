@@ -512,7 +512,13 @@ struct HomeView: View {
         case .routinePlay(let id, let index):
             let exercises = routineExercises(id)
             if index < exercises.count {
-                ExerciseIntroView(exercise: exercises[index]) {
+                // Captured by id, not by position: the settings screen can delete
+                // the exercise, which re-indexes the rest of the play-through.
+                let exerciseID = exercises[index].id
+                ExerciseIntroView(
+                    exercise: exercises[index],
+                    onSettings: { navigationPath.append(ExerciseRoute.settings(exerciseID)) }
+                ) {
                     navigationPath.append(ExerciseRoute.routinePlayback(id, index))
                 }
             }
