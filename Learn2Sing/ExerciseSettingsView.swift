@@ -159,6 +159,7 @@ struct ExerciseSettingsView: View {
                     Label("Delete Exercise", systemImage: "trash")
                         .frame(maxWidth: .infinity)
                 }
+                .dangerRow()
             }
         }
         .alert("Delete Exercise?", isPresented: $isConfirmingDelete) {

@@ -120,6 +120,7 @@ struct ScoresResetView: View {
                 } label: {
                     Label("Delete All Scores", systemImage: "trash")
                 }
+                .dangerRow()
                 .disabled(scored.isEmpty)
                 .settingHelp(L("Deletes the scores of every exercise, including any left behind by exercises you have since deleted. The exercises themselves are kept."))
                 .resetConfirmation(
@@ -301,6 +302,7 @@ struct SettingsResetView: View {
                 } label: {
                     Label("Reset All Settings", systemImage: "arrow.counterclockwise")
                 }
+                .dangerRow()
                 .settingHelp(L("Puts every category above back at once. Your exercises, scores and routines are untouched."))
                 .resetConfirmation(
                     $pending, for: .all,
@@ -416,6 +418,7 @@ struct ExercisesResetView: View {
                 } label: {
                     Label("Revert All Bundled Exercises", systemImage: "arrow.uturn.backward")
                 }
+                .dangerRow()
                 .disabled(changed.isEmpty)
                 .settingHelp(L("Puts every exercise that came with the app back to how it shipped, bringing back any you deleted."))
                 .resetConfirmation(
@@ -444,6 +447,7 @@ struct ExercisesResetView: View {
                 Text(verbatim: "\(count)").foregroundStyle(.secondary)
             }
         }
+        .dangerRow()
         .disabled(count == 0)
     }
 }
@@ -527,6 +531,7 @@ struct HomeResetView: View {
                 Text(verbatim: "\(count)").foregroundStyle(.secondary)
             }
         }
+        .dangerRow()
         .disabled(count == 0)
     }
 }

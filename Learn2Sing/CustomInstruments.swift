@@ -372,6 +372,7 @@ struct CustomInstrumentDetailView: View {
                     Label("Delete Instrument", systemImage: "trash")
                         .frame(maxWidth: .infinity)
                 }
+                .dangerRow()
             }
         }
         .navigationTitle(instrument.name)
