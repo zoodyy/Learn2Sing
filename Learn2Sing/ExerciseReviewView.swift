@@ -72,6 +72,11 @@ struct ExerciseReviewView: View {
     /// the size it is handed.
     @State private var canvasSize: CGSize = .zero
 
+    /// What the bars along the top and bottom cover, for the same reason: the
+    /// drawing is handed the insets belonging to the frame it is drawing, and only
+    /// the gesture handlers read this copy.
+    @State private var safeArea = EdgeInsets()
+
     // Navigation-bar metrics for placing the top of the playhead line, matching
     // the playback screen's.
     private let navBarHeight: CGFloat = 54
@@ -98,8 +103,12 @@ struct ExerciseReviewView: View {
                 PanZoomSurface(onPan: pan(by:), onPinch: zoom(by:axis:around:))
             }
             .ignoresSafeArea()
-            .onAppear { canvasSize = canvas }
+            .onAppear {
+                canvasSize = canvas
+                safeArea = geo.safeAreaInsets
+            }
             .onChange(of: canvas) { _, size in canvasSize = size }
+            .onChange(of: geo.safeAreaInsets) { _, insets in safeArea = insets }
         }
         // An inset rather than an overlay, so the drawing knows the bar is there and
         // keeps the repetition badge above it. The canvas underneath still ignores
@@ -136,7 +145,13 @@ struct ExerciseReviewView: View {
     /// the range a microphone can plausibly lag by in a handful of taps; the fine pair
     /// is for settling on the value once the line is roughly over the notes.
     private let coarseStepMs: Double = 50
-    private let fineStepMs: Double = 5
+    private let fineStepMs: Double = 1
+
+    /// How often a held-down button takes its next step. Set so the two pairs travel
+    /// at speeds that suit what they're for: the coarse one covers the whole range in
+    /// a few seconds, the fine one creeps along under the singer's eye.
+    private let coarseRepeat: Duration = .milliseconds(120)
+    private let fineRepeat: Duration = .milliseconds(35)
 
     /// What the offset may be dialled to. It compensates for a lag, so it can't run
     /// backwards; the top end is far past any real microphone's round trip.
@@ -160,8 +175,10 @@ struct ExerciseReviewView: View {
                 .foregroundStyle(.white.opacity(0.7))
 
             HStack(spacing: 8) {
-                nudgeButton(ms: coarseStepMs, symbol: "chevron.left.2")
-                nudgeButton(ms: fineStepMs, symbol: "chevron.left")
+                NudgeButton(ms: coarseStepMs, symbol: "chevron.left.2",
+                            repeatEvery: coarseRepeat, onStep: nudge)
+                NudgeButton(ms: fineStepMs, symbol: "chevron.left",
+                            repeatEvery: fineRepeat, onStep: nudge)
 
                 Text(L("%d ms", Int(delayMs.rounded())))
                     .font(.headline.monospacedDigit())
@@ -169,8 +186,10 @@ struct ExerciseReviewView: View {
                     .contentTransition(.numericText())
                     .frame(minWidth: 76)
 
-                nudgeButton(ms: -fineStepMs, symbol: "chevron.right")
-                nudgeButton(ms: -coarseStepMs, symbol: "chevron.right.2")
+                NudgeButton(ms: -fineStepMs, symbol: "chevron.right",
+                            repeatEvery: fineRepeat, onStep: nudge)
+                NudgeButton(ms: -coarseStepMs, symbol: "chevron.right.2",
+                            repeatEvery: coarseRepeat, onStep: nudge)
             }
         }
         .padding(.horizontal, 16)
@@ -189,21 +208,6 @@ struct ExerciseReviewView: View {
         }
     }
 
-    private func nudgeButton(ms: Double, symbol: String) -> some View {
-        Button {
-            withAnimation(.snappy(duration: 0.15)) { nudge(ms) }
-        } label: {
-            Image(systemName: symbol)
-                .font(.headline)
-                .frame(width: 46, height: 40)
-                .background(.white.opacity(0.14), in: RoundedRectangle(cornerRadius: 12))
-                .foregroundStyle(.white)
-        }
-        // Spelled out for VoiceOver, which can't read a direction off a chevron: the
-        // left-hand buttons make the singing land earlier against the notes.
-        .accessibilityLabel(ms > 0 ? L("%d ms earlier", Int(ms)) : L("%d ms later", Int(-ms)))
-    }
-
     // MARK: - Layout
 
     private var keyboardWidth: CGFloat { visuals.showKeyboard ? playbackKeyboardWidth : 0 }
@@ -218,11 +222,21 @@ struct ExerciseReviewView: View {
         size.height / CGFloat(hiPitch - loPitch + 1) * CGFloat(visuals.verticalZoom * zoom)
     }
 
-    private func sceneLayout(size: CGSize, camera: Camera) -> SceneLayout {
+    private func sceneLayout(size: CGSize, camera: Camera,
+                             safeTop: CGFloat, safeBottom: CGFloat) -> SceneLayout {
         SceneLayout(size: size, pianoW: keyboardWidth,
                     rowH: rowHeight(size: size, zoom: camera.verticalZoom),
                     beatPx: beatWidth(zoom: camera.horizontalZoom),
-                    playheadX: playheadX(size: size), centerPitch: camera.centerPitch)
+                    playheadX: playheadX(size: size), centerPitch: camera.centerPitch,
+                    centerY: centerY(height: size.height, safeTop: safeTop, safeBottom: safeBottom))
+    }
+
+    /// Screen y the camera's centre pitch is drawn at: the middle of what the bars
+    /// leave visible, rather than the middle of the canvas — which on the delay test
+    /// sits partly behind the offset controls. It is the point the vertical limits
+    /// are expressed in, so this is what "brought to the middle" means for a note.
+    private func centerY(height: CGFloat, safeTop: CGFloat, safeBottom: CGFloat) -> CGFloat {
+        (height + safeTop - safeBottom) / 2
     }
 
     /// Y at which the playhead line starts: the gap the navigation bar leaves
@@ -235,7 +249,7 @@ struct ExerciseReviewView: View {
 
     private func draw(ctx: GraphicsContext, size: CGSize, safeTop: CGFloat, safeBottom: CGFloat) {
         let cam = resolvedCamera(size: size)
-        let layout = sceneLayout(size: size, camera: cam)
+        let layout = sceneLayout(size: size, camera: cam, safeTop: safeTop, safeBottom: safeBottom)
         let beat = cam.playheadBeat
         let delay = micDelayBeats(delayMs, bpm: bpm)
 
@@ -313,7 +327,7 @@ struct ExerciseReviewView: View {
 
     private func resolvedCamera(size: CGSize, content: Content) -> Camera {
         var cam = camera ?? framedCamera(size: size, content: content)
-        clamp(&cam, size: size, content: content)
+        clamp(&cam, content: content)
         return cam
     }
 
@@ -341,17 +355,15 @@ struct ExerciseReviewView: View {
         /// sung line can be brought under it. Each end is whichever of the two — the
         /// exercise or the line — reaches further.
         var beats: ClosedRange<Double>
+        /// The pitches the camera's centre may travel between, on the same footing:
+        /// anything drawn — a note, a label, any point of the sung line — can be
+        /// brought to the middle of the screen, where no bar is covering it.
         var pitches: ClosedRange<Double>
     }
 
     /// Measures those limits. Samples with no detected pitch don't count towards
     /// the line's ends: it only starts where the singer did, not at the silent
     /// lead-in the recording also covers.
-    ///
-    /// In pitch the limits deliberately ignore the line: it is drawn pinned to the
-    /// top or bottom edge when it leaves the view, so it is never lost, while
-    /// letting one stray estimate stretch the limits would leave the view free to
-    /// drift off the exercise.
     private func measureContent() -> Content {
         let delay = micDelayBeats(delayMs, bpm: bpm)
         var firstBeat = Double.infinity
@@ -382,6 +394,13 @@ struct ExerciseReviewView: View {
             lowPitch = min(lowPitch, Double(label.pitch))
             highPitch = max(highPitch, Double(label.pitch))
         }
+        // The sung line counts too, so a passage sung well outside the exercise's own
+        // range can be brought into view instead of only ever being pinned to an edge.
+        for sample in samples {
+            guard let pitch = sample.pitch else { continue }
+            lowPitch = min(lowPitch, pitch)
+            highPitch = max(highPitch, pitch)
+        }
         if lowPitch > highPitch {
             lowPitch = Double(hiPitch + loPitch) / 2
             highPitch = lowPitch
@@ -397,7 +416,7 @@ struct ExerciseReviewView: View {
         var cam = resolvedCamera(size: size, content: content)
         cam.playheadBeat -= Double(delta.width / beatWidth(zoom: cam.horizontalZoom))
         cam.centerPitch += Double(delta.height / rowHeight(size: size, zoom: cam.verticalZoom))
-        clamp(&cam, size: size, content: content)
+        clamp(&cam, content: content)
         camera = cam
     }
 
@@ -415,14 +434,15 @@ struct ExerciseReviewView: View {
             cam.horizontalZoom = clampedHorizontalZoom(cam.horizontalZoom * Double(factor))
             cam.playheadBeat = anchorBeat - Double(offset / beatWidth(zoom: cam.horizontalZoom))
         case .vertical:
-            let offset = point.y - size.height / 2
+            let offset = point.y - centerY(height: size.height,
+                                           safeTop: safeArea.top, safeBottom: safeArea.bottom)
             let anchorPitch = cam.centerPitch
                 - Double(offset / rowHeight(size: size, zoom: cam.verticalZoom))
             cam.verticalZoom = clampedVerticalZoom(cam.verticalZoom * Double(factor), size: size)
             cam.centerPitch = anchorPitch
                 + Double(offset / rowHeight(size: size, zoom: cam.verticalZoom))
         }
-        clamp(&cam, size: size, content: content)
+        clamp(&cam, content: content)
         camera = cam
     }
 
@@ -440,28 +460,97 @@ struct ExerciseReviewView: View {
                    Double(rowHeightRange.upperBound / base))
     }
 
-    /// Keeps the camera over the content. Horizontally the limits are on the
-    /// playhead rather than on the visible window: it is the cursor the singer
-    /// reads the run with, so it has to be able to travel the whole way from the
-    /// first thing drawn to the last. Vertically the window may reach a row past
-    /// the content on each side, and content that doesn't fill the window is
-    /// centred in it instead of being free to drift around.
-    private func clamp(_ cam: inout Camera, size: CGSize, content: Content) {
+    /// Keeps the camera over the content. Both limits are on the camera itself —
+    /// the playhead across, its centre pitch down — rather than on the visible
+    /// window: those two are what the singer reads the run with, so everything
+    /// drawn has to be able to reach them. That is also what makes each note and
+    /// each part of the sung line reachable at all when a bar is covering the foot
+    /// of the screen; a limit on the window instead would let a high exercise's
+    /// lowest notes stop under it with nowhere further to scroll.
+    private func clamp(_ cam: inout Camera, content: Content) {
         cam.playheadBeat = min(max(cam.playheadBeat, content.beats.lowerBound),
                                content.beats.upperBound)
+        cam.centerPitch = min(max(cam.centerPitch, content.pitches.lowerBound),
+                              content.pitches.upperBound)
+    }
+}
 
-        let rowH = rowHeight(size: size, zoom: cam.verticalZoom)
-        guard rowH > 0 else { return }
-        let visibleRows = Double(size.height / rowH)
-        let lowPitch = content.pitches.lowerBound - 1
-        let highPitch = content.pitches.upperBound + 1
-        // Worked out in the pitch at the top edge of the window, since it is the
-        // window — not the cursor — that the vertical limits are about.
-        var top = cam.centerPitch + visibleRows / 2
-        top = highPitch - lowPitch <= visibleRows
-            ? (lowPitch + highPitch + visibleRows) / 2
-            : min(max(top, lowPitch + visibleRows), highPitch)
-        cam.centerPitch = top - visibleRows / 2
+// MARK: - Delay-test offset button
+
+/// One of the four buttons that slide the sung line over the notes in the delay
+/// test. A tap moves it one step; holding the button down keeps it moving, a step
+/// every `repeatEvery`, until the finger is lifted — so a long way is covered
+/// without tapping a hundred times.
+private struct NudgeButton: View {
+    /// Milliseconds one step moves the line. Positive is earlier (leftwards).
+    let ms: Double
+    let symbol: String
+    let repeatEvery: Duration
+    let onStep: (Double) -> Void
+
+    /// The run of steps a held-down button is taking. nil while nothing is held.
+    @State private var repeater: Task<Void, Never>? = nil
+    /// Whether the hold has actually stepped, so the release that ends it isn't
+    /// counted as a tap on top of everything it already moved.
+    @State private var didRepeat = false
+
+    /// How long the button has to be held before it starts repeating, so a tap is
+    /// only ever one step.
+    private let holdDelay: Duration = .milliseconds(400)
+
+    var body: some View {
+        Button {
+            // Also the path an accessibility activation takes, which never presses
+            // the button in the way the repeat below listens for.
+            if didRepeat { didRepeat = false } else { withAnimation(.snappy(duration: 0.15)) { onStep(ms) } }
+        } label: {
+            Image(systemName: symbol)
+                .font(.headline)
+                .frame(width: 46, height: 40)
+                .background(.white.opacity(0.14), in: RoundedRectangle(cornerRadius: 12))
+                .foregroundStyle(.white)
+        }
+        .buttonStyle(PressReportingButtonStyle { isPressed in
+            if isPressed { startRepeating() } else { stopRepeating() }
+        })
+        // Spelled out for VoiceOver, which can't read a direction off a chevron: the
+        // left-hand buttons make the singing land earlier against the notes.
+        .accessibilityLabel(ms > 0 ? L("%d ms earlier", Int(ms)) : L("%d ms later", Int(-ms)))
+        // A finger still down when the screen goes away would otherwise leave the
+        // run of steps going with nothing to move.
+        .onDisappear { stopRepeating() }
+    }
+
+    private func startRepeating() {
+        repeater?.cancel()
+        didRepeat = false
+        repeater = Task { @MainActor in
+            try? await Task.sleep(for: holdDelay)
+            while !Task.isCancelled {
+                didRepeat = true
+                onStep(ms)
+                try? await Task.sleep(for: repeatEvery)
+            }
+        }
+    }
+
+    private func stopRepeating() {
+        repeater?.cancel()
+        repeater = nil
+    }
+}
+
+/// Passes a button's pressed state out to its owner, for a button that has to do
+/// something for as long as it is held rather than once when it is let go.
+private struct PressReportingButtonStyle: ButtonStyle {
+    let onPressChange: (Bool) -> Void
+
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .opacity(configuration.isPressed ? 0.55 : 1)
+            .onChange(of: configuration.isPressed) { _, isPressed in
+                onPressChange(isPressed)
+            }
     }
 }
 
