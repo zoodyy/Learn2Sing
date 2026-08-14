@@ -193,32 +193,46 @@ enum ExerciseRoute: Hashable {
 }
 
 /// The inline-editable category name on the edit-categories screen. Edits are
-/// committed (via `onRename`) when the user submits or focus moves away; a commit
-/// the store refuses — duplicate name, empty after trimming — reverts the text.
+/// committed (via `onRename`) when the user submits, focus moves away, or the row
+/// goes away — leaving while still editing is the norm for a category just made
+/// with the + button, and the row being removed doesn't report the lost focus. A
+/// commit the store refuses — duplicate name, empty after trimming — reverts the
+/// text.
 private struct CategoryNameField: View {
     let category: String
+    /// The screen's focus, keyed by category name, so a category the + button just
+    /// created can be handed the keyboard from outside the row.
+    let focus: FocusState<String?>.Binding
     let onRename: (String) -> Void
     @State private var name: String
-    @FocusState private var isFocused: Bool
 
     /// What the field shows, and what an edit is measured against. The app's own
     /// categories are stored in English and displayed translated, so leaving the
     /// field untouched must not read as a rename.
     private var displayName: String { ExerciseCategoryName.localized(category) }
 
-    init(category: String, onRename: @escaping (String) -> Void) {
+    /// `isNew` starts the field empty: the category exists already, under the
+    /// placeholder name the + button gave it, and the user shouldn't have to clear
+    /// that before typing their own. Leaving it empty keeps the placeholder name.
+    init(category: String,
+         isNew: Bool,
+         focus: FocusState<String?>.Binding,
+         onRename: @escaping (String) -> Void) {
         self.category = category
+        self.focus = focus
         self.onRename = onRename
-        _name = State(initialValue: ExerciseCategoryName.localized(category))
+        _name = State(initialValue: isNew ? "" : ExerciseCategoryName.localized(category))
     }
 
     var body: some View {
         TextField("Name", text: $name)
-            .focused($isFocused)
+            .focused(focus, equals: category)
             .onSubmit(commit)
-            .onChange(of: isFocused) { _, focused in
-                if !focused { commit() }
+            // Every row sees every focus change; only the one losing it commits.
+            .onChange(of: focus.wrappedValue) { old, _ in
+                if old == category { commit() }
             }
+            .onDisappear(perform: commit)
     }
 
     private func commit() {
@@ -270,9 +284,13 @@ struct ExercisesView: View {
     /// categories that were expanded before the mode switch become expanded again.
     @State private var collapsedBeforeReorder: Set<String> = []
 
-    /// Drives the "name your new category" alert opened from the + menu.
-    @State private var isNamingNewCategory = false
-    @State private var newCategoryName = ""
+    /// A category the + button just created, waiting to be scrolled to and handed
+    /// the keyboard on the edit-categories screen. Cleared once it has focus.
+    @State private var newCategory: String?
+
+    /// Which category's name field currently has the keyboard, on the
+    /// edit-categories screen. nil when nothing is being renamed.
+    @FocusState private var focusedCategory: String?
 
     /// True while the reorder screen is in delete mode: the drag handles are
     /// swapped for per-row delete buttons. Toggled by the trash toolbar button.
@@ -424,7 +442,9 @@ struct ExercisesView: View {
                 Text(ExerciseCategoryName.localized(category))
                     .frame(maxWidth: .infinity, alignment: .leading)
             } else {
-                CategoryNameField(category: category) { newName in
+                CategoryNameField(category: category,
+                                  isNew: category == newCategory,
+                                  focus: $focusedCategory) { newName in
                     renameCategory(category, to: newName)
                 }
             }
@@ -490,6 +510,28 @@ struct ExercisesView: View {
         }
     }
 
+    /// Create the category immediately under a placeholder name and open the
+    /// edit-categories screen with its name field ready to type in — like a new
+    /// exercise, it's named where it lives rather than in an alert beforehand.
+    /// Already on that screen (its own + button), only the new row is added.
+    private func addCategory() {
+        let name = unusedCategoryName()
+        store.addCategory(name)
+        enterReorderMode()
+        newCategory = name
+    }
+
+    /// "New Category", numbered if the user already has one by that name: the store
+    /// refuses a duplicate, and the field about to take the keyboard has to belong
+    /// to the category that was just added.
+    private func unusedCategoryName() -> String {
+        let base = L("New Category")
+        guard store.categories.contains(base) else { return base }
+        var suffix = 2
+        while store.categories.contains("\(base) \(suffix)") { suffix += 1 }
+        return "\(base) \(suffix)"
+    }
+
     /// The as-created snapshot of an exercise added via the + menu. Compared
     /// against on return to the list so an exercise the user never touched
     /// (no setting, name, description, or MIDI change) is silently discarded.
@@ -535,13 +577,28 @@ struct ExercisesView: View {
             Group {
                 if isReordering {
                     // Reorder mode: every category collapsed to a single draggable row.
-                    List {
-                        ForEach(store.categories, id: \.self) { category in
-                            reorderRow(category)
+                    ScrollViewReader { proxy in
+                        List {
+                            ForEach(store.categories, id: \.self) { category in
+                                reorderRow(category)
+                            }
+                            .onMove(perform: moveCategory)
                         }
-                        .onMove(perform: moveCategory)
+                        .environment(\.editMode, $editMode)
+                        // A category the + button just added sits at the bottom of
+                        // the list, usually off screen — and a row that was never
+                        // laid out can't take the keyboard. Bring it into view
+                        // first, then focus it. Runs on appear too, since the same
+                        // button opens this screen.
+                        .task(id: newCategory) {
+                            guard let name = newCategory else { return }
+                            proxy.scrollTo(name, anchor: .center)
+                            try? await Task.sleep(for: .milliseconds(300))
+                            guard !Task.isCancelled else { return }
+                            focusedCategory = name
+                            newCategory = nil
+                        }
                     }
-                    .environment(\.editMode, $editMode)
                 } else if sections.isEmpty && !query.isEmpty {
                     ContentUnavailableView.search(text: query)
                 } else if sections.isEmpty && !activeFilters.isEmpty {
@@ -617,8 +674,7 @@ struct ExercisesView: View {
                     }
                     ToolbarItem(placement: .topBarTrailing) {
                         Button {
-                            newCategoryName = ""
-                            isNamingNewCategory = true
+                            addCategory()
                         } label: {
                             Image(systemName: "plus")
                         }
@@ -664,8 +720,7 @@ struct ExercisesView: View {
                                 Label("New Exercise", systemImage: "music.note")
                             }
                             Button {
-                                newCategoryName = ""
-                                isNamingNewCategory = true
+                                addCategory()
                             } label: {
                                 Label("New Category", systemImage: "folder.badge.plus")
                             }
@@ -674,15 +729,6 @@ struct ExercisesView: View {
                         }
                     }
                 }
-            }
-            .alert("New Category", isPresented: $isNamingNewCategory) {
-                TextField("Name", text: $newCategoryName)
-                Button("Create") {
-                    store.addCategory(newCategoryName.trimmingCharacters(in: .whitespaces))
-                }
-                Button("Cancel", role: .cancel) {}
-            } message: {
-                Text("Enter a name for the new category.")
             }
             .onChange(of: navigationPath) { old, new in
                 // Back at the list after creating an exercise: if it was never
