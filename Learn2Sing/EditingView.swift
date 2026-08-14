@@ -115,12 +115,22 @@ struct EditingView: View {
         case hand   // pan & scroll (gesture disabled)
     }
 
+    /// Which end of a note a drag is dragging: the start or the end of it.
+    private enum ResizeEdge {
+        case leading, trailing
+    }
+
     private enum Interaction {
         case idle
         // `anchor` is the beat the press landed on; the note grows right from it, or
         // left from the right edge it started with.
         case creating(note: MIDINote, anchor: Double)
-        case resizing(UUID)
+        // A press that landed on a beat no note can start on — another note already
+        // sounds there, or there's too little room left before the next one. Nothing is
+        // drawn yet: the note appears the moment the drag reaches free timeline either
+        // side, butted up against the stretch that blocked it.
+        case pendingNote(pitch: Int, origin: Double)
+        case resizing(id: UUID, edge: ResizeEdge)
         case movingNote(id: UUID, grabDX: Double)
         case pendingText(CGPoint)
         case movingText(id: UUID, grabDX: Double, moved: Bool)
@@ -611,19 +621,19 @@ struct EditingView: View {
         switch interaction {
         case .idle:
             if let hit = noteAt(v.startLocation) {
-                if nearRightEdge(hit, x: v.startLocation.x) {
-                    interaction = .resizing(hit.id)
+                if let edge = resizeEdge(of: hit, x: v.startLocation.x) {
+                    interaction = .resizing(id: hit.id, edge: edge)
                 } else {
                     interaction = .movingNote(id: hit.id,
                                               grabDX: beatValue(v.startLocation.x) - hit.beat)
                 }
             } else {
                 // Only one note may sound at a time, so a press that lands on a beat
-                // another note already covers — even several rows away — starts nothing,
-                // and says why: the press looks like it should have worked.
+                // another note already covers — even several rows away — draws nothing
+                // yet; it waits to see whether the drag leaves the taken stretch.
                 let start = snappedBeat(v.startLocation.x)
                 guard !isOccupied(start), spaceAfter(start) >= minLength else {
-                    toasts.show(L("Notes Can't Overlap"), icon: "exclamationmark.triangle.fill")
+                    interaction = .pendingNote(pitch: pitchAt(v.startLocation.y), origin: start)
                     break
                 }
                 let note = MIDINote(
@@ -634,27 +644,43 @@ struct EditingView: View {
                 interaction = .creating(note: note, anchor: start)
             }
 
-        case .creating(var note, let anchor):
+        case .pendingNote(let pitch, let origin):
+            // The drag started over a beat that was already taken. As soon as it reaches
+            // free timeline the note begins there, as if the press had landed as close to
+            // the blocking note as a note can start — on whichever side the drag went.
             let pointer = beatValue(v.location.x)
-            if pointer >= anchor {
-                // Growing right: the left edge stays put at the anchor.
-                note.beat = anchor
-                note.length = min(max(minLength, snapped(pointer - anchor)),
-                                  spaceAfter(anchor))
-            } else {
-                // Growing left: the right edge stays where the press put it.
-                let rightEdge = anchor + minLength
-                let leftLimit = rightEdge - spaceBefore(rightEdge)
-                note.beat = min(max(snapped(pointer), leftLimit), anchor)
-                note.length = rightEdge - note.beat
+            let from = beatValue(v.startLocation.x)
+            if pointer > from, let anchor = nextFreeStart(atOrAfter: origin), pointer >= anchor {
+                let note = MIDINote(pitch: pitch, beat: anchor, length: minLength)
+                interaction = .creating(note: grown(note, anchor: anchor, pointer: pointer),
+                                        anchor: anchor)
+            } else if pointer < from, let end = previousFreeEnd(atOrBefore: origin), pointer <= end {
+                let anchor = end - minLength
+                let note = MIDINote(pitch: pitch, beat: anchor, length: minLength)
+                interaction = .creating(note: grown(note, anchor: anchor, pointer: pointer),
+                                        anchor: anchor)
             }
-            interaction = .creating(note: note, anchor: anchor)
 
-        case .resizing(let id):
+        case .creating(let note, let anchor):
+            interaction = .creating(note: grown(note, anchor: anchor,
+                                                pointer: beatValue(v.location.x)),
+                                    anchor: anchor)
+
+        case .resizing(let id, let edge):
             if let i = notes.firstIndex(where: { $0.id == id }) {
-                let endBeat = beatValue(v.location.x)
-                notes[i].length = min(max(minLength, snapped(endBeat - notes[i].beat)),
-                                      spaceAfter(notes[i].beat, excluding: id))
+                let pointer = beatValue(v.location.x)
+                switch edge {
+                case .trailing:
+                    notes[i].length = min(max(minLength, snapped(pointer - notes[i].beat)),
+                                          spaceAfter(notes[i].beat, excluding: id))
+                case .leading:
+                    // Dragging the start of the note: the end of it stays put.
+                    let rightEdge = notes[i].beat + notes[i].length
+                    let leftLimit = rightEdge - spaceBefore(rightEdge, excluding: id)
+                    let beat = min(max(snapped(pointer), leftLimit), rightEdge - minLength)
+                    notes[i].beat = beat
+                    notes[i].length = rightEdge - beat
+                }
             }
 
         case .movingNote(let id, let grabDX):
@@ -672,8 +698,36 @@ struct EditingView: View {
     }
 
     private func penEnded(_ v: DragGesture.Value) {
-        if case .creating(let note, _) = interaction { notes.append(note) }
+        switch interaction {
+        case .creating(let note, _):
+            notes.append(note)
+
+        case .pendingNote:
+            // Never left the taken stretch, so nothing was drawn — say why, since the
+            // press looks like it should have worked.
+            toasts.show(L("Notes Can't Overlap"), icon: "exclamationmark.triangle.fill")
+
+        default:
+            break
+        }
         interaction = .idle
+    }
+
+    /// The note being drawn, stretched to the pointer: right of `anchor` it grows right
+    /// from that edge, left of it the right edge the note started with stays put. Either
+    /// way it stops at the notes on both sides of it.
+    private func grown(_ note: MIDINote, anchor: Double, pointer: Double) -> MIDINote {
+        var note = note
+        if pointer >= anchor {
+            note.beat = anchor
+            note.length = min(max(minLength, snapped(pointer - anchor)), spaceAfter(anchor))
+        } else {
+            let rightEdge = anchor + minLength
+            let leftLimit = rightEdge - spaceBefore(rightEdge)
+            note.beat = min(max(snapped(pointer), leftLimit), anchor)
+            note.length = rightEdge - note.beat
+        }
+        return note
     }
 
     // MARK: Text tool — place, move, edit labels
@@ -804,6 +858,29 @@ struct EditingView: View {
         return beat - max(0, previousEnd ?? 0)
     }
 
+    /// The first beat from `origin` rightwards a new note may start on: `origin` itself
+    /// when there's room, otherwise the end of whatever is in the way. `nil` if nothing
+    /// to the right can hold a note.
+    private func nextFreeStart(atOrAfter origin: Double) -> Double? {
+        for gap in freeGaps(excluding: nil) {
+            let start = max(gap.start, origin)
+            if gap.end - start >= minLength - beatEpsilon { return start }
+        }
+        return nil
+    }
+
+    /// The last beat up to `origin` a new note may end on: `origin` itself when there's
+    /// room in front of it, otherwise the start of whatever is in the way. `nil` if
+    /// nothing to the left can hold a note.
+    private func previousFreeEnd(atOrBefore origin: Double) -> Double? {
+        var result: Double? = nil
+        for gap in freeGaps(excluding: nil) where gap.start <= origin + beatEpsilon {
+            let end = min(gap.end, origin)
+            if end - gap.start >= minLength - beatEpsilon { result = end }
+        }
+        return result
+    }
+
     /// Where a note of `length` dragged to `desired` may actually land: inside the free
     /// gap the drag is centred on, or the nearest gap big enough if that one is taken.
     /// `nil` when nothing on the timeline can hold it.
@@ -886,8 +963,15 @@ struct EditingView: View {
         texts.last { textRect(for: $0).contains(point) }
     }
 
-    private func nearRightEdge(_ note: MIDINote, x: CGFloat) -> Bool {
-        rect(for: note).maxX - x < 14
+    /// Which end of `note` a press at `x` takes hold of, or `nil` for the middle of it,
+    /// which moves the note instead. The grab zones shrink along with the note so even
+    /// the shortest one keeps a middle to move it by.
+    private func resizeEdge(of note: MIDINote, x: CGFloat) -> ResizeEdge? {
+        let box = rect(for: note)
+        let zone = min(14, box.width / 3)
+        if x - box.minX < zone { return .leading }
+        if box.maxX - x < zone { return .trailing }
+        return nil
     }
 
     private func pitchAt(_ y: CGFloat) -> Int {
