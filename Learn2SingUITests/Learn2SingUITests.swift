@@ -1543,10 +1543,10 @@ final class Learn2SingUITests: XCTestCase {
 
         header(app, named: category).press(forDuration: 0.8)
         XCTAssertTrue(app.navigationBars["Edit Categories"].waitForExistence(timeout: 3),
-                      "long-press on header should enter reorder mode")
-        app.buttons["xmark"].firstMatch.tap()
+                      "long-press on header should open Edit Categories")
+        app.buttons["BackButton"].tap()
         XCTAssertTrue(app.navigationBars["Exercises"].waitForExistence(timeout: 3),
-                      "✗ should exit reorder mode")
+                      "back should leave Edit Categories")
     }
 
     /// The Exercises tab's filter menu. Picks within a group are OR'd and groups
@@ -1616,23 +1616,52 @@ final class Learn2SingUITests: XCTestCase {
         XCTAssertEqual((snapshotList(app).items["Recent"] ?? []).count, expanded.count,
                        "tap should expand Recent again")
 
-        // Long-press: reorder mode with only the ✗ button — no +, no trash,
-        // and no exercise count on the category row.
+        // Long-press: the edit-categories screen with only the back button —
+        // no +, no trash, and no exercise count on the category row.
         header(app, named: "Recent").press(forDuration: 0.8)
         XCTAssertTrue(app.navigationBars["Edit Categories"].waitForExistence(timeout: 3),
-                      "long-press on a Home header should enter reorder mode")
+                      "long-press on a Home header should open Edit Categories")
         XCTAssertFalse(app.navigationBars.buttons["plus"].exists,
-                       "Home reorder mode has no add button")
+                       "the Home edit-categories screen has no add button")
         XCTAssertFalse(app.navigationBars.buttons["trash"].exists,
-                       "Home reorder mode has no delete button")
+                       "the Home edit-categories screen has no delete button")
         XCTAssertTrue(app.staticTexts["Recent"].exists,
                       "Recent should appear as a reorderable row")
         XCTAssertFalse(app.staticTexts["(\(expanded.count))"].exists,
-                       "Home reorder rows must not show a count")
+                       "Home category rows must not show a count")
         saveScreenshot("home-reorder")
-        app.buttons["xmark"].firstMatch.tap()
+        app.buttons["BackButton"].tap()
         XCTAssertTrue(app.navigationBars["Home"].waitForExistence(timeout: 3),
-                      "✗ should exit reorder mode back to Home")
+                      "back should leave Edit Categories for Home")
+    }
+
+    /// Edit Categories is pushed onto the tab's stack rather than swapped in
+    /// behind the same title. That is what gives it the system's back button and
+    /// its swipe-in-from-the-edge gesture, which no synthetic swipe can stand in
+    /// for here — so what's asserted is the pushed-ness the gesture comes with.
+    func testEditCategoriesIsPushedScreen() throws {
+        let app = XCUIApplication()
+        app.launch()
+        XCTAssertTrue(app.navigationBars["Home"].waitForExistence(timeout: 5))
+        sleep(2)
+
+        // Whichever category is visible: hidden ones persist across launches, so
+        // an earlier run decides which that is.
+        let categories = ["Recent", "Routines", "Favourites", "Recommended"]
+        let anyVisible = app.staticTexts.matching(
+            NSPredicate(format: "label IN %@", categories)).firstMatch
+        XCTAssertTrue(anyVisible.waitForExistence(timeout: 5), "Home list has no categories")
+        anyVisible.press(forDuration: 0.8)
+        XCTAssertTrue(app.navigationBars["Edit Categories"].waitForExistence(timeout: 5),
+                      "long press did not open Edit Categories")
+
+        // The floating system back button, which only a pushed screen has.
+        let back = app.buttons["BackButton"]
+        XCTAssertTrue(back.waitForExistence(timeout: 3),
+                      "Edit Categories should be a pushed screen with the system back button")
+        back.tap()
+        XCTAssertTrue(app.navigationBars["Home"].waitForExistence(timeout: 5),
+                      "back should leave the edit-categories screen")
     }
 
     /// The Home tab's "Recommended" category: it suggests as many exercises as the
@@ -2592,7 +2621,7 @@ final class Learn2SingUITests: XCTestCase {
         saveScreenshot("home-edit-categories-hidden")
 
         // Back on Home, only the survivor is listed.
-        app.navigationBars["Edit Categories"].buttons.firstMatch.tap()
+        app.buttons["BackButton"].tap()
         XCTAssertTrue(app.navigationBars["Home"].waitForExistence(timeout: 5))
         XCTAssertTrue(app.staticTexts[survivor].waitForExistence(timeout: 5),
                       "\(survivor) vanished from Home")
@@ -2622,7 +2651,7 @@ final class Learn2SingUITests: XCTestCase {
         }
         XCTAssertTrue(hideButton(survivor).isEnabled,
                       "survivor should be hideable again once another is visible")
-        app.navigationBars["Edit Categories"].buttons.firstMatch.tap()
+        app.buttons["BackButton"].tap()
         for category in categories {
             XCTAssertTrue(app.staticTexts[category].waitForExistence(timeout: 5),
                           "\(category) did not come back to Home")
@@ -2691,7 +2720,7 @@ final class Learn2SingUITests: XCTestCase {
         saveScreenshot("home-categories-reordered")
 
         // Back on Home, the visible categories follow the new order.
-        app.navigationBars["Edit Categories"].buttons.firstMatch.tap()
+        app.buttons["BackButton"].tap()
         XCTAssertTrue(app.navigationBars["Home"].waitForExistence(timeout: 5))
         let expected = orderAfter.filter { visibleBefore.contains($0) }
         XCTAssertEqual(homeOrder(), expected, "Home did not adopt the new category order")

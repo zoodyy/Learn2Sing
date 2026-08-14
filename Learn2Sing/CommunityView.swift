@@ -308,8 +308,8 @@ struct CommunityView: View {
                         playQueue = listed
                         navigationPath.append(ExerciseRoute.play(id))
                     }
-                case .settings, .edit, .routine, .routineIntro, .routinePicker, .routinePlay,
-                     .routinePlayback, .favourites, .favouritesPicker:
+                case .settings, .edit, .editCategories, .routine, .routineIntro, .routinePicker,
+                     .routinePlay, .routinePlayback, .favourites, .favouritesPicker:
                     // Never appended from this tab; exercises aren't editable
                     // here and routines/favourites live on the Home tab.
                     EmptyView()

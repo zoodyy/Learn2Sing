@@ -181,6 +181,7 @@ enum ExerciseRoute: Hashable {
     // profile asks the server for that id's records rather than sifting the
     // Community tab's list for a matching name.
     case user(id: String, name: String)
+    case editCategories        // the drag-to-reorder/rename screen for the tab's categories
     case routine(UUID)         // a routine's edit screen (Home tab)
     case routineIntro(UUID)    // a routine's description/exercise-order screen (Home tab)
     case routinePicker(UUID)   // multi-select exercise picker for a routine (Home tab)
@@ -246,6 +247,148 @@ private struct CategoryNameField: View {
     }
 }
 
+/// The edit-categories screen: every category as a draggable row whose name is an
+/// inline text field, with a trash button that swaps the drag handles for delete
+/// buttons and a + that adds another category. Opened by long-pressing a category
+/// header on the Exercises tab, or from its + menu.
+///
+/// Pushed onto the tab's navigation stack rather than swapped in behind the same
+/// title, so it is left the way every other screen is: the back button, or the
+/// system's swipe in from the leading edge, which slides the screen off the list
+/// it belongs to. Either way the edits stay — every change is written to the
+/// store as it is made, and a name still being typed is committed when the screen
+/// goes (see CategoryNameField).
+private struct CategoryEditView: View {
+    /// Re-renders this screen when the language is changed in Settings; the
+    /// strings are resolved when the body runs, so SwiftUI needs telling.
+    @ObservedObject private var appLanguage = LanguageManager.shared
+
+    @EnvironmentObject private var store: ExerciseStore
+
+    /// A category the + button just created, waiting to be scrolled to and handed
+    /// the keyboard. Cleared once it has focus. Owned by the tab, since its own +
+    /// menu opens this screen with a new category already on it.
+    @Binding var newCategory: String?
+
+    /// Renames through the tab, which carries the category's collapse state over
+    /// to the new name. Old name first.
+    let onRename: (String, String) -> Void
+
+    /// Always active so the rows show drag handles; turned off while deleting.
+    @State private var editMode: EditMode = .active
+
+    /// True while the drag handles are swapped for per-row delete buttons.
+    /// Toggled by the trash toolbar button.
+    @State private var isDeletingCategories = false
+
+    /// Which category's name field currently has the keyboard. nil when nothing
+    /// is being renamed.
+    @FocusState private var focusedCategory: String?
+
+    var body: some View {
+        ScrollViewReader { proxy in
+            List {
+                ForEach(store.categories, id: \.self) { category in
+                    row(category)
+                }
+                .onMove { source, destination in
+                    store.moveCategory(from: source, to: destination)
+                }
+            }
+            .environment(\.editMode, $editMode)
+            // A category the + button just added sits at the bottom of the list,
+            // usually off screen — and a row that was never laid out can't take
+            // the keyboard. Bring it into view first, then focus it. Runs on
+            // appear too, since the same button opens this screen.
+            .task(id: newCategory) {
+                guard let name = newCategory else { return }
+                proxy.scrollTo(name, anchor: .center)
+                try? await Task.sleep(for: .milliseconds(300))
+                guard !Task.isCancelled else { return }
+                focusedCategory = name
+                newCategory = nil
+            }
+        }
+        .navigationTitle(L("Edit Categories"))
+        .navigationBarTitleDisplayMode(.inline)
+        .stableTopEdgeFade()
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Button {
+                    toggleDeleteMode()
+                } label: {
+                    Image(systemName: isDeletingCategories ? "trash.fill" : "trash")
+                }
+            }
+            ToolbarItem(placement: .topBarTrailing) {
+                Button {
+                    newCategory = Self.addCategory(to: store)
+                } label: {
+                    Image(systemName: "plus")
+                }
+            }
+        }
+    }
+
+    /// One category's row. Rendered as a plain row (not `Section(header:)`) so the
+    /// List's native `.onMove` can actually move it; in delete mode the drag
+    /// handle is replaced by a delete button — "No Category" gets neither, since
+    /// it can't be renamed or deleted.
+    private func row(_ category: String) -> some View {
+        let count = store.exercises.filter { $0.category == category }.count
+        return HStack {
+            if category == ExerciseStore.noCategoryName {
+                // Fill the row like the text field does so the count stays trailing.
+                Text(ExerciseCategoryName.localized(category))
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            } else {
+                CategoryNameField(category: category,
+                                  isNew: category == newCategory,
+                                  focus: $focusedCategory) { newName in
+                    onRename(category, newName)
+                }
+            }
+            Text(verbatim: "(\(count))")
+                .foregroundStyle(.secondary)
+            if isDeletingCategories && category != ExerciseStore.noCategoryName {
+                Button {
+                    withAnimation { store.deleteCategory(category) }
+                } label: {
+                    Image(systemName: "minus.circle.fill")
+                        .foregroundStyle(.red)
+                }
+                .buttonStyle(.borderless)
+            }
+        }
+    }
+
+    /// Swap the rows' drag handles for delete buttons and back. Edit mode is what
+    /// makes the List show drag handles, so it's turned off while deleting.
+    private func toggleDeleteMode() {
+        withAnimation {
+            isDeletingCategories.toggle()
+            editMode = isDeletingCategories ? .inactive : .active
+        }
+    }
+
+    /// Create a category under a placeholder name — numbered if the user already
+    /// has one by that name, since the store refuses a duplicate — and return it,
+    /// so its row can be handed the keyboard. Like a new exercise, it is named
+    /// where it lives rather than in an alert beforehand. Shared with the tab's
+    /// own "New Category", which creates one on the way to this screen.
+    static func addCategory(to store: ExerciseStore) -> String {
+        let base = L("New Category")
+        var name = base
+        var suffix = 2
+        while store.categories.contains(name) {
+            name = "\(base) \(suffix)"
+            suffix += 1
+        }
+        store.addCategory(name)
+        return name
+    }
+}
+
 struct ExercisesView: View {
     /// Re-renders this screen when the language is changed in Settings; the
     /// strings are resolved when the body runs, so SwiftUI needs telling.
@@ -269,32 +412,12 @@ struct ExercisesView: View {
     /// header shows the exercise count in parentheses instead.
     @State private var collapsedCategories: Set<String> = []
 
-    /// True while the user is rearranging category order. Entered by long-pressing
-    /// a category header (which just switches the mode — it never picks up a row to
-    /// drag), exited via the top-leading ✗ button.
-    @State private var isReordering = false
-
     /// True while an exercise is actually held in a drag, which the title says.
     @State private var isDraggingExercise = false
-
-    /// Drives the List into edit mode so `.onMove` shows drag handles.
-    @State private var editMode: EditMode = .inactive
-
-    /// The collapse state captured when entering reorder mode. Restored on exit so
-    /// categories that were expanded before the mode switch become expanded again.
-    @State private var collapsedBeforeReorder: Set<String> = []
 
     /// A category the + button just created, waiting to be scrolled to and handed
     /// the keyboard on the edit-categories screen. Cleared once it has focus.
     @State private var newCategory: String?
-
-    /// Which category's name field currently has the keyboard, on the
-    /// edit-categories screen. nil when nothing is being renamed.
-    @FocusState private var focusedCategory: String?
-
-    /// True while the reorder screen is in delete mode: the drag handles are
-    /// swapped for per-row delete buttons. Toggled by the trash toolbar button.
-    @State private var isDeletingCategories = false
 
     /// The filters picked in the toolbar's filter menu. Empty (the default) shows
     /// the whole library. Deliberately not persisted: a filter that survived a
@@ -429,107 +552,24 @@ struct ExercisesView: View {
         )
     }
 
-    /// A drag-reorderable row for a category, shown only on the edit-categories
-    /// screen. Rendered as a plain row (not `Section(header:)`) so the List's native
-    /// `.onMove` can actually move it. The name is an inline text field for renaming,
-    /// and in delete mode the drag handle is replaced by a delete button — "No
-    /// Category" gets neither, since it can't be renamed or deleted.
-    private func reorderRow(_ category: String) -> some View {
-        let count = store.exercises.filter { $0.category == category }.count
-        return HStack {
-            if category == ExerciseStore.noCategoryName {
-                // Fill the row like the text field does so the count stays trailing.
-                Text(ExerciseCategoryName.localized(category))
-                    .frame(maxWidth: .infinity, alignment: .leading)
-            } else {
-                CategoryNameField(category: category,
-                                  isNew: category == newCategory,
-                                  focus: $focusedCategory) { newName in
-                    renameCategory(category, to: newName)
-                }
-            }
-            Text(verbatim: "(\(count))")
-                .foregroundStyle(.secondary)
-            if isDeletingCategories && category != ExerciseStore.noCategoryName {
-                Button {
-                    withAnimation { store.deleteCategory(category) }
-                } label: {
-                    Image(systemName: "minus.circle.fill")
-                        .foregroundStyle(.red)
-                }
-                .buttonStyle(.borderless)
-            }
-        }
-    }
-
-    private func enterReorderMode() {
-        guard !isReordering else { return }
-        collapsedBeforeReorder = collapsedCategories
-        // The reorder screen lists every category, so a leftover search would
-        // only be misleading there.
-        searchText = ""
-        withAnimation {
-            collapsedCategories = Set(store.categories)
-            isReordering = true
-            isDeletingCategories = false
-            editMode = .active
-        }
-    }
-
-    private func exitReorderMode() {
-        withAnimation {
-            collapsedCategories = collapsedBeforeReorder
-            isReordering = false
-            isDeletingCategories = false
-            editMode = .inactive
-        }
-    }
-
-    /// Swap the reorder rows' drag handles for delete buttons and back. Edit mode
-    /// is what makes the List show drag handles, so it's turned off while deleting.
-    private func toggleDeleteMode() {
-        withAnimation {
-            isDeletingCategories.toggle()
-            editMode = isDeletingCategories ? .inactive : .active
-        }
-    }
-
-    private func moveCategory(from source: IndexSet, to destination: Int) {
-        store.moveCategory(from: source, to: destination)
-    }
-
     /// Rename via the store, then carry the collapse state over to the new name so
-    /// the category doesn't spring open when leaving the edit-categories screen.
+    /// the category doesn't spring open when the edit-categories screen is left.
     private func renameCategory(_ category: String, to newName: String) {
         guard store.renameCategory(category, to: newName) else { return }
         if collapsedCategories.remove(category) != nil {
             collapsedCategories.insert(newName)
-        }
-        if collapsedBeforeReorder.remove(category) != nil {
-            collapsedBeforeReorder.insert(newName)
         }
     }
 
     /// Create the category immediately under a placeholder name and open the
     /// edit-categories screen with its name field ready to type in — like a new
     /// exercise, it's named where it lives rather than in an alert beforehand.
-    /// Already on that screen (its own + button), only the new row is added.
     private func addCategory() {
-        let name = unusedCategoryName()
-        store.addCategory(name)
-        enterReorderMode()
-        newCategory = name
-    }
-
-    /// "New Category", numbered if the user already has one by that name: the store
-    /// refuses a duplicate, and the field about to take the keyboard has to belong
-    /// to the category that was just added.
-    private func unusedCategoryName() -> String {
-        let base = L("New Category")
-        guard store.categories.contains(base) else { return base }
-        var suffix = 2
-        while store.categories.contains("\(base) \(suffix)") { suffix += 1 }
-        return "\(base) \(suffix)"
+        // A search the new category doesn't match would hide it the moment the
+        // user came back from naming it.
+        searchText = ""
+        newCategory = CategoryEditView.addCategory(to: store)
+        navigationPath.append(ExerciseRoute.editCategories)
     }
 
     /// The as-created snapshot of an exercise added via the + menu. Compared
@@ -575,31 +615,7 @@ struct ExercisesView: View {
         let sections = listSections
         return NavigationStack(path: $navigationPath) {
             Group {
-                if isReordering {
-                    // Reorder mode: every category collapsed to a single draggable row.
-                    ScrollViewReader { proxy in
-                        List {
-                            ForEach(store.categories, id: \.self) { category in
-                                reorderRow(category)
-                            }
-                            .onMove(perform: moveCategory)
-                        }
-                        .environment(\.editMode, $editMode)
-                        // A category the + button just added sits at the bottom of
-                        // the list, usually off screen — and a row that was never
-                        // laid out can't take the keyboard. Bring it into view
-                        // first, then focus it. Runs on appear too, since the same
-                        // button opens this screen.
-                        .task(id: newCategory) {
-                            guard let name = newCategory else { return }
-                            proxy.scrollTo(name, anchor: .center)
-                            try? await Task.sleep(for: .milliseconds(300))
-                            guard !Task.isCancelled else { return }
-                            focusedCategory = name
-                            newCategory = nil
-                        }
-                    }
-                } else if sections.isEmpty && !query.isEmpty {
+                if sections.isEmpty && !query.isEmpty {
                     ContentUnavailableView.search(text: query)
                 } else if sections.isEmpty && !activeFilters.isEmpty {
                     ContentUnavailableView {
@@ -630,7 +646,9 @@ struct ExercisesView: View {
                                 collapsedCategories.insert(category)
                             }
                         },
-                        onHeaderLongPress: { enterReorderMode() },
+                        onHeaderLongPress: {
+                            navigationPath.append(ExerciseRoute.editCategories)
+                        },
                         onMove: { id, category, before in
                             store.moveExercise(id, toCategory: category, before: before)
                         },
@@ -643,7 +661,7 @@ struct ExercisesView: View {
                     .ignoresSafeArea()
                 }
             }
-            .navigationTitle(isReordering ? L("Edit Categories") : L("Exercises"))
+            .navigationTitle(L("Exercises"))
             .navigationBarTitleDisplayMode(.inline)
             // Unlike Community's always-visible field, this one starts scrolled
             // out of sight (see ExerciseCollectionList's hidesSearchBarInitially)
@@ -654,79 +672,54 @@ struct ExercisesView: View {
             .stableTopEdgeFade()
             .toolbar {
                 ToolbarItem(placement: .principal) {
-                    ReorderableListTitle(title: isReordering ? L("Edit Categories") : L("Exercises"),
-                                         isDragging: isDraggingExercise)
+                    ReorderableListTitle(title: L("Exercises"), isDragging: isDraggingExercise)
                 }
-                if isReordering {
-                    ToolbarItem(placement: .topBarLeading) {
-                        Button {
-                            exitReorderMode()
-                        } label: {
-                            Image(systemName: "xmark")
+                ToolbarItem(placement: .topBarTrailing) {
+                    Menu {
+                        Section("Source") {
+                            ForEach(ExerciseFilter.sourceCases) { filter in
+                                Toggle(isOn: filterBinding(filter)) {
+                                    Label(filter.label, systemImage: filter.systemImage)
+                                }
+                            }
                         }
-                    }
-                    ToolbarItem(placement: .topBarTrailing) {
-                        Button {
-                            toggleDeleteMode()
-                        } label: {
-                            Image(systemName: isDeletingCategories ? "trash.fill" : "trash")
+                        Section("Visibility") {
+                            ForEach(ExerciseFilter.visibilityCases) { filter in
+                                Toggle(isOn: filterBinding(filter)) {
+                                    Label(filter.label, systemImage: filter.systemImage)
+                                }
+                            }
                         }
+                        if !activeFilters.isEmpty {
+                            Section {
+                                Button(role: .destructive) {
+                                    activeFilters.removeAll()
+                                } label: {
+                                    Label("Clear Filters", systemImage: "xmark.circle")
+                                }
+                            }
+                        }
+                    } label: {
+                        Image(systemName: activeFilters.isEmpty
+                              ? "line.3.horizontal.decrease.circle"
+                              : "line.3.horizontal.decrease.circle.fill")
                     }
-                    ToolbarItem(placement: .topBarTrailing) {
+                    .accessibilityLabel("Filter")
+                }
+                ToolbarItem(placement: .topBarTrailing) {
+                    Menu {
+                        Button {
+                            addExercise()
+                        } label: {
+                            Label("New Exercise", systemImage: "music.note")
+                        }
                         Button {
                             addCategory()
                         } label: {
-                            Image(systemName: "plus")
+                            Label("New Category", systemImage: "folder.badge.plus")
                         }
-                    }
-                } else {
-                    ToolbarItem(placement: .topBarTrailing) {
-                        Menu {
-                            Section("Source") {
-                                ForEach(ExerciseFilter.sourceCases) { filter in
-                                    Toggle(isOn: filterBinding(filter)) {
-                                        Label(filter.label, systemImage: filter.systemImage)
-                                    }
-                                }
-                            }
-                            Section("Visibility") {
-                                ForEach(ExerciseFilter.visibilityCases) { filter in
-                                    Toggle(isOn: filterBinding(filter)) {
-                                        Label(filter.label, systemImage: filter.systemImage)
-                                    }
-                                }
-                            }
-                            if !activeFilters.isEmpty {
-                                Section {
-                                    Button(role: .destructive) {
-                                        activeFilters.removeAll()
-                                    } label: {
-                                        Label("Clear Filters", systemImage: "xmark.circle")
-                                    }
-                                }
-                            }
-                        } label: {
-                            Image(systemName: activeFilters.isEmpty
-                                  ? "line.3.horizontal.decrease.circle"
-                                  : "line.3.horizontal.decrease.circle.fill")
-                        }
-                        .accessibilityLabel("Filter")
-                    }
-                    ToolbarItem(placement: .topBarTrailing) {
-                        Menu {
-                            Button {
-                                addExercise()
-                            } label: {
-                                Label("New Exercise", systemImage: "music.note")
-                            }
-                            Button {
-                                addCategory()
-                            } label: {
-                                Label("New Category", systemImage: "folder.badge.plus")
-                            }
-                        } label: {
-                            Image(systemName: "plus")
-                        }
+                    } label: {
+                        Image(systemName: "plus")
                     }
                 }
             }
@@ -789,6 +782,8 @@ struct ExercisesView: View {
                     if let ex = store.exercises.first(where: { $0.id == id }) {
                         EditingView(exercise: ex)
                     }
+                case .editCategories:
+                    CategoryEditView(newCategory: $newCategory, onRename: renameCategory)
                 case .user, .routine, .routineIntro, .routinePicker, .routinePlay, .routinePlayback,
                      .favourites, .favouritesPicker:
                     // Never appended from this tab; usernames only show in

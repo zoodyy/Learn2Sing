@@ -52,6 +52,91 @@ enum HomeCategories {
     }
 }
 
+/// The Home tab's edit-categories screen: the built-in categories as draggable
+/// rows, each with an eye button that hides it from the tab. There is nothing to
+/// add, delete or rename here — the categories are fixed. Opened by long-pressing
+/// a category header.
+///
+/// Pushed onto the tab's navigation stack rather than swapped in behind the same
+/// title, so it is left the way every other screen is: the back button, or the
+/// system's swipe in from the leading edge, which slides the screen off the list
+/// it belongs to. Either way the edits stay — the order and the hidden set are
+/// written to UserDefaults as they are changed. Both are read straight from
+/// storage here, so the tab underneath follows along without anything passed down.
+private struct HomeCategoryEditView: View {
+    /// Re-renders this screen when the language is changed in Settings; the
+    /// strings are resolved when the body runs, so SwiftUI needs telling.
+    @ObservedObject private var appLanguage = LanguageManager.shared
+
+    @AppStorage(HomeCategories.orderKey) private var categoryOrderRaw = ""
+    @AppStorage(HomeCategories.hiddenKey) private var hiddenCategoriesRaw = ""
+
+    /// Always active so the rows show drag handles.
+    @State private var editMode: EditMode = .active
+
+    private var categories: [String] { HomeCategories.parse(categoryOrderRaw) }
+
+    private var hiddenCategories: Set<String> {
+        Set(hiddenCategoriesRaw.split(separator: "\n").map(String.init))
+    }
+
+    /// Hiding is blocked for the last visible category, so the list can never be
+    /// emptied out completely.
+    private func canToggleHidden(_ category: String) -> Bool {
+        hiddenCategories.contains(category)
+            || categories.filter { !hiddenCategories.contains($0) }.count > 1
+    }
+
+    private func toggleHidden(_ category: String) {
+        guard canToggleHidden(category) else { return }
+        var hidden = hiddenCategories
+        if hidden.contains(category) {
+            hidden.remove(category)
+        } else {
+            hidden.insert(category)
+        }
+        hiddenCategoriesRaw = hidden.sorted().joined(separator: "\n")
+    }
+
+    private func row(_ category: String) -> some View {
+        let isHidden = hiddenCategories.contains(category)
+        return HStack {
+            Text(ExerciseCategoryName.localized(category))
+                .foregroundStyle(isHidden ? .secondary : .primary)
+            Spacer()
+            Button {
+                withAnimation { toggleHidden(category) }
+            } label: {
+                Image(systemName: isHidden ? "eye.slash" : "eye")
+            }
+            .buttonStyle(.borderless)
+            .disabled(!canToggleHidden(category))
+            .accessibilityLabel(isHidden
+                                ? L("Show %@", ExerciseCategoryName.localized(category))
+                                : L("Hide %@", ExerciseCategoryName.localized(category)))
+        }
+    }
+
+    var body: some View {
+        List {
+            ForEach(categories, id: \.self) { category in
+                row(category)
+            }
+            .onMove { source, destination in
+                var reordered = categories
+                reordered.move(fromOffsets: source, toOffset: destination)
+                categoryOrderRaw = HomeCategories.raw(reordered)
+                // The new order belongs in the profile document too.
+                ProfileSync.shared.scheduleUpload()
+            }
+        }
+        .environment(\.editMode, $editMode)
+        .navigationTitle(L("Edit Categories"))
+        .navigationBarTitleDisplayMode(.inline)
+        .stableTopEdgeFade()
+    }
+}
+
 /// The Home tab: built-in categories over the user's library — "Recent" (the
 /// last five exercises that played through to the end), "Routines" (the
 /// user's own ordered exercise lists, created via the + button; swipe right on
@@ -80,10 +165,7 @@ struct HomeView: View {
     /// newline-joined list so a rearrangement outlives the app launch it was made in.
     @AppStorage(HomeCategories.orderKey) private var categoryOrderRaw = ""
 
-    private var categories: [String] {
-        get { HomeCategories.parse(categoryOrderRaw) }
-        nonmutating set { categoryOrderRaw = HomeCategories.raw(newValue) }
-    }
+    private var categories: [String] { HomeCategories.parse(categoryOrderRaw) }
 
     /// How many exercises "Recommended" shows, from Settings ▸ Exercises.
     @AppStorage(RecommendedExercises.amountKey)
@@ -116,20 +198,9 @@ struct HomeView: View {
     /// Exercises tab, no count appears in the header.
     @State private var collapsedCategories: Set<String> = []
 
-    /// True while the user is rearranging category order. Entered by long-pressing
-    /// a category header, exited via the top-leading ✗ button.
-    @State private var isReordering = false
-
     /// True while a favourite or routine is actually held in a drag, which the
     /// title says.
     @State private var isDraggingRow = false
-
-    /// Drives the List into edit mode so `.onMove` shows drag handles.
-    @State private var editMode: EditMode = .inactive
-
-    /// The collapse state captured when entering reorder mode. Restored on exit so
-    /// categories that were expanded before the mode switch become expanded again.
-    @State private var collapsedBeforeReorder: Set<String> = []
 
     /// Categories the user has hidden via the eye button on the edit-categories
     /// screen. They vanish from the Home list entirely (not just their exercises)
@@ -138,30 +209,12 @@ struct HomeView: View {
     @AppStorage(HomeCategories.hiddenKey) private var hiddenCategoriesRaw = ""
 
     private var hiddenCategories: Set<String> {
-        get { Set(hiddenCategoriesRaw.split(separator: "\n").map(String.init)) }
-        nonmutating set { hiddenCategoriesRaw = newValue.sorted().joined(separator: "\n") }
+        Set(hiddenCategoriesRaw.split(separator: "\n").map(String.init))
     }
 
     /// The categories still shown on the Home list, in the user's order.
     private var visibleCategories: [String] {
         categories.filter { !hiddenCategories.contains($0) }
-    }
-
-    /// Hiding is blocked for the last visible category, so the list can never be
-    /// emptied out completely.
-    private func canToggleHidden(_ category: String) -> Bool {
-        hiddenCategories.contains(category) || visibleCategories.count > 1
-    }
-
-    private func toggleHidden(_ category: String) {
-        guard canToggleHidden(category) else { return }
-        var hidden = hiddenCategories
-        if hidden.contains(category) {
-            hidden.remove(category)
-        } else {
-            hidden.insert(category)
-        }
-        hiddenCategories = hidden
     }
 
     /// The five exercises that most recently played through to the end, newest first.
@@ -305,136 +358,65 @@ struct HomeView: View {
         navigationPath.append(ExerciseRoute.play(id))
     }
 
-    private func enterReorderMode() {
-        guard !isReordering else { return }
-        collapsedBeforeReorder = collapsedCategories
-        withAnimation {
-            collapsedCategories = Set(categories)
-            isReordering = true
-            editMode = .active
-        }
-    }
-
-    private func exitReorderMode() {
-        withAnimation {
-            collapsedCategories = collapsedBeforeReorder
-            isReordering = false
-            editMode = .inactive
-        }
-    }
-
-    /// A drag-reorderable row for a category on the edit-categories screen: the
-    /// name, and trailing (just left of the List's drag handle) an eye button that
-    /// hides the category from the Home list. The button is disabled on the last
-    /// visible category so at least one always remains.
-    private func reorderRow(_ category: String) -> some View {
-        let isHidden = hiddenCategories.contains(category)
-        return HStack {
-            Text(ExerciseCategoryName.localized(category))
-                .foregroundStyle(isHidden ? .secondary : .primary)
-            Spacer()
-            Button {
-                withAnimation { toggleHidden(category) }
-            } label: {
-                Image(systemName: isHidden ? "eye.slash" : "eye")
-            }
-            .buttonStyle(.borderless)
-            .disabled(!canToggleHidden(category))
-            .accessibilityLabel(isHidden
-                                ? L("Show %@", ExerciseCategoryName.localized(category))
-                                : L("Hide %@", ExerciseCategoryName.localized(category)))
-        }
-    }
-
-    @ViewBuilder
     private var listContent: some View {
-        if isReordering {
-            // Reorder mode like the Exercises tab's, minus the +/delete
-            // toolbar buttons and the per-row exercise counts: the built-in
-            // categories are plain draggable rows.
-            List {
-                ForEach(categories, id: \.self) { category in
-                    reorderRow(category)
+        ExerciseCollectionList(
+            sections: listSections,
+            onSelect: { id, category in
+                // Remember the tapped row's category, in the order it showed
+                // its exercises, so "Next" can walk it (and stop at its end).
+                playQueue = rows(in: category).map(\.id)
+                open(id, asExercise: .play(id))
+            },
+            onSettings: { open($0, asExercise: .settings($0)) },
+            onDelete: { id in
+                guard let routine = store.routines.first(where: { $0.id == id }) else { return }
+                routinePendingDelete = routine
+                isConfirmingRoutineDelete = true
+            },
+            onToggleCollapse: { category in
+                if collapsedCategories.contains(category) {
+                    collapsedCategories.remove(category)
+                } else {
+                    collapsedCategories.insert(category)
                 }
-                .onMove { source, destination in
-                    var reordered = categories
-                    reordered.move(fromOffsets: source, toOffset: destination)
-                    categories = reordered
-                    // The new order belongs in the profile document too.
-                    ProfileSync.shared.scheduleUpload()
+            },
+            onHeaderLongPress: { navigationPath.append(ExerciseRoute.editCategories) },
+            onAdd: { category in
+                if category == HomeCategories.favourites {
+                    navigationPath.append(ExerciseRoute.favourites)
+                } else {
+                    newRoutineName = ""
+                    isNamingNewRoutine = true
                 }
-            }
-            .environment(\.editMode, $editMode)
-        } else {
-            ExerciseCollectionList(
-                sections: listSections,
-                onSelect: { id, category in
-                    // Remember the tapped row's category, in the order it showed
-                    // its exercises, so "Next" can walk it (and stop at its end).
-                    playQueue = rows(in: category).map(\.id)
-                    open(id, asExercise: .play(id))
-                },
-                onSettings: { open($0, asExercise: .settings($0)) },
-                onDelete: { id in
-                    guard let routine = store.routines.first(where: { $0.id == id }) else { return }
-                    routinePendingDelete = routine
-                    isConfirmingRoutineDelete = true
-                },
-                onToggleCollapse: { category in
-                    if collapsedCategories.contains(category) {
-                        collapsedCategories.remove(category)
-                    } else {
-                        collapsedCategories.insert(category)
-                    }
-                },
-                onHeaderLongPress: { enterReorderMode() },
-                onAdd: { category in
-                    if category == HomeCategories.favourites {
-                        navigationPath.append(ExerciseRoute.favourites)
-                    } else {
-                        newRoutineName = ""
-                        isNamingNewRoutine = true
-                    }
-                },
-                // Long-press drag rearranges the favourites and the routines,
-                // exactly like the Exercises tab — except each list is its own
-                // (`movesStayInSection`), so nothing can be dragged from one
-                // category into another.
-                onMove: { id, category, before in
-                    switch category {
-                    case HomeCategories.favourites: store.moveFavourite(id, before: before)
-                    case HomeCategories.routines: store.moveRoutine(id, before: before)
-                    default: break
-                    }
-                },
-                onDragChange: { isDraggingRow = $0 },
-                movesStayInSection: true
-            )
-            // Span the full screen like a List so content scrolls under the
-            // navigation and tab bars.
-            .ignoresSafeArea()
-        }
+            },
+            // Long-press drag rearranges the favourites and the routines,
+            // exactly like the Exercises tab — except each list is its own
+            // (`movesStayInSection`), so nothing can be dragged from one
+            // category into another.
+            onMove: { id, category, before in
+                switch category {
+                case HomeCategories.favourites: store.moveFavourite(id, before: before)
+                case HomeCategories.routines: store.moveRoutine(id, before: before)
+                default: break
+                }
+            },
+            onDragChange: { isDraggingRow = $0 },
+            movesStayInSection: true
+        )
+        // Span the full screen like a List so content scrolls under the
+        // navigation and tab bars.
+        .ignoresSafeArea()
     }
 
     var body: some View {
         NavigationStack(path: $navigationPath) {
             listContent
-            .navigationTitle(isReordering ? L("Edit Categories") : L("Home"))
+            .navigationTitle(L("Home"))
             .navigationBarTitleDisplayMode(.inline)
             .stableTopEdgeFade()
             .toolbar {
                 ToolbarItem(placement: .principal) {
-                    ReorderableListTitle(title: isReordering ? L("Edit Categories") : L("Home"),
-                                         isDragging: isDraggingRow)
-                }
-                if isReordering {
-                    ToolbarItem(placement: .topBarLeading) {
-                        Button {
-                            exitReorderMode()
-                        } label: {
-                            Image(systemName: "xmark")
-                        }
-                    }
+                    ReorderableListTitle(title: L("Home"), isDragging: isDraggingRow)
                 }
             }
             .alert("New Routine", isPresented: $isNamingNewRoutine) {
@@ -569,6 +551,8 @@ struct HomeView: View {
             }
         case .favouritesPicker:
             FavouritesExercisePickerView()
+        case .editCategories:
+            HomeCategoryEditView()
         case .user:
             // Never appended from this tab; usernames only show in Community.
             EmptyView()
