@@ -84,6 +84,57 @@ T("Scoring", "Bewertung", "Puntuación", "Notation", "Punteggio", "Pontuação",
 T("Microphone delay", "Mikrofonverzögerung", "Retardo del micrófono", "Retard du micro", "Ritardo del microfono", "Atraso do microfone", "Microfoonvertraging", "Задержка микрофона", "Opóźnienie mikrofonu", "Mikrofon gecikmesi", "Mikrofonfördröjning", "マイク遅延", "마이크 지연", "麦克风延迟")
 T("ms", "ms", "ms", "ms", "ms", "ms", "ms", "мс", "ms", "ms", "ms", "ミリ秒", "밀리초", "毫秒")
 T("Test for delay", "Verzögerung messen", "Medir el retardo", "Mesurer le retard", "Misura il ritardo", "Medir o atraso", "Vertraging meten", "Измерить задержку", "Zmierz opóźnienie", "Gecikmeyi ölç", "Mät fördröjning", "遅延を測定", "지연 측정", "测量延迟")
+
+# --- The two delay tests: choosing one, and the sung one's review controls ---
+T("Choose a Test", "Test wählen", "Elige una prueba", "Choisir un test", "Scegli un test", "Escolha um teste", "Kies een test", "Выберите тест", "Wybierz test", "Bir test seçin", "Välj ett test", "テストを選ぶ", "테스트 선택", "选择测试")
+T("Clap Test", "Klatschtest", "Prueba de palmadas", "Test de claps", "Test dei battiti", "Teste de palmas", "Klaptest", "Тест с хлопками", "Test z klaśnięciami", "Alkış testi", "Klapptest", "手拍子テスト", "박수 테스트", "拍手测试")
+T("Sing an Exercise", "Übung singen", "Cantar un ejercicio", "Chanter un exercice", "Canta un esercizio", "Cantar um exercício", "Oefening zingen", "Спеть упражнение", "Zaśpiewaj ćwiczenie", "Bir egzersiz söyle", "Sjung en övning", "エクササイズを歌う", "연습 부르기", "唱一个练习")
+T("Clap along with a metronome and the app works the delay out for you. Quick, but it needs headphones and firm claps to be accurate.",
+  "Klatsche zu einem Metronom mit und die App ermittelt die Verzögerung für dich. Schnell, aber für ein genaues Ergebnis brauchst du Kopfhörer und festes Klatschen.",
+  "Da palmadas al ritmo de un metrónomo y la app calcula el retardo por ti. Rápido, pero para ser preciso necesita auriculares y palmadas firmes.",
+  "Tapez dans vos mains au rythme d’un métronome et l’app calcule le retard pour vous. Rapide, mais il faut un casque et des claps francs pour être précis.",
+  "Batti le mani a tempo con un metronomo e l’app calcola il ritardo per te. Veloce, ma per essere preciso servono cuffie e battiti decisi.",
+  "Bata palmas junto com um metrônomo e o app calcula o atraso para você. Rápido, mas precisa de fones e palmas firmes para ser preciso.",
+  "Klap mee met een metronoom en de app berekent de vertraging voor je. Snel, maar voor een nauwkeurig resultaat heb je een koptelefoon en stevige klappen nodig.",
+  "Хлопайте в такт метроному, и приложение само вычислит задержку. Быстро, но для точности нужны наушники и чёткие хлопки.",
+  "Klaszcz do metronomu, a aplikacja sama obliczy opóźnienie. Szybko, ale do dokładnego wyniku potrzebne są słuchawki i zdecydowane klaśnięcia.",
+  "Bir metronom eşliğinde alkışlayın; uygulama gecikmeyi sizin için hesaplar. Hızlıdır ama isabetli olması için kulaklık ve net alkışlar gerekir.",
+  "Klappa med till en metronom så räknar appen ut fördröjningen åt dig. Snabbt, men det krävs hörlurar och bestämda klappar för att bli exakt.",
+  "メトロノームに合わせて手を叩くと、アプリが遅延を計算します。手軽ですが、正確に測るにはヘッドホンとしっかりした手拍子が必要です。",
+  "메트로놈에 맞춰 박수를 치면 앱이 지연을 계산합니다. 빠르지만 정확하려면 헤드폰과 또렷한 박수가 필요합니다.",
+  "跟着节拍器拍手，应用会为你算出延迟。速度快，但要准确需要耳机和干脆的拍手。")
+T("Sing one of your own exercises, then slide your recorded singing until it lines up with the notes. Takes longer, but you see exactly what you're setting.",
+  "Singe eine deiner eigenen Übungen und verschiebe danach deine aufgenommene Linie, bis sie zu den Noten passt. Dauert länger, dafür siehst du genau, was du einstellst.",
+  "Canta uno de tus propios ejercicios y luego desplaza tu canto grabado hasta que coincida con las notas. Lleva más tiempo, pero ves exactamente lo que ajustas.",
+  "Chantez l’un de vos exercices, puis décalez votre chant enregistré jusqu’à ce qu’il coïncide avec les notes. Plus long, mais vous voyez exactement ce que vous réglez.",
+  "Canta uno dei tuoi esercizi, poi sposta il canto registrato finché non combacia con le note. Richiede più tempo, ma vedi esattamente cosa stai impostando.",
+  "Cante um dos seus exercícios e depois desloque seu canto gravado até alinhar com as notas. Demora mais, mas você vê exatamente o que está ajustando.",
+  "Zing een van je eigen oefeningen en schuif daarna je opgenomen zang tot die op de noten valt. Duurt langer, maar je ziet precies wat je instelt.",
+  "Спойте одно из своих упражнений, а затем сдвиньте записанную линию, пока она не совпадёт с нотами. Дольше, зато вы видите, что именно настраиваете.",
+  "Zaśpiewaj jedno ze swoich ćwiczeń, a potem przesuń nagrany śpiew tak, aby pokrył się z nutami. Trwa dłużej, ale widzisz dokładnie, co ustawiasz.",
+  "Kendi egzersizlerinizden birini söyleyin, sonra kaydedilen şarkınızı notalarla hizalanana kadar kaydırın. Daha uzun sürer ama neyi ayarladığınızı tam olarak görürsünüz.",
+  "Sjung en av dina egna övningar och skjut sedan din inspelade sång tills den ligger i linje med noterna. Tar längre tid, men du ser exakt vad du ställer in.",
+  "自分のエクササイズを歌い、録音された歌をノーツに合うまでずらします。時間はかかりますが、何を設定しているかがはっきり見えます。",
+  "직접 만든 연습을 부른 뒤, 녹음된 노래를 음표에 맞을 때까지 옮기세요. 시간은 더 걸리지만 무엇을 설정하는지 정확히 보입니다.",
+  "唱一个你自己的练习，然后移动录下的歌声，直到与音符对齐。花的时间更久，但你能清楚看到自己在设置什么。")
+T("Choose an Exercise", "Übung wählen", "Elige un ejercicio", "Choisir un exercice", "Scegli un esercizio", "Escolha um exercício", "Kies een oefening", "Выберите упражнение", "Wybierz ćwiczenie", "Bir egzersiz seçin", "Välj en övning", "エクササイズを選ぶ", "연습 선택", "选择练习")
+T("Line your singing up with the notes, then tap Done.",
+  "Bringe deinen Gesang mit den Noten in Deckung und tippe dann auf „Fertig“.",
+  "Alinea tu canto con las notas y luego toca «Listo».",
+  "Alignez votre chant sur les notes, puis touchez « Terminé ».",
+  "Allinea il tuo canto con le note, poi tocca “Fatto”.",
+  "Alinhe seu canto com as notas e toque em “Concluído”.",
+  "Leg je zang op de noten en tik daarna op ‘Klaar’.",
+  "Совместите пение с нотами и нажмите «Готово».",
+  "Dopasuj swój śpiew do nut, a potem dotknij „Gotowe”.",
+  "Şarkınızı notalarla hizalayın, sonra “Bitti”ye dokunun.",
+  "Lägg din sång i linje med noterna och tryck sedan på ”Klar”.",
+  "歌をノーツに合わせてから「完了」をタップします。",
+  "노래를 음표에 맞춘 다음 ‘완료’를 누르세요.",
+  "把你的歌声与音符对齐，然后点按“完成”。")
+T("%d ms earlier", "%d ms früher", "%d ms antes", "%d ms plus tôt", "%d ms prima", "%d ms antes", "%d ms eerder", "на %d мс раньше", "%d ms wcześniej", "%d ms daha erken", "%d ms tidigare", "%d ミリ秒早く", "%d밀리초 앞으로", "提前 %d 毫秒")
+T("%d ms later", "%d ms später", "%d ms después", "%d ms plus tard", "%d ms dopo", "%d ms depois", "%d ms later", "на %d мс позже", "%d ms później", "%d ms daha geç", "%d ms senare", "%d ミリ秒遅く", "%d밀리초 뒤로", "延后 %d 毫秒")
+
 T("Instruments", "Instrumente", "Instrumentos", "Instruments", "Strumenti", "Instrumentos", "Instrumenten", "Инструменты", "Instrumenty", "Enstrümanlar", "Instrument", "楽器", "악기", "乐器")
 T("Choose the sound that plays the notes, or upload your own.",
   "Wähle den Klang, mit dem die Noten gespielt werden, oder lade einen eigenen hoch.",

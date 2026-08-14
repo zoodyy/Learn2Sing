@@ -14,9 +14,11 @@ struct SettingsView: View {
     /// strings are resolved when the body runs, so SwiftUI needs telling.
     @ObservedObject private var appLanguage = LanguageManager.shared
 
+    @EnvironmentObject private var store: ExerciseStore
+
     @State private var settingsPath = NavigationPath()
 
-    /// The exercise driving the microphone-delay test. Built once so the intro and
+    /// The exercise driving the clap delay test. Built once so the intro and
     /// playback screens share the same instance; it isn't stored in the library.
     private let delayTestExercise = SettingsView.makeDelayTestExercise()
 
@@ -56,17 +58,32 @@ struct SettingsView: View {
                 case .audio:
                     AudioSettingsView(
                         openInstruments: { settingsPath.append(SettingsRoute.instruments) },
-                        openDelayTest: { settingsPath.append(SettingsRoute.delayIntro) })
+                        openDelayTest: { settingsPath.append(SettingsRoute.delayChoice) })
                 case .instruments:
                     InstrumentsView { settingsPath.append(SettingsRoute.customInstrument($0)) }
                 case .customInstrument(let id):
                     CustomInstrumentDetailView(instrument: CustomInstrumentStore.shared.binding(for: id))
+                case .delayChoice:
+                    DelayTestChoiceView(
+                        openClapTest: { settingsPath.append(SettingsRoute.delayIntro) },
+                        openSungTest: { settingsPath.append(SettingsRoute.delayExercisePicker) })
                 case .delayIntro:
                     ExerciseIntroView(exercise: delayTestExercise) {
                         settingsPath.append(SettingsRoute.delayPlayback)
                     }
                 case .delayPlayback:
-                    PlaybackView(exercise: delayTestExercise, mode: .delayTest)
+                    PlaybackView(exercise: delayTestExercise, mode: .clapDelayTest)
+                case .delayExercisePicker:
+                    DelayTestExercisePickerView {
+                        settingsPath.append(SettingsRoute.delayExercisePlayback($0))
+                    }
+                case .delayExercisePlayback(let id):
+                    // The exercise is looked up on the way in rather than carried in
+                    // the route, so the run always plays what the library holds now.
+                    if let exercise = store.exercises.first(where: { $0.id == id }) {
+                        PlaybackView(exercise: exercise, mode: .sungDelayTest,
+                                     onDelayTestExit: returnToAudioSettings)
+                    }
                 case .voice:
                     VoiceSettingsView { settingsPath.append(SettingsRoute.vocalRangeTest) }
                 case .vocalRangeTest:
@@ -123,6 +140,16 @@ struct SettingsView: View {
         }
     }
 
+    /// Back to the Audio screen from the far end of the sung delay test, rather than
+    /// to the exercise picker the test happens to have been reached through: the
+    /// value it just measured is on that screen, in the microphone-delay field.
+    /// Audio is the first thing pushed onto this stack — the test is only reachable
+    /// from there — so everything after it goes.
+    private func returnToAudioSettings() {
+        guard settingsPath.count > 1 else { return }
+        settingsPath.removeLast(settingsPath.count - 1)
+    }
+
     /// A row that pushes a settings category screen onto the navigation stack.
     private func hubLink(_ title: String, systemImage: String, route: SettingsRoute) -> some View {
         SettingsHubRow(title: title, systemImage: systemImage) {
@@ -133,13 +160,18 @@ struct SettingsView: View {
     /// Screens pushed onto the Settings navigation stack: the category hubs
     /// (Audio with its instruments screens, Visuals, Voice, Exercises, Backup,
     /// Reset with its four screens, Language, Profile) and the microphone-delay
-    /// and vocal-range tests they lead to.
+    /// and vocal-range tests they lead to. The delay test branches in two: the
+    /// clap test's intro and playback, or the sung test's exercise picker and the
+    /// run it starts.
     private enum SettingsRoute: Hashable {
         case audio
         case instruments
         case customInstrument(UUID)
+        case delayChoice
         case delayIntro
         case delayPlayback
+        case delayExercisePicker
+        case delayExercisePlayback(UUID)
         case voice
         case vocalRangeTest
         case visualsHub
@@ -157,8 +189,8 @@ struct SettingsView: View {
         case language
     }
 
-    /// The throwaway exercise that drives the delay test, with the description shown
-    /// on its intro screen. Its notes are generated in PlaybackView's delay-test
+    /// The throwaway exercise that drives the clap delay test, with the description
+    /// shown on its intro screen. Its notes are generated in PlaybackView's clap-test
     /// mode rather than loaded from storage, so it never enters the user's library.
     private static func makeDelayTestExercise() -> Exercise {
         var exercise = Exercise(name: L("Microphone Delay Test"))

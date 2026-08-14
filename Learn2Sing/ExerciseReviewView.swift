@@ -11,6 +11,12 @@ import UIKit
 /// earlier by the microphone-delay setting: scoring treats the notes as sounding
 /// that much later than they are drawn, which is the same comparison as putting
 /// the detected pitch that much further left (see `micDelayBeats`).
+///
+/// The same screen is the last step of the sung microphone-delay test (Settings ▸
+/// Audio ▸ Test for delay). There `onCalibrationDone` is set: the shift is no
+/// longer the saved setting but an offset the singer dials in with the controls
+/// along the bottom, sliding their whole line over the notes until it lines up,
+/// and Done hands that offset back to be saved as the new microphone delay.
 struct ExerciseReviewView: View {
     /// Re-renders this screen when the language is changed in Settings; the
     /// strings are resolved when the body runs, so SwiftUI needs telling.
@@ -26,10 +32,24 @@ struct ExerciseReviewView: View {
     let bpm: Double
     /// Where the repetitions sit on the timeline, for the repetition counter badge.
     let repeatLayout: RepeatLayout
+    /// Set by the sung microphone-delay test, which turns this screen into its last
+    /// step: the offset controls appear along the bottom and Done hands the offset
+    /// the singer settled on (in milliseconds) back to be saved. nil elsewhere, where
+    /// the screen is a plain look at the run just scored.
+    var onCalibrationDone: ((Double) -> Void)? = nil
     let onClose: () -> Void
 
     @AppStorage(microphoneDelayKey) private var micDelayMs = 0.0
     @State private var visuals = VisualSettings.current
+
+    /// How far the sung line is shifted while the delay test's controls are up, in
+    /// milliseconds. nil until the first nudge, so the line starts out exactly where
+    /// the saved setting puts it and the singer adjusts from there.
+    @State private var calibrationMs: Double? = nil
+
+    /// Milliseconds the sung line is drawn earlier than it was recorded: the offset
+    /// being dialled in during the delay test, otherwise the saved setting.
+    private var delayMs: Double { calibrationMs ?? micDelayMs }
 
     /// Where the view is looking. `nil` until the singer moves it: the drawing
     /// falls back to the framing worked out from the screen size, so the very
@@ -81,11 +101,18 @@ struct ExerciseReviewView: View {
             .onAppear { canvasSize = canvas }
             .onChange(of: canvas) { _, size in canvasSize = size }
         }
+        // An inset rather than an overlay, so the drawing knows the bar is there and
+        // keeps the repetition badge above it. The canvas underneath still ignores
+        // the safe area, so nothing about the framing changes.
+        .safeAreaInset(edge: .bottom) {
+            if onCalibrationDone != nil { calibrationControls }
+        }
         .background(Color.black.ignoresSafeArea())
         .navigationTitle(exercise.localizedName)
         .navigationBarTitleDisplayMode(.inline)
-        // Leaving goes back to the score, not out of the exercise, so the system's
-        // own back button (which would pop the whole run) is replaced.
+        // Leaving goes back to the score, not out of the exercise (and out of the
+        // delay test, which has no score behind it), so the system's own back button
+        // — which would pop the whole run — is replaced.
         .navigationBarBackButtonHidden(true)
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
@@ -94,7 +121,87 @@ struct ExerciseReviewView: View {
                 }
                 .accessibilityLabel(L("Back"))
             }
+            if let onCalibrationDone {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button("Done") { onCalibrationDone(delayMs.rounded()) }
+                        .fontWeight(.semibold)
+                }
+            }
         }
+    }
+
+    // MARK: - Delay-test controls
+
+    /// How far one tap moves the sung line, in milliseconds. The coarse pair crosses
+    /// the range a microphone can plausibly lag by in a handful of taps; the fine pair
+    /// is for settling on the value once the line is roughly over the notes.
+    private let coarseStepMs: Double = 50
+    private let fineStepMs: Double = 5
+
+    /// What the offset may be dialled to. It compensates for a lag, so it can't run
+    /// backwards; the top end is far past any real microphone's round trip.
+    private let delayRangeMs: ClosedRange<Double> = 0...2000
+
+    /// Move the sung line by `ms`: positive shifts it earlier (to the left), which is
+    /// exactly what a larger microphone delay means.
+    private func nudge(_ ms: Double) {
+        calibrationMs = min(max(delayMs + ms, delayRangeMs.lowerBound), delayRangeMs.upperBound)
+    }
+
+    /// The bar the sung microphone-delay test is finished on: the offset either side
+    /// of the value it currently stands at. The line is dragged past the notes with
+    /// the same one-finger scroll as any review, so these move the line *against* the
+    /// notes rather than moving the view.
+    private var calibrationControls: some View {
+        VStack(spacing: 10) {
+            Text("Line your singing up with the notes, then tap Done.")
+                .font(.footnote)
+                .multilineTextAlignment(.center)
+                .foregroundStyle(.white.opacity(0.7))
+
+            HStack(spacing: 8) {
+                nudgeButton(ms: coarseStepMs, symbol: "chevron.left.2")
+                nudgeButton(ms: fineStepMs, symbol: "chevron.left")
+
+                Text(L("%d ms", Int(delayMs.rounded())))
+                    .font(.headline.monospacedDigit())
+                    .foregroundStyle(.white)
+                    .contentTransition(.numericText())
+                    .frame(minWidth: 76)
+
+                nudgeButton(ms: -fineStepMs, symbol: "chevron.right")
+                nudgeButton(ms: -coarseStepMs, symbol: "chevron.right.2")
+            }
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 12)
+        .frame(maxWidth: .infinity)
+        // Solid, and carried on down through the home-indicator strip: the scene
+        // behind is always black whatever theme the app is in, so a translucent bar
+        // would leave the pitch names at its edge showing through the controls.
+        .background {
+            Rectangle().fill(.black).ignoresSafeArea(edges: .bottom)
+        }
+        // Hairline against the scene, so the bar reads as chrome rather than as part
+        // of the drawing the notes are scrolled through.
+        .overlay(alignment: .top) {
+            Rectangle().fill(.white.opacity(0.12)).frame(height: 0.5)
+        }
+    }
+
+    private func nudgeButton(ms: Double, symbol: String) -> some View {
+        Button {
+            withAnimation(.snappy(duration: 0.15)) { nudge(ms) }
+        } label: {
+            Image(systemName: symbol)
+                .font(.headline)
+                .frame(width: 46, height: 40)
+                .background(.white.opacity(0.14), in: RoundedRectangle(cornerRadius: 12))
+                .foregroundStyle(.white)
+        }
+        // Spelled out for VoiceOver, which can't read a direction off a chevron: the
+        // left-hand buttons make the singing land earlier against the notes.
+        .accessibilityLabel(ms > 0 ? L("%d ms earlier", Int(ms)) : L("%d ms later", Int(-ms)))
     }
 
     // MARK: - Layout
@@ -130,7 +237,7 @@ struct ExerciseReviewView: View {
         let cam = resolvedCamera(size: size)
         let layout = sceneLayout(size: size, camera: cam)
         let beat = cam.playheadBeat
-        let delay = micDelayBeats(micDelayMs, bpm: bpm)
+        let delay = micDelayBeats(delayMs, bpm: bpm)
 
         // The sung line, shifted earlier by the microphone delay so it lies where
         // the scorer compared it against the notes. Only the stretch that can land
@@ -177,7 +284,7 @@ struct ExerciseReviewView: View {
         guard !samples.isEmpty else { return nil }
         // Back into the recording's own timeline: the line is drawn `delay` beats
         // to the left of where its samples were taken.
-        let target = beat + micDelayBeats(micDelayMs, bpm: bpm)
+        let target = beat + micDelayBeats(delayMs, bpm: bpm)
 
         // The samples are in the order they were recorded and the playback clock
         // never runs backwards, so they're sorted by beat and can be searched.
@@ -246,7 +353,7 @@ struct ExerciseReviewView: View {
     /// letting one stray estimate stretch the limits would leave the view free to
     /// drift off the exercise.
     private func measureContent() -> Content {
-        let delay = micDelayBeats(micDelayMs, bpm: bpm)
+        let delay = micDelayBeats(delayMs, bpm: bpm)
         var firstBeat = Double.infinity
         var lastBeat = -Double.infinity
         for note in notes {

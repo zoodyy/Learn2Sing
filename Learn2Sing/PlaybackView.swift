@@ -726,11 +726,15 @@ private final class Scorer {
 }
 
 /// What an exercise is measuring. A normal exercise scores the singer's pitch; the
-/// delay test instead times the singer's claps against the metronome to calibrate
-/// the microphone delay.
+/// two microphone-delay tests instead measure the lag between singing and detection.
 enum PlaybackMode {
     case normal
-    case delayTest
+    /// Times the singer's claps against a metronome and sets the delay from them.
+    case clapDelayTest
+    /// A normal run of one of the singer's own exercises which, instead of ending in
+    /// the score, ends in the review screen with the offset controls: the singer
+    /// lines their recorded line up with the notes and that offset becomes the delay.
+    case sungDelayTest
 }
 
 /// Collects the beat position of each detected clap during the delay test. A class
@@ -759,6 +763,10 @@ struct PlaybackView: View {
 
     let exercise: Exercise
     var mode: PlaybackMode = .normal
+    /// What the microphone-delay result screen's Done button does instead of popping
+    /// this screen — the sung test uses it to go back to the Audio settings, where
+    /// the measured value is now in the delay field. nil keeps the default dismiss.
+    var onDelayTestExit: (() -> Void)? = nil
     /// Title of the score screen's exit button ("Next" while a routine has more
     /// exercises to play).
     var scoreExitTitle = L("Exit")
@@ -789,6 +797,9 @@ struct PlaybackView: View {
     /// Set while the score screen's Review button has the finished run's notes and
     /// pitch line open in place of the score.
     @State private var isReviewing = false
+    /// Set when the sung delay test's run has played out: the same review screen
+    /// takes over from playback, with the controls that dial the delay in.
+    @State private var isCalibrating = false
     @State private var claps = ClapCollector()
     // DEBUG RECORDING — remove together with DebugRecording.swift.
     @State private var debugRecorder = DebugRunRecorder()
@@ -825,7 +836,7 @@ struct PlaybackView: View {
     private let barButtonHeight: CGFloat = 44
     private let barButtonGlassInset: CGFloat = 4
 
-    // Delay-test layout: a run of equally spaced metronome ticks the user claps to.
+    // Clap-test layout: a run of equally spaced metronome ticks the user claps to.
     // The first `warmupClaps` let the singer lock onto the tempo and are excluded
     // from the measurement; the next `countedClaps` are averaged into the result.
     private let warmupClaps = 4
@@ -835,12 +846,33 @@ struct PlaybackView: View {
     // near the middle of the visible pitch range so the cue is centred on screen.
     private let delayTestPitch = 53      // F3 by height
 
-    private var bpm: Double { mode == .delayTest ? 160 : exercise.bpm }
+    private var bpm: Double { mode == .clapDelayTest ? 160 : exercise.bpm }
+
+    /// Whether this run is one of the user's own exercises, played the way the
+    /// Exercises tab plays it — true for a normal run and for the sung delay test,
+    /// which only differs in where it goes once the exercise has played out.
+    private var playsExercise: Bool { mode != .clapDelayTest }
 
     var body: some View {
         Group {
             if let delayResultMs {
-                DelayResultView(delayMs: delayResultMs) { dismiss() }
+                DelayResultView(delayMs: delayResultMs) {
+                    if let onDelayTestExit { onDelayTestExit() } else { dismiss() }
+                }
+            } else if isCalibrating {
+                // The sung delay test's last step: the finished run drawn as usual,
+                // with controls that slide the sung line over the notes. Leaving by
+                // the back button abandons the test; Done saves what was dialled in
+                // and shows the same result screen the clap test ends on.
+                ExerciseReviewView(exercise: exercise, notes: notes, texts: texts,
+                                   samples: trail.recording, bpm: bpm,
+                                   repeatLayout: repeatLayout,
+                                   onCalibrationDone: { ms in
+                                       micDelayMs = ms.rounded()
+                                       delayResultMs = ms.rounded()
+                                   }) {
+                    dismiss()
+                }
             } else if let finalScore {
                 if isReviewing {
                     ExerciseReviewView(exercise: exercise, notes: notes, texts: texts,
@@ -909,9 +941,9 @@ struct PlaybackView: View {
         .navigationTitle(exercise.localizedName)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
-            // No pause during the delay test: re-anchoring the clock mid-test would
+            // No pause during the clap test: re-anchoring the clock mid-test would
             // corrupt the beat positions of claps captured before the pause.
-            if mode == .normal {
+            if playsExercise {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
                         togglePause()
@@ -943,21 +975,21 @@ struct PlaybackView: View {
             // Pick up the latest visual settings and start the vertical follower fresh.
             visuals = VisualSettings.current
             follower.reset()
-            if mode == .delayTest { loadDelayTestNotes() } else { loadNotes() }
+            if playsExercise { loadNotes() } else { loadDelayTestNotes() }
             player.begin()
-            // The delay test plays a metronome sample on every tick (in sync with the
-            // engine clock) instead of a synthesised note; normal exercises use the
-            // user's chosen instrument.
-            if mode == .delayTest {
-                player.loadClick(named: "metronome")
-                player.setClickMode(true)
-            } else {
+            // The clap test plays a metronome sample on every tick (in sync with the
+            // engine clock) instead of a synthesised note; exercises use the user's
+            // chosen instrument.
+            if playsExercise {
                 player.setClickMode(false)
                 player.setInstrument(Instrument.current)
+            } else {
+                player.loadClick(named: "metronome")
+                player.setClickMode(true)
             }
             scorer.reset()
             claps.reset()
-            pitchDetector.detectClaps = (mode == .delayTest)
+            pitchDetector.detectClaps = (mode == .clapDelayTest)
             // DEBUG RECORDING — remove together with DebugRecording.swift.
             if mode == .normal {
                 debugRecording = nil
@@ -968,9 +1000,10 @@ struct PlaybackView: View {
                 pitchDetector.debugSink = debugRecorder
             }
             player.schedule(notes: notes, bpm: bpm, leadIn: leadIn,
-                            preview: mode == .normal,
+                            preview: playsExercise,
                             repeatLayout: repeatLayout, betweenReps: exercise.beatsBetweenReps) {
-                if mode == .delayTest {
+                switch mode {
+                case .clapDelayTest:
                     // Convert the detected claps to beat positions *before* tearing
                     // the audio down — the conversion needs the engine's still-live
                     // playback clock to anchor each clap against the metronome ticks.
@@ -983,7 +1016,14 @@ struct PlaybackView: View {
                     teardownAudio()
                     micDelayMs = ms.rounded()   // replace the setting automatically
                     delayResultMs = ms.rounded()
-                } else {
+                case .sungDelayTest:
+                    // Straight to the review screen, where the singer lines their own
+                    // recorded line up with the notes. No score is worked out and
+                    // nothing is written to the exercise's history: this run was a
+                    // measurement, not practice.
+                    teardownAudio()
+                    isCalibrating = true
+                case .normal:
                     // Tear the audio down fully before revealing the score so it has no
                     // engine running. Stopping both engines together (rather than only
                     // the mic, leaving the synth rendering on the shared playAndRecord
@@ -1113,6 +1153,8 @@ struct PlaybackView: View {
         // Convert the user's microphone-delay setting (ms) into beats so notes are
         // scored as if shifted that far to the right (later in time).
         let noteShift = micDelayBeats(micDelayMs, bpm: bpm)
+        // Neither delay test shows a score: the clap test has no sung notes to score,
+        // and the sung one is measuring the very setting the score depends on.
         if mode == .normal {
             scorer.update(beat: beat, notes: notes, singerPitch: singerPitch,
                           tolerance: lineToleranceSemitones, noteShift: noteShift)
@@ -1120,10 +1162,10 @@ struct PlaybackView: View {
 
         // Which repetition is playing, 1-based, for the optional on-screen counter.
         // Only supplied for exercises that actually repeat (repeat count > 1) and never
-        // in the delay test; the renderer hides the badge when it's nil.
+        // in the clap test; the renderer hides the badge when it's nil.
         let totalReps = max(1, exercise.repeatCount)
         var repetition: (current: Int, total: Int)? = nil
-        if mode == .normal, totalReps > 1, repeatLayout.count > 0 {
+        if playsExercise, totalReps > 1, repeatLayout.count > 0 {
             let idx = min(totalReps - 1, repeatLayout.index(at: beat))
             repetition = (current: idx + 1, total: totalReps)
         }
@@ -1161,9 +1203,9 @@ struct PlaybackView: View {
         AudioRouteManager.shared.deactivateSession()
     }
 
-    // MARK: - Delay test
+    // MARK: - Clap delay test
 
-    /// Build the delay-test pattern in memory: one short metronome tick per beat,
+    /// Build the clap-test pattern in memory: one short metronome tick per beat,
     /// each with a "*clap*" label sitting just above it, so the existing playback
     /// screen renders the cue with no special drawing code.
     private func loadDelayTestNotes() {
@@ -1554,8 +1596,9 @@ private struct ScoreView: View {
 
 // MARK: - DelayResultView
 
-/// Shown after the microphone delay test: the measured delay in milliseconds, which
-/// has already replaced the saved microphone-delay setting, plus a button to leave.
+/// Shown at the end of either microphone-delay test: the delay in milliseconds —
+/// measured from the claps, or dialled in on the review screen — which has already
+/// replaced the saved microphone-delay setting, plus a button to leave.
 private struct DelayResultView: View {
     let delayMs: Double
     let onExit: () -> Void

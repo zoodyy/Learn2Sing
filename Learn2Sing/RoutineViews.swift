@@ -370,14 +370,16 @@ struct FavouritesEditView: View {
 /// apply immediately, so leaving the screen "adds" the selection. Shared by
 /// the edit-routine and edit-favourites screens and the recommendation
 /// whitelist, which titles it differently because it deselects as much as it
-/// adds.
+/// adds — and by the sung delay test, which picks a single exercise.
 struct ExerciseMultiPickerList: View {
     /// Re-renders this screen when the language is changed in Settings; the
     /// strings are resolved when the body runs, so SwiftUI needs telling.
     @ObservedObject private var appLanguage = LanguageManager.shared
 
     @EnvironmentObject private var store: ExerciseStore
-    let selectedIDs: Set<UUID>
+    /// The ticked rows. nil draws no check circles at all, for a list where a tap
+    /// is a one-off choice rather than a change to a set (the sung delay test).
+    var selectedIDs: Set<UUID>? = nil
     let onToggle: (UUID) -> Void
     var title = L("Add Exercises")
 
@@ -396,7 +398,7 @@ struct ExerciseMultiPickerList: View {
         func rows(_ exercises: [Exercise]) -> [ExerciseListRow] {
             exercises.map {
                 ExerciseListRow(exercise: $0, pattern: store.notes(for: $0.id),
-                                isSelected: selected.contains($0.id))
+                                isSelected: selected?.contains($0.id))
             }
         }
         var result: [ExerciseListSection] = []
