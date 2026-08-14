@@ -171,7 +171,7 @@ struct RoutineEditView: View {
 /// Shown when a routine that has exercises is tapped in the Home tab, before the
 /// first exercise's own intro screen. The routine's counterpart to
 /// ExerciseIntroView: name, description, and a start button at the bottom, with
-/// an "Exercises" section in between listing what will play, in the same
+/// an "Exercise Queue" section in between listing what will play, in the same
 /// draggable rows as the edit-routine screen.
 ///
 /// Reordering here — by dragging or with the header's shuffle button — changes
@@ -222,7 +222,7 @@ struct RoutineIntroView: View {
 
     private var exercisesHeader: some View {
         HStack {
-            Text("Exercises")
+            Text("Exercise Queue")
             Spacer()
             Button {
                 withAnimation { order.shuffle() }
