@@ -550,6 +550,10 @@ private extension View {
     /// left it pointing at nothing in particular. One row's dialog is up at a
     /// time — the row whose `action` `pending` currently holds — which is the same
     /// way the press-and-hold help in `settingHelp(_:)` points at its own row.
+    ///
+    /// `perform` runs a moment after the user confirms rather than there and then,
+    /// because the row it is attached to is usually the one the action does away
+    /// with; see the destructive button below.
     func resetConfirmation<Action: Equatable>(
         _ pending: Binding<Action?>,
         for action: Action,
@@ -568,8 +572,19 @@ private extension View {
             titleVisibility: .visible
         ) {
             Button(confirmLabel, role: .destructive) {
-                perform()
                 pending.wrappedValue = nil
+                // Most of these rows stand for the very thing they delete, so the
+                // row — the view this bubble hangs off — goes with it. Doing that
+                // while the bubble is still animating away leaves the dialog
+                // pointing at a row that no longer exists, and it reappears for a
+                // moment on the last snapshot it has of the screen before closing
+                // for good: the bubble blinks off, back on, and off again. Letting
+                // the dismissal finish first keeps the row underneath it until
+                // there is nothing left pointing at it.
+                Task { @MainActor in
+                    try? await Task.sleep(for: dialogDismissal)
+                    perform()
+                }
             }
             Button("Cancel", role: .cancel) { pending.wrappedValue = nil }
         } message: {
@@ -577,3 +592,8 @@ private extension View {
         }
     }
 }
+
+/// How long the confirmation bubble takes to animate away, with a little room
+/// to spare. Only the row's disappearance waits this out — the deletion itself
+/// is instant once it starts, and starts as soon as the bubble has gone.
+private let dialogDismissal: Duration = .milliseconds(350)
