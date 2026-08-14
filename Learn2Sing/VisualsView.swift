@@ -65,9 +65,17 @@ struct VisualsHubView: View {
     /// carries it along — see `handleThemeChange(from:to:)`.
     @EnvironmentObject private var templates: VisualTemplateStore
 
-    /// Set when a theme change should also switch the playback screen over but the user
-    /// has customised its look — drives the "switch or keep?" alert.
-    @State private var pendingPlaybackScheme: ColorScheme?
+    /// Set when a theme change should also switch the playback screen over but that is
+    /// the user's call to make — drives the "switch or keep?" alert.
+    @State private var pendingSwitch: PendingPlaybackSwitch?
+
+    /// A theme change waiting on the user: which appearance the playback screen would
+    /// switch to, and — when the look being left is a template of theirs — the name to
+    /// tell them it stays under.
+    private struct PendingPlaybackSwitch {
+        let scheme: ColorScheme
+        let selectedName: String?
+    }
 
     /// Push the menus-visuals screen onto the shared Settings navigation stack.
     let openMenus: () -> Void
@@ -133,38 +141,56 @@ struct VisualsHubView: View {
         .navigationTitle(L("Visuals"))
         .navigationBarTitleDisplayMode(.inline)
         .alert("Playback screen", isPresented: Binding(
-            get: { pendingPlaybackScheme != nil },
-            set: { if !$0 { pendingPlaybackScheme = nil } }
-        )) {
+            get: { pendingSwitch != nil },
+            set: { if !$0 { pendingSwitch = nil } }
+        ), presenting: pendingSwitch) { pending in
             Button("Switch") {
-                if let scheme = pendingPlaybackScheme {
-                    templates.selectStandard(for: scheme)
-                }
-                pendingPlaybackScheme = nil
+                templates.applyStandard(for: pending.scheme)
+                pendingSwitch = nil
             }
             Button("Keep current", role: .cancel) {
-                pendingPlaybackScheme = nil
+                pendingSwitch = nil
             }
-        } message: {
-            // One whole sentence per appearance rather than the adjective on its own,
-            // which not every language can slot into a sentence unchanged.
-            Text(pendingPlaybackScheme == .dark
-                 ? L("Do you also want to switch the playback screen to the standard dark look? Your customisations will be replaced.")
-                 : L("Do you also want to switch the playback screen to the standard light look? Your customisations will be replaced."))
+        } message: { pending in
+            Text(message(for: pending))
         }
     }
 
-    /// When the theme change actually changes the appearance the app is in: switch an
-    /// uncustomised playback screen over to the new appearance's standard look silently,
-    /// or ask first when the user has made that look their own.
-    private func handleThemeChange(from oldTheme: String, to newTheme: String) {
-        let newScheme = (AppTheme(rawValue: newTheme) ?? .system).scheme
-        guard (AppTheme(rawValue: oldTheme) ?? .system).scheme != newScheme else { return }
+    /// The question to ask about the playback screen. One whole sentence per appearance
+    /// rather than the adjective on its own, which not every language can slot into a
+    /// sentence unchanged.
+    ///
+    /// Which second sentence follows depends on what switching would actually cost: a
+    /// look held by no template is replaced by it, while a template of the user's own
+    /// stays in the list either way, so that one says so — whichever button they press,
+    /// selecting it again brings their look back.
+    private func message(for pending: PendingPlaybackSwitch) -> String {
+        if let name = pending.selectedName.map(VisualTemplateName.localized) {
+            return pending.scheme == .dark
+                ? L("Do you also want to switch the playback screen to the standard dark look? “%@” keeps your customisations either way — select it again any time to come back to them.", name)
+                : L("Do you also want to switch the playback screen to the standard light look? “%@” keeps your customisations either way — select it again any time to come back to them.", name)
+        }
+        return pending.scheme == .dark
+            ? L("Do you also want to switch the playback screen to the standard dark look? Your customisations will be replaced.")
+            : L("Do you also want to switch the playback screen to the standard light look? Your customisations will be replaced.")
+    }
 
-        if templates.currentSettingsAreStandard {
-            templates.selectStandard(for: newScheme)
-        } else {
-            pendingPlaybackScheme = newScheme
+    /// When the theme change actually changes the appearance the app is in: put the new
+    /// appearance's standard look on the playback screen silently where that costs the
+    /// user nothing, and otherwise ask first — see
+    /// `VisualTemplateStore.appearanceChange(from:to:)`.
+    private func handleThemeChange(from oldTheme: String, to newTheme: String) {
+        let oldScheme = (AppTheme(rawValue: oldTheme) ?? .system).scheme
+        let newScheme = (AppTheme(rawValue: newTheme) ?? .system).scheme
+        guard oldScheme != newScheme else { return }
+
+        switch templates.appearanceChange(from: oldScheme, to: newScheme) {
+        case .apply:
+            templates.applyStandard(for: newScheme)
+        case .askReplacingCurrent:
+            pendingSwitch = PendingPlaybackSwitch(scheme: newScheme, selectedName: nil)
+        case .askLeavingSelected(let name):
+            pendingSwitch = PendingPlaybackSwitch(scheme: newScheme, selectedName: name)
         }
     }
 }

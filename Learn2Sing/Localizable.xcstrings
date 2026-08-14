@@ -7780,6 +7780,89 @@
         }
       }
     },
+    "Do you also want to switch the playback screen to the standard dark look? “%@” keeps your customisations either way — select it again any time to come back to them." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Möchtest du auch den Wiedergabebildschirm auf das dunkle Standardaussehen umstellen? „%@“ behält deine Anpassungen in jedem Fall – wähle die Vorlage jederzeit wieder aus, um zu ihnen zurückzukehren."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¿Quieres cambiar también la pantalla de reproducción al aspecto oscuro estándar? «%@» conserva tus personalizaciones en cualquier caso: vuelve a seleccionarla cuando quieras para recuperarlas."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Voulez-vous aussi passer l’écran de lecture à l’apparence sombre standard ? « %@ » conserve vos personnalisations dans tous les cas : resélectionnez-le à tout moment pour les retrouver."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vuoi passare anche la schermata di riproduzione all’aspetto scuro standard? “%@” mantiene le tue personalizzazioni in ogni caso: riselezionalo quando vuoi per tornare a esse."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "再生画面も標準のダーク表示に切り替えますか？ どちらを選んでも「%@」はカスタマイズした設定を保持します。いつでも選び直せば元に戻せます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "재생 화면도 기본 다크 모양으로 전환할까요? 어느 쪽을 선택해도 “%@”은(는) 사용자화한 설정을 유지하며, 언제든 다시 선택하면 되돌릴 수 있습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wil je ook het afspeelscherm omzetten naar het standaard donkere uiterlijk? ‘%@’ behoudt je aanpassingen hoe dan ook — selecteer het wanneer je wilt opnieuw om ernaar terug te keren."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Czy chcesz też przełączyć ekran odtwarzania na standardowy ciemny wygląd? „%@” tak czy inaczej zachowuje twoje dostosowania — wybierz go ponownie w dowolnej chwili, aby do nich wrócić."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Você também quer mudar a tela de reprodução para a aparência escura padrão? “%@” mantém suas personalizações de qualquer forma: selecione-o novamente quando quiser para voltar a elas."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Переключить экран воспроизведения на стандартное тёмное оформление? «%@» в любом случае сохранит ваши настройки — выберите его снова, когда захотите к ним вернуться."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vill du även byta uppspelningsskärmen till det mörka standardutseendet? ”%@” behåller dina anpassningar oavsett – välj den igen när du vill för att komma tillbaka till dem."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Çalma ekranını da standart koyu görünüme geçirmek ister misiniz? “%@” özelleştirmelerinizi her durumda korur; onlara dönmek için istediğiniz zaman yeniden seçin."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "是否也将播放界面切换为标准深色外观？无论选择哪一项，“%@”都会保留你的自定义设置，随时重新选择它即可恢复。"
+          }
+        }
+      }
+    },
     "Do you also want to switch the playback screen to the standard dark look? Your customisations will be replaced." : {
       "extractionState" : "stale",
       "localizations" : {
@@ -7859,6 +7942,89 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "是否也将播放界面切换为标准深色外观？你的自定义设置将被替换。"
+          }
+        }
+      }
+    },
+    "Do you also want to switch the playback screen to the standard light look? “%@” keeps your customisations either way — select it again any time to come back to them." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Möchtest du auch den Wiedergabebildschirm auf das helle Standardaussehen umstellen? „%@“ behält deine Anpassungen in jedem Fall – wähle die Vorlage jederzeit wieder aus, um zu ihnen zurückzukehren."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¿Quieres cambiar también la pantalla de reproducción al aspecto claro estándar? «%@» conserva tus personalizaciones en cualquier caso: vuelve a seleccionarla cuando quieras para recuperarlas."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Voulez-vous aussi passer l’écran de lecture à l’apparence claire standard ? « %@ » conserve vos personnalisations dans tous les cas : resélectionnez-le à tout moment pour les retrouver."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vuoi passare anche la schermata di riproduzione all’aspetto chiaro standard? “%@” mantiene le tue personalizzazioni in ogni caso: riselezionalo quando vuoi per tornare a esse."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "再生画面も標準のライト表示に切り替えますか？ どちらを選んでも「%@」はカスタマイズした設定を保持します。いつでも選び直せば元に戻せます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "재생 화면도 기본 라이트 모양으로 전환할까요? 어느 쪽을 선택해도 “%@”은(는) 사용자화한 설정을 유지하며, 언제든 다시 선택하면 되돌릴 수 있습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wil je ook het afspeelscherm omzetten naar het standaard lichte uiterlijk? ‘%@’ behoudt je aanpassingen hoe dan ook — selecteer het wanneer je wilt opnieuw om ernaar terug te keren."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Czy chcesz też przełączyć ekran odtwarzania na standardowy jasny wygląd? „%@” tak czy inaczej zachowuje twoje dostosowania — wybierz go ponownie w dowolnej chwili, aby do nich wrócić."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Você também quer mudar a tela de reprodução para a aparência clara padrão? “%@” mantém suas personalizações de qualquer forma: selecione-o novamente quando quiser para voltar a elas."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Переключить экран воспроизведения на стандартное светлое оформление? «%@» в любом случае сохранит ваши настройки — выберите его снова, когда захотите к ним вернуться."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vill du även byta uppspelningsskärmen till det ljusa standardutseendet? ”%@” behåller dina anpassningar oavsett – välj den igen när du vill för att komma tillbaka till dem."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Çalma ekranını da standart açık görünüme geçirmek ister misiniz? “%@” özelleştirmelerinizi her durumda korur; onlara dönmek için istediğiniz zaman yeniden seçin."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "是否也将播放界面切换为标准浅色外观？无论选择哪一项，“%@”都会保留你的自定义设置，随时重新选择它即可恢复。"
           }
         }
       }
