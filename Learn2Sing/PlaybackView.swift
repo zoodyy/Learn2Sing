@@ -498,7 +498,7 @@ final class ExercisePlayer {
     // MARK: Scheduling
 
     func schedule(notes: [MIDINote], bpm: Double, leadIn: Double, preview: Bool = true,
-                  repeatSpan: Double = 0, betweenReps: Double = 0,
+                  repeatLayout: RepeatLayout = RepeatLayout(), betweenReps: Double = 0,
                   onFinish: @escaping () -> Void) {
         let secPerBeat = 60.0 / bpm
 
@@ -520,20 +520,22 @@ final class ExercisePlayer {
         // beats — the preview's two-beat tone plus one-beat pause — so it fits inside
         // the silence without colliding with the previous repetition.
         if preview {
-            // Earliest note of each repetition, grouped by the repeat span. Each
-            // repetition's first note already carries that rep's transposition, so its
-            // pitch is the right one to preview.
+            // Earliest note of each repetition. Each repetition's first note already
+            // carries that rep's transposition, so its pitch is the right one to
+            // preview.
             var firstByRep: [Int: MIDINote] = [:]
             for note in notes {
-                let rep = repeatSpan > 0 ? Int(floor(note.beat / repeatSpan + 1e-6)) : 0
+                let rep = repeatLayout.index(at: note.beat)
                 if let existing = firstByRep[rep], existing.beat <= note.beat { continue }
                 firstByRep[rep] = note
             }
             for (rep, firstNote) in firstByRep {
                 if rep >= 1 && betweenReps < 3 { continue }
+                // Measured in the beats of the silence the preview sits in, so it
+                // stays inside that gap however the repetitions are sped up.
                 let firstBeat = firstNote.beat + leadIn
-                let previewOn  = firstBeat - 3.0   // 2 beats sounding + 1 beat pause
-                let previewOff = firstBeat - 1.0
+                let previewOn  = repeatLayout.beat(3.0, before: rep, startingAt: firstBeat)
+                let previewOff = repeatLayout.beat(1.0, before: rep, startingAt: firstBeat)
                 if previewOn >= 0 {
                     events.append(Event(sample: Int(previewOn  * secPerBeat * sampleRate),
                                         pitch: firstNote.pitch, on: true))
@@ -801,10 +803,11 @@ struct PlaybackView: View {
     /// line can stop level with the bar's buttons instead of at the screen edge.
     @State private var pauseButtonBottom: CGFloat? = nil
     @State private var lastDrawnBeat = LastDrawnBeat()
-    // Vertical centre of each repetition's pitch range, plus one repetition's length
-    // in beats — used by "follow notes vertically" to recentre once per repetition.
+    // Vertical centre of each repetition's pitch range, plus where the repetitions sit
+    // on the timeline — used by "follow notes vertically" to recentre once per
+    // repetition, and by the repetition counter badge.
     @State private var repetitionCenters: [Double] = []
-    @State private var repeatSpan: Double = 0
+    @State private var repeatLayout = RepeatLayout()
     // Largest semitone distance from a repetition's centre to its furthest content
     // (note or text label), above or below. Constant across reps since each is the
     // same pattern transposed; used by "follow notes vertically" to zoom out when a
@@ -842,7 +845,7 @@ struct PlaybackView: View {
                 if isReviewing {
                     ExerciseReviewView(exercise: exercise, notes: notes, texts: texts,
                                        samples: trail.recording, bpm: bpm,
-                                       repeatSpan: repeatSpan) {
+                                       repeatLayout: repeatLayout) {
                         isReviewing = false
                     }
                 } else {
@@ -966,7 +969,7 @@ struct PlaybackView: View {
             }
             player.schedule(notes: notes, bpm: bpm, leadIn: leadIn,
                             preview: mode == .normal,
-                            repeatSpan: repeatSpan, betweenReps: exercise.beatsBetweenReps) {
+                            repeatLayout: repeatLayout, betweenReps: exercise.beatsBetweenReps) {
                 if mode == .delayTest {
                     // Convert the detected claps to beat positions *before* tearing
                     // the audio down — the conversion needs the engine's still-live
@@ -992,7 +995,7 @@ struct PlaybackView: View {
                     debugRecording = debugRecorder.finish(
                         DebugRunContext(exercise: exercise, notes: notes, texts: texts,
                                         samples: trail.recording, bpm: bpm, leadInBeats: leadIn,
-                                        repeatSpan: repeatSpan, micDelayMs: micDelayMs,
+                                        repeatSpan: repeatLayout.span, micDelayMs: micDelayMs,
                                         score: score))
                     // Save before showing the result so the chart includes this run.
                     ScoreHistory.record(score: score, for: exercise.id)
@@ -1067,8 +1070,8 @@ struct PlaybackView: View {
         let defaultCenter = Double(hiPitch + loPitch) / 2
         let centerPitch: Double
         var centerY = size.height / 2
-        if s.followNotesVertically, repeatSpan > 0, !repetitionCenters.isEmpty {
-            let idx = max(0, min(repetitionCenters.count - 1, Int(floor(beat / repeatSpan))))
+        if s.followNotesVertically, repeatLayout.count > 0, !repetitionCenters.isEmpty {
+            let idx = min(repetitionCenters.count - 1, repeatLayout.index(at: beat))
             centerPitch = follower.step(target: repetitionCenters[idx], factor: 0.08)
             // Centre the content in the safe area — between the title/back bar at the
             // top and the menu at the bottom — and, if a repetition is too tall to fit
@@ -1120,15 +1123,15 @@ struct PlaybackView: View {
         // in the delay test; the renderer hides the badge when it's nil.
         let totalReps = max(1, exercise.repeatCount)
         var repetition: (current: Int, total: Int)? = nil
-        if mode == .normal, totalReps > 1, repeatSpan > 0 {
-            let idx = max(0, min(totalReps - 1, Int(floor(beat / repeatSpan))))
+        if mode == .normal, totalReps > 1, repeatLayout.count > 0 {
+            let idx = min(totalReps - 1, repeatLayout.index(at: beat))
             repetition = (current: idx + 1, total: totalReps)
         }
 
         drawPlaybackScene(ctx: ctx, layout: layout, beat: beat, notes: notes, texts: texts,
                           trailPath: trailPath, singerPitch: singerPitch, settings: s,
                           repetition: repetition, safeTop: safeTop, safeBottom: safeBottom,
-                          playheadTop: playheadTop, repeatSpan: repeatSpan)
+                          playheadTop: playheadTop, repeatLayout: repeatLayout)
     }
 
     // MARK: - Teardown
@@ -1203,29 +1206,35 @@ struct PlaybackView: View {
         else { return }
 
         // Length of one repetition, rounded up to a whole beat so repeats stay aligned,
-        // plus any silent beats the user wants between repetitions.
+        // plus any silent beats the user wants between repetitions. The layout then
+        // says where each repetition begins and how far its beats are squeezed or
+        // stretched to play it at its own tempo ("speed up per repetition").
         let patternEnd = saved.map { $0.beat + $0.length }.max() ?? 0
-        let repeatSpan = patternEnd.rounded(.up) + max(0, exercise.beatsBetweenReps)
-        let repeats = max(1, exercise.repeatCount)
+        let span = patternEnd.rounded(.up) + max(0, exercise.beatsBetweenReps)
+        let layout = exercise.repeatLayout(span: span)
+        let repeats = layout.count
 
-        // Expand the pattern: each repetition is shifted later in time and
-        // transposed by `transposePerRepeat` semitones. Applying the same
-        // transform to the drawn notes keeps playback and animation in sync.
+        // Expand the pattern: each repetition is shifted later in time, scaled to its
+        // own tempo and transposed by `transposePerRepeat` semitones. Applying the
+        // same transform to the drawn notes keeps playback and animation in sync.
         var expanded: [MIDINote] = []
         for rep in 0..<repeats {
             let transpose = cumulativeTranspose(forRepetition: rep)
+            let start = layout.starts[rep]
+            let scale = layout.scales[rep]
             for note in saved {
                 var n = note
                 n.id = UUID()
                 n.pitch += exercise.pitchShift + transpose
-                n.beat += Double(rep) * repeatSpan
+                n.beat = start + note.beat * scale
+                n.length = note.length * scale
                 expanded.append(n)
             }
         }
 
         // Text labels share the note coordinate system, so apply the identical
-        // expansion (beat shift + transpose per repeat) to keep them pinned to the
-        // notes they annotate as the pattern repeats and scrolls.
+        // expansion (beat shift + tempo scale + transpose per repeat) to keep them
+        // pinned to the notes they annotate as the pattern repeats and scrolls.
         var savedTexts: [MIDIText] = []
         if let data = UserDefaults.standard.data(forKey: "miditext_\(exercise.id.uuidString)"),
            let decoded = try? JSONDecoder().decode([MIDIText].self, from: data) {
@@ -1234,11 +1243,13 @@ struct PlaybackView: View {
         var expandedTexts: [MIDIText] = []
         for rep in 0..<repeats {
             let transpose = cumulativeTranspose(forRepetition: rep)
+            let start = layout.starts[rep]
+            let scale = layout.scales[rep]
             for label in savedTexts {
                 var t = label
                 t.id = UUID()
                 t.pitch += exercise.pitchShift + transpose
-                t.beat += Double(rep) * repeatSpan
+                t.beat = start + label.beat * scale
                 expandedTexts.append(t)
             }
         }
@@ -1266,7 +1277,7 @@ struct PlaybackView: View {
         // pitch range) so "follow notes vertically" can recentre once per repetition.
         // Each repetition's range is the pattern's range shifted by that repetition's
         // cumulative transpose, plus the global pitch- and vocal-range shifts.
-        self.repeatSpan = repeatSpan
+        self.repeatLayout = layout
         if let pMin = saved.map(\.pitch).min(), let pMax = saved.map(\.pitch).max() {
             let baseMid = Double(pMin + pMax) / 2
             repetitionCenters = (0..<repeats).map { rep in

@@ -293,9 +293,11 @@ struct PlaybackVisualsView: View {
     /// One repetition of the motif, in beats — the fourth beat is the gap before the
     /// next one. Passed to the renderer so "hide dots in unused pitches" can preview.
     private static let demoRepeatSpan: Double = 4
+    private static let demoRepeatCount = 200
+    private static let demoRepeatLayout = RepeatLayout(span: demoRepeatSpan, count: demoRepeatCount)
     private let demoNotes: [MIDINote] = {
         var ns: [MIDINote] = []
-        for k in 0..<200 {
+        for k in 0..<PlaybackVisualsView.demoRepeatCount {
             for note in PlaybackVisualsView.demoPattern {
                 ns.append(MIDINote(pitch: note.pitch, beat: Double(k) * demoRepeatSpan + note.beat, length: 0.9))
             }
@@ -690,7 +692,7 @@ struct PlaybackVisualsView: View {
                                   trailPath: trailPath, singerPitch: singer, settings: settings,
                                   repetition: (current: demoCurrent, total: demoTotal),
                                   safeTop: topCrop, safeBottom: bottomCrop,
-                                  repeatSpan: Self.demoRepeatSpan)
+                                  repeatLayout: Self.demoRepeatLayout)
             }
         }
     }

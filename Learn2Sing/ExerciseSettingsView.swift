@@ -21,10 +21,10 @@ struct ExerciseSettingsView: View {
     @State private var isWarningDuplicateName = false
 
     /// The text fields that can hold keyboard focus, so a single keyboard toolbar
-    /// can show a "Done" button (and the sign toggle for the transpose field) above
-    /// whichever one is being edited.
+    /// can show a "Done" button (and the sign toggle for the fields that take a
+    /// negative value) above whichever one is being edited.
     private enum Field {
-        case name, details, repeatCount, transpose, switchDirection, betweenReps
+        case name, details, repeatCount, transpose, switchDirection, speed, betweenReps
     }
     private var pitchLabel: String {
         let s = exercise.pitchShift
@@ -123,6 +123,19 @@ struct ExerciseSettingsView: View {
                     }
 
                     HStack {
+                        Text("Speed up per repetition")
+                        Spacer()
+                        TextField("0", value: $exercise.speedPerRepeat, format: .number)
+                            .multilineTextAlignment(.trailing)
+                            .keyboardType(.numberPad)
+                            .focused($focusedField, equals: .speed)
+                            .frame(width: 60)
+                        Text("BPM").foregroundStyle(.secondary)
+                    }
+                    .contentShape(Rectangle())
+                    .onTapGesture { focusedField = .speed }
+
+                    HStack {
                         Text("Time between reps")
                         Spacer()
                         TextField("0", value: $exercise.beatsBetweenReps, format: .number)
@@ -191,6 +204,7 @@ struct ExerciseSettingsView: View {
         // passes through spurious collisions while being typed.
         .onChange(of: focusedField) { old, new in
             if old == .name, new != .name { demoteIfNameTaken() }
+            if old == .speed, new != .speed { clampSpeedPerRepeat() }
         }
         .alert("Name Already Public", isPresented: $isWarningDuplicateName) {
             Button("OK", role: .cancel) {}
@@ -201,11 +215,15 @@ struct ExerciseSettingsView: View {
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItemGroup(placement: .keyboard) {
-                if focusedField == .transpose {
+                if focusedField == .transpose || focusedField == .speed {
                     // The number pad has no minus key, so offer a sign toggle for
-                    // entering negative transpositions.
+                    // entering downward transpositions and slow-downs.
                     Button {
-                        exercise.transposePerRepeat.negate()
+                        if focusedField == .speed {
+                            exercise.speedPerRepeat.negate()
+                        } else {
+                            exercise.transposePerRepeat.negate()
+                        }
                     } label: {
                         Image(systemName: "plus.forwardslash.minus")
                     }
@@ -246,6 +264,15 @@ struct ExerciseSettingsView: View {
         guard exercise.visibility == .public, isPublicNameTaken() else { return }
         exercise.visibility = .private
         isWarningDuplicateName = true
+    }
+
+    /// Keep "speed up per repetition" within ±`Exercise.maxSpeedPerRepeat` BPM.
+    /// Applied when the field is done being edited (the keyboard's "Done" button, or
+    /// focus moving on) rather than per keystroke, so a value typed digit by digit
+    /// isn't cut short on its way to the one the singer meant.
+    private func clampSpeedPerRepeat() {
+        let limit = Exercise.maxSpeedPerRepeat
+        exercise.speedPerRepeat = min(max(exercise.speedPerRepeat, -limit), limit)
     }
 
     /// Keep "switch transposing direction after" within range: never larger than one

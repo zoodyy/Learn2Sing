@@ -335,20 +335,19 @@ final class VerticalFollower {
 // MARK: - Repetition pitches (for the "hide dots in unused pitches" option)
 
 /// The pitches a note lands on during the repetition that is currently being sung.
-/// `repeatSpan` is one repetition's length in beats — including any silence between
-/// repetitions — as used to expand the pattern; with 0 (content that doesn't repeat)
-/// every note counts.
+/// `repeatLayout` says where the repetitions the pattern was expanded into sit; with
+/// an empty one (content that doesn't repeat) every note counts.
 ///
 /// The switch to the next repetition happens as soon as the current one's last note
 /// has stopped sounding, rather than at the span boundary, so during the silence
 /// between two repetitions the dots already show the one about to start. The final
 /// repetition keeps its pitches once it ends — there is nothing after it to show.
-func repetitionPitches(notes: [MIDINote], beat: Double, repeatSpan: Double) -> Set<Int> {
-    guard repeatSpan > 0 else { return Set(notes.map(\.pitch)) }
+func repetitionPitches(notes: [MIDINote], beat: Double, repeatLayout: RepeatLayout) -> Set<Int> {
+    guard repeatLayout.count > 1 else { return Set(notes.map(\.pitch)) }
 
     // Runs on every rendered frame, so it walks the notes a few times rather than
     // building a dictionary of sets covering every repetition to then use one of them.
-    func repetition(of note: MIDINote) -> Int { Int(floor(note.beat / repeatSpan + 1e-6)) }
+    func repetition(of note: MIDINote) -> Int { repeatLayout.index(at: note.beat) }
 
     var firstRep = Int.max
     var lastRep = Int.min
@@ -360,7 +359,7 @@ func repetitionPitches(notes: [MIDINote], beat: Double, repeatSpan: Double) -> S
     // Clamped so the lead-in (a negative beat) shows the first repetition's dots and
     // anything past the end keeps the last one's.
     guard firstRep <= lastRep else { return [] }
-    var index = min(max(Int(floor(beat / repeatSpan)), firstRep), lastRep)
+    var index = min(max(repeatLayout.index(at: beat), firstRep), lastRep)
 
     if index < lastRep {
         var end = -Double.infinity
@@ -387,15 +386,16 @@ func repetitionPitches(notes: [MIDINote], beat: Double, repeatSpan: Double) -> S
 /// and `safeBottom` keep that badge clear of on-screen chrome in the live view.
 /// `playheadTop` is the y at which the playhead line begins, so the live view can stop
 /// it level with the top of the toolbar buttons instead of running to the screen edge.
-/// `repeatSpan` is one repetition's length in beats, needed only by the dotted
-/// playhead's "hide dots in unused pitches" option to tell the repetitions apart.
+/// `repeatLayout` says where the repetitions sit on the timeline, needed only by the
+/// dotted playhead's "hide dots in unused pitches" option to tell them apart.
 func drawPlaybackScene(ctx: GraphicsContext, layout: SceneLayout, beat: Double,
                        notes: [MIDINote], texts: [MIDIText],
                        trailPath: Path, singerPitch: Double?,
                        settings: VisualSettings,
                        repetition: (current: Int, total: Int)? = nil,
                        safeTop: CGFloat = 0, safeBottom: CGFloat = 0,
-                       playheadTop: CGFloat = 0, repeatSpan: Double = 0) {
+                       playheadTop: CGFloat = 0,
+                       repeatLayout: RepeatLayout = RepeatLayout()) {
     let size = layout.size
     let pianoW = layout.pianoW
     let rowH = layout.rowH
@@ -602,7 +602,7 @@ func drawPlaybackScene(ctx: GraphicsContext, layout: SceneLayout, beat: Double,
         // "Hide dots in unused pitches": keep only the rows a note of the repetition
         // being sung passes through, so the dots spell out the coming pattern.
         if settings.hideUnusedDots {
-            let used = repetitionPitches(notes: notes, beat: beat, repeatSpan: repeatSpan)
+            let used = repetitionPitches(notes: notes, beat: beat, repeatLayout: repeatLayout)
             dotPitches = dotPitches.filter { used.contains($0) }
         }
         for pitch in dotPitches {

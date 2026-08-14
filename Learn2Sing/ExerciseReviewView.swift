@@ -24,8 +24,8 @@ struct ExerciseReviewView: View {
     /// Every pitch estimate of the run, oldest first, at the beat it was heard.
     let samples: [PitchSample]
     let bpm: Double
-    /// One repetition's length in beats, for the repetition counter badge.
-    let repeatSpan: Double
+    /// Where the repetitions sit on the timeline, for the repetition counter badge.
+    let repeatLayout: RepeatLayout
     let onClose: () -> Void
 
     @AppStorage(microphoneDelayKey) private var micDelayMs = 0.0
@@ -159,15 +159,15 @@ struct ExerciseReviewView: View {
         // same rule the live view uses.
         let totalReps = max(1, exercise.repeatCount)
         var repetition: (current: Int, total: Int)? = nil
-        if totalReps > 1, repeatSpan > 0 {
-            let idx = max(0, min(totalReps - 1, Int(floor(beat / repeatSpan))))
+        if totalReps > 1, repeatLayout.count > 0 {
+            let idx = min(totalReps - 1, repeatLayout.index(at: beat))
             repetition = (current: idx + 1, total: totalReps)
         }
 
         drawPlaybackScene(ctx: ctx, layout: layout, beat: beat, notes: notes, texts: texts,
                           trailPath: trailPath, singerPitch: pitch(at: beat), settings: visuals,
                           repetition: repetition, safeTop: safeTop, safeBottom: safeBottom,
-                          playheadTop: playheadTop(safeTop: safeTop), repeatSpan: repeatSpan)
+                          playheadTop: playheadTop(safeTop: safeTop), repeatLayout: repeatLayout)
     }
 
     /// The pitch recorded at `beat`, so the singer indicator sits on the line right

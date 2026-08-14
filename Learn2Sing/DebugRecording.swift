@@ -467,6 +467,7 @@ final class DebugRunRecorder: DebugAudioSink {
                 repeatCount: context.exercise.repeatCount,
                 transposePerRepeat: context.exercise.transposePerRepeat,
                 switchDirectionAfter: context.exercise.switchDirectionAfter,
+                speedPerRepeat: context.exercise.speedPerRepeat,
                 beatsBetweenReps: context.exercise.beatsBetweenReps,
                 repeatSpanBeats: context.repeatSpan,
                 leadInBeats: context.leadInBeats),
@@ -565,7 +566,10 @@ private struct ExerciseJSON: Encodable {
     let repeatCount: Int
     let transposePerRepeat: Int
     let switchDirectionAfter: Int
+    let speedPerRepeat: Int
     let beatsBetweenReps: Double
+    /// One repetition at the exercise's own tempo. With `speedPerRepeat` set the
+    /// repetitions are scaled off this, so read the notes for where they landed.
     let repeatSpanBeats: Double
     let leadInBeats: Double
 }

@@ -18,6 +18,7 @@ struct Exercise: Identifiable, Hashable, Codable {
     var repeatCount: Int = 1          // how many times the pattern is played back
     var transposePerRepeat: Int = 0   // semitones to shift up each repetition (negative = down)
     var switchDirectionAfter: Int = 0 // flip the transpose direction after this many repetitions (0 = never)
+    var speedPerRepeat: Int = 0       // BPM added to each repetition's tempo (negative = slower)
     var beatsBetweenReps: Double = 0  // silent beats inserted between repetitions
     var visibility: ExerciseVisibility = .private // public exercises show on the Community tab
     var uploaderName: String = ""     // profile username stamped when made public
@@ -29,7 +30,7 @@ struct Exercise: Identifiable, Hashable, Codable {
     init(name: String) { self.name = name }
 
     private enum CodingKeys: String, CodingKey {
-        case id, name, details, category, pitchShift, bpm, speed, repeatCount, transposePerRepeat, switchDirectionAfter, beatsBetweenReps, visibility, uploaderName, downloadedFrom
+        case id, name, details, category, pitchShift, bpm, speed, repeatCount, transposePerRepeat, switchDirectionAfter, speedPerRepeat, beatsBetweenReps, visibility, uploaderName, downloadedFrom
     }
 
     init(from decoder: Decoder) throws {
@@ -48,6 +49,7 @@ struct Exercise: Identifiable, Hashable, Codable {
         repeatCount = try c.decodeIfPresent(Int.self, forKey: .repeatCount) ?? 1
         transposePerRepeat = try c.decodeIfPresent(Int.self, forKey: .transposePerRepeat) ?? 0
         switchDirectionAfter = try c.decodeIfPresent(Int.self, forKey: .switchDirectionAfter) ?? 0
+        speedPerRepeat = try c.decodeIfPresent(Int.self, forKey: .speedPerRepeat) ?? 0
         beatsBetweenReps = try c.decodeIfPresent(Double.self, forKey: .beatsBetweenReps) ?? 0
         visibility = try c.decodeIfPresent(ExerciseVisibility.self, forKey: .visibility) ?? .private
         uploaderName = try c.decodeIfPresent(String.self, forKey: .uploaderName) ?? ""
@@ -67,12 +69,105 @@ struct Exercise: Identifiable, Hashable, Codable {
         try c.encode(repeatCount, forKey: .repeatCount)
         try c.encode(transposePerRepeat, forKey: .transposePerRepeat)
         try c.encode(switchDirectionAfter, forKey: .switchDirectionAfter)
+        try c.encode(speedPerRepeat, forKey: .speedPerRepeat)
         try c.encode(beatsBetweenReps, forKey: .beatsBetweenReps)
         try c.encode(visibility, forKey: .visibility)
         try c.encode(uploaderName, forKey: .uploaderName)
         // Omitted when nil, so exercises the user made themselves upload exactly
         // the same document body as before this field existed.
         try c.encodeIfPresent(downloadedFrom, forKey: .downloadedFrom)
+    }
+}
+
+// MARK: - Repetition layout
+
+/// Where each repetition of an exercise's pattern sits on the timeline.
+///
+/// Repetitions don't all last the same number of beats once "speed up per
+/// repetition" is set. The timeline is still played at the exercise's own tempo
+/// throughout, so a repetition is made to *sound* faster by squeezing its beats
+/// together and slower by spreading them apart: that factor is its `scale` — 0.5
+/// is twice the tempo — and every repetition after it shifts along accordingly.
+/// With no speed change every scale is 1 and the repetitions sit on a plain grid.
+struct RepeatLayout {
+    /// One repetition's length in beats at the exercise's own tempo: the pattern
+    /// rounded up to a whole beat, plus any silence between repetitions.
+    private(set) var span: Double
+    /// The beat each repetition starts on, ascending.
+    private(set) var starts: [Double]
+    /// How each repetition's beats are scaled; same count as `starts`.
+    private(set) var scales: [Double]
+
+    /// The layout of content that doesn't repeat.
+    init() {
+        span = 0
+        starts = []
+        scales = []
+    }
+
+    /// `count` repetitions of `span` beats, the `rep`th of them scaled by `scale(rep)`.
+    init(span: Double, count: Int, scale: (Int) -> Double = { _ in 1 }) {
+        self.span = span
+        starts = []
+        scales = []
+        var start = 0.0
+        for rep in 0..<max(0, count) {
+            let s = scale(rep)
+            starts.append(start)
+            scales.append(s)
+            start += span * s
+        }
+    }
+
+    var count: Int { starts.count }
+
+    /// Index of the repetition `beat` falls in. The lead-in (a negative beat) belongs
+    /// to the first repetition and anything past the end stays with the last, so the
+    /// result can always be used to index a per-repetition table.
+    func index(at beat: Double) -> Int {
+        // Searched rather than walked: this runs per note on every rendered frame,
+        // and an exercise can repeat a hundred times over.
+        var low = 0
+        var high = starts.count - 1
+        while low < high {
+            let mid = (low + high + 1) / 2
+            if beat >= starts[mid] - 1e-6 { low = mid } else { high = mid - 1 }
+        }
+        return max(0, low)
+    }
+
+    /// The beat `beats` beats of room before repetition `rep` begins comes out at.
+    /// The silence in front of a repetition is the tail of the one before it, so it
+    /// is measured at *that* repetition's tempo; the lead-in before the first is
+    /// never scaled.
+    func beat(_ beats: Double, before rep: Int, startingAt startBeat: Double) -> Double {
+        let scale = rep >= 1 && rep - 1 < scales.count ? scales[rep - 1] : 1
+        return startBeat - beats * scale
+    }
+}
+
+extension Exercise {
+    /// Largest per-repetition tempo change the settings screen accepts, in BPM.
+    static let maxSpeedPerRepeat = 150
+    /// The tempo a single repetition is held inside, in BPM. A long run of speed
+    /// steps would otherwise reach a standstill (or a tempo running backwards) at
+    /// one end and an unsingable blur at the other.
+    static let repetitionTempoLimits = (min: 20.0, max: 400.0)
+
+    /// Tempo of a repetition (0-based) in BPM: `speedPerRepeat` faster than the one
+    /// before it, held inside `repetitionTempoLimits`.
+    func tempo(forRepetition rep: Int) -> Double {
+        let raw = bpm + Double(rep) * Double(speedPerRepeat)
+        return min(max(raw, Self.repetitionTempoLimits.min), Self.repetitionTempoLimits.max)
+    }
+
+    /// Lay this exercise's repetitions out over a pattern `span` beats long (rounded
+    /// up to a whole beat, plus the silence between repetitions), scaling each one so
+    /// a timeline played at `bpm` sounds every repetition at its own tempo.
+    func repeatLayout(span: Double) -> RepeatLayout {
+        RepeatLayout(span: span, count: max(1, repeatCount)) { rep in
+            bpm > 0 ? bpm / tempo(forRepetition: rep) : 1
+        }
     }
 }
 
