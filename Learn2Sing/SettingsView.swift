@@ -48,6 +48,10 @@ struct SettingsView: View {
 
                     hubLink(L("Language"), systemImage: "globe", route: .language)
                         .settingHelp(L("The language the app is displayed in. Kept on this device only."))
+
+                    hubLink(L("Request a new Feature/ Report a Bug"),
+                            systemImage: "exclamationmark.bubble", route: .feedback)
+                        .settingHelp(L("Write to the developer: report something that's broken, ask for a feature, or say what you make of the app."))
                 }
             }
             .navigationTitle(L("Settings"))
@@ -122,6 +126,8 @@ struct SettingsView: View {
                     HomeResetView()
                 case .language:
                     LanguageSettingsView()
+                case .feedback:
+                    FeedbackView()
                 }
             }
             // Select the whole number when a numeric field anywhere on this stack is
@@ -159,10 +165,10 @@ struct SettingsView: View {
 
     /// Screens pushed onto the Settings navigation stack: the category hubs
     /// (Audio with its instruments screens, Visuals, Voice, Exercises, Backup,
-    /// Reset with its four screens, Language, Profile) and the microphone-delay
-    /// and vocal-range tests they lead to. The delay test branches in two: the
-    /// clap test's intro and playback, or the sung test's exercise picker and the
-    /// run it starts.
+    /// Reset with its four screens, Language, Profile, and the message form) and
+    /// the microphone-delay and vocal-range tests they lead to. The delay test
+    /// branches in two: the clap test's intro and playback, or the sung test's
+    /// exercise picker and the run it starts.
     private enum SettingsRoute: Hashable {
         case audio
         case instruments
@@ -187,6 +193,7 @@ struct SettingsView: View {
         case resetExercises
         case resetHome
         case language
+        case feedback
     }
 
     /// The throwaway exercise that drives the clap delay test, with the description

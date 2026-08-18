@@ -8,6 +8,7 @@ import json, pathlib, subprocess, sys
 sys.path.insert(0, str(pathlib.Path(__file__).parent))
 import trbase
 import tr_common, tr_settings, tr_visuals, tr_library, tr_community, tr_bundled, tr_reset  # noqa: F401
+import tr_feedback  # noqa: F401
 
 HERE = pathlib.Path(__file__).resolve().parent
 APP = HERE.parents[1] / "Learn2Sing"
@@ -41,6 +42,9 @@ INDIRECT = [
     "Recent", "Routines", "Favourites", "Recommended",
     # Bundled visual templates
     "Simplest - dark", "Simplest - light",
+    # FeedbackType / FeedbackLocation (the tab names are extracted from the
+    # ContentView tabs they name, so only "Other" is listed here)
+    "Bug", "Feature Request", "Feedback", "Question", "Other",
 ]
 
 bundle = json.loads((APP / "Bundled" / "BundledExercises.json").read_text())
