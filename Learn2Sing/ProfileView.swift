@@ -177,6 +177,8 @@ struct ProfileView: View {
         .navigationTitle(L("Profile"))
         .navigationBarTitleDisplayMode(.inline)
         .stableTopEdgeFade()
+        // Swiping down over the keyboard puts it away, like everywhere else.
+        .scrollDismissesKeyboard(.interactively)
         .onAppear { profile.save() }
         // A rename is checked when it is finished rather than per keystroke: a
         // name passes through other people's names while being typed, and the

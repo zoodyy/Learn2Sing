@@ -149,6 +149,10 @@ struct RoutineEditView: View {
         .environment(\.editMode, $editMode)
         .navigationTitle(L("Edit Routine"))
         .navigationBarTitleDisplayMode(.inline)
+        // The description field's return key inserts a newline rather than
+        // closing the keyboard, so swiping down over it is what puts it away —
+        // the same everywhere else in the app.
+        .scrollDismissesKeyboard(.interactively)
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Button {

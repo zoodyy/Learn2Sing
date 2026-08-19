@@ -254,6 +254,11 @@ struct CommunityView: View {
             .searchable(text: $searchText,
                         placement: .navigationBarDrawer(displayMode: .always),
                         prompt: L("Users, Exercises, Descriptions"))
+            // Swiping down over the search field's keyboard puts it away, like
+            // everywhere else. This covers the empty state, which is a scroll
+            // view of its own; the list itself is a collection view and asks for
+            // the same behaviour directly (see ExerciseCollectionList).
+            .scrollDismissesKeyboard(.interactively)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     CommunityFilterMenu(list: list)
@@ -425,6 +430,10 @@ struct CommunityUserProfileView: View {
         .searchable(text: $searchText,
                     placement: .navigationBarDrawer(displayMode: .always),
                     prompt: L("Exercises, Descriptions"))
+        // Swiping down over the search field's keyboard puts it away, like
+        // everywhere else — see the Community tab's own field for the two scroll
+        // views this screen has.
+        .scrollDismissesKeyboard(.interactively)
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 CommunityFilterMenu(list: list)

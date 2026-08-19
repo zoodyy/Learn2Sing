@@ -312,6 +312,10 @@ private struct CategoryEditView: View {
         .navigationTitle(L("Edit Categories"))
         .navigationBarTitleDisplayMode(.inline)
         .stableTopEdgeFade()
+        // Swiping down over the keyboard puts it away, like everywhere else. The
+        // name being typed is committed by the lost focus, exactly as it is when
+        // the field is left by tapping another row.
+        .scrollDismissesKeyboard(.interactively)
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Button {
@@ -616,7 +620,18 @@ struct ExercisesView: View {
         return NavigationStack(path: $navigationPath) {
             Group {
                 if sections.isEmpty && !query.isEmpty {
-                    ContentUnavailableView.search(text: query)
+                    // In a scroll view of its own — filling it, so it still reads
+                    // as centred on the screen — because this is the one state
+                    // this tab can be in with the keyboard up and no list under
+                    // it, and swiping down over the keyboard needs something
+                    // scrollable to travel with. The Community tab's empty state
+                    // is built the same way.
+                    GeometryReader { geo in
+                        ScrollView {
+                            ContentUnavailableView.search(text: query)
+                                .frame(width: geo.size.width, height: geo.size.height)
+                        }
+                    }
                 } else if sections.isEmpty && !activeFilters.isEmpty {
                     ContentUnavailableView {
                         Label("No Matching Exercises", systemImage: "line.3.horizontal.decrease.circle")
@@ -669,6 +684,11 @@ struct ExercisesView: View {
             .searchable(text: $searchText,
                         placement: .navigationBarDrawer(displayMode: .automatic),
                         prompt: L("Exercises, Descriptions"))
+            // Swiping down over the search field's keyboard puts it away, like
+            // everywhere else. This covers the "no results" state above; the list
+            // itself is a collection view and asks for the same behaviour
+            // directly (see ExerciseCollectionList).
+            .scrollDismissesKeyboard(.interactively)
             .stableTopEdgeFade()
             .toolbar {
                 ToolbarItem(placement: .principal) {

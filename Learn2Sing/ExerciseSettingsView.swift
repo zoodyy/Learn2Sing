@@ -33,6 +33,18 @@ struct ExerciseSettingsView: View {
         return "\(sign)\(s) \(unit)"
     }
 
+    /// What the keyboard bar's sign toggle does for the field being edited, and
+    /// nil for the fields that don't take a negative value — the bar leaves the
+    /// button out for those, so only "Done" is shown. Downward transpositions
+    /// and slow-downs are the two that need it.
+    private var signToggle: (() -> Void)? {
+        switch focusedField {
+        case .transpose: return { exercise.transposePerRepeat.negate() }
+        case .speed: return { exercise.speedPerRepeat.negate() }
+        default: return nil
+        }
+    }
+
     var body: some View {
         Form {
             Section("Name") {
@@ -213,25 +225,11 @@ struct ExerciseSettingsView: View {
         }
         .navigationTitle(exercise.localizedName)
         .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
-            ToolbarItemGroup(placement: .keyboard) {
-                if focusedField == .transpose || focusedField == .speed {
-                    // The number pad has no minus key, so offer a sign toggle for
-                    // entering downward transpositions and slow-downs.
-                    Button {
-                        if focusedField == .speed {
-                            exercise.speedPerRepeat.negate()
-                        } else {
-                            exercise.transposePerRepeat.negate()
-                        }
-                    } label: {
-                        Image(systemName: "plus.forwardslash.minus")
-                    }
-                }
-                Spacer()
-                Button("Done") { focusedField = nil }
-            }
-        }
+        // The description field's return key inserts a newline rather than
+        // closing the keyboard, so a scroll is what puts it away — the same
+        // swipe down over the keyboard that works on every other screen.
+        .scrollDismissesKeyboard(.interactively)
+        .keyboardBar(onToggleSign: signToggle) { focusedField = nil }
         // Select the whole number when a repetition field is tapped, so typing a new
         // value replaces the old one instead of inserting alongside it. Scoped to the
         // numeric fields by keyboard type (the Name field uses the default keyboard).

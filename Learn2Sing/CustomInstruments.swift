@@ -377,6 +377,8 @@ struct CustomInstrumentDetailView: View {
         }
         .navigationTitle(instrument.name)
         .navigationBarTitleDisplayMode(.inline)
+        // Swiping down over the keyboard puts it away, like everywhere else.
+        .scrollDismissesKeyboard(.interactively)
         .onAppear { pitchText = pitchInputText(instrument.baseFrequency) }
         .alert("Delete Instrument?", isPresented: $isConfirmingDelete) {
             Button("Delete", role: .destructive) {

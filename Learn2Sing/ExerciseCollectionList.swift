@@ -297,6 +297,11 @@ final class ExerciseListController: UIViewController {
         cv.dragDelegate = self
         cv.dropDelegate = self
         cv.dragInteractionEnabled = true
+        // Swiping down over the search field's keyboard puts it away, as on every
+        // other screen. This is the property SwiftUI's own
+        // `.scrollDismissesKeyboard(.interactively)` sets — that modifier only
+        // reaches SwiftUI's scroll views, not a collection view of our own.
+        cv.keyboardDismissMode = .interactive
         // UIKit reports nothing when a lift is abandoned — the finger comes up
         // without ever moving, so no drag session begins and `dragSessionDidEnd`
         // never arrives. This recognizer is here only to notice that touch ending.

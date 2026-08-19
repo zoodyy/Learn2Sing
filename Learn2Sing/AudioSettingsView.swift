@@ -80,21 +80,12 @@ struct AudioSettingsView: View {
         }
         .navigationTitle(L("Audio"))
         .navigationBarTitleDisplayMode(.inline)
-        // The decimal pad has no return key: show a Done bar pinned above the
-        // keyboard while the delay field is edited, and let a scroll dismiss it.
+        // The decimal pad has no return key: the shared keyboard bar's "Done" is
+        // what closes it — in the same place and with the same look it has on
+        // every other keyboard — and a scroll dismisses it too. A delay is never
+        // negative, so this one gets no sign toggle.
         .scrollDismissesKeyboard(.interactively)
-        .safeAreaInset(edge: .bottom) {
-            if micDelayFocused {
-                HStack {
-                    Spacer()
-                    Button("Done") { micDelayFocused = false }
-                        .fontWeight(.semibold)
-                }
-                .padding(.horizontal)
-                .padding(.vertical, 8)
-                .background(.bar)
-            }
-        }
+        .keyboardBar { micDelayFocused = false }
         // Probe for devices the playback configuration hides (a Bluetooth microphone
         // is only visible while the Hands-Free Profile is allowed), so everything
         // that's connected can be picked here.
