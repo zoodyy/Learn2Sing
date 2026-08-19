@@ -58,9 +58,11 @@ T("What the message is: something that's broken, something you'd like added, wha
   "메시지의 종류입니다. 고장 난 부분, 추가되었으면 하는 기능, 앱에 대한 의견, 궁금한 점 중에서 고르세요.",
   "这条消息是关于什么的：出问题的地方、希望添加的功能、对应用的看法，或想问的问题。")
 
-# --- Location ---
-T("Location", "Bereich", "Ubicación", "Emplacement", "Posizione", "Local", "Locatie", "Раздел",
-  "Miejsce", "Konum", "Plats", "場所", "위치", "位置")
+# --- Where in the app ---
+T("Where in the app",
+  "Wo in der App", "Dónde en la app", "Où dans l’appli", "Dove nell’app", "Onde no app",
+  "Waar in de app", "Где в приложении", "Gdzie w aplikacji", "Uygulamada nerede", "Var i appen",
+  "アプリ内の場所", "앱에서의 위치", "应用内的位置")
 T("Other", "Sonstiges", "Otro", "Autre", "Altro", "Outro", "Overig", "Другое", "Inne", "Diğer",
   "Annat", "その他", "기타", "其他")
 T("Optional. The tab your message is about, so it's clear where to look.",

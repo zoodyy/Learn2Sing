@@ -162,7 +162,7 @@ struct FeedbackView: View {
                 }
                 .settingHelp(L("What the message is: something that's broken, something you'd like added, what you make of the app, or something you'd like to know."))
 
-                Picker("Location", selection: $locationRaw) {
+                Picker("Where in the app", selection: $locationRaw) {
                     Text("Not set").tag("")
                     ForEach(FeedbackLocation.allCases) { location in
                         Text(L(location.rawValue)).tag(location.rawValue)
@@ -189,13 +189,20 @@ struct FeedbackView: View {
                     .textContentType(.emailAddress)
                     .textInputAutocapitalization(.never)
                     .autocorrectionDisabled()
-                    .settingHelp(L("Optional, and only needed if you'd like an answer. Left blank, your message is still read."))
             } header: {
                 Text("E-Mail")
             } footer: {
-                if !isEmailUsable {
-                    Text("That doesn't look like an e-mail address.")
-                        .foregroundStyle(.red)
+                // The one field whose explanation stays on screen rather than
+                // hiding behind `settingHelp`'s hold: that an address is optional
+                // is what stops someone leaving without sending, so it can't wait
+                // to be asked for. A malformed address adds a line below it, so
+                // the note itself doesn't move when the warning appears.
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Optional, and only needed if you'd like an answer. Left blank, your message is still read.")
+                    if !isEmailUsable {
+                        Text("That doesn't look like an e-mail address.")
+                            .foregroundStyle(.red)
+                    }
                 }
             }
 
