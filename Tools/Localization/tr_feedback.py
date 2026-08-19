@@ -127,6 +127,10 @@ T("That doesn't look like an e-mail address.",
 # --- Sending ---
 T("Send", "Senden", "Enviar", "Envoyer", "Invia", "Enviar", "Verstuur", "Отправить", "Wyślij",
   "Gönder", "Skicka", "送信", "보내기", "发送")
+T("*Required Fields",
+  "*Pflichtfelder", "*Campos obligatorios", "*Champs obligatoires", "*Campi obbligatori",
+  "*Campos obrigatórios", "*Verplichte velden", "*Обязательные поля", "*Pola wymagane",
+  "*Zorunlu alanlar", "*Obligatoriska fält", "*必須項目", "*필수 항목", "*必填项")
 T("Choose a type before sending.",
   "Wähle vor dem Senden eine Art.", "Elige un tipo antes de enviar.", "Choisissez un type avant d’envoyer.",
   "Scegli un tipo prima di inviare.", "Escolha um tipo antes de enviar.", "Kies een soort voordat je verstuurt.",

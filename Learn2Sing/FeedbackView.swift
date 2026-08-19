@@ -154,11 +154,16 @@ struct FeedbackView: View {
     var body: some View {
         Form {
             Section {
-                Picker("Type", selection: $typeRaw) {
+                // The two required fields are marked with an asterisk, added
+                // beside the label rather than written into the key, so every
+                // language keeps its own word and only the marker is appended.
+                Picker(selection: $typeRaw) {
                     Text("Not set").tag("")
                     ForEach(FeedbackType.allCases) { type in
                         Text(L(type.rawValue)).tag(type.rawValue)
                     }
+                } label: {
+                    Text("Type") + Text(verbatim: " *")
                 }
                 .settingHelp(L("What the message is: something that's broken, something you'd like added, what you make of the app, or something you'd like to know."))
 
@@ -176,7 +181,7 @@ struct FeedbackView: View {
                     .lineLimit(5...15)
                     .focused($isWriting)
             } header: {
-                Text("Message")
+                Text("Message") + Text(verbatim: " *")
             }
 
             Section {
@@ -222,13 +227,22 @@ struct FeedbackView: View {
                 }
                 .disabled(!canSend || isSending)
             } footer: {
-                // Says which of the two required fields the greyed-out button is
-                // still waiting on; the type is asked for first because it's the
-                // one a user is likelier to scroll straight past.
-                if type == nil {
-                    Text("Choose a type before sending.")
-                } else if trimmedMessage.isEmpty {
-                    Text("Write a message before sending.")
+                // The legend for the asterisks above stays put at the top, so
+                // the line below it — which says which of the two required
+                // fields the greyed-out button is still waiting on — can come
+                // and go without moving it. The type is asked for first because
+                // it's the one a user is likelier to scroll straight past.
+                //
+                // `L(_:)` rather than a literal: a `LocalizedStringKey` is
+                // parsed as markdown, where a leading `*` is emphasis waiting
+                // for its closing pair.
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(L("*Required Fields"))
+                    if type == nil {
+                        Text("Choose a type before sending.")
+                    } else if trimmedMessage.isEmpty {
+                        Text("Write a message before sending.")
+                    }
                 }
             }
         }
