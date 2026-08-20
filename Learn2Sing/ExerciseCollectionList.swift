@@ -679,12 +679,31 @@ final class ExerciseListController: UIViewController {
             .map { $0.convert($0.bounds, to: collectionView).maxY }
     }
 
-    /// Whether `point` is past the middle of a row as it sits on screen right
-    /// now — mid-drag the rows have shifted to make room, so this reads the
-    /// presentation layer rather than the resting layout.
-    private func isPastMiddle(ofRowAt indexPath: IndexPath, _ point: CGPoint) -> Bool {
-        guard let cell = collectionView.cellForItem(at: indexPath) else { return false }
-        return point.y > (cell.layer.presentation()?.frame ?? cell.frame).midY
+    /// How many of a category's rows the finger is past, in the list as it looks
+    /// right now — which is the spot the dragged row would take. Mid-drag the
+    /// rows have shifted to make room and the dragged one is out of the list
+    /// altogether, so this counts presentation frames and skips that row; the
+    /// answer is an index into the category without it, which is exactly what
+    /// the drop needs.
+    private func insertionIndex(inSection section: Int, at point: CGPoint, dragged: ItemID?) -> Int {
+        let items = sections[section].items
+        let liftedRow = dragged.flatMap { location(of: $0) }
+            .flatMap { $0.section == section ? $0.item : nil }
+        let visible = collectionView.indexPathsForVisibleItems
+            .filter { $0.section == section }.map(\.item)
+        let firstVisible = visible.min() ?? items.count
+        var index = 0
+        for item in items.indices where item != liftedRow {
+            // Rows off the top of the screen are above the finger; ones off the
+            // bottom (no cell) are below it.
+            if item < firstVisible {
+                index += 1
+            } else if let cell = collectionView.cellForItem(at: IndexPath(item: item, section: section)),
+                      (cell.layer.presentation()?.frame ?? cell.frame).midY < point.y {
+                index += 1
+            }
+        }
+        return index
     }
 
     /// The section whose header `point` is inside.
@@ -845,25 +864,17 @@ extension ExerciseListController: UICollectionViewDragDelegate, UICollectionView
         if let hit = headerSection(at: point), sections[hit].isCollapsed, canDrop(dragged, into: hit) {
             return DropTarget(section: hit, item: nil, isBetweenSections: true)
         }
-        // The gap on screen is where the row is going.
+        // Over a row: the collection view has a gap open under the finger, and
+        // only its *section* is worth taking from what it reports — the index
+        // isn't. It counts the category with the dragged row still in it, and
+        // clamps at the last row, so the last spot and the one before it come
+        // back as the same number. Counting the rows the finger is past says it
+        // outright, in the list as it looks with the gap open.
         if let destination, canDrop(dragged, into: destination.section) {
-            let items = sections[destination.section].items
-            var index = destination.item
-            // The collection view never offers the spot *after* a category's last
-            // row — it answers with the row itself — so that one is read off the
-            // screen: past the middle of the last row means after it.
-            if index == items.count - 1,
-               isPastMiddle(ofRowAt: IndexPath(item: index, section: destination.section), point) {
-                index = items.count
-            }
-            // Its indexes count the list with the row still in its old place. The
-            // drop takes the row out first, so everything after it has moved up
-            // one by the time it goes back in.
-            if let from = dragged.flatMap({ location(of: $0) }),
-               from.section == destination.section, index > from.item {
-                index -= 1
-            }
-            return DropTarget(section: destination.section, item: index, isBetweenSections: false)
+            return DropTarget(section: destination.section,
+                              item: insertionIndex(inSection: destination.section, at: point,
+                                                   dragged: dragged),
+                              isBetweenSections: false)
         }
         return boundaryTarget(at: point, dragged: dragged)
     }
@@ -913,9 +924,19 @@ extension ExerciseListController: UICollectionViewDragDelegate, UICollectionView
         let draggedItemID = draggedItem(in: session)
         // "Insert where the row already is" is what the collection view answers
         // while the finger is over the gap it has open. Echoing that back closes
-        // the gap again, so leave the list as it is and keep the target it has.
+        // the gap again, so the list is left alone — but where that gap ended up
+        // is read afresh, since it may have moved on the back of the last answer.
         if let destinationIndexPath, let from = draggedItemID.flatMap({ location(of: $0) }),
            destinationIndexPath.section == from.section, destinationIndexPath.item == from.item {
+            let section = liveDropTarget?.section ?? from.section
+            if canDrop(draggedItemID, into: section) {
+                liveDropTarget = DropTarget(
+                    section: section,
+                    item: insertionIndex(inSection: section, at: point, dragged: draggedItemID),
+                    isBetweenSections: false
+                )
+                updateInsertionLine(for: nil)
+            }
             return UICollectionViewDropProposal(operation: .move, intent: .unspecified)
         }
         guard session.localDragSession != nil,
