@@ -267,6 +267,12 @@ final class ExerciseListController: UIViewController {
     /// the layout mid-drag cancels the lift (and crashes SwiftUI's equivalent).
     private var pendingSections: [ExerciseListSection]?
     private var isPerformingDrop = false
+    /// Set while the touch is on the line between two categories, where the
+    /// collection view has no insertion point of its own to hand the drop (see
+    /// `boundaryTarget`). Worked out as the finger moves, because by the time the
+    /// row is let go all the coordinator can offer is the gap the list last
+    /// opened, which may be a category away from where the finger ended up.
+    private var boundaryDropTarget: DropTarget?
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -616,22 +622,54 @@ final class ExerciseListController: UIViewController {
         return (sectionIndex, itemIndex)
     }
 
-    /// The section whose header sits under `point`, for drops that land on a
-    /// header (the only way to reach a collapsed category).
-    private func headerSection(at point: CGPoint) -> Int? {
+    /// A section's header, when it's on screen and the section has one — the
+    /// uncategorized group is drawn without.
+    private func header(ofSection sectionIndex: Int) -> ExerciseSectionHeaderView? {
+        guard sectionIndex >= 0, sectionIndex < sections.count else { return nil }
+        return collectionView.supplementaryView(
+            forElementKind: UICollectionView.elementKindSectionHeader,
+            at: IndexPath(item: 0, section: sectionIndex)
+        ) as? ExerciseSectionHeaderView
+    }
+
+    /// Where a section ends on screen: its last row, or its header when it has no
+    /// rows on show (a collapsed or empty category).
+    private func contentBottom(ofSection sectionIndex: Int) -> CGFloat? {
+        guard sectionIndex >= 0, sectionIndex < sections.count else { return nil }
+        if let last = sections[sectionIndex].items.indices.last {
+            let indexPath = IndexPath(item: last, section: sectionIndex)
+            if let cell = collectionView.cellForItem(at: indexPath) {
+                return cell.convert(cell.bounds, to: collectionView).maxY
+            }
+            if let attributes = collectionView.layoutAttributesForItem(at: indexPath) {
+                return attributes.frame.maxY
+            }
+        }
+        return header(ofSection: sectionIndex).map { $0.convert($0.bounds, to: collectionView).maxY }
+    }
+
+    /// The line between two categories that `point` is on, given as the section
+    /// below it. That's the section's header plus the gap above it the category
+    /// above left by ending — the whole run of the list that isn't a row, and so
+    /// the whole run the collection view opens no insertion gap for.
+    private func boundarySection(at point: CGPoint) -> Int? {
         for indexPath in collectionView.indexPathsForVisibleSupplementaryElements(
             ofKind: UICollectionView.elementKindSectionHeader
         ) {
-            guard indexPath.section < sections.count,
-                  let header = collectionView.supplementaryView(
-                      forElementKind: UICollectionView.elementKindSectionHeader, at: indexPath
-                  ) else { continue }
+            guard let header = header(ofSection: indexPath.section) else { continue }
             let frame = header.convert(header.bounds, to: collectionView)
-            if frame.contains(point) {
-                return indexPath.section
-            }
+            let top = min(frame.minY, contentBottom(ofSection: indexPath.section - 1) ?? frame.minY)
+            if point.y >= top, point.y < frame.maxY { return indexPath.section }
         }
         return nil
+    }
+
+    /// Whether `point` is on a section's name rather than in the empty space
+    /// around it — the difference between aiming at a category and aiming at the
+    /// line between two of them.
+    private func isOnName(ofSection sectionIndex: Int, at point: CGPoint) -> Bool {
+        guard let name = header(ofSection: sectionIndex)?.nameFrame(in: collectionView) else { return false }
+        return point.y >= name.minY && point.y < name.maxY
     }
 
     private func leadingSwipeActions(at indexPath: IndexPath) -> UISwipeActionsConfiguration? {
@@ -694,6 +732,7 @@ extension ExerciseListController: UICollectionViewDragDelegate, UICollectionView
         guard onMove != nil,
               indexPath.section < sections.count, sections[indexPath.section].allowsReorder,
               let itemID = dataSource.itemIdentifier(for: indexPath) else { return [] }
+        boundaryDropTarget = nil
         let item = UIDragItem(itemProvider: NSItemProvider(object: itemID.id.uuidString as NSString))
         // The whole ItemID, not just the exercise's: the same exercise can be
         // listed in two sections at once (Home), so only the pair says which of
@@ -739,9 +778,68 @@ extension ExerciseListController: UICollectionViewDragDelegate, UICollectionView
     /// has to be reorderable at all, and — when moves are kept in their section —
     /// has to be the one the row was lifted from.
     private func canDrop(_ dragged: ItemID?, into sectionIndex: Int) -> Bool {
-        guard sectionIndex < sections.count, sections[sectionIndex].allowsReorder else { return false }
+        guard sectionIndex >= 0, sectionIndex < sections.count,
+              sections[sectionIndex].allowsReorder else { return false }
         guard movesStayInSection else { return true }
         return sections[sectionIndex].category == dragged?.section
+    }
+
+    /// Where a drop lands: the section, and the index within it — nil appending,
+    /// which is also what a collapsed category gets, its order being out of sight.
+    private struct DropTarget {
+        var section: Int
+        var item: Int?
+        /// true when the touch is on the line between two categories rather than
+        /// over a row, so the list has no insertion gap open for it.
+        var isBetweenSections: Bool
+    }
+
+    /// Where a drop at `point` would land. `destination` is the insertion point
+    /// the collection view is showing, which it only has while the touch is over
+    /// a row — between two categories it's stale, or nothing at all.
+    private func dropTarget(at point: CGPoint, dragged: ItemID?, destination: IndexPath?) -> DropTarget? {
+        if let below = boundarySection(at: point) {
+            return boundaryTarget(below: below, at: point, dragged: dragged)
+        }
+        guard let destination, canDrop(dragged, into: destination.section) else { return nil }
+        return DropTarget(section: destination.section, item: destination.item, isBetweenSections: false)
+    }
+
+    /// A drop on the line between two categories — `below` being the one whose
+    /// header the touch is on or under. There's no insertion gap to go by there,
+    /// so it's read from what the touch is on and where the row was dragged from:
+    ///
+    /// - a collapsed category's header takes the row wherever it fits: its order
+    ///   is out of sight, and its header is the only way to reach it at all;
+    /// - so does a category's name — the row lands at the top, right under the
+    ///   name it was dropped on;
+    /// - the empty space either side of the name is the line itself, and a row
+    ///   let go there has been carried over it, so it lands on the far side from
+    ///   the one it came from: the end of the category above, or the top of the
+    ///   one below.
+    ///
+    /// The far side matters. Dropping here used to add the row to the end of
+    /// `below` whichever way it came from, so a row dragged *up* to the last spot
+    /// of a category landed at the bottom of the category under it instead, and
+    /// one dragged *down* to the first spot of a category landed at that
+    /// category's bottom.
+    private func boundaryTarget(below: Int, at point: CGPoint, dragged: ItemID?) -> DropTarget? {
+        let above = below - 1
+        let intoBelow = DropTarget(section: below, item: 0, isBetweenSections: true)
+        let intoAbove = above >= 0 ? DropTarget(section: above, item: nil, isBetweenSections: true) : nil
+        let draggedFrom = dragged.flatMap { location(of: $0)?.section }
+        let preferred: [DropTarget?]
+        if sections[below].isCollapsed || isOnName(ofSection: below, at: point) {
+            preferred = [intoBelow, intoAbove]
+        } else if let draggedFrom, draggedFrom > above {
+            // Carried up over the line, from somewhere below it.
+            preferred = [intoAbove, intoBelow]
+        } else {
+            preferred = [intoBelow, intoAbove]
+        }
+        // The far side is only where it lands if that category takes drops at all
+        // (and, on the Home tab, if it's the one the row was lifted from).
+        return preferred.compactMap { $0 }.first { canDrop(dragged, into: $0.section) }
     }
 
     func collectionView(_ collectionView: UICollectionView,
@@ -755,43 +853,36 @@ extension ExerciseListController: UICollectionViewDragDelegate, UICollectionView
 
     func collectionView(_ collectionView: UICollectionView, dropSessionDidUpdate session: UIDropSession,
                         withDestinationIndexPath destinationIndexPath: IndexPath?) -> UICollectionViewDropProposal {
-        guard session.localDragSession != nil else {
+        let point = session.location(in: collectionView)
+        guard session.localDragSession != nil,
+              let target = dropTarget(at: point, dragged: draggedItem(in: session),
+                                      destination: destinationIndexPath)
+        else {
+            boundaryDropTarget = nil
             return UICollectionViewDropProposal(operation: .cancel)
         }
-        let dragged = draggedItem(in: session)
-        if let destinationIndexPath, canDrop(dragged, into: destinationIndexPath.section) {
-            return UICollectionViewDropProposal(operation: .move, intent: .insertAtDestinationIndexPath)
-        }
-        if let headerHit = headerSection(at: session.location(in: collectionView)),
-           canDrop(dragged, into: headerHit) {
-            return UICollectionViewDropProposal(operation: .move, intent: .unspecified)
-        }
-        return UICollectionViewDropProposal(operation: .cancel)
+        boundaryDropTarget = target.isBetweenSections ? target : nil
+        // On the line between two categories there's no gap for the list to open,
+        // so the row is left hovering where the finger has it until it's let go.
+        return UICollectionViewDropProposal(
+            operation: .move,
+            intent: target.isBetweenSections ? .unspecified : .insertAtDestinationIndexPath
+        )
     }
 
     func collectionView(_ collectionView: UICollectionView,
                         performDropWith coordinator: UICollectionViewDropCoordinator) {
         guard let dropItem = coordinator.items.first,
               let dragged = dropItem.dragItem.localObject as? ItemID,
-              let source = location(of: dragged)
+              let source = location(of: dragged),
+              let target = boundaryDropTarget
+                  ?? dropTarget(at: coordinator.session.location(in: collectionView),
+                                dragged: dragged,
+                                destination: coordinator.destinationIndexPath)
         else { return }
         let id = dragged.id
-
-        // Resolve where the item was let go. The header hit-test comes first:
-        // when the touch ends on a header no insertion gap was shown, but UIKit
-        // still reports a (misleading) nearest-row destinationIndexPath.
-        let destinationSection: Int
-        var destinationItem: Int?
-        if let headerHit = headerSection(at: coordinator.session.location(in: collectionView)) {
-            destinationSection = headerHit
-            destinationItem = nil
-        } else if let indexPath = coordinator.destinationIndexPath, indexPath.section < sections.count {
-            destinationSection = indexPath.section
-            destinationItem = indexPath.item
-        } else {
-            return
-        }
-        guard canDrop(dragged, into: destinationSection) else { return }
+        let destinationSection = target.section
+        let destinationItem = target.item
 
         var new = sections
         let moved = new[source.section].items.remove(at: source.item)
@@ -812,7 +903,7 @@ extension ExerciseListController: UICollectionViewDragDelegate, UICollectionView
             }
             finalIndexPath = IndexPath(item: insertIndex, section: destinationSection)
         } else {
-            // Dropped on an expanded category's header: append.
+            // Let go past the end of a category (or on the line under it).
             new[destinationSection].items.append(moved)
             new[destinationSection].totalCount += 1
             finalIndexPath = IndexPath(item: new[destinationSection].items.count - 1,
@@ -870,6 +961,7 @@ extension ExerciseListController: UICollectionViewDragDelegate, UICollectionView
     }
 
     func collectionView(_ collectionView: UICollectionView, dropSessionDidEnd session: UIDropSession) {
+        boundaryDropTarget = nil
         if let pending = pendingSections {
             pendingSections = nil
             setSections(pending, animated: true)
@@ -1116,6 +1208,14 @@ final class ExerciseSectionHeaderView: UICollectionReusableView {
 
     @available(*, unavailable)
     required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
+
+    /// Where the category's name sits, in `view`'s coordinates. The header is
+    /// taller than the name it draws — the space above it belongs to the gap
+    /// between two groups — and a drop tells the two apart (see the list's
+    /// `boundaryTarget`).
+    func nameFrame(in view: UIView) -> CGRect {
+        nameLabel.convert(nameLabel.bounds, to: view)
+    }
 
     func configure(name: String, count: Int, isCollapsed: Bool, showsCount: Bool,
                    showsChevron: Bool, animated: Bool) {
