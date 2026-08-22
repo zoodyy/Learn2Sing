@@ -373,8 +373,8 @@ struct ExerciseReviewView: View {
             lastBeat = max(lastBeat, note.beat + note.length)
         }
         for label in texts {
-            firstBeat = min(firstBeat, label.beat)
-            lastBeat = max(lastBeat, label.beat)
+            firstBeat = min(firstBeat, label.centreBeat)
+            lastBeat = max(lastBeat, label.centreBeat)
         }
         if let sung = samples.first(where: { $0.pitch != nil }) {
             firstBeat = min(firstBeat, sung.beat - delay)

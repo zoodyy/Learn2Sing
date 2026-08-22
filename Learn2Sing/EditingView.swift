@@ -45,6 +45,38 @@ struct MIDIText: Identifiable, Codable, Equatable {
     }
 }
 
+// MARK: - Text label geometry
+//
+// A label's stored `beat` is its left edge, but what the user places is its middle:
+// the editor snaps by the middle and grows the text either side of it. Playback and
+// the review screen draw labels from the same numbers, so the conversion between the
+// two lives here rather than in the editor — a label lands where the editor showed
+// it on every screen. The width is in points, so turning it into beats means the
+// scale the editor laid it out at (`beatW`), whatever a playing screen is zoomed to.
+
+/// How wide the chip around `text` is drawn: the text at the width it actually lays
+/// out at, plus the same padding either side of it. An empty label — one still being
+/// typed — keeps a half-beat chip so there's something to see.
+func midiTextChipWidth(_ text: String) -> CGFloat {
+    max(beatW * 0.5, TextWidths.width(of: text) + textChipPadding * 2)
+}
+
+/// The start beat — what's stored — that puts `text`'s middle on `centre`, without
+/// letting the label hang off the front of the timeline.
+func midiTextBeat(centring text: String, at centre: Double) -> Double {
+    max(0, centre - Double(midiTextChipWidth(text) / beatW) / 2)
+}
+
+extension MIDIText {
+    /// Where this label sits on the timeline: its middle, not the `beat` it starts
+    /// on. Text is placed, dragged and snapped by this, so a label stays put on the
+    /// beat it was set against however long its text gets — and it's what a screen
+    /// drawing the label should centre it on.
+    var centreBeat: Double {
+        beat + Double(midiTextChipWidth(text) / beatW) / 2
+    }
+}
+
 // MARK: - Layout constants
 
 private let rowH: CGFloat = 22
@@ -137,7 +169,7 @@ struct EditingView: View {
         case movingNote(id: UUID, grabDX: Double)
         case pendingText(CGPoint)
         // `grabDX` is how far the press landed from the label's middle, which is what
-        // text is positioned by — see `textCentre(of:)`.
+        // text is positioned by — see `MIDIText.centreBeat`.
         case movingText(id: UUID, grabDX: Double, moved: Bool)
         case erasing
     }
@@ -742,7 +774,7 @@ struct EditingView: View {
         case .idle:
             if let hit = textAt(v.startLocation) {
                 interaction = .movingText(id: hit.id,
-                                          grabDX: beatValue(v.startLocation.x) - textCentre(of: hit),
+                                          grabDX: beatValue(v.startLocation.x) - hit.centreBeat,
                                           moved: false)
             } else {
                 interaction = .pendingText(v.startLocation)
@@ -752,7 +784,7 @@ struct EditingView: View {
             let moved = hypot(v.translation.width, v.translation.height) > 6
             if moved, let i = texts.firstIndex(where: { $0.id == id }) {
                 let centre = snappedTextCentre(beatValue(v.location.x) - grabDX)
-                texts[i].beat = textBeat(centring: texts[i].text, at: centre)
+                texts[i].beat = midiTextBeat(centring: texts[i].text, at: centre)
                 texts[i].pitch = pitchAt(v.location.y)
             }
             interaction = .movingText(id: id, grabDX: grabDX, moved: moved)
@@ -769,7 +801,7 @@ struct EditingView: View {
             // it sits there half a beat wide until the typed text is committed.
             let centre = snappedTextCentre(beatValue(p.x))
             let label = MIDIText(text: "", pitch: pitchAt(p.y),
-                                 beat: textBeat(centring: "", at: centre))
+                                 beat: midiTextBeat(centring: "", at: centre))
             texts.append(label)
             beginEditingText(label.id, isNew: true)
 
@@ -798,9 +830,9 @@ struct EditingView: View {
         } else if let i = texts.firstIndex(where: { $0.id == id }) {
             // Re-hang the label off its middle so the new text grows (or shrinks) to
             // both sides of where the old text sat, keeping it over the same beat.
-            let centre = textCentre(of: texts[i])
+            let centre = texts[i].centreBeat
             texts[i].text = trimmed
-            texts[i].beat = textBeat(centring: trimmed, at: centre)
+            texts[i].beat = midiTextBeat(centring: trimmed, at: centre)
         }
         editingTextID = nil
     }
@@ -969,29 +1001,9 @@ struct EditingView: View {
         CGRect(
             x: CGFloat(label.beat) * beatW,
             y: CGFloat(hiPitch - label.pitch) * rowH,
-            width: textChipWidth(label.text),
+            width: midiTextChipWidth(label.text),
             height: rowH
         )
-    }
-
-    /// How wide the chip around `text` is drawn: the text at the width it actually
-    /// lays out at, plus the same padding either side of it. An empty label — one
-    /// still being typed — keeps a half-beat chip so there's something to see.
-    private func textChipWidth(_ text: String) -> CGFloat {
-        max(beatW * 0.5, TextWidths.width(of: text) + textChipPadding * 2)
-    }
-
-    /// Where a label sits on the timeline: its middle, not the `beat` it starts on.
-    /// Text is placed, dragged and snapped by this, so a label stays put on the beat
-    /// it was set against however long its text gets.
-    private func textCentre(of label: MIDIText) -> Double {
-        label.beat + Double(textChipWidth(label.text) / beatW) / 2
-    }
-
-    /// The start beat — what's actually stored — that puts `text`'s middle on `centre`,
-    /// without letting the label hang off the front of the timeline.
-    private func textBeat(centring text: String, at centre: Double) -> Double {
-        max(0, centre - Double(textChipWidth(text) / beatW) / 2)
     }
 
     /// Where a label's middle lands when it's dropped at `centre`: on the middle of

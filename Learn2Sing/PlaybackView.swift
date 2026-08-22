@@ -1213,7 +1213,8 @@ struct PlaybackView: View {
         var ts: [MIDIText] = []
         for i in 0..<totalClaps {
             ns.append(MIDINote(pitch: delayTestPitch, beat: Double(i), length: 0.1))
-            ts.append(MIDIText(text: L("*clap*"), pitch: delayTestPitch + 3, beat: Double(i)))
+            ts.append(MIDIText(text: L("*clap*"), pitch: delayTestPitch + 3,
+                               beat: midiTextBeat(centring: L("*clap*"), at: Double(i))))
         }
         notes = ns
         texts = ts

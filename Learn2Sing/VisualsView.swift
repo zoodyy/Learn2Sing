@@ -331,8 +331,11 @@ struct PlaybackVisualsView: View {
         return ns
     }()
     private static let demoTextPitch = 70
+    /// One per repetition, centred over the motif's first note the way the editor
+    /// would place it.
     private let demoTexts: [MIDIText] = (0..<200).map {
-        MIDIText(text: "La", pitch: PlaybackVisualsView.demoTextPitch, beat: Double($0) * 4 + 0.15)
+        MIDIText(text: "La", pitch: PlaybackVisualsView.demoTextPitch,
+                 beat: midiTextBeat(centring: "La", at: Double($0) * 4 + 0.45))
     }
     /// Midpoint of the demo notes, used as the centre when following vertically.
     private let demoCenter = Double(60 + 67) / 2

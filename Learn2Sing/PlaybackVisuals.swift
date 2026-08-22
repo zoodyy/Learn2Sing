@@ -544,28 +544,32 @@ func drawPlaybackScene(ctx: GraphicsContext, layout: SceneLayout, beat: Double,
     }
 
     // ── Text labels ───────────────────────────────────────────────────────
+    // Drawn centred on `centreBeat` — the middle the editor placed the label by —
+    // rather than from the `beat` it stores, which is its left edge at the editor's
+    // own scale and lands somewhere else once a screen is zoomed differently.
+    //
     // Only the labels that can actually land on screen are drawn: laying out a `Text`
     // is one of the most expensive things in this pass, and a repeated exercise can
     // carry a hundred labels of which a handful are ever visible. `labelMargin` is a
-    // generous allowance for a label whose start has scrolled past the left edge but
+    // generous allowance for a label whose middle has scrolled past the left edge but
     // whose tail is still showing.
     if !texts.isEmpty {
         let labelMargin: CGFloat = 240
         let leftBeat = beat + Double((pianoW - labelMargin - layout.playheadX) / layout.beatPx)
         let rightBeat = beat + Double((size.width - layout.playheadX) / layout.beatPx)
-        let anyVisible = texts.contains { $0.beat > leftBeat && $0.beat < rightBeat }
+        let anyVisible = texts.contains { $0.centreBeat > leftBeat && $0.centreBeat < rightBeat }
         if anyVisible {
             ctx.drawLayer { layer in
                 layer.clip(to: Path(CGRect(x: pianoW, y: 0,
                                            width: size.width - pianoW, height: size.height)))
-                for label in texts where label.beat > leftBeat && label.beat < rightBeat {
+                for label in texts where label.centreBeat > leftBeat && label.centreBeat < rightBeat {
                     let y = layout.y(Double(label.pitch))
                     guard y > -24, y < size.height + 24 else { continue }   // clear of the label's own height
                     layer.draw(
                         Text(label.text)
                             .font(.system(size: 12, weight: .semibold, design: settings.textFont.design))
                             .foregroundColor(settings.textColor),
-                        at: CGPoint(x: layout.x(label.beat, beat: beat) + 3, y: y), anchor: .leading)
+                        at: CGPoint(x: layout.x(label.centreBeat, beat: beat), y: y), anchor: .center)
                 }
             }
         }
