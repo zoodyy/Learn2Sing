@@ -133,6 +133,8 @@ struct EditingView: View {
         case resizing(id: UUID, edge: ResizeEdge)
         case movingNote(id: UUID, grabDX: Double)
         case pendingText(CGPoint)
+        // `grabDX` is how far the press landed from the label's middle, which is what
+        // text is positioned by — see `textCentre(of:)`.
         case movingText(id: UUID, grabDX: Double, moved: Bool)
         case erasing
     }
@@ -737,7 +739,7 @@ struct EditingView: View {
         case .idle:
             if let hit = textAt(v.startLocation) {
                 interaction = .movingText(id: hit.id,
-                                          grabDX: beatValue(v.startLocation.x) - hit.beat,
+                                          grabDX: beatValue(v.startLocation.x) - textCentre(of: hit),
                                           moved: false)
             } else {
                 interaction = .pendingText(v.startLocation)
@@ -746,7 +748,8 @@ struct EditingView: View {
         case .movingText(let id, let grabDX, _):
             let moved = hypot(v.translation.width, v.translation.height) > 6
             if moved, let i = texts.firstIndex(where: { $0.id == id }) {
-                texts[i].beat = max(0, snapped(beatValue(v.location.x) - grabDX))
+                let centre = snappedTextCentre(beatValue(v.location.x) - grabDX)
+                texts[i].beat = textBeat(centring: texts[i].text, at: centre)
                 texts[i].pitch = pitchAt(v.location.y)
             }
             interaction = .movingText(id: id, grabDX: grabDX, moved: moved)
@@ -759,7 +762,11 @@ struct EditingView: View {
     private func textEnded(_ v: DragGesture.Value) {
         switch interaction {
         case .pendingText(let p):
-            let label = MIDIText(text: "", pitch: pitchAt(p.y), beat: snappedBeat(p.x))
+            // The press marks where the middle of the label goes; it's empty for now, so
+            // it sits there half a beat wide until the typed text is committed.
+            let centre = snappedTextCentre(beatValue(p.x))
+            let label = MIDIText(text: "", pitch: pitchAt(p.y),
+                                 beat: textBeat(centring: "", at: centre))
             texts.append(label)
             beginEditingText(label.id, isNew: true)
 
@@ -786,7 +793,11 @@ struct EditingView: View {
         if trimmed.isEmpty {
             texts.removeAll { $0.id == id }
         } else if let i = texts.firstIndex(where: { $0.id == id }) {
+            // Re-hang the label off its middle so the new text grows (or shrinks) to
+            // both sides of where the old text sat, keeping it over the same beat.
+            let centre = textCentre(of: texts[i])
             texts[i].text = trimmed
+            texts[i].beat = textBeat(centring: trimmed, at: centre)
         }
         editingTextID = nil
     }
@@ -830,13 +841,19 @@ struct EditingView: View {
         return gaps
     }
 
-    /// Is some note already sounding at `beat`?
-    private func isOccupied(_ beat: Double, excluding id: UUID? = nil) -> Bool {
-        notes.contains { note in
+    /// The note sounding at `beat`, if any — at most one ever is, since the editor
+    /// keeps notes off each other.
+    private func noteSounding(at beat: Double, excluding id: UUID? = nil) -> MIDINote? {
+        notes.first { note in
             note.id != id
                 && beat >= note.beat - beatEpsilon
                 && beat < note.beat + note.length - beatEpsilon
         }
+    }
+
+    /// Is some note already sounding at `beat`?
+    private func isOccupied(_ beat: Double, excluding id: UUID? = nil) -> Bool {
+        noteSounding(at: beat, excluding: id) != nil
     }
 
     /// How long a note starting at `beat` may grow before it runs into the next one.
@@ -946,13 +963,40 @@ struct EditingView: View {
     }
 
     private func textRect(for label: MIDIText) -> CGRect {
-        let w = max(beatW * 0.5, CGFloat(label.text.count) * textFontSize * 0.62 + 12)
-        return CGRect(
+        CGRect(
             x: CGFloat(label.beat) * beatW,
             y: CGFloat(hiPitch - label.pitch) * rowH,
-            width: w,
+            width: textChipWidth(label.text),
             height: rowH
         )
+    }
+
+    /// How wide the chip around `text` is drawn, estimated from the character count —
+    /// measuring each label for real would cost a text layout per label per redraw.
+    private func textChipWidth(_ text: String) -> CGFloat {
+        max(beatW * 0.5, CGFloat(text.count) * textFontSize * 0.62 + 12)
+    }
+
+    /// Where a label sits on the timeline: its middle, not the `beat` it starts on.
+    /// Text is placed, dragged and snapped by this, so a label stays put on the beat
+    /// it was set against however long its text gets.
+    private func textCentre(of label: MIDIText) -> Double {
+        label.beat + Double(textChipWidth(label.text) / beatW) / 2
+    }
+
+    /// The start beat — what's actually stored — that puts `text`'s middle on `centre`,
+    /// without letting the label hang off the front of the timeline.
+    private func textBeat(centring text: String, at centre: Double) -> Double {
+        max(0, centre - Double(textChipWidth(text) / beatW) / 2)
+    }
+
+    /// Where a label's middle lands when it's dropped at `centre`: on the middle of
+    /// whatever note it's over — however many rows above or below that note it is,
+    /// since only the sideways position is snapped — and otherwise on the 1/4-beat
+    /// grid, like everything else on the roll.
+    private func snappedTextCentre(_ centre: Double) -> Double {
+        if let note = noteSounding(at: centre) { return note.beat + note.length / 2 }
+        return snapped(centre)
     }
 
     private func noteAt(_ point: CGPoint) -> MIDINote? {
