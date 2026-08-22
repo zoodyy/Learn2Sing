@@ -272,6 +272,18 @@ final class ExerciseListController: UIViewController {
     /// mid-drag to tell the last spot of a category from the one before it, and
     /// by the time the row is let go the list has already sprung back.
     private var liveDropTarget: DropTarget?
+    /// The row in the air. For as long as the drag lasts the list stops listing
+    /// it where it belongs — see `applySnapshot` — and keeps its place itself.
+    private var draggedItem: ItemID?
+    /// The cell standing in for the row in the air — the one drawing nothing.
+    /// Held on to by hand: a hidden cell is not one of `visibleCells`, so there
+    /// is no finding it again by looking.
+    private weak var gapCell: UICollectionViewCell?
+    /// The spot the list is holding open for that row: the gap its category has
+    /// parted to make. nil for the spots the insertion line marks instead — a
+    /// category's first and last — where no gap is opened at all and every other
+    /// row sits where it belongs.
+    private var dragGap: (section: Int, index: Int)?
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -397,6 +409,10 @@ final class ExerciseListController: UIViewController {
                 )))
             }
             cell.accessories = accessories
+            // The row in the air is still listed while the drag lasts — as the
+            // gap being held for it (see dragGap) — but none of it is drawn.
+            cell.isHidden = itemID == self?.draggedItem
+            if cell.isHidden { self?.gapCell = cell }
         }
         dataSource = UICollectionViewDiffableDataSource<String, ItemID>(collectionView: cv) {
             collectionView, indexPath, itemID in
@@ -490,7 +506,23 @@ final class ExerciseListController: UIViewController {
             snapshot.appendItems(section.items.map { ItemID(section: section.category, id: $0.id) },
                                  toSection: section.category)
         }
-        snapshot.reconfigureItems(reconfiguring)
+        // A row in the air is left out of the category it belongs to and put
+        // back only where the list is holding a gap open for it. Taking it out
+        // is what lets a category close ranks again when the drag moves on to a
+        // spot marked by the insertion line instead.
+        if let draggedItem {
+            snapshot.deleteItems([draggedItem])
+            if let gap = dragGap, gap.section < sections.count {
+                let category = sections[gap.section].category
+                let listed = snapshot.itemIdentifiers(inSection: category)
+                if gap.index < listed.count {
+                    snapshot.insertItems([draggedItem], beforeItem: listed[gap.index])
+                } else {
+                    snapshot.appendItems([draggedItem], toSection: category)
+                }
+            }
+        }
+        snapshot.reconfigureItems(reconfiguring.filter { snapshot.indexOfItem($0) != nil })
         dataSource.apply(snapshot, animatingDifferences: animated)
         updateVisibleHeaders(animated: animated)
         // Rows appended below the screen never come into view on their own, so
@@ -649,7 +681,7 @@ final class ExerciseListController: UIViewController {
         // A row gives the line the width of the group boxes; with every category
         // collapsed there are none, so a header stands in.
         let anchor: UIView? = target.map { collectionView.visibleCells.first ?? header(ofSection: $0.section) } ?? nil
-        guard let target, target.isBetweenSections,
+        guard let target, target.drawsLine,
               let reference = anchor.map({ $0.convert($0.bounds, to: collectionView) }),
               let y = insertionLineY(for: target)
         else {
@@ -662,48 +694,78 @@ final class ExerciseListController: UIViewController {
         insertionLine.isHidden = false
     }
 
-    /// Where that line sits: the edge of the category the row would join — under
-    /// its last row, over its first, or under its header when it has no rows on
-    /// show.
+    /// Where that line sits. Every spot it marks is a category's own edge — its
+    /// first or its last, either side of a line between two categories — so it
+    /// goes over the top of the category's first cell or under the bottom of its
+    /// last, or under its header when it has no cells on show. Cells, not rows:
+    /// the gap held for the row in the air is one of them, and where the drop
+    /// would land on top of that gap the line belongs on its far side.
     private func insertionLineY(for target: DropTarget) -> CGFloat? {
-        let section = sections[target.section]
-        if !section.isCollapsed, let last = section.items.indices.last {
-            let index = target.item ?? section.items.count
-            let indexPath = IndexPath(item: min(index, last), section: target.section)
-            if let cell = collectionView.cellForItem(at: indexPath) {
-                let frame = cell.convert(cell.bounds, to: collectionView)
-                return index > last ? frame.maxY : frame.minY
-            }
+        let cells = collectionView.numberOfItems(inSection: target.section)
+        let atTop = (target.item ?? cells) <= 0
+        if !sections[target.section].isCollapsed, cells > 0,
+           let frame = cellFrame(IndexPath(item: atTop ? 0 : cells - 1, section: target.section)) {
+            return atTop ? frame.minY : frame.maxY
         }
         return header(ofSection: target.section)
             .map { $0.convert($0.bounds, to: collectionView).maxY }
     }
 
-    /// How many of a category's rows the finger is past, in the list as it looks
-    /// right now — which is the spot the dragged row would take. Mid-drag the
-    /// rows have shifted to make room and the dragged one is out of the list
-    /// altogether, so this counts presentation frames and skips that row; the
-    /// answer is an index into the category without it, which is exactly what
-    /// the drop needs.
-    private func insertionIndex(inSection section: Int, at point: CGPoint, dragged: ItemID?) -> Int {
-        let items = sections[section].items
-        let liftedRow = dragged.flatMap { location(of: $0) }
-            .flatMap { $0.section == section ? $0.item : nil }
-        let visible = collectionView.indexPathsForVisibleItems
-            .filter { $0.section == section }.map(\.item)
-        let firstVisible = visible.min() ?? items.count
-        var index = 0
-        for item in items.indices where item != liftedRow {
-            // Rows off the top of the screen are above the finger; ones off the
-            // bottom (no cell) are below it.
-            if item < firstVisible {
-                index += 1
-            } else if let cell = collectionView.cellForItem(at: IndexPath(item: item, section: section)),
-                      (cell.layer.presentation()?.frame ?? cell.frame).midY < point.y {
-                index += 1
-            }
+    /// Where a cell sits in the list. Read off the layout rather than the cell:
+    /// the gap held for the row in the air draws nothing, and a hidden cell is
+    /// not one the collection view will hand back. The layout also gives the
+    /// place a cell is on its way to, which is the one worth answering with
+    /// while the rows are still easing into a gap that just moved.
+    private func cellFrame(_ indexPath: IndexPath) -> CGRect? {
+        collectionView.collectionViewLayout.layoutAttributesForItem(at: indexPath)?.frame
+    }
+
+    /// How many of a category's rows the finger is past, which is the spot the
+    /// dragged row would take. The gap being held open doesn't count itself, so
+    /// the answer is an index into the category without the row in the air —
+    /// exactly what the drop needs.
+    ///
+    /// The spot already being shown keeps a little of the finger's travel to
+    /// itself (`spotStickiness`) so a hand that isn't quite still can't flip a
+    /// category back and forth across a row's midpoint.
+    private func insertionIndex(inSection section: Int, at point: CGPoint) -> Int {
+        let rows = displayedRows(inSection: section)
+        func rowsPassed(by y: CGFloat) -> Int {
+            rows.filter { item in
+                guard let frame = cellFrame(IndexPath(item: item, section: section))
+                else { return false }
+                return frame.midY < y
+            }.count
         }
-        return index
+        let index = rowsPassed(by: point.y)
+        guard let held = liveDropTarget.flatMap({ $0.section == section ? $0.item : nil }),
+              held != index
+        else { return index }
+        let stepped = point.y + (index > held ? -spotStickiness : spotStickiness)
+        return rowsPassed(by: stepped) == held ? held : index
+    }
+
+    /// How far past a row's middle the finger has to carry on before the list
+    /// gives up the spot it is already showing.
+    private let spotStickiness: CGFloat = 8
+
+    /// The rows a category is showing right now, as item indexes. The gap being
+    /// held for the row in the air is one of the category's cells but it isn't a
+    /// row — it is the space that row would take — so it is left out.
+    private func displayedRows(inSection section: Int) -> [Int] {
+        let count = collectionView.numberOfItems(inSection: section)
+        let gap = dragGap?.section == section ? dragGap?.index : nil
+        return (0..<count).filter { $0 != gap }
+    }
+
+    /// Whether a spot is the first or the last of its category — the two with no
+    /// row on one side of them. The list opens no gap for those: the category's
+    /// own edge is already there to aim at, and shoving its rows aside to spell
+    /// out a spot beyond them reads as a spot further in. The insertion line
+    /// marks them instead, and every row stays where it belongs.
+    private func isEdgeSpot(_ index: Int?, inSection section: Int) -> Bool {
+        guard let index else { return true }
+        return index <= 0 || index >= displayedRows(inSection: section).count
     }
 
     /// The section whose header `point` is inside.
@@ -808,15 +870,52 @@ extension ExerciseListController: UICollectionViewDragDelegate, UICollectionView
     }
 
     /// The finger has started moving the row it lifted. Says so again in case
-    /// anything (a second finger touching down mid-lift) cleared it in between.
+    /// anything (a second finger touching down mid-lift) cleared it in between,
+    /// and takes the row into the list's own hands for the rest of the drag.
     func collectionView(_ collectionView: UICollectionView, dragSessionWillBegin session: UIDragSession) {
         onDragChange?(true)
+        beginDrag(session.items.first?.localObject as? ItemID)
+    }
+
+    /// The list stops listing the row where it belongs and starts keeping its
+    /// place itself: its cell stays on as the gap being held for it, drawing
+    /// nothing. Which is what lets the gap be taken away again — UIKit opens one
+    /// of its own a spot out from where the drop would land, and won't close or
+    /// move it back once it has.
+    private func beginDrag(_ item: ItemID?) {
+        guard let item, let home = location(of: item) else { return }
+        draggedItem = item
+        // Held where it was lifted from, so nothing stirs until the finger has
+        // gone somewhere.
+        dragGap = (home.section, home.item)
+        gapCell = collectionView.cellForItem(at: IndexPath(item: home.item, section: home.section))
+        gapCell?.isHidden = true
+    }
+
+    /// The drag ended without a drop taking the row: it goes back where it was
+    /// lifted from. A drop hands it back itself (see performDropWith), so this
+    /// finds nothing left to do after one.
+    private func endDrag() {
+        guard draggedItem != nil else { return }
+        draggedItem = nil
+        dragGap = nil
+        showEveryRow()
+        applySnapshot(animated: true, reconfiguring: [])
+    }
+
+    /// Undoes the hiding above — every row is a row again.
+    private func showEveryRow() {
+        gapCell?.isHidden = false
+        gapCell = nil
     }
 
     /// The drag is over — dropped, or sprung back after a cancel.
     func collectionView(_ collectionView: UICollectionView, dragSessionDidEnd session: UIDragSession) {
         updateInsertionLine(for: nil)
         onDragChange?(false)
+        // The safety net for a drag that ended without a drop session to end
+        // with. Deferred so it can never come before the drop itself.
+        DispatchQueue.main.async { [weak self] in self?.endDrag() }
     }
 
     /// A touch that never became a drag has ended: either a lift the user let go
@@ -830,11 +929,6 @@ extension ExerciseListController: UICollectionViewDragDelegate, UICollectionView
         default:
             break
         }
-    }
-
-    /// The item a local drag session is carrying, as its list identity.
-    private func draggedItem(in session: UIDropSession) -> ItemID? {
-        session.localDragSession?.items.first?.localObject as? ItemID
     }
 
     /// Whether the section at `sectionIndex` takes the row `dragged`: the section
@@ -852,29 +946,25 @@ extension ExerciseListController: UICollectionViewDragDelegate, UICollectionView
     private struct DropTarget {
         var section: Int
         var item: Int?
-        /// true when the touch is on the line between two categories rather than
-        /// over a row, so the list has no insertion gap open for it.
-        var isBetweenSections: Bool
+        /// true when the list holds no insertion gap open for this spot — it is
+        /// on the line between two categories, or at the first or last spot of a
+        /// category — and `insertionLine` stands in for one.
+        var drawsLine: Bool
     }
 
-    /// Where a drop at `point` would land. `destination` is the insertion gap the
-    /// collection view is showing; it only has one while the touch is over a row.
-    private func dropTarget(at point: CGPoint, dragged: ItemID?, destination: IndexPath?) -> DropTarget? {
+    /// Where a drop at `point` would land.
+    private func dropTarget(at point: CGPoint, dragged: ItemID?) -> DropTarget? {
         // A collapsed category is only ever reachable through its header.
         if let hit = headerSection(at: point), sections[hit].isCollapsed, canDrop(dragged, into: hit) {
-            return DropTarget(section: hit, item: nil, isBetweenSections: true)
+            return DropTarget(section: hit, item: nil, drawsLine: true)
         }
-        // Over a row: the collection view has a gap open under the finger, and
-        // only its *section* is worth taking from what it reports — the index
-        // isn't. It counts the category with the dragged row still in it, and
-        // clamps at the last row, so the last spot and the one before it come
-        // back as the same number. Counting the rows the finger is past says it
-        // outright, in the list as it looks with the gap open.
-        if let destination, canDrop(dragged, into: destination.section) {
-            return DropTarget(section: destination.section,
-                              item: insertionIndex(inSection: destination.section, at: point,
-                                                   dragged: dragged),
-                              isBetweenSections: false)
+        // Over a row: which category it belongs to is all that is taken from it.
+        // The spot within that category is how many of its rows the finger is
+        // past, in the list as it stands.
+        if let over = collectionView.indexPathForItem(at: point), canDrop(dragged, into: over.section) {
+            let item = insertionIndex(inSection: over.section, at: point)
+            return DropTarget(section: over.section, item: item,
+                              drawsLine: isEdgeSpot(item, inSection: over.section))
         }
         return boundaryTarget(at: point, dragged: dragged)
     }
@@ -897,9 +987,9 @@ extension ExerciseListController: UICollectionViewDragDelegate, UICollectionView
         let below = headerSection(at: point) ?? sectionBelow(point) ?? sections.count
         let above = below - 1
         let intoBelow = below < sections.count
-            ? DropTarget(section: below, item: 0, isBetweenSections: true) : nil
+            ? DropTarget(section: below, item: 0, drawsLine: true) : nil
         let intoAbove = above >= 0
-            ? DropTarget(section: above, item: nil, isBetweenSections: true) : nil
+            ? DropTarget(section: above, item: nil, drawsLine: true) : nil
         let onLowerSide = header(ofSection: below).map {
             point.y >= $0.convert($0.bounds, to: collectionView).midY
         } ?? false
@@ -920,41 +1010,41 @@ extension ExerciseListController: UICollectionViewDragDelegate, UICollectionView
 
     func collectionView(_ collectionView: UICollectionView, dropSessionDidUpdate session: UIDropSession,
                         withDestinationIndexPath destinationIndexPath: IndexPath?) -> UICollectionViewDropProposal {
-        let point = session.location(in: collectionView)
-        let draggedItemID = draggedItem(in: session)
-        // "Insert where the row already is" is what the collection view answers
-        // while the finger is over the gap it has open. Echoing that back closes
-        // the gap again, so the list is left alone — but where that gap ended up
-        // is read afresh, since it may have moved on the back of the last answer.
-        if let destinationIndexPath, let from = draggedItemID.flatMap({ location(of: $0) }),
-           destinationIndexPath.section == from.section, destinationIndexPath.item == from.item {
-            let section = liveDropTarget?.section ?? from.section
-            if canDrop(draggedItemID, into: section) {
-                liveDropTarget = DropTarget(
-                    section: section,
-                    item: insertionIndex(inSection: section, at: point, dragged: draggedItemID),
-                    isBetweenSections: false
-                )
-                updateInsertionLine(for: nil)
-            }
-            return UICollectionViewDropProposal(operation: .move, intent: .unspecified)
-        }
         guard session.localDragSession != nil,
-              let target = dropTarget(at: point, dragged: draggedItemID,
-                                      destination: destinationIndexPath)
+              let target = dropTarget(at: session.location(in: collectionView), dragged: draggedItem)
         else {
             liveDropTarget = nil
+            setDragGap(homeGap)
             updateInsertionLine(for: nil)
             return UICollectionViewDropProposal(operation: .cancel)
         }
         liveDropTarget = target
+        // A spot with rows on both sides is shown by parting them for it. The
+        // rest — a category's first and last spot, and the line between two
+        // categories — are marked by the insertion line alone: the gap goes back
+        // to where the row was lifted from, which puts every row that had parted
+        // on the way there back where it belongs and leaves the list the length
+        // it started at, so nothing shifts out from under the finger.
+        setDragGap(target.drawsLine ? homeGap : target.item.map { (target.section, $0) })
         updateInsertionLine(for: target)
-        // On the line between two categories there's no gap for the list to open,
-        // so the insertion line above stands in for one.
-        return UICollectionViewDropProposal(
-            operation: .move,
-            intent: target.isBetweenSections ? .unspecified : .insertAtDestinationIndexPath
-        )
+        // The list holds that gap itself, so UIKit is asked to leave the
+        // arrangement alone.
+        return UICollectionViewDropProposal(operation: .move, intent: .unspecified)
+    }
+
+    /// Where the row in the air was lifted from — the gap's resting place.
+    private var homeGap: (section: Int, index: Int)? {
+        draggedItem.flatMap { location(of: $0) }.map { ($0.section, $0.item) }
+    }
+
+    /// Hold the gap open at `gap`, or take it away — the rows animate into
+    /// whichever shape that leaves.
+    private func setDragGap(_ gap: (section: Int, index: Int)?) {
+        guard draggedItem != nil,
+              dragGap?.section != gap?.section || dragGap?.index != gap?.index
+        else { return }
+        dragGap = gap
+        applySnapshot(animated: true, reconfiguring: [])
     }
 
     func collectionView(_ collectionView: UICollectionView,
@@ -963,9 +1053,7 @@ extension ExerciseListController: UICollectionViewDragDelegate, UICollectionView
               let dragged = dropItem.dragItem.localObject as? ItemID,
               let source = location(of: dragged),
               let target = liveDropTarget
-                  ?? dropTarget(at: coordinator.session.location(in: collectionView),
-                                dragged: dragged,
-                                destination: coordinator.destinationIndexPath)
+                  ?? dropTarget(at: coordinator.session.location(in: collectionView), dragged: dragged)
         else { return }
         let id = dragged.id
         let destinationSection = target.section
@@ -1014,19 +1102,23 @@ extension ExerciseListController: UICollectionViewDragDelegate, UICollectionView
             updated.exercise.category = category
             rowsByID[id] = updated
         }
-        // Animated, even though the rows are already exactly where this snapshot
-        // puts them: while the finger was down, the drag opened a gap at the
-        // destination and closed the one the row left, so every row in between
-        // has been drawn a place along for the whole drag. That offset is the
-        // collection view's, and it only unwinds as the drop finishes. Applied
-        // *without* animation the move lands on top of it, shifting those rows a
-        // second full row and letting them ease back over the drop — the jump
-        // this used to end on. Animated, the update is timed with the drop
-        // instead, and since it asks for the arrangement already on screen,
-        // nothing moves at all.
+        // The row is the list's to keep again, so the snapshot below lists it
+        // where it was let go rather than in the gap that was held for it.
+        draggedItem = nil
+        dragGap = nil
+        // Animated, and timed with the drop. Let go on a spot the rows had
+        // already parted for, this asks for the arrangement that is on screen
+        // and nothing moves at all; let go on a spot the line marked, this is
+        // what parts them, easing open under the row as it lands rather than
+        // jumping open beneath it.
         applySnapshot(animated: true, reconfiguring: [])
         if let finalIndexPath {
+            // Keep the row itself out of sight until the drop animation has
+            // carried the lifted copy of it home, or both are drawn at once.
+            gapCell = collectionView.cellForItem(at: finalIndexPath) ?? gapCell
+            gapCell?.isHidden = true
             coordinator.drop(dropItem.dragItem, toItemAt: finalIndexPath)
+                .addCompletion { [weak self] _ in self?.showEveryRow() }
         } else if let headerIndex = sections.firstIndex(where: { $0.category == category }),
                   let headerView = collectionView.supplementaryView(
                       forElementKind: UICollectionView.elementKindSectionHeader,
@@ -1037,6 +1129,9 @@ extension ExerciseListController: UICollectionViewDragDelegate, UICollectionView
                 center: CGPoint(x: headerView.bounds.midX, y: headerView.bounds.midY)
             )
             coordinator.drop(dropItem.dragItem, to: target)
+                .addCompletion { [weak self] _ in self?.showEveryRow() }
+        } else {
+            showEveryRow()
         }
         isPerformingDrop = false
 
@@ -1049,6 +1144,7 @@ extension ExerciseListController: UICollectionViewDragDelegate, UICollectionView
 
     func collectionView(_ collectionView: UICollectionView, dropSessionDidEnd session: UIDropSession) {
         liveDropTarget = nil
+        endDrag()
         updateInsertionLine(for: nil)
         if let pending = pendingSections {
             pendingSections = nil
