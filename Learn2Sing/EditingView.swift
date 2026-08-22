@@ -61,10 +61,14 @@ func midiTextChipWidth(_ text: String) -> CGFloat {
     max(beatW * 0.5, TextWidths.width(of: text) + textChipPadding * 2)
 }
 
-/// The start beat — what's stored — that puts `text`'s middle on `centre`, without
-/// letting the label hang off the front of the timeline.
-func midiTextBeat(centring text: String, at centre: Double) -> Double {
-    max(0, centre - Double(midiTextChipWidth(text) / beatW) / 2)
+/// The start beat — what's stored — that puts `text`'s middle on `centre`. A label
+/// may hang off the front of the timeline, but only as far as staying centred on
+/// `firstNoteCentre` — the middle of the exercise's first note — carries it, so a
+/// long label over a note near the start keeps its place over that note instead of
+/// being shoved right. With no note to centre on it stops at the start line.
+func midiTextBeat(centring text: String, at centre: Double, firstNoteCentre: Double? = nil) -> Double {
+    let half = Double(midiTextChipWidth(text) / beatW) / 2
+    return max(centre, min(half, firstNoteCentre ?? half)) - half
 }
 
 extension MIDIText {
@@ -171,6 +175,9 @@ struct EditingView: View {
         // `grabDX` is how far the press landed from the label's middle, which is what
         // text is positioned by — see `MIDIText.centreBeat`.
         case movingText(id: UUID, grabDX: Double, moved: Bool)
+        // A press that landed on the black margin before the first beat, where nothing
+        // can be placed. It does nothing until the finger lifts.
+        case deadSpace
         case erasing
     }
 
@@ -207,28 +214,77 @@ struct EditingView: View {
 
     private var gridW: CGFloat { CGFloat(totalBeats) * beatW }
 
+    // MARK: - Dead space before the first beat
+    //
+    // A label is placed by its middle, so a long one over a note near the start
+    // reaches back past beat 0 — where the grid, and the exercise, begin. Rather than
+    // shove such a label right, off the note it annotates, the roll grows a margin of
+    // dead space to the left of beat 0, wide enough for whatever hangs off the front.
+    // It's drawn flat black with no grid on it and nothing can be placed there, so the
+    // first vertical line still reads as where the exercise starts.
+
+    /// The middle of the first note — as far left as a label may ever be centred,
+    /// however wide it grows. `nil` when there's no note to centre on, and labels stop
+    /// at beat 0 instead.
+    private var firstNoteCentre: Double? {
+        guard let first = notes.min(by: { $0.beat < $1.beat }) else { return nil }
+        return first.beat + first.length / 2
+    }
+
+    /// How far left of beat 0 a label reading `text` may reach: what's left of its
+    /// half-width once it's pulled back to the furthest-left middle it may sit on.
+    private func maxOverhang(of text: String) -> Double {
+        let half = Double(midiTextChipWidth(text) / beatW) / 2
+        return max(0, half - (firstNoteCentre ?? half))
+    }
+
+    /// How far the roll reaches left of beat 0, in beats: as far as the label that
+    /// hangs furthest off the front. While a label is being dragged it's as far as
+    /// that label *could* reach, so the margin — and with it the whole grid — holds
+    /// still under the finger for the length of the drag instead of growing into it.
+    private var leadBeats: Double {
+        var lead = 0.0
+        for label in texts { lead = max(lead, -min(0, label.beat)) }
+        if case .movingText(let id, _, _) = interaction,
+           let dragged = texts.first(where: { $0.id == id }) {
+            lead = max(lead, maxOverhang(of: dragged.text))
+        }
+        return lead
+    }
+
+    private var leadW: CGFloat { CGFloat(leadBeats) * beatW }
+
+    /// The whole scrollable width: the dead margin plus the grid itself.
+    private var contentW: CGFloat { leadW + gridW }
+
     private var bpm: Double { exercise?.bpm ?? 120 }
+
+    /// The roll: the fixed piano-key column beside the grid, which scrolls sideways
+    /// under it. Kept out of `body` so the compiler can still type-check that.
+    private var rollScroller: some View {
+        ScrollView(.vertical, showsIndicators: true) {
+            HStack(alignment: .top, spacing: 0) {
+                pianoKeysCanvas
+                ScrollView(.horizontal, showsIndicators: true) {
+                    rollCanvas
+                        .frame(width: contentW, height: gridH)
+                        .overlay(alignment: .topLeading) { playheadOverlay }
+                        .highPriorityGesture(rollGesture, including: tool == .hand ? .none : .all)
+                }
+                .scrollPosition($scrollPos)
+                .onScrollGeometryChange(for: CGRect.self) { g in
+                    CGRect(origin: g.contentOffset, size: g.containerSize)
+                } action: { _, new in
+                    scrollGeom = new
+                }
+            }
+        }
+    }
 
     var body: some View {
         VStack(spacing: 0) {
             rulerRow
-            ScrollView(.vertical, showsIndicators: true) {
-                HStack(alignment: .top, spacing: 0) {
-                    pianoKeysCanvas
-                    ScrollView(.horizontal, showsIndicators: true) {
-                        rollCanvas
-                            .frame(width: gridW, height: gridH)
-                            .overlay(alignment: .topLeading) { playheadOverlay }
-                            .highPriorityGesture(rollGesture, including: tool == .hand ? .none : .all)
-                    }
-                    .scrollPosition($scrollPos)
-                    .onScrollGeometryChange(for: CGRect.self) { g in
-                        CGRect(origin: g.contentOffset, size: g.containerSize)
-                    } action: { _, new in
-                        scrollGeom = new
-                    }
-                }
-            }
+            rollScroller
             transportBar
         }
         .background(Color.black)
@@ -295,6 +351,14 @@ struct EditingView: View {
         }
         .onChange(of: notes) { _, _ in saveNotes() }
         .onChange(of: texts) { _, _ in saveTexts() }
+        .onChange(of: leadW) { old, new in holdScroll(throughMarginChange: new - old) }
+    }
+
+    /// The scroll offset is measured from the content's leading edge, and the dead
+    /// margin growing or shrinking is that edge moving: slide the offset by the same
+    /// amount so the grid stays where it was instead of jumping sideways.
+    private func holdScroll(throughMarginChange delta: CGFloat) {
+        scrollPos.scrollTo(x: max(0, scrollGeom.minX + delta))
     }
 
     // MARK: - Playback
@@ -350,7 +414,7 @@ struct EditingView: View {
     /// jump the scroll so it re-enters near the left edge.
     private func followPlayhead() {
         guard isPlaying, scrollGeom.width > 0 else { return }
-        let x = CGFloat(displayBeat) * beatW
+        let x = leadW + CGFloat(displayBeat) * beatW
         if x > scrollGeom.maxX - 24 || x < scrollGeom.minX {
             let target = max(0, x - scrollGeom.width * 0.2)
             withAnimation(.easeInOut(duration: 0.2)) { scrollPos.scrollTo(x: target) }
@@ -393,10 +457,14 @@ struct EditingView: View {
             TimelineView(.animation(minimumInterval: nil, paused: !isPlaying)) { _ in
                 Canvas { ctx, size in
                     ctx.fill(Path(CGRect(origin: .zero, size: size)), with: .color(Color(white: 0.13)))
-                    ctx.translateBy(x: -scrollGeom.minX, y: 0)
+                    ctx.translateBy(x: leadW - scrollGeom.minX, y: 0)
+                    // Black over the dead margin here too, so the exercise starts on the
+                    // same line on the ruler as it does on the grid.
+                    ctx.fill(Path(CGRect(x: -leadW, y: 0, width: leadW, height: size.height)),
+                             with: .color(.black))
 
-                    let first = max(0, Int(scrollGeom.minX / beatW))
-                    let last = min(totalBeats, Int((scrollGeom.minX + size.width) / beatW) + 1)
+                    let first = max(0, Int((scrollGeom.minX - leadW) / beatW))
+                    let last = min(totalBeats, Int((scrollGeom.minX - leadW + size.width) / beatW) + 1)
                     if first <= last {
                         for beat in first...last {
                             let x = CGFloat(beat) * beatW
@@ -439,7 +507,7 @@ struct EditingView: View {
         DragGesture(minimumDistance: 0)
             .onChanged { v in
                 if isPlaying { stopPlayback() }
-                let beat = Double(v.location.x + scrollGeom.minX) / Double(beatW)
+                let beat = Double(v.location.x + scrollGeom.minX - leadW) / Double(beatW)
                 playheadBeat = min(Double(totalBeats), max(0, snapped(beat)))
             }
     }
@@ -449,7 +517,7 @@ struct EditingView: View {
     private var playheadOverlay: some View {
         TimelineView(.animation(minimumInterval: nil, paused: !isPlaying)) { _ in
             Canvas { ctx, size in
-                let x = CGFloat(displayBeat) * beatW
+                let x = leadW + CGFloat(displayBeat) * beatW
                 guard x >= 0, x <= size.width else { return }
                 var line = Path()
                 line.move(to: CGPoint(x: x, y: 0))
@@ -457,7 +525,7 @@ struct EditingView: View {
                 ctx.stroke(line, with: .color(.red.opacity(0.9)), lineWidth: 1.5)
             }
         }
-        .frame(width: gridW, height: gridH)
+        .frame(width: contentW, height: gridH)
         .allowsHitTesting(false)
     }
 
@@ -549,6 +617,12 @@ struct EditingView: View {
         let shown = liveNotes
         let overlaps = overlapSpans(in: shown)
         return Canvas { ctx, _ in
+            // The dead margin: flat black, no rows and no lines, so it's plain that
+            // nothing goes there. Only a label hanging off the front reaches over it —
+            // the labels are drawn last, on top.
+            ctx.fill(Path(CGRect(x: 0, y: 0, width: leadW, height: gridH)), with: .color(.black))
+            ctx.translateBy(x: leadW, y: 0)
+
             // Row backgrounds
             for row in 0..<totalRows {
                 let pitch = hiPitch - row
@@ -657,8 +731,12 @@ struct EditingView: View {
     private func penChanged(_ v: DragGesture.Value) {
         switch interaction {
         case .idle:
+            guard beatValue(v.startLocation.x) >= 0 else {
+                interaction = .deadSpace
+                break
+            }
             if let hit = noteAt(v.startLocation) {
-                if let edge = resizeEdge(of: hit, x: v.startLocation.x) {
+                if let edge = resizeEdge(of: hit, x: gridPoint(v.startLocation).x) {
                     interaction = .resizing(id: hit.id, edge: edge)
                 } else {
                     interaction = .movingNote(id: hit.id,
@@ -773,9 +851,12 @@ struct EditingView: View {
         switch interaction {
         case .idle:
             if let hit = textAt(v.startLocation) {
+                // A label reaching over the margin is grabbed by that part of it too.
                 interaction = .movingText(id: hit.id,
                                           grabDX: beatValue(v.startLocation.x) - hit.centreBeat,
                                           moved: false)
+            } else if beatValue(v.startLocation.x) < 0 {
+                interaction = .deadSpace
             } else {
                 interaction = .pendingText(v.startLocation)
             }
@@ -784,7 +865,8 @@ struct EditingView: View {
             let moved = hypot(v.translation.width, v.translation.height) > 6
             if moved, let i = texts.firstIndex(where: { $0.id == id }) {
                 let centre = snappedTextCentre(beatValue(v.location.x) - grabDX)
-                texts[i].beat = midiTextBeat(centring: texts[i].text, at: centre)
+                texts[i].beat = midiTextBeat(centring: texts[i].text, at: centre,
+                                             firstNoteCentre: firstNoteCentre)
                 texts[i].pitch = pitchAt(v.location.y)
             }
             interaction = .movingText(id: id, grabDX: grabDX, moved: moved)
@@ -801,7 +883,8 @@ struct EditingView: View {
             // it sits there half a beat wide until the typed text is committed.
             let centre = snappedTextCentre(beatValue(p.x))
             let label = MIDIText(text: "", pitch: pitchAt(p.y),
-                                 beat: midiTextBeat(centring: "", at: centre))
+                                 beat: midiTextBeat(centring: "", at: centre,
+                                                    firstNoteCentre: firstNoteCentre))
             texts.append(label)
             beginEditingText(label.id, isNew: true)
 
@@ -832,7 +915,8 @@ struct EditingView: View {
             // both sides of where the old text sat, keeping it over the same beat.
             let centre = texts[i].centreBeat
             texts[i].text = trimmed
-            texts[i].beat = midiTextBeat(centring: trimmed, at: centre)
+            texts[i].beat = midiTextBeat(centring: trimmed, at: centre,
+                                         firstNoteCentre: firstNoteCentre)
         }
         editingTextID = nil
     }
@@ -1015,12 +1099,20 @@ struct EditingView: View {
         return snapped(centre)
     }
 
+    /// Touches land in the roll's own space, which starts at the dead margin; notes
+    /// and labels are laid out in the grid's, which starts at beat 0.
+    private func gridPoint(_ point: CGPoint) -> CGPoint {
+        CGPoint(x: point.x - leadW, y: point.y)
+    }
+
     private func noteAt(_ point: CGPoint) -> MIDINote? {
-        notes.last { rect(for: $0).contains(point) }
+        let p = gridPoint(point)
+        return notes.last { rect(for: $0).contains(p) }
     }
 
     private func textAt(_ point: CGPoint) -> MIDIText? {
-        texts.last { textRect(for: $0).contains(point) }
+        let p = gridPoint(point)
+        return texts.last { textRect(for: $0).contains(p) }
     }
 
     /// Which end of `note` a press at `x` takes hold of, or `nil` for the middle of it,
@@ -1040,7 +1132,7 @@ struct EditingView: View {
     }
 
     private func beatValue(_ x: CGFloat) -> Double {
-        Double(x) / Double(beatW)
+        Double(x - leadW) / Double(beatW)
     }
 
     private func snappedBeat(_ x: CGFloat) -> Double {
