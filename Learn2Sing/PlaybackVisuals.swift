@@ -374,6 +374,19 @@ func repetitionPitches(notes: [MIDINote], beat: Double, repeatLayout: RepeatLayo
     return pitches
 }
 
+// MARK: - Text label width
+
+/// Half the width a text label takes on screen, in points: how far its middle — the
+/// `centreBeat` it's drawn on — may sit past an edge of the screen while part of it
+/// is still showing. The measurement is the editor's, taken at the same 12pt
+/// semibold this screen draws at, widened by a third because a label may be shown in
+/// any of the `PlaybackFont` designs and monospaced lays out wider than the system
+/// font it was measured in. It only decides when a label starts being drawn, so
+/// erring wide costs nothing but a draw the clip throws away.
+private func labelHalfWidth(_ text: String) -> CGFloat {
+    midiTextChipWidth(text) / 2 * 1.3
+}
+
 // MARK: - Shared scene renderer
 
 /// Draws the scrolling note scene used by both the live playback screen and the
@@ -550,19 +563,22 @@ func drawPlaybackScene(ctx: GraphicsContext, layout: SceneLayout, beat: Double,
     //
     // Only the labels that can actually land on screen are drawn: laying out a `Text`
     // is one of the most expensive things in this pass, and a repeated exercise can
-    // carry a hundred labels of which a handful are ever visible. `labelMargin` is a
-    // generous allowance for a label whose middle has scrolled past the left edge but
-    // whose tail is still showing.
+    // carry a hundred labels of which a handful are ever visible. A label counts as
+    // on screen from the moment any part of it would show, which is its own
+    // half-width either side of the visible band — waiting for its middle to arrive
+    // would pop a long label into view whole, long after its front should have
+    // scrolled in. What still hangs over an edge is the clip's problem.
     if !texts.isEmpty {
-        let labelMargin: CGFloat = 240
-        let leftBeat = beat + Double((pianoW - labelMargin - layout.playheadX) / layout.beatPx)
-        let rightBeat = beat + Double((size.width - layout.playheadX) / layout.beatPx)
-        let anyVisible = texts.contains { $0.centreBeat > leftBeat && $0.centreBeat < rightBeat }
-        if anyVisible {
+        let shown = texts.filter { label in
+            let x = layout.x(label.centreBeat, beat: beat)
+            let half = labelHalfWidth(label.text)
+            return x + half > pianoW && x - half < size.width
+        }
+        if !shown.isEmpty {
             ctx.drawLayer { layer in
                 layer.clip(to: Path(CGRect(x: pianoW, y: 0,
                                            width: size.width - pianoW, height: size.height)))
-                for label in texts where label.centreBeat > leftBeat && label.centreBeat < rightBeat {
+                for label in shown {
                     let y = layout.y(Double(label.pitch))
                     guard y > -24, y < size.height + 24 else { continue }   // clear of the label's own height
                     layer.draw(
