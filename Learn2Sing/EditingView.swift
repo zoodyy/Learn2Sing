@@ -1,5 +1,6 @@
 import SwiftUI
 import Combine
+import UIKit
 
 // MARK: - Model
 
@@ -57,6 +58,8 @@ private let freeMeasures = 4
 private let totalRows = hiPitch - loPitch + 1
 private let gridH = CGFloat(totalRows) * rowH
 private let textFontSize: CGFloat = 12
+/// Gap between a text label's edge and the text inside it, the same on both sides.
+private let textChipPadding: CGFloat = 5
 private let rulerH: CGFloat = 26
 /// Shortest note the grid can hold, matching the 1/4-beat snap.
 private let minLength: Double = 0.25
@@ -588,8 +591,8 @@ struct EditingView: View {
                     Text(label.text.isEmpty ? " " : label.text)
                         .font(.system(size: textFontSize, weight: .semibold))
                         .foregroundColor(.orange),
-                    at: CGPoint(x: rect.minX + 5, y: rect.midY),
-                    anchor: .leading
+                    at: CGPoint(x: rect.midX, y: rect.midY),
+                    anchor: .center
                 )
             }
         }
@@ -971,10 +974,11 @@ struct EditingView: View {
         )
     }
 
-    /// How wide the chip around `text` is drawn, estimated from the character count —
-    /// measuring each label for real would cost a text layout per label per redraw.
+    /// How wide the chip around `text` is drawn: the text at the width it actually
+    /// lays out at, plus the same padding either side of it. An empty label — one
+    /// still being typed — keeps a half-beat chip so there's something to see.
     private func textChipWidth(_ text: String) -> CGFloat {
-        max(beatW * 0.5, CGFloat(text.count) * textFontSize * 0.62 + 12)
+        max(beatW * 0.5, TextWidths.width(of: text) + textChipPadding * 2)
     }
 
     /// Where a label sits on the timeline: its middle, not the `beat` it starts on.
@@ -1082,5 +1086,22 @@ struct EditingView: View {
               let saved = try? JSONDecoder().decode([MIDIText].self, from: data)
         else { return }
         texts = saved
+    }
+}
+
+// MARK: - Text measurement
+
+/// The widths the label texts lay out at, measured once each. A string's width never
+/// changes, and the roll asks for every label's width on every redraw — which during
+/// a drag is every touch.
+private enum TextWidths {
+    private static let font = UIFont.systemFont(ofSize: textFontSize, weight: .semibold)
+    private static var widths: [String: CGFloat] = [:]
+
+    static func width(of text: String) -> CGFloat {
+        if let known = widths[text] { return known }
+        let width = (text as NSString).size(withAttributes: [.font: font]).width
+        widths[text] = width
+        return width
     }
 }
