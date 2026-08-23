@@ -1103,9 +1103,14 @@ extension ExerciseListController: UICollectionViewDragDelegate, UICollectionView
             rowsByID[id] = updated
         }
         // The row is the list's to keep again, so the snapshot below lists it
-        // where it was let go rather than in the gap that was held for it.
+        // where it was let go rather than in the gap that was held for it — and
+        // it is drawn again from this moment on. Waiting for the drop animation
+        // to finish before letting it back in is what UIKit does with its own
+        // gap, but the animation only reports itself done well after the lifted
+        // copy has landed, leaving a hole where the row should already be.
         draggedItem = nil
         dragGap = nil
+        showEveryRow()
         // Animated, and timed with the drop. Let go on a spot the rows had
         // already parted for, this asks for the arrangement that is on screen
         // and nothing moves at all; let go on a spot the line marked, this is
@@ -1113,12 +1118,7 @@ extension ExerciseListController: UICollectionViewDragDelegate, UICollectionView
         // jumping open beneath it.
         applySnapshot(animated: true, reconfiguring: [])
         if let finalIndexPath {
-            // Keep the row itself out of sight until the drop animation has
-            // carried the lifted copy of it home, or both are drawn at once.
-            gapCell = collectionView.cellForItem(at: finalIndexPath) ?? gapCell
-            gapCell?.isHidden = true
             coordinator.drop(dropItem.dragItem, toItemAt: finalIndexPath)
-                .addCompletion { [weak self] _ in self?.showEveryRow() }
         } else if let headerIndex = sections.firstIndex(where: { $0.category == category }),
                   let headerView = collectionView.supplementaryView(
                       forElementKind: UICollectionView.elementKindSectionHeader,
@@ -1129,9 +1129,6 @@ extension ExerciseListController: UICollectionViewDragDelegate, UICollectionView
                 center: CGPoint(x: headerView.bounds.midX, y: headerView.bounds.midY)
             )
             coordinator.drop(dropItem.dragItem, to: target)
-                .addCompletion { [weak self] _ in self?.showEveryRow() }
-        } else {
-            showEveryRow()
         }
         isPerformingDrop = false
 
