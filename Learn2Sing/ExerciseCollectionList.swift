@@ -158,9 +158,9 @@ struct ExerciseCollectionList: UIViewControllerRepresentable {
 ///
 /// The two directions are deliberately not mirror images. Picking a row up is
 /// the moment worth announcing, so "Reordering" springs out of nothing —
-/// small, overshooting past its size, settling back — while letting go is just
-/// a quick cross-fade back to the tab's own title, the same understated switch
-/// it always was.
+/// small, ballooning to about twice its settled size, dropping back — while
+/// letting go is just a quick cross-fade back to the tab's own title, the same
+/// understated switch it always was.
 ///
 /// A `.principal` toolbar item rather than `.navigationTitle`, which is UIKit's
 /// own label and can't be recoloured. The views set both: the title still names
@@ -173,6 +173,20 @@ struct ReorderableListTitle: View {
     /// is the eye-catching part; the word is still fading in at that point, so
     /// it reads as appearing from nothing rather than as a shrunken label.
     private let restingScale: CGFloat = 0.4
+
+    /// How far past its settled size the word sails at the top of the pop —
+    /// about double, so the change of title is impossible to miss. A spring on
+    /// its own can't throw a value that far past its target (the overshoot it
+    /// can muster from a positive starting scale is a few per cent, which was
+    /// easy to miss entirely), hence the hand-drawn arc below.
+    private let peakScale: CGFloat = 2
+
+    /// Counts pickups rather than following `isDragging`, so the arc only ever
+    /// runs in the growing direction. Letting go leaves the word parked at full
+    /// size to fade out on its own, exactly as before, and the next pickup
+    /// re-arms `restingScale` at the start of its own run — while the word is
+    /// invisible, so the reset is never seen.
+    @State private var popCount = 0
 
     var body: some View {
         // Both words are always laid out, one on top of the other, and only their
@@ -189,16 +203,6 @@ struct ReorderableListTitle: View {
                 .accessibilityHidden(isDragging)
             Text(L("Reordering"))
                 .foregroundStyle(Color.accentColor)
-                .scaleEffect(isDragging ? 1 : restingScale)
-                // A springy `bounce` is what supplies the overshoot: the word
-                // sails past full size and is pulled back to it. Letting go
-                // instead holds the size until the word is fully invisible and
-                // only then re-arms the small starting scale, so the way back
-                // is a plain fade with no shrinking to see.
-                .animation(isDragging
-                           ? .spring(duration: 0.4, bounce: 0.6)
-                           : .easeOut(duration: 0.01).delay(0.15),
-                           value: isDragging)
                 // Faster than the outgoing title's fade so the word is legible
                 // early and the growth is the part that's actually watched.
                 .opacity(isDragging ? 1 : 0)
@@ -206,9 +210,26 @@ struct ReorderableListTitle: View {
                            ? .easeOut(duration: 0.12)
                            : .easeInOut(duration: 0.15),
                            value: isDragging)
+                // The pop: out of nothing, up past double size, then pulled
+                // back down to the size it keeps for as long as the row is
+                // held — the shape a bouncy spring drew before, with an
+                // overshoot big enough to actually catch the eye. The settle
+                // is a spring, so it still dips a shade under full size and is
+                // drawn back up rather than stopping dead.
+                .keyframeAnimator(initialValue: restingScale,
+                                  trigger: popCount) { view, scale in
+                    view.scaleEffect(scale)
+                } keyframes: { _ in
+                    LinearKeyframe(peakScale, duration: 0.18, timingCurve: .easeOut)
+                    SpringKeyframe(1, duration: 0.34,
+                                   spring: Spring(duration: 0.3, bounce: 0.3))
+                }
                 .accessibilityHidden(!isDragging)
         }
         .font(.headline)
+        .onChange(of: isDragging) { _, dragging in
+            if dragging { popCount += 1 }
+        }
     }
 }
 
