@@ -281,9 +281,18 @@ final class ExerciseListController: UIViewController {
     private weak var gapCell: UICollectionViewCell?
     /// The spot the list is holding open for that row: the gap its category has
     /// parted to make. nil for the spots the insertion line marks instead — a
-    /// category's first and last — where no gap is opened at all and every other
-    /// row sits where it belongs.
+    /// category's first and last — where the row is listed nowhere and every
+    /// category stands as if it had never held it.
     private var dragGap: (section: Int, index: Int)?
+    /// Where the finger was when the list last changed shape under it. Taking
+    /// the row out of the list, or putting it back, slides every row after it
+    /// along by its height — which would otherwise hand the finger a different
+    /// spot without it having moved at all (the insertion line jumping to the
+    /// next category as a drag reaches the end of one). The spot it was aiming
+    /// at stands until it has travelled half a row from there.
+    private var gapAnchor: CGFloat?
+    /// How tall the row in the air is, measured as it was lifted.
+    private var draggedRowHeight: CGFloat = 44
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -885,10 +894,13 @@ extension ExerciseListController: UICollectionViewDragDelegate, UICollectionView
     private func beginDrag(_ item: ItemID?) {
         guard let item, let home = location(of: item) else { return }
         draggedItem = item
-        // Held where it was lifted from, so nothing stirs until the finger has
-        // gone somewhere.
+        // Held where it was lifted from until the first drop update says
+        // otherwise, so the list doesn't stir before the drag is under way.
         dragGap = (home.section, home.item)
-        gapCell = collectionView.cellForItem(at: IndexPath(item: home.item, section: home.section))
+        gapAnchor = nil
+        let indexPath = IndexPath(item: home.item, section: home.section)
+        draggedRowHeight = cellFrame(indexPath)?.height ?? draggedRowHeight
+        gapCell = collectionView.cellForItem(at: indexPath)
         gapCell?.isHidden = true
     }
 
@@ -899,6 +911,7 @@ extension ExerciseListController: UICollectionViewDragDelegate, UICollectionView
         guard draggedItem != nil else { return }
         draggedItem = nil
         dragGap = nil
+        gapAnchor = nil
         showEveryRow()
         applySnapshot(animated: true, reconfiguring: [])
     }
@@ -1010,40 +1023,45 @@ extension ExerciseListController: UICollectionViewDragDelegate, UICollectionView
 
     func collectionView(_ collectionView: UICollectionView, dropSessionDidUpdate session: UIDropSession,
                         withDestinationIndexPath destinationIndexPath: IndexPath?) -> UICollectionViewDropProposal {
+        let point = session.location(in: collectionView)
         guard session.localDragSession != nil,
-              let target = dropTarget(at: session.location(in: collectionView), dragged: draggedItem)
+              var target = dropTarget(at: point, dragged: draggedItem)
         else {
             liveDropTarget = nil
-            setDragGap(homeGap)
+            setDragGap(nil, at: point.y)
             updateInsertionLine(for: nil)
             return UICollectionViewDropProposal(operation: .cancel)
+        }
+        // A spot the list has just changed shape for keeps the finger's aim
+        // (see gapAnchor).
+        if let anchor = gapAnchor, let held = liveDropTarget,
+           abs(point.y - anchor) < draggedRowHeight / 2 {
+            target = held
+        } else {
+            gapAnchor = nil
         }
         liveDropTarget = target
         // A spot with rows on both sides is shown by parting them for it. The
         // rest — a category's first and last spot, and the line between two
-        // categories — are marked by the insertion line alone: the gap goes back
-        // to where the row was lifted from, which puts every row that had parted
-        // on the way there back where it belongs and leaves the list the length
-        // it started at, so nothing shifts out from under the finger.
-        setDragGap(target.drawsLine ? homeGap : target.item.map { (target.section, $0) })
+        // categories — are marked by the insertion line alone, and the row is
+        // listed nowhere at all: every category it isn't going into closes
+        // ranks, the one it came from included.
+        setDragGap(target.drawsLine ? nil : target.item.map { (target.section, $0) }, at: point.y)
         updateInsertionLine(for: target)
         // The list holds that gap itself, so UIKit is asked to leave the
         // arrangement alone.
         return UICollectionViewDropProposal(operation: .move, intent: .unspecified)
     }
 
-    /// Where the row in the air was lifted from — the gap's resting place.
-    private var homeGap: (section: Int, index: Int)? {
-        draggedItem.flatMap { location(of: $0) }.map { ($0.section, $0.item) }
-    }
-
     /// Hold the gap open at `gap`, or take it away — the rows animate into
-    /// whichever shape that leaves.
-    private func setDragGap(_ gap: (section: Int, index: Int)?) {
+    /// whichever shape that leaves, and the finger's aim is pinned to `y` while
+    /// they do (see gapAnchor).
+    private func setDragGap(_ gap: (section: Int, index: Int)?, at y: CGFloat) {
         guard draggedItem != nil,
               dragGap?.section != gap?.section || dragGap?.index != gap?.index
         else { return }
         dragGap = gap
+        gapAnchor = y
         applySnapshot(animated: true, reconfiguring: [])
     }
 
@@ -1110,6 +1128,7 @@ extension ExerciseListController: UICollectionViewDragDelegate, UICollectionView
         // copy has landed, leaving a hole where the row should already be.
         draggedItem = nil
         dragGap = nil
+        gapAnchor = nil
         showEveryRow()
         // Animated, and timed with the drop. Let go on a spot the rows had
         // already parted for, this asks for the arrangement that is on screen
