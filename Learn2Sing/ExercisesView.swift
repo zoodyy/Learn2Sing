@@ -694,6 +694,22 @@ struct ExercisesView: View {
                 ToolbarItem(placement: .principal) {
                     ReorderableListTitle(title: L("Exercises"), isDragging: isDraggingExercise)
                 }
+                ToolbarItem(placement: .topBarLeading) {
+                    Menu {
+                        Button {
+                            addExercise()
+                        } label: {
+                            Label("New Exercise", systemImage: "music.note")
+                        }
+                        Button {
+                            addCategory()
+                        } label: {
+                            Label("New Category", systemImage: "folder.badge.plus")
+                        }
+                    } label: {
+                        Image(systemName: "plus")
+                    }
+                }
                 ToolbarItem(placement: .topBarTrailing) {
                     Menu {
                         Section("Source") {
@@ -725,22 +741,6 @@ struct ExercisesView: View {
                               : "line.3.horizontal.decrease.circle.fill")
                     }
                     .accessibilityLabel("Filter")
-                }
-                ToolbarItem(placement: .topBarTrailing) {
-                    Menu {
-                        Button {
-                            addExercise()
-                        } label: {
-                            Label("New Exercise", systemImage: "music.note")
-                        }
-                        Button {
-                            addCategory()
-                        } label: {
-                            Label("New Category", systemImage: "folder.badge.plus")
-                        }
-                    } label: {
-                        Image(systemName: "plus")
-                    }
                 }
             }
             .onChange(of: navigationPath) { old, new in
