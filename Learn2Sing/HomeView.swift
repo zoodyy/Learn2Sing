@@ -29,6 +29,12 @@ enum HomeCategories {
     static let calendarRowID = UUID(uuidString: "CA1E4DA9-0000-4000-8000-000000000001")
         ?? UUID()
 
+    /// Identifies the single row "Recommended" is made of while it shows its
+    /// card instead of listing exercises — a placeholder in the same way, and
+    /// how a tap on the card is told from a tap on an exercise.
+    static let recommendationRowID = UUID(uuidString: "2EC0DDED-0000-4000-8000-000000000002")
+        ?? UUID()
+
     static let orderKey = "homeCategoryOrder"
     /// The categories hidden from the tab, stored newline-joined like the order and
     /// likewise carried in the profile JSON (see `UserSettings`).
@@ -59,6 +65,46 @@ enum HomeCategories {
     static var hidden: Set<String> {
         get { Set((UserDefaults.standard.string(forKey: hiddenKey) ?? "").split(separator: "\n").map(String.init)) }
         set { UserDefaults.standard.set(newValue.sorted().joined(separator: "\n"), forKey: hiddenKey) }
+    }
+}
+
+/// The Home tab's "Recommended" category as a single card: a big play button
+/// beside the name of the category most of the suggested exercises come from.
+/// Shown instead of listing them unless Settings ▸ Exercises ▸ Recommendations
+/// asks for the list; tapping it opens the whole suggestion as one queue.
+///
+/// Drawn to the practice calendar's shape, so the tab's two cards are exactly
+/// the same size — and since that shape, not the contents, is what sets the
+/// height, the play button and the type are scaled off it.
+struct RecommendationCard: View {
+    /// The category to name. Stored in English for the app's own categories and
+    /// translated on the way to the screen, like everywhere else they're shown.
+    let category: String
+
+    var body: some View {
+        GeometryReader { geo in
+            HStack(spacing: geo.size.height * 0.18) {
+                Image(systemName: "play.circle.fill")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(height: geo.size.height * 0.72)
+                    .foregroundStyle(Color.accentColor)
+                    // The card is read as one thing, and the play button says
+                    // nothing the "opens" trait doesn't already.
+                    .accessibilityHidden(true)
+
+                Text(ExerciseCategoryName.localized(category))
+                    .font(.title2.weight(.semibold))
+                    .lineLimit(2)
+                    // A long category name shrinks rather than pushing the card
+                    // taller, which would break it away from the calendar's size.
+                    .minimumScaleFactor(0.5)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            }
+            .frame(width: geo.size.width, height: geo.size.height)
+        }
+        .aspectRatio(PracticeCalendarView.cardAspectRatio, contentMode: .fit)
+        .accessibilityElement(children: .combine)
     }
 }
 
@@ -153,8 +199,10 @@ private struct HomeCategoryEditView: View {
 /// one to edit it, swipe left to delete it after a confirmation),
 /// "Favourites" (a single ordered exercise list, its + button opening the
 /// edit-favourites screen), "Recommended" (the whitelisted exercises played
-/// longest ago, as many as Settings ▸ Exercises asks for), and "Calendar" (the
-/// last 30 days of practice as coloured squares — see PracticeCalendarView).
+/// longest ago, as many as Settings ▸ Exercises asks for — as one card that
+/// plays them all in a row, or as a list of them if that same screen says so),
+/// and "Calendar" (the last 30 days of practice as coloured squares — see
+/// PracticeCalendarView).
 /// Routines and favourites are rearranged in place by long-pressing a row and
 /// dragging it, each within its own category — the computed categories can't
 /// be, and neither can the calendar. The categories look and behave like the
@@ -182,6 +230,12 @@ struct HomeView: View {
     @AppStorage(RecommendedExercises.amountKey)
     private var recommendedAmount = RecommendedExercises.defaultAmount
 
+    /// Whether "Recommended" lists those exercises or shows the single card that
+    /// opens them all as one queue, likewise from Settings ▸ Exercises. Either
+    /// way the same exercises are suggested — this only decides how.
+    @AppStorage(RecommendedExercises.asListKey)
+    private var recommendationsAsList = RecommendedExercises.defaultAsList
+
     /// Drives the "name your new routine" alert opened from the + button.
     @State private var isNamingNewRoutine = false
     @State private var newRoutineName = ""
@@ -197,6 +251,12 @@ struct HomeView: View {
     /// the routine's own order stays as saved — and opening a routine resets
     /// its entry, so a change lasts for one play-through.
     @State private var routinePlayOrders: [UUID: [UUID]] = [:]
+
+    /// The same thing for the recommendation card's screen, which is one queue
+    /// rather than one per routine: the exercises it is showing, in the order it
+    /// is showing them. Set as the card is tapped, so a shuffle or a drag there
+    /// likewise lasts for a single play-through.
+    @State private var recommendationOrder: [UUID] = []
 
     /// The exercises of the category the user last started playing from, in the
     /// order that category showed them — what the score screen's "Next" button
@@ -263,6 +323,35 @@ struct HomeView: View {
         store.recommendedExercises(count: recommendedAmount)
     }
 
+    /// The category most of the suggested exercises belong to — what the
+    /// recommendation card names — or nil when there is nothing to suggest.
+    /// A tie goes to whichever category comes first in the Exercises tab's own
+    /// order, so the card doesn't flip between two equally represented ones.
+    private var recommendedCategory: String? {
+        var counts: [String: Int] = [:]
+        for exercise in recommendedExercises { counts[exercise.category, default: 0] += 1 }
+        let order = store.categories
+        return counts.max { lhs, rhs in
+            if lhs.value != rhs.value { return lhs.value < rhs.value }
+            // Ordered by hand rather than left to whichever key the dictionary
+            // happened to hand over first, which is nothing to rely on: on an
+            // equal count the earlier category is the greater one, so that is
+            // the one `max` keeps.
+            return (order.firstIndex(of: lhs.key) ?? .max) > (order.firstIndex(of: rhs.key) ?? .max)
+        }?.key
+    }
+
+    /// The one row "Recommended" holds while it shows its card: the card itself,
+    /// drawn across the whole row like the calendar's. nil when there is nothing
+    /// to suggest, which leaves the category as empty as the list would.
+    private var recommendationCardRow: ExerciseListRow? {
+        guard let category = recommendedCategory else { return nil }
+        var placeholder = Exercise(name: "")
+        placeholder.id = HomeCategories.recommendationRowID
+        return ExerciseListRow(exercise: placeholder, pattern: [],
+                               content: .recommendation(category: category))
+    }
+
     private func rows(in category: String) -> [ExerciseListRow] {
         switch category {
         case HomeCategories.recent:
@@ -272,7 +361,9 @@ struct HomeView: View {
         case HomeCategories.favourites:
             favouriteExercises.map { ExerciseListRow(exercise: $0, pattern: store.notes(for: $0.id)) }
         case HomeCategories.recommended:
-            recommendedExercises.map { ExerciseListRow(exercise: $0, pattern: store.notes(for: $0.id)) }
+            recommendationsAsList
+                ? recommendedExercises.map { ExerciseListRow(exercise: $0, pattern: store.notes(for: $0.id)) }
+                : recommendationCardRow.map { [$0] } ?? []
         case HomeCategories.calendar:
             [calendarRow]
         default:
@@ -360,6 +451,32 @@ struct HomeView: View {
         }
     }
 
+    /// The recommended exercises that still exist in the library, in the order
+    /// this play-through uses — the recommendation routes index into this list,
+    /// exactly as the routine ones index into a routine's.
+    private var recommendationExercises: [Exercise] {
+        recommendationOrder.compactMap { id in store.exercises.first { $0.id == id } }
+    }
+
+    /// Tap on the recommendation card: open the suggestion as one queue, where
+    /// its order can be changed before it starts. Always from the suggestion as
+    /// it stands, so whatever the last play-through was dragged or shuffled into
+    /// is discarded.
+    private func openRecommendations() {
+        recommendationOrder = recommendedExercises.map(\.id)
+        navigationPath.append(ExerciseRoute.recommendationIntro)
+    }
+
+    /// `advanceRoutine` for that queue, which needs no routine to say which one.
+    private func advanceRecommendations(after index: Int) {
+        if index + 1 < recommendationExercises.count {
+            navigationPath.removeLast(2)
+            navigationPath.append(ExerciseRoute.recommendationPlay(index + 1))
+        } else {
+            navigationPath = []
+        }
+    }
+
     /// Route a row tap or swipe: routine rows play (tap) or edit (swipe) the
     /// routine, exercise rows go to the given exercise route.
     private func open(_ id: UUID, asExercise route: ExerciseRoute) {
@@ -394,6 +511,10 @@ struct HomeView: View {
         ExerciseCollectionList(
             sections: listSections,
             onSelect: { id, category in
+                guard id != HomeCategories.recommendationRowID else {
+                    openRecommendations()
+                    return
+                }
                 // Remember the tapped row's category, in the order it showed
                 // its exercises, so "Next" can walk it (and stop at its end).
                 playQueue = rows(in: category).map(\.id)
@@ -458,6 +579,15 @@ struct HomeView: View {
                 if let calendarSelection {
                     PracticeCalendarBubble(selection: calendarSelection,
                                            container: geo.frame(in: .global))
+                    // The next tap anywhere on the screen puts it away —
+                    // whether or not that tap does anything else itself. Taps
+                    // on the grid are the exception: the calendar answers those.
+                    DismissOnAnyTap(ignoring: calendarSelection.grid) {
+                        withAnimation(.snappy(duration: 0.2)) {
+                            self.calendarSelection = nil
+                        }
+                    }
+                    .frame(width: 0, height: 0)
                 }
             }
             .allowsHitTesting(false)
@@ -523,10 +653,15 @@ struct HomeView: View {
                 guard !store.exercises.contains(where: { $0.id == id }) else { return }
             case .routinePlay(let id, let index), .routinePlayback(let id, let index):
                 guard index >= routineExercises(id).count else { return }
+            case .recommendationPlay(let index), .recommendationPlayback(let index):
+                guard index >= recommendationExercises.count else { return }
             // A routine with nothing left to play has no intro screen: Start
             // Routine would push a routine-play route that resolves to nothing.
+            // The recommendation card's screen goes the same way.
             case .routineIntro(let id):
                 guard routineExercises(id).isEmpty else { return }
+            case .recommendationIntro:
+                guard recommendationExercises.isEmpty else { return }
             default:
                 return
             }
@@ -599,6 +734,34 @@ struct HomeView: View {
                 PlaybackView(exercise: exercises[index],
                              scoreExitTitle: index + 1 < exercises.count ? L("Next") : L("Exit"),
                              onScoreExit: { advanceRoutine(id, after: index) })
+            }
+        case .recommendationIntro:
+            // The routine intro screen with nothing above the queue: the
+            // suggestion has no name or description of its own to show.
+            ExerciseQueueIntroView(
+                order: $recommendationOrder,
+                title: ExerciseCategoryName.localized(HomeCategories.recommended),
+                onStart: { navigationPath.append(ExerciseRoute.recommendationPlay(0)) }
+            )
+        case .recommendationPlay(let index):
+            let exercises = recommendationExercises
+            if index < exercises.count {
+                // Captured by id for the same reason the routine's is: the
+                // settings screen can delete the exercise, re-indexing the rest.
+                let exerciseID = exercises[index].id
+                ExerciseIntroView(
+                    exercise: exercises[index],
+                    onSettings: { navigationPath.append(ExerciseRoute.settings(exerciseID)) }
+                ) {
+                    navigationPath.append(ExerciseRoute.recommendationPlayback(index))
+                }
+            }
+        case .recommendationPlayback(let index):
+            let exercises = recommendationExercises
+            if index < exercises.count {
+                PlaybackView(exercise: exercises[index],
+                             scoreExitTitle: index + 1 < exercises.count ? L("Next") : L("Exit"),
+                             onScoreExit: { advanceRecommendations(after: index) })
             }
         case .routinePicker(let id):
             if store.routines.contains(where: { $0.id == id }) {

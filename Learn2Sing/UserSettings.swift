@@ -69,6 +69,8 @@ struct UserSettings: Codable {
 
     /// How many exercises the Home tab's "Recommended" category shows.
     var recommendedExercisesAmount: Int?
+    /// Whether that category lists them or shows its single card instead.
+    var recommendationsAsList: Bool?
     /// The exercises recommendations are picked from.
     var recommendationWhitelist: [UUID]?
 
@@ -116,6 +118,9 @@ struct UserSettings: Codable {
             recommendedExercisesAmount: d.object(forKey: RecommendedExercises.amountKey) == nil
                 ? RecommendedExercises.defaultAmount
                 : d.integer(forKey: RecommendedExercises.amountKey),
+            recommendationsAsList: d.object(forKey: RecommendedExercises.asListKey) == nil
+                ? RecommendedExercises.defaultAsList
+                : d.bool(forKey: RecommendedExercises.asListKey),
             // Sorted so an unchanged whitelist encodes the same way twice: the
             // whitelist itself is a set, which has no order to preserve.
             recommendationWhitelist: store.recommendationWhitelist.sorted { $0.uuidString < $1.uuidString },
@@ -170,6 +175,9 @@ struct UserSettings: Codable {
 
         if let recommendedExercisesAmount {
             d.set(recommendedExercisesAmount, forKey: RecommendedExercises.amountKey)
+        }
+        if let recommendationsAsList {
+            d.set(recommendationsAsList, forKey: RecommendedExercises.asListKey)
         }
         if let recommendationWhitelist {
             store.restoreRecommendationWhitelist(Set(recommendationWhitelist))

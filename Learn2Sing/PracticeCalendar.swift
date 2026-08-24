@@ -8,6 +8,7 @@
 //
 
 import SwiftUI
+import UIKit
 
 /// One day of the practice calendar: the day itself and how many seconds of
 /// exercises were finished on it. Plain data, so it rides in an
@@ -191,11 +192,20 @@ struct PracticeCalendarView: View {
 
     private var rows: Int { max(1, (days.count + Self.columns - 1) / Self.columns) }
 
-    /// Width to height of the whole grid, gaps included — see `gapRatio`.
-    private var gridRatio: CGFloat {
-        let columns = CGFloat(Self.columns), rows = CGFloat(self.rows)
-        return (columns + (columns - 1) * Self.gapRatio) / (rows + (rows - 1) * Self.gapRatio)
+    /// Width to height of a whole grid `rows` rows deep, gaps included — see
+    /// `gapRatio`.
+    private static func gridRatio(rows: Int) -> CGFloat {
+        let columns = CGFloat(Self.columns), rows = CGFloat(rows)
+        return (columns + (columns - 1) * gapRatio) / (rows + (rows - 1) * gapRatio)
     }
+
+    /// The shape of the card the calendar fills at its usual `dayCount` days.
+    /// The Home tab's recommendation card is drawn to it too, so the tab's two
+    /// full-width cards are exactly the same size.
+    static let cardAspectRatio: CGFloat = gridRatio(rows: (dayCount + columns - 1) / columns)
+
+    /// Width to height of the whole grid, gaps included — see `gapRatio`.
+    private var gridRatio: CGFloat { Self.gridRatio(rows: rows) }
 
     var body: some View {
         GeometryReader { geo in
@@ -383,5 +393,80 @@ struct PracticeCalendarBubble: View {
         .position(x: centreX - container.minX, y: top + size.height / 2 - container.minY)
         // Taps belong to the list underneath, which puts the bubble away.
         .allowsHitTesting(false)
+    }
+}
+
+/// Puts the calendar's bubble away on the next tap anywhere on screen — on a
+/// button or on nothing at all, and whatever else that tap goes on to do.
+///
+/// A recognizer on the window rather than a SwiftUI gesture: the Home list is a
+/// UIKit collection view and the tab and navigation bars are UIKit too, so there
+/// is no one SwiftUI view every tap on that screen passes through. It only ever
+/// watches — it cancels no touches, delays none, and recognizes alongside every
+/// other recognizer — so a tap still does whatever it was going to do, and the
+/// bubble goes away as well. It exists only while a bubble is up.
+///
+/// Taps inside `ignoring` are left alone. That is the calendar's own grid, which
+/// answers its taps itself: a second tap on the square the bubble points at puts
+/// it away, and this must not get there first and turn that into a fresh one.
+struct DismissOnAnyTap: UIViewRepresentable {
+    /// In global coordinates — the ones the calendar reports its squares in.
+    var ignoring: CGRect
+    var action: () -> Void
+
+    func makeUIView(context: Context) -> WindowTapWatcher { WindowTapWatcher() }
+
+    func updateUIView(_ watcher: WindowTapWatcher, context: Context) {
+        watcher.ignoring = ignoring
+        watcher.action = action
+    }
+}
+
+/// The view behind `DismissOnAnyTap`: invisible, and there only to have a
+/// window to hang the recognizer on — which it does as it joins one, and takes
+/// back again as it leaves.
+final class WindowTapWatcher: UIView {
+    var ignoring: CGRect = .zero
+    var action: () -> Void = {}
+
+    private var tap: UITapGestureRecognizer?
+
+    init() {
+        super.init(frame: .zero)
+        isUserInteractionEnabled = false
+    }
+
+    required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
+
+    override func didMoveToWindow() {
+        super.didMoveToWindow()
+        if let tap {
+            // Off the window it was on, which is not necessarily `window` — this
+            // is also the call that says the view has left one altogether.
+            tap.view?.removeGestureRecognizer(tap)
+            self.tap = nil
+        }
+        guard let window else { return }
+        let watcher = UITapGestureRecognizer(target: self, action: #selector(tapped(_:)))
+        watcher.cancelsTouchesInView = false
+        watcher.delaysTouchesBegan = false
+        watcher.delaysTouchesEnded = false
+        watcher.delegate = self
+        window.addGestureRecognizer(watcher)
+        tap = watcher
+    }
+
+    @objc private func tapped(_ recognizer: UITapGestureRecognizer) {
+        guard let window, !ignoring.contains(recognizer.location(in: window)) else { return }
+        action()
+    }
+}
+
+extension WindowTapWatcher: UIGestureRecognizerDelegate {
+    /// Watching only: nothing else on screen may be made to wait on this, or to
+    /// lose to it.
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer,
+                           shouldRecognizeSimultaneouslyWith other: UIGestureRecognizer) -> Bool {
+        true
     }
 }

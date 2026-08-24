@@ -172,47 +172,46 @@ struct RoutineEditView: View {
     }
 }
 
-/// Shown when a routine that has exercises is tapped in the Home tab, before the
-/// first exercise's own intro screen. The routine's counterpart to
-/// ExerciseIntroView: name, description, and a start button at the bottom, with
-/// an "Exercise Queue" section in between listing what will play, in the same
-/// draggable rows as the edit-routine screen.
+/// The screen shown before a queue of exercises plays: an "Exercise Queue"
+/// section listing what will play, in the same draggable rows as the
+/// edit-routine screen, and a start button along the bottom. Optionally headed
+/// by a name and description — a routine's, which is the screen this started
+/// as. The Home tab's recommendation card opens the very same screen with
+/// nothing above the queue, since a suggestion has neither to show.
 ///
 /// Reordering here — by dragging or with the header's shuffle button — changes
 /// `order` only, which the Home tab keeps for this play-through and resets the
-/// next time the routine is opened; the routine's stored order is untouched.
-struct RoutineIntroView: View {
+/// next time the screen is opened; nothing stored is touched.
+struct ExerciseQueueIntroView: View {
     /// Re-renders this screen when the language is changed in Settings; the
     /// strings are resolved when the body runs, so SwiftUI needs telling.
     @ObservedObject private var appLanguage = LanguageManager.shared
 
     @EnvironmentObject private var store: ExerciseStore
-    let routine: Routine
+
+    /// The name and description drawn above the queue, or nil for a queue that
+    /// has neither.
+    var heading: (name: String, details: String)? = nil
     /// The exercises to play, in this play-through's order.
     @Binding var order: [UUID]
-    /// Opens this routine's edit screen from the toolbar — the routine's
-    /// counterpart to the settings button on the exercise intro screen, in the
-    /// same place and with the same symbol.
-    let onSettings: () -> Void
+    /// What the navigation bar reads.
+    let title: String
     let onStart: () -> Void
 
     /// Always active so the exercise rows show drag handles, exactly like the
     /// edit-routine screen.
     @State private var editMode: EditMode = .active
 
-    private var trimmedDetails: String {
-        routine.details.trimmingCharacters(in: .whitespacesAndNewlines)
-    }
-
-    /// The routine's name and description, styled exactly like the exercise
-    /// intro screen's. Sits on the list's own background rather than in a cell,
-    /// so it reads as a heading and not as another row.
-    private var headerRow: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            Text(routine.name)
+    /// The name and description, styled exactly like the exercise intro
+    /// screen's. Sits on the list's own background rather than in a cell, so it
+    /// reads as a heading and not as another row.
+    private func headerRow(_ heading: (name: String, details: String)) -> some View {
+        let details = heading.details.trimmingCharacters(in: .whitespacesAndNewlines)
+        return VStack(alignment: .leading, spacing: 16) {
+            Text(heading.name)
                 .font(.largeTitle.weight(.bold))
 
-            Text(trimmedDetails.isEmpty ? L("No description.") : trimmedDetails)
+            Text(details.isEmpty ? L("No description.") : details)
                 .font(.body)
                 .foregroundStyle(.secondary)
         }
@@ -242,8 +241,10 @@ struct RoutineIntroView: View {
     var body: some View {
         VStack(spacing: 0) {
             List {
-                Section {
-                    headerRow
+                if let heading {
+                    Section {
+                        headerRow(heading)
+                    }
                 }
                 Section {
                     ForEach(order, id: \.self) { exerciseID in
@@ -275,15 +276,37 @@ struct RoutineIntroView: View {
         }
         // So the strip the button sits on matches the list above it.
         .background(Color(.systemGroupedBackground))
-        .navigationTitle(routine.name)
+        .navigationTitle(title)
         .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
-            ToolbarItem(placement: .topBarTrailing) {
-                Button(action: onSettings) {
-                    Label("Edit Routine", systemImage: "slider.horizontal.3")
+    }
+}
+
+/// Shown when a routine that has exercises is tapped in the Home tab, before the
+/// first exercise's own intro screen. The routine's counterpart to
+/// ExerciseIntroView: the queue screen above, headed by the routine's name and
+/// description and with the routine's edit screen a toolbar button away.
+struct RoutineIntroView: View {
+    let routine: Routine
+    /// The exercises to play, in this play-through's order.
+    @Binding var order: [UUID]
+    /// Opens this routine's edit screen from the toolbar — the routine's
+    /// counterpart to the settings button on the exercise intro screen, in the
+    /// same place and with the same symbol.
+    let onSettings: () -> Void
+    let onStart: () -> Void
+
+    var body: some View {
+        ExerciseQueueIntroView(heading: (routine.name, routine.details),
+                               order: $order,
+                               title: routine.name,
+                               onStart: onStart)
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button(action: onSettings) {
+                        Label("Edit Routine", systemImage: "slider.horizontal.3")
+                    }
                 }
             }
-        }
     }
 }
 

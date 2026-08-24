@@ -307,8 +307,8 @@ struct VoiceSettingsView: View {
 }
 
 /// The "Exercises" hub reached from Settings: how the exercise library is
-/// presented — the size of the Home tab's "Recommended" category and which
-/// exercises it may draw from.
+/// presented — the shape and size of the Home tab's "Recommended" category and
+/// which exercises it may draw from.
 struct ExercisesSettingsView: View {
     /// Re-renders this screen when the language is changed in Settings; the
     /// strings are resolved when the body runs, so SwiftUI needs telling.
@@ -317,6 +317,8 @@ struct ExercisesSettingsView: View {
     @EnvironmentObject private var store: ExerciseStore
     @AppStorage(RecommendedExercises.amountKey)
     private var recommendedAmount = RecommendedExercises.defaultAmount
+    @AppStorage(RecommendedExercises.asListKey)
+    private var recommendationsAsList = RecommendedExercises.defaultAsList
 
     /// Push the whitelist picker onto the shared Settings navigation stack.
     let openWhitelist: () -> Void
@@ -324,6 +326,9 @@ struct ExercisesSettingsView: View {
     var body: some View {
         Form {
             Section {
+                Toggle("Show recommendations as list", isOn: $recommendationsAsList)
+                    .settingHelp(L("Lists the recommended exercises in the Home tab's “Recommended” category, one row each. Off, the category shows a single card instead, which plays them all as one queue."))
+
                 Stepper(value: $recommendedAmount, in: RecommendedExercises.amountRange) {
                     HStack {
                         Text("Recommended exercises amount")

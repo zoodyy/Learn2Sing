@@ -191,6 +191,12 @@ enum ExerciseRoute: Hashable {
     // exercises: intro of exercise #index, its playback, intro of #index+1, …
     case routinePlay(UUID, Int)      // intro screen of the routine's #index exercise
     case routinePlayback(UUID, Int)  // playback of the routine's #index exercise
+    // The Home tab's recommendation card, which plays its suggestion as one
+    // queue: the same three screens as a routine, with nothing to identify but
+    // the position in the queue — there is only ever the one.
+    case recommendationIntro         // the queue's exercise-order screen
+    case recommendationPlay(Int)     // intro screen of the queue's #index exercise
+    case recommendationPlayback(Int) // playback of the queue's #index exercise
 }
 
 /// The inline-editable category name on the edit-categories screen. Edits are
@@ -805,9 +811,11 @@ struct ExercisesView: View {
                 case .editCategories:
                     CategoryEditView(newCategory: $newCategory, onRename: renameCategory)
                 case .user, .routine, .routineIntro, .routinePicker, .routinePlay, .routinePlayback,
+                     .recommendationIntro, .recommendationPlay, .recommendationPlayback,
                      .favourites, .favouritesPicker:
                     // Never appended from this tab; usernames only show in
-                    // Community, routines and favourites live on the Home tab.
+                    // Community, and routines, favourites and recommendations
+                    // live on the Home tab.
                     EmptyView()
                 }
             }

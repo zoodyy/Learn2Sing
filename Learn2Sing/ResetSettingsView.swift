@@ -241,6 +241,7 @@ enum ResettableSettings: String, CaseIterable, Identifiable {
             }
         case .exercises:
             defaults.removeObject(forKey: RecommendedExercises.amountKey)
+            defaults.removeObject(forKey: RecommendedExercises.asListKey)
             store.resetRecommendationWhitelist()
         case .language:
             LanguageManager.shared.language = .english

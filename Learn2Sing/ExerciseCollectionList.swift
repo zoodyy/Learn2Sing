@@ -2,13 +2,25 @@ import SwiftUI
 import UIKit
 
 /// What a row draws. Almost every row is an exercise — its name, with its MIDI
-/// pattern on the trailing edge. The Home tab's calendar is the exception: a
-/// view of its own filling the row, with no name, no swipe actions and nothing
-/// to open. Its days ride along here so the list notices when they change and
-/// redraws the cell.
+/// pattern on the trailing edge. The Home tab's two cards are the exceptions: a
+/// view of its own filling the row, with no name and no swipe actions. What each
+/// one draws rides along here so the list notices when it changes and redraws
+/// the cell.
 enum ExerciseListRowContent: Equatable {
     case exercise
     case practiceCalendar([PracticeDay])
+    /// The recommendation card, naming the category most of the recommended
+    /// exercises come from. Shown in place of the "Recommended" list when
+    /// Settings ▸ Exercises says so.
+    case recommendation(category: String)
+
+    /// Whether a tap on the row is the list's to report. The calendar answers
+    /// its own taps — a tap on it means the square it landed on — while every
+    /// other row opens something.
+    var isSelectable: Bool {
+        if case .practiceCalendar = self { return false }
+        return true
+    }
 }
 
 /// One row of the exercise list: the exercise plus its MIDI pattern (a single
@@ -18,7 +30,7 @@ struct ExerciseListRow: Equatable {
     var exercise: Exercise
     var pattern: [MIDINote]
     /// What the row draws in place of the exercise name — an exercise, unless
-    /// the row is one of the list's own (the Home tab's calendar).
+    /// the row is one of the list's own (the Home tab's cards).
     var content: ExerciseListRowContent = .exercise
     /// Shown in grey between the name and the pattern thumbnail (Community tab
     /// only — nil hides it).
@@ -466,10 +478,10 @@ final class ExerciseListController: UIViewController {
             cell.isHidden = itemID == self?.draggedItem
             if cell.isHidden { self?.gapCell = cell }
         }
-        // The Home tab's calendar gets a registration of its own rather than
-        // another branch of the one above: it shares nothing with an exercise
-        // row but the cell class, and keeping the two apart keeps either from
-        // having to undo the other's leftovers.
+        // The Home tab's cards get registrations of their own rather than more
+        // branches of the one above: they share nothing with an exercise row but
+        // the cell class, and keeping them apart keeps any of them from having
+        // to undo another's leftovers.
         let calendarRegistration = UICollectionView.CellRegistration<UICollectionViewListCell, ItemID> {
             [weak self] cell, _, itemID in
             guard case .practiceCalendar(let days) = self?.rowsByID[itemID.id]?.content
@@ -485,14 +497,30 @@ final class ExerciseListController: UIViewController {
             }
             cell.accessories = []
         }
+        let recommendationRegistration = UICollectionView.CellRegistration<UICollectionViewListCell, ItemID> {
+            [weak self] cell, _, itemID in
+            guard case .recommendation(let category) = self?.rowsByID[itemID.id]?.content
+            else { return }
+            let locale = (self?.language ?? LanguageManager.shared.language).locale
+            cell.contentConfiguration = UIHostingConfiguration {
+                RecommendationCard(category: category)
+                    .environment(\.locale, locale)
+            }
+            cell.accessories = []
+        }
         dataSource = UICollectionViewDiffableDataSource<String, ItemID>(collectionView: cv) {
             [weak self] collectionView, indexPath, itemID in
-            if case .practiceCalendar = self?.rowsByID[itemID.id]?.content {
+            switch self?.rowsByID[itemID.id]?.content {
+            case .practiceCalendar:
                 return collectionView.dequeueConfiguredReusableCell(
                     using: calendarRegistration, for: indexPath, item: itemID)
+            case .recommendation:
+                return collectionView.dequeueConfiguredReusableCell(
+                    using: recommendationRegistration, for: indexPath, item: itemID)
+            default:
+                return collectionView.dequeueConfiguredReusableCell(
+                    using: cellRegistration, for: indexPath, item: itemID)
             }
-            return collectionView.dequeueConfiguredReusableCell(
-                using: cellRegistration, for: indexPath, item: itemID)
         }
 
         let headerRegistration = UICollectionView.SupplementaryRegistration<ExerciseSectionHeaderView>(
@@ -907,14 +935,14 @@ final class ExerciseListController: UIViewController {
 // MARK: - Selection
 
 extension ExerciseListController: UICollectionViewDelegate {
-    /// A row that isn't an exercise (the Home tab's calendar) has nothing to
-    /// open, so it never highlights under the finger and never reports a tap —
-    /// the taps on it belong to the view it draws.
+    /// The Home tab's calendar has nothing to open, so it never highlights under
+    /// the finger and never reports a tap — the taps on it belong to the view it
+    /// draws. Every other row, cards included, opens something.
     func collectionView(_ collectionView: UICollectionView,
                         shouldSelectItemAt indexPath: IndexPath) -> Bool {
         guard let item = dataSource.itemIdentifier(for: indexPath),
               let row = rowsByID[item.id] else { return true }
-        return row.content == .exercise
+        return row.content.isSelectable
     }
 
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {

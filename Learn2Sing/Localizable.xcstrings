@@ -15550,6 +15550,89 @@
         }
       }
     },
+    "Lists the recommended exercises in the Home tab's “Recommended” category, one row each. Off, the category shows a single card instead, which plays them all as one queue." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zeigt die empfohlenen Übungen in der Kategorie „Empfohlen“ im Start-Tab einzeln untereinander. Aus zeigt die Kategorie stattdessen eine einzelne Karte, die alle nacheinander abspielt."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Muestra los ejercicios recomendados en la categoría «Recomendado» de la pestaña Inicio, uno por fila. Desactivado, la categoría muestra una sola tarjeta que los reproduce todos como una cola."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Affiche les exercices recommandés dans la catégorie « Recommandé » de l’onglet Accueil, un par ligne. Désactivé, la catégorie affiche une seule carte qui les enchaîne tous."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elenca gli esercizi consigliati nella categoria “Consigliati” della scheda Home, uno per riga. Se disattivato, la categoria mostra invece un’unica scheda che li riproduce tutti in fila."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ホームタブの「おすすめ」カテゴリで、おすすめのエクササイズを1行ずつ一覧表示します。オフの場合は、すべてを続けて再生する1枚のカードが表示されます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "홈 탭의 “추천” 카테고리에서 추천 연습을 한 줄씩 목록으로 보여 줍니다. 끄면 카테고리가 대신 카드 하나를 보여 주며, 이를 누르면 전체를 하나의 대기열로 재생합니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Toont de aanbevolen oefeningen in de categorie ‘Aanbevolen’ op het tabblad Start, elk op een eigen rij. Uit toont de categorie in plaats daarvan één kaart die ze allemaal achter elkaar afspeelt."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pokazuje polecane ćwiczenia w kategorii „Polecane” na karcie Start, każde w osobnym wierszu. Po wyłączeniu kategoria pokazuje jedną kartę, która odtwarza je wszystkie po kolei."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lista os exercícios recomendados na categoria “Recomendado” da aba Início, um por linha. Desligado, a categoria mostra um único cartão que toca todos eles em sequência."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Показывает рекомендуемые упражнения в категории «Рекомендуемые» на вкладке «Главная» отдельными строками. Если выключено, категория показывает одну карточку, которая проигрывает их все подряд."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Visar de rekommenderade övningarna i kategorin ”Rekommenderat” på fliken Hem, en per rad. Av visar kategorin i stället ett enda kort som spelar alla i följd."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ana Sayfa sekmesindeki “Önerilen” kategorisinde önerilen egzersizleri her biri bir satır olacak şekilde listeler. Kapalıyken kategori bunun yerine hepsini tek sırada çalan tek bir kart gösterir."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在“首页”标签的“推荐”类别中逐行列出推荐练习。关闭时，该类别改为显示一张卡片，点按可将它们作为一个队列依次播放。"
+          }
+        }
+      }
+    },
     "Lock orientation" : {
       "localizations" : {
         "de" : {
@@ -26768,6 +26851,88 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "显示音高"
+          }
+        }
+      }
+    },
+    "Show recommendations as list" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Empfehlungen als Liste zeigen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mostrar recomendaciones como lista"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Afficher les recommandations en liste"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mostra i consigliati come elenco"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "おすすめをリストで表示"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "추천을 목록으로 표시"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aanbevelingen als lijst tonen"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pokazuj polecane jako listę"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mostrar recomendações como lista"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Показывать рекомендации списком"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Visa rekommendationer som lista"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Önerileri liste olarak göster"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "以列表显示推荐"
           }
         }
       }

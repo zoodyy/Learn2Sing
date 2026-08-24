@@ -831,6 +831,12 @@ enum RecommendedExercises {
     /// How many exercises the category shows when the user hasn't chosen.
     static let defaultAmount = 5
     static let amountRange = 1...20
+
+    /// Whether the category lists those exercises or shows a single card that
+    /// opens all of them as one queue. The card is what it shows by default;
+    /// the list is the older shape, kept for anyone who prefers it.
+    static let asListKey = "recommendationsAsList"
+    static let defaultAsList = false
 }
 
 /// The on-disk format for export/import: the exercise list plus each one's MIDI

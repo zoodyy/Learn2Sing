@@ -284,10 +284,25 @@ T("Sing your lowest and highest notes and the app sets them as your custom vocal
   "唱出你的最低音和最高音，应用会将其设置为上方的自定义音域。")
 
 # --- Exercises settings ---
+T("Show recommendations as list", "Empfehlungen als Liste zeigen", "Mostrar recomendaciones como lista", "Afficher les recommandations en liste", "Mostra i consigliati come elenco", "Mostrar recomendações como lista", "Aanbevelingen als lijst tonen", "Показывать рекомендации списком", "Pokazuj polecane jako listę", "Önerileri liste olarak göster", "Visa rekommendationer som lista", "おすすめをリストで表示", "추천을 목록으로 표시", "以列表显示推荐")
 T("Recommendations", "Empfehlungen", "Recomendaciones", "Recommandations", "Raccomandazioni", "Recomendações", "Aanbevelingen", "Рекомендации", "Rekomendacje", "Öneriler", "Rekommendationer", "おすすめ", "추천", "推荐")
 T("Recommended exercises amount", "Anzahl empfohlener Übungen", "Cantidad de ejercicios recomendados", "Nombre d’exercices recommandés", "Numero di esercizi consigliati", "Quantidade de exercícios recomendados", "Aantal aanbevolen oefeningen", "Количество рекомендуемых упражнений", "Liczba polecanych ćwiczeń", "Önerilen egzersiz sayısı", "Antal rekommenderade övningar", "おすすめのエクササイズ数", "추천 연습 개수", "推荐练习数量")
 T("Whitelisted exercises", "Zugelassene Übungen", "Ejercicios permitidos", "Exercices autorisés", "Esercizi ammessi", "Exercícios permitidos", "Toegestane oefeningen", "Разрешённые упражнения", "Dozwolone ćwiczenia", "İzin verilen egzersizler", "Tillåtna övningar", "対象のエクササイズ", "허용된 연습", "已列入的练习")
 T("Whitelisted Exercises", "Zugelassene Übungen", "Ejercicios permitidos", "Exercices autorisés", "Esercizi ammessi", "Exercícios permitidos", "Toegestane oefeningen", "Разрешённые упражнения", "Dozwolone ćwiczenia", "İzin verilen egzersizler", "Tillåtna övningar", "対象のエクササイズ", "허용된 연습", "已列入的练习")
+T("Lists the recommended exercises in the Home tab's “Recommended” category, one row each. Off, the category shows a single card instead, which plays them all as one queue.",
+  "Zeigt die empfohlenen Übungen in der Kategorie „Empfohlen“ im Start-Tab einzeln untereinander. Aus zeigt die Kategorie stattdessen eine einzelne Karte, die alle nacheinander abspielt.",
+  "Muestra los ejercicios recomendados en la categoría «Recomendado» de la pestaña Inicio, uno por fila. Desactivado, la categoría muestra una sola tarjeta que los reproduce todos como una cola.",
+  "Affiche les exercices recommandés dans la catégorie « Recommandé » de l’onglet Accueil, un par ligne. Désactivé, la catégorie affiche une seule carte qui les enchaîne tous.",
+  "Elenca gli esercizi consigliati nella categoria “Consigliati” della scheda Home, uno per riga. Se disattivato, la categoria mostra invece un’unica scheda che li riproduce tutti in fila.",
+  "Lista os exercícios recomendados na categoria “Recomendado” da aba Início, um por linha. Desligado, a categoria mostra um único cartão que toca todos eles em sequência.",
+  "Toont de aanbevolen oefeningen in de categorie ‘Aanbevolen’ op het tabblad Start, elk op een eigen rij. Uit toont de categorie in plaats daarvan één kaart die ze allemaal achter elkaar afspeelt.",
+  "Показывает рекомендуемые упражнения в категории «Рекомендуемые» на вкладке «Главная» отдельными строками. Если выключено, категория показывает одну карточку, которая проигрывает их все подряд.",
+  "Pokazuje polecane ćwiczenia w kategorii „Polecane” na karcie Start, każde w osobnym wierszu. Po wyłączeniu kategoria pokazuje jedną kartę, która odtwarza je wszystkie po kolei.",
+  "Ana Sayfa sekmesindeki “Önerilen” kategorisinde önerilen egzersizleri her biri bir satır olacak şekilde listeler. Kapalıyken kategori bunun yerine hepsini tek sırada çalan tek bir kart gösterir.",
+  "Visar de rekommenderade övningarna i kategorin ”Rekommenderat” på fliken Hem, en per rad. Av visar kategorin i stället ett enda kort som spelar alla i följd.",
+  "ホームタブの「おすすめ」カテゴリで、おすすめのエクササイズを1行ずつ一覧表示します。オフの場合は、すべてを続けて再生する1枚のカードが表示されます。",
+  "홈 탭의 “추천” 카테고리에서 추천 연습을 한 줄씩 목록으로 보여 줍니다. 끄면 카테고리가 대신 카드 하나를 보여 주며, 이를 누르면 전체를 하나의 대기열로 재생합니다.",
+  "在“首页”标签的“推荐”类别中逐行列出推荐练习。关闭时，该类别改为显示一张卡片，点按可将它们作为一个队列依次播放。")
 T("How many exercises the Home tab's “Recommended” category suggests. It picks the whitelisted exercises you haven't practised in the longest.",
   "Wie viele Übungen die Kategorie „Empfohlen“ im Start-Tab vorschlägt. Ausgewählt werden die zugelassenen Übungen, die du am längsten nicht geübt hast.",
   "Cuántos ejercicios sugiere la categoría «Recomendado» de la pestaña Inicio. Elige los ejercicios permitidos que llevas más tiempo sin practicar.",
