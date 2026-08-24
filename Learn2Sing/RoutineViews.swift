@@ -196,6 +196,9 @@ struct ExerciseQueueIntroView: View {
     @Binding var order: [UUID]
     /// What the navigation bar reads.
     let title: String
+    /// What the button along the bottom reads. Already translated, since it is
+    /// a value rather than a literal SwiftUI resolves itself.
+    var startTitle = L("Start Routine")
     let onStart: () -> Void
 
     /// Always active so the exercise rows show drag handles, exactly like the
@@ -264,7 +267,7 @@ struct ExerciseQueueIntroView: View {
             .environment(\.editMode, $editMode)
 
             Button(action: onStart) {
-                Text("Start Routine")
+                Text(startTitle)
                     .font(.headline)
                     .frame(maxWidth: .infinity)
                     .padding()

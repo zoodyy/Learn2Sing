@@ -83,7 +83,11 @@ struct RecommendationCard: View {
 
     var body: some View {
         GeometryReader { geo in
-            HStack(spacing: geo.size.height * 0.18) {
+            // No spacing between the two: the name is centred in everything the
+            // play button leaves, so what it is centred in has to reach all the
+            // way from the button's edge to the card's. Its own padding is what
+            // keeps it off both, and being symmetric it leaves the centre alone.
+            HStack(spacing: 0) {
                 Image(systemName: "play.circle.fill")
                     .resizable()
                     .scaledToFit()
@@ -95,11 +99,13 @@ struct RecommendationCard: View {
 
                 Text(ExerciseCategoryName.localized(category))
                     .font(.title2.weight(.semibold))
+                    .multilineTextAlignment(.center)
                     .lineLimit(2)
                     // A long category name shrinks rather than pushing the card
                     // taller, which would break it away from the calendar's size.
                     .minimumScaleFactor(0.5)
-                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.horizontal, geo.size.height * 0.18)
+                    .frame(maxWidth: .infinity)
             }
             .frame(width: geo.size.width, height: geo.size.height)
         }
@@ -741,6 +747,7 @@ struct HomeView: View {
             ExerciseQueueIntroView(
                 order: $recommendationOrder,
                 title: ExerciseCategoryName.localized(HomeCategories.recommended),
+                startTitle: L("Play Recommended Exercises"),
                 onStart: { navigationPath.append(ExerciseRoute.recommendationPlay(0)) }
             )
         case .recommendationPlay(let index):
