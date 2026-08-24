@@ -84,6 +84,13 @@ enum PracticeLog {
         syncChanged()
     }
 
+    /// Wipes every recorded day. Used by Settings ▸ Reset ▸ Home ▸ Clear
+    /// Practice Time.
+    static func deleteAll() {
+        UserDefaults.standard.removeObject(forKey: key)
+        syncChanged()
+    }
+
     // MARK: - Profile sync
 
     /// The log as the profile document carries it: day number and seconds
@@ -114,6 +121,23 @@ enum PracticeLog {
     }
 }
 
+/// A tapped square, as the calendar hands it on: the day it stands for, and
+/// where it and its grid are on screen.
+///
+/// The bubble is drawn over the list rather than inside the calendar's own row
+/// (see `PracticeCalendarBubble`), so it travels in coordinates both sides
+/// agree on — global ones. The grid comes along because the bubble is placed
+/// against it exactly as it would have been from the inside: above the square
+/// when the grid has room above it, below when it hasn't, slid sideways to stay
+/// within the grid's width.
+nonisolated struct PracticeCalendarSelection: Equatable {
+    var day: PracticeDay
+    /// The tapped square, in global coordinates.
+    var square: CGRect
+    /// The whole grid of squares, in global coordinates.
+    var grid: CGRect
+}
+
 /// The Home tab's "Calendar" category: the last 30 days as one square each,
 /// oldest in the top-left corner and today in the bottom-right, with nothing
 /// written on them — a day is read off its colour alone. A day nothing was
@@ -121,12 +145,19 @@ enum PracticeLog {
 /// a stronger pink and a bright purple, landing on the app's accent colour at
 /// `fullDayMinutes` of practice and staying there beyond it.
 ///
-/// Tapping a square puts up the same bubble the score chart shows for a data
-/// point, pointing at the square and naming how long that day was practised
-/// for; tapping it again puts the bubble away.
+/// Tapping a square reports it, and the screen it went up on draws the bubble —
+/// the same one the score chart shows for a data point — over the list. The
+/// bubble is not drawn from here because a hosted SwiftUI view is clipped to
+/// the row it is in, and a bubble pointing at a square in the middle row has
+/// nowhere near enough room inside three rows of squares: it has to reach past
+/// the card, onto the list's own background.
 struct PracticeCalendarView: View {
     /// The days to draw, oldest first — `dayCount` of them.
     let days: [PracticeDay]
+
+    /// The square a tap landed on, or nil for a tap that landed on none — which
+    /// is what the screen puts the bubble away on.
+    var onSelect: (PracticeCalendarSelection?) -> Void
 
     /// How many days the calendar shows, which is also how many
     /// `PracticeLog.recentDays` is asked for.
@@ -146,8 +177,7 @@ struct PracticeCalendarView: View {
     private static let gapRatio: CGFloat = 0.22
 
     /// The calendar draws its own colours rather than using the semantic ones,
-    /// so it has to flip the grey and the bubble's ink with the appearance
-    /// itself.
+    /// so it has to flip the grey with the appearance itself.
     @Environment(\.colorScheme) private var colorScheme
 
     /// The whole environment, purely so the accent colour can be resolved to
@@ -155,16 +185,9 @@ struct PracticeCalendarView: View {
     /// rather than on a copy of it that could drift.
     @Environment(\.self) private var environment
 
+    /// The app's chosen language, which is not necessarily the device's — the
+    /// squares' accessibility labels are written in it.
     @Environment(\.locale) private var locale
-
-    /// The tapped day, held by date rather than by index because the squares
-    /// shift along a place at every midnight.
-    @State private var selectedDate: Date?
-
-    /// Measured size of the bubble, needed to place it above the square and
-    /// keep it inside the grid. Zero until the first layout pass, which is why
-    /// the bubble stays hidden that long.
-    @State private var bubbleSize: CGSize = .zero
 
     private var rows: Int { max(1, (days.count + Self.columns - 1) / Self.columns) }
 
@@ -193,31 +216,14 @@ struct PracticeCalendarView: View {
                         .accessibilityLabel(label(for: day))
                         .position(centre(of: index, side: side, step: step))
                 }
-                if let index = days.firstIndex(where: { $0.date == selectedDate }) {
-                    bubble(for: days[index],
-                           at: centre(of: index, side: side, step: step),
-                           clearance: side / 2 + 3,
-                           in: geo.size)
-                }
             }
             .contentShape(Rectangle())
             .onTapGesture { location in
-                let tapped = day(at: location, step: step)
-                withAnimation(.snappy(duration: 0.2)) {
-                    // Tapping the square the bubble already points at puts it
-                    // away — the grid leaves no empty space to tap instead, the
-                    // way the score chart's plot does.
-                    selectedDate = (tapped?.date == selectedDate) ? nil : tapped?.date
-                }
+                onSelect(selection(at: location, side: side, step: step,
+                                   grid: geo.frame(in: .global)))
             }
         }
         .aspectRatio(gridRatio, contentMode: .fit)
-        // A day that dropped off the end takes the bubble with it.
-        .onChange(of: days) { _, new in
-            if let date = selectedDate, !new.contains(where: { $0.date == date }) {
-                selectedDate = nil
-            }
-        }
     }
 
     // MARK: - Geometry
@@ -229,15 +235,24 @@ struct PracticeCalendarView: View {
                 y: CGFloat(index / Self.columns) * step + side / 2)
     }
 
-    /// The day a tap landed on, or nil for a tap outside the grid. A tap in the
-    /// gap between two squares counts for the one before it, so the small
-    /// squares don't have to be hit dead-on.
-    private func day(at location: CGPoint, step: CGFloat) -> PracticeDay? {
+    /// The square a tap landed on, in global coordinates, or nil for a tap
+    /// outside the grid. A tap in the gap between two squares counts for the
+    /// one before it, so the small squares don't have to be hit dead-on.
+    private func selection(at location: CGPoint, side: CGFloat, step: CGFloat,
+                           grid: CGRect) -> PracticeCalendarSelection? {
         guard location.x >= 0, location.y >= 0, step > 0 else { return nil }
         let column = Int(location.x / step), row = Int(location.y / step)
         guard column < Self.columns else { return nil }
         let index = row * Self.columns + column
-        return days.indices.contains(index) ? days[index] : nil
+        guard days.indices.contains(index) else { return nil }
+        let middle = centre(of: index, side: side, step: step)
+        return PracticeCalendarSelection(
+            day: days[index],
+            square: CGRect(x: grid.minX + middle.x - side / 2,
+                           y: grid.minY + middle.y - side / 2,
+                           width: side, height: side),
+            grid: grid
+        )
     }
 
     // MARK: - Colour
@@ -275,48 +290,77 @@ struct PracticeCalendarView: View {
                      blue: from.blue + (to.blue - from.blue) * t)
     }
 
-    // MARK: - Bubble
+    // MARK: - Accessibility
 
     /// How long a day was practised for. Written in minutes (and hours past the
     /// first one), dropping to seconds for a day with something on it but less
     /// than a minute, so a short session doesn't read as none at all — while a
-    /// day with nothing still reads as the round "0 min".  The style is handed
+    /// day with nothing still reads as the round "0 min". The style is handed
     /// the environment's locale by hand: that is the app's chosen language,
     /// which is not necessarily the device's.
-    private func durationStyle(_ seconds: Int) -> Duration.UnitsFormatStyle {
+    static func durationStyle(_ seconds: Int, locale: Locale) -> Duration.UnitsFormatStyle {
         Duration.UnitsFormatStyle(
             allowedUnits: (1..<60).contains(seconds) ? [.seconds] : [.hours, .minutes],
             width: .abbreviated
         ).locale(locale)
     }
 
+    /// What VoiceOver reads for a square. Nothing is written on it, so this is
+    /// the only way to hear which day it is and what is on it.
     private func label(for day: PracticeDay) -> Text {
         Text(day.date, format: .dateTime.day().month(.wide).year())
             + Text(verbatim: ", ")
-            + Text(Duration.seconds(day.seconds), format: durationStyle(day.seconds))
+            + Text(Duration.seconds(day.seconds),
+                   format: Self.durationStyle(day.seconds, locale: locale))
     }
+}
 
-    /// The bubble itself: the day's practice time over the day it was, with its
-    /// tail on the tapped square. It sits above the square when there is room
-    /// and flips below when there isn't, and slides sideways to stay inside the
-    /// grid — the tail follows, so it keeps pointing at the square either way.
-    /// Deliberately the same shape, type sizes and colours as the score chart's
-    /// data-point bubble.
-    private func bubble(for day: PracticeDay, at point: CGPoint,
-                        clearance: CGFloat, in size: CGSize) -> some View {
+/// The bubble a tapped calendar square puts up: the day's practice time over
+/// the day it was, with its tail on the square. Deliberately the same shape,
+/// type sizes and colours as the score chart's data-point bubble.
+///
+/// Drawn over the whole Home list rather than inside the calendar's row, which
+/// would clip it (see `PracticeCalendarView`) — but placed against the grid
+/// exactly as it would have been from in there: above the square when the grid
+/// has room above it and below when it hasn't, slid sideways to stay within the
+/// grid's width, the tail following either way so it keeps pointing at the
+/// square.
+struct PracticeCalendarBubble: View {
+    let selection: PracticeCalendarSelection
+    /// Where the view this is drawn in sits on screen, so the selection's
+    /// global coordinates can be brought into it.
+    let container: CGRect
+
+    @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.locale) private var locale
+
+    /// Measured size, needed to place the bubble against the square. Zero until
+    /// the first layout pass, which is why it stays hidden that long.
+    @State private var size: CGSize = .zero
+
+    /// The bubble's own drawing, over the colour that contrasts with the list
+    /// behind it.
+    private var ink: Color { colorScheme == .dark ? .white : .black }
+
+    var body: some View {
         let tailHeight: CGFloat = 7
         let inset: CGFloat = 2        // keeps the bubble off the grid's own edges
-        let pointsUp = point.y - clearance - bubbleSize.height < 0
-        let top = pointsUp ? point.y + clearance : point.y - clearance - bubbleSize.height
-        let centreX = min(max(point.x, bubbleSize.width / 2 + inset),
-                          max(size.width - bubbleSize.width / 2 - inset,
-                              bubbleSize.width / 2 + inset))
-        let shape = SpeechBubble(tailX: point.x - (centreX - bubbleSize.width / 2),
+        let point = CGPoint(x: selection.square.midX, y: selection.square.midY)
+        let clearance = selection.square.height / 2 + 3
+        let grid = selection.grid
+        let pointsUp = point.y - clearance - size.height < grid.minY
+        let top = pointsUp ? point.y + clearance : point.y - clearance - size.height
+        let centreX = min(max(point.x, grid.minX + size.width / 2 + inset),
+                          max(grid.maxX - size.width / 2 - inset,
+                              grid.minX + size.width / 2 + inset))
+        let shape = SpeechBubble(tailX: point.x - (centreX - size.width / 2),
                                  tailPointsUp: pointsUp,
                                  tailHeight: tailHeight)
+        let day = selection.day
 
-        return VStack(spacing: 1) {
-            Text(Duration.seconds(day.seconds), format: durationStyle(day.seconds))
+        VStack(spacing: 1) {
+            Text(Duration.seconds(day.seconds),
+                 format: PracticeCalendarView.durationStyle(day.seconds, locale: locale))
                 .font(.subheadline.weight(.semibold))
                 .foregroundStyle(Color.accentColor)
             Text(day.date, format: .dateTime.day().month(.abbreviated).year())
@@ -328,16 +372,16 @@ struct PracticeCalendarView: View {
         .padding(.horizontal, 10)
         .padding(.vertical, 6)
         .padding(pointsUp ? .top : .bottom, tailHeight)
-        // A shade off the row it sits on either way, so the bubble lifts off the
-        // squares without competing with them for attention.
+        // A shade off the row it points at either way, so the bubble lifts off
+        // the squares without competing with them for attention.
         .background(shape.fill(Color(white: colorScheme == .dark ? 0.16 : 1.0)))
         .overlay(shape.stroke(Color.accentColor.opacity(0.8), lineWidth: 1))
-        .onGeometryChange(for: CGSize.self) { $0.size } action: { bubbleSize = $0 }
+        .onGeometryChange(for: CGSize.self) { $0.size } action: { size = $0 }
         // Hidden until measured, otherwise the first frame flashes in the
         // wrong place.
-        .opacity(bubbleSize == .zero ? 0 : 1)
-        .position(x: centreX, y: top + bubbleSize.height / 2)
-        // Taps belong to the grid underneath, which puts the bubble away.
+        .opacity(size == .zero ? 0 : 1)
+        .position(x: centreX - container.minX, y: top + size.height / 2 - container.minY)
+        // Taps belong to the list underneath, which puts the bubble away.
         .allowsHitTesting(false)
     }
 }

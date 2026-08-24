@@ -95,6 +95,13 @@ struct ExerciseCollectionList: UIViewControllerRepresentable {
     var onHeaderLongPress: () -> Void = {}
     /// Tap on a section header's + button (sections with `showsAdd`).
     var onAdd: ((String) -> Void)? = nil
+    /// Tap on a square of a `.practiceCalendar` row, or nil for one that landed
+    /// on no square. The bubble it puts up is drawn over the list rather than
+    /// inside the row, which would clip it — so the screen showing the list is
+    /// the one that draws it, and this is how it hears about the tap. Called
+    /// with nil as the list is scrolled too, since a bubble drawn outside the
+    /// list can't travel with the square it points at.
+    var onCalendarSelect: ((PracticeCalendarSelection?) -> Void)? = nil
     /// (exercise, newCategory, idOfExerciseItNowPrecedes — nil appends).
     /// nil disables drag & drop entirely (Community tab).
     var onMove: ((UUID, String, UUID?) -> Void)? = nil
@@ -146,6 +153,7 @@ struct ExerciseCollectionList: UIViewControllerRepresentable {
         controller.onToggleCollapse = onToggleCollapse
         controller.onHeaderLongPress = onHeaderLongPress
         controller.onAdd = onAdd
+        controller.onCalendarSelect = onCalendarSelect
         controller.onMove = onMove
         controller.onDragChange = onDragChange
         controller.movesStayInSection = movesStayInSection
@@ -266,6 +274,7 @@ final class ExerciseListController: UIViewController {
     var onToggleCollapse: ((String) -> Void)?
     var onHeaderLongPress: (() -> Void)?
     var onAdd: ((String) -> Void)?
+    var onCalendarSelect: ((PracticeCalendarSelection?) -> Void)?
     var onMove: ((UUID, String, UUID?) -> Void)?
     var onDragChange: ((Bool) -> Void)?
     var movesStayInSection = false
@@ -401,22 +410,6 @@ final class ExerciseListController: UIViewController {
                 cell.setNeedsUpdateConfiguration()
             }
             let row = self?.rowsByID[itemID.id]
-            if case .practiceCalendar(let days) = row?.content {
-                // Not an exercise at all: the Home tab's practice calendar,
-                // drawn across the whole row. Handed the app's language by hand
-                // — the SwiftUI environment the rest of the app sets it in stops
-                // at this collection view.
-                let locale = (self?.language ?? LanguageManager.shared.language).locale
-                cell.contentConfiguration = UIHostingConfiguration {
-                    PracticeCalendarView(days: days)
-                        .environment(\.locale, locale)
-                }
-                cell.accessories = []
-                // Never the row in the air, and never left hidden by whichever
-                // row this cell was recycled from.
-                cell.isHidden = false
-                return
-            }
             if let row, let uploader = row.uploaderName, !uploader.isEmpty {
                 // The uploader's name rides along in grey right after the
                 // exercise name (Community tab). Separate labels, so a long
@@ -473,9 +466,33 @@ final class ExerciseListController: UIViewController {
             cell.isHidden = itemID == self?.draggedItem
             if cell.isHidden { self?.gapCell = cell }
         }
+        // The Home tab's calendar gets a registration of its own rather than
+        // another branch of the one above: it shares nothing with an exercise
+        // row but the cell class, and keeping the two apart keeps either from
+        // having to undo the other's leftovers.
+        let calendarRegistration = UICollectionView.CellRegistration<UICollectionViewListCell, ItemID> {
+            [weak self] cell, _, itemID in
+            guard case .practiceCalendar(let days) = self?.rowsByID[itemID.id]?.content
+            else { return }
+            // Handed the app's language by hand — the SwiftUI environment the
+            // rest of the app sets it in stops at this collection view.
+            let locale = (self?.language ?? LanguageManager.shared.language).locale
+            cell.contentConfiguration = UIHostingConfiguration {
+                PracticeCalendarView(days: days) { [weak self] selection in
+                    self?.onCalendarSelect?(selection)
+                }
+                .environment(\.locale, locale)
+            }
+            cell.accessories = []
+        }
         dataSource = UICollectionViewDiffableDataSource<String, ItemID>(collectionView: cv) {
-            collectionView, indexPath, itemID in
-            collectionView.dequeueConfiguredReusableCell(using: cellRegistration, for: indexPath, item: itemID)
+            [weak self] collectionView, indexPath, itemID in
+            if case .practiceCalendar = self?.rowsByID[itemID.id]?.content {
+                return collectionView.dequeueConfiguredReusableCell(
+                    using: calendarRegistration, for: indexPath, item: itemID)
+            }
+            return collectionView.dequeueConfiguredReusableCell(
+                using: cellRegistration, for: indexPath, item: itemID)
         }
 
         let headerRegistration = UICollectionView.SupplementaryRegistration<ExerciseSectionHeaderView>(
@@ -914,6 +931,12 @@ extension ExerciseListController: UICollectionViewDelegate {
                         willDisplay cell: UICollectionViewCell,
                         forItemAt indexPath: IndexPath) {
         loadMoreIfNeeded(displaying: indexPath)
+    }
+
+    /// The calendar's bubble is drawn over the list, not in it, so it doesn't
+    /// travel with the square it points at — scrolling puts it away instead.
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        onCalendarSelect?(nil)
     }
 }
 

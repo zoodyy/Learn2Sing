@@ -449,6 +449,7 @@ T("Deletes every routine you assembled. The exercises they were made of are kept
   "作成したすべてのルーティンを削除します。含まれていたエクササイズは残ります。",
   "직접 구성한 모든 루틴을 삭제합니다. 루틴에 담겼던 연습은 유지됩니다.",
   "删除你编排的所有训练组。其中的练习会保留。")
+T("Clear Practice Time", "Übungszeit löschen", "Borrar tiempo de práctica", "Effacer le temps de pratique", "Cancella il tempo di esercizio", "Limpar tempo de prática", "Oefentijd wissen", "Очистить время занятий", "Wyczyść czas ćwiczeń", "Çalışma süresini temizle", "Rensa övningstid", "練習時間を消去", "연습 시간 지우기", "清除练习时长")
 T("Clear Recently Played", "Zuletzt gespielt leeren", "Vaciar reproducidos recientemente", "Vider les exercices récents", "Svuota i recenti", "Limpar reproduzidos recentemente", "Recent gespeeld wissen", "Очистить недавние", "Wyczyść ostatnio odtwarzane", "Son kullanılanları temizle", "Rensa senast spelade", "最近再生した履歴を消去", "최근 재생 기록 지우기", "清除最近播放")
 T("Forgets what you played and when, emptying the Home tab's “Recent” list and the order “Recommended” picks by.",
   "Vergisst, was du wann gespielt hast: Die Liste „Zuletzt“ im Start-Tab wird geleert, ebenso die Reihenfolge, nach der „Empfohlen“ auswählt.",
@@ -506,3 +507,31 @@ T("Your play history will be forgotten, emptying the Home tab's “Recent” lis
   "再生履歴が消去され、ホームタブの「最近」リストが空になります。",
   "재생 기록이 지워지고 홈 탭의 “최근” 목록이 비워집니다.",
   "将忘记你的播放历史，并清空“首页”标签的“最近”列表。")
+T("Forgets how long you practised on each day, emptying the Home tab's “Calendar”.",
+  "Vergisst, wie lange du an welchem Tag geübt hast: Der „Kalender“ im Start-Tab wird geleert.",
+  "Olvida cuánto practicaste cada día: vacía el «Calendario» de la pestaña Inicio.",
+  "Oublie combien de temps vous avez pratiqué chaque jour : vide le « Calendrier » de l’onglet Accueil.",
+  "Dimentica quanto ti sei esercitato ogni giorno: svuota il “Calendario” della scheda Home.",
+  "Esquece quanto tempo você praticou em cada dia: esvazia o “Calendário” da aba Início.",
+  "Vergeet hoe lang je elke dag oefende: maakt de ‘Kalender’ op het tabblad Start leeg.",
+  "Забывает, сколько вы занимались каждый день: очищает «Календарь» на вкладке «Главная».",
+  "Zapomina, jak długo ćwiczyłeś każdego dnia: opróżnia „Kalendarz” na karcie Start.",
+  "Her gün ne kadar çalıştığınızı unutur: Ana Sayfa sekmesindeki “Takvim”i boşaltır.",
+  "Glömmer hur länge du övat varje dag: tömmer ”Kalender” på fliken Hem.",
+  "どの日にどれだけ練習したかを忘れます。ホームタブの「カレンダー」が空になります。",
+  "어느 날 얼마나 연습했는지 잊습니다. 홈 탭의 “달력”이 비워집니다.",
+  "忘记你每天练了多久：清空“首页”标签的“日历”。")
+T("Your practice time will be forgotten, emptying the Home tab's “Calendar”.",
+  "Deine Übungszeit wird vergessen und der „Kalender“ im Start-Tab geleert.",
+  "Se olvidará tu tiempo de práctica y se vaciará el «Calendario» de la pestaña Inicio.",
+  "Votre temps de pratique sera oublié et le « Calendrier » de l’onglet Accueil sera vidé.",
+  "Il tuo tempo di esercizio verrà dimenticato e il “Calendario” della scheda Home sarà svuotato.",
+  "Seu tempo de prática será esquecido e o “Calendário” da aba Início será esvaziado.",
+  "Je oefentijd wordt vergeten en de ‘Kalender’ op het tabblad Start wordt leeggemaakt.",
+  "Время занятий будет забыто, а «Календарь» на вкладке «Главная» очищен.",
+  "Twój czas ćwiczeń zostanie zapomniany, a „Kalendarz” na karcie Start opróżniony.",
+  "Çalışma süreniz unutulacak ve Ana Sayfa sekmesindeki “Takvim” boşalacak.",
+  "Din övningstid glöms och ”Kalender” på fliken Hem töms.",
+  "練習時間が忘れられ、ホームタブの「カレンダー」が空になります。",
+  "연습 시간이 잊히고 홈 탭의 “달력”이 비워집니다.",
+  "将忘记你的练习时长，并清空“首页”标签的“日历”。")

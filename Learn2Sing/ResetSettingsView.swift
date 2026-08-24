@@ -454,8 +454,9 @@ struct ExercisesResetView: View {
 
 // MARK: - Home
 
-/// Reset ▸ Home: clears the three lists the Home tab builds over the library.
-/// None of them delete an exercise — only its membership in the list.
+/// Reset ▸ Home: clears the three lists the Home tab builds over the library,
+/// and the practice time its calendar is drawn from. None of them delete an
+/// exercise — only its membership in a list.
 struct HomeResetView: View {
     /// Re-renders this screen when the language is changed in Settings; the
     /// strings are resolved when the body runs, so SwiftUI needs telling.
@@ -469,9 +470,15 @@ struct HomeResetView: View {
         case favourites
         case routines
         case history
+        case practice
     }
 
     @State private var pending: Reset?
+
+    /// How many days have practice time against them. Held in state rather than
+    /// read each render because it comes from UserDefaults, which publishes
+    /// nothing — clearing it is what refreshes the row.
+    @State private var practiceDays = 0
 
     var body: some View {
         Form {
@@ -514,10 +521,25 @@ struct HomeResetView: View {
                 ) {
                     store.clearPlayHistory()
                 }
+
+                countedButton(L("Clear Practice Time"), systemImage: "calendar",
+                              count: practiceDays) {
+                    pending = .practice
+                }
+                .settingHelp(L("Forgets how long you practised on each day, emptying the Home tab's “Calendar”."))
+                .resetConfirmation(
+                    $pending, for: .practice,
+                    confirmLabel: L("Delete"),
+                    message: L("Your practice time will be forgotten, emptying the Home tab's “Calendar”.")
+                ) {
+                    PracticeLog.deleteAll()
+                    practiceDays = 0
+                }
             }
         }
         .navigationTitle(L("Home"))
         .navigationBarTitleDisplayMode(.inline)
+        .onAppear { practiceDays = PracticeLog.all().count }
     }
 
     /// A destructive row with the size of the list it would clear on its trailing

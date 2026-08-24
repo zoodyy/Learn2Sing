@@ -205,6 +205,12 @@ struct HomeView: View {
     /// Never spans categories: the last exercise of one gets no Next button.
     @State private var playQueue: [UUID] = []
 
+    /// The calendar square the bubble is currently pointing at, if any. It
+    /// lives here rather than in the calendar itself because the bubble is
+    /// drawn over the whole list — the row it belongs to would clip it (see
+    /// PracticeCalendarView).
+    @State private var calendarSelection: PracticeCalendarSelection?
+
     /// Categories the user has collapsed. Their exercises are hidden; unlike the
     /// Exercises tab, no count appears in the header.
     @State private var collapsedCategories: Set<String> = []
@@ -415,6 +421,15 @@ struct HomeView: View {
                     isNamingNewRoutine = true
                 }
             },
+            onCalendarSelect: { selection in
+                withAnimation(.snappy(duration: 0.2)) {
+                    // Tapping the square the bubble already points at puts it
+                    // away — the grid leaves no empty space to tap instead, the
+                    // way the score chart's plot does.
+                    calendarSelection = (selection?.day == calendarSelection?.day)
+                        ? nil : selection
+                }
+            },
             // Long-press drag rearranges the favourites and the routines,
             // exactly like the Exercises tab — except each list is its own
             // (`movesStayInSection`), so nothing can be dragged from one
@@ -432,6 +447,21 @@ struct HomeView: View {
         // Span the full screen like a List so content scrolls under the
         // navigation and tab bars.
         .ignoresSafeArea()
+        // The bubble a tapped square puts up. Over the list rather than inside
+        // the calendar's row, where it would be cut off against the card: a
+        // bubble pointing at a square in the middle row has to reach past the
+        // card and onto the list's own background. It arrives in global
+        // coordinates, which is what both sides can speak (see
+        // PracticeCalendarBubble).
+        .overlay {
+            GeometryReader { geo in
+                if let calendarSelection {
+                    PracticeCalendarBubble(selection: calendarSelection,
+                                           container: geo.frame(in: .global))
+                }
+            }
+            .allowsHitTesting(false)
+        }
     }
 
     var body: some View {
@@ -465,6 +495,9 @@ struct HomeView: View {
             }
             .onChange(of: navigationPath) { old, new in
                 toasts.routesPopped(from: old, to: new)
+                // The bubble belongs to this screen, so it doesn't follow the
+                // user onto the next one and shouldn't be waiting on the way back.
+                calendarSelection = nil
             }
             // A delete is the only thing that can shorten the library, and the
             // only thing that can leave a route on the path pointing at something

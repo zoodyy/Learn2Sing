@@ -4973,6 +4973,89 @@
         }
       }
     },
+    "Clear Practice Time" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Übungszeit löschen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Borrar tiempo de práctica"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Effacer le temps de pratique"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cancella il tempo di esercizio"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "練習時間を消去"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "연습 시간 지우기"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Oefentijd wissen"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wyczyść czas ćwiczeń"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Limpar tempo de prática"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Очистить время занятий"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rensa övningstid"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Çalışma süresini temizle"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "清除练习时长"
+          }
+        }
+      }
+    },
     "Clear Recently Played" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -11991,6 +12074,89 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "垂直跟随音符"
+          }
+        }
+      }
+    },
+    "Forgets how long you practised on each day, emptying the Home tab's “Calendar”." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vergisst, wie lange du an welchem Tag geübt hast: Der „Kalender“ im Start-Tab wird geleert."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Olvida cuánto practicaste cada día: vacía el «Calendario» de la pestaña Inicio."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Oublie combien de temps vous avez pratiqué chaque jour : vide le « Calendrier » de l’onglet Accueil."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dimentica quanto ti sei esercitato ogni giorno: svuota il “Calendario” della scheda Home."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "どの日にどれだけ練習したかを忘れます。ホームタブの「カレンダー」が空になります。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "어느 날 얼마나 연습했는지 잊습니다. 홈 탭의 “달력”이 비워집니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vergeet hoe lang je elke dag oefende: maakt de ‘Kalender’ op het tabblad Start leeg."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zapomina, jak długo ćwiczyłeś każdego dnia: opróżnia „Kalendarz” na karcie Start."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Esquece quanto tempo você praticou em cada dia: esvazia o “Calendário” da aba Início."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Забывает, сколько вы занимались каждый день: очищает «Календарь» на вкладке «Главная»."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Glömmer hur länge du övat varje dag: tömmer ”Kalender” på fliken Hem."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Her gün ne kadar çalıştığınızı unutur: Ana Sayfa sekmesindeki “Takvim”i boşaltır."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "忘记你每天练了多久：清空“首页”标签的“日历”。"
           }
         }
       }
@@ -34694,6 +34860,89 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "将忘记你的播放历史，并清空“首页”标签的“最近”列表。"
+          }
+        }
+      }
+    },
+    "Your practice time will be forgotten, emptying the Home tab's “Calendar”." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deine Übungszeit wird vergessen und der „Kalender“ im Start-Tab geleert."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Se olvidará tu tiempo de práctica y se vaciará el «Calendario» de la pestaña Inicio."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Votre temps de pratique sera oublié et le « Calendrier » de l’onglet Accueil sera vidé."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il tuo tempo di esercizio verrà dimenticato e il “Calendario” della scheda Home sarà svuotato."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "練習時間が忘れられ、ホームタブの「カレンダー」が空になります。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "연습 시간이 잊히고 홈 탭의 “달력”이 비워집니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Je oefentijd wordt vergeten en de ‘Kalender’ op het tabblad Start wordt leeggemaakt."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Twój czas ćwiczeń zostanie zapomniany, a „Kalendarz” na karcie Start opróżniony."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Seu tempo de prática será esquecido e o “Calendário” da aba Início será esvaziado."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Время занятий будет забыто, а «Календарь» на вкладке «Главная» очищен."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Din övningstid glöms och ”Kalender” på fliken Hem töms."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Çalışma süreniz unutulacak ve Ana Sayfa sekmesindeki “Takvim” boşalacak."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "将忘记你的练习时长，并清空“首页”标签的“日历”。"
           }
         }
       }
