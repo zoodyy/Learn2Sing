@@ -1,12 +1,25 @@
 import SwiftUI
 import UIKit
 
+/// What a row draws. Almost every row is an exercise — its name, with its MIDI
+/// pattern on the trailing edge. The Home tab's calendar is the exception: a
+/// view of its own filling the row, with no name, no swipe actions and nothing
+/// to open. Its days ride along here so the list notices when they change and
+/// redraws the cell.
+enum ExerciseListRowContent: Equatable {
+    case exercise
+    case practiceCalendar([PracticeDay])
+}
+
 /// One row of the exercise list: the exercise plus its MIDI pattern (a single
 /// repetition — the stored notes, before any repeat/transpose playback settings),
 /// drawn as a thumbnail on the row's trailing edge.
 struct ExerciseListRow: Equatable {
     var exercise: Exercise
     var pattern: [MIDINote]
+    /// What the row draws in place of the exercise name — an exercise, unless
+    /// the row is one of the list's own (the Home tab's calendar).
+    var content: ExerciseListRowContent = .exercise
     /// Shown in grey between the name and the pattern thumbnail (Community tab
     /// only — nil hides it).
     var uploaderName: String? = nil
@@ -388,6 +401,22 @@ final class ExerciseListController: UIViewController {
                 cell.setNeedsUpdateConfiguration()
             }
             let row = self?.rowsByID[itemID.id]
+            if case .practiceCalendar(let days) = row?.content {
+                // Not an exercise at all: the Home tab's practice calendar,
+                // drawn across the whole row. Handed the app's language by hand
+                // — the SwiftUI environment the rest of the app sets it in stops
+                // at this collection view.
+                let locale = (self?.language ?? LanguageManager.shared.language).locale
+                cell.contentConfiguration = UIHostingConfiguration {
+                    PracticeCalendarView(days: days)
+                        .environment(\.locale, locale)
+                }
+                cell.accessories = []
+                // Never the row in the air, and never left hidden by whichever
+                // row this cell was recycled from.
+                cell.isHidden = false
+                return
+            }
             if let row, let uploader = row.uploaderName, !uploader.isEmpty {
                 // The uploader's name rides along in grey right after the
                 // exercise name (Community tab). Separate labels, so a long
@@ -829,7 +858,7 @@ final class ExerciseListController: UIViewController {
     private func leadingSwipeActions(at indexPath: IndexPath) -> UISwipeActionsConfiguration? {
         guard onSettings != nil,
               let id = dataSource.itemIdentifier(for: indexPath)?.id,
-              let row = rowsByID[id] else { return nil }
+              let row = rowsByID[id], row.content == .exercise else { return nil }
         let action = UIContextualAction(style: .normal, title: row.swipeActionTitle) { [weak self] _, _, done in
             self?.onSettings?(id)
             done(true)
@@ -861,6 +890,16 @@ final class ExerciseListController: UIViewController {
 // MARK: - Selection
 
 extension ExerciseListController: UICollectionViewDelegate {
+    /// A row that isn't an exercise (the Home tab's calendar) has nothing to
+    /// open, so it never highlights under the finger and never reports a tap —
+    /// the taps on it belong to the view it draws.
+    func collectionView(_ collectionView: UICollectionView,
+                        shouldSelectItemAt indexPath: IndexPath) -> Bool {
+        guard let item = dataSource.itemIdentifier(for: indexPath),
+              let row = rowsByID[item.id] else { return true }
+        return row.content == .exercise
+    }
+
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         collectionView.deselectItem(at: indexPath, animated: true)
         guard let item = dataSource.itemIdentifier(for: indexPath) else { return }

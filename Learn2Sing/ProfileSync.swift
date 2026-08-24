@@ -82,7 +82,8 @@ final class ProfileSync {
 
     /// Builds the full profile JSON (username + device ID + exercise library +
     /// the Home tab's routines and favourites + every exercise's scores + the
-    /// settings), saves it locally, and POSTs it to the server.
+    /// practice calendar + the settings), saves it locally, and POSTs it to the
+    /// server.
     private func upload() async {
         guard readyToUpload, let store else { return }
         var profile = UserProfile.load()
@@ -238,6 +239,9 @@ final class ProfileSync {
         }
         if let scores = remote.scores {
             ScoreHistory.merge(scores.mapValues(\.entries))
+        }
+        if let practice = remote.practice {
+            PracticeLog.merge(doc: practice)
         }
         // The settings, last: they are the one part that replaces rather than
         // merges — a setting has a single value, and the restored one is it. The

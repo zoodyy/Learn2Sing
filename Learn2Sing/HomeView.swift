@@ -15,9 +15,19 @@ enum HomeCategories {
     static let routines = "Routines"
     static let favourites = "Favourites"
     static let recommended = "Recommended"
+    static let calendar = "Calendar"
 
     /// Every built-in category, in the order a user who never rearranged them sees.
-    static let all = [recent, routines, favourites, recommended]
+    /// New categories go on the end: `parse` appends the ones a stored order
+    /// predates, so anywhere else would put them somewhere different for a user
+    /// who has rearranged their categories than for one who hasn't.
+    static let all = [recent, routines, favourites, recommended, calendar]
+
+    /// Identifies the single row the "Calendar" category is made of. It isn't an
+    /// exercise, but the list is built around rows that are, so the calendar
+    /// rides in a placeholder carrying this fixed id.
+    static let calendarRowID = UUID(uuidString: "CA1E4DA9-0000-4000-8000-000000000001")
+        ?? UUID()
 
     static let orderKey = "homeCategoryOrder"
     /// The categories hidden from the tab, stored newline-joined like the order and
@@ -142,15 +152,16 @@ private struct HomeCategoryEditView: View {
 /// user's own ordered exercise lists, created via the + button; swipe right on
 /// one to edit it, swipe left to delete it after a confirmation),
 /// "Favourites" (a single ordered exercise list, its + button opening the
-/// edit-favourites screen), and "Recommended" (the whitelisted exercises played
-/// longest ago, as many as Settings ▸ Exercises asks for). Routines and
-/// favourites are rearranged in place by long-pressing a row and dragging it,
-/// each within its own category — the two computed categories can't be. The
-/// categories look and behave like the Exercises tab's
-/// (tap to collapse, long-press to rearrange) but never show exercise counts,
-/// and the reorder screen has no add, delete, or rename — the categories are
-/// fixed, though each one's eye button hides it from this tab (never the last
-/// visible one).
+/// edit-favourites screen), "Recommended" (the whitelisted exercises played
+/// longest ago, as many as Settings ▸ Exercises asks for), and "Calendar" (the
+/// last 30 days of practice as coloured squares — see PracticeCalendarView).
+/// Routines and favourites are rearranged in place by long-pressing a row and
+/// dragging it, each within its own category — the computed categories can't
+/// be, and neither can the calendar. The categories look and behave like the
+/// Exercises tab's (tap to collapse, long-press to rearrange) but never show
+/// exercise counts, and the reorder screen has no add, delete, or rename — the
+/// categories are fixed, though each one's eye button hides it from this tab
+/// (never the last visible one).
 struct HomeView: View {
     /// Re-renders this screen when the language is changed in Settings; the
     /// strings are resolved when the body runs, so SwiftUI needs telling.
@@ -256,9 +267,24 @@ struct HomeView: View {
             favouriteExercises.map { ExerciseListRow(exercise: $0, pattern: store.notes(for: $0.id)) }
         case HomeCategories.recommended:
             recommendedExercises.map { ExerciseListRow(exercise: $0, pattern: store.notes(for: $0.id)) }
+        case HomeCategories.calendar:
+            [calendarRow]
         default:
             []
         }
+    }
+
+    /// The one row "Calendar" holds: the practice calendar itself, drawn across
+    /// the whole row. Its days are read fresh here rather than by the view, so
+    /// a finished run — which republishes the store, and so rebuilds this
+    /// screen — reaches the list as a changed row and redraws the squares.
+    private var calendarRow: ExerciseListRow {
+        var placeholder = Exercise(name: "")
+        placeholder.id = HomeCategories.calendarRowID
+        return ExerciseListRow(
+            exercise: placeholder, pattern: [],
+            content: .practiceCalendar(PracticeLog.recentDays(PracticeCalendarView.dayCount))
+        )
     }
 
     /// The categories the user arranges by hand — the ones that are lists they

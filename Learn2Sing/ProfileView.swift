@@ -40,6 +40,10 @@ struct UserProfile: Codable {
     /// exercise UUID string. Optional so profiles written before scores were
     /// synced still decode.
     var scores: [String: ScoreHistoryDoc]? = nil
+    /// How long was practised on each day — what the Home tab's calendar draws —
+    /// as day number and seconds interleaved, `[d₀, s₀, d₁, s₁, …]`. Optional so
+    /// profiles written before the calendar existed still decode.
+    var practice: [Int]? = nil
     /// The Settings tab's settings, bar the language. Optional so profiles written
     /// before settings were synced still decode.
     var settings: UserSettings? = nil
@@ -63,8 +67,9 @@ struct UserProfile: Codable {
 
     /// Fills in the parts of the profile that live outside the profile file: the
     /// exercise library, the Home tab's category order, routines and favourites,
-    /// every exercise's score history, and the settings. Used for both the copy
-    /// ProfileSync uploads and the file the profile screen shares.
+    /// every exercise's score history, the practice calendar, and the settings.
+    /// Used for both the copy ProfileSync uploads and the file the profile
+    /// screen shares.
     mutating func snapshot(_ store: ExerciseStore) {
         exercises = store.exportBundle()
         homeCategoryOrder = HomeCategories.stored
@@ -72,6 +77,7 @@ struct UserProfile: Codable {
         favourites = store.favourites
         let histories = ScoreHistory.all().mapValues(ScoreHistoryDoc.init)
         scores = histories.isEmpty ? nil : histories
+        practice = PracticeLog.doc()
         settings = UserSettings.capturingCurrent(store: store)
     }
 

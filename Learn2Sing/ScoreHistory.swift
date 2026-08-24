@@ -443,7 +443,10 @@ struct ScoreHistoryChart: View {
 /// `rect` covers the tail as well: the body is inset by `tailHeight` on the side
 /// the tail sticks out of, which is what the matching `.padding` at the call site
 /// leaves room for.
-private struct SpeechBubble: Shape {
+///
+/// Shared with the Home tab's practice calendar, whose squares put up the same
+/// kind of bubble as this chart's data points.
+struct SpeechBubble: Shape {
     /// Where the tail's tip sits horizontally, in the shape's own coordinates.
     /// Clamped to the straight part of the edge, so the tail can't grow out of a
     /// rounded corner when the bubble has slid sideways to stay on screen.

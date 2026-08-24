@@ -848,6 +848,15 @@ struct PlaybackView: View {
 
     private var bpm: Double { mode == .clapDelayTest ? 160 : exercise.bpm }
 
+    /// How long a full run takes, in seconds: exactly the span the player
+    /// schedules — the silent lead-in, every repetition (each already stretched
+    /// to its own tempo in `notes`), and the beat it waits at the end. This is
+    /// what a finished run adds to the Home tab's practice calendar.
+    private var runDuration: Double {
+        let lastBeat = notes.map { $0.beat + $0.length }.max() ?? 0
+        return (lastBeat + leadIn + 1.0) * (60.0 / bpm)
+    }
+
     /// Whether this run is one of the user's own exercises, played the way the
     /// Exercises tab plays it — true for a normal run and for the sung delay test,
     /// which only differs in where it goes once the exercise has played out.
@@ -1040,8 +1049,11 @@ struct PlaybackView: View {
                     // Save before showing the result so the chart includes this run.
                     ScoreHistory.record(score: score, for: exercise.id)
                     // The run played through to the end, so it counts for the
-                    // Home tab's "Recent" category regardless of the score.
+                    // Home tab's "Recent" category regardless of the score — and
+                    // for its full length on the Home tab's calendar, which a
+                    // run walked out of before this point never reaches.
                     store.markPlayed(exercise.id)
+                    PracticeLog.record(seconds: runDuration)
                     finalScore = score
                 }
             }

@@ -12,6 +12,7 @@ T("Recent", "Zuletzt", "Recientes", "Récents", "Recenti", "Recentes", "Recent",
 T("Routines", "Routinen", "Rutinas", "Routines", "Routine", "Rotinas", "Routines", "Программы", "Rutyny", "Rutinler", "Rutiner", "ルーティン", "루틴", "训练组")
 T("Favourites", "Favoriten", "Favoritos", "Favoris", "Preferiti", "Favoritos", "Favorieten", "Избранное", "Ulubione", "Favoriler", "Favoriter", "お気に入り", "즐겨찾기", "收藏")
 T("Recommended", "Empfohlen", "Recomendado", "Recommandé", "Consigliati", "Recomendado", "Aanbevolen", "Рекомендуемые", "Polecane", "Önerilen", "Rekommenderat", "おすすめ", "추천", "推荐")
+T("Calendar", "Kalender", "Calendario", "Calendrier", "Calendario", "Calendário", "Kalender", "Календарь", "Kalendarz", "Takvim", "Kalender", "カレンダー", "달력", "日历")
 
 # --- Exercises tab ---
 T("New Exercise", "Neue Übung", "Nuevo ejercicio", "Nouvel exercice", "Nuovo esercizio", "Novo exercício", "Nieuwe oefening", "Новое упражнение", "Nowe ćwiczenie", "Yeni egzersiz", "Ny övning", "新規エクササイズ", "새 연습", "新建练习")
