@@ -1,9 +1,9 @@
 import Foundation
 
 /// The order the Community tab's list is shown in, picked from the sort menu in
-/// the toolbar and remembered across launches. CommunitySync applies the two it
-/// can (it owns the share dates "Newest First" goes by), and leaves the rest in
-/// the order the server returned them — see `isServerOrdered`.
+/// the toolbar and remembered across launches. The sorting is the server's: the
+/// pick rides along on every fetch as `sortBy` / `sortDirection`, and the list
+/// is shown in the order that came back (see CommunityFeed).
 enum CommunitySort: String, CaseIterable, Identifiable {
     case hot
     case newest
@@ -44,9 +44,10 @@ enum CommunitySort: String, CaseIterable, Identifiable {
 
 /// How each order maps onto the public fetch endpoint's `sortBy` /
 /// `sortDirection` parameters, which the server needs on every call (it answers
-/// 500 without them). The list still gets sorted locally afterwards as well:
-/// search results, the like filters and the per-uploader profiles all show
-/// subsets, which only the app can order.
+/// 500 without them). This is the whole of the sorting: the app never reorders
+/// what comes back, and everything it draws out of a fetched list — the search
+/// sections, a filtered list, an uploader's profile — is a subset of one, which
+/// is still in the order the server put it in.
 extension CommunitySort {
     /// The endpoint's `sortBy` values to try, most likely first. More than one
     /// only for the date orders: the backend answers 400 for the documented
@@ -103,32 +104,14 @@ extension CommunitySort {
     /// first.
     ///
     /// Not used when the reverse switch is on: upside down the remainder belongs
-    /// at the head, which can't be worked out without the whole ranking, so the
-    /// reversed count orders list what their own query returns and nothing else.
+    /// at the head, and the list is appended to a page at a time in the order it
+    /// is read, so there is nowhere to put it. The reversed count orders
+    /// therefore list what their own query returns and nothing else.
     var topUpSort: CommunitySort? {
         switch self {
         case .hot: .recentlyUpdated
         case .mostLiked, .mostPlayed, .mostDownloaded: .newest
         case .newest, .recentlyUpdated, .alphabetical: nil
-        }
-    }
-
-    /// Whether only the server can put this order together, so the app shows the
-    /// fetched list in the order it arrived rather than re-deriving one.
-    ///
-    /// `hot` is the server's own ranking of recency against engagement, and
-    /// `recentlyUpdated` goes by the record's server-side write time — neither
-    /// number is in what the fetch hands back. The three count orders are the
-    /// server's too: the app knows a like/play/download total only for the
-    /// exercises that have been opened on this device (the tally is fetched per
-    /// exercise — see CommunitySync.refreshSummary), so it has nothing to rank
-    /// the list on. Picking any of these refetches (see CommunityView), which is
-    /// what keeps the held list in the order the menu is asking for — the reverse
-    /// switch included, since the fetch is what carries it as `sortDirection`.
-    var isServerOrdered: Bool {
-        switch self {
-        case .hot, .recentlyUpdated, .mostLiked, .mostPlayed, .mostDownloaded: true
-        case .newest, .alphabetical: false
         }
     }
 }

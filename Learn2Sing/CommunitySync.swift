@@ -105,8 +105,7 @@ enum UserEventType: String {
 /// opened rather than for the whole list — the counts appear on the intro
 /// screen only, and summarising a few hundred exercises to draw none of them
 /// meant a few hundred calls on every refresh (every change of sort order
-/// included). The orders that rank on these counts are the server's to work out
-/// (see `CommunitySort.isServerOrdered`).
+/// included). The orders that rank on these counts are the server's to work out.
 nonisolated struct EventSummary: Decodable {
     var totalLikes: Int
     var totalDownloads: Int

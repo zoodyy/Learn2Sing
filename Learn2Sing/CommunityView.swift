@@ -140,10 +140,9 @@ struct CommunityView: View {
             }
         }
 
-        let sortedExercises = list.sorted(list.exercises, by: sort, reversed: reversed)
         let query = searchText.trimmingCharacters(in: .whitespaces)
         guard !query.isEmpty else {
-            let rows = exerciseRows(sortedExercises)
+            let rows = exerciseRows(list.exercises)
             guard !rows.isEmpty else { return ([], [:]) }
             return ([ExerciseListSection(category: "",
                                          isCollapsed: false,
@@ -185,7 +184,7 @@ struct CommunityView: View {
                                                 displayName: L("Users")))
         }
 
-        let exerciseMatches = exerciseRows(sortedExercises.filter {
+        let exerciseMatches = exerciseRows(list.exercises.filter {
             Self.matches($0.name, query) || Self.matches($0.details, query)
         })
         if !exerciseMatches.isEmpty {
@@ -397,7 +396,7 @@ struct CommunityUserProfileView: View {
     /// so what came back is the list — including the exercises it matched on this
     /// uploader's name rather than on their own.
     private var listSections: [ExerciseListSection] {
-        let rows = list.sorted(list.exercises, by: sort, reversed: reversed)
+        let rows = list.exercises
             .map { exercise in
                 ExerciseListRow(exercise: exercise,
                                 pattern: store.notes(for: exercise.id))

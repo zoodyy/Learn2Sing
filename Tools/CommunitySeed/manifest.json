@@ -1,0 +1,1070 @@
+{
+ "accounts": [
+  {
+   "userID": "76ef8c84-2d91-5956-8d19-bc35e3282e14",
+   "username": "Mira Vocalis",
+   "seedKey": "l2s-seed-2026-08-25-user-0",
+   "status": "ok"
+  },
+  {
+   "userID": "0d0964ca-66df-5af0-8431-3ce9314b3f8c",
+   "username": "Tobias Lund",
+   "seedKey": "l2s-seed-2026-08-25-user-1",
+   "status": "ok"
+  },
+  {
+   "userID": "328c5eb8-b3be-52f7-ad5a-a873bb827c2c",
+   "username": "Selin Aydar",
+   "seedKey": "l2s-seed-2026-08-25-user-2",
+   "status": "ok"
+  },
+  {
+   "userID": "f12f94b3-bb4d-5cfd-a777-140fb545d145",
+   "username": "Rosa Delacroix",
+   "seedKey": "l2s-seed-2026-08-25-user-3",
+   "status": "ok"
+  },
+  {
+   "userID": "9107c3ed-7a8d-5c17-a1d5-cd2b87218b4b",
+   "username": "Kenji Harada",
+   "seedKey": "l2s-seed-2026-08-25-user-4",
+   "status": "ok"
+  },
+  {
+   "userID": "c7ed3703-f9ce-50c9-80c8-642537364aeb",
+   "username": "Nadia Brekke",
+   "seedKey": "l2s-seed-2026-08-25-user-5",
+   "status": "ok"
+  },
+  {
+   "userID": "ac308e4f-d9da-51a2-bb84-cb8367c0d93c",
+   "username": "Oskar Vainio",
+   "seedKey": "l2s-seed-2026-08-25-user-6",
+   "status": "ok"
+  },
+  {
+   "userID": "f70bfd1a-3470-5b64-8c02-63ae313c1a08",
+   "username": "Lucia Marenzi",
+   "seedKey": "l2s-seed-2026-08-25-user-7",
+   "status": "ok"
+  },
+  {
+   "userID": "450ed3c8-d4ed-5bc1-baf0-69f808dda9c4",
+   "username": "Farah Nassar",
+   "seedKey": "l2s-seed-2026-08-25-user-8",
+   "status": "ok"
+  },
+  {
+   "userID": "bfdb3e95-4782-5d13-825b-39d290a810be",
+   "username": "Ivo Petran",
+   "seedKey": "l2s-seed-2026-08-25-user-9",
+   "status": "ok"
+  },
+  {
+   "userID": "25fb02d9-1ef3-500c-8887-933601690d74",
+   "username": "Greta Solheim",
+   "seedKey": "l2s-seed-2026-08-25-user-10",
+   "status": "ok"
+  },
+  {
+   "userID": "c9228f8e-2492-5d8b-a127-3a36c424583f",
+   "username": "Diego Alcazar",
+   "seedKey": "l2s-seed-2026-08-25-user-11",
+   "status": "ok"
+  }
+ ],
+ "exercises": [
+  {
+   "id": "7ebf826f-09ba-5a6f-8c44-a87144e8ae83",
+   "name": "Simple Descent",
+   "userID": "76ef8c84-2d91-5956-8d19-bc35e3282e14",
+   "uploader": "Mira Vocalis",
+   "publish": "ok",
+   "counts": {
+    "ADD_LIKE": 3,
+    "ADD_DOWNLOAD": 9,
+    "ADD_PLAY": 3
+   }
+  },
+  {
+   "id": "1abd76fd-45e6-55be-8f5f-db46b10598e1",
+   "name": "Low Octave Jump",
+   "userID": "0d0964ca-66df-5af0-8431-3ce9314b3f8c",
+   "uploader": "Tobias Lund",
+   "publish": "ok",
+   "counts": {
+    "ADD_LIKE": 9,
+    "ADD_DOWNLOAD": 5,
+    "ADD_PLAY": 5
+   }
+  },
+  {
+   "id": "a00bbfdf-8e54-5ab6-ac1c-1447a4cf3494",
+   "name": "Gentle Sustain",
+   "userID": "328c5eb8-b3be-52f7-ad5a-a873bb827c2c",
+   "uploader": "Selin Aydar",
+   "publish": "ok",
+   "counts": {
+    "ADD_LIKE": 6,
+    "ADD_DOWNLOAD": 10,
+    "ADD_PLAY": 9
+   }
+  },
+  {
+   "id": "5b8b8a2f-9e80-5e0b-93e4-c239fae9721c",
+   "name": "Bright Lip Roll",
+   "userID": "f12f94b3-bb4d-5cfd-a777-140fb545d145",
+   "uploader": "Rosa Delacroix",
+   "publish": "ok",
+   "counts": {
+    "ADD_LIKE": 6,
+    "ADD_DOWNLOAD": 1,
+    "ADD_PLAY": 6
+   }
+  },
+  {
+   "id": "d8c56565-81a3-5d91-b15f-d5a695615c33",
+   "name": "Firm Sustain",
+   "userID": "9107c3ed-7a8d-5c17-a1d5-cd2b87218b4b",
+   "uploader": "Kenji Harada",
+   "publish": "ok",
+   "counts": {
+    "ADD_LIKE": 0,
+    "ADD_DOWNLOAD": 7,
+    "ADD_PLAY": 2
+   }
+  },
+  {
+   "id": "db9b5c2c-9aa6-53da-bddb-7f9250c6d50a",
+   "name": "Steady Ladder",
+   "userID": "c7ed3703-f9ce-50c9-80c8-642537364aeb",
+   "uploader": "Nadia Brekke",
+   "publish": "ok",
+   "counts": {
+    "ADD_LIKE": 0,
+    "ADD_DOWNLOAD": 10,
+    "ADD_PLAY": 6
+   }
+  },
+  {
+   "id": "888d09e4-05f9-5bf9-ad1f-f7afe761a1a8",
+   "name": "Short Staccato Run",
+   "userID": "ac308e4f-d9da-51a2-bb84-cb8367c0d93c",
+   "uploader": "Oskar Vainio",
+   "publish": "ok",
+   "counts": {
+    "ADD_LIKE": 2,
+    "ADD_DOWNLOAD": 0,
+    "ADD_PLAY": 8
+   }
+  },
+  {
+   "id": "b72beaba-8b55-512e-87fd-23bea6768c86",
+   "name": "Morning Legato Line",
+   "userID": "f70bfd1a-3470-5b64-8c02-63ae313c1a08",
+   "uploader": "Lucia Marenzi",
+   "publish": "ok",
+   "counts": {
+    "ADD_LIKE": 3,
+    "ADD_DOWNLOAD": 7,
+    "ADD_PLAY": 0
+   }
+  },
+  {
+   "id": "e3c8d5f0-0dd3-50ed-b267-2f6348ffd46b",
+   "name": "Slow Octave Jump",
+   "userID": "450ed3c8-d4ed-5bc1-baf0-69f808dda9c4",
+   "uploader": "Farah Nassar",
+   "publish": "ok",
+   "counts": {
+    "ADD_LIKE": 5,
+    "ADD_DOWNLOAD": 2,
+    "ADD_PLAY": 1
+   }
+  },
+  {
+   "id": "fa52959f-9a47-5ba1-8c69-4d61b0191027",
+   "name": "Morning Five Tone",
+   "userID": "bfdb3e95-4782-5d13-825b-39d290a810be",
+   "uploader": "Ivo Petran",
+   "publish": "ok",
+   "counts": {
+    "ADD_LIKE": 9,
+    "ADD_DOWNLOAD": 4,
+    "ADD_PLAY": 5
+   }
+  },
+  {
+   "id": "3c96008d-48f1-50f7-a768-d9d302ea32f4",
+   "name": "Round Vowel Swap",
+   "userID": "25fb02d9-1ef3-500c-8887-933601690d74",
+   "uploader": "Greta Solheim",
+   "publish": "ok",
+   "counts": {
+    "ADD_LIKE": 6,
+    "ADD_DOWNLOAD": 8,
+    "ADD_PLAY": 9
+   }
+  },
+  {
+   "id": "f7aa64c4-78da-5c37-833a-156e0bc91f1f",
+   "name": "Narrow Vowel Swap",
+   "userID": "c9228f8e-2492-5d8b-a127-3a36c424583f",
+   "uploader": "Diego Alcazar",
+   "publish": "ok",
+   "counts": {
+    "ADD_LIKE": 2,
+    "ADD_DOWNLOAD": 9,
+    "ADD_PLAY": 0
+   }
+  },
+  {
+   "id": "98a659f3-8de6-56d9-a965-f5607dfae5cc",
+   "name": "Easy Triad Walk",
+   "userID": "76ef8c84-2d91-5956-8d19-bc35e3282e14",
+   "uploader": "Mira Vocalis",
+   "publish": "ok",
+   "counts": {
+    "ADD_LIKE": 6,
+    "ADD_DOWNLOAD": 7,
+    "ADD_PLAY": 0
+   }
+  },
+  {
+   "id": "5eb7d148-c2bf-5fa3-af50-ae136d1dba8c",
+   "name": "Easy Skip",
+   "userID": "0d0964ca-66df-5af0-8431-3ce9314b3f8c",
+   "uploader": "Tobias Lund",
+   "publish": "ok",
+   "counts": {
+    "ADD_LIKE": 0,
+    "ADD_DOWNLOAD": 0,
+    "ADD_PLAY": 9
+   }
+  },
+  {
+   "id": "26d599ba-6a97-5aec-ac94-32980c331a4c",
+   "name": "Quiet Siren",
+   "userID": "328c5eb8-b3be-52f7-ad5a-a873bb827c2c",
+   "uploader": "Selin Aydar",
+   "publish": "ok",
+   "counts": {
+    "ADD_LIKE": 8,
+    "ADD_DOWNLOAD": 5,
+    "ADD_PLAY": 8
+   }
+  },
+  {
+   "id": "2ff246c6-702f-51ef-a24f-717b5219fff5",
+   "name": "Clean Sustain",
+   "userID": "f12f94b3-bb4d-5cfd-a777-140fb545d145",
+   "uploader": "Rosa Delacroix",
+   "publish": "ok",
+   "counts": {
+    "ADD_LIKE": 5,
+    "ADD_DOWNLOAD": 10,
+    "ADD_PLAY": 3
+   }
+  },
+  {
+   "id": "154cd3dc-9d94-561d-9328-ee1dbe616883",
+   "name": "Morning Octave Jump",
+   "userID": "9107c3ed-7a8d-5c17-a1d5-cd2b87218b4b",
+   "uploader": "Kenji Harada",
+   "publish": "ok",
+   "counts": {
+    "ADD_LIKE": 6,
+    "ADD_DOWNLOAD": 2,
+    "ADD_PLAY": 9
+   }
+  },
+  {
+   "id": "ad1d95b3-7c38-5721-ad3f-bf60d7cdda98",
+   "name": "Low Triad Walk",
+   "userID": "c7ed3703-f9ce-50c9-80c8-642537364aeb",
+   "uploader": "Nadia Brekke",
+   "publish": "ok",
+   "counts": {
+    "ADD_LIKE": 1,
+    "ADD_DOWNLOAD": 7,
+    "ADD_PLAY": 1
+   }
+  },
+  {
+   "id": "790d42a9-c107-592f-8bba-05764a214310",
+   "name": "Round Sustain",
+   "userID": "ac308e4f-d9da-51a2-bb84-cb8367c0d93c",
+   "uploader": "Oskar Vainio",
+   "publish": "ok",
+   "counts": {
+    "ADD_LIKE": 8,
+    "ADD_DOWNLOAD": 10,
+    "ADD_PLAY": 9
+   }
+  },
+  {
+   "id": "5a3b62be-f33a-500e-9da7-77b43d37e54b",
+   "name": "Narrow Skip",
+   "userID": "f70bfd1a-3470-5b64-8c02-63ae313c1a08",
+   "uploader": "Lucia Marenzi",
+   "publish": "ok",
+   "counts": {
+    "ADD_LIKE": 9,
+    "ADD_DOWNLOAD": 7,
+    "ADD_PLAY": 8
+   }
+  },
+  {
+   "id": "a62f3fde-1e5c-572a-8878-689b767b1b90",
+   "name": "Warm Hum",
+   "userID": "450ed3c8-d4ed-5bc1-baf0-69f808dda9c4",
+   "uploader": "Farah Nassar",
+   "publish": "ok",
+   "counts": {
+    "ADD_LIKE": 9,
+    "ADD_DOWNLOAD": 9,
+    "ADD_PLAY": 9
+   }
+  },
+  {
+   "id": "2710f70e-c9bc-587f-a361-e28018274f27",
+   "name": "Quiet Ladder",
+   "userID": "bfdb3e95-4782-5d13-825b-39d290a810be",
+   "uploader": "Ivo Petran",
+   "publish": "ok",
+   "counts": {
+    "ADD_LIKE": 1,
+    "ADD_DOWNLOAD": 1,
+    "ADD_PLAY": 0
+   }
+  },
+  {
+   "id": "75b3c3cb-db48-5056-9ef5-7128b320b4fd",
+   "name": "Easy Staccato Run",
+   "userID": "25fb02d9-1ef3-500c-8887-933601690d74",
+   "uploader": "Greta Solheim",
+   "publish": "ok",
+   "counts": {
+    "ADD_LIKE": 10,
+    "ADD_DOWNLOAD": 0,
+    "ADD_PLAY": 3
+   }
+  },
+  {
+   "id": "b0da268d-b351-5726-a09b-747c98b63005",
+   "name": "Rolling Vowel Swap",
+   "userID": "c9228f8e-2492-5d8b-a127-3a36c424583f",
+   "uploader": "Diego Alcazar",
+   "publish": "ok",
+   "counts": {
+    "ADD_LIKE": 0,
+    "ADD_DOWNLOAD": 5,
+    "ADD_PLAY": 3
+   }
+  },
+  {
+   "id": "f38e1bb4-18bf-5875-879c-111809d99b56",
+   "name": "Warm Siren",
+   "userID": "76ef8c84-2d91-5956-8d19-bc35e3282e14",
+   "uploader": "Mira Vocalis",
+   "publish": "ok",
+   "counts": {
+    "ADD_LIKE": 4,
+    "ADD_DOWNLOAD": 3,
+    "ADD_PLAY": 6
+   }
+  },
+  {
+   "id": "62000e4a-797c-544c-9a47-579e6af4b1cf",
+   "name": "Open Ladder",
+   "userID": "0d0964ca-66df-5af0-8431-3ce9314b3f8c",
+   "uploader": "Tobias Lund",
+   "publish": "ok",
+   "counts": {
+    "ADD_LIKE": 3,
+    "ADD_DOWNLOAD": 9,
+    "ADD_PLAY": 8
+   }
+  },
+  {
+   "id": "eda84ea9-1e15-5ca1-90fa-d5c444434d9c",
+   "name": "Wide Descent",
+   "userID": "328c5eb8-b3be-52f7-ad5a-a873bb827c2c",
+   "uploader": "Selin Aydar",
+   "publish": "ok",
+   "counts": {
+    "ADD_LIKE": 4,
+    "ADD_DOWNLOAD": 1,
+    "ADD_PLAY": 4
+   }
+  },
+  {
+   "id": "7f35731c-0c9e-5ee3-ada3-827e695341a7",
+   "name": "Open Siren",
+   "userID": "f12f94b3-bb4d-5cfd-a777-140fb545d145",
+   "uploader": "Rosa Delacroix",
+   "publish": "ok",
+   "counts": {
+    "ADD_LIKE": 3,
+    "ADD_DOWNLOAD": 0,
+    "ADD_PLAY": 5
+   }
+  },
+  {
+   "id": "58d8a061-2bb5-5a6f-aec0-107dc1c0b985",
+   "name": "Open Triad Walk",
+   "userID": "9107c3ed-7a8d-5c17-a1d5-cd2b87218b4b",
+   "uploader": "Kenji Harada",
+   "publish": "ok",
+   "counts": {
+    "ADD_LIKE": 1,
+    "ADD_DOWNLOAD": 10,
+    "ADD_PLAY": 0
+   }
+  },
+  {
+   "id": "36106a4c-be71-5cc4-bc53-14a6bfbc6bb7",
+   "name": "Long Octave Jump",
+   "userID": "c7ed3703-f9ce-50c9-80c8-642537364aeb",
+   "uploader": "Nadia Brekke",
+   "publish": "ok",
+   "counts": {
+    "ADD_LIKE": 2,
+    "ADD_DOWNLOAD": 10,
+    "ADD_PLAY": 10
+   }
+  },
+  {
+   "id": "0844378f-ebda-564d-a64c-2fd360c922a3",
+   "name": "Short Climb",
+   "userID": "ac308e4f-d9da-51a2-bb84-cb8367c0d93c",
+   "uploader": "Oskar Vainio",
+   "publish": "ok",
+   "counts": {
+    "ADD_LIKE": 4,
+    "ADD_DOWNLOAD": 9,
+    "ADD_PLAY": 7
+   }
+  },
+  {
+   "id": "01131afc-0715-5716-8625-9af10e2a34d4",
+   "name": "Firm Triad Walk",
+   "userID": "f70bfd1a-3470-5b64-8c02-63ae313c1a08",
+   "uploader": "Lucia Marenzi",
+   "publish": "ok",
+   "counts": {
+    "ADD_LIKE": 0,
+    "ADD_DOWNLOAD": 2,
+    "ADD_PLAY": 4
+   }
+  },
+  {
+   "id": "5b1cc24e-c3c8-5e3e-b4e3-df3a4e09fbc3",
+   "name": "Wide Five Tone",
+   "userID": "450ed3c8-d4ed-5bc1-baf0-69f808dda9c4",
+   "uploader": "Farah Nassar",
+   "publish": "ok",
+   "counts": {
+    "ADD_LIKE": 3,
+    "ADD_DOWNLOAD": 5,
+    "ADD_PLAY": 7
+   }
+  },
+  {
+   "id": "a6587d29-d6f6-5fd5-9f0b-0b84b67d73ce",
+   "name": "Short Triad Walk",
+   "userID": "bfdb3e95-4782-5d13-825b-39d290a810be",
+   "uploader": "Ivo Petran",
+   "publish": "ok",
+   "counts": {
+    "ADD_LIKE": 0,
+    "ADD_DOWNLOAD": 0,
+    "ADD_PLAY": 8
+   }
+  },
+  {
+   "id": "a0f885b2-c031-5861-9fde-c94658d91a24",
+   "name": "Gentle Lip Roll",
+   "userID": "25fb02d9-1ef3-500c-8887-933601690d74",
+   "uploader": "Greta Solheim",
+   "publish": "ok",
+   "counts": {
+    "ADD_LIKE": 1,
+    "ADD_DOWNLOAD": 2,
+    "ADD_PLAY": 2
+   }
+  },
+  {
+   "id": "ab623f30-b0b9-5e08-b676-f75424c0f089",
+   "name": "Round Octave Jump",
+   "userID": "c9228f8e-2492-5d8b-a127-3a36c424583f",
+   "uploader": "Diego Alcazar",
+   "publish": "ok",
+   "counts": {
+    "ADD_LIKE": 9,
+    "ADD_DOWNLOAD": 4,
+    "ADD_PLAY": 0
+   }
+  },
+  {
+   "id": "c13de842-30f4-5b49-af12-5fa20dff7c04",
+   "name": "Wide Triad Walk",
+   "userID": "76ef8c84-2d91-5956-8d19-bc35e3282e14",
+   "uploader": "Mira Vocalis",
+   "publish": "ok",
+   "counts": {
+    "ADD_LIKE": 10,
+    "ADD_DOWNLOAD": 0,
+    "ADD_PLAY": 3
+   }
+  },
+  {
+   "id": "859e0527-fe89-5a0c-a9c8-1bdaec94446c",
+   "name": "Round Five Tone",
+   "userID": "0d0964ca-66df-5af0-8431-3ce9314b3f8c",
+   "uploader": "Tobias Lund",
+   "publish": "ok",
+   "counts": {
+    "ADD_LIKE": 8,
+    "ADD_DOWNLOAD": 0,
+    "ADD_PLAY": 5
+   }
+  },
+  {
+   "id": "0fa8613c-8fe3-5f6d-bbdd-e8f066927bea",
+   "name": "Clean Octave Jump",
+   "userID": "328c5eb8-b3be-52f7-ad5a-a873bb827c2c",
+   "uploader": "Selin Aydar",
+   "publish": "ok",
+   "counts": {
+    "ADD_LIKE": 9,
+    "ADD_DOWNLOAD": 6,
+    "ADD_PLAY": 7
+   }
+  },
+  {
+   "id": "f80b96a0-0fdc-5d0f-9fc9-9cfc2d02eddf",
+   "name": "Slow Ladder",
+   "userID": "f12f94b3-bb4d-5cfd-a777-140fb545d145",
+   "uploader": "Rosa Delacroix",
+   "publish": "ok",
+   "counts": {
+    "ADD_LIKE": 0,
+    "ADD_DOWNLOAD": 0,
+    "ADD_PLAY": 10
+   }
+  },
+  {
+   "id": "d66f4fe7-b2b7-595c-8b78-e32fa96d4ca2",
+   "name": "Warm Descent",
+   "userID": "9107c3ed-7a8d-5c17-a1d5-cd2b87218b4b",
+   "uploader": "Kenji Harada",
+   "publish": "ok",
+   "counts": {
+    "ADD_LIKE": 3,
+    "ADD_DOWNLOAD": 8,
+    "ADD_PLAY": 8
+   }
+  },
+  {
+   "id": "4f0e46ce-8d75-5122-9d5b-69b07dfa1a2e",
+   "name": "Quiet Lip Roll",
+   "userID": "c7ed3703-f9ce-50c9-80c8-642537364aeb",
+   "uploader": "Nadia Brekke",
+   "publish": "ok",
+   "counts": {
+    "ADD_LIKE": 4,
+    "ADD_DOWNLOAD": 6,
+    "ADD_PLAY": 6
+   }
+  },
+  {
+   "id": "5a7cbb41-11b0-5804-87b3-ca3f252ad775",
+   "name": "Loose Descent",
+   "userID": "ac308e4f-d9da-51a2-bb84-cb8367c0d93c",
+   "uploader": "Oskar Vainio",
+   "publish": "ok",
+   "counts": {
+    "ADD_LIKE": 3,
+    "ADD_DOWNLOAD": 0,
+    "ADD_PLAY": 10
+   }
+  },
+  {
+   "id": "a2f5aa01-e238-5efd-851c-2618ac809d8c",
+   "name": "Easy Five Tone",
+   "userID": "f70bfd1a-3470-5b64-8c02-63ae313c1a08",
+   "uploader": "Lucia Marenzi",
+   "publish": "ok",
+   "counts": {
+    "ADD_LIKE": 6,
+    "ADD_DOWNLOAD": 1,
+    "ADD_PLAY": 10
+   }
+  },
+  {
+   "id": "00d2e13b-f98c-571b-b7b4-925ad21af31c",
+   "name": "Easy Hum",
+   "userID": "450ed3c8-d4ed-5bc1-baf0-69f808dda9c4",
+   "uploader": "Farah Nassar",
+   "publish": "ok",
+   "counts": {
+    "ADD_LIKE": 1,
+    "ADD_DOWNLOAD": 7,
+    "ADD_PLAY": 0
+   }
+  },
+  {
+   "id": "f3137440-0199-57b1-be25-e7ffa478f43d",
+   "name": "Morning Ladder",
+   "userID": "bfdb3e95-4782-5d13-825b-39d290a810be",
+   "uploader": "Ivo Petran",
+   "publish": "ok",
+   "counts": {
+    "ADD_LIKE": 3,
+    "ADD_DOWNLOAD": 1,
+    "ADD_PLAY": 8
+   }
+  },
+  {
+   "id": "0c5ccbdd-653a-52c4-88a1-9ab512594761",
+   "name": "Open Descent",
+   "userID": "25fb02d9-1ef3-500c-8887-933601690d74",
+   "uploader": "Greta Solheim",
+   "publish": "ok",
+   "counts": {
+    "ADD_LIKE": 5,
+    "ADD_DOWNLOAD": 5,
+    "ADD_PLAY": 6
+   }
+  },
+  {
+   "id": "ab827f8c-f759-54e7-b83f-92b480d33f40",
+   "name": "Slow Descent",
+   "userID": "c9228f8e-2492-5d8b-a127-3a36c424583f",
+   "uploader": "Diego Alcazar",
+   "publish": "ok",
+   "counts": {
+    "ADD_LIKE": 9,
+    "ADD_DOWNLOAD": 3,
+    "ADD_PLAY": 10
+   }
+  },
+  {
+   "id": "b333ca9e-24d8-5d45-bd7e-0b3e43da7bca",
+   "name": "Rolling Five Tone",
+   "userID": "76ef8c84-2d91-5956-8d19-bc35e3282e14",
+   "uploader": "Mira Vocalis",
+   "publish": "ok",
+   "counts": {
+    "ADD_LIKE": 8,
+    "ADD_DOWNLOAD": 6,
+    "ADD_PLAY": 3
+   }
+  },
+  {
+   "id": "0113945c-1a5e-5ffc-8387-04d92c4914ba",
+   "name": "Morning Sustain",
+   "userID": "0d0964ca-66df-5af0-8431-3ce9314b3f8c",
+   "uploader": "Tobias Lund",
+   "publish": "ok",
+   "counts": {
+    "ADD_LIKE": 10,
+    "ADD_DOWNLOAD": 10,
+    "ADD_PLAY": 0
+   }
+  },
+  {
+   "id": "837ee993-f85b-5145-883f-a6ed3b578fc8",
+   "name": "Firm Legato Line",
+   "userID": "328c5eb8-b3be-52f7-ad5a-a873bb827c2c",
+   "uploader": "Selin Aydar",
+   "publish": "ok",
+   "counts": {
+    "ADD_LIKE": 1,
+    "ADD_DOWNLOAD": 2,
+    "ADD_PLAY": 3
+   }
+  },
+  {
+   "id": "a971016c-228b-51a9-9e0d-4a09fa6de5d0",
+   "name": "Round Descent",
+   "userID": "f12f94b3-bb4d-5cfd-a777-140fb545d145",
+   "uploader": "Rosa Delacroix",
+   "publish": "ok",
+   "counts": {
+    "ADD_LIKE": 3,
+    "ADD_DOWNLOAD": 4,
+    "ADD_PLAY": 10
+   }
+  },
+  {
+   "id": "7051da36-e9df-53fb-a03d-fdb35b564b17",
+   "name": "Steady Descent",
+   "userID": "9107c3ed-7a8d-5c17-a1d5-cd2b87218b4b",
+   "uploader": "Kenji Harada",
+   "publish": "ok",
+   "counts": {
+    "ADD_LIKE": 6,
+    "ADD_DOWNLOAD": 0,
+    "ADD_PLAY": 2
+   }
+  },
+  {
+   "id": "313fb85b-0891-5e5c-8d98-eb5c6ad424dd",
+   "name": "Open Climb",
+   "userID": "c7ed3703-f9ce-50c9-80c8-642537364aeb",
+   "uploader": "Nadia Brekke",
+   "publish": "ok",
+   "counts": {
+    "ADD_LIKE": 4,
+    "ADD_DOWNLOAD": 3,
+    "ADD_PLAY": 8
+   }
+  },
+  {
+   "id": "9539abaf-383f-501f-953a-bdfe41fc3bba",
+   "name": "Loose Arpeggio",
+   "userID": "ac308e4f-d9da-51a2-bb84-cb8367c0d93c",
+   "uploader": "Oskar Vainio",
+   "publish": "ok",
+   "counts": {
+    "ADD_LIKE": 8,
+    "ADD_DOWNLOAD": 0,
+    "ADD_PLAY": 2
+   }
+  },
+  {
+   "id": "7093b738-a0ab-511b-a529-7a6999dcfb3d",
+   "name": "Morning Zigzag",
+   "userID": "f70bfd1a-3470-5b64-8c02-63ae313c1a08",
+   "uploader": "Lucia Marenzi",
+   "publish": "ok",
+   "counts": {
+    "ADD_LIKE": 5,
+    "ADD_DOWNLOAD": 3,
+    "ADD_PLAY": 10
+   }
+  },
+  {
+   "id": "590f9403-40c9-53dc-8523-f4e263a0a595",
+   "name": "Warm Staccato Run",
+   "userID": "450ed3c8-d4ed-5bc1-baf0-69f808dda9c4",
+   "uploader": "Farah Nassar",
+   "publish": "ok",
+   "counts": {
+    "ADD_LIKE": 10,
+    "ADD_DOWNLOAD": 0,
+    "ADD_PLAY": 0
+   }
+  },
+  {
+   "id": "b2e71269-d602-539b-9551-22eccb8a3ba5",
+   "name": "Gentle Zigzag",
+   "userID": "bfdb3e95-4782-5d13-825b-39d290a810be",
+   "uploader": "Ivo Petran",
+   "publish": "ok",
+   "counts": {
+    "ADD_LIKE": 7,
+    "ADD_DOWNLOAD": 4,
+    "ADD_PLAY": 9
+   }
+  },
+  {
+   "id": "0097fb2d-4046-58bc-ae2a-b052a3a3e358",
+   "name": "Narrow Legato Line",
+   "userID": "25fb02d9-1ef3-500c-8887-933601690d74",
+   "uploader": "Greta Solheim",
+   "publish": "ok",
+   "counts": {
+    "ADD_LIKE": 3,
+    "ADD_DOWNLOAD": 2,
+    "ADD_PLAY": 3
+   }
+  },
+  {
+   "id": "20f6907e-41b0-5a7f-819a-604a9e70d47f",
+   "name": "Short Skip",
+   "userID": "c9228f8e-2492-5d8b-a127-3a36c424583f",
+   "uploader": "Diego Alcazar",
+   "publish": "ok",
+   "counts": {
+    "ADD_LIKE": 3,
+    "ADD_DOWNLOAD": 9,
+    "ADD_PLAY": 10
+   }
+  },
+  {
+   "id": "270b9dee-2b0c-57cc-9954-a3bff7855697",
+   "name": "Rolling Zigzag",
+   "userID": "76ef8c84-2d91-5956-8d19-bc35e3282e14",
+   "uploader": "Mira Vocalis",
+   "publish": "ok",
+   "counts": {
+    "ADD_LIKE": 10,
+    "ADD_DOWNLOAD": 4,
+    "ADD_PLAY": 6
+   }
+  },
+  {
+   "id": "668c61da-511f-5ada-9fa6-89ae354bbe8e",
+   "name": "Bright Legato Line",
+   "userID": "0d0964ca-66df-5af0-8431-3ce9314b3f8c",
+   "uploader": "Tobias Lund",
+   "publish": "ok",
+   "counts": {
+    "ADD_LIKE": 6,
+    "ADD_DOWNLOAD": 4,
+    "ADD_PLAY": 7
+   }
+  },
+  {
+   "id": "1a2e2fe2-b2d4-5a2b-803c-e924963c69e5",
+   "name": "Gentle Staccato Run",
+   "userID": "328c5eb8-b3be-52f7-ad5a-a873bb827c2c",
+   "uploader": "Selin Aydar",
+   "publish": "ok",
+   "counts": {
+    "ADD_LIKE": 0,
+    "ADD_DOWNLOAD": 0,
+    "ADD_PLAY": 1
+   }
+  },
+  {
+   "id": "539bba92-9dbe-582c-95c7-158a4f33032f",
+   "name": "Simple Legato Line",
+   "userID": "f12f94b3-bb4d-5cfd-a777-140fb545d145",
+   "uploader": "Rosa Delacroix",
+   "publish": "ok",
+   "counts": {
+    "ADD_LIKE": 1,
+    "ADD_DOWNLOAD": 2,
+    "ADD_PLAY": 5
+   }
+  },
+  {
+   "id": "83aaa44c-5cb5-563f-a9ca-f873cdbc0909",
+   "name": "Low Descent",
+   "userID": "9107c3ed-7a8d-5c17-a1d5-cd2b87218b4b",
+   "uploader": "Kenji Harada",
+   "publish": "ok",
+   "counts": {
+    "ADD_LIKE": 9,
+    "ADD_DOWNLOAD": 7,
+    "ADD_PLAY": 0
+   }
+  },
+  {
+   "id": "43003d7d-9a34-50a0-82ad-b87ba43451f6",
+   "name": "Rolling Triad Walk",
+   "userID": "c7ed3703-f9ce-50c9-80c8-642537364aeb",
+   "uploader": "Nadia Brekke",
+   "publish": "ok",
+   "counts": {
+    "ADD_LIKE": 10,
+    "ADD_DOWNLOAD": 3,
+    "ADD_PLAY": 6
+   }
+  },
+  {
+   "id": "83c86896-b9da-5d22-80b8-d62d1c056ee3",
+   "name": "Round Lip Roll",
+   "userID": "ac308e4f-d9da-51a2-bb84-cb8367c0d93c",
+   "uploader": "Oskar Vainio",
+   "publish": "ok",
+   "counts": {
+    "ADD_LIKE": 4,
+    "ADD_DOWNLOAD": 6,
+    "ADD_PLAY": 2
+   }
+  },
+  {
+   "id": "1ebd92f9-d569-5255-989a-bcc3dc7ed774",
+   "name": "Short Vowel Swap",
+   "userID": "f70bfd1a-3470-5b64-8c02-63ae313c1a08",
+   "uploader": "Lucia Marenzi",
+   "publish": "ok",
+   "counts": {
+    "ADD_LIKE": 10,
+    "ADD_DOWNLOAD": 4,
+    "ADD_PLAY": 1
+   }
+  },
+  {
+   "id": "1dabdc0a-877a-505b-b717-4c0b391e9594",
+   "name": "Easy Sustain",
+   "userID": "450ed3c8-d4ed-5bc1-baf0-69f808dda9c4",
+   "uploader": "Farah Nassar",
+   "publish": "ok",
+   "counts": {
+    "ADD_LIKE": 4,
+    "ADD_DOWNLOAD": 4,
+    "ADD_PLAY": 10
+   }
+  },
+  {
+   "id": "ff228c22-8890-550e-b86b-7dea943e452b",
+   "name": "Open Legato Line",
+   "userID": "bfdb3e95-4782-5d13-825b-39d290a810be",
+   "uploader": "Ivo Petran",
+   "publish": "ok",
+   "counts": {
+    "ADD_LIKE": 10,
+    "ADD_DOWNLOAD": 4,
+    "ADD_PLAY": 1
+   }
+  },
+  {
+   "id": "e789c64f-803d-597d-bf73-5e90800be165",
+   "name": "Clean Descent",
+   "userID": "25fb02d9-1ef3-500c-8887-933601690d74",
+   "uploader": "Greta Solheim",
+   "publish": "ok",
+   "counts": {
+    "ADD_LIKE": 9,
+    "ADD_DOWNLOAD": 7,
+    "ADD_PLAY": 0
+   }
+  },
+  {
+   "id": "3d959f7c-fbd3-5adc-ab1c-8db11d3a1ed6",
+   "name": "Bright Octave Jump",
+   "userID": "c9228f8e-2492-5d8b-a127-3a36c424583f",
+   "uploader": "Diego Alcazar",
+   "publish": "ok",
+   "counts": {
+    "ADD_LIKE": 1,
+    "ADD_DOWNLOAD": 1,
+    "ADD_PLAY": 10
+   }
+  },
+  {
+   "id": "ff6539de-958b-5206-a603-2aa454f68d7e",
+   "name": "Steady Triad Walk",
+   "userID": "76ef8c84-2d91-5956-8d19-bc35e3282e14",
+   "uploader": "Mira Vocalis",
+   "publish": "ok",
+   "counts": {
+    "ADD_LIKE": 10,
+    "ADD_DOWNLOAD": 1,
+    "ADD_PLAY": 5
+   }
+  },
+  {
+   "id": "531c62c7-6280-535b-94f7-79cbb8cf4012",
+   "name": "Round Zigzag",
+   "userID": "0d0964ca-66df-5af0-8431-3ce9314b3f8c",
+   "uploader": "Tobias Lund",
+   "publish": "ok",
+   "counts": {
+    "ADD_LIKE": 4,
+    "ADD_DOWNLOAD": 3,
+    "ADD_PLAY": 4
+   }
+  },
+  {
+   "id": "f0491c48-c3b8-5d29-95fd-158487e5c770",
+   "name": "Round Climb",
+   "userID": "328c5eb8-b3be-52f7-ad5a-a873bb827c2c",
+   "uploader": "Selin Aydar",
+   "publish": "ok",
+   "counts": {
+    "ADD_LIKE": 0,
+    "ADD_DOWNLOAD": 8,
+    "ADD_PLAY": 7
+   }
+  },
+  {
+   "id": "b368cd6c-3107-5dff-88b2-85f7ca0032bb",
+   "name": "Quiet Sustain",
+   "userID": "f12f94b3-bb4d-5cfd-a777-140fb545d145",
+   "uploader": "Rosa Delacroix",
+   "publish": "ok",
+   "counts": {
+    "ADD_LIKE": 4,
+    "ADD_DOWNLOAD": 5,
+    "ADD_PLAY": 3
+   }
+  },
+  {
+   "id": "d55c940e-0bcf-5d02-9d73-1234c7f441cf",
+   "name": "Open Skip",
+   "userID": "9107c3ed-7a8d-5c17-a1d5-cd2b87218b4b",
+   "uploader": "Kenji Harada",
+   "publish": "ok",
+   "counts": {
+    "ADD_LIKE": 4,
+    "ADD_DOWNLOAD": 7,
+    "ADD_PLAY": 7
+   }
+  },
+  {
+   "id": "983d3a64-2cae-5b58-ba5d-54785672ac46",
+   "name": "Clean Vowel Swap",
+   "userID": "c7ed3703-f9ce-50c9-80c8-642537364aeb",
+   "uploader": "Nadia Brekke",
+   "publish": "ok",
+   "counts": {
+    "ADD_LIKE": 8,
+    "ADD_DOWNLOAD": 7,
+    "ADD_PLAY": 9
+   }
+  },
+  {
+   "id": "50dc1b3d-b6e4-58c2-b36e-f4327f3f3312",
+   "name": "Clean Ladder",
+   "userID": "ac308e4f-d9da-51a2-bb84-cb8367c0d93c",
+   "uploader": "Oskar Vainio",
+   "publish": "ok",
+   "counts": {
+    "ADD_LIKE": 10,
+    "ADD_DOWNLOAD": 4,
+    "ADD_PLAY": 0
+   }
+  },
+  {
+   "id": "701c4e2c-5edc-5d6a-aed0-19444d0a8529",
+   "name": "Narrow Climb",
+   "userID": "f70bfd1a-3470-5b64-8c02-63ae313c1a08",
+   "uploader": "Lucia Marenzi",
+   "publish": "ok",
+   "counts": {
+    "ADD_LIKE": 10,
+    "ADD_DOWNLOAD": 3,
+    "ADD_PLAY": 1
+   }
+  }
+ ],
+ "voters": [
+  "14d6b6e9-cbe2-5be0-ac49-e6c34f8d07b7",
+  "20e3ebe5-b51d-5b82-8f2a-e72002cdad74",
+  "347ac5b4-f86e-53d5-aef0-04a22faea129",
+  "3e651d8a-f151-5844-8c05-a10796ab5a8f",
+  "4adab9a0-7bcb-5037-90a4-4e7774844ad4",
+  "51a118c3-3173-56e6-92ef-a3c653e847e2",
+  "546c9085-e000-552a-9f1e-0c561aa75b4f",
+  "597578b3-dab0-55a5-bbed-b255b7433e58",
+  "63342a20-47a4-5515-b634-2d844d508601",
+  "69091964-0956-5336-9c0a-bb1685d3c6f7",
+  "770b2632-d63c-5d4f-b03a-6a01967774d0",
+  "776c0af2-fcac-5b18-be48-233efe32c6cb",
+  "969f4e10-df67-537c-afde-bf9c0b4a937f",
+  "a3c9ffbf-4f75-5486-8245-c2bcab93128b",
+  "ae6bc482-3b35-5908-9fe2-337374a0e0c1",
+  "b07c2566-7756-56b6-9192-eb78dd4b082f",
+  "b12b4e6d-1c72-5dd0-95b5-0066afc73385",
+  "b2d2e8af-6b4b-5fd0-b863-8cec4926ea4f",
+  "b974709c-efdf-5a56-b149-5350519828ce",
+  "c402e867-fdb0-5164-90b9-7948a75af1b0",
+  "c7481339-b183-5ec0-9ad3-4da84f57bf91",
+  "cc560594-79c4-5389-a055-756df19fd7cf",
+  "dab48636-41bf-5765-8b96-95425446b208",
+  "f32198ce-bde9-530d-b443-f76fa052c4aa"
+ ],
+ "lastRun": {
+  "at": 1787679252.205697,
+  "seed": "l2s-seed-2026-08-25",
+  "accounts": 12,
+  "exercises": 80
+ }
+}

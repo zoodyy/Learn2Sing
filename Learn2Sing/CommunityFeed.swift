@@ -119,15 +119,10 @@ final class CommunityFeed: ObservableObject {
     /// name is resolved through, since a profile is fetched by id.
     @Published private(set) var uploaderIDs: [UUID: String] = [:]
 
-    /// The order the held `exercises` array is actually in: what the fetch that
-    /// produced it asked the server for, reverse switch included. nil until the
-    /// first fetch lands. `sorted(_:by:reversed:)` falls back to it for the
-    /// orders only the server can work out.
-    private var fetchedSort: CommunitySort?
-    private var fetchedReversed = false
     /// Bumped by every refresh, so only the newest one's response is applied: a
     /// slow fetch for an order the user has already moved on from must not land
-    /// on top of a newer one and leave `fetchedSort` describing the wrong list.
+    /// on top of a newer one and leave the list in an order the menu stopped
+    /// asking for.
     private var refreshGeneration = 0
     /// How many refreshes are on the wire; `isFetching` is true while any is, so
     /// an abandoned one finishing can't take the initial spinner down with it.
@@ -198,8 +193,6 @@ final class CommunityFeed: ObservableObject {
     /// refresh builds one of these and reads its first page; the rest are read as
     /// the user scrolls towards the end of the list.
     private struct Feed {
-        var sort: CommunitySort
-        var reversed: Bool
         /// The user, scope and narrowing query items every page of every stage
         /// carries.
         var query: [URLQueryItem]
@@ -295,7 +288,7 @@ final class CommunityFeed: ObservableObject {
         guard generation == refreshGeneration else { return }
         // Applied even when empty: an order and narrowing the server has nothing
         // for is an empty list, not a failed fetch.
-        append(records: records, sort: sort, reversed: reversed)
+        append(records: records)
     }
 
     /// The queries the picked order's list is filled from, in the order their
@@ -334,11 +327,11 @@ final class CommunityFeed: ObservableObject {
         let ranked = FeedStage(sortBy: sort.serverSortBy,
                                sortDirection: sort.serverSortDirection(reversed: reversed))
         guard let topUp = sort.topUpSort, !reversed else {
-            return Feed(sort: sort, reversed: reversed, query: query, stages: [ranked])
+            return Feed(query: query, stages: [ranked])
         }
         let leftovers = FeedStage(sortBy: topUp.serverSortBy,
                                   sortDirection: topUp.serverSortDirection(reversed: false))
-        return Feed(sort: sort, reversed: reversed, query: query, stages: [ranked, leftovers])
+        return Feed(query: query, stages: [ranked, leftovers])
     }
 
     /// Reads on from the feed until it has a page's worth of records the list
@@ -481,14 +474,12 @@ final class CommunityFeed: ObservableObject {
             loadPendingPage()
         }
         let generation = refreshGeneration
-        let sort = feed.sort
-        let reversed = feed.reversed
         let records = await nextRecords(generation: generation)
         // nil is a call that failed; the list is left as it is and the next look
         // at it — once the pause above is up — tries again.
         lastPageFailure = records == nil ? Date() : nil
         guard let records, !records.isEmpty, generation == refreshGeneration else { return }
-        append(records: records, sort: sort, reversed: reversed)
+        append(records: records)
     }
 
     /// Loads the page the list asked for while a fetch was already on the wire —
@@ -502,9 +493,7 @@ final class CommunityFeed: ObservableObject {
     /// Puts a page's records into the list, after the ones already loaded, and
     /// publishes the result. The uploader names ride along on the records, so
     /// they are taken here and the list is labelled with them as it is applied.
-    private func append(records: [PersistRecord],
-                        sort: CommunitySort,
-                        reversed: Bool) {
+    private func append(records: [PersistRecord]) {
         let sync = CommunitySync.shared
         sync.remember(fetchedNames: Self.publicNames(in: records))
         loadedDocs += sync.decodeDocs(from: records)
@@ -525,8 +514,6 @@ final class CommunityFeed: ObservableObject {
             exercises = applied.exercises
         }
         uploaderIDs = applied.uploaderIDs
-        fetchedSort = sort
-        fetchedReversed = reversed
     }
 
     /// The username per public user id carried by a page of records: the
@@ -600,65 +587,5 @@ final class CommunityFeed: ObservableObject {
             await loadNextPage()
             if loadedEntityIDs.count == loaded { return }
         }
-    }
-
-    // MARK: - Sorting
-
-    /// The list's exercises in the order the given sort asks for. Exercises with
-    /// no recorded share date (shared before dates existed) count as the oldest,
-    /// and ties break by name so the order never jitters between fetches.
-    ///
-    /// The fetch already asks the server for this order, but the same ordering is
-    /// needed for the moments between changing the sort menu and the next
-    /// refresh, and for the sections the search results are split into.
-    ///
-    /// The server-only orders (see `isServerOrdered`) are instead kept as the
-    /// fetch returned them — a subset of a sorted list is still sorted, so those
-    /// sections come out right without the app knowing what the server ranked on.
-    /// `reversed` is already in that order too, having been fetched as
-    /// `sortDirection`, so it's applied to every *other* order only.
-    ///
-    /// Which is also why picking one of those shows the list in the order it is
-    /// already in until the refetch lands: their ranking isn't in what came
-    /// back, so the held list can't be put in it, and ranking by the positions it
-    /// happens to have would shuffle the rows into an order that is neither the
-    /// old one nor the new one — a visible reshuffle a moment before the real one.
-    func sorted(_ exercises: [Exercise], by sort: CommunitySort, reversed: Bool) -> [Exercise] {
-        var sort = sort
-        var reversed = reversed
-        if sort.isServerOrdered, let fetchedSort,
-           (sort, reversed) != (fetchedSort, fetchedReversed) {
-            sort = fetchedSort
-            reversed = fetchedReversed
-        }
-
-        let shareDates = CommunitySync.shared.shareDates
-        func byName(_ a: Exercise, _ b: Exercise) -> Bool {
-            a.name.localizedStandardCompare(b.name) == .orderedAscending
-        }
-        func date(_ exercise: Exercise) -> Date {
-            shareDates[exercise.id] ?? .distantPast
-        }
-        // Position in the fetched list, for the orders only the server knows.
-        // Exercises absent from it (there are none today) go to the tail.
-        var fetchedRank: [UUID: Int] = [:]
-        if sort.isServerOrdered {
-            for (index, exercise) in self.exercises.enumerated() where fetchedRank[exercise.id] == nil {
-                fetchedRank[exercise.id] = index
-            }
-        }
-        let ordered = exercises.sorted { a, b in
-            switch sort {
-            case .hot, .recentlyUpdated, .mostLiked, .mostPlayed, .mostDownloaded:
-                let (x, y) = (fetchedRank[a.id] ?? .max, fetchedRank[b.id] ?? .max)
-                return x == y ? byName(a, b) : x < y
-            case .newest:
-                let (x, y) = (date(a), date(b))
-                return x == y ? byName(a, b) : x > y
-            case .alphabetical:
-                return byName(a, b)
-            }
-        }
-        return reversed && !sort.isServerOrdered ? ordered.reversed() : ordered
     }
 }
