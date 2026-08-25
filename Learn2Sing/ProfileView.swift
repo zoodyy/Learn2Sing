@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import PhotosUI
 
 /// The user's profile, persisted as JSON in the app's documents directory.
 /// The same JSON (with the exercise library embedded) is what ProfileSync
@@ -127,6 +128,18 @@ struct ProfileView: View {
     @State private var typedDescription: String
     @FocusState private var isEditingDescription: Bool
     @State private var joinDatePublic: Bool
+    /// This device's profile picture. Its own store rather than part of the
+    /// profile file — see `ProfilePictureStore` for why it is kept out of the
+    /// document `ProfileSync` uploads.
+    @ObservedObject private var picture = ProfilePictureStore.shared
+    /// The photo being picked, cleared again as soon as it has been read.
+    @State private var pickedPhoto: PhotosPickerItem?
+    /// Whether a picked photo is still being scaled and encoded. It happens off
+    /// the main thread and takes a moment at 1024px, so the row says so.
+    @State private var isPreparingPicture = false
+    @State private var isAdjustingPicture = false
+    /// Set when a picked photo couldn't be read or encoded at all.
+    @State private var pictureFailed = false
 
     /// A refused rename: the name as typed, so the message can follow the field,
     /// and the name the server named in its error, which is what it shows. The
@@ -147,6 +160,59 @@ struct ProfileView: View {
 
     var body: some View {
         Form {
+            Section {
+                HStack {
+                    Spacer()
+                    ProfileAvatar(image: picture.thumb, side: 96)
+                        // Tapping the picture itself is the quickest way to the
+                        // thing most people come back to change.
+                        .onTapGesture { if picture.thumb != nil { adjustPicture() } }
+                        .overlay {
+                            if isPreparingPicture {
+                                ProgressView()
+                                    .controlSize(.large)
+                                    .padding(20)
+                                    .background(.ultraThinMaterial, in: .circle)
+                            }
+                        }
+                    Spacer()
+                }
+                .padding(.vertical, 8)
+                .listRowBackground(Color.clear)
+
+                PhotosPicker(selection: $pickedPhoto, matching: .images, photoLibrary: .shared()) {
+                    // Spelled out either way rather than picked with a ternary:
+                    // the string extractor keys on the literal that follows
+                    // `Label(`, and would walk straight past both of these.
+                    if picture.thumb == nil {
+                        Label("Choose Photo", systemImage: "photo")
+                    } else {
+                        Label("Change Photo", systemImage: "photo")
+                    }
+                }
+                .disabled(isPreparingPicture)
+
+                if picture.thumb != nil {
+                    Button {
+                        adjustPicture()
+                    } label: {
+                        Label("Adjust Picture", systemImage: "crop")
+                    }
+                    Button(role: .destructive) {
+                        picture.removePicture()
+                    } label: {
+                        Label("Remove Photo", systemImage: "trash")
+                    }
+                }
+            } header: {
+                Text("Profile Picture")
+            } footer: {
+                if pictureFailed {
+                    Text("That photo could not be used.")
+                        .foregroundStyle(.red)
+                }
+            }
+
             Section {
                 TextField("Username", text: $typedUsername)
                     .autocorrectionDisabled()
@@ -180,6 +246,31 @@ struct ProfileView: View {
         // Swiping down over the keyboard puts it away, like everywhere else.
         .scrollDismissesKeyboard(.interactively)
         .onAppear { profile.save() }
+        // A reinstall gets the picture back off this user's own public profile
+        // before anything on this screen can publish over it — every edit here
+        // rewrites that document, picture and all.
+        .task { await picture.restoreIfNeeded() }
+        .onChange(of: pickedPhoto) { _, item in
+            guard let item else { return }
+            pictureFailed = false
+            isPreparingPicture = true
+            Task {
+                var used = false
+                if let data = try? await item.loadTransferable(type: Data.self) {
+                    used = await picture.setPicture(from: data)
+                }
+                isPreparingPicture = false
+                pictureFailed = !used
+                pickedPhoto = nil
+            }
+        }
+        .sheet(isPresented: $isAdjustingPicture) {
+            if let full = picture.full {
+                ProfilePictureEditor(image: full, alignment: picture.alignment) { alignment in
+                    Task { await picture.setAlignment(alignment) }
+                }
+            }
+        }
         // A rename is checked when it is finished rather than per keystroke: a
         // name passes through other people's names while being typed, and the
         // check is a POST that takes the name it asks about.
@@ -231,6 +322,14 @@ struct ProfileView: View {
                 save(username: name)
             }
         }
+    }
+
+    /// Opens the move-and-scale editor, decoding the whole picture first — the
+    /// round rendition the screens draw is far too small to align against.
+    private func adjustPicture() {
+        picture.loadFull()
+        guard picture.full != nil else { return }
+        isAdjustingPicture = true
     }
 
     /// Writes the typed description into the profile once the field is finished

@@ -59,6 +59,11 @@ nonisolated struct PublicProfileDoc: Codable {
     /// public, in which case it is left out of the document rather than put in
     /// and hidden.
     var joinedAt: Double? = nil
+    /// This user's profile picture, as two Base64 AVIF renditions — the round one
+    /// the circle draws and the whole one a tap on it opens. Optional both
+    /// because most documents on the server predate it and because plenty of
+    /// users won't have set one.
+    var picture: ProfilePictureDoc? = nil
 }
 
 /// What the server made of a posted username.
@@ -188,6 +193,15 @@ final class CommunitySync: ObservableObject {
     /// Share date (seconds since 1970) per public exercise id, so re-uploading an
     /// edited exercise keeps the date it was first shared.
     private static let shareDatesKey = "communityShareDates"
+    /// Set while the public profile document on the server is behind the one this
+    /// device would publish — a picture changed with no connection, or before the
+    /// sync was up. Persisted, so the catch-up survives being closed, and cleared
+    /// by the post that lands.
+    private static let needsProfilePublishKey = "communityPublicProfileNeedsPublish"
+    /// The most a public profile document may weigh. The backend keeps each
+    /// document in a TEXT column and answers 500 to anything much over 64KB, so
+    /// this leaves a margin rather than sitting on the edge.
+    private static let maxProfileBytes = 60_000
 
     /// The whole community, as the Community tab lists it. Its own object, like
     /// the per-uploader lists `profileFeed(for:)` hands out — see CommunityFeed.
@@ -323,6 +337,13 @@ final class CommunitySync: ObservableObject {
         // One upload per launch so pattern edits (which bypass the store's
         // published properties) and changes made while offline catch up.
         scheduleUpload()
+        // The profile picture is the one published thing the private backup
+        // doesn't carry — it is far too big for that document's budget — so a
+        // reinstall takes it back off this user's own public profile. Not waited
+        // on: nothing here writes the public document (a launch re-post of an
+        // unchanged name is refused), and the screens that do edit it wait on
+        // this themselves.
+        Task { await ProfilePictureStore.shared.restoreIfNeeded() }
         await list.refresh()
     }
 
@@ -492,6 +513,17 @@ final class CommunitySync: ObservableObject {
     /// not something to report or act on.
     private func uploadPublicProfile() async {
         guard readyToUpload else { return }
+        // WORKAROUND(public-profile-rewrite): finish a rewrite that was cut off
+        // between its two posts, so a dropped connection can't leave this user
+        // named after a throwaway UUID. Goes away with the section it belongs to.
+        await reclaimParkedName()
+        // A picture changed while offline, or before this sync was up. The name
+        // is unchanged, so a plain re-post would be refused; this is the write
+        // that actually carries it.
+        if UserDefaults.standard.bool(forKey: Self.needsProfilePublishKey) {
+            await postPublicProfile()
+            return
+        }
         await claimUsername(UserProfile.load().username)
     }
 
@@ -518,23 +550,65 @@ final class CommunitySync: ObservableObject {
     /// as it stands, so whichever one lands publishes it.
     @discardableResult
     func claimUsername(_ username: String) async -> UsernameClaimResult {
-        let userID = PublicIdentifier.user
-        let stored = UserProfile.load()
-        let doc = PublicProfileDoc(
-            userID: userID,
+        let doc = Self.publicProfileDoc(username: username, in: UserProfile.load())
+        guard let body = Self.encode(doc) else { return .failed }
+        // The document the server last took is this one, name and all.
+        guard body != lastUploadedProfile else { return .accepted }
+        let result = await postPublicProfile(doc, as: username, body: body)
+        if case .accepted = result {
+            lastUploadedProfile = body
+            // That post carried the whole document, picture and all.
+            UserDefaults.standard.removeObject(forKey: Self.needsProfilePublishKey)
+        }
+        return result
+    }
+
+    /// The document this device publishes about its user: the name being claimed,
+    /// plus everything else they have chosen to make public.
+    ///
+    /// The picture comes from `ProfilePictureStore` rather than from the profile
+    /// file — it is far too big to keep in the file `ProfileSync` uploads, which
+    /// spends most of its 60KB budget on the exercise library and pays for
+    /// anything else out of the score histories.
+    private static func publicProfileDoc(username: String,
+                                         in stored: UserProfile) -> PublicProfileDoc {
+        PublicProfileDoc(
+            userID: PublicIdentifier.user,
             username: username,
             description: stored.profileDescription ?? "",
-            joinedAt: stored.joinDatePublic == true ? stored.joinedAt : nil)
+            joinedAt: stored.joinDatePublic == true ? stored.joinedAt : nil,
+            picture: ProfilePictureStore.shared.document)
+    }
+
+    private static func encode(_ doc: PublicProfileDoc) -> Data? {
         let encoder = JSONEncoder()
         encoder.outputFormatting = [.sortedKeys]
+        return try? encoder.encode(doc)
+    }
+
+    /// POSTs one public profile document under `name` and reports what the server
+    /// made of that name. The document's own `username` is left alone: the two
+    /// differ only while a rewrite has the record parked (see the workaround at
+    /// the bottom of this file), and it is the document a reader goes by.
+    private func postPublicProfile(_ doc: PublicProfileDoc,
+                                   as name: String,
+                                   body: Data) async -> UsernameClaimResult {
+        let userID = PublicIdentifier.user
+        // A document over the backend's TEXT-column ceiling answers 500, and one
+        // oversized POST once took `fetch-private` down for every user until the
+        // owner fixed the server. The picture is budgeted to keep well clear of
+        // this (see `ProfilePictureCodec`), so this is a backstop that shouldn't
+        // fire — but it is the kind of mistake worth being unable to make.
+        guard body.count <= Self.maxProfileBytes else {
+            print("CommunitySync: public profile of \(body.count) bytes not sent; over budget")
+            return .failed
+        }
         var components = URLComponents(string: "\(Self.baseURL)/persist/\(userID)/\(Self.publicProfileType)")
         components?.queryItems = [
             URLQueryItem(name: "customId1", value: userID),
-            URLQueryItem(name: "customName", value: doc.username),
+            URLQueryItem(name: "customName", value: name),
         ]
-        guard let body = try? encoder.encode(doc), let url = components?.url else { return .failed }
-        // The document the server last took is this one, name and all.
-        guard body != lastUploadedProfile else { return .accepted }
+        guard let url = components?.url else { return .failed }
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
@@ -543,7 +617,6 @@ final class CommunitySync: ObservableObject {
             let (data, response) = try await URLSession.shared.data(for: request)
             guard let http = response as? HTTPURLResponse else { return .failed }
             if (200...299).contains(http.statusCode) {
-                lastUploadedProfile = body
                 // This device's own rename, straight into the names the list is
                 // labelled from — otherwise the tab would keep showing the old
                 // name on this user's own exercises until the next refresh
@@ -552,13 +625,53 @@ final class CommunitySync: ObservableObject {
                 return .accepted
             }
             if http.statusCode == 412 {
-                return .taken(Self.rejectedName(in: data) ?? username)
+                return .taken(Self.rejectedName(in: data) ?? name)
             }
             print("CommunitySync: public profile upload failed with status \(http.statusCode)")
         } catch {
             print("CommunitySync: public profile upload failed: \(error)")
         }
         return .failed
+    }
+
+    /// Publishes this user's public profile document as it stands — the picture
+    /// included — without waiting for them to rename themselves. Called whenever
+    /// the picture changes; a rename goes through `claimUsername(_:)` instead,
+    /// which has an answer to report to the screen that asked.
+    ///
+    /// A user who has not picked a username yet can't be published at all: the
+    /// name is what the persist endpoint keys the document on, and an empty one
+    /// is refused. Nothing is lost — the picture stays on disk, and the first
+    /// accepted name carries it up with it.
+    func publishPublicProfile() {
+        // Noted before the attempt, not after it fails: the post below can be
+        // beaten by a dropped connection, a sync that isn't up yet, or the app
+        // going away mid-flight, and all three are the same thing to whoever
+        // comes back to a picture that never arrived.
+        UserDefaults.standard.set(true, forKey: Self.needsProfilePublishKey)
+        Task { await postPublicProfile() }
+    }
+
+    private func postPublicProfile() async {
+        guard readyToUpload else { return }
+        let stored = UserProfile.load()
+        guard !stored.username.isEmpty else { return }
+        let doc = Self.publicProfileDoc(username: stored.username, in: stored)
+        guard let body = Self.encode(doc) else { return }
+        guard body != lastUploadedProfile else {
+            UserDefaults.standard.removeObject(forKey: Self.needsProfilePublishKey)
+            return
+        }
+        // WORKAROUND(public-profile-rewrite): a plain post of an unchanged name
+        // is refused, so the document goes up under a throwaway name first. Once
+        // the backend is fixed this becomes
+        //     let published = await postPublicProfile(doc, as: stored.username, body: body)
+        //     if case .accepted = published { lastUploadedProfile = body }
+        // and the marked section at the bottom of this file goes away with it.
+        if await rewritePublicProfile(doc, body: body) {
+            lastUploadedProfile = body
+            UserDefaults.standard.removeObject(forKey: Self.needsProfilePublishKey)
+        }
     }
 
     /// The name a 412 body names, out of the server's
@@ -948,5 +1061,85 @@ final class CommunitySync: ObservableObject {
         persistCounts()
         persistShareDates()
         return (fetched, uploaders)
+    }
+
+    // MARK: - WORKAROUND(public-profile-rewrite)
+    //
+    // REMOVE THIS WHOLE SECTION once the backend is fixed. Everything below —
+    // and the two call sites marked `WORKAROUND(public-profile-rewrite)` in
+    // `uploadPublicProfile()` and `postPublicProfile()` — exists only to get
+    // around one server-side bug, and nothing outside them depends on it:
+    // `grep -rn "public-profile-rewrite"` finds every trace.
+    //
+    // The bug: the persist endpoint refuses a `customName` that already exists,
+    // and it does not exempt the record that already holds it. So re-posting a
+    // user's own PUBLIC_PROFILE document under their own unchanged name is
+    // answered 412 `error.save.public.name.not.unique#<name>`, and posting it
+    // with no name at all is answered 412 `#null` — nothing is written either
+    // way. That makes the document writable *only* on a rename, which would mean
+    // a new profile picture sat on the device until the user happened to rename
+    // themselves.
+    //
+    // The way around it: renaming *away* from a name does free it, and it can
+    // then be taken back. So the document is posted twice — once parked under a
+    // freshly generated UUID, and once under the user's real name, which the
+    // first post has just released. Both posts carry the finished document, so
+    // whichever the reader catches, the JSON is right: only the server-side
+    // `customName` is briefly a UUID, and the document's own `username` — which
+    // is what `publicProfile(for:)` reads — is correct throughout.
+    //
+    // What it costs while it is here: for the moment between the two posts, the
+    // uploader name the server joins onto this user's shared exercises
+    // (`customName1`) is that UUID, so a Community list fetched in that instant
+    // labels their rows with it. And every rewrite burns one UUID in the
+    // backend's global name table.
+    //
+    // The fix on the server is to exempt the record whose `entityId` matches
+    // from the uniqueness check. After that, `postPublicProfile()` posts once,
+    // as its comment there spells out, and this section is deleted.
+
+    /// Set while a rewrite has the record parked under a throwaway name, so a
+    /// crash or a dropped connection between the two posts can be put right on
+    /// the next launch instead of leaving this user called a UUID.
+    private static let parkedNameKey = "communityPublicProfileNameParked"
+
+    /// Posts `doc` twice — parked under a throwaway UUID, then back under the
+    /// user's real name, which the first post frees. Returns whether the name
+    /// came back.
+    private func rewritePublicProfile(_ doc: PublicProfileDoc, body: Data) async -> Bool {
+        let defaults = UserDefaults.standard
+        defaults.set(true, forKey: Self.parkedNameKey)
+        let parked = UUID().uuidString.lowercased()
+        guard case .accepted = await postPublicProfile(doc, as: parked, body: body) else {
+            // Nothing was written, so nothing is parked.
+            defaults.removeObject(forKey: Self.parkedNameKey)
+            return false
+        }
+        guard case .accepted = await postPublicProfile(doc, as: doc.username, body: body) else {
+            print("CommunitySync: public profile parked as \(parked); reclaiming \(doc.username) later")
+            return false
+        }
+        defaults.removeObject(forKey: Self.parkedNameKey)
+        return true
+    }
+
+    /// Takes the user's real name back after a rewrite that didn't get to finish.
+    /// Goes by the name in the profile rather than the one that was parked: if
+    /// they have renamed themselves since, that is the name the record should be
+    /// under.
+    private func reclaimParkedName() async {
+        let defaults = UserDefaults.standard
+        guard defaults.bool(forKey: Self.parkedNameKey) else { return }
+        let stored = UserProfile.load()
+        guard !stored.username.isEmpty else {
+            defaults.removeObject(forKey: Self.parkedNameKey)
+            return
+        }
+        let doc = Self.publicProfileDoc(username: stored.username, in: stored)
+        guard let body = Self.encode(doc) else { return }
+        guard case .accepted = await postPublicProfile(doc, as: stored.username, body: body)
+        else { return }
+        defaults.removeObject(forKey: Self.parkedNameKey)
+        lastUploadedProfile = body
     }
 }

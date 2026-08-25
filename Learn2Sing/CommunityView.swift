@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 /// The Community tab: every user's public exercises, in one flat list (no
 /// categories), exactly as fetched from the server by CommunitySync — nothing
@@ -479,7 +480,9 @@ struct CommunityUserProfileView: View {
 
 /// The top of an uploader's profile: a round picture beside the description they
 /// wrote, with when they joined underneath if they made that public. The picture
-/// is a placeholder — there is nothing to upload one with yet.
+/// is whatever they published (see `ProfilePictureDoc`), falling back to the
+/// placeholder for the users who have set none; tapping it opens the whole
+/// picture at the biggest size their profile carries.
 ///
 /// Hidden while the search field is in use: the screen is a list of matches then,
 /// and whose profile they were found on is what the title says. Reading
@@ -495,6 +498,26 @@ private struct CommunityProfileHeader: View {
     /// the picture stands on its own until it answers.
     let profile: PublicProfileDoc?
 
+    /// The round rendition, decoded once the fetch has answered.
+    @State private var thumb: UIImage?
+    /// The whole picture, once the circle has been tapped — nil until then, and
+    /// again once it is closed. Decoded on demand: it is several times the size
+    /// of the round one, and most profiles are looked at without ever being
+    /// opened.
+    ///
+    /// Presented by value rather than with a separate `isPresented` flag, so the
+    /// picture and the decision to show it are one state change. Split across
+    /// two, the cover could be told to open while a redraw — the `.task` below
+    /// re-running as the fetch answers — had already cleared the picture, and it
+    /// would come up empty.
+    @State private var expanded: ExpandedPicture?
+
+    /// One decoded picture, wrapped so `fullScreenCover(item:)` can carry it.
+    private struct ExpandedPicture: Identifiable {
+        let id = UUID()
+        let image: UIImage
+    }
+
     private var description: String {
         (profile?.description ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
     }
@@ -507,12 +530,16 @@ private struct CommunityProfileHeader: View {
     var body: some View {
         if !isSearching {
             HStack(alignment: .top, spacing: 12) {
-                Image(systemName: "person.crop.circle.fill")
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 56, height: 56)
-                    .foregroundStyle(.tertiary)
-                    .clipShape(.circle)
+                Button {
+                    expand()
+                } label: {
+                    ProfileAvatar(image: thumb, side: 56)
+                }
+                .buttonStyle(.plain)
+                // Nothing to open for a user who has published no picture; the
+                // placeholder is not a picture of them.
+                .disabled(profile?.picture == nil)
+                .accessibilityLabel(L("Profile Picture"))
 
                 VStack(alignment: .leading, spacing: 4) {
                     if !description.isEmpty {
@@ -533,7 +560,26 @@ private struct CommunityProfileHeader: View {
             .padding(.horizontal, 20)
             .padding(.top, 12)
             .padding(.bottom, 16)
+            // Decoded here rather than where the document is fetched, so a
+            // profile that is only scrolled past never pays for it.
+            .task(id: profile?.picture?.thumb) {
+                thumb = Self.image(profile?.picture?.thumb)
+            }
+            .fullScreenCover(item: $expanded) { picture in
+                ProfilePictureViewer(image: picture.image)
+            }
         }
+    }
+
+    /// Opens the whole picture, decoding it on the way in. A picture that can't
+    /// be decoded simply doesn't open, rather than opening onto nothing.
+    private func expand() {
+        guard let image = Self.image(profile?.picture?.full) else { return }
+        expanded = ExpandedPicture(image: image)
+    }
+
+    private static func image(_ base64: String?) -> UIImage? {
+        base64.flatMap { Data(base64Encoded: $0) }.flatMap(UIImage.init(data:))
     }
 
     /// "3 months ago" in the language the app is set to — not the device's, which
