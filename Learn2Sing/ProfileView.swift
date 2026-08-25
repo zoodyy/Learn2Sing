@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import UniformTypeIdentifiers
 
 /// The user's profile, persisted as JSON in the app's documents directory.
 /// The same JSON (with the exercise library embedded) is what ProfileSync
@@ -14,6 +13,12 @@ import UniformTypeIdentifiers
 struct UserProfile: Codable {
     var username: String = ""
     var deviceID: String = ""
+    /// What the user writes about themselves on the profile screen. Optional so
+    /// profiles written before the field existed still decode.
+    var profileDescription: String? = nil
+    /// Whether this user's join date may be shown publicly. Optional so profiles
+    /// written before the toggle existed still decode.
+    var joinDatePublic: Bool? = nil
     /// Snapshot of the Exercises tab (exercises, categories, MIDI patterns,
     /// text labels). Optional so profiles written before sync existed decode.
     var exercises: ExerciseBundle? = nil
@@ -92,22 +97,11 @@ struct UserProfile: Codable {
     }
 }
 
-/// Wraps the profile JSON so the share sheet offers it as a named file.
-struct ProfileFile: Transferable {
-    var data: Data
-
-    static var transferRepresentation: some TransferRepresentation {
-        DataRepresentation(exportedContentType: .json) { $0.data }
-            .suggestedFileName("Learn2Sing Profile.json")
-    }
-}
-
 struct ProfileView: View {
     /// Re-renders this screen when the language is changed in Settings; the
     /// strings are resolved when the body runs, so SwiftUI needs telling.
     @ObservedObject private var appLanguage = LanguageManager.shared
 
-    @EnvironmentObject private var store: ExerciseStore
     @State private var profile: UserProfile
     /// What the username field shows, which is not the same thing as the name
     /// this user has: a typed name only moves into the profile once the server
@@ -122,6 +116,12 @@ struct ProfileView: View {
     /// on its own is reason enough to commit.
     @State private var claimingUsername: String?
     @FocusState private var isEditingUsername: Bool
+    /// What the description field shows. Like the username it is committed when
+    /// the field is finished with rather than per keystroke — every commit
+    /// rewrites the profile file, which carries the whole exercise library.
+    @State private var typedDescription: String
+    @FocusState private var isEditingDescription: Bool
+    @State private var joinDatePublic: Bool
 
     /// A refused rename: the name as typed, so the message can follow the field,
     /// and the name the server named in its error, which is what it shows. The
@@ -136,14 +136,8 @@ struct ProfileView: View {
         let profile = UserProfile.load()
         _profile = State(initialValue: profile)
         _typedUsername = State(initialValue: profile.username)
-    }
-
-    /// The full profile as uploaded/shared: the stored fields plus a fresh
-    /// snapshot of the exercise library, the Home tab's lists and the scores.
-    private var fullProfile: UserProfile {
-        var full = profile
-        full.snapshot(store)
-        return full
+        _typedDescription = State(initialValue: profile.profileDescription ?? "")
+        _joinDatePublic = State(initialValue: profile.joinDatePublic ?? false)
     }
 
     var body: some View {
@@ -162,22 +156,17 @@ struct ProfileView: View {
                 }
             }
 
-            Section("Device") {
-                LabeledContent("Device ID") {
-                    Text(profile.deviceID.isEmpty ? L("Unavailable") : profile.deviceID)
-                        .font(.footnote.monospaced())
-                        .textSelection(.enabled)
-                }
+            Section("Profile Description") {
+                TextField("Write something about yourself", text: $typedDescription, axis: .vertical)
+                    .lineLimit(3...8)
+                    .focused($isEditingDescription)
             }
 
             Section {
-                ShareLink(
-                    item: ProfileFile(data: fullProfile.jsonData() ?? Data()),
-                    preview: SharePreview("Learn2Sing Profile")
-                ) {
-                    Label("Download Profile", systemImage: "square.and.arrow.up")
-                }
-                .settingHelp(L("Saves your profile as a JSON file using the share sheet."))
+                Toggle("Make your join date public", isOn: $joinDatePublic)
+                    .onChange(of: joinDatePublic) { _, isPublic in
+                        save { $0.joinDatePublic = isPublic }
+                    }
             }
         }
         .navigationTitle(L("Profile"))
@@ -192,8 +181,14 @@ struct ProfileView: View {
         .onChange(of: isEditingUsername) { _, editing in
             if !editing { commitUsername() }
         }
-        // Leaving with the keyboard still up finishes the rename too.
-        .onDisappear { commitUsername() }
+        .onChange(of: isEditingDescription) { _, editing in
+            if !editing { commitDescription() }
+        }
+        // Leaving with the keyboard still up finishes the edit too.
+        .onDisappear {
+            commitUsername()
+            commitDescription()
+        }
     }
 
     /// Offers the typed name to the server, which is what decides whether it is
@@ -233,15 +228,29 @@ struct ProfileView: View {
         }
     }
 
+    /// Writes the typed description into the profile once the field is finished
+    /// with. Unlike a rename there is nothing to claim, so it is simply saved.
+    private func commitDescription() {
+        let text = typedDescription
+        guard text != (profile.profileDescription ?? "") else { return }
+        save { $0.profileDescription = text }
+    }
+
     /// Puts an accepted name in the profile file and sends it on to the server's
-    /// copy of the profile. Written onto a freshly loaded profile rather than
-    /// this screen's snapshot, which the Community tab may have added a like or
-    /// a download to since it was taken.
+    /// copy of the profile.
     private func save(username: String) {
+        save { $0.username = username }
+    }
+
+    /// Applies one edit to the profile file and sends it on to the server's copy.
+    /// Written onto a freshly loaded profile rather than this screen's snapshot,
+    /// which the Community tab may have added a like or a download to since it
+    /// was taken — and then onto the snapshot too, so the screen agrees with it.
+    private func save(_ edit: (inout UserProfile) -> Void) {
         var stored = UserProfile.load()
-        stored.username = username
+        edit(&stored)
         stored.save()
-        profile.username = username
+        edit(&profile)
         ProfileSync.shared.scheduleUpload()
     }
 }

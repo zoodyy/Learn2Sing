@@ -514,8 +514,8 @@ final class Learn2SingUITests: XCTestCase {
 
     // MARK: - Profile
 
-    /// The Settings tab's Profile screen shows an editable username, the device
-    /// ID, and a Download button; an edited username survives a relaunch.
+    /// The Settings tab's Profile screen shows an editable username, a free-text
+    /// description and the join-date toggle; an edited username survives a relaunch.
     func testProfileScreen() throws {
         func openProfile() -> XCUIApplication {
             let app = XCUIApplication()
@@ -534,8 +534,10 @@ final class Learn2SingUITests: XCTestCase {
         var app = openProfile()
         let username = app.textFields["Username"].firstMatch
         XCTAssertTrue(username.waitForExistence(timeout: 3), "username field not found")
-        XCTAssertTrue(app.staticTexts["Device ID"].exists, "device ID row not found")
-        XCTAssertTrue(app.buttons["Download Profile"].exists, "download button not found")
+        XCTAssertTrue(app.textFields["Write something about yourself"].exists,
+                      "profile description field not found")
+        XCTAssertTrue(app.switches["Make your join date public"].exists,
+                      "join date toggle not found")
         saveScreenshot("profile")
 
         // Type into the username field and confirm it persists across a relaunch.

@@ -8,9 +8,9 @@
 import Foundation
 import Combine
 
-/// Keeps the user's profile (username, device ID, the whole Exercises tab and
-/// the settings) mirrored on the server as a single JSON document, keyed by the
-/// private device ID shown in the profile settings. Because that ID lives in the
+/// Keeps the user's profile (username, description, device ID, the whole
+/// Exercises tab and the settings) mirrored on the server as a single JSON
+/// document, keyed by the private device ID. Because that ID lives in the
 /// Keychain it survives reinstalls, so a fresh install can fetch the profile
 /// back and restore the library.
 @MainActor
@@ -220,6 +220,15 @@ final class ProfileSync {
         var profile = UserProfile.load()
         if profile.username.isEmpty {
             profile.username = remote.username
+        }
+        // The profile screen's own fields, kept if this device already has them:
+        // a restore the server failed on is retried on a later launch, and what
+        // the user wrote in between is theirs.
+        if profile.profileDescription == nil {
+            profile.profileDescription = remote.profileDescription
+        }
+        if profile.joinDatePublic == nil {
+            profile.joinDatePublic = remote.joinDatePublic
         }
         profile.exercises = remote.exercises
         // CommunitySync reads this back when it starts, right after the restore.

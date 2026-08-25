@@ -57,7 +57,7 @@ for exercise in bundle["exercises"]:
 # as-is in every language, so they are deliberately left untranslated.
 NOT_TRANSLATED = {
     "May", "Doo Hoo", "Mum", "Yum Ya", "Myam Myom", "Mom Moh",
-    "Learn2Sing Profile", "Learn2Sing Exercises",
+    "Learn2Sing Exercises",
 }
 
 wanted = []
