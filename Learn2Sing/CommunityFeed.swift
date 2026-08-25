@@ -13,9 +13,9 @@ import Combine
 ///
 /// `customId1` is the query parameter the record was posted with — the
 /// uploader's public user id — and `customName1` is the server's lookup of
-/// it: the `customName` that user's PUBLIC_NAME document was posted with,
+/// it: the `customName` that user's PUBLIC_PROFILE document was posted with,
 /// which is to say their username. That is where the Community tab's
-/// uploader labels come from; a user with no PUBLIC_NAME document gets the
+/// uploader labels come from; a user with no PUBLIC_PROFILE document gets the
 /// id echoed back instead, or nothing at all (see `publicNames(in:)`).
 struct PersistRecord: Decodable {
     var storageType: String
@@ -322,7 +322,7 @@ final class CommunityFeed: ObservableObject {
     ///
     /// Everything narrowing the query rides along on every page of every stage:
     /// `userId` is who is asking (which is all `filter` means anything next to —
-    /// the same public id the PUBLIC_NAME document is persisted under),
+    /// the same public id the PUBLIC_PROFILE document is persisted under),
     /// `customId1` scopes the list to one uploader, and `searchTerm` is matched
     /// by the server against the uploader name, exercise name and description
     /// each record was persisted with (see `CommunitySync.post`).
@@ -532,7 +532,7 @@ final class CommunityFeed: ObservableObject {
     /// The username per public user id carried by a page of records: the
     /// server's lookup of each record's `customId1` (see `PersistRecord`).
     ///
-    /// A user who has never posted a PUBLIC_NAME document has no name to look
+    /// A user who has never posted a PUBLIC_PROFILE document has no name to look
     /// up, and the endpoint answers with their id — or with nothing — rather
     /// than leaving the field out, so both are dropped here. Their rows keep the
     /// name stamped on the exercise when it was published.

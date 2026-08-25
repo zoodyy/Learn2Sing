@@ -497,7 +497,7 @@ private struct CommunityProfileHeader: View {
     let profile: PublicProfileDoc?
 
     private var description: String {
-        profile?.description.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        (profile?.description ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
     /// When this uploader joined, if they published it.

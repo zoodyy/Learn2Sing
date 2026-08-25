@@ -33,51 +33,31 @@ struct SharedExerciseDoc: Codable {
     var createdAt: Double? = nil
 }
 
-/// The document each user keeps on the server under PUBLIC_NAME: their current
-/// profile username, so renaming yourself in the profile updates the label on
-/// your exercises for everyone.
+/// The document each user keeps on the server under PUBLIC_PROFILE (called
+/// PUBLIC_NAME until the backend renamed it): everything they publish about
+/// themselves — their username, the description they wrote on the profile
+/// screen, and their join date if they made it public.
 ///
-/// It is never fetched. The username is posted as the document's `customName`
-/// as well as in its JSON, and the server resolves the `customId1` stamped on
-/// each shared exercise — the uploader's public user id — to that name, handing
-/// it back as `customName1` on every SHARED_EXERCISE record (see
-/// `PersistRecord`). So the names arrive with the list itself, and someone
-/// else's rename shows up on the next refresh rather than costing a call per
-/// uploader to find.
-nonisolated struct PublicNameDoc: Codable {
+/// The username is posted as the document's `customName` as well as in its JSON,
+/// and the server resolves the `customId1` stamped on each shared exercise — the
+/// uploader's public user id — to that name, handing it back as `customName1` on
+/// every SHARED_EXERCISE record (see `PersistRecord`). So the names arrive with
+/// the list itself rather than costing a call per uploader. The description and
+/// join date come the other way: nothing carries them, so an uploader's profile
+/// screen fetches this document by id when it opens (see `publicProfile(for:)`).
+nonisolated struct PublicProfileDoc: Codable {
     /// The uploader's public user id (see PublicIdentifier), matching the
     /// `userID` stamped on their shared exercises.
     var userID: String
     var username: String
-}
-
-/// The document each user publishes under their *public* id: the description
-/// they wrote on the profile screen and — only when they turned that option on —
-/// when they joined. It is what an uploader's profile screen shows above their
-/// exercises, and the only place either value is published: the profile file
-/// ProfileSync backs up is keyed by the raw device id, which nothing on this
-/// channel may carry (see PublicIdentifier).
-///
-/// It goes under the `PROFILE` storage type, the same one as that backup,
-/// because the backend takes no other type — `PROFILE`, `PUBLIC_NAME` and
-/// `SHARED_EXERCISE` are the three it knows, anything else is a 400. The two
-/// can't be confused for one another: this one is keyed by the derived public
-/// user id and holds nothing but these fields, while the backup is keyed by the
-/// Keychain device id and never leaves this device. A backup document decoded as
-/// this one fails outright — it has no `userID`.
-///
-/// Unlike PUBLIC_NAME it carries no `customName`, so re-posting it is not a name
-/// claim and is never refused: it can be rewritten as often as the user edits
-/// their description.
-nonisolated struct PublicProfileDoc: Codable {
-    /// The author's public user id (see PublicIdentifier), matching the `userID`
-    /// stamped on their shared exercises.
-    var userID: String
-    /// The description as typed on the profile screen; empty when there is none.
-    var description: String = ""
+    /// The description as typed on the profile screen, "" when it was cleared.
+    /// Optional so the documents written before this field existed — every one
+    /// on the server today — still decode; a synthesised `init(from:)` throws on
+    /// a missing key rather than falling back to a property's default value.
+    var description: String? = nil
     /// When the user joined, as seconds since 1970 — nil unless they made it
-    /// public, in which case it isn't uploaded at all rather than uploaded and
-    /// hidden.
+    /// public, in which case it is left out of the document rather than put in
+    /// and hidden.
     var joinedAt: Double? = nil
 }
 
@@ -173,7 +153,7 @@ final class CommunityCounts: ObservableObject {
 /// ID (see PublicIdentifier — the raw id and device id never leave the device)
 /// (re-uploaded when the exercise changes, and overwritten with a tombstone
 /// when it goes private or is deleted, so it disappears for everyone) plus a
-/// PUBLIC_NAME document with its username, and the tab lists those exercise
+/// PUBLIC_PROFILE document with its username, and the tab lists those exercise
 /// documents — this device's included — via the public fetch endpoint, a page of
 /// `pageSize` at a time as the user scrolls (see `refresh` and `loadNextPage`).
 /// The list itself is never persisted: it holds exactly
@@ -186,6 +166,11 @@ final class CommunitySync: ObservableObject {
     static let shared = CommunitySync()
 
     nonisolated static let baseURL = "https://echolex.api.phrase-by-phrase.com/api/v1/learn2Sing"
+    /// Storage type of the per-user public document (see `PublicProfileDoc`).
+    /// It was called PUBLIC_NAME until the backend renamed it; the old name is
+    /// now a 400, so a build asking for it can neither claim a name nor read a
+    /// profile.
+    nonisolated static let publicProfileType = "PUBLIC_PROFILE"
     /// UUID strings whose midi/miditext keys were written by a fetch, so a later
     /// fetch can clean up patterns of exercises that left the community list.
     private static let cachedPatternIDsKey = "communityPatternIDs"
@@ -262,9 +247,7 @@ final class CommunitySync: ObservableObject {
     /// are skipped, so the store's frequent unrelated changes don't cause
     /// redundant POSTs.
     private var lastUploadedBodies: [String: Data] = [:]
-    /// Same skip-if-unchanged guard for the PUBLIC_NAME document.
-    private var lastUploadedName: Data?
-    /// And for the public PROFILE document (see `PublicProfileDoc`).
+    /// Same skip-if-unchanged guard for the PUBLIC_PROFILE document.
     private var lastUploadedProfile: Data?
     /// Whether a fetch has succeeded since launch; gates stamping share dates.
     private var hasFetched = false
@@ -291,7 +274,7 @@ final class CommunitySync: ObservableObject {
         // An earlier version persisted the fetched list under this key.
         UserDefaults.standard.removeObject(forKey: "communityExercises")
         // And the uploader names under this one, back when finding them cost a
-        // PUBLIC_NAME fetch per uploader; they now come with the list.
+        // PUBLIC_PROFILE fetch per uploader; they now come with the list.
         UserDefaults.standard.removeObject(forKey: "communityUploaderNames")
         // "Oldest First" is now the reverse switch on top of "Newest First";
         // carry anyone left on it over rather than dropping them to the default.
@@ -379,12 +362,11 @@ final class CommunitySync: ObservableObject {
 
     // MARK: - Upload
 
-    /// Pushes this device's server documents: the shared exercises, the username
-    /// and the public profile. Each one is skipped when its body hasn't changed
-    /// since the last accept.
+    /// Pushes both server documents: the shared exercises and the public
+    /// profile. Each one is skipped when its body hasn't changed since the last
+    /// accept.
     private func upload() async {
         await uploadSharedExercises()
-        await uploadPublicName()
         await uploadPublicProfile()
     }
 
@@ -500,45 +482,60 @@ final class CommunitySync: ObservableObject {
         return false
     }
 
-    /// Re-posts the stored profile username, so a rename made while offline —
-    /// or in a build that never got to post it — catches up.
+    /// Re-posts this device's public profile, so a rename — or a description
+    /// edit — made while offline, or in a build that never got to post it,
+    /// catches up.
     ///
     /// The result is deliberately dropped: the first post of a session is of a
     /// name the server usually holds already, and it refuses a name that exists
     /// whoever holds it — this user included (verified against this device's own
     /// record). So `.taken` here is the ordinary answer for "nothing to change",
     /// not something to report or act on.
-    private func uploadPublicName() async {
+    private func uploadPublicProfile() async {
         guard readyToUpload else { return }
         await claimUsername(UserProfile.load().username)
     }
 
-    /// POSTs `username` as this device's PUBLIC_NAME document and reports what
-    /// the server made of it. The name goes in the `customName` query parameter
-    /// as well as in the document itself: that parameter is what the server
+    /// POSTs this device's PUBLIC_PROFILE document — `username`, the profile
+    /// description and, if the user made it public, the join date — and reports
+    /// what the server made of the name. The name goes in the `customName` query
+    /// parameter as well as in the document: that parameter is what the server
     /// resolves this user's id to on every shared exercise they have uploaded,
     /// and so what labels their rows in everyone's Community tab (see
-    /// `PublicNameDoc`).
+    /// `PublicProfileDoc`).
     ///
     /// `customName` is unique across users, so this is also the only way to find
     /// out whether a name is free — hence the result, which the profile screen
     /// renames on (see `UsernameClaimResult`). Nothing is remembered locally for
-    /// a name the server didn't take: `lastUploadedName` stays as it was, so the
-    /// next upload asks again rather than assuming the name went through.
+    /// a post the server didn't take: `lastUploadedProfile` stays as it was, so
+    /// the next upload asks again rather than assuming it went through.
+    ///
+    /// The uniqueness check applies to the record that already holds the name,
+    /// which is what makes this the only write of the document: a post whose
+    /// name is unchanged is refused (412) whatever else it carries, and one with
+    /// no `customName` at all is refused too (both verified against this
+    /// device's own record). So an edited description reaches the server on the
+    /// next accepted rename and not before — every post carries the description
+    /// as it stands, so whichever one lands publishes it.
     @discardableResult
     func claimUsername(_ username: String) async -> UsernameClaimResult {
         let userID = PublicIdentifier.user
-        let doc = PublicNameDoc(userID: userID, username: username)
+        let stored = UserProfile.load()
+        let doc = PublicProfileDoc(
+            userID: userID,
+            username: username,
+            description: stored.profileDescription ?? "",
+            joinedAt: stored.joinDatePublic == true ? stored.joinedAt : nil)
         let encoder = JSONEncoder()
         encoder.outputFormatting = [.sortedKeys]
-        var components = URLComponents(string: "\(Self.baseURL)/persist/\(userID)/PUBLIC_NAME")
+        var components = URLComponents(string: "\(Self.baseURL)/persist/\(userID)/\(Self.publicProfileType)")
         components?.queryItems = [
             URLQueryItem(name: "customId1", value: userID),
             URLQueryItem(name: "customName", value: doc.username),
         ]
         guard let body = try? encoder.encode(doc), let url = components?.url else { return .failed }
-        // The name the server last took is this one: it is already this user's.
-        guard body != lastUploadedName else { return .accepted }
+        // The document the server last took is this one, name and all.
+        guard body != lastUploadedProfile else { return .accepted }
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
@@ -547,7 +544,7 @@ final class CommunitySync: ObservableObject {
             let (data, response) = try await URLSession.shared.data(for: request)
             guard let http = response as? HTTPURLResponse else { return .failed }
             if (200...299).contains(http.statusCode) {
-                lastUploadedName = body
+                lastUploadedProfile = body
                 // This device's own rename, straight into the names the list is
                 // labelled from — otherwise the tab would keep showing the old
                 // name on this user's own exercises until the next refresh
@@ -558,9 +555,9 @@ final class CommunitySync: ObservableObject {
             if http.statusCode == 412 {
                 return .taken(Self.rejectedName(in: data) ?? username)
             }
-            print("CommunitySync: name upload failed with status \(http.statusCode)")
+            print("CommunitySync: public profile upload failed with status \(http.statusCode)")
         } catch {
-            print("CommunitySync: name upload failed: \(error)")
+            print("CommunitySync: public profile upload failed: \(error)")
         }
         return .failed
     }
@@ -583,58 +580,18 @@ final class CommunitySync: ObservableObject {
         return name.isEmpty ? nil : name
     }
 
-    /// POSTs the profile description, and the join date if the user made it
-    /// public, as this device's public PROFILE document — what an uploader's
-    /// profile screen shows above their exercises (see `PublicProfileDoc`).
-    ///
-    /// Read straight out of the profile file rather than taken as an argument:
-    /// this runs on the same debounced trigger as everything else here, and the
-    /// file is what the profile screen has just written. Turning the join date
-    /// off posts a document without one, so it stops being published.
-    private func uploadPublicProfile() async {
-        guard readyToUpload else { return }
-        let stored = UserProfile.load()
-        let userID = PublicIdentifier.user
-        let doc = PublicProfileDoc(
-            userID: userID,
-            description: stored.profileDescription ?? "",
-            joinedAt: stored.joinDatePublic == true ? stored.joinedAt : nil)
-        let encoder = JSONEncoder()
-        encoder.outputFormatting = [.sortedKeys]
-        var components = URLComponents(string: "\(Self.baseURL)/persist/\(userID)/PROFILE")
-        components?.queryItems = [URLQueryItem(name: "customId1", value: userID)]
-        guard let body = try? encoder.encode(doc), let url = components?.url else { return }
-        // Nothing to say: the document the server took is this one.
-        guard body != lastUploadedProfile else { return }
-        var request = URLRequest(url: url)
-        request.httpMethod = "POST"
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.httpBody = body
-        do {
-            let (_, response) = try await URLSession.shared.data(for: request)
-            guard let http = response as? HTTPURLResponse else { return }
-            guard (200...299).contains(http.statusCode) else {
-                print("CommunitySync: profile upload failed with status \(http.statusCode)")
-                return
-            }
-            lastUploadedProfile = body
-        } catch {
-            print("CommunitySync: profile upload failed: \(error)")
-        }
-    }
-
-    /// One uploader's published description and join date, for the screen that
-    /// opens on their name. nil when they have published none — the document is
-    /// only written by builds that have this screen — or when the call fails, and
-    /// the screen simply shows what it has.
+    /// One uploader's published profile — their description and, if they made it
+    /// public, their join date — for the screen that opens on their name. nil
+    /// when they have published none, or when the call fails, and the screen
+    /// simply shows what it has.
     ///
     /// `fetch-private` is the endpoint that answers for one id, which is what
     /// this needs; the paged `fetch-public` ignores both the id and the storage
     /// type in its path and hands back shared exercises (see `CommunityFeed`).
-    /// Nothing private goes over it here: the id is the derived public one, and
-    /// the document holds only what its author chose to publish.
+    /// Nothing private goes over it: the id is the derived public one, and the
+    /// document holds only what its author chose to publish.
     func publicProfile(for userID: String) async -> PublicProfileDoc? {
-        guard let url = URL(string: "\(Self.baseURL)/fetch-private/\(userID)/PROFILE")
+        guard let url = URL(string: "\(Self.baseURL)/fetch-private/\(userID)/\(Self.publicProfileType)")
         else { return nil }
         do {
             let (data, response) = try await URLSession.shared.data(from: url)
@@ -644,7 +601,7 @@ final class CommunitySync: ObservableObject {
                 return nil
             }
             guard let records = try? JSONDecoder().decode([PersistRecord].self, from: data),
-                  let record = records.first(where: { $0.storageType == "PROFILE" })
+                  let record = records.first(where: { $0.storageType == Self.publicProfileType })
             else { return nil }
             return try? JSONDecoder().decode(PublicProfileDoc.self,
                                              from: Data(record.jsonData.utf8))
@@ -897,7 +854,7 @@ final class CommunitySync: ObservableObject {
     }
 
     /// Turns the documents a feed has loaded into the exercises it lists —
-    /// relabelled with each uploader's current PUBLIC_NAME where one is known —
+    /// relabelled with each uploader's current PUBLIC_PROFILE name where one is known —
     /// and swaps their patterns into the UserDefaults cache. Also everything
     /// about them that belongs to the session rather than to one list: the share
     /// dates, the tallies, and the exercises the pushed screens resolve through
