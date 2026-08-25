@@ -1238,11 +1238,34 @@ final class Learn2SingUITests: XCTestCase {
         XCTAssertNotNil(profileRow, "the uploader's exercise should be listed on their profile")
         XCTAssertFalse(profileRow?.buttons[username].exists ?? true,
                        "profile rows must not repeat the username")
+        // The profile header: a placeholder picture above the list, which the
+        // uploader's description and join date sit beside when they published
+        // them. It goes away while the search field is in use.
+        let avatar = app.images["person.crop.circle.fill"].firstMatch
+        XCTAssertTrue(avatar.exists, "profile header not found above the list")
         saveScreenshot("uploader-profile")
 
-        // The back button top-left returns to the Community list.
-        let backButton = profileBar.buttons.firstMatch
-        XCTAssertTrue(backButton.exists, "profile should show a back button top-left")
+        let profileSearch = app.searchFields.firstMatch
+        XCTAssertTrue(profileSearch.exists, "profile search field not found")
+        profileSearch.tap()
+        XCTAssertTrue(avatar.waitForNonExistence(timeout: 3),
+                      "the header should be hidden while searching")
+        // The button that ends the search is labelled "Close" on iOS 26 and
+        // "Cancel" before it.
+        let endSearch = app.buttons
+            .matching(NSPredicate(format: "label IN {'Close', 'Cancel'}"))
+            .firstMatch
+        XCTAssertTrue(endSearch.waitForExistence(timeout: 3), "no way out of the search field")
+        endSearch.tap()
+        XCTAssertTrue(avatar.waitForExistence(timeout: 3),
+                      "the header should come back once the search ends")
+
+        // The back button top-left returns to the Community list. Queried again
+        // rather than off `profileBar`: ending the search rebuilds the bar, and
+        // the button held from before it is stale.
+        let backButton = app.navigationBars[username].buttons.firstMatch
+        XCTAssertTrue(backButton.waitForExistence(timeout: 3),
+                      "profile should show a back button top-left")
         backButton.tap()
         XCTAssertTrue(app.navigationBars["Community"].waitForExistence(timeout: 5),
                       "back button should return to the Community list")

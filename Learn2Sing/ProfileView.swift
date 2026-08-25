@@ -19,6 +19,11 @@ struct UserProfile: Codable {
     /// Whether this user's join date may be shown publicly. Optional so profiles
     /// written before the toggle existed still decode.
     var joinDatePublic: Bool? = nil
+    /// When this user joined, as seconds since 1970. Stamped once, on the first
+    /// launch that finds it missing (see `ProfileSync.stampJoinDateIfNeeded`),
+    /// and carried forward unchanged from then on. Optional so profiles written
+    /// before it existed still decode — and so that first launch can tell.
+    var joinedAt: Double? = nil
     /// Snapshot of the Exercises tab (exercises, categories, MIDI patterns,
     /// text labels). Optional so profiles written before sync existed decode.
     var exercises: ExerciseBundle? = nil
@@ -246,11 +251,17 @@ struct ProfileView: View {
     /// Written onto a freshly loaded profile rather than this screen's snapshot,
     /// which the Community tab may have added a like or a download to since it
     /// was taken — and then onto the snapshot too, so the screen agrees with it.
+    ///
+    /// Both syncs are asked to catch up: the private backup carries every field,
+    /// while the description and the join date are also published — under the
+    /// public user id, never the device one — for the Community tab to show on
+    /// this user's profile (see `CommunitySync.uploadPublicProfile`).
     private func save(_ edit: (inout UserProfile) -> Void) {
         var stored = UserProfile.load()
         edit(&stored)
         stored.save()
         edit(&profile)
         ProfileSync.shared.scheduleUpload()
+        CommunitySync.shared.scheduleUpload()
     }
 }

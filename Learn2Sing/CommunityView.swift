@@ -361,6 +361,9 @@ struct CommunityUserProfileView: View {
     /// lives exactly as long as the profile screen and its paging isn't shared
     /// with — or reset by — anything else on the stack.
     @StateObject private var list: CommunityFeed
+    /// This uploader's public user id, which their published profile is fetched
+    /// under — the same id their exercises are listed by.
+    private let uploaderID: String
     let username: String
     /// Called with the tapped exercise's id and every exercise this profile lists,
     /// in display order; the Community stack pushes playback and lets the score
@@ -372,9 +375,14 @@ struct CommunityUserProfileView: View {
     @AppStorage("communitySort") private var sort: CommunitySort = .hot
     @AppStorage("communitySortReversed") private var isReversed = false
     @State private var searchText = ""
+    /// What this uploader has published about themselves, once the fetch has
+    /// answered. nil until then, and for a user who has published nothing — the
+    /// header shows what it has either way.
+    @State private var publicProfile: PublicProfileDoc?
 
     init(uploaderID: String, username: String, onSelect: @escaping (UUID, [UUID]) -> Void) {
         _list = StateObject(wrappedValue: CommunityFeed(uploaderID: uploaderID))
+        self.uploaderID = uploaderID
         self.username = username
         self.onSelect = onSelect
     }
@@ -401,31 +409,40 @@ struct CommunityUserProfileView: View {
                                     items: rows)]
     }
 
-    var body: some View {
-        Group {
-            if listSections.isEmpty {
-                CommunityEmptyState(list: list, searchText: searchText) {
-                    ContentUnavailableView(
-                        "No Public Exercises",
-                        systemImage: "person.crop.circle",
-                        description: Text(L("%@ has no public exercises right now.", username))
-                    )
-                }
-            } else {
-                let sections = listSections
-                ExerciseCollectionList(
-                    sections: sections,
-                    onSelect: { id, _ in
-                        onSelect(id, sections.flatMap { $0.items.map(\.id) })
-                    },
-                    onRefresh: { await list.refresh() },
-                    onLoadMore: { Task { await list.loadNextPage() } },
-                    loadMoreThreshold: CommunityFeed.pageSize
+    /// This uploader's exercises, or the empty state when the fetch hands back
+    /// none — with the profile header above either of them.
+    @ViewBuilder private var content: some View {
+        if listSections.isEmpty {
+            CommunityEmptyState(list: list, searchText: searchText) {
+                ContentUnavailableView(
+                    "No Public Exercises",
+                    systemImage: "person.crop.circle",
+                    description: Text(L("%@ has no public exercises right now.", username))
                 )
-                // Span the full screen like a List so content scrolls under the
-                // navigation and tab bars.
-                .ignoresSafeArea()
             }
+        } else {
+            let sections = listSections
+            ExerciseCollectionList(
+                sections: sections,
+                onSelect: { id, _ in
+                    onSelect(id, sections.flatMap { $0.items.map(\.id) })
+                },
+                onRefresh: { await list.refresh() },
+                onLoadMore: { Task { await list.loadNextPage() } },
+                loadMoreThreshold: CommunityFeed.pageSize
+            )
+            // Span the width like a List and carry on under the tab bar — but
+            // not under the navigation bar, the way the Community tab's own list
+            // does: the header sits up there, and a list that ignored the top
+            // inset would be laid out across it.
+            .ignoresSafeArea(edges: .bottom)
+        }
+    }
+
+    var body: some View {
+        VStack(spacing: 0) {
+            CommunityProfileHeader(profile: publicProfile)
+            content
         }
         .navigationTitle(username)
         .navigationBarTitleDisplayMode(.inline)
@@ -446,6 +463,10 @@ struct CommunityUserProfileView: View {
         }
         .stableTopEdgeFade()
         .task { await list.refreshIfNeeded() }
+        // One call, for the description and join date this uploader published.
+        // It is their own document rather than anything the list carries, so it
+        // is fetched once for the screen and not per refresh.
+        .task { publicProfile = await CommunitySync.shared.publicProfile(for: uploaderID) }
         // This uploader's exercises can sit anywhere in what the fetch hands
         // back, since the server doesn't act on the scope it is asked for yet
         // (see `CommunityFeed.uploaderID`), so the profile shows what it can and
@@ -454,6 +475,77 @@ struct CommunityUserProfileView: View {
         .onDisappear { list.setNeedsFullList(false, for: .profile) }
         .communitySearchTerm(searchText, on: list)
         .onChange(of: sortRequest) { Task { await list.refresh() } }
+    }
+}
+
+/// The top of an uploader's profile: a round picture beside the description they
+/// wrote, with when they joined underneath if they made that public. The picture
+/// is a placeholder — there is nothing to upload one with yet.
+///
+/// Hidden while the search field is in use: the screen is a list of matches then,
+/// and whose profile they were found on is what the title says. Reading
+/// `isSearching` is why this is a view of its own — the environment value is set
+/// for the children of the view carrying `.searchable`, not for that view itself.
+private struct CommunityProfileHeader: View {
+    /// Re-renders when the language is changed in Settings; the strings are
+    /// resolved when the body runs, so SwiftUI needs telling.
+    @ObservedObject private var appLanguage = LanguageManager.shared
+    @Environment(\.isSearching) private var isSearching
+
+    /// What the uploader published, or nil while the fetch is out — in which case
+    /// the picture stands on its own until it answers.
+    let profile: PublicProfileDoc?
+
+    private var description: String {
+        profile?.description.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+    }
+
+    /// When this uploader joined, if they published it.
+    private var joined: Date? {
+        profile?.joinedAt.map { Date(timeIntervalSince1970: $0) }
+    }
+
+    var body: some View {
+        if !isSearching {
+            HStack(alignment: .top, spacing: 12) {
+                Image(systemName: "person.crop.circle.fill")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 56, height: 56)
+                    .foregroundStyle(.tertiary)
+                    .clipShape(.circle)
+
+                VStack(alignment: .leading, spacing: 4) {
+                    if !description.isEmpty {
+                        Text(description)
+                            .font(.subheadline)
+                            // Wrap instead of shrinking the whole block to one
+                            // line, however long the description is.
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                    if let joined {
+                        Text(L("Joined %@", Self.joinedAgo(joined)))
+                            .font(.footnote)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+                Spacer(minLength: 0)
+            }
+            .padding(.horizontal, 20)
+            .padding(.top, 12)
+            .padding(.bottom, 16)
+        }
+    }
+
+    /// "3 months ago" in the language the app is set to — not the device's, which
+    /// is what a `.relative` format style would resolve against.
+    private static func joinedAgo(_ date: Date) -> String {
+        let formatter = RelativeDateTimeFormatter()
+        formatter.locale = LanguageManager.shared.language.locale
+        formatter.unitsStyle = .full
+        // A date stamped moments ago reads as "in 0 seconds" if it lands even
+        // slightly ahead of now; nobody joins in the future.
+        return formatter.localizedString(for: min(date, Date()), relativeTo: Date())
     }
 }
 

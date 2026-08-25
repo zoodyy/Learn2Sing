@@ -66,10 +66,26 @@ final class ProfileSync {
             .sink { _ in Task { @MainActor in ProfileSync.shared.scheduleUpload() } }
 
         await restoreIfNeeded()
+        stampJoinDateIfNeeded()
         readyToUpload = true
         // One upload per launch so the server copy exists even before the first
         // edit and catches up on changes made while offline.
         scheduleUpload()
+    }
+
+    /// Records when this user joined, the first time the app runs without a date
+    /// on file. It is stamped once and carried forward unchanged from then on:
+    /// nothing older is recorded anywhere, so an install that predates the field
+    /// counts as joining now. Run after the restore, so a profile fetched back
+    /// brings its own date rather than being given today's.
+    ///
+    /// Whether the date is ever published is the profile screen's toggle to
+    /// decide — see `CommunitySync.uploadPublicProfile`.
+    private func stampJoinDateIfNeeded() {
+        var profile = UserProfile.load()
+        guard profile.joinedAt == nil else { return }
+        profile.joinedAt = Date().timeIntervalSince1970
+        profile.save()
     }
 
     /// Request an upload soon; safe to call from any change handler.
@@ -229,6 +245,9 @@ final class ProfileSync {
         }
         if profile.joinDatePublic == nil {
             profile.joinDatePublic = remote.joinDatePublic
+        }
+        if profile.joinedAt == nil {
+            profile.joinedAt = remote.joinedAt
         }
         profile.exercises = remote.exercises
         // CommunitySync reads this back when it starts, right after the restore.
