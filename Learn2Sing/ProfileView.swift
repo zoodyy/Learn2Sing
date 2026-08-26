@@ -161,9 +161,62 @@ struct ProfileView: View {
     var body: some View {
         Form {
             Section {
-                HStack {
-                    Spacer()
-                    ProfileAvatar(image: picture.thumb, side: 96)
+                // One row rather than four: the buttons stand in a column of
+                // their own, each still a list row tall, with the picture
+                // alongside the lot of them instead of above.
+                HStack(spacing: 16) {
+                    VStack(spacing: 0) {
+                        PhotosPicker(selection: $pickedPhoto, matching: .images, photoLibrary: .shared()) {
+                            // Spelled out either way rather than picked with a ternary:
+                            // the string extractor keys on the literal that follows
+                            // `Label(`, and would walk straight past both of these.
+                            if picture.thumb == nil {
+                                Label("Choose Photo", systemImage: "photo")
+                                    .pictureButtonRow()
+                            } else {
+                                Label("Change Photo", systemImage: "photo")
+                                    .pictureButtonRow()
+                            }
+                        }
+                        .buttonStyle(.plain)
+                        // A plain button draws its label in the primary colour,
+                        // and one that shares a row with others has to be plain
+                        // — see `pictureButtonRow` — so the tint is put back by
+                        // hand, greyed while a picked photo is being prepared.
+                        .foregroundStyle(isPreparingPicture ? AnyShapeStyle(.secondary)
+                                                            : AnyShapeStyle(Color.accentColor))
+                        .disabled(isPreparingPicture)
+
+                        if picture.thumb != nil {
+                            Divider()
+                            Button {
+                                adjustPicture()
+                            } label: {
+                                Label("Adjust Picture", systemImage: "crop")
+                                    .pictureButtonRow()
+                            }
+                            .buttonStyle(.plain)
+                            .foregroundStyle(Color.accentColor)
+
+                            Divider()
+                            Button(role: .destructive) {
+                                picture.removePicture()
+                            } label: {
+                                Label("Remove Photo", systemImage: "trash")
+                                    .pictureButtonRow()
+                            }
+                            // The destructive role only reddens a *row's* title,
+                            // and this is no longer a row of its own.
+                            .buttonStyle(.plain)
+                            .dangerRow()
+                        }
+                    }
+
+                    ProfileAvatar(image: picture.thumb, side: 110)
+                        // Only felt before a picture has been chosen, where the
+                        // one button left is shorter than the circle and it is
+                        // the circle that sets the row's height.
+                        .padding(.vertical, 8)
                         // Tapping the picture itself is the quickest way to the
                         // thing most people come back to change.
                         .onTapGesture { if picture.thumb != nil { adjustPicture() } }
@@ -175,35 +228,12 @@ struct ProfileView: View {
                                     .background(.ultraThinMaterial, in: .circle)
                             }
                         }
-                    Spacer()
                 }
-                .padding(.vertical, 8)
-                .listRowBackground(Color.clear)
-
-                PhotosPicker(selection: $pickedPhoto, matching: .images, photoLibrary: .shared()) {
-                    // Spelled out either way rather than picked with a ternary:
-                    // the string extractor keys on the literal that follows
-                    // `Label(`, and would walk straight past both of these.
-                    if picture.thumb == nil {
-                        Label("Choose Photo", systemImage: "photo")
-                    } else {
-                        Label("Change Photo", systemImage: "photo")
-                    }
-                }
-                .disabled(isPreparingPicture)
-
-                if picture.thumb != nil {
-                    Button {
-                        adjustPicture()
-                    } label: {
-                        Label("Adjust Picture", systemImage: "crop")
-                    }
-                    Button(role: .destructive) {
-                        picture.removePicture()
-                    } label: {
-                        Label("Remove Photo", systemImage: "trash")
-                    }
-                }
+                // The buttons stand a list row tall by themselves, so the row
+                // they are in adds nothing on top; the horizontal inset is the
+                // one a row would have had, so the first button's words line up
+                // with the fields in the sections below.
+                .listRowInsets(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16))
             } header: {
                 Text("Profile Picture")
             } footer: {
@@ -362,5 +392,38 @@ struct ProfileView: View {
         edit(&profile)
         ProfileSync.shared.scheduleUpload()
         CommunitySync.shared.scheduleUpload()
+    }
+}
+
+private extension View {
+    /// Lays one of the profile picture's buttons out the way the list row it
+    /// used to be was laid out: a row's height, the full width of the button
+    /// column, and a tap anywhere along that width and not on the words alone.
+    ///
+    /// The three of them share one row with the picture now, which is why they
+    /// have to be `.plain`: several default-styled buttons in a single list row
+    /// fire together. A row draws no separators between what is inside it
+    /// either, hence the `Divider`s.
+    func pictureButtonRow() -> some View {
+        modifier(PictureButtonRow())
+    }
+}
+
+private struct PictureButtonRow: ViewModifier {
+    /// The height a row on this screen stands at: that of the username field
+    /// beneath it, and of the three rows these buttons used to be. The row they
+    /// live in now has its own vertical insets zeroed, so this is what gives the
+    /// section its height — scaled, so a larger Dynamic Type moves these buttons
+    /// the way it moves the rows around them.
+    @ScaledMetric(relativeTo: .body) private var rowHeight: CGFloat = 52
+
+    func body(content: Content) -> some View {
+        content
+            // The column is only as wide as what is left beside the picture, and
+            // the longest of the three reads "Настроить изображение" in Russian.
+            .lineLimit(1)
+            .minimumScaleFactor(0.8)
+            .frame(maxWidth: .infinity, minHeight: rowHeight, alignment: .leading)
+            .contentShape(.rect)
     }
 }
