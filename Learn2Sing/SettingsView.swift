@@ -72,7 +72,9 @@ struct SettingsView: View {
                         openClapTest: { settingsPath.append(SettingsRoute.delayIntro) },
                         openSungTest: { settingsPath.append(SettingsRoute.delayExercisePicker) })
                 case .delayIntro:
-                    ExerciseIntroView(exercise: delayTestExercise) {
+                    // No difficulty: this one is the delay test's stand-in, not
+                    // an exercise anyone practises.
+                    ExerciseIntroView(exercise: delayTestExercise, difficulty: nil) {
                         settingsPath.append(SettingsRoute.delayPlayback)
                     }
                 case .delayPlayback:

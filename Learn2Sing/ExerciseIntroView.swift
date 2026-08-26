@@ -11,6 +11,13 @@ struct ExerciseIntroView: View {
     @ObservedObject private var appLanguage = LanguageManager.shared
 
     let exercise: Exercise
+    /// How hard the exercise is, on a 0-100 scale, drawn as five stars. nil
+    /// leaves the stars off, for exercises that aren't rated — the audio delay
+    /// test's stand-in among them.
+    ///
+    /// Placeholder: the server doesn't send a difficulty yet. When it does,
+    /// hand the exercise's own value in here and the rest follows from it.
+    var difficulty: Double? = 62
     /// Public id of the community exercise the like button acts on; nil (every
     /// tab but Community) hides the button.
     var likeID: UUID? = nil
@@ -58,6 +65,10 @@ struct ExerciseIntroView: View {
                 VStack(alignment: .leading, spacing: 16) {
                     Text(exercise.localizedName)
                         .font(.largeTitle.weight(.bold))
+
+                    if let difficulty {
+                        difficultyRow(difficulty)
+                    }
 
                     if trimmedDetails.isEmpty {
                         Text("No description.")
@@ -145,6 +156,21 @@ struct ExerciseIntroView: View {
         }
     }
 
+    /// The exercise's difficulty as five stars, on the trailing edge so it sits
+    /// opposite the title instead of reading as a second line of it.
+    private func difficultyRow(_ difficulty: Double) -> some View {
+        HStack(spacing: 6) {
+            Text("Difficulty:")
+            DifficultyStars(fraction: difficulty / 100)
+        }
+        .font(.subheadline)
+        .foregroundStyle(.secondary)
+        .frame(maxWidth: .infinity, alignment: .trailing)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("Difficulty:")
+        .accessibilityValue(Text(difficulty / 100, format: .percent.precision(.fractionLength(0))))
+    }
+
     /// Heart plus the exercise's like count. Tapping toggles this user's like:
     /// CommunitySync updates the count on the server and remembers the like in
     /// the profile, so it survives a reinstall.
@@ -204,5 +230,43 @@ struct ExerciseIntroView: View {
             .frame(maxWidth: .infinity)
             .background(ScoreHistoryChart.surface(colorScheme),
                         in: RoundedRectangle(cornerRadius: 14))
+    }
+}
+
+/// Five stars filled left to right, `fraction` of the way along (0-1). The star
+/// the fill lands in is filled across its own width rather than snapped to a
+/// whole or a half, so a difficulty of 21 shows one full star and a sliver of
+/// the second: the same colour used for the unfilled stars underneath, painted
+/// on top in the accent colour through a mask that stops partway.
+private struct DifficultyStars: View {
+    let fraction: Double
+
+    private static let count = 5
+
+    var body: some View {
+        HStack(spacing: 3) {
+            ForEach(0..<Self.count, id: \.self) { index in
+                // How much of *this* star is filled: 1 for every star the fill
+                // is past, 0 for every star it hasn't reached.
+                let fill = fraction * Double(Self.count) - Double(index)
+                star(fill: min(max(fill, 0), 1))
+            }
+        }
+    }
+
+    private func star(fill: Double) -> some View {
+        Image(systemName: "star.fill")
+            .foregroundStyle(Color.gray.opacity(0.3))
+            .overlay(alignment: .leading) {
+                Image(systemName: "star.fill")
+                    .foregroundStyle(Color.accentColor)
+                    // The overlay is laid out at the grey star's size, so the
+                    // reader below measures that one star and nothing else.
+                    .mask(alignment: .leading) {
+                        GeometryReader { geo in
+                            Color.black.frame(width: geo.size.width * fill)
+                        }
+                    }
+            }
     }
 }

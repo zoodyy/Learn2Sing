@@ -86,6 +86,7 @@ T("You already have a public exercise named \"%@\". Each of your public exercise
   "你已经有一个名为“%@”的公开练习。你的每个公开练习都需要唯一的名称，因此该练习将保持私有。")
 
 # --- Intro screen ---
+T("Difficulty:", "Schwierigkeit:", "Dificultad:", "Difficulté :", "Difficoltà:", "Dificuldade:", "Moeilijkheid:", "Сложность:", "Trudność:", "Zorluk:", "Svårighetsgrad:", "難易度:", "난이도:", "难度：")
 T("No description.", "Keine Beschreibung.", "Sin descripción.", "Aucune description.", "Nessuna descrizione.", "Sem descrição.", "Geen beschrijving.", "Нет описания.", "Brak opisu.", "Açıklama yok.", "Ingen beskrivning.", "説明はありません。", "설명이 없습니다.", "暂无说明。")
 T("See Score", "Punktzahl ansehen", "Ver la puntuación", "Voir la note", "Vedi punteggio", "Ver pontuação", "Score bekijken", "Показать оценку", "Zobacz wynik", "Puanı gör", "Visa poäng", "スコアを見る", "점수 보기", "查看得分")
 T("Download", "Laden", "Descargar", "Télécharger", "Scarica", "Baixar", "Downloaden", "Скачать", "Pobierz", "İndir", "Ladda ner", "ダウンロード", "내려받기", "下载")
