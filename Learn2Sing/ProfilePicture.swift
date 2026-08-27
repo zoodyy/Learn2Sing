@@ -292,11 +292,17 @@ final class ProfilePictureStore: ObservableObject {
         document?.alignment ?? .identity
     }
 
-    /// Whether the local copy is known to be up to date with the server's — false
-    /// on a fresh install until `restoreIfNeeded()` has had its answer. Nothing
-    /// publishes a *missing* picture while this is false, so a reinstall can't
-    /// wipe the picture off the server before it has had the chance to fetch it.
+    /// Whether this device knows what its own picture is — false on a fresh
+    /// install until `restoreIfNeeded()` has had an answer. The public profile
+    /// document is not published while this is false, so a reinstall can't
+    /// overwrite the picture on the server before it has fetched it.
     private(set) var isResolved = false
+
+    /// Set once the server has answered about this install's picture, so the
+    /// many users who never set one don't pay for a fetch on every launch. A
+    /// call that went unanswered doesn't set it — "we couldn't ask" must not be
+    /// remembered as "there is nothing there".
+    private static let restoreCheckedKey = "profilePictureRestoreChecked"
 
     private static var fileURL: URL {
         FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
@@ -311,6 +317,10 @@ final class ProfilePictureStore: ObservableObject {
             // A picture on disk is this device's own, and newer than anything the
             // server could hand back.
             isResolved = true
+        } else {
+            // Nothing on disk: either this user has no picture, or this install
+            // has never asked. Only the second is worth a fetch.
+            isResolved = UserDefaults.standard.bool(forKey: Self.restoreCheckedKey)
         }
     }
 
@@ -351,20 +361,26 @@ final class ProfilePictureStore: ObservableObject {
         full = nil
         isResolved = true
         try? FileManager.default.removeItem(at: Self.fileURL)
-        CommunitySync.shared.publishPublicProfile()
+        CommunitySync.shared.scheduleUpload()
     }
 
     /// Takes the picture off this user's own published profile when there is
     /// nothing on disk — the case after a reinstall, where the picture is the one
-    /// thing the private backup doesn't carry. Called before the first upload of
-    /// a session, so an empty install never publishes its emptiness over a
-    /// picture that is still on the server.
+    /// thing the private backup doesn't carry. Awaited before the first upload of
+    /// a session (see `CommunitySync.start()`), so an empty install never
+    /// publishes its emptiness over a picture that is still on the server.
     func restoreIfNeeded() async {
         guard !isResolved else { return }
-        let profile = await CommunitySync.shared.publicProfile(for: PublicIdentifier.user)
+        // A fetch that went unanswered leaves this unresolved on purpose: the
+        // next launch asks again, and until one of them answers nothing is
+        // published over whatever the server holds.
+        guard case .answered(let profile) =
+                await CommunitySync.shared.fetchPublicProfile(for: PublicIdentifier.user)
+        else { return }
         // Another edit resolved it while the fetch was out; that one is newer.
         guard !isResolved else { return }
         isResolved = true
+        UserDefaults.standard.set(true, forKey: Self.restoreCheckedKey)
         guard let picture = profile?.picture else { return }
         document = picture
         thumb = Self.image(fromBase64: picture.thumb)
@@ -379,7 +395,10 @@ final class ProfilePictureStore: ObservableObject {
         full = nil
         isResolved = true
         write(document)
-        CommunitySync.shared.publishPublicProfile()
+        // The picture is part of the public profile document, so publishing it
+        // is the ordinary upload — debounced with everything else, retried on
+        // the next launch if it doesn't land.
+        CommunitySync.shared.scheduleUpload()
     }
 
     private func write(_ document: ProfilePictureDoc) {
