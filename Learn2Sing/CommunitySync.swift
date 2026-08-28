@@ -159,6 +159,12 @@ final class CommunityCounts: ObservableObject {
     /// anywhere; kept so a play registered this session is reflected the moment
     /// the exercise is reopened.
     @Published fileprivate(set) var playCounts: [UUID: Int] = [:]
+    /// The server's difficulty for each public exercise id — its average score,
+    /// on the 0-100 scale `EventAverage` describes — as of the last time that
+    /// exercise was opened. Persisted, so reopening one draws its stars on the
+    /// first frame instead of after the round trip; the fetch still runs and
+    /// moves them if the average has changed.
+    @Published fileprivate(set) var difficulties: [UUID: Double] = [:]
     /// Public ids of the exercises this user has liked. Mirrored into the
     /// profile JSON (and so onto the server) on every change.
     @Published fileprivate(set) var likedExerciseIDs: Set<UUID> = []
@@ -206,6 +212,9 @@ final class CommunitySync: ObservableObject {
     private static let downloadCountsKey = "communityDownloadCounts"
     /// Same, for the play count.
     private static let playCountsKey = "communityPlayCounts"
+    /// Last known difficulty per public exercise id, persisted so the intro
+    /// screen's stars are up the moment it opens rather than a round trip later.
+    private static let difficultiesKey = "communityDifficulties"
     /// Share date (seconds since 1970) per public exercise id, so re-uploading an
     /// edited exercise keeps the date it was first shared.
     private static let shareDatesKey = "communityShareDates"
@@ -239,6 +248,10 @@ final class CommunitySync: ObservableObject {
     private var playCounts: [UUID: Int] {
         get { counts.playCounts }
         set { counts.playCounts = newValue }
+    }
+    private var difficulties: [UUID: Double] {
+        get { counts.difficulties }
+        set { counts.difficulties = newValue }
     }
     private var likedExerciseIDs: Set<UUID> {
         get { counts.likedExerciseIDs }
@@ -309,6 +322,10 @@ final class CommunitySync: ObservableObject {
         likeCounts = Self.storedCounts(forKey: Self.likeCountsKey)
         downloadCounts = Self.storedCounts(forKey: Self.downloadCountsKey)
         playCounts = Self.storedCounts(forKey: Self.playCountsKey)
+        let stored = UserDefaults.standard.dictionary(forKey: Self.difficultiesKey) as? [String: Double] ?? [:]
+        difficulties = stored.reduce(into: [:]) { result, entry in
+            if let id = UUID(uuidString: entry.key) { result[id] = entry.value }
+        }
         let dates = UserDefaults.standard.dictionary(forKey: Self.shareDatesKey) as? [String: Double] ?? [:]
         shareDates = dates.reduce(into: [:]) { result, entry in
             if let id = UUID(uuidString: entry.key) {
@@ -746,6 +763,24 @@ final class CommunitySync: ObservableObject {
         persistCounts()
     }
 
+    /// Brings one exercise's difficulty up to date from the server, published on
+    /// `counts` so the intro screen's stars follow it.
+    ///
+    /// The cached value stays up while this runs, which is the point of caching
+    /// it: an exercise opened before shows its stars on the first frame and they
+    /// only move if the server's average has shifted since. A call that fails,
+    /// or one for an exercise nobody has finished, answers nil and leaves the
+    /// cache alone — the same as `refreshSummary` above, and the reason an
+    /// average is never dropped once known: the endpoint can't tell "no rating
+    /// yet" apart from "couldn't ask", and blanking the stars every time the
+    /// device is offline would be the worse of the two readings.
+    func refreshDifficulty(for publicExerciseID: UUID) async {
+        guard let value = await Self.fetchDifficulty(for: publicExerciseID),
+              difficulties[publicExerciseID] != value else { return }
+        difficulties[publicExerciseID] = value
+        persistDifficulties()
+    }
+
     /// Adds or removes this user's like on a community exercise, addressed by
     /// its public id.
     ///
@@ -898,6 +933,13 @@ final class CommunitySync: ObservableObject {
         store(playCounts, forKey: Self.playCountsKey)
     }
 
+    private func persistDifficulties() {
+        let stored = difficulties.reduce(into: [String: Double]()) { dict, entry in
+            dict[entry.key.uuidString.lowercased()] = entry.value
+        }
+        UserDefaults.standard.set(stored, forKey: Self.difficultiesKey)
+    }
+
     private func persistShareDates() {
         let stored = shareDates.reduce(into: [String: Double]()) { dict, entry in
             dict[entry.key.uuidString.lowercased()] = entry.value.timeIntervalSince1970
@@ -948,13 +990,9 @@ final class CommunitySync: ObservableObject {
     }
 
     /// The server's difficulty for one exercise, addressed by its public id, or
-    /// nil when it has no rating yet (nobody has finished it) or the call fails
-    /// — either way the intro screen shows no stars.
-    ///
-    /// Free of any state, like the summary above: the intro screen asks for the
-    /// exercise it is showing and draws what comes back, so nothing here has to
-    /// be published or persisted.
-    static func fetchDifficulty(for publicExerciseID: UUID) async -> Double? {
+    /// nil when it has no rating yet (nobody has finished it) or the call fails.
+    /// What that nil means for the stars is `refreshDifficulty(for:)`'s business.
+    private static func fetchDifficulty(for publicExerciseID: UUID) async -> Double? {
         let id = publicExerciseID.uuidString.lowercased()
         guard let url = URL(string: "\(baseURL)/event-average/\(id)/EXERCISE_DIFFICULTY"),
               let (data, response) = try? await URLSession.shared.data(from: url),

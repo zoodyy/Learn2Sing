@@ -45,11 +45,17 @@ struct ExerciseIntroView: View {
     @State private var isDownloaded = false
 
     /// What the server's users tend to score on this exercise, 0-100, which the
-    /// stars draw inverted as how hard it is (see `difficultyRow`). nil until the
-    /// answer arrives, and for good when the exercise has no rating yet or the
-    /// call fails — nothing is drawn in the meantime rather than a rating that
-    /// then moves.
-    @State private var difficulty: Double? = nil
+    /// stars draw inverted as how hard it is (see `difficultyRow`).
+    ///
+    /// Read from the cache CommunitySync keeps, so an exercise opened before
+    /// draws its stars on this frame instead of after the round trip; the task
+    /// below asks the server anyway and the stars follow whatever it says. nil —
+    /// no stars at all — only for an exercise this device has never had an
+    /// answer for: one with no rating yet, or one whose first fetch hasn't
+    /// landed.
+    private var difficulty: Double? {
+        showsDifficulty ? counts.difficulties[publicExerciseID] : nil
+    }
 
     /// Toggled by the "See Score" toolbar button to show/hide the score-history
     /// chart under the description.
@@ -155,7 +161,7 @@ struct ExerciseIntroView: View {
         // every tab, since the stars are drawn on all of them.
         .task(id: publicExerciseID) {
             guard showsDifficulty else { return }
-            difficulty = await CommunitySync.fetchDifficulty(for: publicExerciseID)
+            await community.refreshDifficulty(for: publicExerciseID)
         }
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
