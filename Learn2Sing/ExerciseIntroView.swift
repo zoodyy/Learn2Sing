@@ -44,10 +44,11 @@ struct ExerciseIntroView: View {
     /// Flips after a download so the button confirms instead of copying again.
     @State private var isDownloaded = false
 
-    /// How hard the exercise is, on the server's 0-100 scale (100 being the
-    /// easiest), drawn as five stars. nil until the answer arrives, and for good
-    /// when the exercise has no rating yet or the call fails — nothing is drawn
-    /// in the meantime rather than a rating that then moves.
+    /// What the server's users tend to score on this exercise, 0-100, which the
+    /// stars draw inverted as how hard it is (see `difficultyRow`). nil until the
+    /// answer arrives, and for good when the exercise has no rating yet or the
+    /// call fails — nothing is drawn in the meantime rather than a rating that
+    /// then moves.
     @State private var difficulty: Double? = nil
 
     /// Toggled by the "See Score" toolbar button to show/hide the score-history
@@ -178,17 +179,23 @@ struct ExerciseIntroView: View {
 
     /// The exercise's difficulty as five stars, on the trailing edge so it sits
     /// opposite the title instead of reading as a second line of it.
+    ///
+    /// The stars count how *hard* the exercise is, while the server's number
+    /// counts how well it goes — the higher it is, the easier the exercise — so
+    /// the fill runs the other way: an exercise everyone scores 80 on is one
+    /// star, and one nobody manages a note of is five.
     private func difficultyRow(_ difficulty: Double) -> some View {
-        HStack(spacing: 6) {
+        let hardness = 1 - difficulty / 100
+        return HStack(spacing: 6) {
             Text("Difficulty:")
-            DifficultyStars(fraction: difficulty / 100)
+            DifficultyStars(fraction: hardness)
         }
         .font(.subheadline)
         .foregroundStyle(.secondary)
         .frame(maxWidth: .infinity, alignment: .trailing)
         .accessibilityElement(children: .ignore)
         .accessibilityLabel("Difficulty:")
-        .accessibilityValue(Text(difficulty / 100, format: .percent.precision(.fractionLength(0))))
+        .accessibilityValue(Text(hardness, format: .percent.precision(.fractionLength(0))))
     }
 
     /// Heart plus the exercise's like count. Tapping toggles this user's like:
@@ -255,7 +262,7 @@ struct ExerciseIntroView: View {
 
 /// Five stars filled left to right, `fraction` of the way along (0-1). The star
 /// the fill lands in is filled across its own width rather than snapped to a
-/// whole or a half, so a difficulty of 21 shows one full star and a sliver of
+/// whole or a half, so a fraction of 0.21 shows one full star and a sliver of
 /// the second: the same colour used for the unfilled stars underneath, painted
 /// on top in the accent colour through a mask that stops partway.
 private struct DifficultyStars: View {

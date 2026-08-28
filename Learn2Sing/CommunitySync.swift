@@ -122,7 +122,9 @@ nonisolated struct EventSummary: Decodable {
 /// carry no value to average and come back as a 400. The number is worked out on
 /// the server from the scores every user's finished runs post with `ADD_PLAY`
 /// (see `registerPlay(for:score:)`), on the same 0-100 scale as a score, so it
-/// says how *well* the exercise tends to go: 100 is the easiest.
+/// says how *well* the exercise tends to go: 100 is the easiest. The intro
+/// screen's stars show the other side of that — the higher this is, the fewer
+/// of them fill.
 ///
 /// An exercise nobody has finished yet answers `{}`, which decodes to a nil
 /// `calculatedValue` — the intro screen leaves the stars off rather than drawing
