@@ -289,10 +289,6 @@ struct CommunityView: View {
                         ExerciseIntroView(exercise: ex,
                                           likeID: ex.id,
                                           onDownload: { download(ex) }) {
-                            // The one door into playback from this tab, uploader
-                            // profiles included, so every play started here is
-                            // counted towards the exercise's total on the server.
-                            community.registerPlay(for: ex.id)
                             navigationPath.append(ExerciseRoute.playback(id))
                         }
                     }
@@ -306,7 +302,11 @@ struct CommunityView: View {
                                          { advance(to: next) }
                                      },
                                      onScoreDownload: { download(ex) },
-                                     onScoreReplay: { community.registerPlay(for: ex.id) })
+                                     // Community exercises are listed by their
+                                     // public id, so the play this run posts is
+                                     // handed the id it already carries rather
+                                     // than deriving one from it.
+                                     communityID: ex.id)
                     }
                 case .user(let id, let name):
                     CommunityUserProfileView(uploaderID: id, username: name) { id, listed in

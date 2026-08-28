@@ -74,7 +74,7 @@ struct SettingsView: View {
                 case .delayIntro:
                     // No difficulty: this one is the delay test's stand-in, not
                     // an exercise anyone practises.
-                    ExerciseIntroView(exercise: delayTestExercise, difficulty: nil) {
+                    ExerciseIntroView(exercise: delayTestExercise, showsDifficulty: false) {
                         settingsPath.append(SettingsRoute.delayPlayback)
                     }
                 case .delayPlayback:

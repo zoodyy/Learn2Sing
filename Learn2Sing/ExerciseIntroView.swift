@@ -11,13 +11,10 @@ struct ExerciseIntroView: View {
     @ObservedObject private var appLanguage = LanguageManager.shared
 
     let exercise: Exercise
-    /// How hard the exercise is, on a 0-100 scale, drawn as five stars. nil
-    /// leaves the stars off, for exercises that aren't rated — the audio delay
-    /// test's stand-in among them.
-    ///
-    /// Placeholder: the server doesn't send a difficulty yet. When it does,
-    /// hand the exercise's own value in here and the rest follows from it.
-    var difficulty: Double? = 62
+    /// Whether to ask the server how hard this exercise is and draw the stars.
+    /// False for the audio delay test's stand-in, which is a measurement rather
+    /// than an exercise anyone practises and so is never rated.
+    var showsDifficulty = true
     /// Public id of the community exercise the like button acts on; nil (every
     /// tab but Community) hides the button.
     var likeID: UUID? = nil
@@ -34,8 +31,24 @@ struct ExerciseIntroView: View {
     @ObservedObject private var counts = CommunitySync.shared.counts
     private var community: CommunitySync { .shared }
 
+    /// The id the server counts this exercise under. An exercise opened from the
+    /// Community tab arrives holding its public id already (that is what the feed
+    /// lists it by, and `likeID`); every other tab holds the private id it is
+    /// stored under, whose public form has to be derived — the same one its plays
+    /// are posted with, so the difficulty asked for here is the one they add up
+    /// to. See PublicIdentifier for why the private id can't travel itself.
+    private var publicExerciseID: UUID {
+        likeID ?? PublicIdentifier.exercise(exercise.id)
+    }
+
     /// Flips after a download so the button confirms instead of copying again.
     @State private var isDownloaded = false
+
+    /// How hard the exercise is, on the server's 0-100 scale (100 being the
+    /// easiest), drawn as five stars. nil until the answer arrives, and for good
+    /// when the exercise has no rating yet or the call fails — nothing is drawn
+    /// in the meantime rather than a rating that then moves.
+    @State private var difficulty: Double? = nil
 
     /// Toggled by the "See Score" toolbar button to show/hide the score-history
     /// chart under the description.
@@ -135,6 +148,13 @@ struct ExerciseIntroView: View {
         // every Community refresh.
         .task {
             if let likeID { await community.refreshSummary(for: likeID) }
+        }
+        // The difficulty is the server's average of everyone's scores for this
+        // exercise, so it is fetched per exercise like the counts above — and for
+        // every tab, since the stars are drawn on all of them.
+        .task(id: publicExerciseID) {
+            guard showsDifficulty else { return }
+            difficulty = await CommunitySync.fetchDifficulty(for: publicExerciseID)
         }
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {

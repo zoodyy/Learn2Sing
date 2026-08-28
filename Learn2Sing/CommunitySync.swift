@@ -115,6 +115,22 @@ nonisolated struct EventSummary: Decodable {
     var totalPlays: Int
 }
 
+/// The server's average of one numeric event value for a single exercise, from
+/// the `event-average` endpoint.
+///
+/// `EXERCISE_DIFFICULTY` is the only kind it answers for — the other event types
+/// carry no value to average and come back as a 400. The number is worked out on
+/// the server from the scores every user's finished runs post with `ADD_PLAY`
+/// (see `registerPlay(for:score:)`), on the same 0-100 scale as a score, so it
+/// says how *well* the exercise tends to go: 100 is the easiest.
+///
+/// An exercise nobody has finished yet answers `{}`, which decodes to a nil
+/// `calculatedValue` — the intro screen leaves the stars off rather than drawing
+/// an empty rating.
+nonisolated struct EventAverage: Decodable {
+    var calculatedValue: Double?
+}
+
 /// The like/download/play tallies and this user's own likes and downloads,
 /// published on their own object rather than as part of CommunitySync.
 ///
@@ -809,14 +825,22 @@ final class CommunitySync: ObservableObject {
         Task { await postEvent(.addDownload, for: publicExerciseID) }
     }
 
-    /// Counts a play of a community exercise, addressed by its public id. Called
-    /// when playback starts from the Community tab and again when the score
-    /// screen's replay button restarts it. Unlike likes and downloads every play
-    /// counts, so there is nothing to remember locally.
-    func registerPlay(for publicExerciseID: UUID) {
+    /// Counts a finished run of an exercise, addressed by its public id, and
+    /// posts the score it earned along with it.
+    ///
+    /// Called when a run plays through to its score screen — every replay counts
+    /// again — and for every exercise, not only the ones opened from the
+    /// Community tab: the difficulty the intro screen draws is the server's
+    /// average of these scores, and the bundled exercises (whose ids are the same
+    /// on every install) would never be rated if their runs didn't count. A run
+    /// the singer walked out of never gets here, since it has no score to report.
+    ///
+    /// Unlike likes and downloads every play counts, so there is nothing to
+    /// remember locally.
+    func registerPlay(for publicExerciseID: UUID, score: Int) {
         playCounts[publicExerciseID] = (playCounts[publicExerciseID] ?? 0) + 1
         persistCounts()
-        Task { await postEvent(.addPlay, for: publicExerciseID) }
+        Task { await postEvent(.addPlay, for: publicExerciseID, customValue: score) }
     }
 
     /// POSTs one user event, reporting whether the server took it. The counts
@@ -830,11 +854,21 @@ final class CommunitySync: ObservableObject {
     /// device id: it identifies the user just as uniquely (the mapping is 1:1
     /// and stable), and the device id must never reach a public endpoint —
     /// see PublicIdentifier for why.
+    ///
+    /// `customValue` is the number the event is worth: a play posts the score the
+    /// run earned, which is what the server averages into the exercise's
+    /// difficulty (see `EventAverage`). Likes and downloads have no such value
+    /// and send none.
     @discardableResult
-    private func postEvent(_ event: UserEventType, for publicExerciseID: UUID) async -> Bool {
+    private func postEvent(_ event: UserEventType, for publicExerciseID: UUID,
+                           customValue: Int? = nil) async -> Bool {
         let exerciseID = publicExerciseID.uuidString.lowercased()
-        guard let url = URL(string: "\(Self.baseURL)/user-event/\(PublicIdentifier.user)/\(exerciseID)/\(event.rawValue)")
-        else { return false }
+        var components = URLComponents(
+            string: "\(Self.baseURL)/user-event/\(PublicIdentifier.user)/\(exerciseID)/\(event.rawValue)")
+        if let customValue {
+            components?.queryItems = [URLQueryItem(name: "customValue", value: String(customValue))]
+        }
+        guard let url = components?.url else { return false }
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         do {
@@ -909,6 +943,23 @@ final class CommunitySync: ObservableObject {
               let summary = try? JSONDecoder().decode(EventSummary.self, from: data)
         else { return nil }
         return summary
+    }
+
+    /// The server's difficulty for one exercise, addressed by its public id, or
+    /// nil when it has no rating yet (nobody has finished it) or the call fails
+    /// — either way the intro screen shows no stars.
+    ///
+    /// Free of any state, like the summary above: the intro screen asks for the
+    /// exercise it is showing and draws what comes back, so nothing here has to
+    /// be published or persisted.
+    static func fetchDifficulty(for publicExerciseID: UUID) async -> Double? {
+        let id = publicExerciseID.uuidString.lowercased()
+        guard let url = URL(string: "\(baseURL)/event-average/\(id)/EXERCISE_DIFFICULTY"),
+              let (data, response) = try? await URLSession.shared.data(from: url),
+              let http = response as? HTTPURLResponse, (200...299).contains(http.statusCode),
+              let average = try? JSONDecoder().decode(EventAverage.self, from: data)
+        else { return nil }
+        return average.calculatedValue
     }
 
     /// One document per record; tombstones and documents that fail to decode

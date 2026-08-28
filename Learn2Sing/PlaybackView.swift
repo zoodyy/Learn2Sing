@@ -781,10 +781,11 @@ struct PlaybackView: View {
     /// When set (playing from the Community tab), the score screen shows a Download
     /// button — same as the intro screen's — copying the exercise into the library.
     var onScoreDownload: (() -> Void)? = nil
-    /// Called when the score screen's replay button restarts the exercise, so the
-    /// Community tab can count that as another play. Replaying never leaves this
-    /// screen, so it's the only place a second play is visible from outside.
-    var onScoreReplay: (() -> Void)? = nil
+    /// Public id of the community exercise being played, for the play this run
+    /// posts when it finishes. Set from the Community tab, whose exercises carry
+    /// their public id already; nil everywhere else, where the exercise holds the
+    /// private id it is stored under and the public one is derived from it.
+    var communityID: UUID? = nil
 
     @State private var player = ExercisePlayer()
     @StateObject private var pitchDetector = PitchDetector()
@@ -905,7 +906,6 @@ struct PlaybackView: View {
                                   trail = PitchTrail()
                                   indicator = SingerIndicator()
                                   self.finalScore = nil
-                                  onScoreReplay?()
                               }) {
                         if let onScoreExit { onScoreExit() } else { dismiss() }
                     }
@@ -1048,6 +1048,13 @@ struct PlaybackView: View {
                                         score: score))
                     // Save before showing the result so the chart includes this run.
                     ScoreHistory.record(score: score, for: exercise.id)
+                    // Count the run for everyone: the score goes up to the server
+                    // with the play, which averages it into the difficulty the
+                    // intro screen's stars show. Only a run that reached a score
+                    // is worth posting, so this is the one place it happens —
+                    // a replay comes back through here with its own score.
+                    CommunitySync.shared.registerPlay(
+                        for: communityID ?? PublicIdentifier.exercise(exercise.id), score: score)
                     // The run played through to the end, so it counts for the
                     // Home tab's "Recent" category regardless of the score — and
                     // for its full length on the Home tab's calendar, which a
