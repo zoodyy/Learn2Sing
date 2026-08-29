@@ -192,7 +192,7 @@ enum ResettableSettings: String, CaseIterable, Identifiable {
         case .voice:
             L("Clears your vocal range, including the custom lowest and highest notes.")
         case .exercises:
-            L("Puts the number of recommended exercises back, and returns the whitelist to the exercises that came with the app.")
+            L("Puts the number of recommended exercises back, and returns the whitelist to every exercise in your library, dropping the ones you ticked or unticked yourself.")
         case .language:
             L("Puts the app's language back to English.")
         }

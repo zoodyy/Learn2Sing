@@ -2826,6 +2826,88 @@
         }
       }
     },
+    "Automatically whitelisted exercises" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Automatisch zugelassene Übungen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ejercicios permitidos automáticamente"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Exercices autorisés automatiquement"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Esercizi ammessi automaticamente"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "自動で対象にするエクササイズ"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "자동으로 허용되는 연습"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Automatisch toegestane oefeningen"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Automatycznie dozwolone ćwiczenia"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Exercícios permitidos automaticamente"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Автоматически разрешённые упражнения"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Automatiskt tillåtna övningar"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Otomatik izin verilen egzersizler"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "自动列入的练习"
+          }
+        }
+      }
+    },
     "Back" : {
       "localizations" : {
         "de" : {
@@ -9100,6 +9182,89 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "下载"
+          }
+        }
+      }
+    },
+    "Downloaded Exercises" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Heruntergeladene Übungen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ejercicios descargados"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Exercices téléchargés"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Esercizi scaricati"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ダウンロードしたエクササイズ"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "다운로드한 연습"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gedownloade oefeningen"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pobrane ćwiczenia"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Exercícios baixados"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Загруженные упражнения"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nedladdade övningar"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "İndirilen egzersizler"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已下载的练习"
           }
         }
       }
@@ -18191,6 +18356,89 @@
         }
       }
     },
+    "My Created Exercises" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Selbst erstellte Übungen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ejercicios que he creado"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Exercices que j’ai créés"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Esercizi che ho creato"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "自分で作成したエクササイズ"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "내가 만든 연습"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zelfgemaakte oefeningen"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Utworzone przeze mnie ćwiczenia"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Exercícios que criei"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Созданные мной упражнения"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Övningar jag skapat"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Oluşturduğum egzersizler"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "我创建的练习"
+          }
+        }
+      }
+    },
     "Name" : {
       "localizations" : {
         "de" : {
@@ -23387,85 +23635,85 @@
         }
       }
     },
-    "Puts the number of recommended exercises back, and returns the whitelist to the exercises that came with the app." : {
+    "Puts the number of recommended exercises back, and returns the whitelist to every exercise in your library, dropping the ones you ticked or unticked yourself." : {
       "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Setzt die Anzahl der empfohlenen Übungen zurück und stellt bei den zugelassenen Übungen wieder die mitgelieferten ein."
+            "value" : "Setzt die Anzahl der empfohlenen Übungen zurück und lässt wieder alle Übungen deiner Bibliothek zu; selbst an- oder abgewählte Übungen werden dabei verworfen."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Restablece el número de ejercicios recomendados y deja como ejercicios permitidos los que vienen con la app."
+            "value" : "Restablece el número de ejercicios recomendados y vuelve a permitir todos los ejercicios de tu biblioteca, descartando los que marcaste o desmarcaste tú."
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Rétablit le nombre d’exercices recommandés et remet comme exercices autorisés ceux fournis avec l’app."
+            "value" : "Rétablit le nombre d’exercices recommandés et autorise de nouveau tous les exercices de votre bibliothèque, en abandonnant ceux que vous aviez cochés ou décochés vous-même."
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ripristina il numero di esercizi consigliati e riporta gli esercizi ammessi a quelli inclusi nell’app."
+            "value" : "Ripristina il numero di esercizi consigliati e riammette tutti gli esercizi della tua libreria, scartando quelli che avevi selezionato o deselezionato tu."
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "おすすめエクササイズの数を元に戻し、対象のエクササイズをアプリ付属のものに戻します。"
+            "value" : "おすすめエクササイズの数を元に戻し、ライブラリのすべてのエクササイズを再び対象にします。自分で付け外ししたチェックは破棄されます。"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "추천 연습 개수를 되돌리고, 허용된 연습을 앱에 포함된 연습으로 되돌립니다."
+            "value" : "추천 연습 개수를 되돌리고, 라이브러리의 모든 연습을 다시 허용하며 직접 선택하거나 해제한 항목은 사라집니다."
           }
         },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Zet het aantal aanbevolen oefeningen terug en stelt de toegestane oefeningen weer in op de meegeleverde."
+            "value" : "Zet het aantal aanbevolen oefeningen terug en staat weer alle oefeningen in je bibliotheek toe, waarbij de oefeningen die je zelf aan- of uitvinkte vervallen."
           }
         },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Przywraca liczbę polecanych ćwiczeń i ustawia dozwolone ćwiczenia z powrotem na te dołączone do aplikacji."
+            "value" : "Przywraca liczbę polecanych ćwiczeń i ponownie dopuszcza wszystkie ćwiczenia w twojej bibliotece, odrzucając te, które sam zaznaczyłeś lub odznaczyłeś."
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Restaura o número de exercícios recomendados e volta os exercícios permitidos para os que vêm com o app."
+            "value" : "Restaura o número de exercícios recomendados e volta a permitir todos os exercícios da sua biblioteca, descartando os que você marcou ou desmarcou."
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Возвращает количество рекомендуемых упражнений и снова делает разрешёнными встроенные упражнения."
+            "value" : "Возвращает количество рекомендуемых упражнений и снова разрешает все упражнения в вашей библиотеке, отменяя те, что вы отметили или сняли сами."
           }
         },
         "sv" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Återställer antalet rekommenderade övningar och sätter tillbaka de tillåtna övningarna till dem som följde med appen."
+            "value" : "Återställer antalet rekommenderade övningar och tillåter åter alla övningar i ditt bibliotek, och släpper dem du själv kryssat i eller ur."
           }
         },
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Önerilen egzersiz sayısını geri getirir ve izin verilen egzersizleri yeniden uygulamayla gelenlere ayarlar."
+            "value" : "Önerilen egzersiz sayısını geri getirir ve kitaplığındaki tüm egzersizlere yeniden izin verir; kendin işaretlediklerin ya da işaretini kaldırdıkların silinir."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "恢复推荐练习的数量，并将已列入的练习恢复为应用自带的练习。"
+            "value" : "恢复推荐练习的数量，并将练习库中的全部练习重新列入，同时放弃你自己勾选或取消的项。"
           }
         }
       }
@@ -31303,85 +31551,85 @@
         }
       }
     },
-    "The exercises recommendations are picked from. Everything that came with the app starts out selected; tap an exercise to add or remove it." : {
+    "The exercises recommendations are picked from. The groups picked above are ticked for you; tap an exercise to add or remove it yourself, which the groups then leave alone." : {
       "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Die Übungen, aus denen Empfehlungen ausgewählt werden. Alles, was mit der App geliefert wurde, ist anfangs ausgewählt; tippe auf eine Übung, um sie hinzuzufügen oder zu entfernen."
+            "value" : "Die Übungen, aus denen Empfehlungen ausgewählt werden. Die oben gewählten Gruppen werden automatisch angehakt; tippe auf eine Übung, um sie selbst hinzuzufügen oder zu entfernen — die Gruppen lassen sie dann in Ruhe."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Los ejercicios entre los que se eligen las recomendaciones. Todo lo que viene con la app empieza seleccionado; toca un ejercicio para añadirlo o quitarlo."
+            "value" : "Los ejercicios entre los que se eligen las recomendaciones. Los grupos elegidos arriba se marcan por ti; toca un ejercicio para añadirlo o quitarlo tú mismo, y los grupos ya no lo tocarán."
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Les exercices parmi lesquels les recommandations sont choisies. Tout ce qui est fourni avec l’app est sélectionné au départ ; touchez un exercice pour l’ajouter ou le retirer."
+            "value" : "Les exercices parmi lesquels les recommandations sont choisies. Les groupes choisis ci-dessus sont cochés pour vous ; touchez un exercice pour l’ajouter ou le retirer vous-même, et les groupes le laisseront alors tranquille."
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Gli esercizi tra cui vengono scelte le raccomandazioni. Tutto ciò che è incluso nell’app è selezionato all’inizio; tocca un esercizio per aggiungerlo o rimuoverlo."
+            "value" : "Gli esercizi tra cui vengono scelte le raccomandazioni. I gruppi scelti sopra vengono selezionati per te; tocca un esercizio per aggiungerlo o rimuoverlo tu stesso, e da quel momento i gruppi lo lasciano stare."
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "おすすめの候補となるエクササイズ。アプリに付属するものは最初から選択されています。エクササイズをタップすると追加・削除できます。"
+            "value" : "おすすめの候補となるエクササイズ。上で選んだグループは自動でチェックされます。エクササイズをタップすれば自分で追加・削除でき、そのエクササイズは以後グループの影響を受けません。"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "추천이 선택되는 연습 목록입니다. 앱에 포함된 항목은 처음부터 선택되어 있으며, 연습을 탭하면 추가하거나 제거할 수 있습니다."
+            "value" : "추천이 선택되는 연습 목록입니다. 위에서 고른 그룹은 자동으로 선택되며, 연습을 탭하면 직접 추가하거나 제거할 수 있고 그 뒤로는 그룹이 그 연습을 건드리지 않습니다."
           }
         },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "De oefeningen waaruit aanbevelingen worden gekozen. Alles wat met de app is meegeleverd staat in het begin aan; tik op een oefening om die toe te voegen of te verwijderen."
+            "value" : "De oefeningen waaruit aanbevelingen worden gekozen. De hierboven gekozen groepen worden voor je aangevinkt; tik op een oefening om die zelf toe te voegen of te verwijderen, waarna de groepen die met rust laten."
           }
         },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ćwiczenia, spośród których wybierane są rekomendacje. Wszystko, co dołączono do aplikacji, jest początkowo zaznaczone; dotknij ćwiczenia, aby je dodać lub usunąć."
+            "value" : "Ćwiczenia, spośród których wybierane są rekomendacje. Grupy wybrane powyżej są zaznaczane automatycznie; dotknij ćwiczenia, aby dodać je lub usunąć samodzielnie — wtedy grupy zostawiają je w spokoju."
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Os exercícios entre os quais as recomendações são escolhidas. Tudo o que veio com o app começa selecionado; toque em um exercício para adicioná-lo ou removê-lo."
+            "value" : "Os exercícios entre os quais as recomendações são escolhidas. Os grupos escolhidos acima são marcados para você; toque em um exercício para adicioná-lo ou removê-lo você mesmo, e os grupos passam a deixá-lo em paz."
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Упражнения, из которых выбираются рекомендации. Всё, что поставляется с приложением, выбрано изначально; коснитесь упражнения, чтобы добавить или убрать его."
+            "value" : "Упражнения, из которых выбираются рекомендации. Выбранные выше группы отмечаются автоматически; коснитесь упражнения, чтобы добавить или убрать его самому — тогда группы его больше не трогают."
           }
         },
         "sv" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Övningarna som rekommendationer väljs bland. Allt som följde med appen är valt från början; tryck på en övning för att lägga till eller ta bort den."
+            "value" : "Övningarna som rekommendationer väljs bland. Grupperna du valt ovan kryssas i åt dig; tryck på en övning för att lägga till eller ta bort den själv, så lämnar grupperna den i fred."
           }
         },
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Önerilerin seçildiği egzersizler. Uygulamayla gelen her şey başlangıçta seçilidir; eklemek veya çıkarmak için bir egzersize dokunun."
+            "value" : "Önerilerin seçildiği egzersizler. Yukarıda seçilen gruplar senin için işaretlenir; bir egzersizi kendin eklemek veya çıkarmak için ona dokun; gruplar artık ona dokunmaz."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "推荐所选取的练习范围。应用自带的内容默认全部选中；点按某个练习可添加或移除。"
+            "value" : "推荐所选取的练习范围。上面选中的分组会自动勾选；点按某个练习可自行添加或移除，此后分组不再改动它。"
           }
         }
       }
@@ -32464,7 +32712,7 @@
       }
     },
     "Time" : {
-      "comment" : "A line that goes up and down, showing how well you're doing over time.",
+      "comment" : "A line connecting two points on a line chart.",
       "isCommentAutoGenerated" : true
     },
     "Time between reps" : {
@@ -34690,6 +34938,89 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "应用内的位置"
+          }
+        }
+      }
+    },
+    "Which exercises are whitelisted for you: switching a group on whitelists everything in it, including what was already in your library, and switching it off takes them out again. Exercises you tick or untick yourself below are left as you left them." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Welche Übungen automatisch zugelassen werden: Schaltest du eine Gruppe ein, wird alles darin zugelassen — auch was schon in deiner Bibliothek war —, schaltest du sie aus, wird es wieder entfernt. Übungen, die du unten selbst an- oder abwählst, bleiben so, wie du sie gelassen hast."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Qué ejercicios se permiten automáticamente: al activar un grupo se permiten todos los suyos, incluidos los que ya estaban en tu biblioteca, y al desactivarlo se vuelven a quitar. Los ejercicios que marcas o desmarcas tú abajo se quedan como los dejaste."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quels exercices sont autorisés automatiquement : activer un groupe autorise tout ce qu’il contient, y compris ce qui était déjà dans votre bibliothèque, et le désactiver les retire à nouveau. Les exercices que vous cochez ou décochez vous-même ci-dessous restent comme vous les avez laissés."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quali esercizi vengono ammessi automaticamente: attivando un gruppo vengono ammessi tutti i suoi esercizi, compresi quelli già presenti nella tua libreria, e disattivandolo vengono tolti di nuovo. Gli esercizi che selezioni o deselezioni tu qui sotto restano come li hai lasciati."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "どのエクササイズを自動で対象にするか。グループをオンにすると、ライブラリにすでにあるものも含めてその中のすべてが対象になり、オフにすると再び外れます。下で自分でチェックを付けたり外したりしたエクササイズは、そのままにされます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "어떤 연습을 자동으로 허용할지 정합니다. 그룹을 켜면 이미 라이브러리에 있던 것까지 그 안의 모든 연습이 허용되고, 끄면 다시 제외됩니다. 아래에서 직접 선택하거나 해제한 연습은 그대로 유지됩니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Welke oefeningen automatisch worden toegestaan: zet je een groep aan, dan wordt alles erin toegestaan, ook wat al in je bibliotheek stond, en zet je hem uit, dan gaan ze er weer af. Oefeningen die je hieronder zelf aan- of uitvinkt, blijven zoals je ze hebt achtergelaten."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Które ćwiczenia są dozwolone automatycznie: włączenie grupy dopuszcza wszystko, co się w niej znajduje, także to, co już było w twojej bibliotece, a wyłączenie znów je usuwa. Ćwiczenia, które sam zaznaczysz lub odznaczysz poniżej, zostają tak, jak je zostawiłeś."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quais exercícios são permitidos automaticamente: ativar um grupo permite tudo o que há nele, inclusive o que já estava na sua biblioteca, e desativá-lo os retira de novo. Os exercícios que você marca ou desmarca abaixo ficam como você os deixou."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Какие упражнения разрешаются автоматически: если включить группу, разрешается всё, что в неё входит, включая то, что уже было в вашей библиотеке, а если выключить — снова убирается. Упражнения, которые вы сами отмечаете или снимаете ниже, остаются такими, как вы их оставили."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vilka övningar som tillåts automatiskt: slår du på en grupp tillåts allt i den, även det som redan fanns i ditt bibliotek, och slår du av den tas de bort igen. Övningar som du själv kryssar i eller ur nedan lämnas som du lämnade dem."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hangi egzersizlere otomatik izin verileceği: bir grubu açtığında içindeki her şeye izin verilir — kitaplığında zaten bulunanlara da — kapattığında yeniden çıkarılır. Aşağıda kendin işaretlediğin ya da işaretini kaldırdığın egzersizler bıraktığın gibi kalır."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "哪些练习会被自动列入：打开某一组会列入其中的全部练习，包括你库中已有的；关闭则会重新移除。你在下面自己勾选或取消的练习会保持原样。"
           }
         }
       }

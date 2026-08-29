@@ -71,7 +71,13 @@ struct UserSettings: Codable {
     var recommendedExercisesAmount: Int?
     /// Whether that category lists them or shows its single card instead.
     var recommendationsAsList: Bool?
-    /// The exercises recommendations are picked from.
+    /// The groups of exercises whitelisted for recommendations automatically, as
+    /// `ExerciseOrigin` raw values.
+    var recommendationAutoWhitelist: [String]?
+    /// The exercises recommendations are picked from. Carried as the list it ends
+    /// up being rather than as the picks behind it: the groups above and this
+    /// between them say which exercises the user singled out, which is what the
+    /// restoring device works those picks back out from.
     var recommendationWhitelist: [UUID]?
 
     // MARK: Home
@@ -121,8 +127,9 @@ struct UserSettings: Codable {
             recommendationsAsList: d.object(forKey: RecommendedExercises.asListKey) == nil
                 ? RecommendedExercises.defaultAsList
                 : d.bool(forKey: RecommendedExercises.asListKey),
-            // Sorted so an unchanged whitelist encodes the same way twice: the
-            // whitelist itself is a set, which has no order to preserve.
+            // Both sorted so an unchanged setting encodes the same way twice:
+            // each is a set, which has no order to preserve.
+            recommendationAutoWhitelist: store.autoWhitelistOrigins.map(\.rawValue).sorted(),
             recommendationWhitelist: store.recommendationWhitelist.sorted { $0.uuidString < $1.uuidString },
             hiddenHomeCategories: HomeCategories.hidden.sorted(),
             communitySort: d.string(forKey: CommunityFeed.sortKey) ?? CommunitySort.hot.rawValue,
@@ -178,6 +185,13 @@ struct UserSettings: Codable {
         }
         if let recommendationsAsList {
             d.set(recommendationsAsList, forKey: RecommendedExercises.asListKey)
+        }
+        // The groups first: the whitelist restored after them is read as what the
+        // user picked out from what those groups whitelist (see
+        // `restoreRecommendationWhitelist`).
+        if let recommendationAutoWhitelist {
+            store.setAutoWhitelistOrigins(
+                Set(recommendationAutoWhitelist.compactMap(ExerciseOrigin.init(rawValue:))))
         }
         if let recommendationWhitelist {
             store.restoreRecommendationWhitelist(Set(recommendationWhitelist))

@@ -310,7 +310,8 @@ struct VoiceSettingsView: View {
 
 /// The "Exercises" hub reached from Settings: how the exercise library is
 /// presented — the shape and size of the Home tab's "Recommended" category and
-/// which exercises it may draw from.
+/// which exercises it may draw from. Also reached from the toolbar of the screen
+/// that category's card opens, which is where a suggestion is looked at.
 struct ExercisesSettingsView: View {
     /// Re-renders this screen when the language is changed in Settings; the
     /// strings are resolved when the body runs, so SwiftUI needs telling.
@@ -340,6 +341,26 @@ struct ExercisesSettingsView: View {
                 }
                 .settingHelp(L("How many exercises the Home tab's “Recommended” category suggests. It favours the whitelisted exercises you haven't practised in the longest, pitched at your skill level."))
 
+                Menu {
+                    ForEach(ExerciseOrigin.allCases) { origin in
+                        Toggle(isOn: store.autoWhitelistBinding(origin)) {
+                            Label(origin.label, systemImage: origin.systemImage)
+                        }
+                    }
+                } label: {
+                    HStack {
+                        Text("Automatically whitelisted exercises")
+                        Spacer()
+                        Text(verbatim: "\(store.autoWhitelistOrigins.count)/\(ExerciseOrigin.allCases.count)")
+                            .foregroundStyle(.secondary)
+                        Image(systemName: "chevron.up.chevron.down")
+                            .font(.footnote.weight(.semibold))
+                            .foregroundStyle(.tertiary)
+                    }
+                }
+                .foregroundStyle(.primary)
+                .settingHelp(L("Which exercises are whitelisted for you: switching a group on whitelists everything in it, including what was already in your library, and switching it off takes them out again. Exercises you tick or untick yourself below are left as you left them."))
+
                 Button(action: openWhitelist) {
                     HStack {
                         Text("Whitelisted exercises")
@@ -352,7 +373,7 @@ struct ExercisesSettingsView: View {
                     }
                 }
                 .foregroundStyle(.primary)
-                .settingHelp(L("The exercises recommendations are picked from. Everything that came with the app starts out selected; tap an exercise to add or remove it."))
+                .settingHelp(L("The exercises recommendations are picked from. The groups picked above are ticked for you; tap an exercise to add or remove it yourself, which the groups then leave alone."))
             } header: {
                 Text("Recommendations")
             }

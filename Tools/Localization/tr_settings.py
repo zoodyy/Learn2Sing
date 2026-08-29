@@ -288,6 +288,7 @@ T("Show recommendations as list", "Empfehlungen als Liste zeigen", "Mostrar reco
 T("Recommendations", "Empfehlungen", "Recomendaciones", "Recommandations", "Raccomandazioni", "Recomendações", "Aanbevelingen", "Рекомендации", "Rekomendacje", "Öneriler", "Rekommendationer", "おすすめ", "추천", "推荐")
 T("Recommended exercises amount", "Anzahl empfohlener Übungen", "Cantidad de ejercicios recomendados", "Nombre d’exercices recommandés", "Numero di esercizi consigliati", "Quantidade de exercícios recomendados", "Aantal aanbevolen oefeningen", "Количество рекомендуемых упражнений", "Liczba polecanych ćwiczeń", "Önerilen egzersiz sayısı", "Antal rekommenderade övningar", "おすすめのエクササイズ数", "추천 연습 개수", "推荐练习数量")
 T("Whitelisted exercises", "Zugelassene Übungen", "Ejercicios permitidos", "Exercices autorisés", "Esercizi ammessi", "Exercícios permitidos", "Toegestane oefeningen", "Разрешённые упражнения", "Dozwolone ćwiczenia", "İzin verilen egzersizler", "Tillåtna övningar", "対象のエクササイズ", "허용된 연습", "已列入的练习")
+T("Automatically whitelisted exercises", "Automatisch zugelassene Übungen", "Ejercicios permitidos automáticamente", "Exercices autorisés automatiquement", "Esercizi ammessi automaticamente", "Exercícios permitidos automaticamente", "Automatisch toegestane oefeningen", "Автоматически разрешённые упражнения", "Automatycznie dozwolone ćwiczenia", "Otomatik izin verilen egzersizler", "Automatiskt tillåtna övningar", "自動で対象にするエクササイズ", "자동으로 허용되는 연습", "自动列入的练习")
 T("Whitelisted Exercises", "Zugelassene Übungen", "Ejercicios permitidos", "Exercices autorisés", "Esercizi ammessi", "Exercícios permitidos", "Toegestane oefeningen", "Разрешённые упражнения", "Dozwolone ćwiczenia", "İzin verilen egzersizler", "Tillåtna övningar", "対象のエクササイズ", "허용된 연습", "已列入的练习")
 T("Lists the recommended exercises in the Home tab's “Recommended” category, one row each. Off, the category shows a single card instead, which plays them all as one queue.",
   "Zeigt die empfohlenen Übungen in der Kategorie „Empfohlen“ im Start-Tab einzeln untereinander. Aus zeigt die Kategorie stattdessen eine einzelne Karte, die alle nacheinander abspielt.",
@@ -317,20 +318,34 @@ T("How many exercises the Home tab's “Recommended” category suggests. It fav
   "ホームタブの「おすすめ」カテゴリが提案するエクササイズの数。対象のエクササイズのうち、最も長く練習していないものが優先され、あなたのレベルに合わせて選ばれます。",
   "홈 탭의 “추천” 카테고리가 제안하는 연습 개수입니다. 허용된 연습 중 가장 오래 연습하지 않은 것을 우선하며, 나의 레벨에 맞춰 고릅니다.",
   "“首页”标签中“推荐”类别建议的练习数量。它会优先挑选你最久没有练习过的已列入练习，并按你的水平来选。")
-T("The exercises recommendations are picked from. Everything that came with the app starts out selected; tap an exercise to add or remove it.",
-  "Die Übungen, aus denen Empfehlungen ausgewählt werden. Alles, was mit der App geliefert wurde, ist anfangs ausgewählt; tippe auf eine Übung, um sie hinzuzufügen oder zu entfernen.",
-  "Los ejercicios entre los que se eligen las recomendaciones. Todo lo que viene con la app empieza seleccionado; toca un ejercicio para añadirlo o quitarlo.",
-  "Les exercices parmi lesquels les recommandations sont choisies. Tout ce qui est fourni avec l’app est sélectionné au départ ; touchez un exercice pour l’ajouter ou le retirer.",
-  "Gli esercizi tra cui vengono scelte le raccomandazioni. Tutto ciò che è incluso nell’app è selezionato all’inizio; tocca un esercizio per aggiungerlo o rimuoverlo.",
-  "Os exercícios entre os quais as recomendações são escolhidas. Tudo o que veio com o app começa selecionado; toque em um exercício para adicioná-lo ou removê-lo.",
-  "De oefeningen waaruit aanbevelingen worden gekozen. Alles wat met de app is meegeleverd staat in het begin aan; tik op een oefening om die toe te voegen of te verwijderen.",
-  "Упражнения, из которых выбираются рекомендации. Всё, что поставляется с приложением, выбрано изначально; коснитесь упражнения, чтобы добавить или убрать его.",
-  "Ćwiczenia, spośród których wybierane są rekomendacje. Wszystko, co dołączono do aplikacji, jest początkowo zaznaczone; dotknij ćwiczenia, aby je dodać lub usunąć.",
-  "Önerilerin seçildiği egzersizler. Uygulamayla gelen her şey başlangıçta seçilidir; eklemek veya çıkarmak için bir egzersize dokunun.",
-  "Övningarna som rekommendationer väljs bland. Allt som följde med appen är valt från början; tryck på en övning för att lägga till eller ta bort den.",
-  "おすすめの候補となるエクササイズ。アプリに付属するものは最初から選択されています。エクササイズをタップすると追加・削除できます。",
-  "추천이 선택되는 연습 목록입니다. 앱에 포함된 항목은 처음부터 선택되어 있으며, 연습을 탭하면 추가하거나 제거할 수 있습니다.",
-  "推荐所选取的练习范围。应用自带的内容默认全部选中；点按某个练习可添加或移除。")
+T("Which exercises are whitelisted for you: switching a group on whitelists everything in it, including what was already in your library, and switching it off takes them out again. Exercises you tick or untick yourself below are left as you left them.",
+  "Welche Übungen automatisch zugelassen werden: Schaltest du eine Gruppe ein, wird alles darin zugelassen — auch was schon in deiner Bibliothek war —, schaltest du sie aus, wird es wieder entfernt. Übungen, die du unten selbst an- oder abwählst, bleiben so, wie du sie gelassen hast.",
+  "Qué ejercicios se permiten automáticamente: al activar un grupo se permiten todos los suyos, incluidos los que ya estaban en tu biblioteca, y al desactivarlo se vuelven a quitar. Los ejercicios que marcas o desmarcas tú abajo se quedan como los dejaste.",
+  "Quels exercices sont autorisés automatiquement : activer un groupe autorise tout ce qu’il contient, y compris ce qui était déjà dans votre bibliothèque, et le désactiver les retire à nouveau. Les exercices que vous cochez ou décochez vous-même ci-dessous restent comme vous les avez laissés.",
+  "Quali esercizi vengono ammessi automaticamente: attivando un gruppo vengono ammessi tutti i suoi esercizi, compresi quelli già presenti nella tua libreria, e disattivandolo vengono tolti di nuovo. Gli esercizi che selezioni o deselezioni tu qui sotto restano come li hai lasciati.",
+  "Quais exercícios são permitidos automaticamente: ativar um grupo permite tudo o que há nele, inclusive o que já estava na sua biblioteca, e desativá-lo os retira de novo. Os exercícios que você marca ou desmarca abaixo ficam como você os deixou.",
+  "Welke oefeningen automatisch worden toegestaan: zet je een groep aan, dan wordt alles erin toegestaan, ook wat al in je bibliotheek stond, en zet je hem uit, dan gaan ze er weer af. Oefeningen die je hieronder zelf aan- of uitvinkt, blijven zoals je ze hebt achtergelaten.",
+  "Какие упражнения разрешаются автоматически: если включить группу, разрешается всё, что в неё входит, включая то, что уже было в вашей библиотеке, а если выключить — снова убирается. Упражнения, которые вы сами отмечаете или снимаете ниже, остаются такими, как вы их оставили.",
+  "Które ćwiczenia są dozwolone automatycznie: włączenie grupy dopuszcza wszystko, co się w niej znajduje, także to, co już było w twojej bibliotece, a wyłączenie znów je usuwa. Ćwiczenia, które sam zaznaczysz lub odznaczysz poniżej, zostają tak, jak je zostawiłeś.",
+  "Hangi egzersizlere otomatik izin verileceği: bir grubu açtığında içindeki her şeye izin verilir — kitaplığında zaten bulunanlara da — kapattığında yeniden çıkarılır. Aşağıda kendin işaretlediğin ya da işaretini kaldırdığın egzersizler bıraktığın gibi kalır.",
+  "Vilka övningar som tillåts automatiskt: slår du på en grupp tillåts allt i den, även det som redan fanns i ditt bibliotek, och slår du av den tas de bort igen. Övningar som du själv kryssar i eller ur nedan lämnas som du lämnade dem.",
+  "どのエクササイズを自動で対象にするか。グループをオンにすると、ライブラリにすでにあるものも含めてその中のすべてが対象になり、オフにすると再び外れます。下で自分でチェックを付けたり外したりしたエクササイズは、そのままにされます。",
+  "어떤 연습을 자동으로 허용할지 정합니다. 그룹을 켜면 이미 라이브러리에 있던 것까지 그 안의 모든 연습이 허용되고, 끄면 다시 제외됩니다. 아래에서 직접 선택하거나 해제한 연습은 그대로 유지됩니다.",
+  "哪些练习会被自动列入：打开某一组会列入其中的全部练习，包括你库中已有的；关闭则会重新移除。你在下面自己勾选或取消的练习会保持原样。")
+T("The exercises recommendations are picked from. The groups picked above are ticked for you; tap an exercise to add or remove it yourself, which the groups then leave alone.",
+  "Die Übungen, aus denen Empfehlungen ausgewählt werden. Die oben gewählten Gruppen werden automatisch angehakt; tippe auf eine Übung, um sie selbst hinzuzufügen oder zu entfernen — die Gruppen lassen sie dann in Ruhe.",
+  "Los ejercicios entre los que se eligen las recomendaciones. Los grupos elegidos arriba se marcan por ti; toca un ejercicio para añadirlo o quitarlo tú mismo, y los grupos ya no lo tocarán.",
+  "Les exercices parmi lesquels les recommandations sont choisies. Les groupes choisis ci-dessus sont cochés pour vous ; touchez un exercice pour l’ajouter ou le retirer vous-même, et les groupes le laisseront alors tranquille.",
+  "Gli esercizi tra cui vengono scelte le raccomandazioni. I gruppi scelti sopra vengono selezionati per te; tocca un esercizio per aggiungerlo o rimuoverlo tu stesso, e da quel momento i gruppi lo lasciano stare.",
+  "Os exercícios entre os quais as recomendações são escolhidas. Os grupos escolhidos acima são marcados para você; toque em um exercício para adicioná-lo ou removê-lo você mesmo, e os grupos passam a deixá-lo em paz.",
+  "De oefeningen waaruit aanbevelingen worden gekozen. De hierboven gekozen groepen worden voor je aangevinkt; tik op een oefening om die zelf toe te voegen of te verwijderen, waarna de groepen die met rust laten.",
+  "Упражнения, из которых выбираются рекомендации. Выбранные выше группы отмечаются автоматически; коснитесь упражнения, чтобы добавить или убрать его самому — тогда группы его больше не трогают.",
+  "Ćwiczenia, spośród których wybierane są rekomendacje. Grupy wybrane powyżej są zaznaczane automatycznie; dotknij ćwiczenia, aby dodać je lub usunąć samodzielnie — wtedy grupy zostawiają je w spokoju.",
+  "Önerilerin seçildiği egzersizler. Yukarıda seçilen gruplar senin için işaretlenir; bir egzersizi kendin eklemek veya çıkarmak için ona dokun; gruplar artık ona dokunmaz.",
+  "Övningarna som rekommendationer väljs bland. Grupperna du valt ovan kryssas i åt dig; tryck på en övning för att lägga till eller ta bort den själv, så lämnar grupperna den i fred.",
+  "おすすめの候補となるエクササイズ。上で選んだグループは自動でチェックされます。エクササイズをタップすれば自分で追加・削除でき、そのエクササイズは以後グループの影響を受けません。",
+  "추천이 선택되는 연습 목록입니다. 위에서 고른 그룹은 자동으로 선택되며, 연습을 탭하면 직접 추가하거나 제거할 수 있고 그 뒤로는 그룹이 그 연습을 건드리지 않습니다.",
+  "推荐所选取的练习范围。上面选中的分组会自动勾选；点按某个练习可自行添加或移除，此后分组不再改动它。")
 
 # --- Backup ---
 T("Export Exercises", "Übungen exportieren", "Exportar ejercicios", "Exporter les exercices", "Esporta esercizi", "Exportar exercícios", "Oefeningen exporteren", "Экспортировать упражнения", "Eksportuj ćwiczenia", "Egzersizleri dışa aktar", "Exportera övningar", "エクササイズを書き出す", "연습 내보내기", "导出练习")

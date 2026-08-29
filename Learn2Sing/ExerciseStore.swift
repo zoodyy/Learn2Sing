@@ -48,11 +48,28 @@ final class ExerciseStore: ObservableObject {
     /// The user's favourite exercises in display order. Shown in the Home tab's
     /// "Favourites" category. Never contains duplicates.
     @Published var favourites: [UUID] = []
-    /// The exercises the Home tab's "Recommended" category may draw from, edited
-    /// under Settings ▸ Exercises ▸ Whitelisted Exercises. Seeded with the
-    /// exercises that shipped with the app; any exercise in the library can be
-    /// added or removed from there.
-    @Published var recommendationWhitelist: Set<UUID> = []
+    /// The exercises the Home tab's "Recommended" category may draw from. Worked
+    /// out rather than stored: an exercise is in it when
+    /// "Automatically whitelisted exercises" covers the group it came from, and
+    /// the user hasn't said otherwise for that exercise under
+    /// Settings ▸ Exercises ▸ Whitelisted Exercises — see
+    /// `refreshRecommendationWhitelist`.
+    @Published private(set) var recommendationWhitelist: Set<UUID> = []
+
+    /// The groups of exercises whitelisted for recommendations automatically,
+    /// from Settings ▸ Exercises. Every group by default, so a library recommends
+    /// from all of itself until the user says otherwise — which is also what an
+    /// upgrade lands on, the whitelist not having recorded until now which of its
+    /// omissions were the user's doing.
+    @Published private(set) var autoWhitelistOrigins = RecommendedExercises.storedAutoWhitelist
+
+    /// The exercises the user has whitelisted (or un-whitelisted) by hand, which
+    /// is to say the exceptions to the setting above: an entry is only kept while
+    /// it disagrees with what that setting says about the exercise's group. So
+    /// un-ticking a bundled exercise survives "Bundled Exercises" being switched
+    /// off and on again, and one ticked while its group was off stays ticked when
+    /// the group is switched on and off again.
+    private var whitelistOverrides: [UUID: Bool] = [:]
 
     /// The always-present home for exercises not assigned to any other category:
     /// new exercises start here, deleting a category moves its exercises here, and
@@ -65,10 +82,9 @@ final class ExerciseStore: ObservableObject {
     private let lastPlayedKey = "lastPlayed"
     private let routinesKey = "routines"
     private let favouritesKey = "favourites"
-    private let whitelistKey = "recommendationWhitelist"
+    private let whitelistOverridesKey = "recommendationWhitelistOverrides"
     private let bundledImportedKey = "didImportBundledExercises"
     private let lastPlayedSeededKey = "didSeedLastPlayed"
-    private let whitelistSeededKey = "didSeedRecommendationWhitelist"
 
     init() {
         load()
@@ -77,12 +93,15 @@ final class ExerciseStore: ObservableObject {
         loadLastPlayed()
         loadRoutines()
         loadFavourites()
-        loadWhitelist()
+        loadWhitelistOverrides()
         importBundledIfNeeded()
         adoptNoCategory()
         enforceBundledPrivacy()
         seedLastPlayedIfNeeded()
-        seedWhitelistIfNeeded()
+        // Last, so it sees the library the steps above settled on. Every one of
+        // them that changed it has refreshed the whitelist already (`save` does
+        // that); this covers the launch where none of them had anything to do.
+        refreshRecommendationWhitelist()
     }
 
     // MARK: - Bundled exercises
@@ -154,8 +173,13 @@ final class ExerciseStore: ObservableObject {
     }
 
     func save() {
-        guard let data = try? JSONEncoder().encode(exercises) else { return }
-        UserDefaults.standard.set(data, forKey: storeKey)
+        if let data = try? JSONEncoder().encode(exercises) {
+            UserDefaults.standard.set(data, forKey: storeKey)
+        }
+        // The whitelist is drawn from the library, so it follows every change to
+        // it: an exercise added, downloaded or imported is whitelisted (or not)
+        // by the group it belongs to, and a deleted one drops out.
+        refreshRecommendationWhitelist()
     }
 
     // MARK: - Categories
@@ -600,54 +624,117 @@ final class ExerciseStore: ObservableObject {
 
     // MARK: - Recommendation whitelist
 
-    private func loadWhitelist() {
-        guard let data = UserDefaults.standard.data(forKey: whitelistKey),
-              let saved = try? JSONDecoder().decode(Set<UUID>.self, from: data)
+    /// Whether "Automatically whitelisted exercises" covers the group this
+    /// exercise came from — what it is whitelisted by unless the user has said
+    /// otherwise for this exercise in particular.
+    private func isAutomaticallyWhitelisted(_ exercise: Exercise) -> Bool {
+        autoWhitelistOrigins.contains(ExerciseOrigin.of(exercise, isBundled: isBundled(exercise.id)))
+    }
+
+    /// Work the whitelist out again: the setting's word on each exercise's group,
+    /// with the user's own picks overriding it one exercise at a time. Called
+    /// after anything either of those is drawn from changes — the library, the
+    /// setting, the picks — since nothing else keeps the list current.
+    private func refreshRecommendationWhitelist() {
+        let updated = Set(exercises
+            .filter { whitelistOverrides[$0.id] ?? isAutomaticallyWhitelisted($0) }
+            .map(\.id))
+        guard updated != recommendationWhitelist else { return }
+        recommendationWhitelist = updated
+    }
+
+    private func loadWhitelistOverrides() {
+        guard let data = UserDefaults.standard.data(forKey: whitelistOverridesKey),
+              let saved = try? JSONDecoder().decode([String: Bool].self, from: data)
         else { return }
-        recommendationWhitelist = saved
+        whitelistOverrides = saved.reduce(into: [:]) { result, entry in
+            if let id = UUID(uuidString: entry.key) { result[id] = entry.value }
+        }
     }
 
-    private func saveWhitelist() {
-        guard let data = try? JSONEncoder().encode(recommendationWhitelist) else { return }
-        UserDefaults.standard.set(data, forKey: whitelistKey)
+    private func saveWhitelistOverrides() {
+        let encodable = whitelistOverrides.reduce(into: [String: Bool]()) { result, entry in
+            result[entry.key.uuidString] = entry.value
+        }
+        guard let data = try? JSONEncoder().encode(encodable) else { return }
+        UserDefaults.standard.set(data, forKey: whitelistOverridesKey)
     }
 
-    /// Start the whitelist off with the exercises that shipped with the app, so
-    /// recommendations behave the same as before it was editable. Gated by a flag
-    /// so a user who unticks them all doesn't get them back on the next launch.
-    private func seedWhitelistIfNeeded() {
-        guard !UserDefaults.standard.bool(forKey: whitelistSeededKey) else { return }
-        recommendationWhitelist = Self.bundledExerciseIDs
-        saveWhitelist()
-        UserDefaults.standard.set(true, forKey: whitelistSeededKey)
+    /// Change which groups of exercises are whitelisted automatically. The groups
+    /// switched on take everything already in the library that belongs to them,
+    /// not only what arrives afterwards, and the ones switched off give up theirs
+    /// — in both cases leaving the exercises the user has decided on by hand
+    /// exactly as they decided them.
+    func setAutoWhitelistOrigins(_ origins: Set<ExerciseOrigin>) {
+        guard origins != autoWhitelistOrigins else { return }
+        autoWhitelistOrigins = origins
+        RecommendedExercises.storedAutoWhitelist = origins
+        refreshRecommendationWhitelist()
     }
 
-    /// Put the whitelist back to the exercises that shipped with the app, which is
-    /// how it starts out. Used by Settings ▸ Reset ▸ Settings ▸ Exercises.
+    /// A two-way switch for one group's row in the setting's menu.
+    func autoWhitelistBinding(_ origin: ExerciseOrigin) -> Binding<Bool> {
+        Binding(
+            get: { self.autoWhitelistOrigins.contains(origin) },
+            set: { isOn in
+                var origins = self.autoWhitelistOrigins
+                if isOn { origins.insert(origin) } else { origins.remove(origin) }
+                self.setAutoWhitelistOrigins(origins)
+            }
+        )
+    }
+
+    /// Put the whitelist back to how it starts out: every group whitelisted
+    /// automatically, and no exercise picked out by hand. Used by
+    /// Settings ▸ Reset ▸ Settings ▸ Exercises.
     func resetRecommendationWhitelist() {
-        recommendationWhitelist = Self.bundledExerciseIDs
-        saveWhitelist()
+        UserDefaults.standard.removeObject(forKey: RecommendedExercises.autoWhitelistKey)
+        autoWhitelistOrigins = RecommendedExercises.storedAutoWhitelist
+        whitelistOverrides = [:]
+        saveWhitelistOverrides()
+        refreshRecommendationWhitelist()
     }
 
-    /// Replaces the whitelist with one restored from the server. Unlike the Home
-    /// tab's routines and favourites this is a setting rather than a list the user
-    /// adds to, so the restored value simply wins — including over the bundled
-    /// exercises a fresh install seeds it with.
+    /// Puts back a whitelist restored from the server. Unlike the Home tab's
+    /// routines and favourites this is a setting rather than a list the user adds
+    /// to, so the restored one simply wins: every exercise it disagrees with the
+    /// automatic groups about becomes a pick of the user's own, which is exactly
+    /// what made the whitelist look like that on the device it came from.
+    ///
+    /// The caller restores the automatic groups before this — they are what the
+    /// disagreements are measured against. (A pick that happens to agree with them
+    /// isn't one of those, so it doesn't survive the trip; the whitelist does.)
     func restoreRecommendationWhitelist(_ restored: Set<UUID>) {
-        guard restored != recommendationWhitelist else { return }
-        recommendationWhitelist = restored
-        saveWhitelist()
+        var overrides: [UUID: Bool] = [:]
+        for exercise in exercises {
+            let whitelisted = restored.contains(exercise.id)
+            if whitelisted != isAutomaticallyWhitelisted(exercise) {
+                overrides[exercise.id] = whitelisted
+            }
+        }
+        guard overrides != whitelistOverrides else { return }
+        whitelistOverrides = overrides
+        saveWhitelistOverrides()
+        refreshRecommendationWhitelist()
     }
 
     /// Add the exercise to the recommendation pool, or remove it if already in it.
     /// Backs the picker's tap-to-select rows, which is why membership toggles.
+    ///
+    /// A tap that disagrees with the automatic groups is remembered as the user's
+    /// own pick, and outlasts those groups being switched off and on. One that
+    /// agrees hands the exercise back to them: it is no longer an exception, so
+    /// it follows its group again from here on.
     func toggleWhitelisted(_ exerciseID: UUID) {
-        if recommendationWhitelist.contains(exerciseID) {
-            recommendationWhitelist.remove(exerciseID)
+        guard let exercise = exercises.first(where: { $0.id == exerciseID }) else { return }
+        let whitelisted = !recommendationWhitelist.contains(exerciseID)
+        if whitelisted == isAutomaticallyWhitelisted(exercise) {
+            whitelistOverrides.removeValue(forKey: exerciseID)
         } else {
-            recommendationWhitelist.insert(exerciseID)
+            whitelistOverrides[exerciseID] = whitelisted
         }
-        saveWhitelist()
+        saveWhitelistOverrides()
+        refreshRecommendationWhitelist()
     }
 
     // MARK: - Exercise mutation
@@ -718,9 +805,10 @@ final class ExerciseStore: ObservableObject {
             favourites.removeAll { $0 == id }
             saveFavourites()
         }
-        if recommendationWhitelist.remove(id) != nil {
-            saveWhitelist()
+        if whitelistOverrides.removeValue(forKey: id) != nil {
+            saveWhitelistOverrides()
         }
+        // Refreshes the whitelist, which the deleted exercise drops out of.
         save()
     }
 
@@ -950,6 +1038,27 @@ enum RecommendedExercises {
     /// the list is the older shape, kept for anyone who prefers it.
     static let asListKey = "recommendationsAsList"
     static let defaultAsList = false
+
+    /// The groups of exercises whitelisted for recommendations automatically,
+    /// stored newline-joined like the Home tab's category order. Absent — nothing
+    /// stored at all — is every group, which is how the setting starts out; an
+    /// empty string is the user having switched all three off, and the two have to
+    /// read differently.
+    static let autoWhitelistKey = "recommendationAutoWhitelist"
+
+    static var storedAutoWhitelist: Set<ExerciseOrigin> {
+        get {
+            guard let raw = UserDefaults.standard.string(forKey: autoWhitelistKey) else {
+                return Set(ExerciseOrigin.allCases)
+            }
+            return Set(raw.split(separator: "\n").compactMap { ExerciseOrigin(rawValue: String($0)) })
+        }
+        set {
+            // Sorted so the same set of groups always stores the same string.
+            let raw = newValue.map(\.rawValue).sorted().joined(separator: "\n")
+            UserDefaults.standard.set(raw, forKey: autoWhitelistKey)
+        }
+    }
 }
 
 /// A random number generator that starts from a seed it is handed, so the same

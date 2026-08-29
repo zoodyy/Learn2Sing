@@ -776,6 +776,23 @@ struct HomeView: View {
                 startTitle: L("Play Recommended Exercises"),
                 onStart: { navigationPath.append(ExerciseRoute.recommendationPlay(0)) }
             )
+            // Where a routine has its edit screen, the suggestion has the
+            // settings it was put together under — same place, same symbol.
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button {
+                        navigationPath.append(ExerciseRoute.exercisesSettings)
+                    } label: {
+                        Label("Settings", systemImage: "slider.horizontal.3")
+                    }
+                }
+            }
+        case .exercisesSettings:
+            ExercisesSettingsView {
+                navigationPath.append(ExerciseRoute.recommendationWhitelist)
+            }
+        case .recommendationWhitelist:
+            RecommendationWhitelistView()
         case .recommendationPlay(let index):
             let exercises = recommendationExercises
             if index < exercises.count {

@@ -197,6 +197,11 @@ enum ExerciseRoute: Hashable {
     case recommendationIntro         // the queue's exercise-order screen
     case recommendationPlay(Int)     // intro screen of the queue's #index exercise
     case recommendationPlayback(Int) // playback of the queue's #index exercise
+    // What the recommendation queue's screen has in place of a routine's edit
+    // screen: the settings its suggestion is made under, which are the Settings
+    // tab's Exercises screen and the whitelist picker that screen opens.
+    case exercisesSettings
+    case recommendationWhitelist
 }
 
 /// The inline-editable category name on the edit-categories screen. Edits are
@@ -812,6 +817,7 @@ struct ExercisesView: View {
                     CategoryEditView(newCategory: $newCategory, onRename: renameCategory)
                 case .user, .routine, .routineIntro, .routinePicker, .routinePlay, .routinePlayback,
                      .recommendationIntro, .recommendationPlay, .recommendationPlayback,
+                     .exercisesSettings, .recommendationWhitelist,
                      .favourites, .favouritesPicker:
                     // Never appended from this tab; usernames only show in
                     // Community, and routines, favourites and recommendations

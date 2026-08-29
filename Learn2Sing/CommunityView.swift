@@ -315,7 +315,8 @@ struct CommunityView: View {
                     }
                 case .settings, .edit, .editCategories, .routine, .routineIntro, .routinePicker,
                      .routinePlay, .routinePlayback, .recommendationIntro, .recommendationPlay,
-                     .recommendationPlayback, .favourites, .favouritesPicker:
+                     .recommendationPlayback, .exercisesSettings, .recommendationWhitelist,
+                     .favourites, .favouritesPicker:
                     // Never appended from this tab; exercises aren't editable
                     // here and routines, favourites and recommendations live on
                     // the Home tab.

@@ -65,3 +65,40 @@ extension Set<ExerciseFilter> {
         return true
     }
 }
+
+/// Where an exercise came from: every exercise is exactly one of these. The same
+/// three groups `ExerciseFilter.sourceCases` splits the Exercises tab's filter
+/// menu into, but as one value rather than as three independent picks, and named
+/// the way Settings ▸ Exercises ▸ "Automatically whitelisted exercises" names
+/// them — that setting whitelists whole groups for the Home tab's
+/// recommendations, so what it needs of an exercise is which group it is in.
+enum ExerciseOrigin: String, CaseIterable, Identifiable {
+    case bundled     // shipped with the app
+    case downloaded  // copied in from the Community tab
+    case created     // made by the user: neither of the above
+
+    var id: String { rawValue }
+
+    var label: String {
+        switch self {
+        case .bundled: L("Bundled Exercises")
+        case .downloaded: L("Downloaded Exercises")
+        case .created: L("My Created Exercises")
+        }
+    }
+
+    var systemImage: String {
+        switch self {
+        case .bundled: "shippingbox"
+        case .downloaded: "person.3"
+        case .created: "person"
+        }
+    }
+
+    /// `isBundled` comes from the store, which owns the bundled-id list.
+    static func of(_ exercise: Exercise, isBundled: Bool) -> ExerciseOrigin {
+        if isBundled { .bundled }
+        else if exercise.downloadedFrom != nil { .downloaded }
+        else { .created }
+    }
+}
