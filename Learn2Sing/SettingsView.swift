@@ -338,7 +338,7 @@ struct ExercisesSettingsView: View {
                         Text(verbatim: "\(recommendedAmount)").foregroundStyle(.secondary)
                     }
                 }
-                .settingHelp(L("How many exercises the Home tab's “Recommended” category suggests. It picks the whitelisted exercises you haven't practised in the longest."))
+                .settingHelp(L("How many exercises the Home tab's “Recommended” category suggests. It favours the whitelisted exercises you haven't practised in the longest, pitched at your skill level."))
 
                 Button(action: openWhitelist) {
                     HStack {

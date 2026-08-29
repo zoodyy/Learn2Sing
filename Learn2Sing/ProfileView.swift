@@ -58,6 +58,13 @@ struct UserProfile: Codable {
     /// The Settings tab's settings, bar the language. Optional so profiles written
     /// before settings were synced still decode.
     var settings: UserSettings? = nil
+    /// How hard an exercise the singer can handle, 0-100 — what the Home tab's
+    /// suggestions are pitched at, and the stars on its recommendation card. It
+    /// is worked out on the device from the scores and the server's
+    /// difficulties (see SkillLevel), and carried here so a reinstall opens at
+    /// the level it left off at. Optional so profiles written before it existed
+    /// still decode.
+    var skillLevel: Double? = nil
 
     static var fileURL: URL {
         FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
@@ -78,9 +85,9 @@ struct UserProfile: Codable {
 
     /// Fills in the parts of the profile that live outside the profile file: the
     /// exercise library, the Home tab's category order, routines and favourites,
-    /// every exercise's score history, the practice calendar, and the settings.
-    /// Used for both the copy ProfileSync uploads and the file the profile
-    /// screen shares.
+    /// every exercise's score history, the practice calendar, the settings, and
+    /// the singer's skill level. Used for both the copy ProfileSync uploads and
+    /// the file the profile screen shares.
     mutating func snapshot(_ store: ExerciseStore) {
         exercises = store.exportBundle()
         homeCategoryOrder = HomeCategories.stored
@@ -90,6 +97,7 @@ struct UserProfile: Codable {
         scores = histories.isEmpty ? nil : histories
         practice = PracticeLog.doc()
         settings = UserSettings.capturingCurrent(store: store)
+        skillLevel = SkillLevelStore.shared.level
     }
 
     func jsonData() -> Data? {

@@ -304,14 +304,36 @@ final class ExerciseStore: ObservableObject {
 
     // MARK: - Recommendations
 
-    /// The exercises the Home tab's "Recommended" category suggests: the ones the
-    /// user hasn't played in the longest, never-played ones first. Only exercises
-    /// in the recommendation whitelist are considered — that starts out as the
+    /// The exercises the Home tab's "Recommended" category suggests, easiest
+    /// first and ramping up to the hardest of them.
+    ///
+    /// Every whitelisted exercise is in the running — that starts out as the
     /// ones that shipped with the app, and the user edits it under
-    /// Settings ▸ Exercises.
-    func recommendedExercises(count: Int) -> [Exercise] {
+    /// Settings ▸ Exercises — and each is drawn with a chance made of two things:
+    ///
+    /// * **How long ago it was last sung.** The whitelist is ranked longest-ago
+    ///   first (never sung at all leads it), and the chance halves every so many
+    ///   places down that ranking, so a batch is mostly made of the exercises
+    ///   the singer has been neglecting.
+    /// * **How far its difficulty sits from the singer's level.** A bell curve
+    ///   `SkillLevel.spread` wide centred on the level itself, so most of a
+    ///   batch lands within that much of it and an exercise further out — either
+    ///   way — is that much rarer. One nobody has rated yet is neither favoured
+    ///   nor ruled out.
+    ///
+    /// The draw is random but not restless: it is seeded from the very things it
+    /// ranks on, so the batch only changes when a run, an edit to the whitelist
+    /// or a change of level actually gives it something new to say. Two calls in
+    /// the same frame can't disagree about what was suggested, and neither can
+    /// two launches.
+    ///
+    /// `hardness` is how hard each exercise is, keyed by the id it is stored
+    /// under, and `skill` the singer's own level, both on the 0-100 scale
+    /// `SkillLevel` describes — see SkillLevelStore, which is where the Home tab
+    /// gets them.
+    func recommendedExercises(count: Int, skill: Double, hardness: [UUID: Double]) -> [Exercise] {
         guard count > 0 else { return [] }
-        return exercises.enumerated()
+        let ranked = exercises.enumerated()
             .filter { recommendationWhitelist.contains($0.element.id) }
             .sorted { lhs, rhs in
                 let left = lastPlayed[lhs.element.id] ?? .distantPast
@@ -321,8 +343,99 @@ final class ExerciseStore: ObservableObject {
                 if left == right { return lhs.offset < rhs.offset }
                 return left < right
             }
-            .prefix(count)
             .map(\.element)
+        // Nothing to choose between when there are no more than are wanted:
+        // every one of them is suggested, and only the ramp is left to do.
+        guard ranked.count > count else { return ramped(ranked, skill: skill, hardness: hardness) }
+
+        var weights = ranked.enumerated().map { rank, exercise in
+            // Floored rather than left to reach zero: an exercise at the far end
+            // of both rankings is meant to be rare, not impossible, and a batch
+            // has to come out the size it was asked for even if every remaining
+            // chance has faded to nothing.
+            max(Self.recencyWeight(rank: rank, of: ranked.count)
+                * Self.difficultyWeight(hardness: hardness[exercise.id], skill: skill),
+                1e-9)
+        }
+        var generator = SeededGenerator(seed: recommendationSeed(ranked, count: count, skill: skill))
+        var batch: [Exercise] = []
+        for _ in 0..<count {
+            let total = weights.reduce(0, +)
+            var draw = Double.random(in: 0..<total, using: &generator)
+            // The last one catches a draw that the rounding of the running
+            // subtraction leaves standing at the end.
+            var chosen = weights.count - 1
+            for (index, weight) in weights.enumerated() {
+                draw -= weight
+                if draw < 0 {
+                    chosen = index
+                    break
+                }
+            }
+            batch.append(ranked[chosen])
+            weights[chosen] = 0     // drawn: out of the running for the rest
+        }
+        return ramped(batch, skill: skill, hardness: hardness)
+    }
+
+    /// A batch in the order the category shows it: easiest first, hardest last.
+    /// An unrated exercise takes the singer's own level, which puts it in the
+    /// middle of the ramp rather than at one end of it by accident.
+    private func ramped(_ batch: [Exercise], skill: Double,
+                        hardness: [UUID: Double]) -> [Exercise] {
+        batch.enumerated()
+            .sorted { lhs, rhs in
+                let left = hardness[lhs.element.id] ?? skill
+                let right = hardness[rhs.element.id] ?? skill
+                if left == right { return lhs.offset < rhs.offset }
+                return left < right
+            }
+            .map(\.element)
+    }
+
+    /// What an exercise's place in the played-longest-ago ranking is worth: 1
+    /// for the one at the top of it, halving every quarter of the way down.
+    /// Counted in places rather than in days so it behaves the same for a singer
+    /// who practises daily and one who practises twice a year — and so the most
+    /// neglected exercise is always the likeliest, whether it was last sung last
+    /// week or never.
+    private static func recencyWeight(rank: Int, of poolSize: Int) -> Double {
+        pow(0.5, Double(rank) / max(2, Double(poolSize) / 4))
+    }
+
+    /// The bell curve over difficulty: 1 for an exercise pitched exactly at the
+    /// singer's level, and falling away either side of it — to about 0.6 a whole
+    /// `SkillLevel.spread` out, 0.14 at twice that, and next to nothing at three
+    /// times, which is why a batch is mostly made of the first of those.
+    private static func difficultyWeight(hardness: Double?, skill: Double) -> Double {
+        // Nobody has finished it, so there is no difficulty to place it by. It
+        // takes what an exercise one spread off the singer's level is worth,
+        // which neither pushes it forward nor quietly drops it.
+        guard let hardness else { return exp(-0.5) }
+        let distance = (hardness - skill) / SkillLevel.spread
+        return exp(-distance * distance / 2)
+    }
+
+    /// A seed for the draw that changes when — and only when — something the
+    /// draw depends on does: which exercises are in the running, when each was
+    /// last sung, how many are wanted, and what level the singer is at. Mixed by
+    /// hand rather than through `Hasher`, whose seed is fresh every launch: the
+    /// same batch has to come back after a relaunch, not only after a redraw.
+    private func recommendationSeed(_ ranked: [Exercise], count: Int, skill: Double) -> UInt64 {
+        var hash: UInt64 = 0xcbf2_9ce4_8422_2325
+        func mix(_ value: UInt64) {
+            hash = (hash ^ value) &* 0x100_0000_01b3
+        }
+        for exercise in ranked {
+            withUnsafeBytes(of: exercise.id.uuid) { bytes in
+                for byte in bytes { mix(UInt64(byte)) }
+            }
+            let played = (lastPlayed[exercise.id] ?? .distantPast).timeIntervalSince1970
+            mix(UInt64(bitPattern: Int64(played)))
+        }
+        mix(UInt64(count))
+        mix(UInt64(bitPattern: Int64((skill * 10).rounded())))
+        return hash
     }
 
     // MARK: - Routines
@@ -837,6 +950,26 @@ enum RecommendedExercises {
     /// the list is the older shape, kept for anyone who prefers it.
     static let asListKey = "recommendationsAsList"
     static let defaultAsList = false
+}
+
+/// A random number generator that starts from a seed it is handed, so the same
+/// seed replays the same draw — which is what keeps a recommendation batch put
+/// between redraws and across launches (see `recommendedExercises`).
+///
+/// SplitMix64, constants and all. Nothing drawn from it is a secret, so there is
+/// no reason to want it unpredictable.
+struct SeededGenerator: RandomNumberGenerator {
+    private var state: UInt64
+
+    init(seed: UInt64) { state = seed }
+
+    mutating func next() -> UInt64 {
+        state &+= 0x9E37_79B9_7F4A_7C15
+        var z = state
+        z = (z ^ (z >> 30)) &* 0xBF58_476D_1CE4_E5B9
+        z = (z ^ (z >> 27)) &* 0x94D0_49BB_1331_11EB
+        return z ^ (z >> 31)
+    }
 }
 
 /// The on-disk format for export/import: the exercise list plus each one's MIDI

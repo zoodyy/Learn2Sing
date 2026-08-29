@@ -98,8 +98,8 @@ final class ProfileSync {
 
     /// Builds the full profile JSON (username + device ID + exercise library +
     /// the Home tab's routines and favourites + every exercise's scores + the
-    /// practice calendar + the settings), saves it locally, and POSTs it to the
-    /// server.
+    /// practice calendar + the settings + the singer's skill level), saves it
+    /// locally, and POSTs it to the server.
     private func upload() async {
         guard readyToUpload, let store else { return }
         var profile = UserProfile.load()
@@ -275,6 +275,12 @@ final class ProfileSync {
         }
         if let practice = remote.practice {
             PracticeLog.merge(doc: practice)
+        }
+        // The level the restored scores add up to is worked out again as soon as
+        // the difficulties have been fetched; until then this is what the Home
+        // tab's suggestions are pitched at, rather than a beginner's.
+        if let skillLevel = remote.skillLevel {
+            SkillLevelStore.shared.adopt(restored: skillLevel)
         }
         // The settings, last: they are the one part that replaces rather than
         // merges — a setting has a single value, and the restored one is it. The

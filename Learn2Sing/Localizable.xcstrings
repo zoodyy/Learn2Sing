@@ -13482,85 +13482,85 @@
         }
       }
     },
-    "How many exercises the Home tab's “Recommended” category suggests. It picks the whitelisted exercises you haven't practised in the longest." : {
+    "How many exercises the Home tab's “Recommended” category suggests. It favours the whitelisted exercises you haven't practised in the longest, pitched at your skill level." : {
       "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Wie viele Übungen die Kategorie „Empfohlen“ im Start-Tab vorschlägt. Ausgewählt werden die zugelassenen Übungen, die du am längsten nicht geübt hast."
+            "value" : "Wie viele Übungen die Kategorie „Empfohlen“ im Start-Tab vorschlägt. Bevorzugt werden die zugelassenen Übungen, die du am längsten nicht geübt hast, abgestimmt auf dein Niveau."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Cuántos ejercicios sugiere la categoría «Recomendado» de la pestaña Inicio. Elige los ejercicios permitidos que llevas más tiempo sin practicar."
+            "value" : "Cuántos ejercicios sugiere la categoría «Recomendado» de la pestaña Inicio. Da preferencia a los ejercicios permitidos que llevas más tiempo sin practicar, ajustados a tu nivel."
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Le nombre d’exercices proposés par la catégorie « Recommandé » de l’onglet Accueil. Elle choisit les exercices autorisés que vous n’avez pas travaillés depuis le plus longtemps."
+            "value" : "Le nombre d’exercices proposés par la catégorie « Recommandé » de l’onglet Accueil. Elle privilégie les exercices autorisés que vous n’avez pas travaillés depuis le plus longtemps, adaptés à votre niveau."
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Quanti esercizi propone la categoria “Consigliati” della scheda Home. Sceglie gli esercizi ammessi che non pratichi da più tempo."
+            "value" : "Quanti esercizi propone la categoria “Consigliati” della scheda Home. Predilige gli esercizi ammessi che non pratichi da più tempo, calibrati sul tuo livello."
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "ホームタブの「おすすめ」カテゴリが提案するエクササイズの数。対象のエクササイズのうち、最も長く練習していないものが選ばれます。"
+            "value" : "ホームタブの「おすすめ」カテゴリが提案するエクササイズの数。対象のエクササイズのうち、最も長く練習していないものが優先され、あなたのレベルに合わせて選ばれます。"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "홈 탭의 “추천” 카테고리가 제안하는 연습 개수입니다. 허용된 연습 중 가장 오래 연습하지 않은 것을 고릅니다."
+            "value" : "홈 탭의 “추천” 카테고리가 제안하는 연습 개수입니다. 허용된 연습 중 가장 오래 연습하지 않은 것을 우선하며, 나의 레벨에 맞춰 고릅니다."
           }
         },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Hoeveel oefeningen de categorie ‘Aanbevolen’ op het tabblad Start voorstelt. Het kiest de toegestane oefeningen die je het langst niet hebt geoefend."
+            "value" : "Hoeveel oefeningen de categorie ‘Aanbevolen’ op het tabblad Start voorstelt. Het geeft voorrang aan de toegestane oefeningen die je het langst niet hebt geoefend, afgestemd op je niveau."
           }
         },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ile ćwiczeń proponuje kategoria „Polecane” na karcie Start. Wybiera te dozwolone ćwiczenia, których najdłużej nie ćwiczyłeś."
+            "value" : "Ile ćwiczeń proponuje kategoria „Polecane” na karcie Start. Preferuje te dozwolone ćwiczenia, których najdłużej nie ćwiczyłeś, dobrane do twojego poziomu."
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Quantos exercícios a categoria “Recomendado” da aba Início sugere. Ela escolhe os exercícios permitidos que você não pratica há mais tempo."
+            "value" : "Quantos exercícios a categoria “Recomendado” da aba Início sugere. Ela prefere os exercícios permitidos que você não pratica há mais tempo, ajustados ao seu nível."
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Сколько упражнений предлагает категория «Рекомендуемые» на вкладке «Главная». Выбираются разрешённые упражнения, которые вы дольше всего не занимались."
+            "value" : "Сколько упражнений предлагает категория «Рекомендуемые» на вкладке «Главная». Предпочтение отдаётся разрешённым упражнениям, которыми вы дольше всего не занимались, подобранным под ваш уровень."
           }
         },
         "sv" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Hur många övningar kategorin ”Rekommenderat” på fliken Hem föreslår. Den väljer de tillåtna övningar du övat på för längst sedan."
+            "value" : "Hur många övningar kategorin ”Rekommenderat” på fliken Hem föreslår. Den föredrar de tillåtna övningar du övat på för längst sedan, anpassade till din nivå."
           }
         },
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ana Sayfa sekmesindeki “Önerilen” kategorisinin kaç egzersiz önereceği. En uzun süredir çalışmadığınız, izin verilen egzersizleri seçer."
+            "value" : "Ana Sayfa sekmesindeki “Önerilen” kategorisinin kaç egzersiz önereceği. En uzun süredir çalışmadığınız, izin verilen egzersizleri seviyenize göre öne çıkarır."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "“首页”标签中“推荐”类别建议的练习数量。它会挑选你最久没有练习过的已列入练习。"
+            "value" : "“首页”标签中“推荐”类别建议的练习数量。它会优先挑选你最久没有练习过的已列入练习，并按你的水平来选。"
           }
         }
       }
@@ -35514,6 +35514,88 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "你的练习"
+          }
+        }
+      }
+    },
+    "Your level:" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dein Niveau:"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tu nivel:"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Votre niveau :"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il tuo livello:"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "あなたのレベル:"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "나의 레벨:"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Je niveau:"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Twój poziom:"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Seu nível:"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ваш уровень:"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Din nivå:"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Seviyeniz:"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "你的水平："
           }
         }
       }

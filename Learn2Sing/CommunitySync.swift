@@ -215,6 +215,11 @@ final class CommunitySync: ObservableObject {
     /// Last known difficulty per public exercise id, persisted so the intro
     /// screen's stars are up the moment it opens rather than a round trip later.
     private static let difficultiesKey = "communityDifficulties"
+    /// How many difficulties `refreshRecommendationDifficulties` asks for at
+    /// once. The endpoint answers for one exercise per call, so the whitelist
+    /// costs a call apiece; a few in flight together get through them without
+    /// the launch turning into a burst of a hundred requests.
+    private static let difficultyFetchWidth = 4
     /// Share date (seconds since 1970) per public exercise id, so re-uploading an
     /// edited exercise keeps the date it was first shared.
     private static let shareDatesKey = "communityShareDates"
@@ -372,6 +377,10 @@ final class CommunitySync: ObservableObject {
         // One upload per launch so pattern edits (which bypass the store's
         // published properties) and changes made while offline catch up.
         scheduleUpload()
+        // Alongside the list rather than after it: the Home tab's suggestions
+        // are ranked on these, and it is the first tab the app opens on, while
+        // the community list is a tab away.
+        Task { await refreshRecommendationDifficulties() }
         await list.refresh()
     }
 
@@ -779,6 +788,55 @@ final class CommunitySync: ObservableObject {
               difficulties[publicExerciseID] != value else { return }
         difficulties[publicExerciseID] = value
         persistDifficulties()
+        // The singer's level is worked out from these, and this exercise may be
+        // one it counts.
+        SkillLevelStore.shared.recompute()
+    }
+
+    /// Brings up to date the difficulties the Home tab's suggestions are ranked
+    /// on: every whitelisted exercise, plus everything this device has a score
+    /// for — between them the two the singer's skill level is worked out from
+    /// (see SkillLevelStore).
+    ///
+    /// One call per exercise is all the endpoint offers (see `EventAverage`), so
+    /// they go out `difficultyFetchWidth` at a time and the whole thing runs off
+    /// to one side of the launch: nothing on screen waits for it, and what lands
+    /// is persisted for the next launch to open with. The whitelist is the
+    /// bundled exercises to begin with, so this is a couple of dozen calls once
+    /// a launch — not the few hundred per refresh that ranking the whole
+    /// Community list on the server's tallies would cost.
+    func refreshRecommendationDifficulties() async {
+        guard let store else { return }
+        let scored = Set(ScoreHistory.all().keys.compactMap(UUID.init(uuidString:)))
+        var wanted = store.exercises
+            .filter { store.recommendationWhitelist.contains($0.id) || scored.contains($0.id) }
+            .map { PublicIdentifier.exercise($0.id) }
+            .makeIterator()
+
+        var fetched: [UUID: Double] = [:]
+        await withTaskGroup(of: (UUID, Double?).self) { group in
+            for _ in 0..<Self.difficultyFetchWidth {
+                guard let id = wanted.next() else { break }
+                group.addTask { (id, await Self.fetchDifficulty(for: id)) }
+            }
+            while let (id, value) = await group.next() {
+                if let value { fetched[id] = value }
+                if let next = wanted.next() {
+                    group.addTask { (next, await Self.fetchDifficulty(for: next)) }
+                }
+            }
+        }
+
+        var changed = false
+        for (id, value) in fetched where difficulties[id] != value {
+            difficulties[id] = value
+            changed = true
+        }
+        if changed { persistDifficulties() }
+        // Even when nothing moved: this is the first point in a launch at which
+        // the whole picture is in, and the level and the hardness map are worked
+        // out from all of it at once.
+        SkillLevelStore.shared.recompute()
     }
 
     /// Adds or removes this user's like on a community exercise, addressed by
@@ -992,7 +1050,10 @@ final class CommunitySync: ObservableObject {
     /// The server's difficulty for one exercise, addressed by its public id, or
     /// nil when it has no rating yet (nobody has finished it) or the call fails.
     /// What that nil means for the stars is `refreshDifficulty(for:)`'s business.
-    private static func fetchDifficulty(for publicExerciseID: UUID) async -> Double? {
+    ///
+    /// Off the main actor, so the whitelist's worth of them can genuinely be
+    /// asked for a few at a time — see `refreshRecommendationDifficulties`.
+    private nonisolated static func fetchDifficulty(for publicExerciseID: UUID) async -> Double? {
         let id = publicExerciseID.uuidString.lowercased()
         guard let url = URL(string: "\(baseURL)/event-average/\(id)/EXERCISE_DIFFICULTY"),
               let (data, response) = try? await URLSession.shared.data(from: url),

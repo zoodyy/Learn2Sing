@@ -98,9 +98,13 @@ enum ScoreHistory {
     }
 
     /// Scores ride along in the synced profile, so a change to them needs
-    /// uploading just like an exercise edit does.
+    /// uploading just like an exercise edit does — and they are what the
+    /// singer's skill level is worked out from, so it moves with them.
     private static func syncChanged() {
-        Task { @MainActor in ProfileSync.shared.scheduleUpload() }
+        Task { @MainActor in
+            SkillLevelStore.shared.recompute()
+            ProfileSync.shared.scheduleUpload()
+        }
     }
 }
 

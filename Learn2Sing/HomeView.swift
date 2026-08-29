@@ -69,9 +69,10 @@ enum HomeCategories {
 }
 
 /// The Home tab's "Recommended" category as a single card: a big play button
-/// beside the name of the category most of the suggested exercises come from.
-/// Shown instead of listing them unless Settings ▸ Exercises ▸ Recommendations
-/// asks for the list; tapping it opens the whole suggestion as one queue.
+/// beside the name of the category most of the suggested exercises come from,
+/// with the singer's own level under it. Shown instead of listing them unless
+/// Settings ▸ Exercises ▸ Recommendations asks for the list; tapping it opens
+/// the whole suggestion as one queue.
 ///
 /// Drawn to the practice calendar's shape, so the tab's two cards are exactly
 /// the same size — and since that shape, not the contents, is what sets the
@@ -80,6 +81,11 @@ struct RecommendationCard: View {
     /// The category to name. Stored in English for the app's own categories and
     /// translated on the way to the screen, like everywhere else they're shown.
     let category: String
+    /// How hard an exercise the singer can handle, 0-100 — see SkillLevelStore.
+    /// The suggestions behind this card are pitched at it, so it is drawn on the
+    /// card that opens them, as the same five stars an exercise's difficulty
+    /// gets on its intro screen: the two are the same scale.
+    let skill: Double
 
     var body: some View {
         GeometryReader { geo in
@@ -97,15 +103,27 @@ struct RecommendationCard: View {
                     // nothing the "opens" trait doesn't already.
                     .accessibilityHidden(true)
 
-                Text(ExerciseCategoryName.localized(category))
-                    .font(.title2.weight(.semibold))
-                    .multilineTextAlignment(.center)
-                    .lineLimit(2)
-                    // A long category name shrinks rather than pushing the card
-                    // taller, which would break it away from the calendar's size.
-                    .minimumScaleFactor(0.5)
-                    .padding(.horizontal, geo.size.height * 0.18)
-                    .frame(maxWidth: .infinity)
+                VStack(spacing: geo.size.height * 0.05) {
+                    Text(ExerciseCategoryName.localized(category))
+                        .font(.title2.weight(.semibold))
+                        .multilineTextAlignment(.center)
+                        .lineLimit(2)
+                        // A long category name shrinks rather than pushing the
+                        // card taller, which would break it away from the
+                        // calendar's size.
+                        .minimumScaleFactor(0.5)
+
+                    // Sized off the card like everything else on it, so the row
+                    // of stars stays a row however wide the list is.
+                    DifficultyStars(fraction: skill / 100)
+                        .font(.system(size: geo.size.height * 0.15))
+                        .accessibilityElement(children: .ignore)
+                        .accessibilityLabel("Your level:")
+                        .accessibilityValue(Text(skill / 100,
+                                                 format: .percent.precision(.fractionLength(0))))
+                }
+                .padding(.horizontal, geo.size.height * 0.18)
+                .frame(maxWidth: .infinity)
             }
             .frame(width: geo.size.width, height: geo.size.height)
         }
@@ -204,9 +222,10 @@ private struct HomeCategoryEditView: View {
 /// user's own ordered exercise lists, created via the + button; swipe right on
 /// one to edit it, swipe left to delete it after a confirmation),
 /// "Favourites" (a single ordered exercise list, its + button opening the
-/// edit-favourites screen), "Recommended" (the whitelisted exercises played
-/// longest ago, as many as Settings ▸ Exercises asks for — as one card that
-/// plays them all in a row, or as a list of them if that same screen says so),
+/// edit-favourites screen), "Recommended" (whitelisted exercises drawn on how
+/// long ago each was last sung and how close it is to the singer's level, as
+/// many as Settings ▸ Exercises asks for — as one card that plays them all in a
+/// row, or as a list of them if that same screen says so),
 /// and "Calendar" (the last 30 days of practice as coloured squares — see
 /// PracticeCalendarView).
 /// Routines and favourites are rearranged in place by long-pressing a row and
@@ -223,6 +242,11 @@ struct HomeView: View {
 
     @EnvironmentObject private var store: ExerciseStore
     @EnvironmentObject private var toasts: ToastCenter
+    /// The singer's level and how hard each exercise is, which "Recommended" is
+    /// built out of and its card shows. Its own object rather than CommunitySync's
+    /// counts, where a heart tapped in the Community tab would rebuild this whole
+    /// list for nothing — see SkillLevelStore.
+    @ObservedObject private var skill = SkillLevelStore.shared
     // Typed (not NavigationPath) so pops can be inspected for the saved toasts.
     @State private var navigationPath: [ExerciseRoute] = []
 
@@ -323,10 +347,12 @@ struct HomeView: View {
         store.favourites.compactMap { id in store.exercises.first { $0.id == id } }
     }
 
-    /// The exercises to suggest: the whitelisted ones played longest ago
-    /// (never-played first), as many as the amount setting asks for.
+    /// The exercises to suggest, easiest first: as many as the amount setting
+    /// asks for, drawn from the whitelist on how long ago each was last sung and
+    /// how close it is to the singer's level — see `recommendedExercises`.
     private var recommendedExercises: [Exercise] {
-        store.recommendedExercises(count: recommendedAmount)
+        store.recommendedExercises(count: recommendedAmount,
+                                   skill: skill.level, hardness: skill.hardness)
     }
 
     /// The category most of the suggested exercises belong to — what the
@@ -355,7 +381,7 @@ struct HomeView: View {
         var placeholder = Exercise(name: "")
         placeholder.id = HomeCategories.recommendationRowID
         return ExerciseListRow(exercise: placeholder, pattern: [],
-                               content: .recommendation(category: category))
+                               content: .recommendation(category: category, skill: skill.level))
     }
 
     private func rows(in category: String) -> [ExerciseListRow] {

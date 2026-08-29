@@ -21,6 +21,11 @@ struct Learn2SingApp: App {
                 // restored public exercises instead of an empty list.
                 .task {
                     await ProfileSync.shared.start(with: store, templates: visualTemplates)
+                    // Between the two: the singer's level is worked out from the
+                    // scores the restore brings back and the difficulties
+                    // community sync fetches, so it reads what is already on the
+                    // device here and is asked again once those land.
+                    SkillLevelStore.shared.start(with: store)
                     await CommunitySync.shared.start(with: store)
                 }
         }

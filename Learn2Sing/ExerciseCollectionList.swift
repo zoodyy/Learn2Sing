@@ -10,9 +10,10 @@ enum ExerciseListRowContent: Equatable {
     case exercise
     case practiceCalendar([PracticeDay])
     /// The recommendation card, naming the category most of the recommended
-    /// exercises come from. Shown in place of the "Recommended" list when
+    /// exercises come from and the singer's own level (0-100 — see
+    /// SkillLevelStore). Shown in place of the "Recommended" list when
     /// Settings ▸ Exercises says so.
-    case recommendation(category: String)
+    case recommendation(category: String, skill: Double)
 
     /// Whether a tap on the row is the list's to report. The calendar answers
     /// its own taps — a tap on it means the square it landed on — while every
@@ -499,11 +500,11 @@ final class ExerciseListController: UIViewController {
         }
         let recommendationRegistration = UICollectionView.CellRegistration<UICollectionViewListCell, ItemID> {
             [weak self] cell, _, itemID in
-            guard case .recommendation(let category) = self?.rowsByID[itemID.id]?.content
+            guard case .recommendation(let category, let skill) = self?.rowsByID[itemID.id]?.content
             else { return }
             let locale = (self?.language ?? LanguageManager.shared.language).locale
             cell.contentConfiguration = UIHostingConfiguration {
-                RecommendationCard(category: category)
+                RecommendationCard(category: category, skill: skill)
                     .environment(\.locale, locale)
             }
             cell.accessories = []

@@ -271,7 +271,12 @@ struct ExerciseIntroView: View {
 /// whole or a half, so a fraction of 0.21 shows one full star and a sliver of
 /// the second: the same colour used for the unfilled stars underneath, painted
 /// on top in `tint` through a mask that stops partway.
-private struct DifficultyStars: View {
+///
+/// Drawn at the ambient font size, so where they are used decides how big they
+/// come out. Two things are rated this way — how hard an exercise is here, and
+/// how hard an exercise the singer can handle on the Home tab's recommendation
+/// card — and they are the same scale, so they are the same stars.
+struct DifficultyStars: View {
     let fraction: Double
 
     @Environment(\.colorScheme) private var colorScheme
