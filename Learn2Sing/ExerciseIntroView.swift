@@ -270,11 +270,25 @@ struct ExerciseIntroView: View {
 /// the fill lands in is filled across its own width rather than snapped to a
 /// whole or a half, so a fraction of 0.21 shows one full star and a sliver of
 /// the second: the same colour used for the unfilled stars underneath, painted
-/// on top in the accent colour through a mask that stops partway.
+/// on top in `tint` through a mask that stops partway.
 private struct DifficultyStars: View {
     let fraction: Double
 
+    @Environment(\.colorScheme) private var colorScheme
+
     private static let count = 5
+
+    /// Green for an easy exercise through yellow at half way to red for a hard
+    /// one — every star the same colour, the one the whole rating is worth. The
+    /// ramp is the score screen's, run backwards (there a high number is good,
+    /// here a full row of stars is the hard one), and takes the same deeper
+    /// brightness in light mode, where the bright end washes out.
+    private var tint: Color {
+        let hue = (1 - min(max(fraction, 0), 1)) * 0.33
+        return colorScheme == .dark
+            ? Color(hue: hue, saturation: 0.85, brightness: 0.95)
+            : Color(hue: hue, saturation: 0.95, brightness: 0.68)
+    }
 
     var body: some View {
         HStack(spacing: 3) {
@@ -292,7 +306,7 @@ private struct DifficultyStars: View {
             .foregroundStyle(Color.gray.opacity(0.3))
             .overlay(alignment: .leading) {
                 Image(systemName: "star.fill")
-                    .foregroundStyle(Color.accentColor)
+                    .foregroundStyle(tint)
                     // The overlay is laid out at the grey star's size, so the
                     // reader below measures that one star and nothing else.
                     .mask(alignment: .leading) {
