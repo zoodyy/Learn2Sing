@@ -149,6 +149,11 @@ final class ProfileSync {
         // Sorted keys so an unchanged profile encodes byte for byte the same way
         // twice, which is what lets `upload()` recognise it as unchanged.
         encoder.outputFormatting = [.sortedKeys]
+        // The library is most of this document and the ids of its notes and text
+        // labels were most of the library — 36 characters apiece for something
+        // no stored data refers to and a restore can mint again. Leaving them out
+        // is worth thousands of runs of score history in the room it frees.
+        encoder.userInfo[.omitPatternIDs] = true
         // Newest first, so trimming takes off the end.
         var runs = (profile.scores ?? [:])
             .flatMap { id, doc in doc.entries.map { DatedRun(exerciseID: id, entry: $0) } }

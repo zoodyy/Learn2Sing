@@ -4,11 +4,33 @@ import UIKit
 
 // MARK: - Model
 
+extension CodingUserInfoKey {
+    /// Set on an encoder to leave every note's and label's `id` out of the JSON
+    /// it writes. A pattern's ids mean nothing outside the device that made it —
+    /// nothing stored refers to them, and a decode without them mints fresh ones
+    /// — but at 36 characters each they were the single biggest thing in the
+    /// synced profile document, which has a hard size limit to fit inside (see
+    /// `ProfileSync.uploadBody`, the only place that sets this).
+    ///
+    /// Only that document leaves them out. Local storage keeps them, so ids stay
+    /// stable while the editor is working with a pattern, and so do the community
+    /// documents, which older installs still decode with a synthesised
+    /// initialiser that would throw on a missing key.
+    static let omitPatternIDs = CodingUserInfoKey(rawValue: "omitPatternIDs")!
+}
+
 struct MIDINote: Identifiable, Codable, Equatable {
     var id = UUID()
     var pitch: Int      // MIDI pitch number
     var beat: Double    // start position in beats
     var length: Double  // duration in beats
+
+    init(id: UUID = UUID(), pitch: Int, beat: Double, length: Double) {
+        self.id = id
+        self.pitch = pitch
+        self.beat = beat
+        self.length = length
+    }
 
     private enum CodingKeys: String, CodingKey { case id, pitch, beat, length }
 
@@ -16,10 +38,23 @@ struct MIDINote: Identifiable, Codable, Equatable {
     // lowercase; UUID decoding is case-insensitive, so this round-trips.
     func encode(to encoder: Encoder) throws {
         var c = encoder.container(keyedBy: CodingKeys.self)
-        try c.encode(id.uuidString.lowercased(), forKey: .id)
+        if encoder.userInfo[.omitPatternIDs] == nil {
+            try c.encode(id.uuidString.lowercased(), forKey: .id)
+        }
         try c.encode(pitch, forKey: .pitch)
         try c.encode(beat, forKey: .beat)
         try c.encode(length, forKey: .length)
+    }
+
+    // Written by hand rather than synthesised: a synthesised initialiser throws
+    // on a missing `id` instead of falling back to the default value above, and
+    // documents written without one have to decode.
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        id = try c.decodeIfPresent(UUID.self, forKey: .id) ?? UUID()
+        pitch = try c.decode(Int.self, forKey: .pitch)
+        beat = try c.decode(Double.self, forKey: .beat)
+        length = try c.decode(Double.self, forKey: .length)
     }
 }
 
@@ -32,16 +67,35 @@ struct MIDIText: Identifiable, Codable, Equatable {
     var pitch: Int      // row position (vertical)
     var beat: Double    // start position in beats (horizontal)
 
+    init(id: UUID = UUID(), text: String, pitch: Int, beat: Double) {
+        self.id = id
+        self.text = text
+        self.pitch = pitch
+        self.beat = beat
+    }
+
     private enum CodingKeys: String, CodingKey { case id, text, pitch, beat }
 
     // Emit the id lowercase so every UUID in the community request body is
     // lowercase; UUID decoding is case-insensitive, so this round-trips.
     func encode(to encoder: Encoder) throws {
         var c = encoder.container(keyedBy: CodingKeys.self)
-        try c.encode(id.uuidString.lowercased(), forKey: .id)
+        if encoder.userInfo[.omitPatternIDs] == nil {
+            try c.encode(id.uuidString.lowercased(), forKey: .id)
+        }
         try c.encode(text, forKey: .text)
         try c.encode(pitch, forKey: .pitch)
         try c.encode(beat, forKey: .beat)
+    }
+
+    // Hand-written for the same reason as `MIDINote`'s: a missing `id` has to
+    // decode to a fresh one rather than throw.
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        id = try c.decodeIfPresent(UUID.self, forKey: .id) ?? UUID()
+        text = try c.decode(String.self, forKey: .text)
+        pitch = try c.decode(Int.self, forKey: .pitch)
+        beat = try c.decode(Double.self, forKey: .beat)
     }
 }
 
