@@ -5,6 +5,28 @@
 
 import SwiftUI
 
+/// One exercise row of the routine and exercise-queue screens: the exercise's
+/// name, with the same MIDI pattern thumbnail the Exercises tab draws on the
+/// trailing edge of its rows — here sitting just inside the drag handle these
+/// lists always show. An exercise with no notes gets no thumbnail, exactly as on
+/// that tab.
+private struct RoutineExerciseRow: View {
+    @EnvironmentObject private var store: ExerciseStore
+    let exerciseID: UUID
+
+    private var pattern: [MIDINote] { store.notes(for: exerciseID) }
+
+    var body: some View {
+        HStack {
+            Text(store.exercises.first { $0.id == exerciseID }?.localizedName ?? "")
+                .frame(maxWidth: .infinity, alignment: .leading)
+            if !pattern.isEmpty {
+                MIDIPatternThumbnail(notes: pattern)
+            }
+        }
+    }
+}
+
 /// The inline-editable routine name at the top of the edit-routine screen.
 /// Commits (via the store) when the user submits, focus moves away, or the
 /// screen goes away — see RoutineDetailsField for why leaving counts. An empty
@@ -104,8 +126,7 @@ struct RoutineEditView: View {
 
     private func exerciseRow(_ exerciseID: UUID) -> some View {
         HStack {
-            Text(store.exercises.first { $0.id == exerciseID }?.localizedName ?? "")
-                .frame(maxWidth: .infinity, alignment: .leading)
+            RoutineExerciseRow(exerciseID: exerciseID)
             if isDeletingExercises {
                 Button {
                     withAnimation { store.removeExercise(exerciseID, fromRoutine: routineID) }
@@ -187,8 +208,6 @@ struct ExerciseQueueIntroView: View {
     /// strings are resolved when the body runs, so SwiftUI needs telling.
     @ObservedObject private var appLanguage = LanguageManager.shared
 
-    @EnvironmentObject private var store: ExerciseStore
-
     /// The name and description drawn above the queue, or nil for a queue that
     /// has neither.
     var heading: (name: String, details: String)? = nil
@@ -251,8 +270,7 @@ struct ExerciseQueueIntroView: View {
                 }
                 Section {
                     ForEach(order, id: \.self) { exerciseID in
-                        Text(store.exercises.first { $0.id == exerciseID }?.localizedName ?? "")
-                            .frame(maxWidth: .infinity, alignment: .leading)
+                        RoutineExerciseRow(exerciseID: exerciseID)
                     }
                     .onMove { source, destination in
                         order.move(fromOffsets: source, toOffset: destination)

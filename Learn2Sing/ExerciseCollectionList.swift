@@ -1378,8 +1378,12 @@ private final class NameUploaderContentView: UIView, UIContentView {
 
 /// A miniature piano-roll of an exercise's MIDI pattern, shown on the trailing
 /// edge of its row. Notes are drawn in the colour chosen under Visuals > Menus.
-private final class MIDIPatternView: UIView {
-    private let notes: [MIDINote]
+final class MIDIPatternView: UIView {
+    /// Settable, since the SwiftUI wrapper below reuses one view across rows —
+    /// the list itself hands over a fresh view per cell.
+    var notes: [MIDINote] {
+        didSet { setNeedsDisplay() }
+    }
 
     init(notes: [MIDINote]) {
         self.notes = notes
@@ -1437,6 +1441,30 @@ private final class MIDIPatternView: UIView {
             UIBezierPath(roundedRect: CGRect(x: x, y: y, width: w, height: noteH),
                          cornerRadius: 1).fill()
         }
+    }
+}
+
+/// The same thumbnail, for the SwiftUI lists that show exercise rows of their
+/// own — the routine and exercise-queue screens, where it sits just left of the
+/// drag handle. Wrapping the list's own view rather than drawing the pattern a
+/// second time in SwiftUI is what keeps the two identical.
+struct MIDIPatternThumbnail: UIViewRepresentable {
+    let notes: [MIDINote]
+
+    func makeUIView(context: Context) -> MIDIPatternView {
+        MIDIPatternView(notes: notes)
+    }
+
+    func updateUIView(_ view: MIDIPatternView, context: Context) {
+        view.notes = notes
+    }
+
+    /// Its fixed size, whatever SwiftUI proposes — the same size the list's rows
+    /// reserve for it.
+    func sizeThatFits(_ proposal: ProposedViewSize,
+                      uiView: MIDIPatternView,
+                      context: Context) -> CGSize? {
+        uiView.intrinsicContentSize
     }
 }
 
