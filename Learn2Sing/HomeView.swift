@@ -282,6 +282,13 @@ struct HomeView: View {
     /// its entry, so a change lasts for one play-through.
     @State private var routinePlayOrders: [UUID: [UUID]] = [:]
 
+    /// The routine each queue above was built out of, as it stood at the time —
+    /// so that the routine as it stands now can be told apart from it. The edit
+    /// screen is a toolbar button away from the intro screen, and coming back
+    /// from having added or removed exercises there has to reach the queue:
+    /// see `syncRoutineQueue`.
+    @State private var routineQueueSources: [UUID: [UUID]] = [:]
+
     /// The same thing for the recommendation card's screen, which is one queue
     /// rather than one per routine: the exercises it is showing, in the order it
     /// is showing them. Set as the card is tapped, so a shuffle or a drag there
@@ -453,20 +460,51 @@ struct HomeView: View {
             ?? []
     }
 
+    /// A routine's exercises as it has them stored, minus any that have since
+    /// been deleted from the library — the queue its intro screen starts from.
+    private func routinePlayableIDs(_ routineID: UUID) -> [UUID] {
+        store.routines.first { $0.id == routineID }?.exerciseIDs.filter { exerciseID in
+            store.exercises.contains { $0.id == exerciseID }
+        } ?? []
+    }
+
+    /// Fold the routine as it now stands back into the queue its intro screen is
+    /// showing. Called whenever the routine changes underneath that screen, which
+    /// is what happens when the user goes into the edit screen the toolbar button
+    /// opens, adds or removes exercises there, and comes back.
+    ///
+    /// A queue nobody has touched simply becomes the routine again, so an edit
+    /// screen reorder shows up too. Once the queue has been dragged, shuffled or
+    /// swiped it is the user's own arrangement of this play-through and is kept:
+    /// the edit only adds its new exercises (on the end, since the queue no longer
+    /// follows the routine's order) and drops the ones it removed.
+    private func syncRoutineQueue(_ routineID: UUID) {
+        let playable = routinePlayableIDs(routineID)
+        guard let source = routineQueueSources[routineID], playable != source else { return }
+        routineQueueSources[routineID] = playable
+
+        let queue = routineOrder(routineID)
+        if queue == source {
+            routinePlayOrders[routineID] = playable
+        } else {
+            var merged = queue.filter { playable.contains($0) }
+            merged.append(contentsOf: playable.filter { !merged.contains($0) })
+            routinePlayOrders[routineID] = merged
+        }
+    }
+
     /// Tap on a routine: open its intro screen, where the description is shown
     /// and the order for this play-through can be changed before starting. An
     /// empty routine opens its editor instead, since there's nothing to play yet.
     private func openRoutine(_ id: UUID) {
-        guard let routine = store.routines.first(where: { $0.id == id }) else { return }
-        let playable = routine.exerciseIDs.filter { exerciseID in
-            store.exercises.contains { $0.id == exerciseID }
-        }
+        let playable = routinePlayableIDs(id)
         if playable.isEmpty {
             navigationPath.append(ExerciseRoute.routine(id))
         } else {
             // A fresh play-through always starts from the routine's own order:
             // whatever the last one was dragged or shuffled into is discarded.
             routinePlayOrders[id] = playable
+            routineQueueSources[id] = playable
             navigationPath.append(ExerciseRoute.routineIntro(id))
         }
     }
@@ -767,6 +805,12 @@ struct HomeView: View {
                     },
                     onStart: { navigationPath.append(ExerciseRoute.routinePlay(id, 0)) }
                 )
+                // The edit screen this screen's toolbar opens is pushed on top
+                // of it, leaving it here in the stack to be caught up with what
+                // was done there — added and removed exercises reach the queue
+                // as the edit is made, so backing out lands on a queue that is
+                // already right.
+                .onChange(of: routinePlayableIDs(id)) { syncRoutineQueue(id) }
             }
         case .routinePlay(let id, let index):
             let exercises = routineExercises(id)
