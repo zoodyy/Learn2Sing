@@ -483,6 +483,16 @@ struct HomeView: View {
         }
     }
 
+    /// The skip button on a routine's exercise intro screen: go on to the next
+    /// exercise's intro without playing this one. The intro screen is *replaced*
+    /// rather than pushed on top of, so however many are skipped in a row, going
+    /// back lands on the routine's own screen — the same place backing out of the
+    /// first one goes.
+    private func skipRoutine(_ id: UUID, at index: Int) {
+        navigationPath.removeLast()
+        navigationPath.append(ExerciseRoute.routinePlay(id, index + 1))
+    }
+
     /// The recommended exercises that still exist in the library, in the order
     /// this play-through uses — the recommendation routes index into this list,
     /// exactly as the routine ones index into a routine's.
@@ -507,6 +517,12 @@ struct HomeView: View {
         } else {
             navigationPath = []
         }
+    }
+
+    /// `skipRoutine` for that queue.
+    private func skipRecommendations(at index: Int) {
+        navigationPath.removeLast()
+        navigationPath.append(ExerciseRoute.recommendationPlay(index + 1))
     }
 
     /// Route a row tap or swipe: routine rows play (tap) or edit (swipe) the
@@ -744,6 +760,11 @@ struct HomeView: View {
                     order: Binding(get: { routineOrder(id) },
                                    set: { routinePlayOrders[id] = $0 }),
                     onSettings: { navigationPath.append(ExerciseRoute.routine(id)) },
+                    onSelect: { exerciseID in
+                        guard let index = routineExercises(id)
+                            .firstIndex(where: { $0.id == exerciseID }) else { return }
+                        navigationPath.append(ExerciseRoute.routinePlay(id, index))
+                    },
                     onStart: { navigationPath.append(ExerciseRoute.routinePlay(id, 0)) }
                 )
             }
@@ -755,7 +776,9 @@ struct HomeView: View {
                 let exerciseID = exercises[index].id
                 ExerciseIntroView(
                     exercise: exercises[index],
-                    onSettings: { navigationPath.append(ExerciseRoute.settings(exerciseID)) }
+                    onSettings: { navigationPath.append(ExerciseRoute.settings(exerciseID)) },
+                    onSkip: index + 1 < exercises.count
+                        ? { skipRoutine(id, at: index) } : nil
                 ) {
                     navigationPath.append(ExerciseRoute.routinePlayback(id, index))
                 }
@@ -774,6 +797,11 @@ struct HomeView: View {
                 order: $recommendationOrder,
                 title: ExerciseCategoryName.localized(HomeCategories.recommended),
                 startTitle: L("Play Recommended Exercises"),
+                onSelect: { exerciseID in
+                    guard let index = recommendationExercises
+                        .firstIndex(where: { $0.id == exerciseID }) else { return }
+                    navigationPath.append(ExerciseRoute.recommendationPlay(index))
+                },
                 onStart: { navigationPath.append(ExerciseRoute.recommendationPlay(0)) }
             )
             // Where a routine has its edit screen, the suggestion has the
@@ -801,7 +829,9 @@ struct HomeView: View {
                 let exerciseID = exercises[index].id
                 ExerciseIntroView(
                     exercise: exercises[index],
-                    onSettings: { navigationPath.append(ExerciseRoute.settings(exerciseID)) }
+                    onSettings: { navigationPath.append(ExerciseRoute.settings(exerciseID)) },
+                    onSkip: index + 1 < exercises.count
+                        ? { skipRecommendations(at: index) } : nil
                 ) {
                     navigationPath.append(ExerciseRoute.recommendationPlayback(index))
                 }

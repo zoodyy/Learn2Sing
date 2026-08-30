@@ -7,9 +7,9 @@ import SwiftUI
 
 /// One exercise row of the routine and exercise-queue screens: the exercise's
 /// name, with the same MIDI pattern thumbnail the Exercises tab draws on the
-/// trailing edge of its rows — here sitting just inside the drag handle these
-/// lists always show. An exercise with no notes gets no thumbnail, exactly as on
-/// that tab.
+/// trailing edge of its rows — on the edit-routine screen sitting just inside
+/// the drag handle its always-on edit mode shows. An exercise with no notes gets
+/// no thumbnail, exactly as on that tab.
 private struct RoutineExerciseRow: View {
     @EnvironmentObject private var store: ExerciseStore
     let exerciseID: UUID
@@ -194,15 +194,26 @@ struct RoutineEditView: View {
 }
 
 /// The screen shown before a queue of exercises plays: an "Exercise Queue"
-/// section listing what will play, in the same draggable rows as the
-/// edit-routine screen, and a start button along the bottom. Optionally headed
-/// by a name and description — a routine's, which is the screen this started
-/// as. The Home tab's recommendation card opens the very same screen with
-/// nothing above the queue, since a suggestion has neither to show.
+/// section listing what will play, and a start button along the bottom.
+/// Optionally headed by a name and description — a routine's, which is the
+/// screen this started as. The Home tab's recommendation card opens the very
+/// same screen with nothing above the queue, since a suggestion has neither to
+/// show.
 ///
-/// Reordering here — by dragging or with the header's shuffle button — changes
+/// The rows work like the Home tab's own: tap one to play, long-press to drag
+/// it somewhere else, swipe it left to drop it. (Not the edit-routine screen's
+/// always-on edit mode, which these rows started out sharing — a List in edit
+/// mode keeps the whole row for its own drag, leaving no swipe and no tap. The
+/// header's shuffle button reorders without any dragging at all.)
+///
+/// Reordering — by dragging or shuffling — and dropping an exercise change
 /// `order` only, which the Home tab keeps for this play-through and resets the
-/// next time the screen is opened; nothing stored is touched.
+/// next time the screen is opened; nothing stored is touched, so a swiped-away
+/// exercise stays in the routine it belongs to.
+///
+/// Tapping a row starts the queue from that exercise rather than from the top:
+/// `onSelect` opens its intro screen the same way the start button opens the
+/// first one's, so the run carries on down the queue from there.
 struct ExerciseQueueIntroView: View {
     /// Re-renders this screen when the language is changed in Settings; the
     /// strings are resolved when the body runs, so SwiftUI needs telling.
@@ -218,11 +229,10 @@ struct ExerciseQueueIntroView: View {
     /// What the button along the bottom reads. Already translated, since it is
     /// a value rather than a literal SwiftUI resolves itself.
     var startTitle = L("Start Routine")
+    /// Tap on a queued exercise: start the play-through from that one. nil makes
+    /// the rows display-only.
+    var onSelect: ((UUID) -> Void)? = nil
     let onStart: () -> Void
-
-    /// Always active so the exercise rows show drag handles, exactly like the
-    /// edit-routine screen.
-    @State private var editMode: EditMode = .active
 
     /// The name and description, styled exactly like the exercise intro
     /// screen's. Sits on the list's own background rather than in a cell, so it
@@ -243,6 +253,27 @@ struct ExerciseQueueIntroView: View {
         .listRowInsets(EdgeInsets(top: 16, leading: 0, bottom: 16, trailing: 0))
         .listRowBackground(Color.clear)
         .listRowSeparator(.hidden)
+    }
+
+    /// One queued exercise: the routine row, made tappable (start here) and
+    /// swipeable (drop from this play-through).
+    private func queueRow(_ exerciseID: UUID) -> some View {
+        RoutineExerciseRow(exerciseID: exerciseID)
+            // The row only draws where it has content, so the empty space beside
+            // a short name would otherwise not take the tap.
+            .contentShape(Rectangle())
+            // A tap gesture rather than a Button: a Button fires on touch-up
+            // anywhere inside its own bounds, and the row is the full width of
+            // the screen, so the swipe below would end inside it and open the
+            // exercise instead of offering to remove it.
+            .onTapGesture { onSelect?(exerciseID) }
+            .swipeActions(edge: .trailing) {
+                Button(role: .destructive) {
+                    withAnimation { order.removeAll { $0 == exerciseID } }
+                } label: {
+                    Label("Remove", systemImage: "minus.circle")
+                }
+            }
     }
 
     private var exercisesHeader: some View {
@@ -270,7 +301,7 @@ struct ExerciseQueueIntroView: View {
                 }
                 Section {
                     ForEach(order, id: \.self) { exerciseID in
-                        RoutineExerciseRow(exerciseID: exerciseID)
+                        queueRow(exerciseID)
                     }
                     .onMove { source, destination in
                         order.move(fromOffsets: source, toOffset: destination)
@@ -282,7 +313,6 @@ struct ExerciseQueueIntroView: View {
             // Drops the list's own top inset so the heading sits as high as the
             // exercise intro screen's, which is a plain ScrollView.
             .contentMargins(.top, 0, for: .scrollContent)
-            .environment(\.editMode, $editMode)
 
             Button(action: onStart) {
                 Text(startTitle)
@@ -292,6 +322,11 @@ struct ExerciseQueueIntroView: View {
                     .background(.tint, in: RoundedRectangle(cornerRadius: 14))
                     .foregroundStyle(.white)
             }
+            // A queue every exercise has been swiped out of has nothing to
+            // start: the button would push a play route resolving to a blank
+            // screen.
+            .disabled(order.isEmpty)
+            .opacity(order.isEmpty ? 0.4 : 1)
             .padding(.horizontal)
             .padding(.bottom)
         }
@@ -314,12 +349,15 @@ struct RoutineIntroView: View {
     /// counterpart to the settings button on the exercise intro screen, in the
     /// same place and with the same symbol.
     let onSettings: () -> Void
+    /// Tap on a queued exercise: start the routine from that one.
+    var onSelect: ((UUID) -> Void)? = nil
     let onStart: () -> Void
 
     var body: some View {
         ExerciseQueueIntroView(heading: (routine.name, routine.details),
                                order: $order,
                                title: routine.name,
+                               onSelect: onSelect,
                                onStart: onStart)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {

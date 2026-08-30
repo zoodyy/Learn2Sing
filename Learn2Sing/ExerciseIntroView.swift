@@ -22,6 +22,11 @@ struct ExerciseIntroView: View {
     /// Opens this exercise's settings from the toolbar. nil (Community, where the
     /// exercise isn't in the user's library yet) hides the button.
     var onSettings: (() -> Void)? = nil
+    /// Leaves this exercise unplayed and opens the next one in the queue, as a
+    /// skip button beside Start. Only a routine or the recommendation queue sets
+    /// it, and only while there is a next exercise — everywhere else (and on the
+    /// last of a queue) the Start button has the row to itself.
+    var onSkip: (() -> Void)? = nil
     let onStart: () -> Void
 
     /// Source of the like count and of whether this user already liked it; both
@@ -136,13 +141,18 @@ struct ExerciseIntroView: View {
                 .padding(.bottom, 8)
             }
 
-            Button(action: onStart) {
-                Text("Start")
-                    .font(.headline)
-                    .frame(maxWidth: .infinity)
-                    .padding()
-                    .background(.tint, in: RoundedRectangle(cornerRadius: 14))
-                    .foregroundStyle(.white)
+            HStack(spacing: 12) {
+                Button(action: onStart) {
+                    Text("Start")
+                        .font(.headline)
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(.tint, in: RoundedRectangle(cornerRadius: 14))
+                        .foregroundStyle(.white)
+                }
+                if let onSkip {
+                    skipButton(onSkip)
+                }
             }
             .padding(.horizontal)
             .padding(.bottom)
@@ -181,6 +191,28 @@ struct ExerciseIntroView: View {
                 }
             }
         }
+    }
+
+    /// Leave this exercise unplayed and go on to the next one in the queue.
+    /// Beside the Start button rather than in the toolbar, since it is the other
+    /// answer to the question that screen asks — play this, or don't. Built from
+    /// the same `.padding()` the Start button uses so the two are the same height
+    /// at every text size, and drawn in the app's quieter button style (the
+    /// Download and Review buttons') so Start stays the obvious one. A symbol
+    /// rather than a word: the skip-track glyph is read everywhere and needs no
+    /// share of a row the Start button should keep.
+    private func skipButton(_ action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            Image(systemName: "forward.end.fill")
+                .font(.headline)
+                .padding()
+                // Square at the default text size, where the glyph is narrower
+                // than the Start button's line is tall.
+                .frame(minWidth: 54)
+                .background(.tint.opacity(0.15), in: RoundedRectangle(cornerRadius: 14))
+                .foregroundStyle(.tint)
+        }
+        .accessibilityLabel(L("Skip Exercise"))
     }
 
     /// The exercise's difficulty as five stars, on the trailing edge so it sits
