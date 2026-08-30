@@ -641,25 +641,17 @@ struct PlaybackVisualsView: View {
             fullHeight / 2 - CGFloat(pitch - centerPitch) * rowH
         }
         // Top edge of the row one above the highest demo element and bottom edge of
-        // the row one below the lowest, clamped for zooms that push the band off
-        // the canvas.
-        let bandTop = min(max(0, y(Double(Self.demoTopPitch) + 1.5)), fullHeight)
-        let bandBottom = min(max(bandTop, y(Double(Self.demoLowestPitch) - 1.5)), fullHeight)
-        let minHeight = max(bandBottom - bandTop, 44)
-        let visibleHeight = min(fullHeight, max(minHeight, fullHeight - max(0, scrollOffset)))
+        // the row one below the lowest.
+        let crop = collapsingPreviewCrop(
+            fullHeight: fullHeight,
+            band: (top: y(Double(Self.demoTopPitch) + 1.5),
+                   bottom: y(Double(Self.demoLowestPitch) - 1.5)),
+            scrollOffset: scrollOffset)
 
-        // Split the cropped-away amount between top and bottom in proportion to the
-        // empty space on each side, so both margins reach one row simultaneously.
-        let cropped = fullHeight - visibleHeight
-        let slackAbove = bandTop
-        let slackBelow = fullHeight - bandBottom
-        let totalSlack = slackAbove + slackBelow
-        let topCrop = totalSlack > 0 ? cropped * slackAbove / totalSlack : 0
-
-        return previewCanvas(topCrop: topCrop, bottomCrop: cropped - topCrop)
+        return previewCanvas(topCrop: crop.top, bottomCrop: crop.bottom)
             .frame(width: width, height: fullHeight)
-            .offset(y: -topCrop)
-            .frame(width: width, height: visibleHeight, alignment: .top)
+            .offset(y: -crop.top)
+            .frame(width: width, height: fullHeight - crop.top - crop.bottom, alignment: .top)
             .background(Color.black)
             .clipShape(RoundedRectangle(cornerRadius: 12))
             .overlay(RoundedRectangle(cornerRadius: 12).stroke(.white.opacity(0.15)))

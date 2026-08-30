@@ -270,11 +270,10 @@ nonisolated enum ProfilePictureCodec {
 /// the screens draw, and the one place that changes either.
 ///
 /// The picture deliberately does **not** live in `UserProfile`. That file is
-/// what `ProfileSync` uploads as the private backup, under a 60KB budget it
-/// already spends most of on the exercise library — a picture in there would be
-/// paid for out of the score histories, which the uploader trims to fit. It
-/// lives in its own file beside it instead, and reaches the server only as part
-/// of the public profile document (see `CommunitySync`).
+/// what `ProfileSync` uploads as the private backup, whole, every time the
+/// library or the settings change — a picture in there would be re-sent with
+/// each of those edits. It lives in its own file beside it instead, and reaches
+/// the server only as part of the public profile document (see `CommunitySync`).
 @MainActor
 final class ProfilePictureStore: ObservableObject {
     static let shared = ProfilePictureStore()

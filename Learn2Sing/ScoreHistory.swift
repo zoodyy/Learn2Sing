@@ -111,10 +111,11 @@ enum ScoreHistory {
 /// A score history as the profile document carries it: whole-second timestamps
 /// and scores interleaved in one flat array, `[t₀, s₀, t₁, s₁, …]`.
 ///
-/// Histories are the only part of the profile that grows without bound, and the
-/// server rejects documents past roughly 64 KB, so they travel as bare numbers —
-/// about a third the size the locally stored `ScoreEntry` objects encode to.
-/// The second a run finished in is all the chart needs.
+/// Histories are the only part of the profile that grows without bound, so they
+/// travel as bare numbers — about a third the size the locally stored
+/// `ScoreEntry` objects encode to. The second a run finished in is all the chart
+/// needs, and the compact form keeps the whole profile, which is re-uploaded on
+/// every edit, cheap to send.
 nonisolated struct ScoreHistoryDoc: Codable {
     private var values: [Int]
 

@@ -20,6 +20,17 @@ struct ExerciseSettingsView: View {
     /// put back to) private. Different users may share the same name.
     @State private var isWarningDuplicateName = false
 
+    /// The exercise's saved MIDI pattern and the labels written over it, for the
+    /// preview at the top of the screen. Read when the screen appears rather than
+    /// per frame — the pattern lives in UserDefaults, and only the MIDI editor
+    /// changes it.
+    @State private var pattern: [MIDINote] = []
+    @State private var labels: [MIDIText] = []
+
+    /// How far the form is scrolled (0 at rest, growing downward), which collapses
+    /// the preview pinned above it.
+    @State private var scrollOffset: CGFloat = 0
+
     /// The text fields that can hold keyboard focus, so a single keyboard toolbar
     /// can show a "Done" button (and the sign toggle for the fields that take a
     /// negative value) above whichever one is being edited.
@@ -46,6 +57,100 @@ struct ExerciseSettingsView: View {
     }
 
     var body: some View {
+        // The preview is pinned above the form rather than scrolling with it: what it
+        // shows is what the controls below are setting, so it stays in sight while
+        // they're used — collapsing as the form scrolls instead of moving away.
+        GeometryReader { geo in
+            let previewWidth = max(0, geo.size.width - 2 * ExercisePlaybackPreview.sidePadding)
+            // Square, like the visuals screen's — but never more than half of what
+            // the screen has: in landscape a square would be taller than the screen
+            // and leave no room for the settings it belongs to.
+            let previewSize = min(previewWidth, geo.size.height / 2)
+            let previewHeight = pattern.isEmpty
+                ? 0
+                : previewSize + 2 * ExercisePlaybackPreview.verticalPadding
+            settingsForm
+                .contentMargins(.top, previewHeight)
+                .onScrollGeometryChange(for: CGFloat.self) { scroll in
+                    scroll.contentOffset.y + scroll.contentInsets.top
+                } action: { _, offset in
+                    scrollOffset = offset
+                }
+                .overlay(alignment: .top) {
+                    // An exercise with no notes has nothing to preview, exactly as it
+                    // gets no pattern thumbnail in the lists.
+                    if !pattern.isEmpty {
+                        ExercisePlaybackPreview(
+                            exercise: exercise, pattern: pattern, labels: labels,
+                            width: previewWidth, fullHeight: previewSize,
+                            scrollOffset: scrollOffset)
+                    }
+                }
+        }
+        // Read again every time the screen comes back, so a pattern just changed in
+        // the MIDI editor is the one the preview draws.
+        .onAppear {
+            pattern = store.notes(for: exercise.id)
+            labels = store.texts(for: exercise.id)
+        }
+        .alert("Delete Exercise?", isPresented: $isConfirmingDelete) {
+            Button("Delete", role: .destructive) {
+                let id = exercise.id
+                // The pop below would otherwise toast "Exercise Saved!".
+                toasts.suppressNext()
+                dismiss()
+                // Delete after the pop so no view is bound to the removed exercise.
+                DispatchQueue.main.async { store.delete(id: id) }
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text(L("\"%@\" and its MIDI pattern will be deleted. This cannot be undone.", exercise.name))
+        }
+        // Publishing stamps the current profile username as the uploader shown
+        // next to the exercise on the Community tab — unless the user already
+        // shares another exercise with this name, which is refused.
+        .onChange(of: exercise.visibility) { _, newValue in
+            guard newValue == .public else { return }
+            if isPublicNameTaken() {
+                exercise.visibility = .private
+                isWarningDuplicateName = true
+            } else {
+                exercise.uploaderName = UserProfile.load().username
+            }
+        }
+        // Renames are checked when editing ends, not per keystroke — a name
+        // passes through spurious collisions while being typed.
+        .onChange(of: focusedField) { old, new in
+            if old == .name, new != .name { demoteIfNameTaken() }
+            if old == .speed, new != .speed { clampSpeedPerRepeat() }
+        }
+        .alert("Name Already Public", isPresented: $isWarningDuplicateName) {
+            Button("OK", role: .cancel) {}
+        } message: {
+            Text(L("You already have a public exercise named \"%@\". Each of your public exercises needs a unique name, so this one stays private.", exercise.name))
+        }
+        .navigationTitle(exercise.localizedName)
+        .navigationBarTitleDisplayMode(.inline)
+        // The description field's return key inserts a newline rather than
+        // closing the keyboard, so a scroll is what puts it away — the same
+        // swipe down over the keyboard that works on every other screen.
+        .scrollDismissesKeyboard(.interactively)
+        .keyboardBar(onToggleSign: signToggle) { focusedField = nil }
+        // Select the whole number when a repetition field is tapped, so typing a new
+        // value replaces the old one instead of inserting alongside it. Scoped to the
+        // numeric fields by keyboard type (the Name field uses the default keyboard).
+        .onReceive(NotificationCenter.default.publisher(for: UITextField.textDidBeginEditingNotification)) { notification in
+            guard let textField = notification.object as? UITextField else { return }
+            let numericKeyboards: [UIKeyboardType] = [.numberPad, .numbersAndPunctuation, .decimalPad]
+            guard numericKeyboards.contains(textField.keyboardType) else { return }
+            DispatchQueue.main.async {
+                textField.selectedTextRange = textField.textRange(
+                    from: textField.beginningOfDocument, to: textField.endOfDocument)
+            }
+        }
+    }
+
+    private var settingsForm: some View {
         Form {
             Section("Name") {
                 TextField("Name", text: $exercise.name)
@@ -185,61 +290,6 @@ struct ExerciseSettingsView: View {
                         .frame(maxWidth: .infinity)
                 }
                 .dangerRow()
-            }
-        }
-        .alert("Delete Exercise?", isPresented: $isConfirmingDelete) {
-            Button("Delete", role: .destructive) {
-                let id = exercise.id
-                // The pop below would otherwise toast "Exercise Saved!".
-                toasts.suppressNext()
-                dismiss()
-                // Delete after the pop so no view is bound to the removed exercise.
-                DispatchQueue.main.async { store.delete(id: id) }
-            }
-            Button("Cancel", role: .cancel) {}
-        } message: {
-            Text(L("\"%@\" and its MIDI pattern will be deleted. This cannot be undone.", exercise.name))
-        }
-        // Publishing stamps the current profile username as the uploader shown
-        // next to the exercise on the Community tab — unless the user already
-        // shares another exercise with this name, which is refused.
-        .onChange(of: exercise.visibility) { _, newValue in
-            guard newValue == .public else { return }
-            if isPublicNameTaken() {
-                exercise.visibility = .private
-                isWarningDuplicateName = true
-            } else {
-                exercise.uploaderName = UserProfile.load().username
-            }
-        }
-        // Renames are checked when editing ends, not per keystroke — a name
-        // passes through spurious collisions while being typed.
-        .onChange(of: focusedField) { old, new in
-            if old == .name, new != .name { demoteIfNameTaken() }
-            if old == .speed, new != .speed { clampSpeedPerRepeat() }
-        }
-        .alert("Name Already Public", isPresented: $isWarningDuplicateName) {
-            Button("OK", role: .cancel) {}
-        } message: {
-            Text(L("You already have a public exercise named \"%@\". Each of your public exercises needs a unique name, so this one stays private.", exercise.name))
-        }
-        .navigationTitle(exercise.localizedName)
-        .navigationBarTitleDisplayMode(.inline)
-        // The description field's return key inserts a newline rather than
-        // closing the keyboard, so a scroll is what puts it away — the same
-        // swipe down over the keyboard that works on every other screen.
-        .scrollDismissesKeyboard(.interactively)
-        .keyboardBar(onToggleSign: signToggle) { focusedField = nil }
-        // Select the whole number when a repetition field is tapped, so typing a new
-        // value replaces the old one instead of inserting alongside it. Scoped to the
-        // numeric fields by keyboard type (the Name field uses the default keyboard).
-        .onReceive(NotificationCenter.default.publisher(for: UITextField.textDidBeginEditingNotification)) { notification in
-            guard let textField = notification.object as? UITextField else { return }
-            let numericKeyboards: [UIKeyboardType] = [.numberPad, .numbersAndPunctuation, .decimalPad]
-            guard numericKeyboards.contains(textField.keyboardType) else { return }
-            DispatchQueue.main.async {
-                textField.selectedTextRange = textField.textRange(
-                    from: textField.beginningOfDocument, to: textField.endOfDocument)
             }
         }
     }

@@ -22,9 +22,12 @@ final class ProfileSync {
     /// which is wiped on reinstall — exactly when a restore should run again.
     private static let restoredKey = "didAttemptProfileRestore"
 
-    /// Ceiling on the uploaded document. The server stores it in a TEXT column
-    /// and answers 500 past roughly 64 KB, so aim short of that rather than at it.
-    private static let maxUploadBytes = 60_000
+    /// Ceiling on the uploaded document. The backend takes 4 GB, far past
+    /// anything this app could build, so this is no longer a server constraint
+    /// but the app's own backstop against a runaway document: a run of score
+    /// history costs about 15 bytes, so this sits above a lifetime of them while
+    /// still keeping a single edit from turning into a huge POST.
+    private static let maxUploadBytes = 4_000_000
 
     private weak var store: ExerciseStore?
     /// The live template store, so a restored profile's visual templates land in it
@@ -138,11 +141,13 @@ final class ProfileSync {
     ///
     /// Everything else in the document is bounded by what a user can plausibly
     /// build by hand, but scores grow with every run, so they are what gives way
-    /// as the document nears the server's size limit: the newest runs are kept
+    /// if the document ever reaches `maxUploadBytes`: the newest runs are kept
     /// and older ones left out. Only the upload is trimmed — the device keeps the
-    /// full history and the chart still draws it. nil when even a score-less
-    /// profile is too big to send, since an oversized POST is what once took the
-    /// endpoint down for everyone.
+    /// full history and the chart still draws it. Since that ceiling stopped
+    /// tracking the server's, no realistic profile should reach it and every run
+    /// ought to make the trip; the trimming stays as the backstop it now is. nil
+    /// when even a score-less profile is too big to send, since an oversized POST
+    /// is what once took the endpoint down for everyone.
     private static func uploadBody(for profile: UserProfile) -> Data? {
         var profile = profile
         let encoder = JSONEncoder()

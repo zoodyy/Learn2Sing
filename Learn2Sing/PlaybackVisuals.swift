@@ -332,6 +332,33 @@ final class VerticalFollower {
     func reset() { shown = nil }
 }
 
+// MARK: - Collapsing preview
+
+/// How much of a pinned preview's canvas is cropped away above and below once the
+/// form under it has been scrolled `scrollOffset` points (0 at rest, growing
+/// downward).
+///
+/// A preview pinned over a scrolling form doesn't move away with it; it collapses
+/// instead, cropping empty canvas — never rescaling the drawing — until only
+/// `band`, the strip the drawing actually occupies, is left. What's cropped is
+/// split between the two ends in proportion to the empty space at each, so both
+/// margins reach the band at the same moment. `band` is in canvas coordinates and
+/// is clamped here, so a zoom that pushes the drawing off the canvas is harmless.
+func collapsingPreviewCrop(fullHeight: CGFloat, band: (top: CGFloat, bottom: CGFloat),
+                           scrollOffset: CGFloat) -> (top: CGFloat, bottom: CGFloat) {
+    let bandTop = min(max(0, band.top), fullHeight)
+    let bandBottom = min(max(bandTop, band.bottom), fullHeight)
+    let minHeight = max(bandBottom - bandTop, 44)
+    let visibleHeight = min(fullHeight, max(minHeight, fullHeight - max(0, scrollOffset)))
+
+    let cropped = fullHeight - visibleHeight
+    let slackAbove = bandTop
+    let slackBelow = fullHeight - bandBottom
+    let totalSlack = slackAbove + slackBelow
+    let topCrop = totalSlack > 0 ? cropped * slackAbove / totalSlack : 0
+    return (topCrop, cropped - topCrop)
+}
+
 // MARK: - Repetition pitches (for the "hide dots in unused pitches" option)
 
 /// The pitches a note lands on during the repetition that is currently being sung.

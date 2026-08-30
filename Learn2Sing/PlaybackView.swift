@@ -1267,116 +1267,22 @@ struct PlaybackView: View {
               let saved = try? JSONDecoder().decode([MIDINote].self, from: data)
         else { return }
 
-        // Length of one repetition, rounded up to a whole beat so repeats stay aligned,
-        // plus any silent beats the user wants between repetitions. The layout then
-        // says where each repetition begins and how far its beats are squeezed or
-        // stretched to play it at its own tempo ("speed up per repetition").
-        let patternEnd = saved.map { $0.beat + $0.length }.max() ?? 0
-        let span = patternEnd.rounded(.up) + max(0, exercise.beatsBetweenReps)
-        let layout = exercise.repeatLayout(span: span)
-        let repeats = layout.count
-
-        // Expand the pattern: each repetition is shifted later in time, scaled to its
-        // own tempo and transposed by `transposePerRepeat` semitones. Applying the
-        // same transform to the drawn notes keeps playback and animation in sync.
-        var expanded: [MIDINote] = []
-        for rep in 0..<repeats {
-            let transpose = cumulativeTranspose(forRepetition: rep)
-            let start = layout.starts[rep]
-            let scale = layout.scales[rep]
-            for note in saved {
-                var n = note
-                n.id = UUID()
-                n.pitch += exercise.pitchShift + transpose
-                n.beat = start + note.beat * scale
-                n.length = note.length * scale
-                expanded.append(n)
-            }
-        }
-
-        // Text labels share the note coordinate system, so apply the identical
-        // expansion (beat shift + tempo scale + transpose per repeat) to keep them
-        // pinned to the notes they annotate as the pattern repeats and scrolls.
         var savedTexts: [MIDIText] = []
         if let data = UserDefaults.standard.data(forKey: "miditext_\(exercise.id.uuidString)"),
            let decoded = try? JSONDecoder().decode([MIDIText].self, from: data) {
             savedTexts = decoded
         }
-        var expandedTexts: [MIDIText] = []
-        for rep in 0..<repeats {
-            let transpose = cumulativeTranspose(forRepetition: rep)
-            let start = layout.starts[rep]
-            let scale = layout.scales[rep]
-            for label in savedTexts {
-                var t = label
-                t.id = UUID()
-                t.pitch += exercise.pitchShift + transpose
-                t.beat = start + label.beat * scale
-                expandedTexts.append(t)
-            }
-        }
 
-        // Finally, if the singer has set a vocal range, transpose the whole exercise
-        // (notes and their labels together) to fit it: never let a note drop below
-        // the voice's lowest note, lowering the exercise only when its top pokes
-        // above the voice's highest note. Applied to the fully expanded pitches so
-        // every repetition's transposition is accounted for.
-        var vocalShift = 0
-        if let range = VocalRange(rawValue: vocalRangeRaw),
-           let lo = expanded.map(\.pitch).min(),
-           let hi = expanded.map(\.pitch).max() {
-            vocalShift = range.fitTranspose(low: lo, high: hi)
-            if vocalShift != 0 {
-                for i in expanded.indices { expanded[i].pitch += vocalShift }
-                for i in expandedTexts.indices { expandedTexts[i].pitch += vocalShift }
-            }
-        }
-
-        notes = expanded
-        texts = expandedTexts
-
-        // Pre-compute the vertical centre of each repetition (the midpoint of its
-        // pitch range) so "follow notes vertically" can recentre once per repetition.
-        // Each repetition's range is the pattern's range shifted by that repetition's
-        // cumulative transpose, plus the global pitch- and vocal-range shifts.
-        self.repeatLayout = layout
-        if let pMin = saved.map(\.pitch).min(), let pMax = saved.map(\.pitch).max() {
-            let baseMid = Double(pMin + pMax) / 2
-            repetitionCenters = (0..<repeats).map { rep in
-                baseMid + Double(exercise.pitchShift + cumulativeTranspose(forRepetition: rep) + vocalShift)
-            }
-            // Furthest content from the centre, including text labels (which can sit
-            // above/below the notes), measured in semitones. The relative geometry is
-            // identical for every repetition, so one value covers them all.
-            let contentMax = max(Double(pMax), savedTexts.map { Double($0.pitch) }.max() ?? -.infinity)
-            let contentMin = min(Double(pMin), savedTexts.map { Double($0.pitch) }.min() ?? .infinity)
-            repetitionMaxExtent = max(contentMax - baseMid, baseMid - contentMin)
-        } else {
-            repetitionCenters = []
-            repetitionMaxExtent = 0
-        }
-    }
-
-    /// Cumulative semitone offset for a given repetition (0-based). Each repetition
-    /// shifts by `transposePerRepeat` from the one before it. If `switchDirectionAfter`
-    /// is set, the direction flips exactly once after that many repetitions — counting
-    /// the untransposed first repetition — then keeps going the new way for the rest.
-    /// E.g. step +1, switchAfter 1 over 5 reps gives 0, -1, -2, -3, -4 (one up step is
-    /// "spent" on the first repetition, so the switch lands immediately after it).
-    private func cumulativeTranspose(forRepetition rep: Int) -> Int {
-        let step = exercise.transposePerRepeat
-        let switchAfter = exercise.switchDirectionAfter
-        guard rep > 0 else { return 0 }
-        guard switchAfter > 0 else { return rep * step }   // never switches
-
-        var offset = 0
-        for r in 1...rep {
-            // The first `switchAfter` repetitions (including the untransposed one at
-            // r == 0) go in the initial direction; from there on it's reversed.
-            let direction = r >= switchAfter ? -1 : 1
-            offset += direction * step
-        }
-        return offset
+        // The same expansion the settings screen's preview draws from: every
+        // repetition in its place, at its own tempo and transposition, moved to fit
+        // the singer's vocal range.
+        let timeline = exercise.timeline(pattern: saved, labels: savedTexts,
+                                         vocalRange: VocalRange(rawValue: vocalRangeRaw))
+        notes = timeline.notes
+        texts = timeline.texts
+        repeatLayout = timeline.repeats
+        repetitionCenters = timeline.centers
+        repetitionMaxExtent = timeline.maxExtent
     }
 }
 
