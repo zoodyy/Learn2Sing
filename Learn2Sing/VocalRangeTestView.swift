@@ -94,23 +94,30 @@ struct VocalRangeTestView: View {
 
     // MARK: - Subviews
 
+    /// Laid out like the slides either side of it in the introduction — icon, title
+    /// and instruction centred in what the Start button leaves them, and scrollable
+    /// on the short screens, and at the text sizes, where that isn’t enough room.
     private func intro(title: String, instruction: String, icon: String,
                        onStart: @escaping () -> Void) -> some View {
         VStack(spacing: 0) {
-            ScrollView {
-                VStack(alignment: .leading, spacing: 16) {
-                    Image(systemName: icon)
-                        .font(.system(size: 56))
-                        .foregroundStyle(.tint)
+            GeometryReader { geo in
+                ScrollView {
+                    VStack(spacing: 8) {
+                        Image(systemName: icon)
+                            .font(.system(size: 44))
+                            .foregroundStyle(.tint)
 
-                    Text(title)
-                        .font(.largeTitle.weight(.bold))
+                        Text(title)
+                            .font(.largeTitle.weight(.bold))
+                            .multilineTextAlignment(.center)
 
-                    Text(instruction)
-                        .font(.body)
-                        .foregroundStyle(.secondary)
+                        Text(instruction)
+                            .font(.body)
+                            .foregroundStyle(.secondary)
+                            .multilineTextAlignment(.center)
+                    }
+                    .frame(maxWidth: .infinity, minHeight: geo.size.height)
                 }
-                .frame(maxWidth: .infinity, alignment: .leading)
             }
 
             Button(action: onStart) {
