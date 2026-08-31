@@ -178,6 +178,38 @@ struct VisualTemplate: Codable, Identifiable, Hashable {
         d.set(hideTabBar, forKey: VisualKeys.hideTabBar)
     }
 
+    /// This template's look as the scene renderer takes it, without going through
+    /// UserDefaults first. `VisualSettings.current` is the same conversion for the
+    /// look that is *on* — this one is for drawing a template that isn't, which is
+    /// what the tutorial's theme slide does with the app's own two.
+    var settings: VisualSettings {
+        VisualSettings(
+            noteColor: Color(hex: noteColor),
+            playingNoteColor: Color(hex: playingNoteColor),
+            noteRoundness: noteRoundness,
+            verticalZoom: verticalZoom,
+            horizontalZoom: horizontalZoom,
+            followNotesVertically: followVertical,
+            showHorizontalLines: showLines,
+            backgroundColor: Color(hex: background),
+            showKeyboard: showKeyboard,
+            showPitches: showPitches,
+            autoPitchNameColor: autoPitchNameColor,
+            pitchNameColor: Color(hex: pitchNameColor),
+            textColor: Color(hex: textColor),
+            textFont: PlaybackFont(rawValue: textFont) ?? .system,
+            singerSize: singerSize,
+            singerInnerColor: Color(hex: singerInnerColor),
+            singerOuterColor: Color(hex: singerOuterColor),
+            singerLineColor: Color(hex: singerLineColor),
+            playheadColor: Color(hex: playheadColor),
+            playheadStyle: PlayheadStyle(rawValue: playheadStyle) ?? .line,
+            hideUnusedDots: hideUnusedDots,
+            showRepetitionCounter: showRepetitionCounter,
+            repetitionCounterPosition: RepetitionCounterPosition(rawValue: repetitionCounterPosition) ?? .bottomRight,
+            hideTabBar: hideTabBar)
+    }
+
     /// True when this template's stored values match what is currently in UserDefaults,
     /// i.e. it is the look on screen right now. The selection itself is explicit (see
     /// `VisualTemplateStore.selectedID`); this only answers whether the settings on

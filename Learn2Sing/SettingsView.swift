@@ -52,6 +52,14 @@ struct SettingsView: View {
                     hubLink(L("Request a new Feature/ Report a Bug"),
                             systemImage: "exclamationmark.bubble", route: .feedback)
                         .settingHelp(L("Write to the developer: report something that's broken, ask for a feature, or say what you make of the app."))
+
+                    // No chevron: it opens over the whole app rather than pushing
+                    // onto this stack, so it isn't one of the rows above.
+                    Button { IntroTutorial.shared.present() } label: {
+                        Label(L("Tutorial"), systemImage: "graduationcap")
+                    }
+                    .foregroundStyle(.primary)
+                    .settingHelp(L("Play the introduction the app opens with on its first launch again."))
                 }
             }
             .navigationTitle(L("Settings"))

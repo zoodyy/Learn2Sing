@@ -14,6 +14,10 @@ struct ContentView: View {
     @StateObject private var toasts = ToastCenter()
     /// Observed here so picking a language in Settings repaints the whole tree.
     @StateObject private var languages = LanguageManager.shared
+    /// The introduction: it opens itself on the first launch, and the Settings row
+    /// that replays it opens it from the other side of the tab view — so it is
+    /// presented here, over every tab, rather than from any one of them.
+    @ObservedObject private var tutorial = IntroTutorial.shared
 
     var body: some View {
         TabView {
@@ -45,6 +49,13 @@ struct ContentView: View {
         // Re-assert the stored orientation lock once the scene is live, so a lock
         // set in a previous run is enforced from launch.
         .onAppear { OrientationLockManager.apply(.current) }
+        // Over every tab, and over the tab bar. It sets the language and the
+        // appearance again for itself: neither the locale nor the colour scheme set
+        // above reaches a presentation — see `IntroTutorialView.body`.
+        .fullScreenCover(isPresented: $tutorial.isPresented) { IntroTutorialView() }
+        // In a task rather than in `onAppear`, so the first launch's tutorial is
+        // asked for after the first frame instead of during it.
+        .task { tutorial.presentIfNeeded() }
     }
 }
 
