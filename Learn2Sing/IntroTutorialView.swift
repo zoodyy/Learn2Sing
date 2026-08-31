@@ -68,6 +68,10 @@ struct IntroTutorialView: View {
     /// Which slide is on screen.
     @State private var slide = 0
 
+    /// Which way the tutorial was last moved, so a slide travels with the finger
+    /// instead of always the one way the buttons send it.
+    @State private var isMovingBack = false
+
     /// Drives the "you can watch it again" note the ✕ puts up.
     @State private var isLeaving = false
 
@@ -84,13 +88,18 @@ struct IntroTutorialView: View {
             header
             ZStack {
                 switch slide {
-                case 0: rangeSlide.transition(Self.pageTransition)
-                case 1: amountSlide.transition(Self.pageTransition)
-                case 2: themeSlide.transition(Self.pageTransition)
-                default: exercisesSlide.transition(Self.pageTransition)
+                case 0: rangeSlide.transition(pageTransition)
+                case 1: amountSlide.transition(pageTransition)
+                case 2: themeSlide.transition(pageTransition)
+                default: exercisesSlide.transition(pageTransition)
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
+            // Without a shape of its own a slide is only touchable where it has
+            // drawn something, which would leave the swipe dead in the space
+            // around the words.
+            .contentShape(Rectangle())
+            .simultaneousGesture(pageSwipe)
             footer
                 .padding(.horizontal)
                 .padding(.bottom, 8)
@@ -113,11 +122,14 @@ struct IntroTutorialView: View {
         }
     }
 
-    /// Slides come in from the trailing edge and leave towards the leading one; the
-    /// tutorial only ever moves forwards.
-    private static let pageTransition = AnyTransition.asymmetric(
-        insertion: .move(edge: .trailing).combined(with: .opacity),
-        removal: .move(edge: .leading).combined(with: .opacity))
+    /// Slides travel the way the tutorial is moving: forwards they come in from the
+    /// trailing edge and leave towards the leading one, backwards the other way
+    /// about, so a swipe back looks like the swipe that led there, undone.
+    private var pageTransition: AnyTransition {
+        .asymmetric(
+            insertion: .move(edge: isMovingBack ? .leading : .trailing).combined(with: .opacity),
+            removal: .move(edge: isMovingBack ? .trailing : .leading).combined(with: .opacity))
+    }
 
     // MARK: - Chrome
 
@@ -165,7 +177,7 @@ struct IntroTutorialView: View {
             HStack(spacing: 12) {
                 Button(action: advance) { skipLabel(Text("Skip")).padding() }
                 Button {
-                    UserDefaults.standard.set(amount, forKey: RecommendedExercises.amountKey)
+                    keepAmount()
                     advance()
                 } label: {
                     primaryLabel(Text("Continue"))
@@ -196,8 +208,58 @@ struct IntroTutorialView: View {
             .foregroundStyle(.secondary)
     }
 
-    private func advance() {
-        slide = min(slide + 1, Self.slideCount - 1)
+    /// How far a sideways drag has to travel before it turns the page.
+    private static let swipeDistance: CGFloat = 50
+
+    /// Swiping the slide turns the page, back as well as forwards — the buttons
+    /// only ever go one way. Simultaneous so a slide too tall for the screen still
+    /// scrolls, and only a clearly sideways drag counts, so scrolling one down
+    /// can't turn the page under the finger.
+    private var pageSwipe: some Gesture {
+        DragGesture(minimumDistance: 20)
+            .onEnded { drag in
+                let sideways = drag.translation.width
+                guard abs(sideways) >= Self.swipeDistance,
+                      abs(drag.translation.height) < abs(sideways) else { return }
+                if sideways < 0 { swipeForward() } else { goBack() }
+            }
+    }
+
+    /// A swipe forwards stands in for the slide's filled button rather than its
+    /// "Skip": the number the singer has dialled in is the one in front of them, so
+    /// it is kept, exactly as "Continue" keeps it. The last slide holds — the
+    /// tutorial is left by "Done" or the ✕, not by swiping off the end of it.
+    private func swipeForward() {
+        guard slide < Self.slideCount - 1 else { return }
+        if slide == 1 { keepAmount() }
+        advance()
+    }
+
+    private func advance() { move(to: slide + 1) }
+
+    private func goBack() { move(to: slide - 1) }
+
+    /// Moves to the slide either side of this one, if there is one, and sends both
+    /// slides the way the move goes.
+    private func move(to next: Int) {
+        guard (0..<Self.slideCount).contains(next) else { return }
+        let back = next < slide
+        guard back != isMovingBack else {
+            slide = next
+            return
+        }
+        // A view keeps the transition it was last drawn with, so the slide on screen
+        // has to be redrawn with the new direction before the change that takes it
+        // off: setting both at once leaves it the way the move before this one went,
+        // and the two slides cross over each other on their way past.
+        isMovingBack = back
+        DispatchQueue.main.async { slide = next }
+    }
+
+    /// Writes the exercises-a-day slide's setting, which is done only when that
+    /// slide is left forwards deliberately — skipping it leaves the setting alone.
+    private func keepAmount() {
+        UserDefaults.standard.set(amount, forKey: RecommendedExercises.amountKey)
     }
 
     /// A slide's content, centred in what the header and the footer leave it — and
