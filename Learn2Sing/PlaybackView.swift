@@ -856,7 +856,9 @@ struct PlaybackView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.scenePhase) private var scenePhase
 
-    private let leadIn: Double = 6       // silent beats before first note
+    // Silent beats before the first note. Shared with `Exercise.runDuration`,
+    // which measures the very run scheduled here.
+    private let leadIn = Exercise.playbackLeadInBeats
     // Navigation-bar metrics for placing the top of the playhead line.
     private let navBarHeight: CGFloat = 54
     private let barButtonHeight: CGFloat = 44

@@ -8,7 +8,10 @@ import UIKit
 /// the cell.
 enum ExerciseListRowContent: Equatable {
     case exercise
-    case practiceCalendar([PracticeDay])
+    /// The practice calendar: the days it draws, and the daily practice time
+    /// their squares are measured against (Settings ▸ Exercises). The goal rides
+    /// along so that changing it reaches the cell as a changed row.
+    case practiceCalendar([PracticeDay], goalMinutes: Int)
     /// The recommendation card, naming the category most of the recommended
     /// exercises come from and the singer's own level (0-100 — see
     /// SkillLevelStore). Shown in place of the "Recommended" list when
@@ -485,13 +488,14 @@ final class ExerciseListController: UIViewController {
         // to undo another's leftovers.
         let calendarRegistration = UICollectionView.CellRegistration<UICollectionViewListCell, ItemID> {
             [weak self] cell, _, itemID in
-            guard case .practiceCalendar(let days) = self?.rowsByID[itemID.id]?.content
+            guard case .practiceCalendar(let days, let goalMinutes)
+                    = self?.rowsByID[itemID.id]?.content
             else { return }
             // Handed the app's language by hand — the SwiftUI environment the
             // rest of the app sets it in stops at this collection view.
             let locale = (self?.language ?? LanguageManager.shared.language).locale
             cell.contentConfiguration = UIHostingConfiguration {
-                PracticeCalendarView(days: days) { [weak self] selection in
+                PracticeCalendarView(days: days, goalMinutes: goalMinutes) { [weak self] selection in
                     self?.onCalendarSelect?(selection)
                 }
                 .environment(\.locale, locale)

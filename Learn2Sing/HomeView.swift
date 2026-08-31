@@ -256,9 +256,11 @@ struct HomeView: View {
 
     private var categories: [String] { HomeCategories.parse(categoryOrderRaw) }
 
-    /// How many exercises "Recommended" shows, from Settings ▸ Exercises.
-    @AppStorage(RecommendedExercises.amountKey)
-    private var recommendedAmount = RecommendedExercises.defaultAmount
+    /// How long a day the singer means to practise for, from Settings ▸ Exercises:
+    /// how much "Recommended" suggests, and what a day of the calendar's squares
+    /// is measured against.
+    @AppStorage(RecommendedExercises.minutesKey)
+    private var practiceMinutes = RecommendedExercises.defaultMinutes
 
     /// Whether "Recommended" lists those exercises or shows the single card that
     /// opens them all as one queue, likewise from Settings ▸ Exercises. Either
@@ -354,11 +356,11 @@ struct HomeView: View {
         store.favourites.compactMap { id in store.exercises.first { $0.id == id } }
     }
 
-    /// The exercises to suggest, easiest first: as many as the amount setting
-    /// asks for, drawn from the whitelist on how long ago each was last sung and
-    /// how close it is to the singer's level — see `recommendedExercises`.
+    /// The exercises to suggest, easiest first: enough of them to fill the daily
+    /// practice time, drawn from the whitelist on how long ago each was last sung
+    /// and how close it is to the singer's level — see `recommendedExercises`.
     private var recommendedExercises: [Exercise] {
-        store.recommendedExercises(count: recommendedAmount,
+        store.recommendedExercises(minutes: practiceMinutes,
                                    skill: skill.level, hardness: skill.hardness)
     }
 
@@ -419,7 +421,8 @@ struct HomeView: View {
         placeholder.id = HomeCategories.calendarRowID
         return ExerciseListRow(
             exercise: placeholder, pattern: [],
-            content: .practiceCalendar(PracticeLog.recentDays(PracticeCalendarView.dayCount))
+            content: .practiceCalendar(PracticeLog.recentDays(PracticeCalendarView.dayCount),
+                                       goalMinutes: practiceMinutes)
         )
     }
 

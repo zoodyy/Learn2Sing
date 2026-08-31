@@ -140,11 +140,14 @@ nonisolated struct PracticeCalendarSelection: Equatable {
 }
 
 /// The Home tab's "Calendar" category: the last 30 days as one square each,
-/// oldest in the top-left corner and today in the bottom-right, with nothing
-/// written on them — a day is read off its colour alone. A day nothing was
-/// practised on is grey, and from there the squares warm through a faint pink,
-/// a stronger pink and a bright purple, landing on the app's accent colour at
-/// `fullDayMinutes` of practice and staying there beyond it.
+/// oldest in the top-left corner and today in the bottom-right, with no numbers
+/// on them — a day is read off its colour. A day nothing was practised on is
+/// grey, and from there the squares warm through a faint pink, a stronger pink
+/// and a bright purple, landing on the app's accent colour at `goalMinutes` —
+/// the daily practice time from Settings ▸ Exercises, the same one the
+/// "Recommended" category fills — and staying there beyond it. A day that
+/// reached it is ticked, so the days that count can be picked out at a glance
+/// rather than judged off the end of a colour ramp.
 ///
 /// Tapping a square reports it, and the screen it went up on draws the bubble —
 /// the same one the score chart shows for a data point — over the list. The
@@ -156,6 +159,10 @@ struct PracticeCalendarView: View {
     /// The days to draw, oldest first — `dayCount` of them.
     let days: [PracticeDay]
 
+    /// The practice time a day needs for its square to reach the accent colour
+    /// and be ticked: the daily practice time from Settings ▸ Exercises.
+    let goalMinutes: Int
+
     /// The square a tap landed on, or nil for a tap that landed on none — which
     /// is what the screen puts the bubble away on.
     var onSelect: (PracticeCalendarSelection?) -> Void
@@ -163,9 +170,6 @@ struct PracticeCalendarView: View {
     /// How many days the calendar shows, which is also how many
     /// `PracticeLog.recentDays` is asked for.
     static let dayCount = 30
-
-    /// The practice time a square needs to reach the accent colour.
-    static let fullDayMinutes: Double = 25
 
     private static let columns = 10
 
@@ -191,6 +195,15 @@ struct PracticeCalendarView: View {
     @Environment(\.locale) private var locale
 
     private var rows: Int { max(1, (days.count + Self.columns - 1) / Self.columns) }
+
+    /// The goal as the log counts practice, in seconds. Floored at a minute so a
+    /// nonsense setting can't tick every square, empty days included.
+    private var goalSeconds: Double { Double(max(1, goalMinutes)) * 60 }
+
+    /// Whether a day met the goal — what puts the tick on its square.
+    private func reachedGoal(_ day: PracticeDay) -> Bool {
+        Double(day.seconds) >= goalSeconds
+    }
 
     /// Width to height of a whole grid `rows` rows deep, gaps included — see
     /// `gapRatio`.
@@ -219,9 +232,21 @@ struct PracticeCalendarView: View {
                     RoundedRectangle(cornerRadius: side * 0.24, style: .continuous)
                         .fill(colour(for: day.seconds, along: ramp))
                         .frame(width: side, height: side)
+                        // The tick a day that reached the goal wears. Drawn on
+                        // the square rather than beside it: the grid's shape is
+                        // fixed, and the square is by then the accent colour,
+                        // which white sits on cleanly in either appearance.
+                        .overlay {
+                            if reachedGoal(day) {
+                                Image(systemName: "checkmark")
+                                    .font(.system(size: side * 0.52, weight: .bold))
+                                    .foregroundStyle(.white)
+                            }
+                        }
                         // Before the placement below, so the square itself is the
-                        // element VoiceOver reads — nothing is written on it, so
-                        // its label is the only way to hear what day it is.
+                        // element VoiceOver reads — the tick is the only thing
+                        // written on it, so its label is the only way to hear
+                        // what day it is.
                         .accessibilityElement()
                         .accessibilityLabel(label(for: day))
                         .position(centre(of: index, side: side, step: step))
@@ -267,12 +292,8 @@ struct PracticeCalendarView: View {
 
     // MARK: - Colour
 
-    /// Everything drawn on top of the squares — the bubble's date line — in the
-    /// colour that contrasts with the list behind them.
-    private var ink: Color { colorScheme == .dark ? .white : .black }
-
     /// The ramp a square's colour is picked off, evenly spaced from no practice
-    /// at all to `fullDayMinutes`: grey, a faint bright pink, a darker pink, a
+    /// at all to the daily goal: grey, a faint bright pink, a darker pink, a
     /// bright purple, and the app's own accent colour at the end of it.
     private var stops: [(red: Double, green: Double, blue: Double)] {
         let accent = Color.accentColor.resolve(in: environment)
@@ -289,7 +310,7 @@ struct PracticeCalendarView: View {
     /// along the ramp and mixed between the two stops it falls between.
     private func colour(for seconds: Int,
                         along stops: [(red: Double, green: Double, blue: Double)]) -> Color {
-        let progress = min(Double(seconds) / (Self.fullDayMinutes * 60), 1)
+        let progress = min(Double(seconds) / goalSeconds, 1)
         let scaled = progress * Double(stops.count - 1)
         let lower = min(Int(scaled), stops.count - 2)
         let t = scaled - Double(lower)
@@ -315,13 +336,20 @@ struct PracticeCalendarView: View {
         ).locale(locale)
     }
 
-    /// What VoiceOver reads for a square. Nothing is written on it, so this is
-    /// the only way to hear which day it is and what is on it.
+    /// What VoiceOver reads for a square: the day, its practice time, and — for
+    /// a day that reached the goal — what the tick on it means, which is
+    /// otherwise only there to be seen.
     private func label(for day: PracticeDay) -> Text {
-        Text(day.date, format: .dateTime.day().month(.wide).year())
-            + Text(verbatim: ", ")
-            + Text(Duration.seconds(day.seconds),
-                   format: Self.durationStyle(day.seconds, locale: locale))
+        var parts = [
+            day.date.formatted(.dateTime.day().month(.wide).year().locale(locale)),
+            Duration.seconds(day.seconds)
+                .formatted(Self.durationStyle(day.seconds, locale: locale)),
+        ]
+        if reachedGoal(day) { parts.append(L("Goal reached")) }
+        // Assembled as one string rather than as concatenated `Text`s: every
+        // piece is localized by hand already (a hosted view doesn't inherit the
+        // app's chosen language), so there is nothing left for `Text` to resolve.
+        return Text(verbatim: parts.joined(separator: ", "))
     }
 }
 

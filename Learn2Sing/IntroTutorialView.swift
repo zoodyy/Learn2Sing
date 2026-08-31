@@ -51,7 +51,7 @@ final class IntroTutorial: ObservableObject {
 }
 
 /// Four slides, none of them compulsory: measure the singer's vocal range, set how
-/// many exercises a day to suggest, pick light or dark, and say where exercises come
+/// long a day they mean to practise, pick light or dark, and say where exercises come
 /// from. Each one either sets its setting for real — the range test is the very
 /// screen Settings ▸ Voice opens — or moves on leaving it alone.
 struct IntroTutorialView: View {
@@ -75,11 +75,10 @@ struct IntroTutorialView: View {
     /// Drives the "you can watch it again" note the ✕ puts up.
     @State private var isLeaving = false
 
-    /// How many exercises a day the singer has dialled in. Held here and written to
-    /// the setting only when they move on with "Continue", so skipping the slide
+    /// How long a day the singer has dialled in, in minutes. Held here and written
+    /// to the setting only when they move on with "Continue", so skipping the slide
     /// leaves the setting exactly as it was.
-    @State private var amount = UserDefaults.standard
-        .object(forKey: RecommendedExercises.amountKey) as? Int ?? RecommendedExercises.defaultAmount
+    @State private var minutes = RecommendedExercises.minutes
 
     private static let slideCount = 4
 
@@ -89,7 +88,7 @@ struct IntroTutorialView: View {
             ZStack {
                 switch slide {
                 case 0: rangeSlide.transition(pageTransition)
-                case 1: amountSlide.transition(pageTransition)
+                case 1: minutesSlide.transition(pageTransition)
                 case 2: themeSlide.transition(pageTransition)
                 default: exercisesSlide.transition(pageTransition)
                 }
@@ -177,7 +176,7 @@ struct IntroTutorialView: View {
             HStack(spacing: 12) {
                 Button(action: advance) { skipLabel(Text("Skip")).padding() }
                 Button {
-                    keepAmount()
+                    keepMinutes()
                     advance()
                 } label: {
                     primaryLabel(Text("Continue"))
@@ -231,7 +230,7 @@ struct IntroTutorialView: View {
     /// tutorial is left by "Done" or the ✕, not by swiping off the end of it.
     private func swipeForward() {
         guard slide < Self.slideCount - 1 else { return }
-        if slide == 1 { keepAmount() }
+        if slide == 1 { keepMinutes() }
         advance()
     }
 
@@ -256,10 +255,10 @@ struct IntroTutorialView: View {
         DispatchQueue.main.async { slide = next }
     }
 
-    /// Writes the exercises-a-day slide's setting, which is done only when that
+    /// Writes the practice-time slide's setting, which is done only when that
     /// slide is left forwards deliberately — skipping it leaves the setting alone.
-    private func keepAmount() {
-        UserDefaults.standard.set(amount, forKey: RecommendedExercises.amountKey)
+    private func keepMinutes() {
+        UserDefaults.standard.set(minutes, forKey: RecommendedExercises.minutesKey)
     }
 
     /// A slide's content, centred in what the header and the footer leave it — and
@@ -299,37 +298,54 @@ struct IntroTutorialView: View {
         VocalRangeTestView(onFinish: advance)
     }
 
-    // MARK: - Exercises a day
+    // MARK: - Practice a day
 
-    private var amountSlide: some View {
+    /// The practice time as it is written on this slide, in the app's own
+    /// language — which a presentation doesn't inherit, so it is handed over by
+    /// hand here as everywhere else in this file.
+    private var minutesText: String {
+        RecommendedExercises.formatted(minutes: minutes, locale: appLanguage.language.locale)
+    }
+
+    private var minutesSlide: some View {
         slideBody {
             slideHeader(icon: "calendar",
-                        title: Text("Exercises a day"),
-                        subtitle: Text("How many should we suggest?"))
+                        title: Text("Practice a day"),
+                        subtitle: Text("How long do you want to sing?"))
 
             HStack(spacing: 24) {
-                amountStep("minus", enabled: amount > RecommendedExercises.amountRange.lowerBound) {
-                    amount -= 1
+                minutesStep("minus", enabled: minutes > RecommendedExercises.minutesRange.lowerBound) {
+                    minutes -= RecommendedExercises.minutesStep
                 }
-                Text(verbatim: "\(amount)")
-                    .font(.system(size: 76, weight: .bold, design: .rounded))
+                Text(minutesText)
+                    .font(.system(size: 62, weight: .bold, design: .rounded))
                     .contentTransition(.numericText())
-                    .frame(minWidth: 110)
-                amountStep("plus", enabled: amount < RecommendedExercises.amountRange.upperBound) {
-                    amount += 1
+                    .lineLimit(1)
+                    // "1 hr 30 min" is a good deal wider than "10 min", so the
+                    // time takes everything the buttons leave and shrinks inside
+                    // it: the ± stay put from one press to the next instead of
+                    // shuffling sideways with the width of what is between them.
+                    .minimumScaleFactor(0.4)
+                    .frame(maxWidth: .infinity)
+                minutesStep("plus", enabled: minutes < RecommendedExercises.minutesRange.upperBound) {
+                    minutes += RecommendedExercises.minutesStep
                 }
             }
             // One adjustable element rather than two unlabelled buttons, which is
             // what VoiceOver makes of a pair of bare symbols.
             .accessibilityElement(children: .ignore)
-            .accessibilityLabel("Exercises a day")
-            .accessibilityValue(Text(verbatim: "\(amount)"))
+            .accessibilityLabel("Practice a day")
+            .accessibilityValue(Text(minutesText))
             .accessibilityAdjustableAction { direction in
                 switch direction {
                 case .increment:
-                    if amount < RecommendedExercises.amountRange.upperBound { amount += 1 }
+                    if minutes < RecommendedExercises.minutesRange.upperBound {
+                        minutes += RecommendedExercises.minutesStep
+                    }
                 case .decrement:
-                    if amount > RecommendedExercises.amountRange.lowerBound { amount -= 1 }
+                    if minutes > RecommendedExercises.minutesRange.lowerBound {
+                        minutes -= RecommendedExercises.minutesStep
+                    }
                 @unknown default:
                     break
                 }
@@ -337,8 +353,8 @@ struct IntroTutorialView: View {
         }
     }
 
-    private func amountStep(_ symbol: String, enabled: Bool,
-                            action: @escaping () -> Void) -> some View {
+    private func minutesStep(_ symbol: String, enabled: Bool,
+                             action: @escaping () -> Void) -> some View {
         Button {
             withAnimation(.snappy) { action() }
         } label: {

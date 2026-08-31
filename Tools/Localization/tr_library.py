@@ -13,6 +13,8 @@ T("Routines", "Routinen", "Rutinas", "Routines", "Routine", "Rotinas", "Routines
 T("Favourites", "Favoriten", "Favoritos", "Favoris", "Preferiti", "Favoritos", "Favorieten", "Избранное", "Ulubione", "Favoriler", "Favoriter", "お気に入り", "즐겨찾기", "收藏")
 T("Recommended", "Empfohlen", "Recomendado", "Recommandé", "Consigliati", "Recomendado", "Aanbevolen", "Рекомендуемые", "Polecane", "Önerilen", "Rekommenderat", "おすすめ", "추천", "推荐")
 T("Calendar", "Kalender", "Calendario", "Calendrier", "Calendario", "Calendário", "Kalender", "Календарь", "Kalendarz", "Takvim", "Kalender", "カレンダー", "달력", "日历")
+# The tick a calendar square wears once its day reached the daily practice time.
+T("Goal reached", "Ziel erreicht", "Objetivo alcanzado", "Objectif atteint", "Obiettivo raggiunto", "Meta alcançada", "Doel bereikt", "Цель достигнута", "Cel osiągnięty", "Hedefe ulaşıldı", "Målet uppnått", "目標達成", "목표 달성", "已达成目标")
 
 # --- Exercises tab ---
 T("New Exercise", "Neue Übung", "Nuevo ejercicio", "Nouvel exercice", "Nuovo esercizio", "Novo exercício", "Nieuwe oefening", "Новое упражнение", "Nowe ćwiczenie", "Yeni egzersiz", "Ny övning", "新規エクササイズ", "새 연습", "新建练习")

@@ -6707,6 +6707,88 @@
         }
       }
     },
+    "Daily practice time" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tägliche Übungszeit"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tiempo de práctica diario"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Temps de pratique quotidien"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tempo di pratica giornaliero"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1日の練習時間"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "하루 연습 시간"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dagelijkse oefentijd"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dzienny czas ćwiczeń"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tempo de prática diário"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ежедневное время занятий"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Daglig övningstid"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Günlük çalışma süresi"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "每天的练习时长"
+          }
+        }
+      }
+    },
     "Dark" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -11413,88 +11495,6 @@
         }
       }
     },
-    "Exercises a day" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Übungen pro Tag"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ejercicios al día"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Exercices par jour"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Esercizi al giorno"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "1日のエクササイズ数"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "하루 연습 개수"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Oefeningen per dag"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ćwiczenia dziennie"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Exercícios por dia"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Упражнений в день"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Övningar per dag"
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Günlük egzersiz"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "每天的练习数"
-          }
-        }
-      }
-    },
     "Exercises, Descriptions" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -12984,6 +12984,89 @@
         }
       }
     },
+    "Goal reached" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ziel erreicht"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Objetivo alcanzado"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Objectif atteint"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Obiettivo raggiunto"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "目標達成"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "목표 달성"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Doel bereikt"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cel osiągnięty"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Meta alcançada"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Цель достигнута"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Målet uppnått"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hedefe ulaşıldı"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已达成目标"
+          }
+        }
+      }
+    },
     "Guitar" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -13893,167 +13976,167 @@
         }
       }
     },
-    "How many exercises the Home tab's “Recommended” category suggests. It favours the whitelisted exercises you haven't practised in the longest, pitched at your skill level." : {
+    "How long do you want to sing?" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wie lange möchtest du singen?"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¿Cuánto tiempo quieres cantar?"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Combien de temps voulez-vous chanter ?"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quanto tempo vuoi cantare?"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "どれくらい歌いますか？"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "얼마나 노래하고 싶으세요?"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hoe lang wil je zingen?"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jak długo chcesz śpiewać?"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Por quanto tempo você quer cantar?"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сколько времени хотите петь?"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hur länge vill du sjunga?"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ne kadar süre şarkı söylemek istiyorsunuz?"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "你想唱多久？"
+          }
+        }
+      }
+    },
+    "How long you mean to practise a day. The Home tab's “Recommended” category suggests exercises adding up to at least this long — favouring the whitelisted ones you haven't practised in the longest, pitched at your skill level — and a day of the Home tab's calendar is filled in and ticked once you have practised this much." : {
       "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Wie viele Übungen die Kategorie „Empfohlen“ im Start-Tab vorschlägt. Bevorzugt werden die zugelassenen Übungen, die du am längsten nicht geübt hast, abgestimmt auf dein Niveau."
+            "value" : "Wie lange du am Tag üben möchtest. Die Kategorie „Empfohlen“ im Start-Tab schlägt Übungen vor, die zusammen mindestens so lange dauern — bevorzugt die zugelassenen, die du am längsten nicht geübt hast, abgestimmt auf dein Niveau — und ein Tag im Kalender des Start-Tabs wird ausgefüllt und bekommt einen Haken, sobald du so lange geübt hast."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Cuántos ejercicios sugiere la categoría «Recomendado» de la pestaña Inicio. Da preferencia a los ejercicios permitidos que llevas más tiempo sin practicar, ajustados a tu nivel."
+            "value" : "Cuánto tiempo quieres practicar al día. La categoría «Recomendado» de la pestaña Inicio sugiere ejercicios que sumen al menos ese tiempo —dando preferencia a los permitidos que llevas más tiempo sin practicar, ajustados a tu nivel— y un día del calendario de la pestaña Inicio se rellena y recibe una marca en cuanto has practicado ese tiempo."
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Le nombre d’exercices proposés par la catégorie « Recommandé » de l’onglet Accueil. Elle privilégie les exercices autorisés que vous n’avez pas travaillés depuis le plus longtemps, adaptés à votre niveau."
+            "value" : "Combien de temps vous comptez travailler par jour. La catégorie « Recommandé » de l’onglet Accueil propose des exercices dont la durée totale atteint au moins ce temps — en privilégiant les exercices autorisés que vous n’avez pas travaillés depuis le plus longtemps, adaptés à votre niveau — et un jour du calendrier de l’onglet Accueil se remplit et reçoit une coche dès que vous avez travaillé aussi longtemps."
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Quanti esercizi propone la categoria “Consigliati” della scheda Home. Predilige gli esercizi ammessi che non pratichi da più tempo, calibrati sul tuo livello."
+            "value" : "Quanto tempo vuoi esercitarti al giorno. La categoria “Consigliati” della scheda Home propone esercizi che insieme durano almeno altrettanto — prediligendo quelli ammessi che non pratichi da più tempo, calibrati sul tuo livello — e un giorno del calendario nella scheda Home si riempie e riceve un segno di spunta quando ti sei esercitato per questo tempo."
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "ホームタブの「おすすめ」カテゴリが提案するエクササイズの数。対象のエクササイズのうち、最も長く練習していないものが優先され、あなたのレベルに合わせて選ばれます。"
+            "value" : "1日にどれくらい練習するかです。ホームタブの「おすすめ」カテゴリは、合計でこの時間以上になるエクササイズを提案します（対象のエクササイズのうち最も長く練習していないものを優先し、あなたのレベルに合わせて選びます）。ホームタブのカレンダーの各日は、この時間だけ練習するとぬりつぶされ、チェックマークが付きます。"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "홈 탭의 “추천” 카테고리가 제안하는 연습 개수입니다. 허용된 연습 중 가장 오래 연습하지 않은 것을 우선하며, 나의 레벨에 맞춰 고릅니다."
+            "value" : "하루에 얼마나 연습할지입니다. 홈 탭의 “추천” 카테고리는 합쳐서 최소 이만큼 걸리는 연습을 제안하며(허용된 연습 중 가장 오래 연습하지 않은 것을 우선하고, 나의 레벨에 맞춰 고릅니다), 홈 탭 캘린더의 하루는 이만큼 연습하면 색이 채워지고 체크 표시가 붙습니다."
           }
         },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Hoeveel oefeningen de categorie ‘Aanbevolen’ op het tabblad Start voorstelt. Het geeft voorrang aan de toegestane oefeningen die je het langst niet hebt geoefend, afgestemd op je niveau."
+            "value" : "Hoe lang je per dag wilt oefenen. De categorie ‘Aanbevolen’ op het tabblad Start stelt oefeningen voor die samen minstens zo lang duren — met voorrang voor de toegestane oefeningen die je het langst niet hebt geoefend, afgestemd op je niveau — en een dag in de kalender op het tabblad Start wordt ingekleurd en krijgt een vinkje zodra je zo lang hebt geoefend."
           }
         },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ile ćwiczeń proponuje kategoria „Polecane” na karcie Start. Preferuje te dozwolone ćwiczenia, których najdłużej nie ćwiczyłeś, dobrane do twojego poziomu."
+            "value" : "Ile czasu dziennie chcesz ćwiczyć. Kategoria „Polecane” na karcie Start proponuje ćwiczenia, które razem trwają co najmniej tyle — preferując te dozwolone, których najdłużej nie ćwiczyłeś, dobrane do twojego poziomu — a dzień w kalendarzu na karcie Start zostaje wypełniony i oznaczony haczykiem, gdy tyle poćwiczysz."
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Quantos exercícios a categoria “Recomendado” da aba Início sugere. Ela prefere os exercícios permitidos que você não pratica há mais tempo, ajustados ao seu nível."
+            "value" : "Quanto tempo você pretende praticar por dia. A categoria “Recomendado” da aba Início sugere exercícios que somem pelo menos esse tempo — preferindo os permitidos que você não pratica há mais tempo, ajustados ao seu nível — e um dia do calendário da aba Início é preenchido e ganha um tique assim que você praticar tudo isso."
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Сколько упражнений предлагает категория «Рекомендуемые» на вкладке «Главная». Предпочтение отдаётся разрешённым упражнениям, которыми вы дольше всего не занимались, подобранным под ваш уровень."
+            "value" : "Сколько времени в день вы собираетесь заниматься. Категория «Рекомендуемые» на вкладке «Главная» предлагает упражнения, которые в сумме длятся не меньше этого времени — предпочтение отдаётся разрешённым, которыми вы дольше всего не занимались, подобранным под ваш уровень, — а день в календаре на вкладке «Главная» закрашивается и отмечается галочкой, как только вы позанимались столько."
           }
         },
         "sv" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Hur många övningar kategorin ”Rekommenderat” på fliken Hem föreslår. Den föredrar de tillåtna övningar du övat på för längst sedan, anpassade till din nivå."
+            "value" : "Hur länge du tänker öva per dag. Kategorin ”Rekommenderat” på fliken Hem föreslår övningar som tillsammans räcker minst så länge — den föredrar de tillåtna övningar du övat på för längst sedan, anpassade till din nivå — och en dag i kalendern på fliken Hem fylls i och får en bock så snart du har övat så länge."
           }
         },
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ana Sayfa sekmesindeki “Önerilen” kategorisinin kaç egzersiz önereceği. En uzun süredir çalışmadığınız, izin verilen egzersizleri seviyenize göre öne çıkarır."
+            "value" : "Günde ne kadar çalışmayı düşündüğünüz. Ana Sayfa sekmesindeki “Önerilen” kategorisi, toplamda en az bu kadar süren egzersizler önerir — en uzun süredir çalışmadığınız, izin verilen egzersizleri seviyenize göre öne çıkararak — ve Ana Sayfa sekmesindeki takvimde bir gün, bu kadar çalıştığınızda dolar ve onay işareti alır."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "“首页”标签中“推荐”类别建议的练习数量。它会优先挑选你最久没有练习过的已列入练习，并按你的水平来选。"
-          }
-        }
-      }
-    },
-    "How many should we suggest?" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Wie viele sollen wir vorschlagen?"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "¿Cuántos te sugerimos?"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Combien devons-nous vous en proposer ?"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Quanti dobbiamo proporti?"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "いくつおすすめしますか？"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "몇 개를 추천할까요?"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Hoeveel zullen we er voorstellen?"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ile mamy proponować?"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Quantos devemos sugerir?"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Сколько предлагать?"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Hur många ska vi föreslå?"
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Kaç tane önerelim?"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "要推荐多少个？"
+            "value" : "你打算每天练习多长时间。“首页”标签中的“推荐”类别会建议加起来至少这么长的练习——优先挑选你最久没有练习过的已列入练习，并按你的水平来选——“首页”标签的日历中，某一天练满这么久后就会被填满并打上对勾。"
           }
         }
       }
@@ -22969,6 +23052,88 @@
         }
       }
     },
+    "Practice a day" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Üben pro Tag"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Práctica al día"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pratique par jour"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pratica al giorno"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1日の練習"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "하루 연습"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Oefenen per dag"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ćwiczenia dziennie"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Prática por dia"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Занятия в день"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Övning per dag"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Günlük çalışma"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "每天的练习"
+          }
+        }
+      }
+    },
     "Private" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -24869,88 +25034,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "推荐"
-          }
-        }
-      }
-    },
-    "Recommended exercises amount" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Anzahl empfohlener Übungen"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Cantidad de ejercicios recomendados"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Nombre d’exercices recommandés"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Numero di esercizi consigliati"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "おすすめのエクササイズ数"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "추천 연습 개수"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Aantal aanbevolen oefeningen"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Liczba polecanych ćwiczeń"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Quantidade de exercícios recomendados"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Количество рекомендуемых упражнений"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Antal rekommenderade övningar"
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Önerilen egzersiz sayısı"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "推荐练习数量"
           }
         }
       }

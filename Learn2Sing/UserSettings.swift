@@ -67,8 +67,12 @@ struct UserSettings: Codable {
 
     // MARK: Exercises
 
-    /// How many exercises the Home tab's "Recommended" category shows.
-    var recommendedExercisesAmount: Int?
+    /// How long a day the singer means to practise, in minutes: how much the
+    /// Home tab's "Recommended" category suggests, and what its calendar measures
+    /// a day against. The `recommendedExercisesAmount` this replaced counted
+    /// exercises rather than minutes and is deliberately not carried — a profile
+    /// written before this existed simply leaves the setting at its default.
+    var recommendedPracticeMinutes: Int?
     /// Whether that category lists them or shows its single card instead.
     var recommendationsAsList: Bool?
     /// The groups of exercises whitelisted for recommendations automatically, as
@@ -121,9 +125,7 @@ struct UserSettings: Codable {
             vocalRange: d.string(forKey: VocalRange.storageKey) ?? "",
             vocalRangeCustomLow: custom.low,
             vocalRangeCustomHigh: custom.high,
-            recommendedExercisesAmount: d.object(forKey: RecommendedExercises.amountKey) == nil
-                ? RecommendedExercises.defaultAmount
-                : d.integer(forKey: RecommendedExercises.amountKey),
+            recommendedPracticeMinutes: RecommendedExercises.minutes,
             recommendationsAsList: d.object(forKey: RecommendedExercises.asListKey) == nil
                 ? RecommendedExercises.defaultAsList
                 : d.bool(forKey: RecommendedExercises.asListKey),
@@ -180,8 +182,8 @@ struct UserSettings: Codable {
         if let vocalRangeCustomLow { d.set(vocalRangeCustomLow, forKey: VocalRange.customLowKey) }
         if let vocalRangeCustomHigh { d.set(vocalRangeCustomHigh, forKey: VocalRange.customHighKey) }
 
-        if let recommendedExercisesAmount {
-            d.set(recommendedExercisesAmount, forKey: RecommendedExercises.amountKey)
+        if let recommendedPracticeMinutes {
+            d.set(recommendedPracticeMinutes, forKey: RecommendedExercises.minutesKey)
         }
         if let recommendationsAsList {
             d.set(recommendationsAsList, forKey: RecommendedExercises.asListKey)

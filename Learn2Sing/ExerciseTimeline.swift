@@ -126,3 +126,27 @@ extension Exercise {
         return timeline
     }
 }
+
+extension Exercise {
+    /// The silent beats playback counts in before the first note. Shared with
+    /// `PlaybackView`, which schedules the run this measures.
+    static let playbackLeadInBeats: Double = 6
+
+    /// How long a full run of this exercise takes, in seconds — the same span
+    /// `PlaybackView` schedules and files on the practice calendar: the silent
+    /// lead-in, every repetition at its own tempo, and the beat it waits at the
+    /// end. Worked out from the repetition layout rather than by expanding the
+    /// timeline, since nothing here needs the notes themselves.
+    ///
+    /// `pattern` is the exercise's stored notes, one repetition of them — what
+    /// `ExerciseStore.notes(for:)` hands over.
+    func runDuration(pattern: [MIDINote]) -> Double {
+        guard bpm > 0, !pattern.isEmpty else { return 0 }
+        let patternEnd = pattern.map { $0.beat + $0.length }.max() ?? 0
+        let layout = repeatLayout(span: patternEnd.rounded(.up) + max(0, beatsBetweenReps))
+        // Repetitions are laid out end to end, so the last one is always the one
+        // that finishes last however the tempo steps along.
+        let lastBeat = (layout.starts.last ?? 0) + patternEnd * (layout.scales.last ?? 1)
+        return (lastBeat + Self.playbackLeadInBeats + 1.0) * (60.0 / bpm)
+    }
+}

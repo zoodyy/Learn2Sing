@@ -326,8 +326,8 @@ struct ExercisesSettingsView: View {
     @ObservedObject private var appLanguage = LanguageManager.shared
 
     @EnvironmentObject private var store: ExerciseStore
-    @AppStorage(RecommendedExercises.amountKey)
-    private var recommendedAmount = RecommendedExercises.defaultAmount
+    @AppStorage(RecommendedExercises.minutesKey)
+    private var practiceMinutes = RecommendedExercises.defaultMinutes
     @AppStorage(RecommendedExercises.asListKey)
     private var recommendationsAsList = RecommendedExercises.defaultAsList
 
@@ -340,14 +340,18 @@ struct ExercisesSettingsView: View {
                 Toggle("Show recommendations as list", isOn: $recommendationsAsList)
                     .settingHelp(L("Lists the recommended exercises in the Home tab's “Recommended” category, one row each. Off, the category shows a single card instead, which plays them all as one queue."))
 
-                Stepper(value: $recommendedAmount, in: RecommendedExercises.amountRange) {
+                Stepper(value: $practiceMinutes,
+                        in: RecommendedExercises.minutesRange,
+                        step: RecommendedExercises.minutesStep) {
                     HStack {
-                        Text("Recommended exercises amount")
+                        Text("Daily practice time")
                         Spacer()
-                        Text(verbatim: "\(recommendedAmount)").foregroundStyle(.secondary)
+                        Text(RecommendedExercises.formatted(minutes: practiceMinutes,
+                                                            locale: appLanguage.language.locale))
+                            .foregroundStyle(.secondary)
                     }
                 }
-                .settingHelp(L("How many exercises the Home tab's “Recommended” category suggests. It favours the whitelisted exercises you haven't practised in the longest, pitched at your skill level."))
+                .settingHelp(L("How long you mean to practise a day. The Home tab's “Recommended” category suggests exercises adding up to at least this long — favouring the whitelisted ones you haven't practised in the longest, pitched at your skill level — and a day of the Home tab's calendar is filled in and ticked once you have practised this much."))
 
                 Menu {
                     ForEach(ExerciseOrigin.allCases) { origin in

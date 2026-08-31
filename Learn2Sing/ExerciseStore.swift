@@ -329,7 +329,10 @@ final class ExerciseStore: ObservableObject {
     // MARK: - Recommendations
 
     /// The exercises the Home tab's "Recommended" category suggests, easiest
-    /// first and ramping up to the hardest of them.
+    /// first and ramping up to the hardest of them, adding up to at least
+    /// `minutes` of practice — the daily practice time from Settings ▸ Exercises.
+    /// The suggestion runs a little over rather than under, and only comes out
+    /// short when the whole whitelist is shorter than that.
     ///
     /// Every whitelisted exercise is in the running — that starts out as the
     /// ones that shipped with the app, and the user edits it under
@@ -355,8 +358,9 @@ final class ExerciseStore: ObservableObject {
     /// under, and `skill` the singer's own level, both on the 0-100 scale
     /// `SkillLevel` describes — see SkillLevelStore, which is where the Home tab
     /// gets them.
-    func recommendedExercises(count: Int, skill: Double, hardness: [UUID: Double]) -> [Exercise] {
-        guard count > 0 else { return [] }
+    func recommendedExercises(minutes: Int, skill: Double, hardness: [UUID: Double]) -> [Exercise] {
+        let target = Double(minutes) * 60
+        guard target > 0 else { return [] }
         let ranked = exercises.enumerated()
             .filter { recommendationWhitelist.contains($0.element.id) }
             .sorted { lhs, rhs in
@@ -368,22 +372,25 @@ final class ExerciseStore: ObservableObject {
                 return left < right
             }
             .map(\.element)
-        // Nothing to choose between when there are no more than are wanted:
-        // every one of them is suggested, and only the ramp is left to do.
-        guard ranked.count > count else { return ramped(ranked, skill: skill, hardness: hardness) }
+        guard !ranked.isEmpty else { return [] }
 
         var weights = ranked.enumerated().map { rank, exercise in
             // Floored rather than left to reach zero: an exercise at the far end
-            // of both rankings is meant to be rare, not impossible, and a batch
-            // has to come out the size it was asked for even if every remaining
+            // of both rankings is meant to be rare, not impossible, and the batch
+            // has to reach the time it was asked for even if every remaining
             // chance has faded to nothing.
             max(Self.recencyWeight(rank: rank, of: ranked.count)
                 * Self.difficultyWeight(hardness: hardness[exercise.id], skill: skill),
                 1e-9)
         }
-        var generator = SeededGenerator(seed: recommendationSeed(ranked, count: count, skill: skill))
+        var generator = SeededGenerator(seed: recommendationSeed(ranked, minutes: minutes, skill: skill))
         var batch: [Exercise] = []
-        for _ in 0..<count {
+        var length = 0.0
+        // Drawn until the batch is at least as long as the singer asked for,
+        // which means the exercise that takes it over the line is kept: a
+        // suggestion that came out short would be one they'd have to make up
+        // themselves. Only running out of whitelisted exercises stops it early.
+        while length < target, batch.count < ranked.count {
             let total = weights.reduce(0, +)
             var draw = Double.random(in: 0..<total, using: &generator)
             // The last one catches a draw that the rounding of the running
@@ -397,9 +404,18 @@ final class ExerciseStore: ObservableObject {
                 }
             }
             batch.append(ranked[chosen])
+            length += runDuration(of: ranked[chosen])
             weights[chosen] = 0     // drawn: out of the running for the rest
         }
         return ramped(batch, skill: skill, hardness: hardness)
+    }
+
+    /// How long a run of `exercise` takes, in seconds — what a batch is measured
+    /// in. Its pattern is read here rather than passed in because the draw above
+    /// only needs the exercises it actually picks measured, not the whole
+    /// whitelist.
+    func runDuration(of exercise: Exercise) -> Double {
+        exercise.runDuration(pattern: notes(for: exercise.id))
     }
 
     /// A batch in the order the category shows it: easiest first, hardest last.
@@ -442,10 +458,11 @@ final class ExerciseStore: ObservableObject {
 
     /// A seed for the draw that changes when — and only when — something the
     /// draw depends on does: which exercises are in the running, when each was
-    /// last sung, how many are wanted, and what level the singer is at. Mixed by
-    /// hand rather than through `Hasher`, whose seed is fresh every launch: the
-    /// same batch has to come back after a relaunch, not only after a redraw.
-    private func recommendationSeed(_ ranked: [Exercise], count: Int, skill: Double) -> UInt64 {
+    /// last sung, how long a batch is wanted, and what level the singer is at.
+    /// Mixed by hand rather than through `Hasher`, whose seed is fresh every
+    /// launch: the same batch has to come back after a relaunch, not only after
+    /// a redraw.
+    private func recommendationSeed(_ ranked: [Exercise], minutes: Int, skill: Double) -> UInt64 {
         var hash: UInt64 = 0xcbf2_9ce4_8422_2325
         func mix(_ value: UInt64) {
             hash = (hash ^ value) &* 0x100_0000_01b3
@@ -457,7 +474,7 @@ final class ExerciseStore: ObservableObject {
             let played = (lastPlayed[exercise.id] ?? .distantPast).timeIntervalSince1970
             mix(UInt64(bitPattern: Int64(played)))
         }
-        mix(UInt64(count))
+        mix(UInt64(bitPattern: Int64(minutes)))
         mix(UInt64(bitPattern: Int64((skill * 10).rounded())))
         return hash
     }
@@ -1025,13 +1042,43 @@ final class ExerciseStore: ObservableObject {
     }
 }
 
-/// Settings for the Home tab's "Recommended" category, edited under
-/// Settings ▸ Exercises.
+/// Settings for the Home tab's "Recommended" category — and, since the daily
+/// practice time below is what both of them are measured in, for its calendar
+/// too. Edited under Settings ▸ Exercises.
 enum RecommendedExercises {
-    static let amountKey = "recommendedExercisesAmount"
-    /// How many exercises the category shows when the user hasn't chosen.
-    static let defaultAmount = 5
-    static let amountRange = 1...20
+    /// How long a day the singer means to practise for, in minutes. It is what
+    /// the "Recommended" category fills — it suggests exercises until they add
+    /// up to at least this long — and what a day of the Home tab's practice
+    /// calendar is measured against, a square reaching the accent colour and a
+    /// tick once the day has this much on it.
+    ///
+    /// Stored under a key of its own rather than the `recommendedExercisesAmount`
+    /// this replaced, which counted exercises: five exercises must not come back
+    /// as five minutes on an install that had set it.
+    static let minutesKey = "recommendedPracticeMinutes"
+    /// The daily practice time when the user hasn't chosen — a warm-up's worth,
+    /// which on the exercises the app ships with is around ten of them.
+    static let defaultMinutes = 10
+    static let minutesRange = 5...120
+    /// What one press of the Settings stepper — or of the tutorial's ± buttons,
+    /// which don't repeat while held — moves it by. The setting is a round
+    /// intention rather than a measurement, so it moves in round steps.
+    static let minutesStep = 5
+
+    /// The stored practice time, for the places that read it outside a view.
+    static var minutes: Int {
+        let stored = UserDefaults.standard.object(forKey: minutesKey) as? Int
+        return stored ?? defaultMinutes
+    }
+
+    /// The practice time written out — "10 min", "1 hr 30 min". The style is
+    /// handed the locale by hand: that is the app's chosen language, which is
+    /// not necessarily the device's.
+    static func formatted(minutes: Int, locale: Locale) -> String {
+        Duration.seconds(minutes * 60).formatted(
+            Duration.UnitsFormatStyle(allowedUnits: [.hours, .minutes],
+                                      width: .abbreviated).locale(locale))
+    }
 
     /// Whether the category lists those exercises or shows a single card that
     /// opens all of them as one queue. The card is what it shows by default;
