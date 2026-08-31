@@ -13,7 +13,8 @@ import UIKit
 /// the detected pitch that much further left (see `micDelayBeats`).
 ///
 /// The same screen is the last step of the sung microphone-delay test (Settings ▸
-/// Audio ▸ Test for delay). There `onCalibrationDone` is set: the shift is no
+/// Audio ▸ Test for delay), and of the first run a singer scores anything on (see
+/// `MicDelayCalibration`). There `onCalibrationDone` is set: the shift is no
 /// longer the saved setting but an offset the singer dials in with the controls
 /// along the bottom, sliding their whole line over the notes until it lines up,
 /// and Done hands that offset back to be saved as the new microphone delay.
@@ -32,8 +33,8 @@ struct ExerciseReviewView: View {
     let bpm: Double
     /// Where the repetitions sit on the timeline, for the repetition counter badge.
     let repeatLayout: RepeatLayout
-    /// Set by the sung microphone-delay test, which turns this screen into its last
-    /// step: the offset controls appear along the bottom and Done hands the offset
+    /// Set when this screen is a microphone-delay calibration rather than a look
+    /// back: the offset controls appear along the bottom and Done hands the offset
     /// the singer settled on (in milliseconds) back to be saved. nil elsewhere, where
     /// the screen is a plain look at the run just scored.
     var onCalibrationDone: ((Double) -> Void)? = nil
@@ -42,7 +43,7 @@ struct ExerciseReviewView: View {
     @AppStorage(microphoneDelayKey) private var micDelayMs = 0.0
     @State private var visuals = VisualSettings.current
 
-    /// How far the sung line is shifted while the delay test's controls are up, in
+    /// How far the sung line is shifted while the calibration controls are up, in
     /// milliseconds. nil until the first nudge, so the line starts out exactly where
     /// the saved setting puts it and the singer adjusts from there.
     @State private var calibrationMs: Double? = nil
@@ -163,7 +164,7 @@ struct ExerciseReviewView: View {
         calibrationMs = min(max(delayMs + ms, delayRangeMs.lowerBound), delayRangeMs.upperBound)
     }
 
-    /// The bar the sung microphone-delay test is finished on: the offset either side
+    /// The bar a microphone-delay calibration is finished on: the offset either side
     /// of the value it currently stands at. The line is dragged past the notes with
     /// the same one-finger scroll as any review, so these move the line *against* the
     /// notes rather than moving the view.

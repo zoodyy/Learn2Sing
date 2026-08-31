@@ -32,6 +32,45 @@ let microphoneDelayKey = "microphoneDelayMs"
 /// how the review screen lines the sung line up with the notes.
 func micDelayBeats(_ ms: Double, bpm: Double) -> Double { ms / 1000.0 * bpm / 60.0 }
 
+/// Whether the singer has been shown the microphone-delay calibration off the back
+/// of a real run.
+///
+/// That setting is what lines a singer's voice up with the notes when the score is
+/// worked out, and a new singer has no reason to go looking for it in Settings — so
+/// the first run that shows they were genuinely singing along ends on the screen the
+/// sung delay test ends on, and they set it there. It is offered exactly once,
+/// however that goes; from then on it lives in Settings ▸ Audio, which is what the
+/// prompt tells them.
+enum MicDelayCalibration {
+    /// UserDefaults key, set the moment the calibration is opened rather than when it
+    /// is finished — a singer who backs out of it has still been asked.
+    ///
+    /// Kept out of `UserSettings` for the same reason the tutorial's flag is: it
+    /// records what has happened on this install rather than something the singer
+    /// chose. A restored profile brings the measured delay itself along, and that is
+    /// what `isNeeded` looks at.
+    static let promptedKey = "didPromptMicDelayCalibration"
+
+    /// Lowest score that opens it. At or below this the singer was barely on a note
+    /// at all — most likely not singing — so there is no line worth sliding over the
+    /// notes.
+    static let minimumScore = 5
+
+    /// Whether a run that just scored `score` should detour through the calibration
+    /// instead of going straight to the score. Never twice, and never for a singer
+    /// who already has a delay — measured by one of the tests on this device, or
+    /// restored from their profile onto it.
+    static func isNeeded(score: Int, currentDelayMs: Double) -> Bool {
+        score > minimumScore && currentDelayMs == 0
+            && !UserDefaults.standard.bool(forKey: promptedKey)
+    }
+
+    /// Remember it has been offered, so it never interrupts a run again.
+    static func markPrompted() {
+        UserDefaults.standard.set(true, forKey: promptedKey)
+    }
+}
+
 // MARK: - Vocal range
 
 /// The singer's voice type. The preset cases are standard voice categories; the
