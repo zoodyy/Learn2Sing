@@ -405,11 +405,12 @@ func repetitionPitches(notes: [MIDINote], beat: Double, repeatLayout: RepeatLayo
 
 /// Half the width a text label takes on screen, in points: how far its middle — the
 /// `centreBeat` it's drawn on — may sit past an edge of the screen while part of it
-/// is still showing. The measurement is the editor's, taken at the same 12pt
-/// semibold this screen draws at, widened by a third because a label may be shown in
-/// any of the `PlaybackFont` designs and monospaced lays out wider than the system
-/// font it was measured in. It only decides when a label starts being drawn, so
-/// erring wide costs nothing but a draw the clip throws away.
+/// is still showing. The measurement is the editor's, taken at the semibold
+/// `midiTextFontSize` this screen draws at, widened by a third because a label may be
+/// shown in any of the `PlaybackFont` designs and monospaced lays out wider than the
+/// system font it was measured in. It only decides when a label starts being drawn, so
+/// erring wide costs nothing but a draw the clip throws away — which is also why a
+/// label shrunk by `fontScale`, and so narrower than this, needs no allowance here.
 private func labelHalfWidth(_ text: String) -> CGFloat {
     midiTextChipWidth(text) / 2 * 1.3
 }
@@ -608,9 +609,12 @@ func drawPlaybackScene(ctx: GraphicsContext, layout: SceneLayout, beat: Double,
                 for label in shown {
                     let y = layout.y(Double(label.pitch))
                     guard y > -24, y < size.height + 24 else { continue }   // clear of the label's own height
+                    // Drawn at the size it was written at, unless the timeline has
+                    // shrunk it to stay clear of notes squeezed by a faster repetition.
                     layer.draw(
                         Text(label.text)
-                            .font(.system(size: 12, weight: .semibold, design: settings.textFont.design))
+                            .font(.system(size: midiTextFontSize * CGFloat(label.fontScale),
+                                          weight: .semibold, design: settings.textFont.design))
                             .foregroundColor(settings.textColor),
                         at: CGPoint(x: layout.x(label.centreBeat, beat: beat), y: y), anchor: .center)
                 }

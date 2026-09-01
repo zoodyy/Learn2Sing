@@ -66,6 +66,12 @@ struct MIDIText: Identifiable, Codable, Equatable {
     var text: String
     var pitch: Int      // row position (vertical)
     var beat: Double    // start position in beats (horizontal)
+    /// How far the text is shrunk when it's drawn, as a fraction of the size it was
+    /// written at. Set by `Exercise.timeline(...)` on a repetition whose notes have
+    /// been squeezed to a faster tempo — the notes get narrower, the text doesn't, so
+    /// a label that fitted between its neighbours stops fitting. Never stored: it
+    /// belongs to a laid-out timeline, not to the label the editor saved.
+    var fontScale: Double = 1
 
     init(id: UUID = UUID(), text: String, pitch: Int, beat: Double) {
         self.id = id
@@ -115,13 +121,34 @@ func midiTextChipWidth(_ text: String) -> CGFloat {
     max(beatW * 0.5, TextWidths.width(of: text) + textChipPadding * 2)
 }
 
+/// The size the labels are written at, and the size a screen drawing one at its full
+/// `fontScale` draws it at — the size `midiTextChipWidth` measures against.
+let midiTextFontSize: CGFloat = 12
+
+/// Half the room a label reading `text` takes, in beats: the same points-to-beats
+/// conversion `centreBeat` makes, for callers that need the width itself rather than
+/// where the middle lands.
+func midiTextHalfWidth(_ text: String) -> Double {
+    Double(midiTextChipWidth(text) / beatW) / 2
+}
+
+/// How far `text` reaches either side of the middle it's drawn on, in beats: what it
+/// covers, with the chip's padding either side of it kept clear as well.
+///
+/// Not the same as `midiTextHalfWidth`, which is the half-width a label is *placed*
+/// by: that keeps a half-beat minimum so a label with nothing typed in it yet still
+/// has a chip to see and grab, and text that isn't there covers nothing.
+func midiTextReach(_ text: String) -> Double {
+    Double((TextWidths.width(of: text) + textChipPadding * 2) / beatW) / 2
+}
+
 /// The start beat — what's stored — that puts `text`'s middle on `centre`. A label
 /// may hang off the front of the timeline, but only as far as staying centred on
 /// `firstNoteCentre` — the middle of the exercise's first note — carries it, so a
 /// long label over a note near the start keeps its place over that note instead of
 /// being shoved right. With no note to centre on it stops at the start line.
 func midiTextBeat(centring text: String, at centre: Double, firstNoteCentre: Double? = nil) -> Double {
-    let half = Double(midiTextChipWidth(text) / beatW) / 2
+    let half = midiTextHalfWidth(text)
     return max(centre, min(half, firstNoteCentre ?? half)) - half
 }
 
@@ -130,8 +157,15 @@ extension MIDIText {
     /// on. Text is placed, dragged and snapped by this, so a label stays put on the
     /// beat it was set against however long its text gets — and it's what a screen
     /// drawing the label should centre it on.
+    ///
+    /// Settable, since a screen that lays the pattern out somewhere else — the
+    /// timeline expansion moving a repetition to its own tempo — has to move the
+    /// middle and let the stored left edge follow, not the other way round. The width
+    /// it converts is the written one: `fontScale` shrinks the drawn text about this
+    /// middle and leaves the label where it was placed.
     var centreBeat: Double {
-        beat + Double(midiTextChipWidth(text) / beatW) / 2
+        get { beat + midiTextHalfWidth(text) }
+        set { beat = newValue - midiTextHalfWidth(text) }
     }
 }
 
@@ -147,7 +181,6 @@ private let beatsPerMeasure = 4
 private let freeMeasures = 4
 private let totalRows = hiPitch - loPitch + 1
 private let gridH = CGFloat(totalRows) * rowH
-private let textFontSize: CGFloat = 12
 /// Gap between a text label's edge and the text inside it, the same on both sides.
 private let textChipPadding: CGFloat = 5
 private let rulerH: CGFloat = 26
@@ -759,7 +792,7 @@ struct EditingView: View {
                 ctx.stroke(chip, with: .color(.orange.opacity(0.6)), lineWidth: 1)
                 ctx.draw(
                     Text(label.text.isEmpty ? " " : label.text)
-                        .font(.system(size: textFontSize, weight: .semibold))
+                        .font(.system(size: midiTextFontSize, weight: .semibold))
                         .foregroundColor(.orange),
                     at: CGPoint(x: rect.midX, y: rect.midY),
                     anchor: .center
@@ -1263,7 +1296,7 @@ struct EditingView: View {
 /// changes, and the roll asks for every label's width on every redraw — which during
 /// a drag is every touch.
 private enum TextWidths {
-    private static let font = UIFont.systemFont(ofSize: textFontSize, weight: .semibold)
+    private static let font = UIFont.systemFont(ofSize: midiTextFontSize, weight: .semibold)
     private static var widths: [String: CGFloat] = [:]
 
     static func width(of text: String) -> CGFloat {
