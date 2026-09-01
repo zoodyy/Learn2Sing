@@ -8,6 +8,7 @@
 
 import SwiftUI
 import Charts
+import UIKit
 
 /// One completed run of an exercise: when it finished and the score it earned.
 /// Plain data, so it stays usable from the sorting and mapping closures the
@@ -182,6 +183,10 @@ struct ScoreHistoryChart: View {
     /// label colours, so it has to flip them with the appearance itself.
     @Environment(\.colorScheme) private var colorScheme
 
+    /// The language dates are written in, which the axis also measures them in,
+    /// so what it fits is what actually gets drawn.
+    @Environment(\.locale) private var locale
+
     /// The surface a score chart is drawn on: the black it was designed against
     /// in dark mode, and a light card in light mode. Shared by the result screen
     /// (full-bleed) and the exercise intro screen's card, so the chart reads the
@@ -205,6 +210,11 @@ struct ScoreHistoryChart: View {
     /// it inside the chart. Zero until the first layout pass, which is why the
     /// bubble stays hidden that long.
     @State private var bubbleSize: CGSize = .zero
+
+    /// Measured width of the plot, which is what decides how many x axis labels
+    /// can stand side by side. Zero until the first layout pass, and the axis
+    /// goes without labels that long rather than guessing at a width.
+    @State private var plotWidth: CGFloat = 0
 
     /// Upper bound on plotted points: the window is split into this many equal
     /// time slots and runs sharing a slot are averaged together.
@@ -258,14 +268,29 @@ struct ScoreHistoryChart: View {
                 AxisValueLabel {
                     if let v = value.as(Int.self) { Text(verbatim: "\(v)%") }
                 }
+                .font(Self.axisLabelStyle)
                 .foregroundStyle(ink.opacity(0.5))
             }
         }
         .chartXAxis {
-            AxisMarks(values: .automatic(desiredCount: 4)) { _ in
+            let ticks = xAxisTicks
+            AxisMarks(values: ticks.map(\.date)) { value in
                 AxisGridLine().foregroundStyle(ink.opacity(0.15))
-                AxisValueLabel()
+                if ticks.indices.contains(value.index) {
+                    // These are already spaced to clear each other, and the
+                    // chart's own collision handling would only slide the
+                    // outermost label sideways off the tick it belongs to.
+                    AxisValueLabel(collisionResolution: .disabled) {
+                        Text(verbatim: ticks[value.index].label)
+                    }
+                    .font(Self.axisLabelStyle)
                     .foregroundStyle(ink.opacity(0.5))
+                }
+            }
+        }
+        .chartPlotStyle { plot in
+            plot.onGeometryChange(for: CGFloat.self) { $0.size.width.rounded() } action: {
+                plotWidth = $0
             }
         }
         .chartOverlay { proxy in
@@ -278,6 +303,98 @@ struct ScoreHistoryChart: View {
         // the old one no longer has a mark to point at.
         .onChange(of: range) { selectedDate = nil }
         .frame(minHeight: 120)
+    }
+
+    // MARK: - X axis
+
+    /// Font the axis labels are drawn in — and measured in, when working out how
+    /// many of them fit next to each other.
+    private static let axisLabelStyle: Font = .caption
+    private static var axisLabelFont: UIFont { .preferredFont(forTextStyle: .caption1) }
+
+    /// Smallest gap left between two neighbouring x axis labels.
+    private static let labelGap: CGFloat = 10
+
+    /// A tick on the x axis: what it says, and where it and its label land along
+    /// the plot.
+    private struct AxisTick {
+        let date: Date
+        let label: String
+        let center: CGFloat
+        let width: CGFloat
+
+        var leading: CGFloat { center - width / 2 }
+        var trailing: CGFloat { center + width / 2 }
+    }
+
+    /// Spacings the x axis picks its ticks from, closest together first.
+    private static let axisSteps: [AxisStep] = [
+        AxisStep(.minute, 1), AxisStep(.minute, 2), AxisStep(.minute, 5),
+        AxisStep(.minute, 10), AxisStep(.minute, 15), AxisStep(.minute, 30),
+        AxisStep(.hour, 1), AxisStep(.hour, 2), AxisStep(.hour, 3),
+        AxisStep(.hour, 6), AxisStep(.hour, 12),
+        AxisStep(.day, 1), AxisStep(.day, 2),
+        AxisStep(.weekOfYear, 1), AxisStep(.weekOfYear, 2),
+        AxisStep(.month, 1), AxisStep(.month, 3), AxisStep(.month, 6),
+        AxisStep(.year, 1), AxisStep(.year, 2), AxisStep(.year, 5), AxisStep(.year, 10),
+    ]
+
+    /// What gets written under the plot: the closest spacing whose labels all fit
+    /// across the measured plot without touching. Since a tick less than a day
+    /// apart from the next has to name the time and one a day or more apart does
+    /// not, climbing to a wider spacing drops the times first and then thins the
+    /// dates out — every second day, every week, every month — until they fit.
+    ///
+    /// Empty until the plot has been measured, so no label is drawn in a place
+    /// that is about to move.
+    private var xAxisTicks: [AxisTick] {
+        let domain = xDomain
+        let span = domain.upperBound.timeIntervalSince(domain.lowerBound)
+        guard plotWidth > 0, span > 0 else { return [] }
+
+        let calendar = Calendar.current
+        let font = Self.axisLabelFont
+        let spansYears = calendar.component(.year, from: domain.lowerBound)
+            != calendar.component(.year, from: domain.upperBound)
+
+        var widest: [AxisTick] = []
+        // Spacings that would fill the window with ticks cannot fit their labels
+        // whatever those say, so they are passed over unbuilt.
+        for step in Self.axisSteps where span / step.length <= 30 {
+            let format = step.labelFormat(span: span, spansYears: spansYears).locale(locale)
+            let ticks = step.ticks(in: domain, calendar: calendar).map { date -> AxisTick in
+                let label = format.format(date)
+                return AxisTick(
+                    date: date,
+                    label: label,
+                    center: plotWidth * date.timeIntervalSince(domain.lowerBound) / span,
+                    width: label.size(withAttributes: [.font: font]).width)
+            }
+            if let fitted = fitted(ticks), !fitted.isEmpty { return fitted }
+            // A spacing so wide that the window holds no round point of it at
+            // all leaves nothing to draw, so it is no reason to stop climbing.
+            if ticks.count > 1 { widest = ticks }
+        }
+        // Even the widest spacing that had ticks crowds a plot this narrow: keep
+        // every second one of them, then every third, until they have room.
+        guard widest.count > 1 else { return [] }
+        for keepEvery in 2...widest.count {
+            let thinned = widest.enumerated().filter { $0.offset % keepEvery == 0 }.map(\.element)
+            if let fitted = fitted(thinned) { return fitted }
+        }
+        return []
+    }
+
+    /// `ticks` with any whose label would hang over an edge of the plot dropped —
+    /// only the outermost ever can — or nil when what is left still crowds
+    /// together.
+    private func fitted(_ ticks: [AxisTick]) -> [AxisTick]? {
+        let inside = ticks.filter { $0.leading >= 0 && $0.trailing <= plotWidth }
+        for (left, right) in zip(inside, inside.dropFirst())
+        where right.leading - left.trailing < Self.labelGap {
+            return nil
+        }
+        return inside
     }
 
     // MARK: - Point selection
@@ -438,6 +555,98 @@ struct ScoreHistoryChart: View {
             let meanTime = group.reduce(0.0) { $0 + $1.date.timeIntervalSince1970 }
                 / Double(group.count)
             return ScoreEntry(date: Date(timeIntervalSince1970: meanTime), score: meanScore)
+        }
+    }
+}
+
+/// One of the spacings the score chart's x axis picks its ticks from: a calendar
+/// unit, and how many of it stand between one tick and the next.
+private struct AxisStep {
+    let unit: Calendar.Component
+    let count: Int
+
+    init(_ unit: Calendar.Component, _ count: Int) {
+        self.unit = unit
+        self.count = count
+    }
+
+    /// Roughly how long the step lasts. Only used to guess how many ticks a
+    /// window would hold, before any of them are worked out.
+    var length: TimeInterval {
+        let unitLength: TimeInterval = switch unit {
+        case .minute:     60
+        case .hour:       3_600
+        case .day:        86_400
+        case .weekOfYear: 7 * 86_400
+        case .month:      30.44 * 86_400
+        default:          365.25 * 86_400
+        }
+        return unitLength * Double(count)
+    }
+
+    /// How a tick of this spacing has to be written for the reader to place it,
+    /// in a window `span` seconds wide that does or doesn't run from one calendar
+    /// year into the next.
+    func labelFormat(span: TimeInterval, spansYears: Bool) -> Date.FormatStyle {
+        switch unit {
+        // Within a single day the time alone says it; over a longer window the
+        // same clock time comes round again, so the date comes with it.
+        case .minute, .hour:
+            span > 26 * 3_600
+                ? .dateTime.day().month(.abbreviated).hour().minute()
+                : .dateTime.hour().minute()
+        case .day, .weekOfYear:
+            spansYears
+                ? .dateTime.day().month(.abbreviated).year()
+                : .dateTime.day().month(.abbreviated)
+        case .month:
+            spansYears
+                ? .dateTime.month(.abbreviated).year()
+                : .dateTime.month(.abbreviated)
+        default:
+            .dateTime.year()
+        }
+    }
+
+    /// Every tick of this spacing inside `domain`, counted off from a round point
+    /// on the clock or the calendar — a whole hour, a midnight, the first of a
+    /// month — rather than from the window's own edge, so the labels come out as
+    /// round times and dates.
+    func ticks(in domain: ClosedRange<Date>, calendar: Calendar) -> [Date] {
+        guard var tick = anchor(for: domain.lowerBound, calendar: calendar) else { return [] }
+        var dates: [Date] = []
+        // The anchor sits at or before the window, so the first few steps can
+        // still fall short of it. Counting the steps rather than the ticks keeps
+        // a calendar that refuses to advance from spinning here.
+        for _ in 0..<200 {
+            if tick > domain.upperBound { break }
+            if tick >= domain.lowerBound { dates.append(tick) }
+            guard let next = calendar.date(byAdding: unit, value: count, to: tick),
+                  next > tick
+            else { break }
+            tick = next
+        }
+        return dates
+    }
+
+    /// The round point ticks are counted off from: at or before `date`, and
+    /// divided evenly by this step, so ticks land on the same positions in every
+    /// hour, day, month or year rather than drifting between them.
+    private func anchor(for date: Date, calendar: Calendar) -> Date? {
+        switch unit {
+        case .minute:     return calendar.dateInterval(of: .hour, for: date)?.start
+        case .hour:       return calendar.dateInterval(of: .day, for: date)?.start
+        case .day:        return calendar.dateInterval(of: .month, for: date)?.start
+        case .weekOfYear: return calendar.dateInterval(of: .weekOfYear, for: date)?.start
+        case .month:      return calendar.dateInterval(of: .year, for: date)?.start
+        default:
+            // Years count off from one divisible by the step, so a ten-year
+            // spacing lands on the decades.
+            guard let yearStart = calendar.dateInterval(of: .year, for: date)?.start else {
+                return nil
+            }
+            let year = calendar.component(.year, from: yearStart)
+            return calendar.date(byAdding: .year, value: -(year % count), to: yearStart)
         }
     }
 }
