@@ -44,6 +44,18 @@ enum ScoreHistory {
         syncChanged()
     }
 
+    /// Whether `score` would beat every run already recorded for this exercise —
+    /// the personal record the score screen calls out. Asked before the run is
+    /// recorded, since it is about to become part of the history it is measured
+    /// against.
+    ///
+    /// A tie isn't a record, and neither is a first-ever score: with nothing to
+    /// have beaten, every exercise would announce one the first time it is sung.
+    static func isPersonalRecord(score: Int, for id: UUID) -> Bool {
+        guard let best = entries(for: id).map(\.score).max() else { return false }
+        return score > best
+    }
+
     static func delete(for id: UUID) {
         UserDefaults.standard.removeObject(forKey: key(id))
         syncChanged()

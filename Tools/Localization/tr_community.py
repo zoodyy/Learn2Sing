@@ -26,6 +26,7 @@ T("Joined %@", "Beigetreten %@", "Se unió %@", "Inscrit %@", "Iscritto %@", "En
 
 # --- Playback / score ---
 T("Score", "Punktzahl", "Puntuación", "Note", "Punteggio", "Pontuação", "Score", "Оценка", "Wynik", "Puan", "Poäng", "スコア", "점수", "得分")
+T("Personal Record!", "Persönlicher Rekord!", "¡Récord personal!", "Record personnel !", "Record personale!", "Recorde pessoal!", "Persoonlijk record!", "Личный рекорд!", "Rekord osobisty!", "Kişisel rekor!", "Personligt rekord!", "自己ベスト更新！", "개인 최고 기록!", "个人纪录！")
 T("Play Again", "Nochmal spielen", "Repetir", "Rejouer", "Riprova", "Jogar de novo", "Opnieuw spelen", "Ещё раз", "Zagraj ponownie", "Tekrar oyna", "Spela igen", "もう一度", "다시 하기", "再来一次")
 T("Review", "Auswerten", "Revisar", "Revoir", "Rivedi", "Revisar", "Terugkijken", "Разбор", "Przejrzyj", "İncele", "Granska", "振り返り", "다시 보기", "回看")
 T("No scores in this period", "Keine Punktzahlen in diesem Zeitraum", "No hay puntuaciones en este periodo", "Aucune note sur cette période", "Nessun punteggio in questo periodo", "Nenhuma pontuação neste período", "Geen scores in deze periode", "За этот период оценок нет", "Brak wyników w tym okresie", "Bu dönemde puan yok", "Inga poäng under den här perioden", "この期間のスコアはありません", "이 기간의 점수가 없습니다", "此期间没有得分")

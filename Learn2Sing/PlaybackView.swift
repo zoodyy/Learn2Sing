@@ -815,6 +815,10 @@ struct PlaybackView: View {
     @State private var notes: [MIDINote] = []
     @State private var texts: [MIDIText] = []
     @State private var finalScore: Int? = nil
+    /// Set alongside it when that score beat every earlier one for this exercise,
+    /// which the score screen says out loud. Worked out in `finishRun`, before the
+    /// run joins the history it is measured against.
+    @State private var isPersonalRecord = false
     /// Set while the score screen's Review button has the finished run's notes and
     /// pitch line open in place of the score.
     @State private var isReviewing = false
@@ -916,6 +920,7 @@ struct PlaybackView: View {
                 } else {
                     ScoreView(score: finalScore,
                               history: ScoreHistory.entries(for: exercise.id),
+                              isPersonalRecord: isPersonalRecord,
                               exitTitle: scoreExitTitle,
                               // DEBUG RECORDING — remove with DebugRecording.swift
                               debugRecording: debugRecording,
@@ -1140,6 +1145,9 @@ struct PlaybackView: View {
     /// calibration, so what the singer is shown — and what goes into the history and
     /// up to the server — is the score at the microphone delay they settled on there.
     private func finishRun(score: Int) {
+        // Asked before saving: once this run is in the history, it ties with
+        // itself and nothing is ever a record.
+        isPersonalRecord = ScoreHistory.isPersonalRecord(score: score, for: exercise.id)
         // Save before showing the result so the chart includes this run.
         ScoreHistory.record(score: score, for: exercise.id)
         // Count the run for everyone: the score goes up to the server with the play,
@@ -1385,6 +1393,10 @@ struct PlaybackView: View {
 private struct ScoreView: View {
     let score: Int
     let history: [ScoreEntry]
+    /// True when this run beat every earlier score for the exercise, which the
+    /// screen says between the score and the chart. Worked out before the run was
+    /// recorded, so `history` — which already includes it — can't be used for it.
+    let isPersonalRecord: Bool
     var exitTitle = L("Exit")
     /// DEBUG RECORDING — remove together with DebugRecording.swift.
     /// The run's microphone capture, notes and pitch estimates, packaged for the
@@ -1411,12 +1423,26 @@ private struct ScoreView: View {
 
     /// Red (low) through green (high). The bright end of that ramp was picked
     /// against a black screen and washes out on a light one, so light mode takes
-    /// the same hue deeper — this is the biggest thing on the screen.
-    private var tint: Color {
-        let hue = Double(score) / 100.0 * 0.33
+    /// the same hue deeper — the score is the biggest thing on the screen.
+    private func rampColor(_ percent: Int) -> Color {
+        let hue = Double(percent) / 100.0 * 0.33
         return colorScheme == .dark
             ? Color(hue: hue, saturation: 0.85, brightness: 0.95)
             : Color(hue: hue, saturation: 0.95, brightness: 0.68)
+    }
+
+    /// Where this run's score sits on that ramp: the colour of the number itself
+    /// and of the line the chart draws.
+    private var tint: Color { rampColor(score) }
+
+    /// The good news, said in the green end of that same ramp rather than a green
+    /// of its own — a personal record at 60% is still a record, and the two
+    /// colours on the screen then belong to one another.
+    private var personalRecordLabel: some View {
+        Text("Personal Record!")
+            .font(.title3.weight(.bold))
+            .foregroundStyle(rampColor(100))
+            .explain(L("Your highest score on this exercise so far. This run beat your previous best."))
     }
 
     private var scoreLabel: some View {
@@ -1549,7 +1575,12 @@ private struct ScoreView: View {
         VStack(spacing: 16) {
             if verticalSizeClass == .compact {
                 HStack(spacing: 24) {
-                    scoreLabel
+                    // Landscape has no room for a row of its own, so the record
+                    // line goes under the score, still between it and the chart.
+                    VStack(spacing: 8) {
+                        scoreLabel
+                        if isPersonalRecord { personalRecordLabel }
+                    }
                     chart
                 }
                 .padding(.horizontal, 24)
@@ -1557,6 +1588,7 @@ private struct ScoreView: View {
             } else {
                 Spacer()
                 scoreLabel
+                if isPersonalRecord { personalRecordLabel }
                 chart
                     .padding(.horizontal, 24)
                     .padding(.top, 16)

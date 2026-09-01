@@ -25798,6 +25798,88 @@
         }
       }
     },
+    "Personal Record!" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Persönlicher Rekord!"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¡Récord personal!"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Record personnel !"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Record personale!"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "自己ベスト更新！"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "개인 최고 기록!"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Persoonlijk record!"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rekord osobisty!"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Recorde pessoal!"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Личный рекорд!"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Personligt rekord!"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kişisel rekor!"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "个人纪录！"
+          }
+        }
+      }
+    },
     "Piano" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -46040,6 +46122,89 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "你收藏的练习，按首页标签中的显示顺序排列。拖动右侧手柄可重新排序。"
+          }
+        }
+      }
+    },
+    "Your highest score on this exercise so far. This run beat your previous best." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deine bisher höchste Punktzahl in dieser Übung. Dieser Durchgang hat deinen bisherigen Bestwert übertroffen."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tu puntuación más alta hasta ahora en este ejercicio. Esta ejecución superó tu mejor marca anterior."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Votre meilleure note à ce jour sur cet exercice. Cette session a dépassé votre record précédent."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il tuo punteggio più alto finora in questo esercizio. Questa esecuzione ha superato il tuo record precedente."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "このエクササイズでのこれまでの最高スコアです。今回が自己ベストを更新しました。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이 연습에서 지금까지 가장 높은 점수입니다. 이번 회차가 이전 최고 기록을 넘었습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Je hoogste score tot nu toe in deze oefening. Deze ronde was beter dan je vorige beste."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Twój najwyższy dotąd wynik w tym ćwiczeniu. Ten przebieg pobił twój poprzedni rekord."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sua maior pontuação até agora neste exercício. Esta execução superou seu melhor resultado anterior."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ваша самая высокая оценка в этом упражнении. Этот проход превзошёл ваш прежний рекорд."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Din högsta poäng hittills i den här övningen. Den här omgången slog ditt tidigare rekord."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bu egzersizde şimdiye kadarki en yüksek puanınız. Bu tur önceki en iyinizi geçti."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "你在这个练习中迄今的最高得分。本次超过了你之前的最好成绩。"
           }
         }
       }
