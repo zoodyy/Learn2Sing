@@ -39,7 +39,7 @@ INDIRECT = [
     "Automatic", "iPhone Speaker", "iPhone Microphone",
     # Categories: bundled + Home tab built-ins
     "Tone", "Scales", "Articulation", "Agility", "Range", "No Category",
-    "Recent", "Routines", "Favourites", "Recommended", "Calendar", "New for You",
+    "Recent", "Routines", "Favourites", "Recommended", "Time Spent Singing", "New for You",
     # Bundled visual templates
     "Simplest - dark", "Simplest - light",
     # FeedbackType / FeedbackLocation (the tab names are extracted from the

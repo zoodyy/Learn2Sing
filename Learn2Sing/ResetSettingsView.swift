@@ -527,11 +527,11 @@ struct HomeResetView: View {
                               count: practiceDays) {
                     pending = .practice
                 }
-                .settingHelp(L("Forgets how long you practised on each day, emptying the Home tab's “Calendar”."))
+                .settingHelp(L("Forgets how long you practised on each day, emptying the Home tab's “Time Spent Singing”."))
                 .resetConfirmation(
                     $pending, for: .practice,
                     confirmLabel: L("Delete"),
-                    message: L("Your practice time will be forgotten, emptying the Home tab's “Calendar”.")
+                    message: L("Your practice time will be forgotten, emptying the Home tab's “Time Spent Singing”.")
                 ) {
                     PracticeLog.deleteAll()
                     practiceDays = 0

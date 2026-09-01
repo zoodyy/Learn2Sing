@@ -353,7 +353,7 @@ struct ExercisesSettingsView: View {
                             .foregroundStyle(.secondary)
                     }
                 }
-                .settingHelp(L("How long you mean to practise a day. The Home tab's “Recommended” category suggests exercises adding up to at least this long — favouring the whitelisted ones you haven't practised in the longest, pitched at your skill level — and a day of the Home tab's calendar is filled in and ticked once you have practised this much."))
+                .settingHelp(L("How long you mean to practise a day. The Home tab's “Recommended” category suggests exercises adding up to at least this long — favouring the whitelisted ones you haven't practised in the longest, pitched at your skill level — and a day of the Home tab's “Time Spent Singing” is filled in and ticked once you have practised this much."))
 
                 Menu {
                     ForEach(ExerciseOrigin.allCases) { origin in

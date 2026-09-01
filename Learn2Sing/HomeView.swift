@@ -15,7 +15,7 @@ enum HomeCategories {
     static let routines = "Routines"
     static let favourites = "Favourites"
     static let recommended = "Recommended"
-    static let calendar = "Calendar"
+    static let calendar = "Time Spent Singing"
     static let newForYou = "New for You"
 
     /// Every built-in category, in the order a user who never rearranged them sees.
@@ -24,9 +24,16 @@ enum HomeCategories {
     /// who has rearranged their categories than for one who hasn't.
     static let all = [recent, routines, favourites, recommended, calendar, newForYou]
 
-    /// Identifies the single row the "Calendar" category is made of. It isn't an
-    /// exercise, but the list is built around rows that are, so the calendar
-    /// rides in a placeholder carrying this fixed id.
+    /// Categories that have been renamed since a stored order or hidden set was
+    /// written, old name to new. The English name *is* the identity here — it is
+    /// what UserDefaults and the profile JSON carry — so a rename has to be
+    /// translated on the way in, or a user who had rearranged or hidden the
+    /// category would find it back at the end of the tab and visible again.
+    static let renamed = ["Calendar": calendar]
+
+    /// Identifies the single row the "Time Spent Singing" category is made of.
+    /// It isn't an exercise, but the list is built around rows that are, so the
+    /// calendar rides in a placeholder carrying this fixed id.
     static let calendarRowID = UUID(uuidString: "CA1E4DA9-0000-4000-8000-000000000001")
         ?? UUID()
 
@@ -45,7 +52,9 @@ enum HomeCategories {
     /// category the stored order predates is appended, so a list saved by an
     /// older version still shows every category.
     static func parse(_ raw: String) -> [String] {
-        let stored = raw.split(separator: "\n").map(String.init).filter(all.contains)
+        let stored = raw.split(separator: "\n")
+            .map { renamed[String($0)] ?? String($0) }
+            .filter(all.contains)
         return stored + all.filter { !stored.contains($0) }
     }
 
@@ -64,8 +73,15 @@ enum HomeCategories {
     /// the same points as `stored`. Sorted on the way out so the stored string only
     /// changes when the set does.
     static var hidden: Set<String> {
-        get { Set((UserDefaults.standard.string(forKey: hiddenKey) ?? "").split(separator: "\n").map(String.init)) }
+        get { parseHidden(UserDefaults.standard.string(forKey: hiddenKey) ?? "") }
         set { UserDefaults.standard.set(newValue.sorted().joined(separator: "\n"), forKey: hiddenKey) }
+    }
+
+    /// A stored hidden set as names, renames applied like `parse` does — the two
+    /// screens that read the raw string out of `@AppStorage` themselves go
+    /// through here, so a category hidden under an old name stays hidden.
+    static func parseHidden(_ raw: String) -> Set<String> {
+        Set(raw.split(separator: "\n").map { renamed[String($0)] ?? String($0) })
     }
 }
 
@@ -158,7 +174,7 @@ private struct HomeCategoryEditView: View {
     private var categories: [String] { HomeCategories.parse(categoryOrderRaw) }
 
     private var hiddenCategories: Set<String> {
-        Set(hiddenCategoriesRaw.split(separator: "\n").map(String.init))
+        HomeCategories.parseHidden(hiddenCategoriesRaw)
     }
 
     /// Hiding is blocked for the last visible category, so the list can never be
@@ -230,7 +246,7 @@ private struct HomeCategoryEditView: View {
 /// long ago each was last sung and how close it is to the singer's level, as
 /// many as Settings ▸ Exercises asks for — as one card that plays them all in a
 /// row, or as a list of them if that same screen says so),
-/// "Calendar" (the last 30 days of practice as coloured squares — see
+/// "Time Spent Singing" (the last 30 days of practice as coloured squares — see
 /// PracticeCalendarView), and "New for You" (five exercises off the community's
 /// hot list, the ones pitched at the singer's own level — see NewForYouFeed).
 /// Routines and favourites are rearranged in place by long-pressing a row and
@@ -335,7 +351,7 @@ struct HomeView: View {
     @AppStorage(HomeCategories.hiddenKey) private var hiddenCategoriesRaw = ""
 
     private var hiddenCategories: Set<String> {
-        Set(hiddenCategoriesRaw.split(separator: "\n").map(String.init))
+        HomeCategories.parseHidden(hiddenCategoriesRaw)
     }
 
     /// The categories still shown on the Home list, in the user's order.
@@ -440,7 +456,7 @@ struct HomeView: View {
         }
     }
 
-    /// The one row "Calendar" holds: the practice calendar itself, drawn across
+    /// The one row "Time Spent Singing" holds: the practice calendar itself, drawn across
     /// the whole row. Its days are read fresh here rather than by the view, so
     /// a finished run — which republishes the store, and so rebuilds this
     /// screen — reaches the list as a changed row and redraws the squares.

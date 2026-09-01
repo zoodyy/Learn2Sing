@@ -3,7 +3,7 @@
 //  Learn2Sing
 //
 //  Records how long was practised on each day, and draws the Home tab's
-//  "Calendar" category out of it: the last 30 days as one square each, grey to
+//  "Time Spent Singing" category out of it: the last 30 days as one square each, grey to
 //  start with and taking on the app's accent colour — nothing else — as the
 //  time spent on them grows.
 //
@@ -140,7 +140,7 @@ nonisolated struct PracticeCalendarSelection: Equatable {
     var grid: CGRect
 }
 
-/// The Home tab's "Calendar" category: the last 30 days as one square each,
+/// The Home tab's "Time Spent Singing" category: the last 30 days as one square each,
 /// oldest in the top-left corner and today in the bottom-right, with no numbers
 /// on them — a day is read off its colour. A day nothing was practised on is
 /// grey, and the only colour that goes over that grey is the app's own accent
