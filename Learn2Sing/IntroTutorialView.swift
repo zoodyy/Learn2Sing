@@ -81,10 +81,11 @@ struct IntroTutorialView: View {
     /// to the setting only when they move on with "Continue", so leaving the
     /// tutorial before that slide leaves the setting exactly as it was.
     ///
-    /// It opens on the recommended ten minutes rather than on whatever is stored:
-    /// this is an introduction, and it should offer the same starting point every
-    /// time it is watched.
-    @State private var minutes = RecommendedExercises.defaultMinutes
+    /// It opens on the setting as it stands — the recommended ten minutes on a first
+    /// run, since nothing is stored yet, and the singer's own number when the
+    /// tutorial is watched again from Settings. Read once as the tutorial is put up,
+    /// which is when the presentation builds this view.
+    @State private var minutes = RecommendedExercises.minutes
 
     private static let slideCount = 6
 
