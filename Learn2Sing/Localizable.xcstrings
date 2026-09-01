@@ -4890,6 +4890,88 @@
         }
       }
     },
+    "Change what your Home tab, playback screen and more show, how they look and how they are arranged." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ändere, was dein Start-Tab, der Wiedergabebildschirm und mehr zeigen, wie sie aussehen und wie sie angeordnet sind."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cambia qué muestran tu pestaña Inicio, la pantalla de reproducción y más, cómo se ven y cómo se organizan."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Changez ce qu’affichent votre onglet Accueil, l’écran de lecture et plus encore, leur apparence et leur agencement."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cambia cosa mostrano la scheda Home, la schermata di riproduzione e altro, il loro aspetto e la loro disposizione."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ホームタブや再生画面などの表示内容、見た目、並び順を変えられます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "홈 탭과 재생 화면 등에서 무엇을 보여줄지, 어떻게 보일지, 어떻게 배치할지 바꿀 수 있습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bepaal wat het tabblad Start, het afspeelscherm en meer tonen, hoe ze eruitzien en hoe ze zijn ingedeeld."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zmień, co pokazują karta Start, ekran odtwarzania i nie tylko, jak wyglądają i jak są ułożone."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mude o que a aba Início, a tela de reprodução e mais mostram, como eles ficam e como são organizados."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Меняйте, что показывают вкладка «Главная», экран воспроизведения и другие экраны, как они выглядят и как расположены."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ändra vad fliken Hem, uppspelningsskärmen och mer visar, hur de ser ut och hur de är ordnade."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ana Sayfa sekmesinin, çalma ekranının ve daha fazlasının ne gösterdiğini, nasıl göründüğünü ve nasıl düzenlendiğini değiştirin."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "更改首页、播放界面等显示的内容、外观和排列方式。"
+          }
+        }
+      }
+    },
     "Choose a Test" : {
       "localizations" : {
         "de" : {
@@ -19766,6 +19848,88 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "发出较尖锐的“Ee”。你应该能感觉到鼻子里有共鸣。"
+          }
+        }
+      }
+    },
+    "Make it yours" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ganz wie du willst"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A tu gusto"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "À votre goût"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A modo tuo"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "自分好みに"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "내 마음대로"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Maak het je eigen"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Po swojemu"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Do seu jeito"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Настройте под себя"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Helt som du vill"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kendinize göre"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "随你定制"
           }
         }
       }

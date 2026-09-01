@@ -50,11 +50,11 @@ final class IntroTutorial: ObservableObject {
     }
 }
 
-/// Five slides, none of them compulsory: measure the singer's vocal range, set how
+/// Six slides, none of them compulsory: measure the singer's vocal range, set how
 /// long a day they mean to practise, pick light or dark, say where exercises come
-/// from, and point at the press-and-hold help. Each one either sets its setting for
-/// real — the range test is the very screen Settings ▸ Voice opens — or moves on
-/// leaving it alone.
+/// from, say how much of the app can be rearranged, and point at the press-and-hold
+/// help. Each one either sets its setting for real — the range test is the very
+/// screen Settings ▸ Voice opens — or moves on leaving it alone.
 struct IntroTutorialView: View {
     /// Re-renders this screen when the language is changed in Settings; the
     /// strings are resolved when the body runs, so SwiftUI needs telling.
@@ -81,7 +81,7 @@ struct IntroTutorialView: View {
     /// leaves the setting exactly as it was.
     @State private var minutes = RecommendedExercises.minutes
 
-    private static let slideCount = 5
+    private static let slideCount = 6
 
     var body: some View {
         VStack(spacing: 0) {
@@ -92,6 +92,7 @@ struct IntroTutorialView: View {
                 case 1: minutesSlide.transition(pageTransition)
                 case 2: themeSlide.transition(pageTransition)
                 case 3: exercisesSlide.transition(pageTransition)
+                case 4: customiseSlide.transition(pageTransition)
                 default: holdSlide.transition(pageTransition)
                 }
             }
@@ -189,9 +190,9 @@ struct IntroTutorialView: View {
                 Button(action: advance) { skipLabel(Text("Skip")).padding() }
                 Button(action: advance) { primaryLabel(Text("Continue")) }
             }
-        // Nothing to keep or skip on the two slides that only tell the singer
+        // Nothing to keep or skip on the slides that only tell the singer
         // something, so they carry the one button that moves on.
-        case 3:
+        case 3, 4:
             Button(action: advance) { primaryLabel(Text("Continue")) }
         default:
             Button { IntroTutorial.shared.finish() } label: { primaryLabel(Text("Done")) }
@@ -433,6 +434,20 @@ struct IntroTutorialView: View {
                 .frame(width: 30)
             text
             Spacer(minLength: 0)
+        }
+    }
+
+    // MARK: - Making it yours
+
+    /// The one slide that sells rather than sets: nearly every screen can be
+    /// rearranged, and a singer who never finds that out sings the app as it came.
+    /// Kept to a title and a line, since a list of everything that can be changed
+    /// is precisely the slide people swipe past.
+    private var customiseSlide: some View {
+        slideBody {
+            slideHeader(icon: "slider.horizontal.3",
+                        title: Text("Make it yours"),
+                        subtitle: Text("Change what your Home tab, playback screen and more show, how they look and how they are arranged."))
         }
     }
 

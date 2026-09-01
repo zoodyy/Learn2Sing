@@ -1,4 +1,4 @@
-# Batch 9: the introduction shown on the first launch — its four slides, the
+# Batch 9: the introduction shown on the first launch — its slides, the
 # buttons that move through them and the Settings row that replays it.
 from trbase import T
 
@@ -179,6 +179,36 @@ T("Write your own, and publish them.",
   "自分で作って公開する。",
   "직접 만들어 공개해 보세요.",
   "自己创作，并发布出去。")
+
+# --- Slide: what can be rearranged ---
+T("Make it yours",
+  "Ganz wie du willst",
+  "A tu gusto",
+  "À votre goût",
+  "A modo tuo",
+  "Do seu jeito",
+  "Maak het je eigen",
+  "Настройте под себя",
+  "Po swojemu",
+  "Kendinize göre",
+  "Helt som du vill",
+  "自分好みに",
+  "내 마음대로",
+  "随你定制")
+T("Change what your Home tab, playback screen and more show, how they look and how they are arranged.",
+  "Ändere, was dein Start-Tab, der Wiedergabebildschirm und mehr zeigen, wie sie aussehen und wie sie angeordnet sind.",
+  "Cambia qué muestran tu pestaña Inicio, la pantalla de reproducción y más, cómo se ven y cómo se organizan.",
+  "Changez ce qu’affichent votre onglet Accueil, l’écran de lecture et plus encore, leur apparence et leur agencement.",
+  "Cambia cosa mostrano la scheda Home, la schermata di riproduzione e altro, il loro aspetto e la loro disposizione.",
+  "Mude o que a aba Início, a tela de reprodução e mais mostram, como eles ficam e como são organizados.",
+  "Bepaal wat het tabblad Start, het afspeelscherm en meer tonen, hoe ze eruitzien en hoe ze zijn ingedeeld.",
+  "Меняйте, что показывают вкладка «Главная», экран воспроизведения и другие экраны, как они выглядят и как расположены.",
+  "Zmień, co pokazują karta Start, ekran odtwarzania i nie tylko, jak wyglądają i jak są ułożone.",
+  "Ana Sayfa sekmesinin, çalma ekranının ve daha fazlasının ne gösterdiğini, nasıl göründüğünü ve nasıl düzenlendiğini değiştirin.",
+  "Ändra vad fliken Hem, uppspelningsskärmen och mer visar, hur de ser ut och hur de är ordnade.",
+  "ホームタブや再生画面などの表示内容、見た目、並び順を変えられます。",
+  "홈 탭과 재생 화면 등에서 무엇을 보여줄지, 어떻게 보일지, 어떻게 배치할지 바꿀 수 있습니다.",
+  "更改首页、播放界面等显示的内容、外观和排列方式。")
 
 # --- Slide: the press-and-hold help ---
 T("Stuck?",
