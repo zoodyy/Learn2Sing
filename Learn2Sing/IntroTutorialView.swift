@@ -50,10 +50,11 @@ final class IntroTutorial: ObservableObject {
     }
 }
 
-/// Four slides, none of them compulsory: measure the singer's vocal range, set how
-/// long a day they mean to practise, pick light or dark, and say where exercises come
-/// from. Each one either sets its setting for real — the range test is the very
-/// screen Settings ▸ Voice opens — or moves on leaving it alone.
+/// Five slides, none of them compulsory: measure the singer's vocal range, set how
+/// long a day they mean to practise, pick light or dark, say where exercises come
+/// from, and point at the press-and-hold help. Each one either sets its setting for
+/// real — the range test is the very screen Settings ▸ Voice opens — or moves on
+/// leaving it alone.
 struct IntroTutorialView: View {
     /// Re-renders this screen when the language is changed in Settings; the
     /// strings are resolved when the body runs, so SwiftUI needs telling.
@@ -80,7 +81,7 @@ struct IntroTutorialView: View {
     /// leaves the setting exactly as it was.
     @State private var minutes = RecommendedExercises.minutes
 
-    private static let slideCount = 4
+    private static let slideCount = 5
 
     var body: some View {
         VStack(spacing: 0) {
@@ -90,7 +91,8 @@ struct IntroTutorialView: View {
                 case 0: rangeSlide.transition(pageTransition)
                 case 1: minutesSlide.transition(pageTransition)
                 case 2: themeSlide.transition(pageTransition)
-                default: exercisesSlide.transition(pageTransition)
+                case 3: exercisesSlide.transition(pageTransition)
+                default: holdSlide.transition(pageTransition)
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -187,6 +189,10 @@ struct IntroTutorialView: View {
                 Button(action: advance) { skipLabel(Text("Skip")).padding() }
                 Button(action: advance) { primaryLabel(Text("Continue")) }
             }
+        // Nothing to keep or skip on the two slides that only tell the singer
+        // something, so they carry the one button that moves on.
+        case 3:
+            Button(action: advance) { primaryLabel(Text("Continue")) }
         default:
             Button { IntroTutorial.shared.finish() } label: { primaryLabel(Text("Done")) }
         }
@@ -427,6 +433,19 @@ struct IntroTutorialView: View {
                 .frame(width: 30)
             text
             Spacer(minLength: 0)
+        }
+    }
+
+    // MARK: - Press and hold
+
+    /// The last slide, and the shortest: everything the app doesn't have room to
+    /// explain explains itself under a hold — the `settingHelp(_:)` popovers — so
+    /// the rest of it needn't be described here.
+    private var holdSlide: some View {
+        slideBody {
+            slideHeader(icon: "hand.tap",
+                        title: Text("Stuck?"),
+                        subtitle: Text("Press and hold anything to see what it does."))
         }
     }
 }
