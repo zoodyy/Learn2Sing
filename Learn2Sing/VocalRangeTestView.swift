@@ -28,6 +28,10 @@ struct VocalRangeTestView: View {
     @State private var lowMIDI: Double? = nil
     @State private var highMIDI: Double? = nil
 
+    /// Whether the microphone is open — `startListening` has run and `teardown`
+    /// hasn't. The screen deliberately holds no audio before that.
+    @State private var isListening = false
+
     /// Seconds of sustained voice required to lock in a note.
     private let holdDuration = 2.0
     private let pollInterval = 0.05
@@ -50,14 +54,20 @@ struct VocalRangeTestView: View {
                     title: L("Lowest Note"),
                     instruction: L("When you’re ready, sing the lowest note you can and hold it steadily for 2 seconds."),
                     icon: "arrow.down.circle.fill"
-                ) { beginRecording(.lowRecording) }
+                ) {
+                    startListening()
+                    beginRecording(.lowRecording)
+                }
 
             case .highIntro:
                 intro(
                     title: L("Highest Note"),
                     instruction: L("Now sing the highest note you can and hold it steadily for 2 seconds."),
                     icon: "arrow.up.circle.fill"
-                ) { beginRecording(.highRecording) }
+                ) {
+                    startListening()
+                    beginRecording(.highRecording)
+                }
 
             case .lowRecording:
                 recording(prompt: L("Sing your lowest note"))
@@ -74,12 +84,11 @@ struct VocalRangeTestView: View {
         .navigationTitle(L("Vocal Range Test"))
         .navigationBarTitleDisplayMode(.inline)
         .onReceive(tick) { _ in collectSample() }
-        .onAppear {
-            AudioRouteManager.shared.configureSession()
-            pitchDetector.start()
-        }
         .onDisappear { teardown() }
         .onChange(of: scenePhase) { _, newPhase in
+            // Only once the microphone has been asked for: until "Start" this
+            // screen owns no audio, and returning to it mustn't take any.
+            guard isListening else { return }
             switch newPhase {
             case .active:
                 AudioRouteManager.shared.configureSession()
@@ -221,6 +230,18 @@ struct VocalRangeTestView: View {
 
     // MARK: - Recording logic
 
+    /// Opens the microphone. This is the moment whatever else the phone is
+    /// playing stops, which is why it waits for "Start" rather than happening as
+    /// the screen appears: music the singer had on keeps playing while they read
+    /// what they are being asked to do. Idempotent — the second hold is sung on
+    /// the session the first one opened.
+    private func startListening() {
+        guard !isListening else { return }
+        isListening = true
+        AudioRouteManager.shared.configureSession()
+        pitchDetector.start()
+    }
+
     private func beginRecording(_ next: Phase) {
         samples = []
         voicedTime = 0
@@ -279,7 +300,12 @@ struct VocalRangeTestView: View {
         beginRecording(.lowIntro)
     }
 
+    /// Gives the microphone back. Nothing to give back when the test is left
+    /// before it is started, and deactivating a session this screen never
+    /// activated would disturb whatever else is holding one.
     private func teardown() {
+        guard isListening else { return }
+        isListening = false
         pitchDetector.stop()
         AudioRouteManager.shared.deactivateSession()
     }

@@ -36,17 +36,23 @@ enum AppTheme: String, CaseIterable, Identifiable {
     /// The appearance the app is in right now.
     static var currentScheme: ColorScheme { current.scheme }
 
-    /// The device's own light/dark setting. Read from the screen rather than from the
-    /// SwiftUI environment, because the in-app theme override changes the whole window's
+    /// The device's own light/dark setting, as the system reports it — including
+    /// `.unspecified`, which `deviceScheme` reads as light and the introduction's theme
+    /// slide reads as dark. Read from the screen rather than from the SwiftUI
+    /// environment, because the in-app theme override changes the whole window's
     /// environment colour scheme — the device's setting has to show through that. Before
     /// a scene is connected, which is where the template store reads this at launch, the
     /// trait collection at hand answers instead.
-    static var deviceScheme: ColorScheme {
-        let style = UIApplication.shared.connectedScenes
+    static var deviceInterfaceStyle: UIUserInterfaceStyle {
+        UIApplication.shared.connectedScenes
             .compactMap { $0 as? UIWindowScene }
             .first?.screen.traitCollection.userInterfaceStyle
             ?? UITraitCollection.current.userInterfaceStyle
-        return style == .dark ? .dark : .light
+    }
+
+    /// The appearance the device's own setting puts the app in.
+    static var deviceScheme: ColorScheme {
+        deviceInterfaceStyle == .dark ? .dark : .light
     }
 }
 

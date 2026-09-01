@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import UIKit
 import Combine
 
 /// Whether the introduction is on screen, and the flag that decides whether it
@@ -77,9 +78,13 @@ struct IntroTutorialView: View {
     @State private var isLeaving = false
 
     /// How long a day the singer has dialled in, in minutes. Held here and written
-    /// to the setting only when they move on with "Continue", so skipping the slide
-    /// leaves the setting exactly as it was.
-    @State private var minutes = RecommendedExercises.minutes
+    /// to the setting only when they move on with "Continue", so leaving the
+    /// tutorial before that slide leaves the setting exactly as it was.
+    ///
+    /// It opens on the recommended ten minutes rather than on whatever is stored:
+    /// this is an introduction, and it should offer the same starting point every
+    /// time it is watched.
+    @State private var minutes = RecommendedExercises.defaultMinutes
 
     private static let slideCount = 6
 
@@ -163,36 +168,23 @@ struct IntroTutorialView: View {
         .padding(.top, 8)
     }
 
-    /// "Skip" leaves the slide's setting alone; the filled button beside it keeps
-    /// whatever was chosen on the slide. The range test carries its own buttons, so
-    /// that slide is the one with nothing but "Skip".
+    /// Every other slide carries the one filled button that moves on. Only the
+    /// range test offers a "Skip" — it is the one slide that asks for singing
+    /// rather than a tap, and it carries its own "Start", so the way past it has
+    /// to be spelled out. Quietly, in the plain style: it is the way round the
+    /// slide, not the way through it.
     @ViewBuilder private var footer: some View {
         switch slide {
         case 0:
-            Button(action: advance) {
-                skipLabel(Text("Skip"))
-                    .frame(maxWidth: .infinity)
-                    .padding()
-                    .background(.quaternary, in: RoundedRectangle(cornerRadius: 14))
-            }
+            Button(action: advance) { skipLabel(Text("Skip")).padding() }
         case 1:
-            HStack(spacing: 12) {
-                Button(action: advance) { skipLabel(Text("Skip")).padding() }
-                Button {
-                    keepMinutes()
-                    advance()
-                } label: {
-                    primaryLabel(Text("Continue"))
-                }
+            Button {
+                keepMinutes()
+                advance()
+            } label: {
+                primaryLabel(Text("Continue"))
             }
-        case 2:
-            HStack(spacing: 12) {
-                Button(action: advance) { skipLabel(Text("Skip")).padding() }
-                Button(action: advance) { primaryLabel(Text("Continue")) }
-            }
-        // Nothing to keep or skip on the slides that only tell the singer
-        // something, so they carry the one button that moves on.
-        case 3, 4:
+        case 2, 3, 4:
             Button(action: advance) { primaryLabel(Text("Continue")) }
         default:
             Button { IntroTutorial.shared.finish() } label: { primaryLabel(Text("Done")) }
@@ -231,10 +223,10 @@ struct IntroTutorialView: View {
             }
     }
 
-    /// A swipe forwards stands in for the slide's filled button rather than its
-    /// "Skip": the number the singer has dialled in is the one in front of them, so
-    /// it is kept, exactly as "Continue" keeps it. The last slide holds — the
-    /// tutorial is left by "Done" or the ✕, not by swiping off the end of it.
+    /// A swipe forwards stands in for the slide's filled button: the number the
+    /// singer has dialled in is the one in front of them, so it is kept, exactly as
+    /// "Continue" keeps it. The last slide holds — the tutorial is left by "Done"
+    /// or the ✕, not by swiping off the end of it.
     private func swipeForward() {
         guard slide < Self.slideCount - 1 else { return }
         if slide == 1 { keepMinutes() }
@@ -263,7 +255,8 @@ struct IntroTutorialView: View {
     }
 
     /// Writes the practice-time slide's setting, which is done only when that
-    /// slide is left forwards deliberately — skipping it leaves the setting alone.
+    /// slide is left forwards deliberately — closing the tutorial on it leaves the
+    /// setting alone.
     private func keepMinutes() {
         UserDefaults.standard.set(minutes, forKey: RecommendedExercises.minutesKey)
     }
@@ -389,13 +382,25 @@ struct IntroTutorialView: View {
                 ForEach([AppTheme.light, .dark]) { theme in
                     if let template = templates.standard(for: theme.scheme) {
                         ThemeCard(theme: theme, template: template,
-                                  isSelected: themeRaw == theme.rawValue) {
+                                  isSelected: theme.scheme == selectedScheme) {
                             choose(theme)
                         }
                     }
                 }
             }
         }
+    }
+
+    /// The card the tick sits on: the appearance the app is actually in. That is the
+    /// chosen theme once one has been chosen, and the phone's own setting until then
+    /// — "System" is not one of the two cards, but it always amounts to one of them,
+    /// so the slide opens showing the singer what they are already looking at rather
+    /// than showing nothing chosen at all.
+    private var selectedScheme: ColorScheme {
+        if let chosen = (AppTheme(rawValue: themeRaw) ?? .system).colorScheme { return chosen }
+        // Dark on a phone that names no appearance of its own, which is a state iOS
+        // isn't expected to report but which must still put the tick somewhere.
+        return AppTheme.deviceInterfaceStyle == .light ? .light : .dark
     }
 
     /// The theme change the Visuals screen makes, minus its question: where switching
