@@ -27,6 +27,7 @@ struct SettingsView: View {
             Form {
                 Section {
                     hubLink(L("Profile"), systemImage: "person.crop.circle", route: .profile)
+                        .settingHelp(L("Your username, picture and description, as other users see them on the Community tab."))
 
                     hubLink(L("Audio"), systemImage: "speaker.wave.2", route: .audio)
                         .settingHelp(L("Instruments, playback and recording devices, and the microphone delay used for scoring."))
@@ -291,6 +292,7 @@ struct VoiceSettingsView: View {
                     .onChange(of: customLow) { _, newLow in
                         if newLow > customHigh { customHigh = newLow }
                     }
+                    .settingHelp(L("The lowest and highest notes you can comfortably sing. Exercises are transposed to fit between them."))
 
                     Picker("Highest note", selection: $customHigh) {
                         ForEach(loPitch...hiPitch, id: \.self) { pitch in

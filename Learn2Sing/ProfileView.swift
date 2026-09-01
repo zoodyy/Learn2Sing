@@ -194,6 +194,7 @@ struct ProfileView: View {
                         .foregroundStyle(isPreparingPicture ? AnyShapeStyle(.secondary)
                                                             : AnyShapeStyle(Color.accentColor))
                         .disabled(isPreparingPicture)
+                        .explain(L("Picks a picture from your photos to show on your public profile."))
 
                         if picture.thumb != nil {
                             Divider()
@@ -205,6 +206,7 @@ struct ProfileView: View {
                             }
                             .buttonStyle(.plain)
                             .foregroundStyle(Color.accentColor)
+                            .explain(L("Drag and pinch to choose what shows in the circle."))
 
                             Divider()
                             Button(role: .destructive) {
@@ -217,6 +219,7 @@ struct ProfileView: View {
                             // and this is no longer a row of its own.
                             .buttonStyle(.plain)
                             .dangerRow()
+                            .explain(L("Takes your picture off your profile. The photo stays in your photo library."))
                         }
                     }
 
@@ -228,6 +231,7 @@ struct ProfileView: View {
                         // Tapping the picture itself is the quickest way to the
                         // thing most people come back to change.
                         .onTapGesture { if picture.thumb != nil { adjustPicture() } }
+                        .explain(L("How your picture looks to everyone else. Tap it to move and zoom it."))
                         .overlay {
                             if isPreparingPicture {
                                 ProgressView()
@@ -256,6 +260,7 @@ struct ProfileView: View {
                     .autocorrectionDisabled()
                     .focused($isEditingUsername)
                     .onSubmit { commitUsername() }
+                    .settingHelp(L("The name shown beside the exercises you share. No two users can have the same one."))
             } header: {
                 Text("Username")
             } footer: {
@@ -269,6 +274,7 @@ struct ProfileView: View {
                 TextField("Write something about yourself", text: $typedDescription, axis: .vertical)
                     .lineLimit(3...8)
                     .focused($isEditingDescription)
+                    .settingHelp(L("A few words about yourself, shown at the top of your profile in the Community tab."))
             }
 
             Section {
@@ -276,6 +282,7 @@ struct ProfileView: View {
                     .onChange(of: joinDatePublic) { _, isPublic in
                         save { $0.joinDatePublic = isPublic }
                     }
+                    .settingHelp(L("Shows other users how long you have had the app, under your profile description."))
             }
         }
         .navigationTitle(L("Profile"))

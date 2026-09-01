@@ -68,6 +68,7 @@ struct ExercisePlaybackPreview: View {
             .overlay(RoundedRectangle(cornerRadius: 12).stroke(.white.opacity(0.15)))
             .contentShape(Rectangle())
             .gesture(drag)
+            .explain(L("This exercise as it will play, with the settings below already applied. Drag it sideways to look further along."))
             .padding(.horizontal, Self.sidePadding)
             .padding(.vertical, Self.verticalPadding)
             .frame(maxWidth: .infinity)

@@ -153,13 +153,16 @@ struct RoutineEditView: View {
             if let routine {
                 Section("Name") {
                     RoutineNameField(routineID: routineID, name: routine.name)
+                        .settingHelp(L("What this routine is called on the Home tab."))
                 }
                 Section("Description") {
                     RoutineDetailsField(routineID: routineID, details: routine.details)
+                        .settingHelp(L("Your note on this routine, shown on the screen before it starts."))
                 }
                 Section("Exercises") {
                     ForEach(routine.exerciseIDs, id: \.self) { exerciseID in
                         exerciseRow(exerciseID)
+                            .settingHelp(L("The exercises this routine plays, in order. Drag by the handle on the right to rearrange them."))
                     }
                     .onMove { source, destination in
                         store.moveRoutineExercises(routineID, from: source, to: destination)
@@ -181,6 +184,7 @@ struct RoutineEditView: View {
                 } label: {
                     Image(systemName: isDeletingExercises ? "trash.fill" : "trash")
                 }
+                .explain(L("Swaps the drag handles for delete buttons, to take exercises off this list. They stay in your library."))
             }
             ToolbarItem(placement: .topBarTrailing) {
                 Button {
@@ -188,6 +192,7 @@ struct RoutineEditView: View {
                 } label: {
                     Image(systemName: "plus")
                 }
+                .explain(L("Opens your library, where you tick the exercises this list is made of."))
             }
         }
     }
@@ -253,6 +258,7 @@ struct ExerciseQueueIntroView: View {
         .listRowInsets(EdgeInsets(top: 16, leading: 0, bottom: 16, trailing: 0))
         .listRowBackground(Color.clear)
         .listRowSeparator(.hidden)
+        .settingHelp(L("The name and description of this routine, as written on its edit screen."))
     }
 
     /// One queued exercise: the routine row, made tappable (start here) and
@@ -274,6 +280,7 @@ struct ExerciseQueueIntroView: View {
                     Label("Remove", systemImage: "minus.circle")
                 }
             }
+            .settingHelp(L("Tap to start here instead of at the top. Drag to reorder, or swipe left to leave it out. This is for this run only, and the list itself is left as it is."))
     }
 
     private var exercisesHeader: some View {
@@ -287,6 +294,7 @@ struct ExerciseQueueIntroView: View {
             }
             .buttonStyle(.borderless)
             .accessibilityLabel("Shuffle exercises")
+            .explain(L("Puts the exercises below in a random order for this run only."))
         }
         .textCase(nil)
     }
@@ -327,6 +335,7 @@ struct ExerciseQueueIntroView: View {
             // screen.
             .disabled(order.isEmpty)
             .opacity(order.isEmpty ? 0.4 : 1)
+            .explain(L("Sings the exercises above one after the other, from the top."))
             .padding(.horizontal)
             .padding(.bottom)
         }
@@ -364,6 +373,7 @@ struct RoutineIntroView: View {
                     Button(action: onSettings) {
                         Label("Edit Routine", systemImage: "slider.horizontal.3")
                     }
+                    .explain(L("Opens this routine's own screen, where its name, description and exercises are kept."))
                 }
             }
     }
@@ -405,6 +415,7 @@ struct FavouritesEditView: View {
                 .buttonStyle(.borderless)
             }
         }
+        .settingHelp(L("Your favourite exercises, in the order the Home tab shows them. Drag by the handle on the right to rearrange them."))
     }
 
     /// Swap the rows' drag handles for delete buttons and back. Edit mode is what
@@ -437,6 +448,7 @@ struct FavouritesEditView: View {
                 } label: {
                     Image(systemName: isDeletingExercises ? "trash.fill" : "trash")
                 }
+                .explain(L("Swaps the drag handles for delete buttons, to take exercises off this list. They stay in your library."))
             }
             ToolbarItem(placement: .topBarTrailing) {
                 Button {
@@ -444,6 +456,7 @@ struct FavouritesEditView: View {
                 } label: {
                     Image(systemName: "plus")
                 }
+                .explain(L("Opens your library, where you tick the exercises this list is made of."))
             }
         }
     }

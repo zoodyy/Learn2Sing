@@ -180,6 +180,7 @@ struct FeedbackView: View {
                 TextField("What would you like to say?", text: $message, axis: .vertical)
                     .lineLimit(5...15)
                     .focused($isWriting)
+                    .settingHelp(L("What you would like to say. The more exactly you describe it, the more can be done about it."))
             } header: {
                 Text("Message") + Text(verbatim: " *")
             }
@@ -226,6 +227,7 @@ struct FeedbackView: View {
                     }
                 }
                 .disabled(!canSend || isSending)
+                .settingHelp(L("Sends your message straight to the developer. It stays greyed out until the type and the message are filled in."))
             } footer: {
                 // The legend for the asterisks above stays put at the top, so
                 // the line below it — which says which of the two required

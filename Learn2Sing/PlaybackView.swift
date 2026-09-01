@@ -1003,6 +1003,7 @@ struct PlaybackView: View {
                                 }
                         }
                     )
+                    .explain(L("Pauses the exercise. Tap again to carry on from where you stopped."))
                 }
             }
         }
@@ -1429,6 +1430,7 @@ private struct ScoreView: View {
                 .foregroundStyle(tint)
                 .contentTransition(.numericText())
         }
+        .explain(L("How much of the run you sang on pitch. Red is low, green is high."))
     }
 
     private var chart: some View {
@@ -1456,7 +1458,8 @@ private struct ScoreView: View {
     /// One of the filled buttons along the bottom. The title shrinks rather than
     /// wraps, since a third button (Next) leaves each of them a narrow share of
     /// the row in the longer-worded languages.
-    private func actionButton(_ title: String, action: @escaping () -> Void) -> some View {
+    private func actionButton(_ title: String, help: String,
+                              action: @escaping () -> Void) -> some View {
         Button(action: action) {
             Text(title)
                 .font(.headline)
@@ -1468,6 +1471,7 @@ private struct ScoreView: View {
                 .background(.tint, in: RoundedRectangle(cornerRadius: 14))
                 .foregroundStyle(.white)
         }
+        .explain(help)
     }
 
     /// Opens the finished run for a closer look. Spelled out above the button row
@@ -1482,6 +1486,14 @@ private struct ScoreView: View {
                 .background(.tint.opacity(0.15), in: RoundedRectangle(cornerRadius: 14))
                 .foregroundStyle(.tint)
         }
+        .explain(reviewHelp)
+    }
+
+    /// What the Review button does, said the same way in both of its shapes.
+    /// Computed, not stored: a stored one would hold whatever language it was
+    /// first read in.
+    private var reviewHelp: String {
+        L("Opens the run you just sang as a still picture: your pitch drawn over the notes, so you can see where it went.")
     }
 
     private var reviewIcon: some View {
@@ -1493,6 +1505,7 @@ private struct ScoreView: View {
                 .foregroundStyle(.white)
         }
         .accessibilityLabel(L("Review"))
+        .explain(reviewHelp)
     }
 
     /// How far a sideways drag has to travel before it counts as the exit swipe.
@@ -1529,6 +1542,7 @@ private struct ScoreView: View {
                 .foregroundStyle(.white)
         }
         .accessibilityLabel(L("Play Again"))
+        .explain(L("Sings this exercise again from the beginning."))
     }
 
     var body: some View {
@@ -1574,6 +1588,7 @@ private struct ScoreView: View {
                         .foregroundStyle(.tint)
                 }
                 .disabled(isDownloaded)
+                .explain(L("Copies this exercise into your own library, where you can change it and keep your scores for it."))
                 .padding(.horizontal, 40)
             }
 
@@ -1587,9 +1602,13 @@ private struct ScoreView: View {
                     DebugRecordingExportButton(recording: debugRecording, compact: true)
                 }
                 if let onNext {
-                    actionButton(L("Next"), action: onNext)
+                    actionButton(L("Next"),
+                                 help: L("Opens the exercise listed after this one."),
+                                 action: onNext)
                 }
-                actionButton(exitTitle, action: onExit)
+                actionButton(exitTitle,
+                             help: L("Finishes with this exercise. Flicking right across the screen does the same."),
+                             action: onExit)
             }
             .padding(.horizontal, 40)
             .padding(.bottom, verticalSizeClass == .compact ? 16 : 50)
@@ -1629,6 +1648,7 @@ private struct DelayResultView: View {
                 .font(.system(size: 80, weight: .bold, design: .rounded))
                 .foregroundStyle(.cyan)
                 .contentTransition(.numericText())
+                .explain(L("How long your microphone takes to hear you. Your scores are worked out with this taken off, and you can change it in Settings under Audio."))
 
             Text("Your microphone delay setting has been updated.")
                 .font(.subheadline)

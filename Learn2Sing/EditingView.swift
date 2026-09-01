@@ -351,13 +351,18 @@ struct EditingView: View {
                     Label("Back", systemImage: "chevron.backward")
                         .labelStyle(.titleAndIcon)
                 }
+                .explain(L("Saves what you drew and goes back to the exercise's settings."))
             }
             ToolbarItem(placement: .topBarTrailing) {
                 HStack(spacing: 2) {
-                    toolButton(.pen,   system: "pencil")
-                    toolButton(.text,  system: "textformat")
-                    toolButton(.erase, system: "eraser")
-                    toolButton(.hand,  system: "hand.point.up.left")
+                    toolButton(.pen,   system: "pencil",
+                               help: L("Draw notes: drag on the grid to make one, drag a note to move it, or drag its ends to make it longer or shorter."))
+                    toolButton(.text,  system: "textformat",
+                               help: L("Write a label on the grid, for the syllable to sing. Tap a label to change it, or drag it somewhere else."))
+                    toolButton(.erase, system: "eraser",
+                               help: L("Rub out notes and labels by dragging across them."))
+                    toolButton(.hand,  system: "hand.point.up.left",
+                               help: L("Scroll the grid around without changing anything."))
                 }
             }
         }
@@ -592,6 +597,7 @@ struct EditingView: View {
                 Image(systemName: "backward.end.fill")
             }
             .accessibilityLabel("Go to Start")
+            .explain(L("Puts the playhead back at the beginning."))
             Button {
                 isPlaying ? stopPlayback() : startPlayback(from: playheadBeat)
             } label: {
@@ -601,15 +607,18 @@ struct EditingView: View {
             }
             .disabled(notes.isEmpty)
             .accessibilityLabel(isPlaying ? L("Stop") : L("Play"))
+            .explain(L("Plays what you have drawn from the playhead, so you can hear it. Nothing is recorded or scored here."))
             TimelineView(.animation(minimumInterval: 0.1, paused: !isPlaying)) { _ in
                 Text(verbatim: positionLabel(for: displayBeat))
                     .font(.system(.footnote, design: .monospaced))
                     .foregroundStyle(.secondary)
+                    .explain(L("Where the playhead stands, as bar and beat."))
             }
             Spacer()
             Text(L("%d BPM", Int(bpm)))
                 .font(.footnote)
                 .foregroundStyle(.secondary)
+                .explain(L("The exercise's tempo, which is set on its settings screen."))
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 10)
@@ -623,13 +632,14 @@ struct EditingView: View {
         return "\(Int(b) / beatsPerMeasure + 1).\(Int(b) % beatsPerMeasure + 1)"
     }
 
-    private func toolButton(_ t: Tool, system: String) -> some View {
+    private func toolButton(_ t: Tool, system: String, help: String) -> some View {
         Button { tool = t } label: {
             Image(systemName: system)
                 .padding(6)
                 .background(tool == t ? Color.accentColor.opacity(0.2) : Color.clear,
                             in: RoundedRectangle(cornerRadius: 6))
         }
+        .explain(help)
     }
 
     // MARK: - Piano key column

@@ -334,6 +334,7 @@ private struct CategoryEditView: View {
                 } label: {
                     Image(systemName: isDeletingCategories ? "trash.fill" : "trash")
                 }
+                .explain(L("Swaps the drag handles for delete buttons. Deleting a category keeps its exercises and moves them to “No Category”."))
             }
             ToolbarItem(placement: .topBarTrailing) {
                 Button {
@@ -341,6 +342,7 @@ private struct CategoryEditView: View {
                 } label: {
                     Image(systemName: "plus")
                 }
+                .explain(L("Adds another category and hands it the keyboard, ready to be named."))
             }
         }
     }
@@ -375,6 +377,9 @@ private struct CategoryEditView: View {
                 .buttonStyle(.borderless)
             }
         }
+        // One explanation for the whole row rather than one per control: two
+        // press-and-hold targets inside each other would both answer the hold.
+        .settingHelp(L("Tap the name to rename the category, and drag by the handle on the right to reorder it. The number is how many exercises it holds."))
     }
 
     /// Swap the rows' drag handles for delete buttons and back. Edit mode is what
@@ -720,6 +725,7 @@ struct ExercisesView: View {
                     } label: {
                         Image(systemName: "plus")
                     }
+                    .explain(L("Makes an empty exercise and opens its settings, or adds a category to sort your exercises into."))
                 }
                 ToolbarItem(placement: .topBarTrailing) {
                     Menu {
@@ -752,6 +758,7 @@ struct ExercisesView: View {
                               : "line.3.horizontal.decrease.circle.fill")
                     }
                     .accessibilityLabel("Filter")
+                    .explain(L("Narrows the list to where the exercises came from, or to the ones you have shared. The button is filled in while a filter is on."))
                 }
             }
             .onChange(of: navigationPath) { old, new in

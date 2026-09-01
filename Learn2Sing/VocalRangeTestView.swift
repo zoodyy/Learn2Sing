@@ -128,6 +128,7 @@ struct VocalRangeTestView: View {
                     .background(.tint, in: RoundedRectangle(cornerRadius: 14))
                     .foregroundStyle(.white)
             }
+            .explain(L("Starts listening. Sing the note asked for and hold it until the ring has gone all the way round."))
         }
     }
 
@@ -159,6 +160,7 @@ struct VocalRangeTestView: View {
                 }
             }
             .frame(width: 220, height: 220)
+            .explain(L("The note the app hears you singing. The ring fills as you hold it, and moves on once it is full."))
 
             Spacer()
 
@@ -181,10 +183,12 @@ struct VocalRangeTestView: View {
                     .font(.system(size: 56, weight: .bold, design: .rounded))
                     .foregroundStyle(.tint)
                     .multilineTextAlignment(.center)
+                    .explain(L("The lowest and the highest note you managed. Exercises are moved up or down to fit between them."))
             } else {
                 Text(verbatim: "—")
                     .font(.system(size: 56, weight: .bold, design: .rounded))
                     .foregroundStyle(.tint)
+                    .explain(L("The lowest and the highest note you managed. Exercises are moved up or down to fit between them."))
             }
 
             Spacer()
@@ -207,9 +211,11 @@ struct VocalRangeTestView: View {
                     .background(.tint, in: RoundedRectangle(cornerRadius: 14))
                     .foregroundStyle(.white)
             }
+            .explain(L("Keeps this range as your own, under “Custom” in the Voice settings."))
 
             Button("Try Again") { restart() }
                 .padding(.bottom, 4)
+                .explain(L("Throws this result away and runs the test again from the start."))
         }
     }
 

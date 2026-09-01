@@ -67,6 +67,9 @@ struct ExerciseListSection: Equatable {
     /// true puts a + button in the header, right after the category name
     /// (Routines on the Home tab). Taps arrive via the list's `onAdd`.
     var showsAdd = false
+    /// What holding that + button explains. nil leaves it without help, the way
+    /// every other press-and-hold target that has nothing to say does.
+    var addHelp: String? = nil
     /// false drops the collapse chevron from the header, for sections that only
     /// label a group and can't be collapsed (the Community search results).
     var showsChevron = true
@@ -499,6 +502,7 @@ final class ExerciseListController: UIViewController {
                     self?.onCalendarSelect?(selection)
                 }
                 .environment(\.locale, locale)
+                .explain(L("One square per day, oldest first. The more you practised, the fuller the colour, and a day that reached your daily practice time gets a tick. Tap a square to see that day."))
             }
             cell.accessories = []
         }
@@ -510,6 +514,7 @@ final class ExerciseListController: UIViewController {
             cell.contentConfiguration = UIHostingConfiguration {
                 RecommendationCard(category: category, skill: skill)
                     .environment(\.locale, locale)
+                    .explain(L("Tap to sing everything the app suggests for you today, one exercise after another. The stars are your own level, which the suggestions are pitched at."))
             }
             cell.accessories = []
         }
@@ -690,6 +695,7 @@ final class ExerciseListController: UIViewController {
         header.onTap = { [weak self] in self?.onToggleCollapse?(section.category) }
         header.onLongPress = { [weak self] in self?.onHeaderLongPress?() }
         header.onAdd = section.showsAdd ? { [weak self] in self?.onAdd?(section.category) } : nil
+        header.addHelp = section.showsAdd ? section.addHelp : nil
     }
 
     // MARK: - Highlight
@@ -1484,6 +1490,10 @@ final class ExerciseSectionHeaderView: UICollectionReusableView {
     var onAdd: (() -> Void)? {
         didSet { addButton.isHidden = onAdd == nil }
     }
+    /// Press-and-hold help for the + button, shown in the same bubble the
+    /// SwiftUI screens use (see SettingHelp). nil leaves the hold doing nothing:
+    /// the header's own hold is excluded from controls, so it can't stand in.
+    var addHelp: String?
 
     private let nameLabel = UILabel()
     private let countLabel = UILabel()
@@ -1525,6 +1535,12 @@ final class ExerciseSectionHeaderView: UICollectionReusableView {
         addButton.accessibilityLabel = L("Add")
         addButton.isHidden = true
         addButton.addTarget(self, action: #selector(addTapped), for: .touchUpInside)
+        // The header's own long press is kept off the controls inside it (see the
+        // delegate below), so the + button carries its own.
+        let addHold = UILongPressGestureRecognizer(target: self,
+                                                   action: #selector(addHeldDown(_:)))
+        addHold.minimumPressDuration = 0.4
+        addButton.addGestureRecognizer(addHold)
 
         let spacer = UIView()
         spacer.setContentHuggingPriority(.defaultLow, for: .horizontal)
@@ -1571,6 +1587,11 @@ final class ExerciseSectionHeaderView: UICollectionReusableView {
     @objc private func tapped() { onTap?() }
 
     @objc private func addTapped() { onAdd?() }
+
+    @objc private func addHeldDown(_ recognizer: UILongPressGestureRecognizer) {
+        guard recognizer.state == .began, let addHelp else { return }
+        SettingHelpBubble.present(addHelp, from: addButton)
+    }
 
     @objc private func longPressed(_ recognizer: UILongPressGestureRecognizer) {
         guard recognizer.state == .began else { return }

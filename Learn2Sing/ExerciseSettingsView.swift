@@ -156,18 +156,21 @@ struct ExerciseSettingsView: View {
                 TextField("Name", text: $exercise.name)
                     .focused($focusedField, equals: .name)
                     .onSubmit { demoteIfNameTaken() }
+                    .settingHelp(L("What this exercise is called in your lists."))
             }
 
             Section("Description") {
                 TextField("Shown before the exercise starts", text: $exercise.details, axis: .vertical)
                     .lineLimit(3...8)
                     .focused($focusedField, equals: .details)
+                    .settingHelp(L("Your note on what to do, shown on the screen before the exercise starts."))
             }
 
             Section {
                 NavigationLink(value: ExerciseRoute.edit(exercise.id)) {
                     Label("Edit MIDI", systemImage: "pianokeys")
                 }
+                .settingHelp(L("Opens the note editor, where you draw this exercise's notes and write labels on them."))
             }
 
             Section("Pitch") {
@@ -178,6 +181,7 @@ struct ExerciseSettingsView: View {
                         Text(pitchLabel).foregroundStyle(.secondary)
                     }
                 }
+                .settingHelp(L("Moves every note of the exercise up or down by this many semitones. 12 is a whole octave."))
             }
 
             Section("Tempo") {
@@ -186,7 +190,9 @@ struct ExerciseSettingsView: View {
                     Spacer()
                     Text(L("%d BPM", Int(exercise.bpm))).foregroundStyle(.secondary)
                 }
+                .settingHelp(L("How fast the exercise is played, in beats per minute."))
                 Slider(value: $exercise.bpm, in: 40...240, step: 1)
+                    .settingHelp(L("How fast the exercise is played, in beats per minute."))
             }
 
             Section("Repetition") {
@@ -206,6 +212,7 @@ struct ExerciseSettingsView: View {
                 }
                 .contentShape(Rectangle())
                 .onTapGesture { focusedField = .repeatCount }
+                .settingHelp(L("How many times the pattern is played in a row."))
 
                 if exercise.repeatCount > 1 {
                     HStack {
@@ -220,6 +227,7 @@ struct ExerciseSettingsView: View {
                     }
                     .contentShape(Rectangle())
                     .onTapGesture { focusedField = .transpose }
+                    .settingHelp(L("Each repetition starts this many semitones above the one before it. A negative value works downwards."))
 
                     if exercise.repeatCount > 2 && exercise.transposePerRepeat != 0 {
                         HStack {
@@ -237,6 +245,7 @@ struct ExerciseSettingsView: View {
                         }
                         .contentShape(Rectangle())
                         .onTapGesture { focusedField = .switchDirection }
+                        .settingHelp(L("After this many repetitions the transposing turns around, so the exercise climbs and then comes back down. 0 never turns."))
                     }
 
                     HStack {
@@ -251,6 +260,7 @@ struct ExerciseSettingsView: View {
                     }
                     .contentShape(Rectangle())
                     .onTapGesture { focusedField = .speed }
+                    .settingHelp(L("Each repetition is played this many BPM faster than the one before it. A negative value slows it down."))
 
                     HStack {
                         Text("Time between reps")
@@ -264,6 +274,7 @@ struct ExerciseSettingsView: View {
                     }
                     .contentShape(Rectangle())
                     .onTapGesture { focusedField = .betweenReps }
+                    .settingHelp(L("Silent beats left between one repetition and the next, to breathe in."))
                 }
             }
 
@@ -290,6 +301,7 @@ struct ExerciseSettingsView: View {
                         .frame(maxWidth: .infinity)
                 }
                 .dangerRow()
+                .settingHelp(L("Deletes this exercise, its notes and its scores. This cannot be undone."))
             }
         }
     }

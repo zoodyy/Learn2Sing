@@ -211,6 +211,7 @@ struct InstrumentsView: View {
                             preview.play(instrument)
                         }
                     }
+                    .settingHelp(L("Tap the name to play the exercises' notes with this sound. The speaker plays a sample of it."))
                 }
             }
 
@@ -246,6 +247,7 @@ struct InstrumentsView: View {
                             .font(.footnote.weight(.semibold))
                             .foregroundStyle(.tertiary)
                     }
+                    .settingHelp(L("A sound you uploaded yourself. Tap the name to open it, the speaker to hear it, and swipe left to delete it."))
                 }
                 .onDelete { offsets in
                     for offset in offsets {
@@ -269,6 +271,7 @@ struct InstrumentsView: View {
                 } label: {
                     Image(systemName: "plus")
                 }
+                .explain(L("Uploads an MP3 or WAV file holding one single sound, to play the notes with."))
             }
         }
         .fileImporter(
@@ -323,6 +326,7 @@ struct CustomInstrumentDetailView: View {
         Form {
             Section("Name") {
                 TextField("Name", text: $instrument.name)
+                    .settingHelp(L("What this sound is called in the list of instruments."))
             }
 
             Section {
@@ -363,6 +367,7 @@ struct CustomInstrumentDetailView: View {
                 }
                 .foregroundStyle(.primary)
                 .disabled(isSelected)
+                .settingHelp(L("Makes this the sound the notes are played with everywhere in the app."))
             }
 
             Section {
@@ -373,6 +378,7 @@ struct CustomInstrumentDetailView: View {
                         .frame(maxWidth: .infinity)
                 }
                 .dangerRow()
+                .settingHelp(L("Deletes this sound and the file it came from. This cannot be undone."))
             }
         }
         .navigationTitle(instrument.name)

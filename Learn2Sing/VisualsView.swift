@@ -365,6 +365,7 @@ struct PlaybackVisualsView: View {
                 }
                 .overlay(alignment: .top) {
                     collapsiblePreview(width: previewWidth, fullHeight: previewWidth)
+                        .explain(L("A live sample of the playback screen. Everything you change below shows up here straight away."))
                 }
         }
         .navigationTitle(L("Playback"))
@@ -439,23 +440,33 @@ struct PlaybackVisualsView: View {
         Form {
             Section("Notes") {
                 ColorPicker("Note colour", selection: colorBinding($noteColor), supportsOpacity: false)
+                    .settingHelp(L("The colour the notes to sing are drawn in."))
                 ColorPicker("Playing note colour", selection: colorBinding($playingNoteColor), supportsOpacity: false)
+                    .settingHelp(L("The colour a note takes on while it is the one being sung."))
                 sliderRow(L("Note roundness"), value: $noteRoundness, range: 0...1)
+                    .settingHelp(L("How rounded the ends of the notes are, from square to fully rounded."))
             }
 
             Section("Zoom & position") {
                 sliderRow(L("Vertical zoom"), value: $verticalZoom, range: 0.5...3)
+                    .settingHelp(L("How tall a pitch is. Turn it up to spread the notes apart, down to fit more of your range on screen."))
                 sliderRow(L("Horizontal zoom"), value: $horizontalZoom, range: 0.4...3)
+                    .settingHelp(L("How wide a beat is. Turn it down to see more of what is coming."))
                 Toggle("Follow notes vertically", isOn: $followVertical)
+                    .settingHelp(L("Scrolls the screen up and down so the notes being sung stay in the middle. Off, the whole exercise is shown at once."))
             }
 
             Section("Background") {
                 Toggle("Show horizontal lines", isOn: $showLines)
+                    .settingHelp(L("Draws a striped lane for every pitch behind the notes, like piano keys laid on their side."))
                 if !showLines {
                     ColorPicker("Background colour", selection: colorBinding($background), supportsOpacity: false)
+                        .settingHelp(L("The colour behind the notes while the lanes are switched off."))
                 }
                 Toggle("Show keyboard", isOn: $showKeyboard)
+                    .settingHelp(L("Draws a piano keyboard down the left-hand side, so you can see which key each note sits on."))
                 Toggle("Show pitches", isOn: $showPitches)
+                    .settingHelp(L("Writes the note names (C4, A3 …) down the left-hand side."))
                 if showPitches {
                     Toggle("Automatic pitch name colour", isOn: $autoPitchNameColor)
                         .settingHelp(L("Draws each pitch name in a colour that stands out where it sits: dark on the white keys, light on the black ones, and light over the background while the keyboard is hidden. Turn it off to pick the colour yourself."))
@@ -470,18 +481,24 @@ struct PlaybackVisualsView: View {
 
             Section("Text") {
                 ColorPicker("Text colour", selection: colorBinding($textColor), supportsOpacity: false)
+                    .settingHelp(L("The colour of the labels written over the notes in the note editor."))
                 Picker("Text font", selection: $textFont) {
                     ForEach(PlaybackFont.allCases) { font in
                         Text(L(font.rawValue)).tag(font.rawValue)
                     }
                 }
+                .settingHelp(L("The typeface those labels are written in."))
             }
 
             Section("Singing indicator") {
                 sliderRow(L("Size"), value: $singerSize, range: 0.5...3)
+                    .settingHelp(L("How big the dot that follows your voice is."))
                 ColorPicker("Inner colour", selection: opacityColorBinding($singerInnerColor), supportsOpacity: true)
+                    .settingHelp(L("The fill of the dot that follows your voice."))
                 ColorPicker("Outer colour", selection: opacityColorBinding($singerOuterColor), supportsOpacity: true)
+                    .settingHelp(L("The ring around that dot."))
                 ColorPicker("Line colour", selection: opacityColorBinding($singerLineColor), supportsOpacity: true)
+                    .settingHelp(L("The trail the dot leaves behind it, showing the pitch you have just sung."))
             }
 
             Section {
@@ -566,6 +583,7 @@ struct PlaybackVisualsView: View {
                 // The checkmark is the only thing marking the selected row, and it
                 // carries no label of its own, so state the selection outright.
                 .accessibilityAddTraits(isSelected ? [.isSelected] : [])
+                .settingHelp(L("Tap a template to switch to it, or tap the selected one to deselect it. Swipe left to delete it."))
             }
             .onDelete { templates.remove(atOffsets: $0) }
 

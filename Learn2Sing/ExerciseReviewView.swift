@@ -104,6 +104,7 @@ struct ExerciseReviewView: View {
                 PanZoomSurface(onPan: pan(by:), onPinch: zoom(by:axis:around:))
             }
             .ignoresSafeArea()
+            .explain(L("The whole exercise with the pitch you sang drawn over it. Drag to move around, pinch to zoom."))
             .onAppear {
                 canvasSize = canvas
                 safeArea = geo.safeAreaInsets
@@ -130,11 +131,13 @@ struct ExerciseReviewView: View {
                     Image(systemName: "chevron.backward")
                 }
                 .accessibilityLabel(L("Back"))
+                .explain(L("Goes back to where you came from, leaving the exercise as it is."))
             }
             if let onCalibrationDone {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("Done") { onCalibrationDone(delayMs.rounded()) }
                         .fontWeight(.semibold)
+                        .explain(L("Saves the offset below as your microphone delay and closes the test."))
                 }
             }
         }
@@ -186,6 +189,7 @@ struct ExerciseReviewView: View {
                     .foregroundStyle(.white)
                     .contentTransition(.numericText())
                     .frame(minWidth: 76)
+                    .explain(L("How far your singing is being moved to line it up. The arrows shift it: the double ones in big steps, the single ones a millisecond at a time."))
 
                 NudgeButton(ms: -fineStepMs, symbol: "chevron.right",
                             repeatEvery: fineRepeat, onStep: nudge)

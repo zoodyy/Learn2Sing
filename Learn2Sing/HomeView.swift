@@ -195,6 +195,9 @@ private struct HomeCategoryEditView: View {
                                 ? L("Show %@", ExerciseCategoryName.localized(category))
                                 : L("Hide %@", ExerciseCategoryName.localized(category)))
         }
+        // One explanation for the whole row rather than one per control: two
+        // press-and-hold targets inside each other would both answer the hold.
+        .settingHelp(L("Drag by the handle on the right to set the order these categories come in on the Home tab. The eye takes one off the tab, or puts it back; the last one left cannot be hidden."))
     }
 
     var body: some View {
@@ -433,6 +436,20 @@ struct HomeView: View {
         category == HomeCategories.routines || category == HomeCategories.favourites
     }
 
+    /// What holding a category's + button explains. The two categories that have
+    /// one add different things: a routine is made here, while the favourites are
+    /// picked on a screen of their own.
+    private func addHelp(for category: String) -> String? {
+        switch category {
+        case HomeCategories.routines:
+            L("Makes a new routine: your own list of exercises, sung one after the other.")
+        case HomeCategories.favourites:
+            L("Opens the list of your favourites, where you pick which exercises are in it and what order they come in.")
+        default:
+            nil
+        }
+    }
+
     private var listSections: [ExerciseListSection] {
         visibleCategories.map { category in
             let items = rows(in: category)
@@ -444,6 +461,7 @@ struct HomeView: View {
                                        showsCount: false,
                                        showsAdd: category == HomeCategories.routines
                                            || category == HomeCategories.favourites,
+                                       addHelp: addHelp(for: category),
                                        allowsReorder: isReorderable(category))
         }
     }
@@ -860,6 +878,7 @@ struct HomeView: View {
                     } label: {
                         Label("Settings", systemImage: "slider.horizontal.3")
                     }
+                    .explain(L("Opens the settings these suggestions are made under: how long you practise a day, and which exercises may be picked."))
                 }
             }
         case .exercisesSettings:

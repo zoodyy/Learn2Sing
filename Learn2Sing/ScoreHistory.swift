@@ -233,6 +233,7 @@ struct ScoreHistoryChart: View {
                 }
             }
             .pickerStyle(.segmented)
+            .explain(L("How far back the chart looks, from the last day to everything you have sung."))
 
             if points.isEmpty {
                 Text("No scores in this period")
@@ -240,8 +241,10 @@ struct ScoreHistoryChart: View {
                     .foregroundStyle(ink.opacity(0.5))
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .frame(minHeight: 120)
+                    .explain(L("Your scores for this exercise over time. Nothing was sung in the period picked above."))
             } else {
                 chart
+                    .explain(L("Your scores for this exercise over time, oldest on the left. Tap a point to see its score and date."))
             }
         }
     }

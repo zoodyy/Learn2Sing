@@ -541,6 +541,7 @@ private struct CommunityProfileHeader: View {
                 // placeholder is not a picture of them.
                 .disabled(profile?.picture == nil)
                 .accessibilityLabel(L("Profile Picture"))
+                .explain(L("This user's picture. Tap it to see it at full size."))
 
                 VStack(alignment: .leading, spacing: 4) {
                     if !description.isEmpty {
@@ -556,6 +557,7 @@ private struct CommunityProfileHeader: View {
                             .foregroundStyle(.secondary)
                     }
                 }
+                .explain(L("What this user wrote about themselves, and when they started using the app if they chose to show it."))
                 Spacer(minLength: 0)
             }
             .padding(.horizontal, 20)
@@ -635,6 +637,7 @@ private struct CommunityFilterMenu: View {
                   : "line.3.horizontal.decrease.circle.fill")
         }
         .accessibilityLabel("Filter")
+        .explain(L("Narrows the list to the exercises you have liked, or to the ones you have not. The button is filled in while a filter is on."))
     }
 }
 
@@ -665,6 +668,7 @@ private struct CommunitySortMenu: View {
             Image(systemName: "arrow.up.arrow.down.circle")
         }
         .accessibilityLabel("Sort")
+        .explain(L("Sets the order the exercises come in. “Reverse Order” turns whichever order is picked around."))
     }
 }
 

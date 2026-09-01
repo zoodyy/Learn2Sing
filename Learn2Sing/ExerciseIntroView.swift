@@ -99,10 +99,12 @@ struct ExerciseIntroView: View {
                         Text("No description.")
                             .font(.body)
                             .foregroundStyle(.secondary)
+                            .explain(L("What to do in this exercise. Whoever made it writes this in the exercise's settings."))
                     } else {
                         Text(trimmedDetails)
                             .font(.body)
                             .foregroundStyle(.secondary)
+                            .explain(L("What to do in this exercise. Whoever made it writes this in the exercise's settings."))
                     }
 
                     if showScore {
@@ -137,6 +139,7 @@ struct ExerciseIntroView: View {
                         .foregroundStyle(.tint)
                 }
                 .disabled(isDownloaded)
+                .explain(L("Copies this exercise into your own library, where you can change it and keep your scores for it."))
                 .padding(.horizontal)
                 .padding(.bottom, 8)
             }
@@ -150,6 +153,7 @@ struct ExerciseIntroView: View {
                         .background(.tint, in: RoundedRectangle(cornerRadius: 14))
                         .foregroundStyle(.white)
                 }
+                .explain(L("Begins the exercise. Sing along with the notes as they scroll past, and you get a score at the end."))
                 if let onSkip {
                     skipButton(onSkip)
                 }
@@ -180,6 +184,7 @@ struct ExerciseIntroView: View {
                 } label: {
                     Label("See Score", systemImage: "chart.line.uptrend.xyaxis")
                 }
+                .explain(L("Shows how you have scored on this exercise so far, as a chart under the description."))
             }
             // Same screen the list's "Settings" swipe action opens, and the same
             // symbol, so the two read as one action.
@@ -188,6 +193,7 @@ struct ExerciseIntroView: View {
                     Button(action: onSettings) {
                         Label("Settings", systemImage: "slider.horizontal.3")
                     }
+                    .explain(L("Opens this exercise's settings: its name, tempo, repetitions and notes."))
                 }
             }
         }
@@ -213,6 +219,7 @@ struct ExerciseIntroView: View {
                 .foregroundStyle(.tint)
         }
         .accessibilityLabel(L("Skip Exercise"))
+        .explain(L("Leaves this exercise unsung and moves on to the next one in the queue."))
     }
 
     /// The exercise's difficulty as five stars, on the trailing edge so it sits
@@ -234,6 +241,7 @@ struct ExerciseIntroView: View {
         .accessibilityElement(children: .ignore)
         .accessibilityLabel("Difficulty:")
         .accessibilityValue(Text(hardness, format: .percent.precision(.fractionLength(0))))
+        .explain(L("How hard this exercise turns out to be, worked out from everyone's scores on it. Five stars is the hardest."))
     }
 
     /// Heart plus the exercise's like count. Tapping toggles this user's like:
@@ -261,6 +269,7 @@ struct ExerciseIntroView: View {
         .buttonStyle(.plain)
         .accessibilityLabel(isLiked ? L("Unlike") : L("Like"))
         .accessibilityValue(L("%d likes", count))
+        .explain(L("Tap the heart to like this exercise. The number is how many users have."))
     }
 
     /// How often this exercise has been downloaded — the same number the
@@ -281,6 +290,7 @@ struct ExerciseIntroView: View {
         .accessibilityElement(children: .ignore)
         .accessibilityLabel("Downloads")
         .accessibilityValue(count.formatted())
+        .explain(L("How many times this exercise has been downloaded."))
     }
 
     /// The same score-history chart shown on the result screen, on the same
