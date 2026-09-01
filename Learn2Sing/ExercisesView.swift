@@ -202,6 +202,11 @@ enum ExerciseRoute: Hashable {
     // tab's Exercises screen and the whitelist picker that screen opens.
     case exercisesSettings
     case recommendationWhitelist
+    // A community exercise opened from the Home tab's "New for You", which is
+    // listed straight off the server: its own pair of screens, since `play` and
+    // `playback` resolve their exercise in the library and these aren't in it.
+    case communityPlay(UUID)     // intro screen, with the heart and the download button
+    case communityPlayback(UUID) // playback of it
 }
 
 /// The inline-editable category name on the edit-categories screen. Edits are
@@ -825,10 +830,11 @@ struct ExercisesView: View {
                 case .user, .routine, .routineIntro, .routinePicker, .routinePlay, .routinePlayback,
                      .recommendationIntro, .recommendationPlay, .recommendationPlayback,
                      .exercisesSettings, .recommendationWhitelist,
-                     .favourites, .favouritesPicker:
+                     .favourites, .favouritesPicker,
+                     .communityPlay, .communityPlayback:
                     // Never appended from this tab; usernames only show in
-                    // Community, and routines, favourites and recommendations
-                    // live on the Home tab.
+                    // Community, and routines, favourites, recommendations and
+                    // the community suggestions live on the Home tab.
                     EmptyView()
                 }
             }

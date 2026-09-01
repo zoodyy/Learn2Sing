@@ -48,6 +48,11 @@ struct ExerciseListRow: Equatable {
     var swipeActionImage = "slider.horizontal.3"
     /// true adds a trailing "Delete" swipe action (routines on the Home tab).
     var showsDelete = false
+    /// false drops the leading "Settings" swipe from this row alone, for rows in
+    /// a list that has the action but whose own exercise has no settings screen —
+    /// the Home tab's "New for You", which lists community exercises that aren't
+    /// in the library at all.
+    var showsSettings = true
     var id: UUID { exercise.id }
 }
 
@@ -914,7 +919,8 @@ final class ExerciseListController: UIViewController {
     private func leadingSwipeActions(at indexPath: IndexPath) -> UISwipeActionsConfiguration? {
         guard onSettings != nil,
               let id = dataSource.itemIdentifier(for: indexPath)?.id,
-              let row = rowsByID[id], row.content == .exercise else { return nil }
+              let row = rowsByID[id], row.content == .exercise,
+              row.showsSettings else { return nil }
         let action = UIContextualAction(style: .normal, title: row.swipeActionTitle) { [weak self] _, _, done in
             self?.onSettings?(id)
             done(true)

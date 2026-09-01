@@ -16,12 +16,13 @@ enum HomeCategories {
     static let favourites = "Favourites"
     static let recommended = "Recommended"
     static let calendar = "Calendar"
+    static let newForYou = "New for You"
 
     /// Every built-in category, in the order a user who never rearranged them sees.
     /// New categories go on the end: `parse` appends the ones a stored order
     /// predates, so anywhere else would put them somewhere different for a user
     /// who has rearranged their categories than for one who hasn't.
-    static let all = [recent, routines, favourites, recommended, calendar]
+    static let all = [recent, routines, favourites, recommended, calendar, newForYou]
 
     /// Identifies the single row the "Calendar" category is made of. It isn't an
     /// exercise, but the list is built around rows that are, so the calendar
@@ -229,8 +230,9 @@ private struct HomeCategoryEditView: View {
 /// long ago each was last sung and how close it is to the singer's level, as
 /// many as Settings ▸ Exercises asks for — as one card that plays them all in a
 /// row, or as a list of them if that same screen says so),
-/// and "Calendar" (the last 30 days of practice as coloured squares — see
-/// PracticeCalendarView).
+/// "Calendar" (the last 30 days of practice as coloured squares — see
+/// PracticeCalendarView), and "New for You" (five exercises off the community's
+/// hot list, the ones pitched at the singer's own level — see NewForYouFeed).
 /// Routines and favourites are rearranged in place by long-pressing a row and
 /// dragging it, each within its own category — the computed categories can't
 /// be, and neither can the calendar. The categories look and behave like the
@@ -250,6 +252,11 @@ struct HomeView: View {
     /// counts, where a heart tapped in the Community tab would rebuild this whole
     /// list for nothing — see SkillLevelStore.
     @ObservedObject private var skill = SkillLevelStore.shared
+    /// The community exercises "New for You" picks from. Its own object rather
+    /// than the Community tab's list: this one asks a fixed question — the top of
+    /// the "Hot" order — and is not the tab's to reorder or page. See
+    /// NewForYouFeed.
+    @ObservedObject private var newForYou = NewForYouFeed.shared
     // Typed (not NavigationPath) so pops can be inspected for the saved toasts.
     @State private var navigationPath: [ExerciseRoute] = []
 
@@ -385,6 +392,14 @@ struct HomeView: View {
         }?.key
     }
 
+    /// The community exercises "New for You" lists: the hottest ones pitched at
+    /// this singer's level, out of the two pages of the hot list NewForYouFeed
+    /// fetched. Empty until that fetch lands, which leaves the category as empty
+    /// as an unfilled "Favourites".
+    private var newForYouExercises: [Exercise] {
+        newForYou.exercises(atLevel: skill.level)
+    }
+
     /// The one row "Recommended" holds while it shows its card: the card itself,
     /// drawn across the whole row like the calendar's. nil when there is nothing
     /// to suggest, which leaves the category as empty as the list would.
@@ -410,6 +425,16 @@ struct HomeView: View {
                 : recommendationCardRow.map { [$0] } ?? []
         case HomeCategories.calendar:
             [calendarRow]
+        case HomeCategories.newForYou:
+            newForYouExercises.map {
+                // Labelled with the uploader the way the Community tab labels
+                // them, but inert: a profile is a Community screen, and this
+                // category is five rows rather than a way into that tab. And no
+                // settings swipe — these exercises aren't in the library, so
+                // there are none to open until one is downloaded.
+                ExerciseListRow(exercise: $0, pattern: store.notes(for: $0.id),
+                                uploaderName: $0.uploaderName, showsSettings: false)
+            }
         default:
             []
         }
@@ -607,11 +632,36 @@ struct HomeView: View {
         }
     }
 
+    /// The same walk down "New for You", which needs its own: those exercises are
+    /// resolved through CommunitySync rather than out of the library, so the
+    /// library is no test of whether one is still there to play.
+    private func nextCommunityExercise(after id: UUID) -> UUID? {
+        guard let index = playQueue.firstIndex(of: id) else { return nil }
+        return playQueue[(index + 1)...].first { CommunitySync.shared.exercise(for: $0) != nil }
+    }
+
     /// The score screen's Next button: swap the finished exercise's intro/playback
     /// pair for the next exercise's intro screen.
     private func advance(to id: UUID) {
         navigationPath.removeLast(2)
         navigationPath.append(ExerciseRoute.play(id))
+    }
+
+    /// `advance(to:)` for those exercises: the same swap of the finished
+    /// exercise's intro/playback pair for the next one's intro, on the pair of
+    /// routes that resolve through the community rather than the library.
+    private func advanceCommunity(to id: UUID) {
+        navigationPath.removeLast(2)
+        navigationPath.append(ExerciseRoute.communityPlay(id))
+    }
+
+    /// Copies a community exercise into the user's library and counts the
+    /// download towards its total (only the first time this user downloads it) —
+    /// the Download button on a "New for You" exercise's intro and score screens,
+    /// exactly as in the Community tab.
+    private func downloadCommunity(_ exercise: Exercise) {
+        _ = store.downloadCopy(of: exercise)
+        CommunitySync.shared.registerDownload(for: exercise.id)
     }
 
     private var listContent: some View {
@@ -625,6 +675,13 @@ struct HomeView: View {
                 // Remember the tapped row's category, in the order it showed
                 // its exercises, so "Next" can walk it (and stop at its end).
                 playQueue = rows(in: category).map(\.id)
+                guard category != HomeCategories.newForYou else {
+                    // Not in the library, so not `play`: the community pair of
+                    // routes, which resolve their exercise through CommunitySync
+                    // and carry the heart and the download button.
+                    navigationPath.append(ExerciseRoute.communityPlay(id))
+                    return
+                }
                 open(id, asExercise: .play(id))
             },
             onSettings: { open($0, asExercise: .settings($0)) },
@@ -730,6 +787,10 @@ struct HomeView: View {
             } message: { routine in
                 Text(L("\"%@\" will be deleted. Its exercises stay in your library. This cannot be undone.", routine.name))
             }
+            // "New for You" is fetched the first time this tab appears and after
+            // a fetch that failed; a visit to one already showing it leaves the
+            // list alone rather than reshuffling it under the user.
+            .task { await newForYou.refreshIfNeeded() }
             .onChange(of: navigationPath) { old, new in
                 toasts.routesPopped(from: old, to: new)
                 // The bubble belongs to this screen, so it doesn't follow the
@@ -912,6 +973,30 @@ struct HomeView: View {
         case .routinePicker(let id):
             if store.routines.contains(where: { $0.id == id }) {
                 RoutineExercisePickerView(routineID: id)
+            }
+        case .communityPlay(let id):
+            // The Community tab's intro screen, opened from here: the heart and
+            // the download button that only a community exercise has, and the
+            // public id it is listed by as the `likeID` they act on.
+            if let ex = CommunitySync.shared.exercise(for: id) {
+                ExerciseIntroView(exercise: ex,
+                                  likeID: ex.id,
+                                  onDownload: { downloadCommunity(ex) }) {
+                    navigationPath.append(ExerciseRoute.communityPlayback(id))
+                }
+            }
+        case .communityPlayback(let id):
+            if let ex = CommunitySync.shared.exercise(for: id) {
+                // Pop the intro screen along with playback so Exit lands back on
+                // the Home list, and post the play under the public id the
+                // exercise already carries rather than deriving one from it.
+                PlaybackView(exercise: ex,
+                             onScoreExit: { navigationPath.removeLast(2) },
+                             onScoreNext: nextCommunityExercise(after: id).map { next in
+                                 { advanceCommunity(to: next) }
+                             },
+                             onScoreDownload: { downloadCommunity(ex) },
+                             communityID: ex.id)
             }
         case .favourites:
             FavouritesEditView {

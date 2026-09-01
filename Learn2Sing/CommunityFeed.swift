@@ -204,7 +204,7 @@ final class CommunityFeed: ObservableObject {
     }
 
     /// What one call for one page came back with.
-    private enum PageResult {
+    enum PageResult {
         case page(records: [PersistRecord], isLast: Bool)
         /// This backend spells the `sortBy` the other way; try the next candidate.
         case unknownSortKey
@@ -407,18 +407,20 @@ final class CommunityFeed: ObservableObject {
         return new
     }
 
-    /// Fetches one page of one public storage type.
+    /// Fetches one page of one public storage type. Shared with the Home tab's
+    /// "New for You" (see NewForYouFeed), which asks the same endpoint a fixed
+    /// question of its own rather than borrowing this tab's paging.
     ///
     /// The endpoint requires `sortBy`, `sortDirection`, `page` and `pageSize`;
     /// without them it answers 500. It also ignores the storage type in the path
     /// once those are present, handing back documents of every kind, so the
     /// records are filtered by `storageType` here — while whether this was the
     /// last page is judged on what the server actually returned.
-    private static func fetchPage(storageType: String,
-                                  sortBy: String,
-                                  sortDirection: String,
-                                  page: Int,
-                                  extraQuery: [URLQueryItem]) async -> PageResult {
+    static func fetchPage(storageType: String,
+                          sortBy: String,
+                          sortDirection: String,
+                          page: Int,
+                          extraQuery: [URLQueryItem]) async -> PageResult {
         var components = URLComponents(string: "\(CommunitySync.baseURL)/fetch-public/\(storageType)")
         components?.queryItems = extraQuery + [
             URLQueryItem(name: "sortBy", value: sortBy),
@@ -518,12 +520,13 @@ final class CommunityFeed: ObservableObject {
 
     /// The username per public user id carried by a page of records: the
     /// server's lookup of each record's `customId1` (see `PersistRecord`).
+    /// Shared with NewForYouFeed, which labels its rows the same way.
     ///
     /// A user who has never posted a PUBLIC_PROFILE document has no name to look
     /// up, and the endpoint answers with their id — or with nothing — rather
     /// than leaving the field out, so both are dropped here. Their rows keep the
     /// name stamped on the exercise when it was published.
-    private static func publicNames(in records: [PersistRecord]) -> [String: String] {
+    static func publicNames(in records: [PersistRecord]) -> [String: String] {
         records.reduce(into: [String: String]()) { names, record in
             guard let userID = record.customId1, let name = record.customName1,
                   !name.isEmpty, name != userID

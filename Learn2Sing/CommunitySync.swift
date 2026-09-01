@@ -215,10 +215,10 @@ final class CommunitySync: ObservableObject {
     /// Last known difficulty per public exercise id, persisted so the intro
     /// screen's stars are up the moment it opens rather than a round trip later.
     private static let difficultiesKey = "communityDifficulties"
-    /// How many difficulties `refreshRecommendationDifficulties` asks for at
-    /// once. The endpoint answers for one exercise per call, so the whitelist
-    /// costs a call apiece; a few in flight together get through them without
-    /// the launch turning into a burst of a hundred requests.
+    /// How many difficulties are asked for at once. The endpoint answers for one
+    /// exercise per call, so a whitelist — or a page of the community — costs a
+    /// call apiece; a few in flight together get through them without the launch
+    /// turning into a burst of a hundred requests.
     private static let difficultyFetchWidth = 4
     /// Share date (seconds since 1970) per public exercise id, so re-uploading an
     /// edited exercise keeps the date it was first shared.
@@ -808,35 +808,63 @@ final class CommunitySync: ObservableObject {
     func refreshRecommendationDifficulties() async {
         guard let store else { return }
         let scored = Set(ScoreHistory.all().keys.compactMap(UUID.init(uuidString:)))
-        var wanted = store.exercises
+        let wanted = store.exercises
             .filter { store.recommendationWhitelist.contains($0.id) || scored.contains($0.id) }
             .map { PublicIdentifier.exercise($0.id) }
-            .makeIterator()
+        apply(fetched: await Self.fetchDifficulties(for: wanted))
+        // Even when nothing moved: this is the first point in a launch at which
+        // the whole picture is in, and the level and the hardness map are worked
+        // out from all of it at once.
+        SkillLevelStore.shared.recompute()
+    }
 
-        var fetched: [UUID: Double] = [:]
-        await withTaskGroup(of: (UUID, Double?).self) { group in
-            for _ in 0..<Self.difficultyFetchWidth {
-                guard let id = wanted.next() else { break }
-                group.addTask { (id, await Self.fetchDifficulty(for: id)) }
-            }
-            while let (id, value) = await group.next() {
-                if let value { fetched[id] = value }
-                if let next = wanted.next() {
-                    group.addTask { (next, await Self.fetchDifficulty(for: next)) }
-                }
-            }
-        }
+    /// The same for a batch of community exercises, addressed by the public ids
+    /// they are listed under: what the Home tab's "New for You" ranks the
+    /// community's hottest exercises against the singer's level by (see
+    /// NewForYouFeed). They land in the same cache as everything above, which is
+    /// where the intro screen's stars read them from too.
+    func refreshDifficulties(for publicExerciseIDs: [UUID]) async {
+        guard !publicExerciseIDs.isEmpty else { return }
+        // Only if something actually moved. Unlike the launch pass above this
+        // runs against exercises the singer may never have sung, and recomputing
+        // the level over an unchanged picture would only republish it.
+        guard apply(fetched: await Self.fetchDifficulties(for: publicExerciseIDs)) else { return }
+        SkillLevelStore.shared.recompute()
+    }
 
+    /// Puts fetched difficulties into the cache, persisting them if any of them
+    /// moved, and says whether any did.
+    @discardableResult
+    private func apply(fetched: [UUID: Double]) -> Bool {
         var changed = false
         for (id, value) in fetched where difficulties[id] != value {
             difficulties[id] = value
             changed = true
         }
         if changed { persistDifficulties() }
-        // Even when nothing moved: this is the first point in a launch at which
-        // the whole picture is in, and the level and the hardness map are worked
-        // out from all of it at once.
-        SkillLevelStore.shared.recompute()
+        return changed
+    }
+
+    /// The server's difficulty for each of `ids`, `difficultyFetchWidth` calls at
+    /// a time — one exercise apiece is all the endpoint offers — leaving out the
+    /// ones it had no answer for. Off the main actor, so those calls genuinely
+    /// overlap.
+    private nonisolated static func fetchDifficulties(for ids: [UUID]) async -> [UUID: Double] {
+        var wanted = ids.makeIterator()
+        var fetched: [UUID: Double] = [:]
+        await withTaskGroup(of: (UUID, Double?).self) { group in
+            for _ in 0..<difficultyFetchWidth {
+                guard let id = wanted.next() else { break }
+                group.addTask { (id, await fetchDifficulty(for: id)) }
+            }
+            while let (id, value) = await group.next() {
+                if let value { fetched[id] = value }
+                if let next = wanted.next() {
+                    group.addTask { (next, await fetchDifficulty(for: next)) }
+                }
+            }
+        }
+        return fetched
     }
 
     /// Adds or removes this user's like on a community exercise, addressed by
