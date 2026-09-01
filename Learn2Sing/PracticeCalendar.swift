@@ -3,8 +3,9 @@
 //  Learn2Sing
 //
 //  Records how long was practised on each day, and draws the Home tab's
-//  "Calendar" category out of it: the last 30 days as one square each, warming
-//  from grey to the app's accent colour with the time spent on them.
+//  "Calendar" category out of it: the last 30 days as one square each, all in
+//  the app's accent colour, fading up from nothing to the full colour with the
+//  time spent on them.
 //
 
 import SwiftUI
@@ -141,13 +142,14 @@ nonisolated struct PracticeCalendarSelection: Equatable {
 
 /// The Home tab's "Calendar" category: the last 30 days as one square each,
 /// oldest in the top-left corner and today in the bottom-right, with no numbers
-/// on them — a day is read off its colour. A day nothing was practised on is
-/// grey, and from there the squares warm through a faint pink, a stronger pink
-/// and a bright purple, landing on the app's accent colour at `goalMinutes` —
-/// the daily practice time from Settings ▸ Exercises, the same one the
-/// "Recommended" category fills — and staying there beyond it. A day that
-/// reached it is ticked, so the days that count can be picked out at a glance
-/// rather than judged off the end of a colour ramp.
+/// on them — a day is read off its colour. Every square is the app's accent
+/// colour and only its opacity says how much was sung: a day nothing was
+/// practised on is fully transparent, and from there the squares fade up in
+/// step with the time spent on them, landing on the full accent colour at
+/// `goalMinutes` — the daily practice time from Settings ▸ Exercises, the same
+/// one the "Recommended" category fills — and staying there beyond it. A day
+/// that reached it is ticked, so the days that count can be picked out at a
+/// glance rather than judged off the end of a fade.
 ///
 /// Tapping a square reports it, and the screen it went up on draws the bubble —
 /// the same one the score chart shows for a data point — over the list. The
@@ -180,15 +182,6 @@ struct PracticeCalendarView: View {
     /// measured first, and the bubble can be placed the moment a square is
     /// tapped.
     private static let gapRatio: CGFloat = 0.22
-
-    /// The calendar draws its own colours rather than using the semantic ones,
-    /// so it has to flip the grey with the appearance itself.
-    @Environment(\.colorScheme) private var colorScheme
-
-    /// The whole environment, purely so the accent colour can be resolved to
-    /// components: the ramp ends on exactly the colour the app is tinted with,
-    /// rather than on a copy of it that could drift.
-    @Environment(\.self) private var environment
 
     /// The app's chosen language, which is not necessarily the device's — the
     /// squares' accessibility labels are written in it.
@@ -225,12 +218,10 @@ struct PracticeCalendarView: View {
             let side = geo.size.width
                 / (CGFloat(Self.columns) + CGFloat(Self.columns - 1) * Self.gapRatio)
             let step = side * (1 + Self.gapRatio)
-            // Resolved once for the whole grid rather than per square.
-            let ramp = stops
             ZStack {
                 ForEach(Array(days.enumerated()), id: \.element.date) { index, day in
                     RoundedRectangle(cornerRadius: side * 0.24, style: .continuous)
-                        .fill(colour(for: day.seconds, along: ramp))
+                        .fill(Color.accentColor.opacity(opacity(for: day.seconds)))
                         .frame(width: side, height: side)
                         // The tick a day that reached the goal wears. Drawn on
                         // the square rather than beside it: the grid's shape is
@@ -292,33 +283,13 @@ struct PracticeCalendarView: View {
 
     // MARK: - Colour
 
-    /// The ramp a square's colour is picked off, evenly spaced from no practice
-    /// at all to the daily goal: grey, a faint bright pink, a darker pink, a
-    /// bright purple, and the app's own accent colour at the end of it.
-    private var stops: [(red: Double, green: Double, blue: Double)] {
-        let accent = Color.accentColor.resolve(in: environment)
-        return [
-            colorScheme == .dark ? (0.227, 0.227, 0.235) : (0.898, 0.898, 0.918),
-            (1.000, 0.702, 0.878),
-            (1.000, 0.310, 0.698),
-            (0.910, 0.420, 1.000),
-            (Double(accent.red), Double(accent.green), Double(accent.blue)),
-        ]
-    }
-
-    /// A day's colour: how far its practice time got towards a full day, walked
-    /// along the ramp and mixed between the two stops it falls between.
-    private func colour(for seconds: Int,
-                        along stops: [(red: Double, green: Double, blue: Double)]) -> Color {
-        let progress = min(Double(seconds) / goalSeconds, 1)
-        let scaled = progress * Double(stops.count - 1)
-        let lower = min(Int(scaled), stops.count - 2)
-        let t = scaled - Double(lower)
-        let from = stops[lower], to = stops[lower + 1]
-        return Color(.sRGB,
-                     red: from.red + (to.red - from.red) * t,
-                     green: from.green + (to.green - from.green) * t,
-                     blue: from.blue + (to.blue - from.blue) * t)
+    /// How solid a day's square is drawn: how far its practice time got towards
+    /// the daily goal, taken straight as an opacity on the accent colour. A day
+    /// with nothing on it leaves no mark at all, half the goal is drawn at half
+    /// strength, and the goal and anything past it is the accent colour itself —
+    /// which is what the tick is white on.
+    private func opacity(for seconds: Int) -> Double {
+        min(Double(seconds) / goalSeconds, 1)
     }
 
     // MARK: - Accessibility
