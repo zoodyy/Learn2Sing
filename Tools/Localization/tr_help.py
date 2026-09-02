@@ -60,6 +60,21 @@ T("Sets the order the exercises come in. “Reverse Order” turns whichever ord
   "연습이 나열되는 순서를 정합니다. “역순”은 선택한 순서를 뒤집습니다.",
   "设置练习的排列顺序。“倒序”会把所选顺序反过来。")
 
+T("The community list didn’t load. Tap to try again.",
+  "Die Community-Liste konnte nicht geladen werden. Tippe, um es erneut zu versuchen.",
+  "La lista de la comunidad no se cargó. Toca para volver a intentarlo.",
+  "La liste de la communauté n’a pas pu être chargée. Touchez pour réessayer.",
+  "L’elenco della comunità non è stato caricato. Tocca per riprovare.",
+  "A lista da comunidade não foi carregada. Toque para tentar de novo.",
+  "De community-lijst is niet geladen. Tik om het opnieuw te proberen.",
+  "Список сообщества не загрузился. Нажмите, чтобы попробовать снова.",
+  "Lista społeczności nie została wczytana. Dotknij, aby spróbować ponownie.",
+  "Topluluk listesi yüklenemedi. Yeniden denemek için dokunun.",
+  "Communitylistan kunde inte laddas. Tryck för att försöka igen.",
+  "コミュニティの一覧を読み込めませんでした。タップするともう一度試します。",
+  "커뮤니티 목록을 불러오지 못했습니다. 탭하면 다시 시도합니다.",
+  "社区列表加载失败。点按可重试。")
+
 # --- Instruments ---
 T("Tap the name to play the exercises' notes with this sound. The speaker plays a sample of it.",
   "Tippe auf den Namen, um die Noten der Übungen mit diesem Klang zu spielen. Der Lautsprecher spielt eine Kostprobe.",
@@ -303,6 +318,21 @@ T("Tap to sing everything the app suggests for you today, one exercise after ano
   "タップすると、今日おすすめのエクササイズを続けて歌えます。星はあなた自身のレベルで、おすすめはそれに合わせて選ばれます。",
   "탭하면 앱이 오늘 추천하는 연습을 차례로 이어서 부릅니다. 별은 당신의 실력이며, 추천은 그 수준에 맞춰집니다.",
   "点按即可依次唱完应用今天为你推荐的全部练习。星星表示你自己的水平，推荐正是按它来挑选的。")
+
+T("These exercises come from the community and didn’t load. Tap to try again.",
+  "Diese Übungen kommen aus der Community und konnten nicht geladen werden. Tippe, um es erneut zu versuchen.",
+  "Estos ejercicios vienen de la comunidad y no se cargaron. Toca para volver a intentarlo.",
+  "Ces exercices viennent de la communauté et n’ont pas pu être chargés. Touchez pour réessayer.",
+  "Questi esercizi vengono dalla comunità e non sono stati caricati. Tocca per riprovare.",
+  "Estes exercícios vêm da comunidade e não foram carregados. Toque para tentar de novo.",
+  "Deze oefeningen komen uit de community en zijn niet geladen. Tik om het opnieuw te proberen.",
+  "Эти упражнения берутся из сообщества и не загрузились. Нажмите, чтобы попробовать снова.",
+  "Te ćwiczenia pochodzą od społeczności i nie zostały wczytane. Dotknij, aby spróbować ponownie.",
+  "Bu egzersizler topluluktan gelir ve yüklenemedi. Yeniden denemek için dokunun.",
+  "De här övningarna kommer från communityn och kunde inte laddas. Tryck för att försöka igen.",
+  "これらはコミュニティのエクササイズで、読み込めませんでした。タップするともう一度試します。",
+  "이 연습들은 커뮤니티에서 오며 불러오지 못했습니다. 탭하면 다시 시도합니다.",
+  "这些练习来自社区，加载失败。点按可重试。")
 
 # --- Exercise intro screen ---
 T("What to do in this exercise. Whoever made it writes this in the exercise's settings.",

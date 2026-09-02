@@ -43,6 +43,15 @@ enum HomeCategories {
     static let recommendationRowID = UUID(uuidString: "2EC0DDED-0000-4000-8000-000000000002")
         ?? UUID()
 
+    /// Identifies the row "New for You" holds while its exercises are still
+    /// being fetched — the spinner — and the one it holds when they didn't
+    /// arrive at all: the reload button, whose tap is told from an exercise's
+    /// by this id.
+    static let newForYouLoadingRowID = UUID(uuidString: "10AD1ED0-0000-4000-8000-000000000003")
+        ?? UUID()
+    static let newForYouRetryRowID = UUID(uuidString: "5E713D00-0000-4000-8000-000000000004")
+        ?? UUID()
+
     static let orderKey = "homeCategoryOrder"
     /// The categories hidden from the tab, stored newline-joined like the order and
     /// likewise carried in the profile JSON (see `UserSettings`).
@@ -416,15 +425,57 @@ struct HomeView: View {
         newForYou.exercises(atLevel: skill.level)
     }
 
+    /// What the category shows: its exercises, or — while it has none — what is
+    /// keeping it from having any. Alone among the Home categories its rows come
+    /// off the server, so an empty one here isn't the plain "nothing to show"
+    /// an unfilled "Favourites" is: it is a fetch still running, or one that
+    /// never arrived. Both say so in a row of their own, the second offering the
+    /// reload button that asks again.
+    ///
+    /// The spinner covers the moment before the first fetch starts as well as
+    /// the fetch itself, so opening the tab doesn't flash an empty category on
+    /// the way to a full one. A fetch that succeeded and turned up nothing is
+    /// the only genuinely empty case, and it draws nothing at all.
+    private var newForYouRows: [ExerciseListRow] {
+        let exercises = newForYouExercises
+        if !exercises.isEmpty {
+            return exercises.map {
+                // Labelled with the uploader the way the Community tab labels
+                // them, but inert: a profile is a Community screen, and this
+                // category is five rows rather than a way into that tab. And no
+                // settings swipe — these exercises aren't in the library, so
+                // there are none to open until one is downloaded.
+                ExerciseListRow(exercise: $0, pattern: store.notes(for: $0.id),
+                                uploaderName: $0.uploaderName, showsSettings: false)
+            }
+        }
+        if newForYou.didFail {
+            let help = L("These exercises come from the community and didn’t load. Tap to try again.")
+            return [placeholderRow(HomeCategories.newForYouRetryRowID, content: .retry(help: help))]
+        }
+        if !newForYou.hasLoaded {
+            return [placeholderRow(HomeCategories.newForYouLoadingRowID, content: .loading)]
+        }
+        return []
+    }
+
+    /// A row that isn't an exercise: the list is built around rows that are, so
+    /// the calendar, the recommendation card and "New for You"'s spinner and
+    /// reload button each ride in a nameless placeholder carrying the fixed id
+    /// that row is known by, drawn as `content`.
+    private func placeholderRow(_ id: UUID, content: ExerciseListRowContent) -> ExerciseListRow {
+        var placeholder = Exercise(name: "")
+        placeholder.id = id
+        return ExerciseListRow(exercise: placeholder, pattern: [], content: content)
+    }
+
     /// The one row "Recommended" holds while it shows its card: the card itself,
     /// drawn across the whole row like the calendar's. nil when there is nothing
     /// to suggest, which leaves the category as empty as the list would.
     private var recommendationCardRow: ExerciseListRow? {
         guard let category = recommendedCategory else { return nil }
-        var placeholder = Exercise(name: "")
-        placeholder.id = HomeCategories.recommendationRowID
-        return ExerciseListRow(exercise: placeholder, pattern: [],
-                               content: .recommendation(category: category, skill: skill.level))
+        return placeholderRow(HomeCategories.recommendationRowID,
+                              content: .recommendation(category: category, skill: skill.level))
     }
 
     private func rows(in category: String) -> [ExerciseListRow] {
@@ -442,15 +493,7 @@ struct HomeView: View {
         case HomeCategories.calendar:
             [calendarRow]
         case HomeCategories.newForYou:
-            newForYouExercises.map {
-                // Labelled with the uploader the way the Community tab labels
-                // them, but inert: a profile is a Community screen, and this
-                // category is five rows rather than a way into that tab. And no
-                // settings swipe — these exercises aren't in the library, so
-                // there are none to open until one is downloaded.
-                ExerciseListRow(exercise: $0, pattern: store.notes(for: $0.id),
-                                uploaderName: $0.uploaderName, showsSettings: false)
-            }
+            newForYouRows
         default:
             []
         }
@@ -461,10 +504,8 @@ struct HomeView: View {
     /// a finished run — which republishes the store, and so rebuilds this
     /// screen — reaches the list as a changed row and redraws the squares.
     private var calendarRow: ExerciseListRow {
-        var placeholder = Exercise(name: "")
-        placeholder.id = HomeCategories.calendarRowID
-        return ExerciseListRow(
-            exercise: placeholder, pattern: [],
+        placeholderRow(
+            HomeCategories.calendarRowID,
             content: .practiceCalendar(PracticeLog.recentDays(PracticeCalendarView.dayCount),
                                        goalMinutes: practiceMinutes)
         )
@@ -686,6 +727,14 @@ struct HomeView: View {
             onSelect: { id, category in
                 guard id != HomeCategories.recommendationRowID else {
                     openRecommendations()
+                    return
+                }
+                // The reload button "New for You" puts up when its fetch didn't
+                // come back. Handled before the queue is captured below: it
+                // isn't an exercise, and there is nothing to play from a
+                // category that has none.
+                guard id != HomeCategories.newForYouRetryRowID else {
+                    Task { await newForYou.refresh() }
                     return
                 }
                 // Remember the tapped row's category, in the order it showed

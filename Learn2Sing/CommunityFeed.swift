@@ -93,6 +93,17 @@ final class CommunityFeed: ObservableObject {
     @Published private(set) var exercises: [Exercise] = []
     /// true while a refresh is on the wire; drives the initial spinner.
     @Published private(set) var isFetching = false
+    /// Whether the last refresh came back empty-handed — no connection, or a
+    /// server that answered with an error. It tells a list with no rows on it
+    /// that they aren't on their way, which is what the empty state offers its
+    /// reload button off. Cleared by the next refresh that lands.
+    @Published private(set) var didFail = false
+    /// Whether the server has more of this list to give: false once the feed has
+    /// been read to its last page (and before the first one lands, when there is
+    /// no feed to read). The list puts a spinner under its last row while this
+    /// is true, so scrolling to the end of what has loaded shows that more is
+    /// coming — and shows nothing at the true end of the list.
+    @Published private(set) var hasMorePages = false
     /// true while a page is on the wire, so the list asking for more with every
     /// row it displays costs one fetch rather than one per row.
     ///
@@ -129,7 +140,12 @@ final class CommunityFeed: ObservableObject {
     private var activeFetches = 0
     /// How far through the server's list this one has read, and what's left to
     /// read. Replaced by every refresh; nil until the first one succeeds.
-    private var feed: Feed?
+    /// Every move through it — a page read, a stage finished, a failed refresh
+    /// put back — is also what says whether there is any of the list left, so
+    /// `hasMorePages` is kept in step from here rather than at each of them.
+    private var feed: Feed? {
+        didSet { hasMorePages = feed.map { !$0.isExhausted } ?? false }
+    }
     /// The documents behind `exercises`, in the order they were loaded: what the
     /// refresh's first page returned, plus every page appended since.
     private var loadedDocs: [FetchedDoc] = []
@@ -282,10 +298,12 @@ final class CommunityFeed: ObservableObject {
         guard let records = await nextRecords(generation: generation) else {
             if generation == refreshGeneration {
                 (feed, loadedDocs, loadedEntityIDs) = previous
+                didFail = true
             }
             return
         }
         guard generation == refreshGeneration else { return }
+        didFail = false
         // Applied even when empty: an order and narrowing the server has nothing
         // for is an empty list, not a failed fetch.
         append(records: records)

@@ -46,13 +46,21 @@ final class NewForYouFeed: ObservableObject {
     /// singer finishes. Empty until the first fetch lands.
     @Published private(set) var candidates: [Exercise] = []
 
-    /// true while the fetch is on the wire; nothing draws it, but it is what
-    /// keeps a second visit to the tab from asking again mid-flight.
+    /// true while the fetch is on the wire. It keeps a second visit to the tab
+    /// from asking again mid-flight, and it is what the category draws its
+    /// spinner off while it has nothing to list yet.
     @Published private(set) var isFetching = false
 
     /// Whether a fetch has succeeded this session. A failed one leaves this
     /// false, so the next visit to the tab tries again.
-    private var hasLoaded = false
+    @Published private(set) var hasLoaded = false
+
+    /// Whether the last attempt came back with nothing — no connection, or a
+    /// server that answered with an error. It is the difference between a
+    /// category that is still filling and one that never will on its own, so it
+    /// is what puts the reload button in the spinner's place. Cleared the moment
+    /// another attempt starts.
+    @Published private(set) var didFail = false
 
     private init() {}
 
@@ -78,7 +86,16 @@ final class NewForYouFeed: ObservableObject {
     func refresh() async {
         guard !isFetching else { return }
         isFetching = true
-        defer { isFetching = false }
+        didFail = false
+        // Set on the one path that runs to the end. Every `return` before that
+        // is a call that didn't come back, and leaving this false is how the
+        // category is told to offer the reload button rather than go on
+        // spinning at something that has stopped.
+        var succeeded = false
+        defer {
+            isFetching = false
+            didFail = !succeeded
+        }
 
         let sort = CommunitySort.hot
         // Which spelling of the sort key this backend takes, most likely first —
@@ -136,6 +153,7 @@ final class NewForYouFeed: ObservableObject {
 
         candidates = applied.exercises
         hasLoaded = true
+        succeeded = true
     }
 
     /// The exercises the category lists for a singer at `level`: the `count`

@@ -39422,6 +39422,89 @@
         }
       }
     },
+    "The community list didn’t load. Tap to try again." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die Community-Liste konnte nicht geladen werden. Tippe, um es erneut zu versuchen."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La lista de la comunidad no se cargó. Toca para volver a intentarlo."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La liste de la communauté n’a pas pu être chargée. Touchez pour réessayer."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "L’elenco della comunità non è stato caricato. Tocca per riprovare."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "コミュニティの一覧を読み込めませんでした。タップするともう一度試します。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "커뮤니티 목록을 불러오지 못했습니다. 탭하면 다시 시도합니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "De community-lijst is niet geladen. Tik om het opnieuw te proberen."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lista społeczności nie została wczytana. Dotknij, aby spróbować ponownie."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A lista da comunidade não foi carregada. Toque para tentar de novo."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Список сообщества не загрузился. Нажмите, чтобы попробовать снова."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Communitylistan kunde inte laddas. Tryck för att försöka igen."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Topluluk listesi yüklenemedi. Yeniden denemek için dokunun."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "社区列表加载失败。点按可重试。"
+          }
+        }
+      }
+    },
     "The exercise's tempo, which is set on its settings screen." : {
       "extractionState" : "stale",
       "localizations" : {
@@ -41246,6 +41329,89 @@
         }
       }
     },
+    "These exercises come from the community and didn’t load. Tap to try again." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Diese Übungen kommen aus der Community und konnten nicht geladen werden. Tippe, um es erneut zu versuchen."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Estos ejercicios vienen de la comunidad y no se cargaron. Toca para volver a intentarlo."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ces exercices viennent de la communauté et n’ont pas pu être chargés. Touchez pour réessayer."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Questi esercizi vengono dalla comunità e non sono stati caricati. Tocca per riprovare."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "これらはコミュニティのエクササイズで、読み込めませんでした。タップするともう一度試します。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이 연습들은 커뮤니티에서 오며 불러오지 못했습니다. 탭하면 다시 시도합니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deze oefeningen komen uit de community en zijn niet geladen. Tik om het opnieuw te proberen."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Te ćwiczenia pochodzą od społeczności i nie zostały wczytane. Dotknij, aby spróbować ponownie."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Estes exercícios vêm da comunidade e não foram carregados. Toque para tentar de novo."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Эти упражнения берутся из сообщества и не загрузились. Нажмите, чтобы попробовать снова."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "De här övningarna kommer från communityn och kunde inte laddas. Tryck för att försöka igen."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bu egzersizler topluluktan gelir ve yüklenemedi. Yeniden denemek için dokunun."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "这些练习来自社区，加载失败。点按可重试。"
+          }
+        }
+      }
+    },
     "This can't be undone." : {
       "extractionState" : "stale",
       "localizations" : {
@@ -41827,7 +41993,7 @@
       }
     },
     "Time" : {
-      "comment" : "A line that goes up and down at the same time, showing how well you're doing over time.",
+      "comment" : "A line in the score history chart, showing a",
       "isCommentAutoGenerated" : true
     },
     "Time between reps" : {

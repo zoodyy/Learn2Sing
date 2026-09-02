@@ -242,7 +242,14 @@ struct CommunityView: View {
                         // anyway — see below — and how far down it the user has
                         // scrolled says nothing about how much is left.
                         onLoadMore: isSearching ? nil : { Task { await list.loadNextPage() } },
-                        loadMoreThreshold: CommunityFeed.pageSize
+                        loadMoreThreshold: CommunityFeed.pageSize,
+                        // Under the last row for as long as the server has more
+                        // of the community to give, so scrolling to the end of
+                        // what has loaded shows that the rest is on its way —
+                        // and nothing at the end of the community itself. Not
+                        // while searching, where the whole (already narrowed)
+                        // result is being loaded whatever the user scrolls to.
+                        showsLoadMoreSpinner: !isSearching && list.hasMorePages
                     )
                     // Span the full screen like a List so content scrolls under the
                     // navigation and tab bars.
@@ -696,6 +703,16 @@ private struct CommunityEmptyState<Empty: View>: View {
                         ContentUnavailableView.search(text: searchText)
                     } else if list.isFetching {
                         ProgressView()
+                    } else if list.didFail {
+                        // The list is empty because the fetch never arrived — no
+                        // connection, or a server that answered with an error —
+                        // so the spinner above is replaced by the button that
+                        // asks again, in the same spot. Pulling down does the
+                        // same thing; this is what says the list is waiting on
+                        // something rather than genuinely empty.
+                        Button { Task { await list.refresh() } } label: {
+                            FeedRetryIcon(help: L("The community list didn’t load. Tap to try again."))
+                        }
                     } else if list.activeFilter != nil {
                         // The fetch asked the server for the filtered list and it
                         // came back with nothing, so the filter — not a missing

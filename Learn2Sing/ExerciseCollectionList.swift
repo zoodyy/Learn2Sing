@@ -17,13 +17,24 @@ enum ExerciseListRowContent: Equatable {
     /// SkillLevelStore). Shown in place of the "Recommended" list when
     /// Settings ▸ Exercises says so.
     case recommendation(category: String, skill: Double)
+    /// A spinner filling the row: the category's exercises are still on their
+    /// way (Home ▸ "New for You", whose rows come off the server).
+    case loading
+    /// A reload button filling the row, for a category whose exercises didn't
+    /// arrive at all. The tap is reported like any other row's — the row *is*
+    /// the button — so what it retries is the list owner's to decide; the text
+    /// riding along is what a press-and-hold on it explains.
+    case retry(help: String)
 
     /// Whether a tap on the row is the list's to report. The calendar answers
-    /// its own taps — a tap on it means the square it landed on — while every
-    /// other row opens something.
+    /// its own taps — a tap on it means the square it landed on — and a spinner
+    /// isn't a button, while every other row (the reload button included) opens
+    /// or does something.
     var isSelectable: Bool {
-        if case .practiceCalendar = self { return false }
-        return true
+        switch self {
+        case .practiceCalendar, .loading: false
+        case .exercise, .recommendation, .retry: true
+        }
     }
 }
 
@@ -146,6 +157,11 @@ struct ExerciseCollectionList: UIViewControllerRepresentable {
     /// How few rows may be left below the bottom of the screen before `onLoadMore`
     /// is called.
     var loadMoreThreshold = 30
+    /// true puts a spinner under the last row: the server has more of this list
+    /// to give, so scrolling to the end of what has loaded shows that the rest
+    /// is coming rather than an end that isn't one. False at the list's true
+    /// end, where there is nothing left to wait for.
+    var showsLoadMoreSpinner = false
     /// true starts the list scrolled just past the navigation bar's search drawer,
     /// so the field only appears when the user pulls down (Exercises tab).
     var hidesSearchBarInitially = false
@@ -183,6 +199,7 @@ struct ExerciseCollectionList: UIViewControllerRepresentable {
         controller.movesStayInSection = movesStayInSection
         controller.onLoadMore = onLoadMore
         controller.loadMoreThreshold = loadMoreThreshold
+        controller.setShowsLoadMoreSpinner(showsLoadMoreSpinner)
         controller.hidesSearchBarInitially = hidesSearchBarInitially
         controller.setLanguage(language)
         controller.setSections(sections, animated: true)
@@ -360,6 +377,19 @@ final class ExerciseListController: UIViewController {
     private var gapAnchor: CGFloat?
     /// How tall the row in the air is, measured as it was lifted.
     private var draggedRowHeight: CGFloat = 44
+    /// Whether the spinner saying "there is more of this list" sits under the
+    /// last row — see `ExerciseCollectionList.showsLoadMoreSpinner`.
+    private var showsLoadMoreSpinner = false
+
+    /// Puts that spinner up, or takes it away. The footer is part of how the
+    /// layout describes the last section, so a change to it has to have that
+    /// section built again — nothing about the rows changed, and the snapshot
+    /// alone would leave the footer exactly as it was.
+    func setShowsLoadMoreSpinner(_ shows: Bool) {
+        guard shows != showsLoadMoreSpinner else { return }
+        showsLoadMoreSpinner = shows
+        collectionView?.collectionViewLayout.invalidateLayout()
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -368,6 +398,10 @@ final class ExerciseListController: UIViewController {
             guard let self, sectionIndex < self.sections.count else { return nil }
             var config = UICollectionLayoutListConfiguration(appearance: .insetGrouped)
             config.headerMode = self.sections[sectionIndex].category.isEmpty ? .none : .supplementary
+            // Under the last row of the whole list, so it reads as the list
+            // carrying on rather than as one category still filling.
+            config.footerMode = self.showsLoadMoreSpinner && sectionIndex == self.sections.count - 1
+                ? .supplementary : .none
             config.leadingSwipeActionsConfigurationProvider = { [weak self] indexPath in
                 self?.leadingSwipeActions(at: indexPath)
             }
@@ -523,6 +557,28 @@ final class ExerciseListController: UIViewController {
             }
             cell.accessories = []
         }
+        // A category whose rows come off the server, saying so: a spinner while
+        // they are on their way, a reload button when they aren't coming. Both
+        // fill the row the way the cards do, centred rather than left-aligned —
+        // they stand for the whole category, not for one of its exercises.
+        let loadingRegistration = UICollectionView.CellRegistration<UICollectionViewListCell, ItemID> {
+            cell, _, _ in
+            cell.contentConfiguration = UIHostingConfiguration {
+                ProgressView().frame(maxWidth: .infinity)
+            }
+            cell.accessories = []
+        }
+        let retryRegistration = UICollectionView.CellRegistration<UICollectionViewListCell, ItemID> {
+            [weak self] cell, _, itemID in
+            guard case .retry(let help) = self?.rowsByID[itemID.id]?.content else { return }
+            let locale = (self?.language ?? LanguageManager.shared.language).locale
+            cell.contentConfiguration = UIHostingConfiguration {
+                FeedRetryIcon(help: help)
+                    .frame(maxWidth: .infinity)
+                    .environment(\.locale, locale)
+            }
+            cell.accessories = []
+        }
         dataSource = UICollectionViewDiffableDataSource<String, ItemID>(collectionView: cv) {
             [weak self] collectionView, indexPath, itemID in
             switch self?.rowsByID[itemID.id]?.content {
@@ -532,6 +588,12 @@ final class ExerciseListController: UIViewController {
             case .recommendation:
                 return collectionView.dequeueConfiguredReusableCell(
                     using: recommendationRegistration, for: indexPath, item: itemID)
+            case .loading:
+                return collectionView.dequeueConfiguredReusableCell(
+                    using: loadingRegistration, for: indexPath, item: itemID)
+            case .retry:
+                return collectionView.dequeueConfiguredReusableCell(
+                    using: retryRegistration, for: indexPath, item: itemID)
             default:
                 return collectionView.dequeueConfiguredReusableCell(
                     using: cellRegistration, for: indexPath, item: itemID)
@@ -543,8 +605,16 @@ final class ExerciseListController: UIViewController {
         ) { [weak self] header, _, indexPath in
             self?.configure(header: header, forSection: indexPath.section, animated: false)
         }
+        let footerRegistration = UICollectionView.SupplementaryRegistration<ListLoadMoreFooterView>(
+            elementKind: UICollectionView.elementKindSectionFooter
+        ) { _, _, _ in }
         dataSource.supplementaryViewProvider = { collectionView, kind, indexPath in
-            collectionView.dequeueConfiguredReusableSupplementary(using: headerRegistration, for: indexPath)
+            if kind == UICollectionView.elementKindSectionFooter {
+                return collectionView.dequeueConfiguredReusableSupplementary(
+                    using: footerRegistration, for: indexPath)
+            }
+            return collectionView.dequeueConfiguredReusableSupplementary(
+                using: headerRegistration, for: indexPath)
         }
 
         applySnapshot(animated: false, reconfiguring: [])
@@ -1482,6 +1552,37 @@ struct MIDIPatternThumbnail: UIViewRepresentable {
                       context: Context) -> CGSize? {
         uiView.intrinsicContentSize
     }
+}
+
+// MARK: - Load-more footer
+
+/// The spinner under the last row of a list the server has more of: what a user
+/// who has scrolled to the end of what has loaded sees while the next page is
+/// fetched (Community tab). It is put up and taken away by the layout — see
+/// `ExerciseListController.setShowsLoadMoreSpinner` — so it has nothing to
+/// configure and simply spins for as long as it is on screen.
+///
+/// A view of its own rather than a hosted `ProgressView`, so its height is the
+/// one thing it is constrained to and the list never has to guess at it.
+final class ListLoadMoreFooterView: UICollectionReusableView {
+    private let spinner = UIActivityIndicatorView(style: .medium)
+
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        spinner.translatesAutoresizingMaskIntoConstraints = false
+        spinner.startAnimating()
+        addSubview(spinner)
+        NSLayoutConstraint.activate([
+            spinner.centerXAnchor.constraint(equalTo: centerXAnchor),
+            spinner.topAnchor.constraint(equalTo: topAnchor, constant: 12),
+            spinner.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -12),
+        ])
+        // The list is read as a whole; a spinner that announced itself would
+        // interrupt a VoiceOver user walking to the end of it for nothing.
+        isAccessibilityElement = false
+    }
+
+    required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
 }
 
 // MARK: - Section header
