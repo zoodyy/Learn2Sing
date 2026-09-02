@@ -66,6 +66,12 @@ struct ExerciseIntroView: View {
     /// chart under the description.
     @State private var showScore = false
 
+    /// Put up by a tap on the difficulty row: the rating the stars draw, as the
+    /// number they were drawn from. A tap rather than the hold the row's
+    /// explanation answers to, so the two questions a row of stars raises —
+    /// what is this, and what does it say exactly — get an answer each.
+    @State private var showDifficultyNumber = false
+
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.verticalSizeClass) private var verticalSizeClass
 
@@ -237,6 +243,21 @@ struct ExerciseIntroView: View {
         }
         .font(.subheadline)
         .foregroundStyle(.secondary)
+        // The label and the stars answer the tap, and not the empty width the
+        // frame below stretches them across — a bubble pointing at nothing is
+        // the wrong answer to a tap out there.
+        .contentShape(Rectangle())
+        .onTapGesture { showDifficultyNumber = true }
+        // Attached before the widening frame so the bubble's arrow finds the
+        // stars rather than the middle of the screen. A hold gets the row's
+        // explanation instead: `explain` rebuilds the row when it recognises
+        // one, which cancels the touch in flight so the release doesn't also
+        // land here as a tap.
+        .popover(isPresented: $showDifficultyNumber) {
+            DifficultyNumberBubble(
+                rating: Int((min(max(hardness, 0), 1) * 100).rounded()),
+                tint: DifficultyStars.tint(for: hardness, colorScheme: colorScheme))
+        }
         .frame(maxWidth: .infinity, alignment: .trailing)
         .accessibilityElement(children: .ignore)
         .accessibilityLabel("Difficulty:")
@@ -308,6 +329,37 @@ struct ExerciseIntroView: View {
     }
 }
 
+/// What a tap on the difficulty row puts up: the number the stars were drawn
+/// from, out of 100. It counts the way the stars do rather than the way the
+/// server does — the server says how well this exercise's singers score, and
+/// the rating is that taken from 100, so an exercise everyone scores 40 on is
+/// 60/100 hard. Nothing but the number: the row's press-and-hold explanation
+/// is where the sentence about it lives.
+private struct DifficultyNumberBubble: View {
+    /// How hard the exercise is, 0-100.
+    let rating: Int
+    /// The colour the stars came out, worked out by the row rather than here: a
+    /// presentation doesn't reliably inherit the app's chosen appearance, and a
+    /// number in one appearance beside stars in the other reads as a different
+    /// rating rather than the same one spelled out.
+    let tint: Color
+
+    var body: some View {
+        // Not a localised string: digits and a slash, written the same way in
+        // every language the app speaks.
+        Text(verbatim: "\(rating)/100")
+            .font(.title2.weight(.semibold))
+            .monospacedDigit()
+            .foregroundStyle(tint)
+            .padding(.horizontal, 24)
+            .padding(.vertical, 14)
+            // Sized to the number and kept a bubble on iPhone, the way the
+            // press-and-hold help is.
+            .presentationSizing(.fitted)
+            .presentationCompactAdaptation(.popover)
+    }
+}
+
 /// Five stars filled left to right, `fraction` of the way along (0-1). The star
 /// the fill lands in is filled across its own width rather than snapped to a
 /// whole or a half, so a fraction of 0.21 shows one full star and a sliver of
@@ -330,12 +382,14 @@ struct DifficultyStars: View {
     /// ramp is the score screen's, run backwards (there a high number is good,
     /// here a full row of stars is the hard one), and takes the same deeper
     /// brightness in light mode, where the bright end washes out.
-    private var tint: Color {
+    static func tint(for fraction: Double, colorScheme: ColorScheme) -> Color {
         let hue = (1 - min(max(fraction, 0), 1)) * 0.33
         return colorScheme == .dark
             ? Color(hue: hue, saturation: 0.85, brightness: 0.95)
             : Color(hue: hue, saturation: 0.95, brightness: 0.68)
     }
+
+    private var tint: Color { Self.tint(for: fraction, colorScheme: colorScheme) }
 
     var body: some View {
         HStack(spacing: 3) {
