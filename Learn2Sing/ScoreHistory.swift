@@ -180,10 +180,12 @@ enum ScoreRange: String, CaseIterable, Identifiable {
     }
 }
 
-/// Line chart of an exercise's past scores. The x axis is real time (a day with
-/// 100 runs spans no more width than a day with 1), the y axis is score in %.
-/// Runs that would land on the same x position are averaged into one point, and
-/// the lowest 5% of scores in the window are dropped as outliers.
+/// Line chart of an exercise's past scores. The y axis is score in %; the x axis
+/// is real time under a fixed window (a day with 100 runs spans no more width
+/// than a day with 1) and plain run order under "All", where every run is given
+/// the same width and the axis therefore goes unlabelled. Runs that would land
+/// on the same x position are averaged into one point, and the lowest 5% of
+/// scores in the window are dropped as outliers.
 ///
 /// Tapping a plotted point marks it and shows its score and time in a bubble
 /// pointing at it; tapping away from every point puts the bubble away again.
@@ -262,15 +264,22 @@ struct ScoreHistoryChart: View {
     }
 
     private var chart: some View {
-        Chart(points, id: \.date) { p in
-            LineMark(x: .value("Time", p.date), y: .value("Score", p.score))
+        let plotted = plottedPoints
+        // Dots make sparse history readable (and a lone run visible at all,
+        // since a single LineMark draws nothing); dense lines skip them.
+        let showsDots = plotted.count <= 30
+        return Chart(plotted, id: \.entry.date) { p in
+            LineMark(x: .value("Time", p.x), y: .value("Score", p.entry.score))
                 .foregroundStyle(tint)
                 .interpolationMethod(.monotone)
                 .lineStyle(StrokeStyle(lineWidth: 2, lineCap: .round))
-            // Dots make sparse history readable (and a lone run visible at all,
-            // since a single LineMark draws nothing); dense lines skip them.
-            if points.count <= 30 {
-                PointMark(x: .value("Time", p.date), y: .value("Score", p.score))
+                // The x value is a plotting position rather than a date, so the
+                // run's own time is spelled out for VoiceOver instead.
+                .accessibilityLabel(Text(p.entry.date, format: .dateTime.day()
+                    .month(.abbreviated).year().hour().minute()))
+                .accessibilityValue(Text(verbatim: "\(p.entry.score)%"))
+            if showsDots {
+                PointMark(x: .value("Time", p.x), y: .value("Score", p.entry.score))
                     .foregroundStyle(tint)
                     .symbolSize(30)
             }
@@ -289,17 +298,30 @@ struct ScoreHistoryChart: View {
         }
         .chartXAxis {
             let ticks = xAxisTicks
-            AxisMarks(values: ticks.map(\.date)) { value in
-                AxisGridLine().foregroundStyle(ink.opacity(0.15))
-                if ticks.indices.contains(value.index) {
-                    // These are already spaced to clear each other, and the
-                    // chart's own collision handling would only slide the
-                    // outermost label sideways off the tick it belongs to.
+            if ticks.isEmpty {
+                // "All" has nothing truthful to write under the plot, but the
+                // row a label would have taken is still reserved — an unwritten
+                // one, holding the space open. Otherwise the plot would grow
+                // into it and the chart would change size with the range.
+                AxisMarks(values: [xDomain.lowerBound]) { _ in
                     AxisValueLabel(collisionResolution: .disabled) {
-                        Text(verbatim: ticks[value.index].label)
+                        Text(verbatim: "0").hidden()
                     }
                     .font(Self.axisLabelStyle)
-                    .foregroundStyle(ink.opacity(0.5))
+                }
+            } else {
+                AxisMarks(values: ticks.map(\.x)) { value in
+                    AxisGridLine().foregroundStyle(ink.opacity(0.15))
+                    if ticks.indices.contains(value.index) {
+                        // These are already spaced to clear each other, and the
+                        // chart's own collision handling would only slide the
+                        // outermost label sideways off the tick it belongs to.
+                        AxisValueLabel(collisionResolution: .disabled) {
+                            Text(verbatim: ticks[value.index].label)
+                        }
+                        .font(Self.axisLabelStyle)
+                        .foregroundStyle(ink.opacity(0.5))
+                    }
                 }
             }
         }
@@ -333,7 +355,9 @@ struct ScoreHistoryChart: View {
     /// A tick on the x axis: what it says, and where it and its label land along
     /// the plot.
     private struct AxisTick {
-        let date: Date
+        /// Where the tick sits on the x scale — the same kind of value the marks
+        /// are plotted at.
+        let x: Double
         let label: String
         let center: CGFloat
         let width: CGFloat
@@ -363,7 +387,10 @@ struct ScoreHistoryChart: View {
     /// Empty until the plot has been measured, so no label is drawn in a place
     /// that is about to move.
     private var xAxisTicks: [AxisTick] {
-        let domain = xDomain
+        // "All" spaces its runs evenly, so a position along the axis no longer
+        // stands for a moment in time and there is nothing truthful to write
+        // under it.
+        guard let domain = dateWindow else { return [] }
         let span = domain.upperBound.timeIntervalSince(domain.lowerBound)
         guard plotWidth > 0, span > 0 else { return [] }
 
@@ -380,7 +407,7 @@ struct ScoreHistoryChart: View {
             let ticks = step.ticks(in: domain, calendar: calendar).map { date -> AxisTick in
                 let label = format.format(date)
                 return AxisTick(
-                    date: date,
+                    x: date.timeIntervalSinceReferenceDate,
                     label: label,
                     center: plotWidth * date.timeIntervalSince(domain.lowerBound) / span,
                     width: label.size(withAttributes: [.font: font]).width)
@@ -425,11 +452,11 @@ struct ScoreHistoryChart: View {
     private func markPositions(proxy: ChartProxy, in geo: GeometryProxy) -> [MarkPosition] {
         guard let plotAnchor = proxy.plotFrame else { return [] }
         let plot = geo[plotAnchor]
-        return points.compactMap { entry in
-            guard let x = proxy.position(forX: entry.date),
-                  let y = proxy.position(forY: entry.score)
+        return plottedPoints.compactMap { p in
+            guard let x = proxy.position(forX: p.x),
+                  let y = proxy.position(forY: p.entry.score)
             else { return nil }
-            return MarkPosition(entry: entry,
+            return MarkPosition(entry: p.entry,
                                 position: CGPoint(x: plot.minX + x, y: plot.minY + y))
         }
     }
@@ -520,22 +547,51 @@ struct ScoreHistoryChart: View {
         .allowsHitTesting(false)
     }
 
-    /// Fixed windows always span exactly their duration up to now, so the line sits
-    /// where it happened inside the window; "All" hugs the recorded history.
-    private var xDomain: ClosedRange<Date> {
+    /// The stretch of time a fixed window covers: exactly its duration up to
+    /// now, so the line sits where it happened inside the window. Nil for "All",
+    /// which lays its runs out by order rather than by time.
+    private var dateWindow: ClosedRange<Date>? {
+        guard let duration = range.duration else { return nil }
         let now = Date()
-        if let duration = range.duration {
-            return now.addingTimeInterval(-duration)...now
-        }
-        guard let first = points.first?.date, let last = points.last?.date, first < last else {
-            let center = points.first?.date ?? now
-            return center.addingTimeInterval(-3600)...center.addingTimeInterval(3600)
-        }
-        return first...last
+        return now.addingTimeInterval(-duration)...now
     }
 
-    /// The plotted points: window → drop the lowest 5% of scores → average runs
-    /// that share one of `maxPoints` equal time slots.
+    /// The x scale the marks are plotted against: seconds for a fixed window,
+    /// run positions (0, 1, 2, …) for "All", which puts the first and last runs
+    /// on the plot's edges with the rest evenly spread between them.
+    private var xDomain: ClosedRange<Double> {
+        if let window = dateWindow {
+            return window.lowerBound.timeIntervalSinceReferenceDate
+                ... window.upperBound.timeIntervalSinceReferenceDate
+        }
+        // A lone run has no spacing to speak of, so it sits in the middle of an
+        // arbitrary window rather than in a zero-wide one.
+        guard points.count > 1 else { return -1...1 }
+        return 0...Double(points.count - 1)
+    }
+
+    /// A plotted run: the score it earned, and where along the x axis it goes.
+    private struct PlottedPoint {
+        let entry: ScoreEntry
+        let x: Double
+    }
+
+    /// `points` placed on the x scale. A fixed window puts every run at the time
+    /// it happened, so runs minutes apart nearly overlap; "All" gives each run
+    /// the same width instead, so three of them are three equal steps apart
+    /// whether they came minutes or months after one another.
+    private var plottedPoints: [PlottedPoint] {
+        let visible = points
+        guard range.duration != nil else {
+            return visible.enumerated().map { PlottedPoint(entry: $1, x: Double($0)) }
+        }
+        return visible.map {
+            PlottedPoint(entry: $0, x: $0.date.timeIntervalSinceReferenceDate)
+        }
+    }
+
+    /// The runs the chart draws, oldest first: window → drop the lowest 5% of
+    /// scores → average them down to at most `maxPoints` groups.
     private var points: [ScoreEntry] {
         var visible = entries
         if let duration = range.duration {
@@ -552,20 +608,36 @@ struct ScoreHistoryChart: View {
             visible = visible.indices.filter { !lowest.contains($0) }.map { visible[$0] }
         }
 
-        guard visible.count > maxPoints,
-              let first = visible.first, let last = visible.last,
-              last.date > first.date
-        else { return visible }
+        guard visible.count > maxPoints else { return visible }
 
-        let slotLength = last.date.timeIntervalSince(first.date) / Double(maxPoints)
-        var slots: [Int: [ScoreEntry]] = [:]
-        for entry in visible {
-            let slot = min(maxPoints - 1,
-                           Int(entry.date.timeIntervalSince(first.date) / slotLength))
-            slots[slot, default: []].append(entry)
+        // Runs are gathered into groups and each group averaged into one point.
+        // A fixed window groups equal stretches of time, keeping the line's
+        // shape; "All" groups equal numbers of runs, since there every run is
+        // given the same width and an evening of practice must not shrink to a
+        // single point just because it was over quickly.
+        let groups: [[ScoreEntry]]
+        if range.duration == nil {
+            groups = (0..<maxPoints).map { i in
+                // Never empty: there are more runs than groups.
+                Array(visible[(i * visible.count / maxPoints)
+                              ..< ((i + 1) * visible.count / maxPoints)])
+            }
+        } else {
+            guard let first = visible.first, let last = visible.last,
+                  last.date > first.date
+            else { return visible }
+
+            let slotLength = last.date.timeIntervalSince(first.date) / Double(maxPoints)
+            var slots: [Int: [ScoreEntry]] = [:]
+            for entry in visible {
+                let slot = min(maxPoints - 1,
+                               Int(entry.date.timeIntervalSince(first.date) / slotLength))
+                slots[slot, default: []].append(entry)
+            }
+            groups = slots.keys.sorted().map { slots[$0]! }
         }
-        return slots.keys.sorted().map { slot in
-            let group = slots[slot]!
+
+        return groups.map { group in
             let meanScore = group.reduce(0) { $0 + $1.score } / group.count
             let meanTime = group.reduce(0.0) { $0 + $1.date.timeIntervalSince1970 }
                 / Double(group.count)
