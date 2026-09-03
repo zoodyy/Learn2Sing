@@ -223,6 +223,36 @@ final class CommunitySync: ObservableObject {
     /// Share date (seconds since 1970) per public exercise id, so re-uploading an
     /// edited exercise keeps the date it was first shared.
     private static let shareDatesKey = "communityShareDates"
+    /// Raw ids of the exercises whose difficulty this device has already
+    /// estimated and posted. Persisted because the seed is once per exercise for
+    /// good (see `seedDifficulty(for:)`), so the record has to outlive the launch
+    /// that made it.
+    private static let seededDifficultyIDsKey = "communitySeededDifficulties"
+    /// Raw exercise id to the seeded score still owed to the server, for the
+    /// exercises made while it couldn't be reached. Retried at the next launch.
+    private static let pendingDifficultySeedsKey = "communityPendingDifficultySeeds"
+    /// The users a seeded difficulty is posted as.
+    ///
+    /// Always these three, on every device: the server holds one row per user,
+    /// exercise and event type, so a value posted from a fixed id lands in the
+    /// same row rather than stacking another one up — which is what keeps the
+    /// estimate a single opinion however many times it is posted.
+    ///
+    /// Three of them rather than one so the estimate holds its ground for a
+    /// while: the first real score to arrive is one voice in four instead of one
+    /// in two, and by the time a handful of singers have been through the
+    /// exercise they outweigh it, which is the point at which it should stop
+    /// counting for much.
+    ///
+    /// They are the only ids the app sends that aren't derived from a real
+    /// install (see PublicIdentifier), and they are deliberately unmistakable:
+    /// nothing else can collide with them, and anyone reading the event rows can
+    /// see at a glance which scores were sung and which were estimated.
+    private static let seedUserIDs = [
+        "11111111-1111-1111-1111-111111111111",
+        "22222222-2222-2222-2222-222222222222",
+        "33333333-3333-3333-3333-333333333333",
+    ]
     /// The most a public profile document may weigh. The backend keeps each
     /// document in a TEXT column and answers 500 to anything much over 64KB, so
     /// this leaves a margin rather than sitting on the edge.
@@ -279,6 +309,14 @@ final class CommunitySync: ObservableObject {
     /// settle it; anything else was asked for before the like was counted and
     /// would undo the tap on screen.
     private var pendingLikes: Set<UUID> = []
+
+    /// Raw ids of the exercises this device has estimated a difficulty for, so
+    /// none of them is ever estimated twice — see `seedDifficulty(for:)`.
+    private var seededDifficultyIDs: Set<UUID> = []
+    /// The seeded scores still owed to the server, by raw exercise id: filled
+    /// when an estimate is made and emptied as the plays are posted, so one made
+    /// offline goes up at the next launch instead of being lost.
+    private var pendingDifficultySeeds: [UUID: Int] = [:]
 
     private weak var store: ExerciseStore?
     private var storeObservation: AnyCancellable?
@@ -337,6 +375,9 @@ final class CommunitySync: ObservableObject {
                 result[id] = Date(timeIntervalSince1970: entry.value)
             }
         }
+        let seeded = UserDefaults.standard.stringArray(forKey: Self.seededDifficultyIDsKey) ?? []
+        seededDifficultyIDs = Set(seeded.compactMap(UUID.init(uuidString:)))
+        pendingDifficultySeeds = Self.storedCounts(forKey: Self.pendingDifficultySeedsKey)
     }
 
     private static func storedCounts(forKey key: String) -> [UUID: Int] {
@@ -381,6 +422,10 @@ final class CommunitySync: ObservableObject {
         // are ranked on these, and it is the first tab the app opens on, while
         // the community list is a tab away.
         Task { await refreshRecommendationDifficulties() }
+        // Estimates made while the server was out of reach. Nothing waits on
+        // them either — the exercises they belong to already show their stars
+        // from the cache.
+        Task { await uploadDifficultySeeds() }
         await list.refresh()
     }
 
@@ -948,6 +993,84 @@ final class CommunitySync: ObservableObject {
         Task { await postEvent(.addDownload, for: publicExerciseID) }
     }
 
+    // MARK: - Estimated difficulty
+
+    /// Gives a newly made exercise a difficulty of its own, worked out from its
+    /// notes rather than waited for.
+    ///
+    /// The server's rating is the average of the scores everyone posts (see
+    /// `EventAverage`), so until somebody sings an exercise all the way through
+    /// it has none: no stars on its intro screen, and nothing for the Home tab's
+    /// suggestions to place it by. `ExerciseDifficulty` reads one straight off
+    /// the pattern instead, and this puts it in both places it has to be:
+    ///
+    /// * **Cached here**, so this device draws the stars immediately — including
+    ///   offline, and including on the exercise its own maker never shares.
+    /// * **Posted to the server**, as `seedUserIDs.count` plays scoring what a
+    ///   singer of average ability would be expected to get on it, so that the
+    ///   `event-average` call every device makes answers with the estimate
+    ///   instead of `{}`. Real singers' scores land in the same average and pull
+    ///   it towards what the exercise actually turns out to be, which is the
+    ///   point: the estimate is a starting position, not a verdict.
+    ///
+    /// Once per exercise, ever. The server keeps a running mean per user rather
+    /// than a single value (a second play from the same id averages into the
+    /// first), so re-seeding an edited pattern wouldn't replace the old estimate
+    /// so much as blend with it — and by then real scores may be in the average
+    /// too, which a synthetic correction has no business moving.
+    ///
+    /// Bundled exercises are left out. Their ids are the same on every install,
+    /// so their ratings are shared by everyone who has the app, and a user who
+    /// had edited their own copy of one would be posting their edit's difficulty
+    /// as everybody's.
+    ///
+    /// An exercise the server has already rated is left alone as well: real
+    /// scores are the thing the estimate stands in for, and once they exist
+    /// there is nothing to stand in for.
+    func seedDifficulty(for exerciseID: UUID) {
+        guard let store,
+              !seededDifficultyIDs.contains(exerciseID),
+              !ExerciseStore.bundledExerciseIDs.contains(exerciseID),
+              difficulties[PublicIdentifier.exercise(exerciseID)] == nil,
+              let exercise = store.exercises.first(where: { $0.id == exerciseID }),
+              let rating = ExerciseDifficulty.rating(for: store.notes(for: exerciseID),
+                                                     bpm: exercise.bpm)
+        else { return }
+        let score = ExerciseDifficulty.expectedScore(forRating: rating)
+        seededDifficultyIDs.insert(exerciseID)
+        pendingDifficultySeeds[exerciseID] = score
+        persistDifficultySeeds()
+
+        // The cache holds the server's side of the scale — what the exercise
+        // tends to be scored — which is the estimate the other way round.
+        difficulties[PublicIdentifier.exercise(exerciseID)] = Double(score)
+        persistDifficulties()
+        SkillLevelStore.shared.recompute()
+
+        Task { await uploadDifficultySeeds() }
+    }
+
+    /// Posts the seeded scores that haven't reached the server yet, dropping
+    /// each exercise from the pending list once all of its plays are in.
+    ///
+    /// An exercise made offline keeps its entry — and its local stars — until a
+    /// launch that can post it, which is the other place this runs. A partial
+    /// post is retried whole: the ids are fixed, so a play that did land is
+    /// simply written again with the same value.
+    private func uploadDifficultySeeds() async {
+        for (exerciseID, score) in pendingDifficultySeeds {
+            let publicExerciseID = PublicIdentifier.exercise(exerciseID)
+            var posted = true
+            for userID in Self.seedUserIDs {
+                posted = await postEvent(.addPlay, for: publicExerciseID,
+                                         as: userID, customValue: score) && posted
+            }
+            guard posted, pendingDifficultySeeds[exerciseID] == score else { continue }
+            pendingDifficultySeeds.removeValue(forKey: exerciseID)
+            persistDifficultySeeds()
+        }
+    }
+
     /// Counts a finished run of an exercise, addressed by its public id, and
     /// posts the score it earned along with it.
     ///
@@ -976,7 +1099,8 @@ final class CommunitySync: ObservableObject {
     /// The id in the path is this install's *public* user id, not the Keychain
     /// device id: it identifies the user just as uniquely (the mapping is 1:1
     /// and stable), and the device id must never reach a public endpoint —
-    /// see PublicIdentifier for why.
+    /// see PublicIdentifier for why. `as` overrides it, and only the seeded
+    /// difficulty does that (see `seedDifficulty(for:)`).
     ///
     /// `customValue` is the number the event is worth: a play posts the score the
     /// run earned, which is what the server averages into the exercise's
@@ -984,10 +1108,11 @@ final class CommunitySync: ObservableObject {
     /// and send none.
     @discardableResult
     private func postEvent(_ event: UserEventType, for publicExerciseID: UUID,
+                           as userID: String = PublicIdentifier.user,
                            customValue: Int? = nil) async -> Bool {
         let exerciseID = publicExerciseID.uuidString.lowercased()
         var components = URLComponents(
-            string: "\(Self.baseURL)/user-event/\(PublicIdentifier.user)/\(exerciseID)/\(event.rawValue)")
+            string: "\(Self.baseURL)/user-event/\(userID)/\(exerciseID)/\(event.rawValue)")
         if let customValue {
             components?.queryItems = [URLQueryItem(name: "customValue", value: String(customValue))]
         }
@@ -1024,6 +1149,16 @@ final class CommunitySync: ObservableObject {
             dict[entry.key.uuidString.lowercased()] = entry.value
         }
         UserDefaults.standard.set(stored, forKey: Self.difficultiesKey)
+    }
+
+    private func persistDifficultySeeds() {
+        let defaults = UserDefaults.standard
+        defaults.set(seededDifficultyIDs.map { $0.uuidString.lowercased() }.sorted(),
+                     forKey: Self.seededDifficultyIDsKey)
+        let pending = pendingDifficultySeeds.reduce(into: [String: Int]()) { dict, entry in
+            dict[entry.key.uuidString.lowercased()] = entry.value
+        }
+        defaults.set(pending, forKey: Self.pendingDifficultySeedsKey)
     }
 
     private func persistShareDates() {

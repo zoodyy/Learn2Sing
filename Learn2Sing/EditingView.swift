@@ -434,6 +434,13 @@ struct EditingView: View {
                 AudioRouteManager.shared.deactivateSession()
                 engineStarted = false
             }
+            // The pattern is what an exercise's difficulty is read off, so this
+            // is the first moment there is one to read — an exercise created
+            // straight from the + button reaches its list again with its notes
+            // already drawn, but one named and left empty only gets them here.
+            // Does nothing for an exercise that has been rated already, by this
+            // or by anyone singing it (CommunitySync.seedDifficulty(for:)).
+            if let exercise { CommunitySync.shared.seedDifficulty(for: exercise.id) }
         }
         .onChange(of: scenePhase) { _, phase in
             if phase == .background, isPlaying { stopPlayback() }

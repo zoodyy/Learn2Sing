@@ -774,8 +774,12 @@ struct ExercisesView: View {
                     pendingNewExercise = nil
                     store.discardIfUntouched(created)
                     if !store.exercises.contains(where: { $0.id == created.id }) { return }
-                    // Kept: point it out, since it lands at the bottom of its
-                    // category and is very likely off screen.
+                    // Kept, so it is a real exercise now: rate it from the notes
+                    // it was drawn with, rather than leaving it unrated until
+                    // somebody sings it (CommunitySync.seedDifficulty(for:)).
+                    CommunitySync.shared.seedDifficulty(for: created.id)
+                    // Point it out, since it lands at the bottom of its category
+                    // and is very likely off screen.
                     revealCreatedExercise(created.id)
                 }
                 toasts.routesPopped(from: old, to: new)
