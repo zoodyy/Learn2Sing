@@ -214,6 +214,13 @@ final class CommunityFeed: ObservableObject {
         var query: [URLQueryItem]
         var stages: [FeedStage]
         var stageIndex = 0
+        /// Whether these stages between them list every shared exercise, so that
+        /// reading them to the end is the whole community rather than a slice of
+        /// it. False for the reversed event orders, which are taken at the
+        /// server's word and list only the exercises with an event on them (see
+        /// `makeFeed`) — a list that has run out is not the same thing as a
+        /// community with nothing more in it.
+        var listsEverything: Bool
         /// Whether the whole list (as this order and narrowing see it) has been
         /// read: every stage walked to its last page.
         var isExhausted: Bool { stageIndex >= stages.count }
@@ -221,6 +228,10 @@ final class CommunityFeed: ObservableObject {
 
     /// What one call for one page came back with.
     enum PageResult {
+        /// `isLast` means the query has nothing more to give — the page came
+        /// back empty. A page with anything on it is never the last one, however
+        /// short (see `fetchPage`), so the end of a list costs one call that
+        /// returns nothing.
         case page(records: [PersistRecord], isLast: Bool)
         /// This backend spells the `sortBy` the other way; try the next candidate.
         case unknownSortKey
@@ -345,11 +356,15 @@ final class CommunityFeed: ObservableObject {
         let ranked = FeedStage(sortBy: sort.serverSortBy,
                                sortDirection: sort.serverSortDirection(reversed: reversed))
         guard let topUp = sort.topUpSort, !reversed else {
-            return Feed(query: query, stages: [ranked])
+            // Everything but a reversed event order is a listing of the whole
+            // community in its own right: the orders with no top-up rank every
+            // exercise, event or no event.
+            return Feed(query: query, stages: [ranked],
+                        listsEverything: sort.topUpSort == nil)
         }
         let leftovers = FeedStage(sortBy: topUp.serverSortBy,
                                   sortDirection: topUp.serverSortDirection(reversed: false))
-        return Feed(query: query, stages: [ranked, leftovers])
+        return Feed(query: query, stages: [ranked, leftovers], listsEverything: true)
     }
 
     /// Reads on from the feed until it has a page's worth of records the list
@@ -456,9 +471,15 @@ final class CommunityFeed: ObservableObject {
                 return .failed
             }
             guard let records = try? JSONDecoder().decode([PersistRecord].self, from: data) else { return .failed }
-            // A short page is the last one.
+            // Only an empty page ends a query. A short one does not: the server
+            // hands back fewer records than asked for in the middle of a list —
+            // page 0 of the date orders comes back one short of a full page with
+            // two more full pages behind it — and reading that as the end both
+            // truncates the list and, worse, has the tab believe it has seen the
+            // whole community (see `append`, which then drops the patterns of
+            // every exercise it didn't list).
             return .page(records: records.filter { $0.storageType == storageType },
-                         isLast: records.count < pageSize)
+                         isLast: records.isEmpty)
         } catch {
             print("CommunityFeed: fetch of \(storageType) page \(page) failed: \(error)")
             return .failed
@@ -520,8 +541,10 @@ final class CommunityFeed: ObservableObject {
         // Only the whole-community feed, read to its last page with nothing
         // narrowing it, is entitled to say an exercise has left the community:
         // a profile, a filter or a search term is a slice of it, and everything
-        // outside that slice is still there.
+        // outside that slice is still there. So is an order that lists only the
+        // exercises it has events for (see `Feed.listsEverything`).
         let isComplete = isWholeCommunity && (feed?.isExhausted ?? false)
+            && (feed?.listsEverything ?? false)
             && activeFilter == nil && activeSearchTerm.isEmpty
         let applied = sync.applyFetched(docs: loadedDocs,
                                         entityIDs: loadedEntityIDs,
