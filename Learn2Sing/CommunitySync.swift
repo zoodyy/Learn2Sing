@@ -267,6 +267,12 @@ final class CommunitySync: ObservableObject {
     /// keep resolving its exercise after the list behind it has moved on — so
     /// what has been seen is remembered here for the session.
     private var fetchedExercises: [UUID: Exercise] = [:]
+    /// Who uploaded each of those, by the same public exercise id — the exact
+    /// answer the intro screen's "Created by" line needs, since the screen has
+    /// the exercise in hand and the list it came from may be long gone. Kept
+    /// beside the exercises rather than only on each feed, which is where the
+    /// list rows read it from (see CommunityFeed.uploaderIDs).
+    private var fetchedUploaderIDs: [UUID: String] = [:]
     /// The tallies and this user's likes and downloads. Its own observable
     /// object, so the heart can fill without the whole Community list being
     /// rebuilt — see CommunityCounts. The properties below read and write
@@ -453,13 +459,22 @@ final class CommunitySync: ObservableObject {
 
     /// The public user id of whoever uploaded the exercises going by `username`
     /// in the lists loaded so far, so a tap on a row's uploader name can open
-    /// their profile — which is fetched by id.
+    /// their profile — which is fetched by id. What a list row has to go on: it
+    /// hands over the name it drew and nothing else.
     func uploaderID(named username: String, in feed: CommunityFeed) -> String? {
         guard !username.isEmpty else { return nil }
         for exercise in feed.exercises where exercise.uploaderName == username {
             if let id = feed.uploaderIDs[exercise.id] { return id }
         }
         return uploaderNames.first { $0.value == username }?.key
+    }
+
+    /// The public user id of whoever uploaded one exercise, from whichever list
+    /// turned it up — what the screens pushed off a list ask, since they hold the
+    /// exercise itself. Exact where the lookup by name above can only be a good
+    /// guess: two uploaders are free to go by the same username.
+    func uploaderID(of publicExerciseID: UUID) -> String? {
+        fetchedUploaderIDs[publicExerciseID]
     }
 
     // MARK: - Upload
@@ -1293,6 +1308,7 @@ final class CommunitySync: ObservableObject {
             uploaders[exercise.id] = doc.userID
             fetched.append(exercise)
             fetchedExercises[exercise.id] = exercise
+            fetchedUploaderIDs[exercise.id] = doc.userID
             // Counts come from opening an exercise, not from listing it: carry
             // over what is known and leave the rest to `refreshSummary(for:)`.
             // Rebuilding the dictionaries — once the whole list is in — is what

@@ -1050,6 +1050,15 @@ struct HomeView: View {
             if let ex = CommunitySync.shared.exercise(for: id) {
                 ExerciseIntroView(exercise: ex,
                                   likeID: ex.id,
+                                  uploaderName: ex.uploaderName,
+                                  // The "Created by" line, exactly as in the
+                                  // Community tab: these exercises come off the
+                                  // same fetch, so the uploader behind one is
+                                  // known here too.
+                                  onSelectUploader: CommunitySync.shared.uploaderID(of: ex.id).map { uploader in
+                                      { navigationPath.append(
+                                          ExerciseRoute.user(id: uploader, name: ex.uploaderName)) }
+                                  },
                                   onDownload: { downloadCommunity(ex) }) {
                     navigationPath.append(ExerciseRoute.communityPlayback(id))
                 }
@@ -1075,9 +1084,16 @@ struct HomeView: View {
             FavouritesExercisePickerView()
         case .editCategories:
             HomeCategoryEditView()
-        case .user:
-            // Never appended from this tab; usernames only show in Community.
-            EmptyView()
+        case .user(let id, let name):
+            // Reached from the "Created by" line on a "New for You" exercise's
+            // intro screen — the same profile the Community tab pushes, and the
+            // same screen either tab's back button returns from. What it lists
+            // plays through the community pair of routes, since none of it is in
+            // the library either.
+            CommunityUserProfileView(uploaderID: id, username: name) { exerciseID, listed in
+                playQueue = listed
+                navigationPath.append(ExerciseRoute.communityPlay(exerciseID))
+            }
         }
     }
 }

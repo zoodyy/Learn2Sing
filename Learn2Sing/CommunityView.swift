@@ -296,10 +296,13 @@ struct CommunityView: View {
                         ExerciseIntroView(exercise: ex,
                                           likeID: ex.id,
                                           uploaderName: ex.uploaderName,
-                                          // Resolved here rather than on the tap
-                                          // so a name with no profile behind it
-                                          // is left off the screen entirely.
-                                          onSelectUploader: uploaderID(named: ex.uploaderName).map { uploader in
+                                          // By the exercise rather than by the
+                                          // name on it, since this screen has it
+                                          // — and resolved here rather than on
+                                          // the tap, so an uploader who can't be
+                                          // reached leaves the line off the
+                                          // screen entirely.
+                                          onSelectUploader: community.uploaderID(of: ex.id).map { uploader in
                                               { navigationPath.append(
                                                   ExerciseRoute.user(id: uploader, name: ex.uploaderName)) }
                                           },
