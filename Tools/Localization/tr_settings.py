@@ -350,22 +350,116 @@ T("The exercises recommendations are picked from. The groups picked above are ti
 # --- Backup ---
 T("Export Exercises", "Übungen exportieren", "Exportar ejercicios", "Exporter les exercices", "Esporta esercizi", "Exportar exercícios", "Oefeningen exporteren", "Экспортировать упражнения", "Eksportuj ćwiczenia", "Egzersizleri dışa aktar", "Exportera övningar", "エクササイズを書き出す", "연습 내보내기", "导出练习")
 T("Import Exercises", "Übungen importieren", "Importar ejercicios", "Importer des exercices", "Importa esercizi", "Importar exercícios", "Oefeningen importeren", "Импортировать упражнения", "Importuj ćwiczenia", "Egzersizleri içe aktar", "Importera övningar", "エクササイズを読み込む", "연습 가져오기", "导入练习")
-T("Export saves every exercise and its settings to a file. Import merges exercises from a file into your library.",
-  "Beim Exportieren werden alle Übungen samt Einstellungen in eine Datei gesichert. Beim Importieren werden Übungen aus einer Datei in deine Bibliothek übernommen.",
-  "Exportar guarda todos los ejercicios y sus ajustes en un archivo. Importar añade a tu biblioteca los ejercicios de un archivo.",
-  "L’export enregistre chaque exercice et ses réglages dans un fichier. L’import fusionne les exercices d’un fichier dans votre bibliothèque.",
-  "L’esportazione salva ogni esercizio e le sue impostazioni in un file. L’importazione unisce alla tua libreria gli esercizi di un file.",
-  "Exportar salva todos os exercícios e suas configurações em um arquivo. Importar mescla os exercícios de um arquivo à sua biblioteca.",
-  "Exporteren bewaart elke oefening met haar instellingen in een bestand. Importeren voegt oefeningen uit een bestand samen met je bibliotheek.",
-  "Экспорт сохраняет все упражнения и их настройки в файл. Импорт добавляет упражнения из файла в вашу библиотеку.",
-  "Eksport zapisuje wszystkie ćwiczenia i ich ustawienia do pliku. Import scala ćwiczenia z pliku z twoją biblioteką.",
-  "Dışa aktarma, her egzersizi ve ayarlarını bir dosyaya kaydeder. İçe aktarma, bir dosyadaki egzersizleri kitaplığınızla birleştirir.",
-  "Export sparar varje övning och dess inställningar i en fil. Import slår ihop övningar från en fil med ditt bibliotek.",
-  "書き出しでは、すべてのエクササイズと設定をファイルに保存します。読み込みでは、ファイル内のエクササイズをライブラリに統合します。",
-  "내보내기는 모든 연습과 설정을 파일로 저장합니다. 가져오기는 파일의 연습을 라이브러리에 병합합니다.",
-  "导出会将每个练习及其设置保存到文件。导入会把文件中的练习合并到你的库中。")
+T("Pick the exercises to save, then send the file, copy it, or save it to Files.",
+  "Wähle die Übungen aus, die gesichert werden sollen, und versende, kopiere oder sichere die Datei anschließend in „Dateien“.",
+  "Elige los ejercicios que quieres guardar y luego envía el archivo, cópialo o guárdalo en Archivos.",
+  "Choisissez les exercices à enregistrer, puis envoyez le fichier, copiez-le ou enregistrez-le dans Fichiers.",
+  "Scegli gli esercizi da salvare, poi invia il file, copialo o salvalo in File.",
+  "Escolha os exercícios a salvar e depois envie o arquivo, copie-o ou salve-o em Arquivos.",
+  "Kies de oefeningen die je wilt bewaren en verstuur, kopieer of bewaar het bestand daarna in Bestanden.",
+  "Выберите упражнения для сохранения, а затем отправьте файл, скопируйте его или сохраните в «Файлы».",
+  "Wybierz ćwiczenia do zapisania, a potem wyślij plik, skopiuj go lub zapisz w Plikach.",
+  "Kaydedilecek egzersizleri seç, ardından dosyayı gönder, kopyala veya Dosyalar’a kaydet.",
+  "Välj övningarna som ska sparas och skicka sedan filen, kopiera den eller spara den i Filer.",
+  "保存するエクササイズを選ぶと、ファイルを送信したり、コピーしたり、「ファイル」に保存したりできます。",
+  "저장할 연습을 고른 다음 파일을 보내거나 복사하거나 ‘파일’ 앱에 저장하세요.",
+  "先挑选要保存的练习，再发送、拷贝该文件或将其存储到“文件”。")
+T("Choose a file, then pick which of its exercises to add to your library or update.",
+  "Wähle eine Datei und dann, welche ihrer Übungen deiner Bibliothek hinzugefügt oder darin aktualisiert werden.",
+  "Elige un archivo y luego qué ejercicios suyos añadir a tu biblioteca o actualizar en ella.",
+  "Choisissez un fichier, puis les exercices à ajouter à votre bibliothèque ou à y mettre à jour.",
+  "Scegli un file, poi quali dei suoi esercizi aggiungere alla tua libreria o aggiornare.",
+  "Escolha um arquivo e depois quais exercícios dele adicionar à sua biblioteca ou atualizar.",
+  "Kies een bestand en daarna welke oefeningen eruit je aan je bibliotheek toevoegt of erin bijwerkt.",
+  "Выберите файл, а затем — какие из его упражнений добавить в библиотеку или обновить в ней.",
+  "Wybierz plik, a potem które z jego ćwiczeń dodać do biblioteki lub w niej zaktualizować.",
+  "Bir dosya seç, ardından hangi egzersizlerinin kitaplığına ekleneceğini veya güncelleneceğini belirle.",
+  "Välj en fil och sedan vilka av dess övningar som ska läggas till i ditt bibliotek eller uppdateras där.",
+  "ファイルを選び、その中のどのエクササイズをライブラリに追加・更新するかを選びます。",
+  "파일을 고른 다음, 그 안의 어떤 연습을 라이브러리에 추가하거나 업데이트할지 고르세요.",
+  "先选择文件，再挑选其中要加入练习库或更新的练习。")
 T("Could not prepare the export file.", "Die Exportdatei konnte nicht erstellt werden.", "No se pudo preparar el archivo de exportación.", "Impossible de préparer le fichier d’export.", "Impossibile preparare il file di esportazione.", "Não foi possível preparar o arquivo de exportação.", "Kon het exportbestand niet aanmaken.", "Не удалось подготовить файл экспорта.", "Nie udało się przygotować pliku eksportu.", "Dışa aktarma dosyası hazırlanamadı.", "Det gick inte att förbereda exportfilen.", "書き出しファイルを準備できませんでした。", "내보내기 파일을 준비할 수 없습니다.", "无法准备导出文件。")
 T("That file could not be imported.", "Diese Datei konnte nicht importiert werden.", "No se pudo importar ese archivo.", "Ce fichier n’a pas pu être importé.", "Impossibile importare quel file.", "Não foi possível importar esse arquivo.", "Dat bestand kon niet worden geïmporteerd.", "Не удалось импортировать этот файл.", "Nie udało się zaimportować tego pliku.", "Bu dosya içe aktarılamadı.", "Filen kunde inte importeras.", "そのファイルは読み込めませんでした。", "해당 파일을 가져올 수 없습니다.", "无法导入该文件。")
 T("That file could not be imported: %@", "Diese Datei konnte nicht importiert werden: %@", "No se pudo importar ese archivo: %@", "Ce fichier n’a pas pu être importé : %@", "Impossibile importare quel file: %@", "Não foi possível importar esse arquivo: %@", "Dat bestand kon niet worden geïmporteerd: %@", "Не удалось импортировать этот файл: %@", "Nie udało się zaimportować tego pliku: %@", "Bu dosya içe aktarılamadı: %@", "Filen kunde inte importeras: %@", "そのファイルは読み込めませんでした: %@", "해당 파일을 가져올 수 없습니다: %@", "无法导入该文件：%@")
 T("Export failed: %@", "Export fehlgeschlagen: %@", "Error al exportar: %@", "Échec de l’export : %@", "Esportazione non riuscita: %@", "Falha na exportação: %@", "Exporteren mislukt: %@", "Не удалось выполнить экспорт: %@", "Eksport nie powiódł się: %@", "Dışa aktarma başarısız: %@", "Exporten misslyckades: %@", "書き出しに失敗しました: %@", "내보내기 실패: %@", "导出失败：%@")
 T("Import failed: %@", "Import fehlgeschlagen: %@", "Error al importar: %@", "Échec de l’import : %@", "Importazione non riuscita: %@", "Falha na importação: %@", "Importeren mislukt: %@", "Не удалось выполнить импорт: %@", "Import nie powiódł się: %@", "İçe aktarma başarısız: %@", "Importen misslyckades: %@", "読み込みに失敗しました: %@", "가져오기 실패: %@", "导入失败：%@")
+
+# --- Backup: the export/import picking screens ---
+T("Select All", "Alle auswählen", "Seleccionar todo", "Tout sélectionner", "Seleziona tutto", "Selecionar tudo", "Alles selecteren", "Выбрать все", "Zaznacz wszystko", "Tümünü seç", "Markera alla", "すべて選択", "모두 선택", "全选")
+T("Deselect All", "Auswahl aufheben", "Deseleccionar todo", "Tout désélectionner", "Deseleziona tutto", "Desmarcar tudo", "Selectie opheffen", "Снять выбор", "Odznacz wszystko", "Seçimi kaldır", "Avmarkera alla", "すべて解除", "모두 해제", "取消全选")
+T("Export", "Exportieren", "Exportar", "Exporter", "Esporta", "Exportar", "Exporteren", "Экспорт", "Eksportuj", "Dışa aktar", "Exportera", "書き出す", "내보내기", "导出")
+T("Import", "Importieren", "Importar", "Importer", "Importa", "Importar", "Importeren", "Импорт", "Importuj", "İçe aktar", "Importera", "読み込む", "가져오기", "导入")
+T("New Exercises", "Neue Übungen", "Ejercicios nuevos", "Nouveaux exercices", "Nuovi esercizi", "Exercícios novos", "Nieuwe oefeningen", "Новые упражнения", "Nowe ćwiczenia", "Yeni egzersizler", "Nya övningar", "新しいエクササイズ", "새 연습", "新练习")
+T("Already in Your Library", "Schon in deiner Bibliothek", "Ya en tu biblioteca", "Déjà dans votre bibliothèque", "Già nella tua libreria", "Já na sua biblioteca", "Al in je bibliotheek", "Уже в вашей библиотеке", "Już w twojej bibliotece", "Kitaplığında zaten var", "Redan i ditt bibliotek", "すでにライブラリにあるもの", "이미 라이브러리에 있음", "已在你的练习库中")
+T("Exercises Imported!", "Übungen importiert!", "¡Ejercicios importados!", "Exercices importés !", "Esercizi importati!", "Exercícios importados!", "Oefeningen geïmporteerd!", "Упражнения импортированы!", "Zaimportowano ćwiczenia!", "Egzersizler içe aktarıldı!", "Övningarna importerade!", "エクササイズを読み込みました！", "연습을 가져왔습니다!", "已导入练习！")
+T("That file holds no exercises.", "Diese Datei enthält keine Übungen.", "Ese archivo no contiene ejercicios.", "Ce fichier ne contient aucun exercice.", "Quel file non contiene esercizi.", "Esse arquivo não contém exercícios.", "Dat bestand bevat geen oefeningen.", "В этом файле нет упражнений.", "Ten plik nie zawiera żadnych ćwiczeń.", "Bu dosyada hiç egzersiz yok.", "Den filen innehåller inga övningar.", "このファイルにはエクササイズが含まれていません。", "이 파일에는 연습이 없습니다.", "该文件中没有练习。")
+T("%1$d of %2$d selected",
+  "%1$d von %2$d ausgewählt",
+  "%1$d de %2$d seleccionados",
+  "%1$d sur %2$d sélectionnés",
+  "%1$d di %2$d selezionati",
+  "%1$d de %2$d selecionados",
+  "%1$d van %2$d geselecteerd",
+  "Выбрано %1$d из %2$d",
+  "Wybrano %1$d z %2$d",
+  "%2$d egzersizden %1$d tanesi seçildi",
+  "%1$d av %2$d valda",
+  "%2$d件中%1$d件を選択",
+  "%2$d개 중 %1$d개 선택됨",
+  "已选择 %2$d 项中的 %1$d 项")
+T("Ticks every exercise at once, or clears them all.",
+  "Wählt alle Übungen auf einmal aus oder hebt die Auswahl komplett auf.",
+  "Marca todos los ejercicios de una vez, o los desmarca todos.",
+  "Coche tous les exercices d’un coup, ou les décoche tous.",
+  "Seleziona tutti gli esercizi in una volta, o li deseleziona tutti.",
+  "Marca todos os exercícios de uma vez, ou desmarca todos.",
+  "Vinkt alle oefeningen in één keer aan, of haalt ze allemaal weg.",
+  "Отмечает все упражнения сразу или снимает все отметки.",
+  "Zaznacza wszystkie ćwiczenia naraz albo odznacza je wszystkie.",
+  "Tüm egzersizleri tek seferde işaretler ya da işaretlerini kaldırır.",
+  "Markerar alla övningar på en gång, eller avmarkerar allihop.",
+  "すべてのエクササイズを一度に選択、または選択をすべて解除します。",
+  "모든 연습을 한 번에 선택하거나 모두 해제합니다.",
+  "一次勾选所有练习，或全部取消勾选。")
+T("Writes the ticked exercises to a file and opens the share sheet, where you can send it, copy it, or save it to Files.",
+  "Schreibt die ausgewählten Übungen in eine Datei und öffnet das Teilen-Menü, wo du sie versenden, kopieren oder in „Dateien“ sichern kannst.",
+  "Guarda los ejercicios marcados en un archivo y abre el menú de compartir, desde donde puedes enviarlo, copiarlo o guardarlo en Archivos.",
+  "Écrit les exercices cochés dans un fichier et ouvre la feuille de partage, d’où vous pouvez l’envoyer, le copier ou l’enregistrer dans Fichiers.",
+  "Scrive gli esercizi selezionati in un file e apre il pannello di condivisione, da cui puoi inviarlo, copiarlo o salvarlo in File.",
+  "Grava os exercícios marcados em um arquivo e abre o menu de compartilhamento, de onde você pode enviá-lo, copiá-lo ou salvá-lo em Arquivos.",
+  "Schrijft de aangevinkte oefeningen naar een bestand en opent het deelmenu, waar je het kunt versturen, kopiëren of in Bestanden bewaren.",
+  "Записывает отмеченные упражнения в файл и открывает меню «Поделиться», откуда его можно отправить, скопировать или сохранить в «Файлы».",
+  "Zapisuje zaznaczone ćwiczenia do pliku i otwiera menu udostępniania, z którego możesz go wysłać, skopiować lub zapisać w Plikach.",
+  "İşaretli egzersizleri bir dosyaya yazar ve paylaşım menüsünü açar; oradan dosyayı gönderebilir, kopyalayabilir veya Dosyalar’a kaydedebilirsin.",
+  "Skriver de markerade övningarna till en fil och öppnar delningsmenyn, där du kan skicka den, kopiera den eller spara den i Filer.",
+  "選択したエクササイズをファイルに書き出し、共有メニューを開きます。そこから送信・コピー・「ファイル」への保存ができます。",
+  "선택한 연습을 파일로 저장하고 공유 시트를 엽니다. 거기서 파일을 보내거나 복사하거나 ‘파일’ 앱에 저장할 수 있습니다.",
+  "将勾选的练习写入文件并打开共享菜单，你可以从那里发送、拷贝或存储到“文件”。")
+T("Ticked exercises you already have are replaced by the version in this file.",
+  "Ausgewählte Übungen, die du schon hast, werden durch die Fassung aus dieser Datei ersetzt.",
+  "Los ejercicios marcados que ya tienes se sustituyen por la versión de este archivo.",
+  "Les exercices cochés que vous avez déjà sont remplacés par la version de ce fichier.",
+  "Gli esercizi selezionati che hai già vengono sostituiti dalla versione di questo file.",
+  "Os exercícios marcados que você já tem são substituídos pela versão deste arquivo.",
+  "Aangevinkte oefeningen die je al hebt, worden vervangen door de versie in dit bestand.",
+  "Отмеченные упражнения, которые у вас уже есть, будут заменены версией из этого файла.",
+  "Zaznaczone ćwiczenia, które już masz, zostaną zastąpione wersją z tego pliku.",
+  "İşaretlediğin ve zaten sahip olduğun egzersizler, bu dosyadaki sürümle değiştirilir.",
+  "Markerade övningar du redan har ersätts av versionen i den här filen.",
+  "選択した既存のエクササイズは、このファイルの内容で置き換えられます。",
+  "선택한 연습 중 이미 가지고 있는 것은 이 파일의 버전으로 대체됩니다.",
+  "勾选的、你已拥有的练习将被此文件中的版本替换。")
+T("Adds the ticked new exercises to your library and updates the ticked ones it already has. Everything left unticked is ignored.",
+  "Fügt die ausgewählten neuen Übungen deiner Bibliothek hinzu und aktualisiert die ausgewählten, die schon darin sind. Alles nicht Ausgewählte wird übergangen.",
+  "Añade a tu biblioteca los ejercicios nuevos marcados y actualiza los marcados que ya están en ella. Todo lo que quede sin marcar se ignora.",
+  "Ajoute à votre bibliothèque les nouveaux exercices cochés et met à jour ceux qui y sont déjà. Tout ce qui n’est pas coché est ignoré.",
+  "Aggiunge alla tua libreria i nuovi esercizi selezionati e aggiorna quelli selezionati che già contiene. Tutto ciò che resta deselezionato viene ignorato.",
+  "Adiciona à sua biblioteca os exercícios novos marcados e atualiza os marcados que ela já tem. Tudo que ficar desmarcado é ignorado.",
+  "Voegt de aangevinkte nieuwe oefeningen toe aan je bibliotheek en werkt de aangevinkte bij die er al in staan. Alles wat niet is aangevinkt, wordt overgeslagen.",
+  "Добавляет отмеченные новые упражнения в вашу библиотеку и обновляет отмеченные, которые в ней уже есть. Всё неотмеченное пропускается.",
+  "Dodaje zaznaczone nowe ćwiczenia do twojej biblioteki i aktualizuje zaznaczone, które już w niej są. Wszystko niezaznaczone jest pomijane.",
+  "İşaretli yeni egzersizleri kitaplığına ekler ve kitaplığında zaten bulunan işaretli olanları günceller. İşaretlenmeyen her şey atlanır.",
+  "Lägger till de markerade nya övningarna i ditt bibliotek och uppdaterar de markerade som redan finns där. Allt omarkerat hoppas över.",
+  "選択した新しいエクササイズをライブラリに追加し、選択した既存のエクササイズを更新します。選択していないものは取り込まれません。",
+  "선택한 새 연습을 라이브러리에 추가하고, 이미 있는 연습 중 선택한 것을 업데이트합니다. 선택하지 않은 것은 넘어갑니다.",
+  "把勾选的新练习加入你的练习库，并更新其中已有的勾选项。未勾选的一概不导入。")

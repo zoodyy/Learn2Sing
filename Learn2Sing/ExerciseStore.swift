@@ -979,12 +979,16 @@ final class ExerciseStore: ObservableObject {
     /// Snapshots every exercise (with all its settings) and its MIDI pattern.
     /// Exercises are listed in the order they appear in the list: grouped by
     /// category (in the user's category order), with uncategorized ones last.
-    func exportBundle() -> ExerciseBundle {
+    ///
+    /// `ids` narrows the snapshot to those exercises — what the export screen
+    /// ticked. nil takes the whole library.
+    func exportBundle(ids: Set<UUID>? = nil) -> ExerciseBundle {
         var ordered: [Exercise] = []
         for category in categories {
             ordered.append(contentsOf: exercises.filter { $0.category == category })
         }
         ordered.append(contentsOf: exercises.filter { !categories.contains($0.category) })
+        if let ids { ordered = ordered.filter { ids.contains($0.id) } }
         var midi: [String: [MIDINote]] = [:]
         var texts: [String: [MIDIText]] = [:]
         for exercise in ordered {
@@ -992,29 +996,31 @@ final class ExerciseStore: ObservableObject {
             let t = self.texts(for: exercise.id)
             if !t.isEmpty { texts[exercise.id.uuidString] = t }
         }
-        return ExerciseBundle(exercises: ordered, categories: categories, midi: midi,
-                              texts: texts.isEmpty ? nil : texts)
+        return ExerciseBundle(exercises: ordered, categories: exportedCategories(of: ordered),
+                              midi: midi, texts: texts.isEmpty ? nil : texts)
     }
 
-    /// `exportBundle()` encoded as a standalone JSON file.
-    func exportData() -> Data? {
+    /// The category list a bundle of `exported` exercises carries: those the
+    /// export has an exercise in, plus every empty one — an empty category has no
+    /// exercise that could have been unticked, so leaving it out would mean a
+    /// full export no longer restores the library's grouping as it stands.
+    private func exportedCategories(of exported: [Exercise]) -> [String] {
+        let exportedIDs = Set(exported.map(\.id))
+        return categories.filter { category in
+            let inCategory = exercises.filter { $0.category == category }
+            return inCategory.isEmpty || inCategory.contains { exportedIDs.contains($0.id) }
+        }
+    }
+
+    /// `exportBundle(ids:)` encoded as a standalone JSON file.
+    func exportData(ids: Set<UUID>? = nil) -> Data? {
         let encoder = JSONEncoder()
         encoder.outputFormatting = [.prettyPrinted]
-        return try? encoder.encode(exportBundle())
+        return try? encoder.encode(exportBundle(ids: ids))
     }
 
-    /// Merges the exercises in `data` into the library (by id: existing ones are
+    /// Merges the exercises in `bundle` into the library (by id: existing ones are
     /// replaced, new ones appended), restoring their MIDI patterns too.
-    @discardableResult
-    func importData(_ data: Data) -> Bool {
-        guard let bundle = try? JSONDecoder().decode(ExerciseBundle.self, from: data) else {
-            return false
-        }
-        importBundle(bundle)
-        return true
-    }
-
-    /// Merges an already-decoded bundle into the library (same rules as `importData`).
     func importBundle(_ bundle: ExerciseBundle) {
         for var exercise in bundle.exercises {
             // Bundles written before the "No Category" group existed use "".
@@ -1139,4 +1145,38 @@ struct ExerciseBundle: Codable {
     /// Text labels per exercise UUID string. Optional so bundles written before the
     /// text tool existed still decode.
     var texts: [String: [MIDIText]]? = nil
+}
+
+extension ExerciseBundle {
+    /// This bundle with any repeated exercise id dropped, keeping the first of
+    /// each. An export of ours can't repeat one, but a hand-edited file can, and
+    /// the import screen would then list the same exercise twice — which the
+    /// list's diffable data source treats as a programming error and traps on.
+    var deduplicated: ExerciseBundle {
+        var seen: Set<UUID> = []
+        var copy = self
+        copy.exercises = exercises.filter { seen.insert($0.id).inserted }
+        return copy
+    }
+
+    /// This bundle narrowed to the exercises `ids` names — what the import screen
+    /// ticked — carrying their patterns and texts and only the categories those
+    /// exercises belong to, so a category nothing was taken from isn't created on
+    /// the way in.
+    func filtered(to ids: Set<UUID>) -> ExerciseBundle {
+        let kept = exercises.filter { ids.contains($0.id) }
+        // Patterns and texts are keyed by UUID string, exactly as
+        // `ExerciseStore.importBundle` looks them up.
+        let keys = Set(kept.map { $0.id.uuidString })
+        return ExerciseBundle(
+            exercises: kept,
+            // Left nil for a bundle that never listed its categories: import
+            // then reads them off the exercises, which are filtered already.
+            categories: categories.map { list in
+                list.filter { category in kept.contains { $0.category == category } }
+            },
+            midi: midi.filter { keys.contains($0.key) },
+            texts: texts.map { $0.filter { keys.contains($0.key) } }
+        )
+    }
 }

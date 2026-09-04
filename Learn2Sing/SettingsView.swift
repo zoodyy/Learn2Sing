@@ -120,7 +120,13 @@ struct SettingsView: View {
                 case .recommendationWhitelist:
                     RecommendationWhitelistView()
                 case .backup:
-                    BackupSettingsView()
+                    BackupSettingsView(
+                        openExport: { settingsPath.append(SettingsRoute.backupExport) },
+                        openImport: { settingsPath.append(SettingsRoute.backupImport($0)) })
+                case .backupExport:
+                    ExerciseExportSelectionView()
+                case .backupImport(let file):
+                    ExerciseImportSelectionView(bundle: file.bundle)
                 case .reset:
                     ResetSettingsView(
                         openScores: { settingsPath.append(SettingsRoute.resetScores) },
@@ -198,6 +204,11 @@ struct SettingsView: View {
         case exercises
         case recommendationWhitelist
         case backup
+        case backupExport
+        // The file travels in the route rather than in a `@State` beside it: a
+        // destination closure reading state set in the same update as the push
+        // is built from the value it had *before* that update, and lands empty.
+        case backupImport(PendingImportFile)
         case reset
         case resetScores
         case resetSettings
@@ -397,57 +408,57 @@ struct ExercisesSettingsView: View {
     }
 }
 
+/// The decoded file an import picker is pushed for. A route has to be Hashable
+/// and a bundle isn't, so this is hashed by its identity alone — each chosen file
+/// is its own push, whatever it holds.
+struct PendingImportFile: Hashable {
+    let id = UUID()
+    let bundle: ExerciseBundle
+
+    static func == (lhs: PendingImportFile, rhs: PendingImportFile) -> Bool {
+        lhs.id == rhs.id
+    }
+
+    func hash(into hasher: inout Hasher) { hasher.combine(id) }
+}
+
 /// The "Backup" hub reached from Settings: exporting the exercise library to a
-/// file and importing one back in.
+/// file and importing one back in. Neither happens here — both rows lead to a
+/// screen that picks which exercises are involved (see BackupSelectionViews),
+/// and this one's job for an import is choosing the file that screen reads.
 struct BackupSettingsView: View {
     /// Re-renders this screen when the language is changed in Settings; the
     /// strings are resolved when the body runs, so SwiftUI needs telling.
     @ObservedObject private var appLanguage = LanguageManager.shared
 
-    @EnvironmentObject private var store: ExerciseStore
+    /// Push the export picker onto the shared Settings navigation stack.
+    let openExport: () -> Void
+    /// Push the import picker for the file that was chosen and decoded.
+    let openImport: (PendingImportFile) -> Void
 
-    @State private var exportDocument: ExerciseDocument?
-    @State private var isExporting = false
     @State private var isImporting = false
     @State private var alertMessage: String?
 
     var body: some View {
         Form {
             Section {
-                Button {
-                    if let data = store.exportData() {
-                        exportDocument = ExerciseDocument(data: data)
-                        isExporting = true
-                    } else {
-                        alertMessage = L("Could not prepare the export file.")
-                    }
-                } label: {
+                Button(action: openExport) {
                     Label("Export Exercises", systemImage: "square.and.arrow.up")
                 }
-                .settingHelp(L("Export saves every exercise and its settings to a file. Import merges exercises from a file into your library."))
+                .settingHelp(L("Pick the exercises to save, then send the file, copy it, or save it to Files."))
 
                 Button {
                     isImporting = true
                 } label: {
                     Label("Import Exercises", systemImage: "square.and.arrow.down")
                 }
-                .settingHelp(L("Export saves every exercise and its settings to a file. Import merges exercises from a file into your library."))
+                .settingHelp(L("Choose a file, then pick which of its exercises to add to your library or update."))
             } header: {
                 Text("Exercises")
             }
         }
         .navigationTitle(L("Backup"))
         .navigationBarTitleDisplayMode(.inline)
-        .fileExporter(
-            isPresented: $isExporting,
-            document: exportDocument,
-            contentType: .json,
-            defaultFilename: L("Learn2Sing Exercises")
-        ) { result in
-            if case .failure(let error) = result {
-                alertMessage = L("Export failed: %@", error.localizedDescription)
-            }
-        }
         .fileImporter(
             isPresented: $isImporting,
             allowedContentTypes: [.json]
@@ -456,10 +467,17 @@ struct BackupSettingsView: View {
             case .success(let url):
                 let accessed = url.startAccessingSecurityScopedResource()
                 defer { if accessed { url.stopAccessingSecurityScopedResource() } }
-                guard let data = try? Data(contentsOf: url), store.importData(data) else {
+                guard let data = try? Data(contentsOf: url),
+                      let bundle = try? JSONDecoder().decode(ExerciseBundle.self, from: data)
+                else {
                     alertMessage = L("That file could not be imported.")
                     return
                 }
+                guard !bundle.exercises.isEmpty else {
+                    alertMessage = L("That file holds no exercises.")
+                    return
+                }
+                openImport(PendingImportFile(bundle: bundle.deduplicated))
             case .failure(let error):
                 alertMessage = L("Import failed: %@", error.localizedDescription)
             }
