@@ -113,13 +113,13 @@ struct CommunityView: View {
                            bytes[12], bytes[13], bytes[14], bytes[15]))
     }
 
-    /// The public id of the uploader whose rows carry `username`, since a profile
-    /// is fetched by id rather than by name. Taken from the very rows the tap
-    /// came from, so it is always one the current list carried.
+    /// The public id of the uploader going by `username`, since a profile is
+    /// fetched by id rather than by name. This tab's own list first, then every
+    /// uploader any list has named this session — the intro screen's "Created
+    /// by" line asks for exercises opened from an uploader's profile too, and
+    /// that profile fetches separately from this list.
     private func uploaderID(named username: String) -> String? {
-        list.exercises
-            .first { $0.uploaderName == username }
-            .flatMap { list.uploaderIDs[$0.id] }
+        community.uploaderID(named: username, in: list)
     }
 
     /// What the list shows for the current search text: every fetched exercise in
@@ -295,6 +295,14 @@ struct CommunityView: View {
                     if let ex = exercise(for: id) {
                         ExerciseIntroView(exercise: ex,
                                           likeID: ex.id,
+                                          uploaderName: ex.uploaderName,
+                                          // Resolved here rather than on the tap
+                                          // so a name with no profile behind it
+                                          // is left off the screen entirely.
+                                          onSelectUploader: uploaderID(named: ex.uploaderName).map { uploader in
+                                              { navigationPath.append(
+                                                  ExerciseRoute.user(id: uploader, name: ex.uploaderName)) }
+                                          },
                                           onDownload: { download(ex) }) {
                             navigationPath.append(ExerciseRoute.playback(id))
                         }

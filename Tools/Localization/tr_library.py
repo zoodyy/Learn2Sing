@@ -92,6 +92,7 @@ T("You already have a public exercise named \"%@\". Each of your public exercise
 
 # --- Intro screen ---
 T("Difficulty:", "Schwierigkeit:", "Dificultad:", "Difficulté :", "Difficoltà:", "Dificuldade:", "Moeilijkheid:", "Сложность:", "Trudność:", "Zorluk:", "Svårighetsgrad:", "難易度:", "난이도:", "难度：")
+T("Created by:", "Erstellt von:", "Creado por:", "Créé par :", "Creato da:", "Criado por:", "Gemaakt door:", "Автор:", "Autor:", "Oluşturan:", "Skapad av:", "作成者:", "만든 사람:", "创建者：")
 T("No description.", "Keine Beschreibung.", "Sin descripción.", "Aucune description.", "Nessuna descrizione.", "Sem descrição.", "Geen beschrijving.", "Нет описания.", "Brak opisu.", "Açıklama yok.", "Ingen beskrivning.", "説明はありません。", "설명이 없습니다.", "暂无说明。")
 T("See Score", "Punktzahl ansehen", "Ver la puntuación", "Voir la note", "Vedi punteggio", "Ver pontuação", "Score bekijken", "Показать оценку", "Zobacz wynik", "Puanı gör", "Visa poäng", "スコアを見る", "점수 보기", "查看得分")
 T("Download", "Laden", "Descargar", "Télécharger", "Scarica", "Baixar", "Downloaden", "Скачать", "Pobierz", "İndir", "Ladda ner", "ダウンロード", "내려받기", "下载")

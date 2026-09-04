@@ -18,6 +18,14 @@ struct ExerciseIntroView: View {
     /// Public id of the community exercise the like button acts on; nil (every
     /// tab but Community) hides the button.
     var likeID: UUID? = nil
+    /// Whoever uploaded this exercise, shown under the title as the "Created by"
+    /// line. Empty (every tab but Community, where an exercise in the library is
+    /// the user's own) leaves the line out.
+    var uploaderName: String = ""
+    /// Opens that uploader's profile — the same screen a tap on their name in
+    /// the Community list leads to. nil leaves the line out as well: a name that
+    /// led nowhere would read as a broken link rather than as attribution.
+    var onSelectUploader: (() -> Void)? = nil
     var onDownload: (() -> Void)? = nil
     /// Opens this exercise's settings from the toolbar. nil (Community, where the
     /// exercise isn't in the user's library yet) hides the button.
@@ -96,6 +104,10 @@ struct ExerciseIntroView: View {
                 VStack(alignment: .leading, spacing: 16) {
                     Text(exercise.localizedName)
                         .font(.largeTitle.weight(.bold))
+
+                    if !uploaderName.isEmpty, let onSelectUploader {
+                        uploaderRow(onSelectUploader)
+                    }
 
                     if let difficulty {
                         difficultyRow(difficulty)
@@ -226,6 +238,33 @@ struct ExerciseIntroView: View {
         }
         .accessibilityLabel(L("Skip Exercise"))
         .explain(L("Leaves this exercise unsung and moves on to the next one in the queue."))
+    }
+
+    /// Who made this community exercise, under the title, as the way to the rest
+    /// of what they have published: the same profile screen a tap on their name
+    /// in the Community list opens. The name is tinted to say it leads somewhere
+    /// while the label stays with the difficulty row's grey.
+    ///
+    /// A tap gesture rather than a `Button`, so the row keeps the plain look of
+    /// a byline and the hold that puts up its explanation isn't also a press of
+    /// a control — the pairing the difficulty row below uses, and for the same
+    /// reason: `explain` rebuilds the row when it recognises a hold, cancelling
+    /// the touch in flight so the release doesn't land here as a tap.
+    private func uploaderRow(_ open: @escaping () -> Void) -> some View {
+        HStack(spacing: 6) {
+            Text("Created by:")
+            Text(uploaderName)
+                .foregroundStyle(.tint)
+        }
+        .font(.subheadline)
+        .foregroundStyle(.secondary)
+        // The line answers the tap, not the width it is laid out in: a tap out
+        // there is aimed at nothing.
+        .contentShape(Rectangle())
+        .onTapGesture(perform: open)
+        .accessibilityElement(children: .combine)
+        .accessibilityAddTraits(.isButton)
+        .explain(L("Who made this exercise. Tap to open their profile and see their other public exercises."))
     }
 
     /// The exercise's difficulty as five stars, on the trailing edge so it sits
