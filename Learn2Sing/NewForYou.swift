@@ -15,7 +15,7 @@ import Combine
 ///
 /// Deliberately not the Community tab's feed. That one is the whole community in
 /// whatever order the sort menu is set to, paged as the user scrolls; this is a
-/// fixed question — the first `pageCount` pages of "Hot" — asked once a session
+/// fixed question — the top of the community's "Hot" order — asked once a session
 /// and never paged. Sharing the feed would have this category reshuffle whenever
 /// the Community tab's sort menu was touched, and have that tab pay for pages
 /// nobody scrolled to.
@@ -30,12 +30,16 @@ import Combine
 final class NewForYouFeed: ObservableObject {
     static let shared = NewForYouFeed()
 
-    /// How many pages of the "Hot" order the candidates are drawn from — the
+    /// How many pages of any one order the candidates are drawn from — the
     /// `page` parameter of the public fetch, which counts from 0. Two pages of
     /// `CommunityFeed.pageSize` is a wide enough net to find `count` exercises
     /// near almost any level, without the category costing a difficulty call for
     /// every exercise in the community.
     static let pageCount = 2
+
+    /// How wide the net is cast: `pageCount` pages' worth of records, however
+    /// many queries it takes to find them (see `fetchCandidates`).
+    static let candidateTarget = pageCount * CommunityFeed.pageSize
 
     /// How many exercises the category lists.
     static let count = 5
@@ -117,56 +121,33 @@ final class NewForYouFeed: ObservableObject {
         didFail = fetched == nil
     }
 
-    /// Reads the first `pageCount` pages of the community's "Hot" order and looks
-    /// up what the server rates each exercise at, answering with the candidates
-    /// those pages turned up — or nil if any of the calls didn't come back.
+    /// Reads the community's "Hot" order and looks up what the server rates each
+    /// exercise at, answering with the candidates it turned up — or nil if any of
+    /// the calls didn't come back.
     ///
-    /// The pages are read one after the other rather than at once: the fetch
-    /// endpoint answers for one page per call, and two calls off to the side of a
-    /// launch is not worth parallelising. A call that fails abandons the whole
-    /// thing — a half-read pair of pages is a narrower net, not a shorter list,
-    /// and would quietly change what the category is — leaving whatever an
-    /// earlier fetch turned up in place.
+    /// "Hot" comes out of the server's event tables, so it lists only the
+    /// exercises somebody has already played, liked or downloaded. That is how
+    /// the ranking is meant to work, but on its own it would leave this category
+    /// with however few exercises the community has got round to — and with
+    /// nothing at all where the ones it has got round to have since been taken
+    /// down, which is where the server stands today. So a short answer is topped
+    /// up from the same order the Community tab tops its own "Hot" list up in
+    /// (see `CommunitySort.topUpSort`), until the net is `candidateTarget` wide
+    /// or there is no more community to read.
     private func fetchCandidates() async -> [Exercise]? {
-        let sort = CommunitySort.hot
-        // Which spelling of the sort key this backend takes, most likely first —
-        // see `CommunitySort.serverSortBy`. A rejected one is dropped and the
-        // same page asked for again with the next.
-        var sortBy = sort.serverSortBy
         let query = [URLQueryItem(name: "userId", value: PublicIdentifier.user)]
-
-        var records: [PersistRecord] = []
-        // The same record can come back on both pages if the ranking shifts
-        // between the two calls; it belongs in the list once, where the hotter
-        // page put it.
-        var entityIDs: Set<String> = []
-        var page = 0
-        var isLastPage = false
-        while page < Self.pageCount, !isLastPage {
-            guard let sortKey = sortBy.first else { return nil }
-            let result = await CommunityFeed.fetchPage(storageType: "SHARED_EXERCISE",
-                                                       sortBy: sortKey,
-                                                       sortDirection: sort.serverSortDirection(reversed: false),
-                                                       page: page,
-                                                       extraQuery: query)
-            switch result {
-            case .failed:
+        guard var records = await readPages(of: .hot, onto: [], query: query) else { return nil }
+        if records.count < Self.candidateTarget, let topUp = CommunitySort.hot.topUpSort {
+            guard let topped = await readPages(of: topUp, onto: records, query: query) else {
                 return nil
-            case .unknownSortKey:
-                guard sortBy.count > 1 else { return nil }
-                sortBy.removeFirst()
-            case .page(let fetched, let isLast):
-                for record in fetched where entityIDs.insert(record.entityId).inserted {
-                    records.append(record)
-                }
-                isLastPage = isLast
-                page += 1
             }
+            records = topped
         }
+        let entityIDs = Set(records.map(\.entityId))
 
         let sync = CommunitySync.shared
         sync.remember(fetchedNames: CommunityFeed.publicNames(in: records))
-        // Never `isComplete`: these two pages are a slice of the community, and
+        // Never `isComplete`: these pages are a slice of the community, and
         // everything below them is still there — see `applyFetched`. Patterns,
         // share dates and the exercises the pushed screens resolve through all
         // come out of this, exactly as they do for the Community tab's list.
@@ -183,6 +164,53 @@ final class NewForYouFeed: ObservableObject {
         await sync.refreshDifficulties(for: unrated)
 
         return applied.exercises
+    }
+
+    /// Reads pages of one order onto the end of `earlier` — skipping the records
+    /// it already holds — until the net is `candidateTarget` wide, `pageCount`
+    /// pages have been read, or the query runs out. nil means a call didn't come
+    /// back, which abandons the whole fetch: a half-read net is a narrower one,
+    /// not a shorter list, and would quietly change what the category is.
+    ///
+    /// The pages are read one after the other rather than at once: the fetch
+    /// endpoint answers for one page per call, and a handful of calls off to the
+    /// side of a launch is not worth parallelising.
+    private func readPages(of sort: CommunitySort,
+                           onto earlier: [PersistRecord],
+                           query: [URLQueryItem]) async -> [PersistRecord]? {
+        var records = earlier
+        // The same record can come back on two pages if the ranking shifts
+        // between the calls, and every record "Hot" returned comes back again in
+        // the top-up behind it; each belongs in the list once, where the first
+        // query to turn it up put it.
+        var entityIDs = Set(records.map(\.entityId))
+        // Which spelling of the sort key this backend takes, most likely first —
+        // see `CommunitySort.serverSortBy`. A rejected one is dropped and the
+        // same page asked for again with the next.
+        var sortBy = sort.serverSortBy
+        var page = 0
+        while page < Self.pageCount, records.count < Self.candidateTarget {
+            guard let sortKey = sortBy.first else { return nil }
+            let result = await CommunityFeed.fetchPage(storageType: "SHARED_EXERCISE",
+                                                       sortBy: sortKey,
+                                                       sortDirection: sort.serverSortDirection(reversed: false),
+                                                       page: page,
+                                                       extraQuery: query)
+            switch result {
+            case .failed:
+                return nil
+            case .unknownSortKey:
+                guard sortBy.count > 1 else { return nil }
+                sortBy.removeFirst()
+            case .page(let fetched, let isLast):
+                for record in fetched where entityIDs.insert(record.entityId).inserted {
+                    records.append(record)
+                }
+                if isLast { return records }
+                page += 1
+            }
+        }
+        return records
     }
 
     /// The exercises the category lists for a singer at `level`: the `count`

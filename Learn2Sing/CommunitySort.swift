@@ -98,15 +98,18 @@ extension CommunitySort {
     /// how they are meant to work but would drop everything untouched out of the
     /// tab, a just-published exercise included. So the query for one is followed
     /// by a second in this order, topped up with whatever the first left out as
-    /// it is paged (see CommunitySync.makeFeed). `hot` ranks recency against
+    /// it is paged (see `CommunityFeed.makeFeed`). `hot` ranks recency against
     /// engagement, so its remainder is topped up in the order it would rank them
     /// in; the count orders put theirs, all of them zero, at the tail newest
     /// first.
     ///
-    /// Not used when the reverse switch is on: upside down the remainder belongs
-    /// at the head, and the list is appended to a page at a time in the order it
-    /// is read, so there is nowhere to put it. The reversed count orders
-    /// therefore list what their own query returns and nothing else.
+    /// With the reverse switch on the remainder belongs at the *head* instead —
+    /// a tally of zero is the lowest there is — so a reversed count order reads
+    /// its own query out first and holds those records back for the tail,
+    /// listing this one's as they are paged (see `CommunityFeed.makeFeed`).
+    /// Without that, an order whose query returns nothing at all — which is
+    /// where the server stands today, with no exercise carrying an event row it
+    /// will list — leaves the tab empty.
     var topUpSort: CommunitySort? {
         switch self {
         case .hot: .recentlyUpdated

@@ -202,6 +202,12 @@ final class CommunityFeed: ObservableObject {
         var sortBy: [String]
         var sortDirection: String
         var page = 0
+        /// Whether this stage's records are held back rather than listed where
+        /// they are read. Set on the ranked stage of a reversed count order,
+        /// which is read first — to learn which exercises the server has no
+        /// events for at all — and listed at the tail, behind those: a tally of
+        /// zero is the lowest there is, so upside down it comes first.
+        var isHeldBack = false
     }
 
     /// How the list is being filled: the queries behind the picked order, in the
@@ -214,16 +220,21 @@ final class CommunityFeed: ObservableObject {
         var query: [URLQueryItem]
         var stages: [FeedStage]
         var stageIndex = 0
-        /// Whether these stages between them list every shared exercise, so that
-        /// reading them to the end is the whole community rather than a slice of
-        /// it. False for the reversed event orders, which are taken at the
-        /// server's word and list only the exercises with an event on them (see
-        /// `makeFeed`) — a list that has run out is not the same thing as a
-        /// community with nothing more in it.
-        var listsEverything: Bool
+        /// The records read from a held-back stage, waiting for the end of the
+        /// list — see `FeedStage.isHeldBack`.
+        var held: [PersistRecord] = []
         /// Whether the whole list (as this order and narrowing see it) has been
         /// read: every stage walked to its last page.
         var isExhausted: Bool { stageIndex >= stages.count }
+
+        /// Moves on to the next stage, handing back whatever was held for the
+        /// tail once there is no stage left to read.
+        mutating func finishStage() -> [PersistRecord] {
+            stageIndex += 1
+            guard isExhausted, !held.isEmpty else { return [] }
+            defer { held = [] }
+            return held
+        }
     }
 
     /// What one call for one page came back with.
@@ -332,15 +343,16 @@ final class CommunityFeed: ObservableObject {
     /// skipped as it is paged. The narrowing is taken at its word — what it
     /// returns is the list.
     ///
-    /// Reversed, those leftovers would belong at the *head* of the list instead:
-    /// they have no events at all, so their tally is zero. Which exercises they
-    /// are can only be told from the whole answer to the order's own query, so
-    /// there is no topping one up a page at a time — and that order is therefore
-    /// taken at its word, listing what the query returns and nothing else. It is
-    /// the server's to get right (the query leaving out what it has no events for
-    /// is a bug there, being fixed), and the list shows whatever it hands back.
-    /// (`hot` is never reversed, so its leftovers always go last, ranked the way
-    /// that order would rank them.)
+    /// Reversed, those leftovers belong at the *head* of the list instead: they
+    /// have no events at all, so their tally is zero, which upside down is the
+    /// top. Which exercises they are can only be told from the whole answer to
+    /// the order's own query, so that query is read out first and its records
+    /// held back for the tail (see `FeedStage.isHeldBack`) while the leftovers
+    /// are listed as they are paged. It costs the first page of a reversed count
+    /// order every page of the ranking behind it, which is the only way round:
+    /// there is no telling what the server left out without seeing all of what
+    /// it put in. (`hot` is never reversed, so its leftovers always go last,
+    /// ranked the way that order would rank them.)
     ///
     /// Everything narrowing the query rides along on every page of every stage:
     /// `userId` is who is asking (which is all `filter` means anything next to —
@@ -353,18 +365,21 @@ final class CommunityFeed: ObservableObject {
             + (uploaderID.map { [URLQueryItem(name: "customId1", value: $0)] } ?? [])
             + (activeFilter.map { [URLQueryItem(name: "filter", value: $0.serverValue)] } ?? [])
             + (activeSearchTerm.isEmpty ? [] : [URLQueryItem(name: "searchTerm", value: activeSearchTerm)])
-        let ranked = FeedStage(sortBy: sort.serverSortBy,
+        var ranked = FeedStage(sortBy: sort.serverSortBy,
                                sortDirection: sort.serverSortDirection(reversed: reversed))
-        guard let topUp = sort.topUpSort, !reversed else {
-            // Everything but a reversed event order is a listing of the whole
-            // community in its own right: the orders with no top-up rank every
-            // exercise, event or no event.
-            return Feed(query: query, stages: [ranked],
-                        listsEverything: sort.topUpSort == nil)
+        guard let topUp = sort.topUpSort else {
+            // An order with no top-up is a listing of the whole community in its
+            // own right: it ranks every exercise, event or no event.
+            return Feed(query: query, stages: [ranked])
         }
         let leftovers = FeedStage(sortBy: topUp.serverSortBy,
                                   sortDirection: topUp.serverSortDirection(reversed: false))
-        return Feed(query: query, stages: [ranked, leftovers], listsEverything: true)
+        // The ranking, then what it left out — except upside down, where what it
+        // left out has the lowest tally there is and so goes first. The ranking
+        // is still read first there (it is the only way to tell the two apart),
+        // but held back until the leftovers have been listed.
+        ranked.isHeldBack = reversed
+        return Feed(query: query, stages: [ranked, leftovers])
     }
 
     /// Reads on from the feed until it has a page's worth of records the list
@@ -398,9 +413,9 @@ final class CommunityFeed: ObservableObject {
         guard var feed, !feed.isExhausted else { return [] }
         let stage = feed.stages[feed.stageIndex]
         guard let sortKey = stage.sortBy.first, stage.page < Self.maxPages else {
-            feed.stageIndex += 1
+            let tail = feed.finishStage()
             self.feed = feed
-            return []
+            return tail
         }
         let result = await Self.fetchPage(storageType: "SHARED_EXERCISE",
                                           sortBy: sortKey,
@@ -419,13 +434,23 @@ final class CommunityFeed: ObservableObject {
             self.feed = feed
             return []
         case .page(let records, let isLast):
+            // Marked read wherever they end up, so a later stage can tell which
+            // exercises an earlier one already turned up — which is the whole of
+            // how the leftovers stage knows what it is topping up.
+            let new = read(records)
+            var listed: [PersistRecord] = []
+            if stage.isHeldBack {
+                feed.held += new
+            } else {
+                listed = new
+            }
             if isLast {
-                feed.stageIndex += 1
+                listed += feed.finishStage()
             } else {
                 feed.stages[feed.stageIndex].page += 1
             }
             self.feed = feed
-            return read(records)
+            return listed
         }
     }
 
@@ -541,10 +566,10 @@ final class CommunityFeed: ObservableObject {
         // Only the whole-community feed, read to its last page with nothing
         // narrowing it, is entitled to say an exercise has left the community:
         // a profile, a filter or a search term is a slice of it, and everything
-        // outside that slice is still there. So is an order that lists only the
-        // exercises it has events for (see `Feed.listsEverything`).
+        // outside that slice is still there. Every order's stages do between
+        // them list the whole community, whichever way round (see `makeFeed`),
+        // so reading them out is the one thing that says what is no longer in it.
         let isComplete = isWholeCommunity && (feed?.isExhausted ?? false)
-            && (feed?.listsEverything ?? false)
             && activeFilter == nil && activeSearchTerm.isEmpty
         let applied = sync.applyFetched(docs: loadedDocs,
                                         entityIDs: loadedEntityIDs,
