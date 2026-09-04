@@ -1,1613 +1,3087 @@
 {
   "midi" : {
-    "0ECAE354-AEDE-40A4-98EF-7AADECCDC3E4" : [
+    "4BFA2CC6-4A87-4C2B-B0D0-688042C23525" : [
       {
-        "beat" : 0,
-        "id" : "61483339-e439-4c31-a62b-421b13db2ac5",
-        "pitch" : 45,
-        "length" : 1
-      },
-      {
-        "beat" : 1,
-        "id" : "464e8b2a-65d1-42cb-80cd-344be3bf9482",
-        "pitch" : 47,
-        "length" : 1
-      },
-      {
-        "beat" : 2,
-        "id" : "b5979557-1cf3-4c31-b567-6e22a976afe5",
-        "pitch" : 49,
-        "length" : 1
-      },
-      {
-        "beat" : 3,
-        "id" : "d82b10da-5cd0-4b9b-be16-567a2f3b0ca8",
-        "pitch" : 50,
-        "length" : 1
-      },
-      {
-        "beat" : 4,
-        "id" : "73f1df4d-d058-40d1-a8c7-07a4a8f3e61b",
-        "pitch" : 52,
-        "length" : 1
-      },
-      {
-        "beat" : 5,
-        "id" : "f1c93afe-98a5-42ba-951c-429f2cd5ec36",
-        "pitch" : 54,
-        "length" : 1
-      },
-      {
-        "beat" : 6,
-        "id" : "2ed46477-ec31-4e63-afe1-9bfea9906132",
-        "pitch" : 56,
-        "length" : 1
-      },
-      {
-        "beat" : 7,
-        "id" : "613b6454-2c01-4792-aea0-251439966ff6",
         "pitch" : 57,
+        "id" : "1929b227-7096-424f-853c-c28aea2ce8d5",
+        "beat" : 0,
+        "length" : 1
+      },
+      {
+        "pitch" : 59,
+        "id" : "a0ef4436-5fd4-486e-a846-797f8b47d3ec",
+        "beat" : 1,
+        "length" : 1
+      },
+      {
+        "pitch" : 61,
+        "id" : "22f1f11a-0788-4b30-a845-37d356e0d79f",
+        "beat" : 2,
+        "length" : 1
+      },
+      {
+        "pitch" : 59,
+        "id" : "af84409c-09e1-4d0e-9996-a3445c48df1b",
+        "beat" : 3,
+        "length" : 1
+      },
+      {
+        "pitch" : 57,
+        "id" : "822b9339-810d-4fa9-be74-3976c381e7ea",
+        "beat" : 4,
+        "length" : 1
+      },
+      {
+        "pitch" : 64,
+        "id" : "778ca7bf-c220-4013-b6b6-6e87e36a26b0",
+        "beat" : 5,
+        "length" : 1
+      },
+      {
+        "pitch" : 61,
+        "id" : "028400ef-9cb8-4859-aa22-99dae2ed58ab",
+        "beat" : 6,
+        "length" : 1
+      },
+      {
+        "pitch" : 59,
+        "id" : "9c4057cc-26f9-41eb-9d0b-b5e7738a1c9a",
+        "beat" : 7,
+        "length" : 1
+      },
+      {
+        "pitch" : 57,
+        "id" : "f7aa00ff-b706-4a5e-8c76-4ad77574888a",
+        "beat" : 8,
         "length" : 1
       }
     ],
     "15863544-5AF3-4E04-BB4C-ACBD986A7CC6" : [
       {
-        "beat" : 0,
-        "id" : "37529f9c-1dd9-4cfc-a109-f9d62dfa0a28",
         "pitch" : 61,
+        "id" : "128df598-6de3-427b-88c9-5921901415d7",
+        "beat" : 0,
         "length" : 1
       },
       {
-        "beat" : 1,
-        "id" : "141f85d1-97ba-474e-88bb-516e3c20a682",
         "pitch" : 65,
+        "id" : "2844ffc9-1cdd-43f4-9b03-a065348dbe34",
+        "beat" : 1,
         "length" : 1
       },
       {
+        "pitch" : 68,
+        "id" : "dd8c1ac0-c090-4738-8ecb-1046169c177f",
         "beat" : 2,
-        "id" : "455a7d95-d260-4ec8-86ef-ec1204fe9b8d",
-        "pitch" : 68,
         "length" : 1
       },
       {
+        "pitch" : 73,
+        "id" : "37407863-3d6b-45e2-bb91-518e72e20906",
         "beat" : 3,
-        "id" : "110cd95a-7cf8-4215-8a0e-f78b5038e165",
-        "pitch" : 73,
         "length" : 1
       },
       {
+        "pitch" : 73,
+        "id" : "4bd16c27-84db-442b-a50d-dbad4a9f65e8",
         "beat" : 4,
-        "id" : "5dc1619e-cfba-4771-a675-d82741897d95",
-        "pitch" : 73,
         "length" : 1
       },
       {
+        "pitch" : 73,
+        "id" : "ea8eabf0-cc83-4a8e-b0c6-8a2198d7281a",
         "beat" : 5,
-        "id" : "fd607267-1ffa-4a74-84f1-39a0de7536c6",
-        "pitch" : 73,
         "length" : 1
       },
       {
+        "pitch" : 73,
+        "id" : "4295c0c4-603a-47b7-b51c-064bf9c18464",
         "beat" : 6,
-        "id" : "5219e849-a709-4ace-9787-3e6dd33c2739",
-        "pitch" : 73,
         "length" : 1
       },
       {
-        "beat" : 7,
-        "id" : "59423bdf-c1ff-42fc-8c86-6cb0c1c8f9b6",
         "pitch" : 68,
+        "id" : "828c923c-361a-45f9-8f10-8b80ec42f56f",
+        "beat" : 7,
         "length" : 1
       },
       {
-        "beat" : 8,
-        "id" : "f23ac28a-6ee6-4984-b0e8-38c4bd9da95e",
         "pitch" : 65,
+        "id" : "7feb06e7-06d0-4792-abbd-797977583fd2",
+        "beat" : 8,
         "length" : 1
       },
       {
+        "pitch" : 61,
+        "id" : "99e47950-4381-4bbd-98e5-5712d7d30a3d",
         "beat" : 9,
-        "id" : "c75c6cea-7c63-41ad-926f-13e82ecc6b68",
-        "pitch" : 61,
         "length" : 1
-      }
-    ],
-    "E1D40EA9-4181-4562-B6DD-EE09D104AA5C" : [
-      {
-        "beat" : 0.25,
-        "id" : "57448b21-1274-4654-a856-74a00ffe94e4",
-        "pitch" : 66,
-        "length" : 2.5
-      },
-      {
-        "beat" : 2.75,
-        "id" : "5b3932dc-b846-47eb-90d5-cacf34a2bc8a",
-        "pitch" : 68,
-        "length" : 2
-      },
-      {
-        "beat" : 5.25,
-        "id" : "2d0d2324-ab33-479a-95f5-a811f6814296",
-        "pitch" : 71,
-        "length" : 0.25
-      },
-      {
-        "beat" : 5.25,
-        "id" : "1db0e039-de1c-43d6-b818-a639d975ceca",
-        "pitch" : 72,
-        "length" : 0.25
-      },
-      {
-        "beat" : 3.75,
-        "id" : "0a40c027-e120-4642-84db-149afc5229fb",
-        "pitch" : 59,
-        "length" : 0.25
-      },
-      {
-        "beat" : 2,
-        "id" : "7428ea77-de22-48f8-bfb4-efff0f0bd0f5",
-        "pitch" : 71,
-        "length" : 1.5
-      },
-      {
-        "beat" : 3.25,
-        "id" : "afc68a71-59ae-4f3a-85e3-ecc99b3a3875",
-        "pitch" : 74,
-        "length" : 1.25
-      },
-      {
-        "beat" : 2.5,
-        "id" : "4de0ec07-8502-4c64-9860-4d01118a17f6",
-        "pitch" : 77,
-        "length" : 1.25
-      },
-      {
-        "beat" : 7,
-        "id" : "8f50abd5-3213-4540-8125-16519de96f9c",
-        "pitch" : 68,
-        "length" : 1.5
-      },
-      {
-        "beat" : 9.5,
-        "id" : "b67a2811-510f-49a0-85af-c9e2e52025c9",
-        "pitch" : 68,
-        "length" : 1.5
-      },
-      {
-        "beat" : 12,
-        "id" : "719e9600-e9d9-4b73-8121-7b19a18e38a7",
-        "pitch" : 70,
-        "length" : 1.75
-      },
-      {
-        "beat" : 10.5,
-        "id" : "bdd10021-3953-4075-871f-38ac965730a1",
-        "pitch" : 58,
-        "length" : 2
-      }
-    ],
-    "06E2B2D0-7B6B-45C6-98FD-154B166C4B02" : [
-      {
-        "beat" : 0,
-        "id" : "d31cc44d-0dd9-4d9b-99d5-f755a7dd5dcf",
-        "pitch" : 49,
-        "length" : 1
-      },
-      {
-        "beat" : 1,
-        "id" : "7682f9ff-4940-4185-9578-4a4cd12d60b5",
-        "pitch" : 51,
-        "length" : 1
-      },
-      {
-        "beat" : 2,
-        "id" : "94db8be8-b5a2-4202-b38a-9c76e448ffd8",
-        "pitch" : 53,
-        "length" : 1
-      },
-      {
-        "beat" : 5,
-        "id" : "bec6a170-cf47-40f1-b3a8-762fa55b379d",
-        "pitch" : 51,
-        "length" : 1
-      },
-      {
-        "beat" : 3,
-        "id" : "b6bf805b-09e1-4a14-8b4e-43cfec152215",
-        "pitch" : 51,
-        "length" : 1
-      },
-      {
-        "beat" : 4,
-        "id" : "93e64f10-5787-45b5-8f00-101eec010f2c",
-        "pitch" : 49,
-        "length" : 1
-      },
-      {
-        "beat" : 6,
-        "id" : "9b9c5c9e-e523-432e-960c-4475798ffffe",
-        "pitch" : 53,
-        "length" : 1
-      },
-      {
-        "beat" : 7,
-        "id" : "03438624-404d-4c15-9479-47f0ab99f3d1",
-        "pitch" : 54,
-        "length" : 1
-      },
-      {
-        "beat" : 8,
-        "id" : "c2e67139-ed61-471e-82ee-2805d675fbfd",
-        "pitch" : 56,
-        "length" : 1
-      },
-      {
-        "beat" : 9,
-        "id" : "e706927d-acf3-4e8e-a65d-410dd7f21b81",
-        "pitch" : 54,
-        "length" : 1
-      },
-      {
-        "beat" : 10,
-        "id" : "0b47841f-4967-4f51-9a96-df984b1da9c8",
-        "pitch" : 53,
-        "length" : 1
-      },
-      {
-        "beat" : 11,
-        "id" : "7455979b-a3b5-455f-96e2-33e2f9855d91",
-        "pitch" : 51,
-        "length" : 1
-      },
-      {
-        "beat" : 12,
-        "id" : "6f29af06-cc0a-4fb6-a986-722dc06fb656",
-        "pitch" : 49,
-        "length" : 1
-      }
-    ],
-    "4BFA2CC6-4A87-4C2B-B0D0-688042C23525" : [
-      {
-        "beat" : 0,
-        "id" : "f153c32f-9e40-4d29-92e9-ae8c90028bfb",
-        "pitch" : 57,
-        "length" : 1
-      },
-      {
-        "beat" : 1,
-        "id" : "e5f63c7e-6415-4b2a-a544-1f152e732edc",
-        "pitch" : 59,
-        "length" : 1
-      },
-      {
-        "beat" : 2,
-        "id" : "c58d3d2c-c6cd-4279-b4b4-ece972261e1e",
-        "pitch" : 61,
-        "length" : 1
-      },
-      {
-        "beat" : 3,
-        "id" : "886ff08b-d706-47a6-86a8-7b5588133bbf",
-        "pitch" : 59,
-        "length" : 1
-      },
-      {
-        "beat" : 4,
-        "id" : "7195ca0f-ad7c-49ac-a15e-1b11c82c0f6f",
-        "pitch" : 57,
-        "length" : 1
-      },
-      {
-        "beat" : 5,
-        "id" : "1450cffa-71c0-4ef5-aadc-7f5eb701415f",
-        "pitch" : 64,
-        "length" : 1
-      },
-      {
-        "beat" : 6,
-        "id" : "548b5167-7ccb-4342-a39e-dc3f1cc95e14",
-        "pitch" : 61,
-        "length" : 1
-      },
-      {
-        "beat" : 7,
-        "id" : "4e755fa7-3cec-4004-924f-21978b4d6284",
-        "pitch" : 59,
-        "length" : 1
-      },
-      {
-        "beat" : 8,
-        "id" : "5f112b7b-c144-45d7-b2ee-3514b183efb5",
-        "pitch" : 57,
-        "length" : 1
-      }
-    ],
-    "0C48C105-F842-446F-8448-EE7F43D8F8CD" : [
-      {
-        "beat" : 0.25,
-        "id" : "57448b21-1274-4654-a856-74a00ffe94e4",
-        "pitch" : 66,
-        "length" : 2.5
-      },
-      {
-        "beat" : 2.75,
-        "id" : "5b3932dc-b846-47eb-90d5-cacf34a2bc8a",
-        "pitch" : 68,
-        "length" : 2
-      },
-      {
-        "beat" : 5.25,
-        "id" : "2d0d2324-ab33-479a-95f5-a811f6814296",
-        "pitch" : 71,
-        "length" : 0.25
-      },
-      {
-        "beat" : 5.25,
-        "id" : "1db0e039-de1c-43d6-b818-a639d975ceca",
-        "pitch" : 72,
-        "length" : 0.25
-      },
-      {
-        "beat" : 3.75,
-        "id" : "0a40c027-e120-4642-84db-149afc5229fb",
-        "pitch" : 59,
-        "length" : 0.25
-      },
-      {
-        "beat" : 2,
-        "id" : "7428ea77-de22-48f8-bfb4-efff0f0bd0f5",
-        "pitch" : 71,
-        "length" : 1.5
-      },
-      {
-        "beat" : 3.25,
-        "id" : "afc68a71-59ae-4f3a-85e3-ecc99b3a3875",
-        "pitch" : 74,
-        "length" : 1.25
-      },
-      {
-        "beat" : 2.5,
-        "id" : "4de0ec07-8502-4c64-9860-4d01118a17f6",
-        "pitch" : 77,
-        "length" : 1.25
-      },
-      {
-        "beat" : 7,
-        "id" : "8f50abd5-3213-4540-8125-16519de96f9c",
-        "pitch" : 68,
-        "length" : 1.5
-      },
-      {
-        "beat" : 9.5,
-        "id" : "b67a2811-510f-49a0-85af-c9e2e52025c9",
-        "pitch" : 68,
-        "length" : 1.5
-      },
-      {
-        "beat" : 12,
-        "id" : "719e9600-e9d9-4b73-8121-7b19a18e38a7",
-        "pitch" : 70,
-        "length" : 1.75
-      },
-      {
-        "beat" : 10.5,
-        "id" : "bdd10021-3953-4075-871f-38ac965730a1",
-        "pitch" : 58,
-        "length" : 2
-      }
-    ],
-    "24C5B25B-D49A-4A0D-9E7C-9E0F72AA8E86" : [
-      {
-        "beat" : 0,
-        "id" : "82859c84-e4c4-483a-883b-2f3322bd4a61",
-        "pitch" : 49,
-        "length" : 1
-      },
-      {
-        "beat" : 1,
-        "id" : "d4517937-920d-4c54-8cb2-ea6c4ed053cb",
-        "pitch" : 51,
-        "length" : 1
-      },
-      {
-        "beat" : 2,
-        "id" : "c90e2078-bda7-4dfe-a2b2-210813bc89f2",
-        "pitch" : 53,
-        "length" : 1
-      },
-      {
-        "beat" : 3,
-        "id" : "2ca8181c-3620-468b-901a-6b1bbc2c85f4",
-        "pitch" : 51,
-        "length" : 1
-      },
-      {
-        "beat" : 4,
-        "id" : "577e2ce8-52ab-4d4a-9fce-acddfcef8e0f",
-        "pitch" : 49,
-        "length" : 1
-      },
-      {
-        "beat" : 5,
-        "id" : "2674203c-5b06-414c-b944-ceeb3f4502a7",
-        "pitch" : 51,
-        "length" : 1
-      },
-      {
-        "beat" : 6,
-        "id" : "68ef51be-95ae-4008-832d-dc35bf645bf7",
-        "pitch" : 53,
-        "length" : 1
-      },
-      {
-        "beat" : 7,
-        "id" : "88ce9eb1-c7fb-4616-9019-210405d58e71",
-        "pitch" : 51,
-        "length" : 1
-      },
-      {
-        "beat" : 8,
-        "id" : "334ce53b-52d7-4bb9-b45d-47ed5586bb7d",
-        "pitch" : 49,
-        "length" : 1
-      }
-    ],
-    "1A401FED-939D-498C-A0F8-BEABB16723F1" : [
-
-    ],
-    "5C40BDD7-969C-43EA-BC16-E49E7CE3DFE5" : [
-      {
-        "beat" : 0,
-        "id" : "01290508-6076-416a-8764-49b21ca1e857",
-        "pitch" : 49,
-        "length" : 1
-      },
-      {
-        "beat" : 1,
-        "id" : "2646d825-36d6-4382-9b05-902539dc977d",
-        "pitch" : 53,
-        "length" : 1
-      },
-      {
-        "beat" : 2,
-        "id" : "ae6138a4-9020-4cfd-84da-4ec1ac2ce85b",
-        "pitch" : 51,
-        "length" : 1
-      },
-      {
-        "beat" : 5,
-        "id" : "ecdd79f5-aa6c-4181-b5a6-d1392dba2e01",
-        "pitch" : 56,
-        "length" : 1
-      },
-      {
-        "beat" : 3,
-        "id" : "de5d27bb-c440-468f-b634-72d3524391df",
-        "pitch" : 54,
-        "length" : 1
-      },
-      {
-        "beat" : 4,
-        "id" : "8399d1cf-4970-4fbf-84cb-92c5ac7ed44f",
-        "pitch" : 53,
-        "length" : 1
-      },
-      {
-        "beat" : 6,
-        "id" : "ebec049e-1a1f-42d4-a84b-382d8f840df8",
-        "pitch" : 54,
-        "length" : 1
-      },
-      {
-        "beat" : 7,
-        "id" : "bb20f58c-9d2d-46c4-8efa-c0d481438c78",
-        "pitch" : 58,
-        "length" : 1
-      },
-      {
-        "beat" : 8,
-        "id" : "c3145a77-6569-4c45-aa01-421d524dd8f5",
-        "pitch" : 56,
-        "length" : 1
-      },
-      {
-        "beat" : 9,
-        "id" : "73f76d7f-6eee-42a6-8930-00df2f072541",
-        "pitch" : 60,
-        "length" : 1
-      },
-      {
-        "beat" : 10,
-        "id" : "ca4442bc-54e3-4563-b65a-543f842bc8f3",
-        "pitch" : 58,
-        "length" : 1
-      },
-      {
-        "beat" : 11,
-        "id" : "70e1131c-7185-447f-957e-3bb02414bf65",
-        "pitch" : 61,
-        "length" : 1
-      },
-      {
-        "beat" : 12,
-        "id" : "06ee1e08-310a-4826-a925-1dbd16b51e83",
-        "pitch" : 60,
-        "length" : 1
-      },
-      {
-        "beat" : 13,
-        "id" : "3c85c726-b5a0-45cd-b365-c751b1db47a8",
-        "pitch" : 63,
-        "length" : 1
-      },
-      {
-        "beat" : 14,
-        "id" : "f9db400a-6a1e-46fc-b91e-ff46cec56317",
-        "pitch" : 61,
-        "length" : 2
-      },
-      {
-        "beat" : 16,
-        "id" : "e0ad1cb8-7afe-414f-8646-0ff35503d3c2",
-        "pitch" : 65,
-        "length" : 1
-      },
-      {
-        "beat" : 17,
-        "id" : "21de0f0f-bf9a-4a92-a986-1711d5e63fa7",
-        "pitch" : 61,
-        "length" : 1
-      },
-      {
-        "beat" : 18,
-        "id" : "512bf8fe-3e14-49e4-9a69-20a8d1a6c6d4",
-        "pitch" : 63,
-        "length" : 1
-      },
-      {
-        "beat" : 19,
-        "id" : "f6bf7920-4112-481e-89c7-efa0a4a7b8b9",
-        "pitch" : 60,
-        "length" : 1
-      },
-      {
-        "beat" : 20,
-        "id" : "8e8c2005-6c0c-4977-92bc-c2b88eb23995",
-        "pitch" : 61,
-        "length" : 1
-      },
-      {
-        "beat" : 21,
-        "id" : "b4fcb6ba-b067-4dc6-9dfa-eb8ecdb14ec9",
-        "pitch" : 58,
-        "length" : 1
-      },
-      {
-        "beat" : 22,
-        "id" : "772f94ec-7fc6-4359-8dfc-5ad7e2d0c0da",
-        "pitch" : 60,
-        "length" : 1
-      },
-      {
-        "beat" : 23,
-        "id" : "70ef2cf2-bf91-48ed-84d7-944540d0e171",
-        "pitch" : 56,
-        "length" : 1
-      },
-      {
-        "beat" : 24,
-        "id" : "72f8e4e5-50bd-459c-a2b4-708002ea58b7",
-        "pitch" : 58,
-        "length" : 1
-      },
-      {
-        "beat" : 25,
-        "id" : "381f0adb-9827-4dbb-b3ad-b0643938c24c",
-        "pitch" : 54,
-        "length" : 1
-      },
-      {
-        "beat" : 26,
-        "id" : "b9e2c74c-834f-4888-a028-a2d1dff902a6",
-        "pitch" : 56,
-        "length" : 1
-      },
-      {
-        "beat" : 27,
-        "id" : "c9d2fa61-fa9b-4205-b4db-64c180f5a0b0",
-        "pitch" : 53,
-        "length" : 1
-      },
-      {
-        "beat" : 28,
-        "id" : "5b52a950-4410-4afa-812e-0fea02e936e7",
-        "pitch" : 54,
-        "length" : 1
-      },
-      {
-        "beat" : 29,
-        "id" : "06956d28-b319-403c-8270-e6169ec1ca83",
-        "pitch" : 51,
-        "length" : 1
-      },
-      {
-        "beat" : 30,
-        "id" : "22fff29a-0950-4eb3-a7fe-bc8fb1a20efa",
-        "pitch" : 49,
-        "length" : 2
-      }
-    ],
-    "996B5E81-F3D8-4448-B26D-D2D94C780240" : [
-      {
-        "beat" : 0,
-        "id" : "05c8a8ab-e414-4744-a839-9376960c0210",
-        "pitch" : 48,
-        "length" : 0.5
-      },
-      {
-        "beat" : 0.5,
-        "id" : "4a22127a-be82-43b3-bbea-82ac78cdbe5a",
-        "pitch" : 50,
-        "length" : 0.5
-      },
-      {
-        "beat" : 1,
-        "id" : "376145b0-a601-48df-b1f0-61f68fcb86a4",
-        "pitch" : 52,
-        "length" : 0.5
-      },
-      {
-        "beat" : 1.5,
-        "id" : "4e9666c9-723f-4a3d-890d-f83d2fd2b7f3",
-        "pitch" : 50,
-        "length" : 0.5
-      },
-      {
-        "beat" : 2,
-        "id" : "c20a9d0e-dcdf-4cab-86f2-7abef68f5019",
-        "pitch" : 52,
-        "length" : 0.5
-      },
-      {
-        "beat" : 3,
-        "id" : "93be247d-fbc7-44fd-b9aa-9691071ed300",
-        "pitch" : 52,
-        "length" : 0.5
-      },
-      {
-        "beat" : 2.5,
-        "id" : "4a3c050a-5567-4a93-8dc8-872be4a331c8",
-        "pitch" : 53,
-        "length" : 0.5
-      },
-      {
-        "beat" : 3.5,
-        "id" : "780d5d6c-ba76-435d-b9ba-4b85cac3c465",
-        "pitch" : 53,
-        "length" : 0.5
-      },
-      {
-        "beat" : 4,
-        "id" : "4cb5b8a0-f128-445a-9edb-8c6a943bab72",
-        "pitch" : 55,
-        "length" : 0.5
-      },
-      {
-        "beat" : 4.5,
-        "id" : "ae11dddf-421f-4f3a-9f16-e83d6c31289d",
-        "pitch" : 53,
-        "length" : 0.5
-      },
-      {
-        "beat" : 5,
-        "id" : "a656d6a6-ed89-4705-be43-3f050df10df3",
-        "pitch" : 55,
-        "length" : 0.5
-      },
-      {
-        "beat" : 5.5,
-        "id" : "cc9ed5b3-5669-4dfa-8b0d-1d5ff3d8ebf2",
-        "pitch" : 57,
-        "length" : 0.5
-      },
-      {
-        "beat" : 6,
-        "id" : "1fff296e-e1c5-4a20-8cba-6d183bad46c5",
-        "pitch" : 55,
-        "length" : 0.5
-      },
-      {
-        "beat" : 6.5,
-        "id" : "68f1813f-eed2-4f0f-969d-68ff8ee5b861",
-        "pitch" : 57,
-        "length" : 0.5
-      },
-      {
-        "beat" : 7,
-        "id" : "b945138a-0141-40cd-af1b-d5fd05d800f6",
-        "pitch" : 59,
-        "length" : 0.5
-      },
-      {
-        "beat" : 7.5,
-        "id" : "f18bbd78-3ecd-44ef-a980-3d25c3e7b43a",
-        "pitch" : 57,
-        "length" : 0.5
-      },
-      {
-        "beat" : 8,
-        "id" : "844bdb6a-ee84-46c1-93fc-014700b389cf",
-        "pitch" : 59,
-        "length" : 0.5
-      },
-      {
-        "beat" : 8.5,
-        "id" : "6d4c2e8c-3c1f-4ce9-afbf-dfeb0635f44b",
-        "pitch" : 60,
-        "length" : 0.5
-      },
-      {
-        "beat" : 9,
-        "id" : "05a5d309-b11a-4ebd-91ed-aae04369a81b",
-        "pitch" : 59,
-        "length" : 0.5
-      },
-      {
-        "beat" : 9.5,
-        "id" : "1a7e198c-eb4c-4ae4-a8b7-63141287537f",
-        "pitch" : 60,
-        "length" : 0.5
-      },
-      {
-        "beat" : 10,
-        "id" : "9302638c-ad50-4538-ad2c-aa45b2da79e7",
-        "pitch" : 62,
-        "length" : 0.5
-      },
-      {
-        "beat" : 10.5,
-        "id" : "acfafcca-f733-453c-b481-94466712e0ce",
-        "pitch" : 60,
-        "length" : 1.5
-      }
-    ],
-    "14CE8327-CD4C-42F8-8C74-28204356D47B" : [
-      {
-        "beat" : 0,
-        "id" : "c8ce6521-da2b-4202-a66b-f487fb37fe74",
-        "pitch" : 40,
-        "length" : 1
-      },
-      {
-        "beat" : 1,
-        "id" : "493255d8-ad11-40c3-b519-8fc3d24f4bb8",
-        "pitch" : 44,
-        "length" : 1
-      },
-      {
-        "beat" : 2,
-        "id" : "0ddca262-d6ab-4508-9b5c-361e7f8dde21",
-        "pitch" : 47,
-        "length" : 1
-      },
-      {
-        "beat" : 3,
-        "id" : "09219e35-7166-4fdd-8778-46a8d58104b2",
-        "pitch" : 52,
-        "length" : 1
-      },
-      {
-        "beat" : 4,
-        "id" : "32419555-d404-49c8-a92a-28220d68bf64",
-        "pitch" : 47,
-        "length" : 1
-      },
-      {
-        "beat" : 5,
-        "id" : "2b9a5db9-556d-4115-92c0-838444567f33",
-        "pitch" : 52,
-        "length" : 1
-      },
-      {
-        "beat" : 6,
-        "id" : "5e55fc64-9467-43ff-b6d4-36b27dfd72d9",
-        "pitch" : 47,
-        "length" : 1
-      },
-      {
-        "beat" : 7,
-        "id" : "45f4bcf2-fc37-4412-a953-b82889ec4311",
-        "pitch" : 52,
-        "length" : 1
-      },
-      {
-        "beat" : 8,
-        "id" : "b1374a96-0896-462d-9139-25888ee0bcd1",
-        "pitch" : 47,
-        "length" : 1
-      },
-      {
-        "beat" : 9,
-        "id" : "e1c19590-861e-4954-bf94-2fcb315949b5",
-        "pitch" : 44,
-        "length" : 1
-      },
-      {
-        "beat" : 10,
-        "id" : "0b7b3e55-6997-4302-810a-eb10f3c00eb0",
-        "pitch" : 40,
-        "length" : 1
-      }
-    ],
-    "A9BB1A5C-23D2-40D2-A127-E7797C251BA0" : [
-      {
-        "beat" : 0,
-        "id" : "ef1f5a59-0d83-4dc2-8b27-5cd518a8ae60",
-        "pitch" : 57,
-        "length" : 1
-      },
-      {
-        "beat" : 1,
-        "id" : "d1e105eb-53fd-4d5a-b730-8e93c8c38495",
-        "pitch" : 55,
-        "length" : 1
-      },
-      {
-        "beat" : 2,
-        "id" : "2c594b9d-da6e-4b29-b880-4e27ea9c4787",
-        "pitch" : 53,
-        "length" : 1
-      },
-      {
-        "beat" : 3,
-        "id" : "c4a7d26d-bb70-4bc9-9693-084b96d106aa",
-        "pitch" : 52,
-        "length" : 1
-      },
-      {
-        "beat" : 4,
-        "id" : "b97d3932-3520-4476-914b-66c70b96ab96",
-        "pitch" : 50,
-        "length" : 1
-      },
-      {
-        "beat" : 5,
-        "id" : "12283cf5-972d-403e-bb34-cab27a69f7b6",
-        "pitch" : 48,
-        "length" : 1
-      },
-      {
-        "beat" : 6,
-        "id" : "9f42dfa3-d441-47e5-9869-d820703f96e3",
-        "pitch" : 47,
-        "length" : 1
-      },
-      {
-        "beat" : 7,
-        "id" : "708abcd6-98ec-4dc1-8713-3889ebb5e2a6",
-        "pitch" : 45,
-        "length" : 1
-      }
-    ],
-    "508A4B56-826C-4C7F-8A8A-EC4ADEF48F62" : [
-      {
-        "beat" : 0,
-        "id" : "b3fb51b6-8ee4-4ee6-8442-bc8018d55a77",
-        "pitch" : 45,
-        "length" : 1
-      },
-      {
-        "beat" : 1,
-        "id" : "023dffb9-113e-4333-a4bb-9a0a1f426be5",
-        "pitch" : 47,
-        "length" : 1
-      },
-      {
-        "beat" : 2,
-        "id" : "e23d366c-a830-4135-857d-486c65f74f69",
-        "pitch" : 49,
-        "length" : 1
-      },
-      {
-        "beat" : 3,
-        "id" : "87ddf932-655e-489d-b708-90c0b30426b1",
-        "pitch" : 47,
-        "length" : 1
-      },
-      {
-        "beat" : 4,
-        "id" : "1daf4911-5e0b-4313-9c4d-0921d3aa5b66",
-        "pitch" : 45,
-        "length" : 1
-      },
-      {
-        "beat" : 5,
-        "id" : "9e718255-1afc-41da-87a1-94d7f1996aa2",
-        "pitch" : 49,
-        "length" : 1
-      },
-      {
-        "beat" : 6,
-        "id" : "80c6c306-4bab-4fe0-bdaf-b437010cce10",
-        "pitch" : 52,
-        "length" : 1
-      },
-      {
-        "beat" : 7,
-        "id" : "fe1f3c79-567b-4fc5-abb5-89a0faea805d",
-        "pitch" : 49,
-        "length" : 1
-      },
-      {
-        "beat" : 8,
-        "id" : "5c29cda4-4451-4c14-929d-3f99947781ef",
-        "pitch" : 45,
-        "length" : 1
-      }
-    ],
-    "AB235E23-8BCD-4D78-9468-40F0B6060DAE" : [
-      {
-        "beat" : 0,
-        "id" : "9f89e85a-b5c8-4906-943b-7ed6469d7b44",
-        "pitch" : 45,
-        "length" : 1
-      },
-      {
-        "beat" : 1,
-        "id" : "43f5104b-3689-4527-9e04-9f394799e290",
-        "pitch" : 44,
-        "length" : 1
-      },
-      {
-        "beat" : 2,
-        "id" : "2532ecb7-52c9-46e8-b4f5-6db4764c6037",
-        "pitch" : 42,
-        "length" : 1
-      },
-      {
-        "beat" : 3,
-        "id" : "7408be31-84aa-4d44-97da-3af6b9601ea3",
-        "pitch" : 40,
-        "length" : 1
-      },
-      {
-        "beat" : 4,
-        "id" : "d94aac72-c2cc-47c3-af78-7ea37e8e88af",
-        "pitch" : 38,
-        "length" : 1
-      },
-      {
-        "beat" : 5,
-        "id" : "462d0e25-3171-4fc1-99aa-009b0737e6fd",
-        "pitch" : 37,
-        "length" : 1
-      },
-      {
-        "beat" : 6,
-        "id" : "86b5ba93-0b0c-4b82-a350-77f0444bdce2",
-        "pitch" : 35,
-        "length" : 1
-      },
-      {
-        "beat" : 7,
-        "id" : "9b87ed0e-cfdc-4e06-94cb-b413af9eff03",
-        "pitch" : 33,
-        "length" : 1
-      }
-    ],
-    "511866DD-F3C3-4111-8DAD-50846F1E7A47" : [
-      {
-        "beat" : 0,
-        "id" : "fc275589-c4db-46d6-9afe-4dac8af498f7",
-        "pitch" : 57,
-        "length" : 2
-      },
-      {
-        "beat" : 2,
-        "id" : "6179be60-d266-4520-99cc-6d097e257910",
-        "pitch" : 54,
-        "length" : 2
-      },
-      {
-        "beat" : 4,
-        "id" : "03d18cc5-1973-4d06-92a7-e30abde1ddf3",
-        "pitch" : 55,
-        "length" : 1
-      },
-      {
-        "beat" : 5,
-        "id" : "6413e5e0-d260-4099-9c45-9dcaeeb7a443",
-        "pitch" : 54,
-        "length" : 1.25
-      },
-      {
-        "beat" : 6.25,
-        "id" : "99dcd210-82f2-47d2-818b-40f6b5eb3073",
-        "pitch" : 55,
-        "length" : 1.75
       }
     ],
     "E5B18A98-4953-4DDC-A4A3-F5EE88B58D9F" : [
       {
         "beat" : 0,
-        "id" : "938fb817-9cde-4d38-8483-cdd12eec01bc",
-        "pitch" : 45,
-        "length" : 1
+        "length" : 1,
+        "id" : "29b5ee33-21a1-4a68-9278-6c58330ce21a",
+        "pitch" : 45
       },
       {
         "beat" : 1,
-        "id" : "39802a8c-ea16-4436-a755-3901337d0459",
-        "pitch" : 47,
-        "length" : 1
+        "length" : 1,
+        "id" : "01c6de90-82c2-49ed-aa2e-119383c72d40",
+        "pitch" : 47
       },
       {
         "beat" : 2,
-        "id" : "ac3129e8-121e-41a0-906a-69849bdf5b53",
-        "pitch" : 48,
-        "length" : 1
+        "length" : 1,
+        "id" : "d777828f-3944-480a-a792-23cf5f5663e7",
+        "pitch" : 48
       },
       {
         "beat" : 3,
-        "id" : "cf0617b4-dc38-4676-bfe8-816752f048e4",
-        "pitch" : 50,
-        "length" : 1
+        "length" : 1,
+        "id" : "36e66280-0cd2-426f-9a55-d8b4d83e34dc",
+        "pitch" : 50
       },
       {
         "beat" : 4,
-        "id" : "4ae9d9b3-76dc-42d6-a4aa-bc166d263361",
-        "pitch" : 52,
-        "length" : 1
+        "length" : 1,
+        "id" : "484f3e70-34ae-4e32-b837-caec28ffbd27",
+        "pitch" : 52
       },
       {
         "beat" : 5,
-        "id" : "d35799f7-a248-4870-8ffb-bf44dc93920f",
-        "pitch" : 53,
-        "length" : 1
+        "length" : 1,
+        "id" : "ba5ab776-31ff-494a-a26a-d806a44562f9",
+        "pitch" : 53
       },
       {
         "beat" : 6,
-        "id" : "4f1d1d53-6886-4c45-85cf-06a3966f1243",
-        "pitch" : 55,
-        "length" : 1
+        "length" : 1,
+        "id" : "6d9f682a-19bb-4ae7-a262-17ed326e2bc3",
+        "pitch" : 55
       },
       {
         "beat" : 7,
-        "id" : "4983b08c-1c1c-4875-92be-c3c63a2fc69a",
-        "pitch" : 57,
+        "length" : 1,
+        "id" : "2aea8e54-1d6c-4ae5-88cc-001f549d3838",
+        "pitch" : 57
+      }
+    ],
+    "24C5B25B-D49A-4A0D-9E7C-9E0F72AA8E86" : [
+      {
+        "pitch" : 49,
+        "id" : "7fcedecc-4027-46d6-902d-f3557400a7b2",
+        "beat" : 0,
         "length" : 1
+      },
+      {
+        "pitch" : 51,
+        "id" : "3bcea0c0-1578-4828-8619-1011892f1f0a",
+        "beat" : 1,
+        "length" : 1
+      },
+      {
+        "pitch" : 53,
+        "id" : "3842bcfb-e778-484f-ab81-e77372dd6186",
+        "beat" : 2,
+        "length" : 1
+      },
+      {
+        "pitch" : 51,
+        "id" : "546e8dc1-6ebc-41af-8e95-61c8c1498f94",
+        "beat" : 3,
+        "length" : 1
+      },
+      {
+        "pitch" : 49,
+        "id" : "65a6aa4c-44c9-47c0-a1ef-4c5ea30933a5",
+        "beat" : 4,
+        "length" : 1
+      },
+      {
+        "pitch" : 51,
+        "id" : "ca61e107-9406-4204-b624-af212c9bdf54",
+        "beat" : 5,
+        "length" : 1
+      },
+      {
+        "pitch" : 53,
+        "id" : "a0db699b-03a1-4010-948c-b24603637073",
+        "beat" : 6,
+        "length" : 1
+      },
+      {
+        "pitch" : 51,
+        "id" : "7917d576-0377-45e7-a569-cf8e538d5767",
+        "beat" : 7,
+        "length" : 1
+      },
+      {
+        "pitch" : 49,
+        "id" : "1a504874-bd37-4739-aa63-7f1862e698e5",
+        "beat" : 8,
+        "length" : 1
+      }
+    ],
+    "508A4B56-826C-4C7F-8A8A-EC4ADEF48F62" : [
+      {
+        "pitch" : 45,
+        "id" : "a0400b9f-cd20-4977-b6b0-ff7976a712bc",
+        "beat" : 0,
+        "length" : 1
+      },
+      {
+        "pitch" : 47,
+        "id" : "63f139ff-e4d3-454d-856b-f2e4b404447e",
+        "beat" : 1,
+        "length" : 1
+      },
+      {
+        "pitch" : 49,
+        "id" : "9e7e0800-93fe-478e-a4f1-9e1726259ab9",
+        "beat" : 2,
+        "length" : 1
+      },
+      {
+        "pitch" : 47,
+        "id" : "932c896a-2ec6-4f67-bfb4-2068861bd465",
+        "beat" : 3,
+        "length" : 1
+      },
+      {
+        "pitch" : 45,
+        "id" : "df442405-0626-4262-a55a-41d1c6551ea9",
+        "beat" : 4,
+        "length" : 1
+      },
+      {
+        "pitch" : 49,
+        "id" : "18ff037c-bf0e-47b5-ac4e-9c99709e029e",
+        "beat" : 5,
+        "length" : 1
+      },
+      {
+        "pitch" : 52,
+        "id" : "9b002300-e686-4b00-95f6-ecf5d9be5d57",
+        "beat" : 6,
+        "length" : 1
+      },
+      {
+        "pitch" : 49,
+        "id" : "c1354a1f-b0d7-4e62-8349-d5e8fd4443d8",
+        "beat" : 7,
+        "length" : 1
+      },
+      {
+        "pitch" : 45,
+        "id" : "b54ae91d-ee6e-4ab5-af10-38abad4b0e33",
+        "beat" : 8,
+        "length" : 1
+      }
+    ],
+    "A3F82060-9713-424E-8B2A-C8A285E9B9FE" : [
+      {
+        "pitch" : 48,
+        "id" : "3a6792a5-e51a-47ce-b014-7755af2f2696",
+        "length" : 1,
+        "beat" : 0
+      },
+      {
+        "pitch" : 52,
+        "id" : "0a671e15-a5e6-4fbc-a89b-3aa55c23f18a",
+        "length" : 1,
+        "beat" : 1
+      },
+      {
+        "pitch" : 50,
+        "id" : "6d69a1f8-8b0e-4387-87f8-26c0dfd5befa",
+        "length" : 1,
+        "beat" : 2
+      },
+      {
+        "pitch" : 53,
+        "id" : "d1a655f6-c331-49cb-b341-49d1a23513ca",
+        "length" : 1,
+        "beat" : 3
+      },
+      {
+        "pitch" : 52,
+        "id" : "ea1ce032-f148-4fe4-bfd2-ee7ab3235b7c",
+        "length" : 1,
+        "beat" : 4
+      },
+      {
+        "pitch" : 55,
+        "id" : "9f8d105d-c6b8-4292-aeef-75148fe4c402",
+        "length" : 1,
+        "beat" : 5
+      },
+      {
+        "pitch" : 53,
+        "id" : "440fef90-c972-4fde-86ba-b99bac35234c",
+        "length" : 1,
+        "beat" : 6
+      },
+      {
+        "pitch" : 57,
+        "id" : "fe20ea3c-7cb4-4ca7-b178-df8ddb5a9432",
+        "length" : 1,
+        "beat" : 7
+      },
+      {
+        "pitch" : 59,
+        "id" : "293d3a34-c102-4ff3-a34e-602fee82c052",
+        "length" : 1,
+        "beat" : 9
+      },
+      {
+        "pitch" : 60,
+        "id" : "65636137-a8c5-4ce0-8292-a246c5650467",
+        "length" : 1,
+        "beat" : 11
+      },
+      {
+        "pitch" : 55,
+        "id" : "c76c3b9d-2f36-4e8d-af57-b3bee3124a89",
+        "length" : 1,
+        "beat" : 8
+      },
+      {
+        "pitch" : 57,
+        "id" : "c32dcfba-0fca-4464-a2fe-1bf4270d0a62",
+        "length" : 1,
+        "beat" : 10
+      }
+    ],
+    "A9BB1A5C-23D2-40D2-A127-E7797C251BA0" : [
+      {
+        "pitch" : 57,
+        "id" : "9a93aa99-e280-49d5-af23-a6d4f9c76cf0",
+        "length" : 1,
+        "beat" : 0
+      },
+      {
+        "pitch" : 55,
+        "id" : "31ebcc0c-746f-4212-995d-daf92fe5e3dc",
+        "length" : 1,
+        "beat" : 1
+      },
+      {
+        "pitch" : 53,
+        "id" : "8e1c6f50-9aaa-48f3-a22b-bc079e2810fb",
+        "length" : 1,
+        "beat" : 2
+      },
+      {
+        "pitch" : 52,
+        "id" : "69a7eca1-b9f7-4436-bc2a-9776eb432b7e",
+        "length" : 1,
+        "beat" : 3
+      },
+      {
+        "pitch" : 50,
+        "id" : "b9d9ba56-5896-494e-a57c-3a681a57ab41",
+        "length" : 1,
+        "beat" : 4
+      },
+      {
+        "pitch" : 48,
+        "id" : "1a378750-cb35-4e8d-8763-77b4f8634096",
+        "length" : 1,
+        "beat" : 5
+      },
+      {
+        "pitch" : 47,
+        "id" : "d880e1a6-4c26-41f7-bdd9-52f8ad60fd61",
+        "length" : 1,
+        "beat" : 6
+      },
+      {
+        "pitch" : 45,
+        "id" : "cc1bfddd-6e97-4510-9794-6ca3233fc9c1",
+        "length" : 1,
+        "beat" : 7
+      }
+    ],
+    "996B5E81-F3D8-4448-B26D-D2D94C780240" : [
+      {
+        "pitch" : 48,
+        "id" : "c778a382-bdfe-477b-a5a2-0e909fc0ea51",
+        "beat" : 0,
+        "length" : 0.5
+      },
+      {
+        "pitch" : 50,
+        "id" : "595faab7-c41c-4f11-9a5d-0b32325c2e92",
+        "beat" : 0.5,
+        "length" : 0.5
+      },
+      {
+        "pitch" : 52,
+        "id" : "a58115b3-8c40-444a-9e00-0e213b1c5ab2",
+        "beat" : 1,
+        "length" : 0.5
+      },
+      {
+        "pitch" : 50,
+        "id" : "e504853a-705d-4c64-982a-86a1a4161670",
+        "beat" : 1.5,
+        "length" : 0.5
+      },
+      {
+        "pitch" : 52,
+        "id" : "339f3d49-9303-4679-ab14-dce3f23ec51c",
+        "beat" : 2,
+        "length" : 0.5
+      },
+      {
+        "pitch" : 52,
+        "id" : "080afc0f-d574-48cc-8a20-e58df8f75600",
+        "beat" : 3,
+        "length" : 0.5
+      },
+      {
+        "pitch" : 53,
+        "id" : "1ec9f8c5-06a3-4f49-8fb5-021e4ed0538f",
+        "beat" : 2.5,
+        "length" : 0.5
+      },
+      {
+        "pitch" : 53,
+        "id" : "a289d559-7743-4025-b8d6-0a063be67733",
+        "beat" : 3.5,
+        "length" : 0.5
+      },
+      {
+        "pitch" : 55,
+        "id" : "3d1dfda9-dd12-43c0-acb2-7afe333769da",
+        "beat" : 4,
+        "length" : 0.5
+      },
+      {
+        "pitch" : 53,
+        "id" : "5e1a34c2-6c64-483a-85d8-e51e7042d9b3",
+        "beat" : 4.5,
+        "length" : 0.5
+      },
+      {
+        "pitch" : 55,
+        "id" : "8f5587c3-679a-4fcd-ac16-e3f0298b7819",
+        "beat" : 5,
+        "length" : 0.5
+      },
+      {
+        "pitch" : 57,
+        "id" : "066d234d-78dd-461d-b23c-48ffb8322e05",
+        "beat" : 5.5,
+        "length" : 0.5
+      },
+      {
+        "pitch" : 55,
+        "id" : "a74150ea-cc02-438d-a40e-dab784daac84",
+        "beat" : 6,
+        "length" : 0.5
+      },
+      {
+        "pitch" : 57,
+        "id" : "0514abf0-2a15-43e8-968d-7421bdf812ed",
+        "beat" : 6.5,
+        "length" : 0.5
+      },
+      {
+        "pitch" : 59,
+        "id" : "ca5eae22-23a7-48ef-95ae-0c3715aa2cae",
+        "beat" : 7,
+        "length" : 0.5
+      },
+      {
+        "pitch" : 57,
+        "id" : "d5baa803-9b5b-4325-9a0c-42f73ded0483",
+        "beat" : 7.5,
+        "length" : 0.5
+      },
+      {
+        "pitch" : 59,
+        "id" : "d834ec7a-5460-417d-b032-d1929ddcea17",
+        "beat" : 8,
+        "length" : 0.5
+      },
+      {
+        "pitch" : 60,
+        "id" : "f41820f8-570a-4901-b9f5-25e90fe0673b",
+        "beat" : 8.5,
+        "length" : 0.5
+      },
+      {
+        "pitch" : 59,
+        "id" : "2590b978-5c7d-4956-99e5-fdd93d3726b3",
+        "beat" : 9,
+        "length" : 0.5
+      },
+      {
+        "pitch" : 60,
+        "id" : "9d4d5a94-aa2e-479e-b5e9-836d8d14aa91",
+        "beat" : 9.5,
+        "length" : 0.5
+      },
+      {
+        "pitch" : 62,
+        "id" : "21f34c1e-ff30-4823-89f9-c9f76d19fbef",
+        "beat" : 10,
+        "length" : 0.5
+      },
+      {
+        "pitch" : 60,
+        "id" : "c23a46b6-006e-40cf-9f16-ada9c8491632",
+        "beat" : 10.5,
+        "length" : 1.5
+      }
+    ],
+    "5C40BDD7-969C-43EA-BC16-E49E7CE3DFE5" : [
+      {
+        "beat" : 0,
+        "length" : 1,
+        "id" : "672ae1da-92d2-4359-8116-7aed2de775b4",
+        "pitch" : 49
+      },
+      {
+        "beat" : 1,
+        "length" : 1,
+        "id" : "57b70fbe-2611-4937-bd77-3e3069ba055b",
+        "pitch" : 53
+      },
+      {
+        "beat" : 2,
+        "length" : 1,
+        "id" : "06ca2d86-c4e5-4c0c-8d41-f72dbe350785",
+        "pitch" : 51
+      },
+      {
+        "beat" : 5,
+        "length" : 1,
+        "id" : "00e349d3-ef34-41be-913c-cc60501a2810",
+        "pitch" : 56
+      },
+      {
+        "beat" : 3,
+        "length" : 1,
+        "id" : "6c70c91a-95f5-4761-b56e-218d264895bb",
+        "pitch" : 54
+      },
+      {
+        "beat" : 4,
+        "length" : 1,
+        "id" : "f8b3fa78-5e43-448b-9acf-7e55ebe2948a",
+        "pitch" : 53
+      },
+      {
+        "beat" : 6,
+        "length" : 1,
+        "id" : "5d021be6-a52e-4dff-9e1c-dae72bab31d9",
+        "pitch" : 54
+      },
+      {
+        "beat" : 7,
+        "length" : 1,
+        "id" : "55a7763e-2cda-4731-93bf-f290a67cc545",
+        "pitch" : 58
+      },
+      {
+        "beat" : 8,
+        "length" : 1,
+        "id" : "44a96f2a-4419-464c-b2b9-c027a3ce5e50",
+        "pitch" : 56
+      },
+      {
+        "beat" : 9,
+        "length" : 1,
+        "id" : "e28d4200-091b-41e7-9802-fb6bb9d8751f",
+        "pitch" : 60
+      },
+      {
+        "beat" : 10,
+        "length" : 1,
+        "id" : "5322ee17-170f-4785-9c41-25137ad4a972",
+        "pitch" : 58
+      },
+      {
+        "beat" : 11,
+        "length" : 1,
+        "id" : "dc56056b-2bdd-44ff-a4c5-47d2890b36ec",
+        "pitch" : 61
+      },
+      {
+        "beat" : 12,
+        "length" : 1,
+        "id" : "ee00ff92-8faa-4682-85be-3bf14243a4f5",
+        "pitch" : 60
+      },
+      {
+        "beat" : 13,
+        "length" : 1,
+        "id" : "b4e9bfe0-3fe7-4119-ac00-ee1a36d84a60",
+        "pitch" : 63
+      },
+      {
+        "beat" : 14,
+        "length" : 2,
+        "id" : "80692abf-db3c-4db4-8f74-472183ea5700",
+        "pitch" : 61
+      },
+      {
+        "beat" : 16,
+        "length" : 1,
+        "id" : "98a53b28-a8af-467a-94c4-4fb608860f6e",
+        "pitch" : 65
+      },
+      {
+        "beat" : 17,
+        "length" : 1,
+        "id" : "22bc8e68-347d-407e-928b-dfe35120d42d",
+        "pitch" : 61
+      },
+      {
+        "beat" : 18,
+        "length" : 1,
+        "id" : "0a8c2911-7d32-4e7a-824c-8dac9c37de19",
+        "pitch" : 63
+      },
+      {
+        "beat" : 19,
+        "length" : 1,
+        "id" : "34e6baf9-7248-454d-8541-6a4135004c5d",
+        "pitch" : 60
+      },
+      {
+        "beat" : 20,
+        "length" : 1,
+        "id" : "35944480-f92d-4a27-9fe9-d6421ec2e8bd",
+        "pitch" : 61
+      },
+      {
+        "beat" : 21,
+        "length" : 1,
+        "id" : "22bb5a74-ccf5-4a57-b203-fa9146e3e2ec",
+        "pitch" : 58
+      },
+      {
+        "beat" : 22,
+        "length" : 1,
+        "id" : "52e7e6ec-3fdc-453e-8cf1-a03c4c2b9be6",
+        "pitch" : 60
+      },
+      {
+        "beat" : 23,
+        "length" : 1,
+        "id" : "4cb18d26-abaf-49c1-a8a0-d658fdd8e47b",
+        "pitch" : 56
+      },
+      {
+        "beat" : 24,
+        "length" : 1,
+        "id" : "96c293aa-8a1c-4479-8f87-15d8cf1de6b7",
+        "pitch" : 58
+      },
+      {
+        "beat" : 25,
+        "length" : 1,
+        "id" : "d551f79f-6411-4b22-866f-f8bc3307d076",
+        "pitch" : 54
+      },
+      {
+        "beat" : 26,
+        "length" : 1,
+        "id" : "d260cf90-f9fa-4174-83ce-24698f0e1299",
+        "pitch" : 56
+      },
+      {
+        "beat" : 27,
+        "length" : 1,
+        "id" : "0681a424-95ba-4b28-829f-ba3c7731fd98",
+        "pitch" : 53
+      },
+      {
+        "beat" : 28,
+        "length" : 1,
+        "id" : "6e167137-29e6-48da-8746-4a4c91d27431",
+        "pitch" : 54
+      },
+      {
+        "beat" : 29,
+        "length" : 1,
+        "id" : "6be5ce05-1df5-4e23-baae-664c86b02b8d",
+        "pitch" : 51
+      },
+      {
+        "beat" : 30,
+        "length" : 2,
+        "id" : "2610d0c7-49f9-458b-8e0e-3b4765b1ef9a",
+        "pitch" : 49
+      }
+    ],
+    "636D3030-BD0E-4B90-995E-49D298E897A4" : [
+      {
+        "pitch" : 51,
+        "id" : "874f9c7e-af89-47d0-8f0f-1577bd56e29a",
+        "length" : 1,
+        "beat" : 0
+      },
+      {
+        "pitch" : 49,
+        "id" : "4f5334c5-ade7-4913-9f41-df523f823ec2",
+        "length" : 1,
+        "beat" : 1
+      },
+      {
+        "pitch" : 47,
+        "id" : "1e06d29c-324f-4fda-9c86-e692d3b5fce5",
+        "length" : 1,
+        "beat" : 2
+      },
+      {
+        "pitch" : 51,
+        "id" : "af4b0167-1bf2-4464-a6dd-9195306a6c67",
+        "length" : 1,
+        "beat" : 3
+      },
+      {
+        "pitch" : 49,
+        "id" : "0d645cd0-42d6-4e12-8417-b7dbd3ca99f2",
+        "length" : 1,
+        "beat" : 4
+      },
+      {
+        "pitch" : 47,
+        "id" : "4b0c216c-e89c-4981-8698-74447424639f",
+        "length" : 1,
+        "beat" : 5
+      },
+      {
+        "pitch" : 51,
+        "id" : "23e9348e-488d-4c01-a0f6-0b8b77c5e145",
+        "length" : 1,
+        "beat" : 6
+      },
+      {
+        "pitch" : 49,
+        "id" : "d164a273-e577-448c-aac5-42dcbe3a02ed",
+        "length" : 1,
+        "beat" : 7
+      },
+      {
+        "pitch" : 47,
+        "id" : "4897499d-3e93-4344-81fb-45d2042cd74b",
+        "length" : 1,
+        "beat" : 8
+      },
+      {
+        "pitch" : 51,
+        "id" : "34362c51-8366-45ab-a54e-391db90b0914",
+        "length" : 1,
+        "beat" : 9
+      },
+      {
+        "pitch" : 49,
+        "id" : "bfa1d153-1474-42b8-8e64-0106ed451a73",
+        "length" : 1,
+        "beat" : 10
+      },
+      {
+        "pitch" : 47,
+        "id" : "09720072-9639-4d8c-a9c7-c5e1ca1e8287",
+        "length" : 1,
+        "beat" : 11
+      },
+      {
+        "pitch" : 51,
+        "id" : "9e9a962e-4f31-40d2-b0a0-3179ceabc16f",
+        "length" : 1,
+        "beat" : 12
+      },
+      {
+        "pitch" : 49,
+        "id" : "f8faf7c1-bddf-4771-ba4f-5b0066aad325",
+        "length" : 1,
+        "beat" : 13
+      },
+      {
+        "pitch" : 47,
+        "id" : "a2484016-de1b-402f-a996-fe0567d3a8e2",
+        "length" : 1,
+        "beat" : 14
+      }
+    ],
+    "AB235E23-8BCD-4D78-9468-40F0B6060DAE" : [
+      {
+        "pitch" : 45,
+        "id" : "26eec63b-48e1-4a61-bd9a-7ca17ea8f793",
+        "length" : 1,
+        "beat" : 0
+      },
+      {
+        "pitch" : 44,
+        "id" : "278696a4-a3bf-4ed6-89f3-95e466174fa7",
+        "length" : 1,
+        "beat" : 1
+      },
+      {
+        "pitch" : 42,
+        "id" : "06c6712f-ef02-4e5e-8357-b3729f4d409e",
+        "length" : 1,
+        "beat" : 2
+      },
+      {
+        "pitch" : 40,
+        "id" : "9fbaf938-b2f4-4345-a7f3-7b7c07abc60d",
+        "length" : 1,
+        "beat" : 3
+      },
+      {
+        "pitch" : 38,
+        "id" : "e8b9ff06-821e-4407-8eec-8b9b6f7ce77d",
+        "length" : 1,
+        "beat" : 4
+      },
+      {
+        "pitch" : 37,
+        "id" : "63ef0cb8-0de7-4523-80a2-e24226fdf3ed",
+        "length" : 1,
+        "beat" : 5
+      },
+      {
+        "pitch" : 35,
+        "id" : "7fc11ebd-de9d-4031-86af-8368718f7fb5",
+        "length" : 1,
+        "beat" : 6
+      },
+      {
+        "pitch" : 33,
+        "id" : "29a6544a-92bd-4934-8ef9-42da6d62493d",
+        "length" : 1,
+        "beat" : 7
       }
     ],
     "52F6A03F-8B99-4601-820D-E9E8657D8ED3" : [
       {
-        "beat" : 0,
-        "id" : "b7eef9da-1ee2-485b-95f7-423fb7ef4d53",
         "pitch" : 57,
+        "id" : "01cb1537-72b3-49d2-ae41-55aeab5b2d57",
+        "length" : 1,
+        "beat" : 0
+      },
+      {
+        "pitch" : 61,
+        "id" : "5d981667-e64a-4f02-87e4-bdf811e97130",
+        "length" : 1,
+        "beat" : 1
+      },
+      {
+        "pitch" : 59,
+        "id" : "fc4631cc-9bd9-4e4a-89f8-ef09afb2efb7",
+        "length" : 1,
+        "beat" : 2
+      },
+      {
+        "pitch" : 62,
+        "id" : "c0e09bc1-d25c-4f92-9f62-0eb6056aa1af",
+        "length" : 1,
+        "beat" : 3
+      },
+      {
+        "pitch" : 61,
+        "id" : "a317764a-f673-4238-90c1-19f018e9de5d",
+        "length" : 1,
+        "beat" : 4
+      },
+      {
+        "pitch" : 64,
+        "id" : "d88f0fee-bc6b-4af8-ba38-2886ab6448cb",
+        "length" : 1,
+        "beat" : 5
+      },
+      {
+        "pitch" : 62,
+        "id" : "a1d20dca-4feb-454b-bd71-1b083bbe97c9",
+        "length" : 1,
+        "beat" : 6
+      },
+      {
+        "pitch" : 59,
+        "id" : "285cd31d-1faf-4ded-bfab-29bd1be8a178",
+        "length" : 1,
+        "beat" : 7
+      },
+      {
+        "pitch" : 57,
+        "id" : "109ec1a6-8a24-4edd-bcfa-1cf9814a8d2b",
+        "length" : 1,
+        "beat" : 8
+      }
+    ],
+    "64B6BD4E-255C-400D-B754-5C81B098F749" : [
+      {
+        "pitch" : 48,
+        "id" : "62954d27-b392-4059-9410-e61b8d5c9173",
+        "beat" : 0,
         "length" : 1
+      },
+      {
+        "pitch" : 50,
+        "id" : "61b80d2c-96c9-4b80-bdc2-5aecfeb88e92",
+        "beat" : 1,
+        "length" : 1
+      },
+      {
+        "pitch" : 52,
+        "id" : "a06726cb-53de-4d81-9345-1b2a5cc377ee",
+        "beat" : 2,
+        "length" : 1
+      },
+      {
+        "pitch" : 53,
+        "id" : "e84dc7e7-35fa-4810-8b86-c0e003b9b6a4",
+        "beat" : 3,
+        "length" : 1
+      },
+      {
+        "pitch" : 55,
+        "id" : "8f15af35-6594-42d9-b5e4-953bcd1cbade",
+        "beat" : 4,
+        "length" : 1
+      },
+      {
+        "pitch" : 53,
+        "id" : "8d78da99-9ada-4ac9-87d2-753246a1b6e1",
+        "beat" : 5,
+        "length" : 1
+      },
+      {
+        "pitch" : 52,
+        "id" : "191fbf9f-e543-46fb-a5d6-a1383b97f6bc",
+        "beat" : 6,
+        "length" : 1
+      },
+      {
+        "pitch" : 50,
+        "id" : "ea46fd0c-7053-4916-9f27-a9e006038619",
+        "beat" : 7,
+        "length" : 1
+      },
+      {
+        "pitch" : 48,
+        "id" : "361217e1-7d78-4c48-a81c-6be0e98687a1",
+        "beat" : 8,
+        "length" : 1
+      }
+    ],
+    "06E2B2D0-7B6B-45C6-98FD-154B166C4B02" : [
+      {
+        "pitch" : 49,
+        "id" : "77bc7eae-53fc-4ef0-9b76-a82e8efbbde9",
+        "beat" : 0,
+        "length" : 1
+      },
+      {
+        "pitch" : 51,
+        "id" : "139389f8-6a40-47da-843b-a5e7729d7f66",
+        "beat" : 1,
+        "length" : 1
+      },
+      {
+        "pitch" : 53,
+        "id" : "21b628a8-c5f9-47fd-afe5-8c8009ac2ee3",
+        "beat" : 2,
+        "length" : 1
+      },
+      {
+        "pitch" : 51,
+        "id" : "3f132e02-bc03-4d30-b47d-afda6939f673",
+        "beat" : 5,
+        "length" : 1
+      },
+      {
+        "pitch" : 51,
+        "id" : "281783eb-8520-4a3e-8a53-42712e8400ca",
+        "beat" : 3,
+        "length" : 1
+      },
+      {
+        "pitch" : 49,
+        "id" : "8a9de0f6-2402-4ba5-8e32-319dfe538fe3",
+        "beat" : 4,
+        "length" : 1
+      },
+      {
+        "pitch" : 53,
+        "id" : "73a8a118-0218-442a-938c-aff03d6b11f7",
+        "beat" : 6,
+        "length" : 1
+      },
+      {
+        "pitch" : 54,
+        "id" : "937bc746-a8c1-46b3-a159-aa298e443d78",
+        "beat" : 7,
+        "length" : 1
+      },
+      {
+        "pitch" : 56,
+        "id" : "76aba31b-d1cb-4446-9f42-ef2a703a9ab5",
+        "beat" : 8,
+        "length" : 1
+      },
+      {
+        "pitch" : 54,
+        "id" : "ee1ae88c-a85d-4183-8357-5ca6c3d4490c",
+        "beat" : 9,
+        "length" : 1
+      },
+      {
+        "pitch" : 53,
+        "id" : "64741fe7-7201-4a9c-8893-a3c2b8f786e8",
+        "beat" : 10,
+        "length" : 1
+      },
+      {
+        "pitch" : 51,
+        "id" : "a21a197f-4abb-4af4-b4d4-eae6a13826a9",
+        "beat" : 11,
+        "length" : 1
+      },
+      {
+        "pitch" : 49,
+        "id" : "2a0306e6-8f4f-4951-9561-405e37f75055",
+        "beat" : 12,
+        "length" : 1
+      }
+    ],
+    "0ECAE354-AEDE-40A4-98EF-7AADECCDC3E4" : [
+      {
+        "pitch" : 45,
+        "id" : "b06e0a76-ccbe-4dde-98eb-0df44e8db422",
+        "beat" : 0,
+        "length" : 1
+      },
+      {
+        "pitch" : 47,
+        "id" : "f652d2fe-0269-4c35-85b5-22077eea11dc",
+        "beat" : 1,
+        "length" : 1
+      },
+      {
+        "pitch" : 49,
+        "id" : "78842579-69fa-4521-b12c-c55251346444",
+        "beat" : 2,
+        "length" : 1
+      },
+      {
+        "pitch" : 50,
+        "id" : "f8e89f91-3e7b-4ed7-bd39-e9c0926452c9",
+        "beat" : 3,
+        "length" : 1
+      },
+      {
+        "pitch" : 52,
+        "id" : "69bc3681-69f4-4a7a-91f2-c656c06cd454",
+        "beat" : 4,
+        "length" : 1
+      },
+      {
+        "pitch" : 54,
+        "id" : "6bcac89f-0f46-4fd9-a447-72f06096c9ca",
+        "beat" : 5,
+        "length" : 1
+      },
+      {
+        "pitch" : 56,
+        "id" : "ac9c30b0-1f85-4ccb-89e2-a48cc3d19ecb",
+        "beat" : 6,
+        "length" : 1
+      },
+      {
+        "pitch" : 57,
+        "id" : "e04222f7-0511-401b-aa6a-ef6f22d26fb4",
+        "beat" : 7,
+        "length" : 1
+      }
+    ],
+    "7A76BACA-20D0-4665-B8B8-CA9721C0CF1B" : [
+      {
+        "beat" : 0,
+        "length" : 1,
+        "id" : "19caa9ac-1323-42bb-8a8f-43f115aabbd2",
+        "pitch" : 48
       },
       {
         "beat" : 1,
-        "id" : "fe42d906-ffd3-4027-9efd-740fe0caa922",
-        "pitch" : 61,
-        "length" : 1
+        "length" : 1,
+        "id" : "f475092c-00a6-4ca5-8547-2b601ee5ae08",
+        "pitch" : 50
       },
       {
         "beat" : 2,
-        "id" : "87941af7-5343-43bb-8b00-ae8e171e64f2",
-        "pitch" : 59,
-        "length" : 1
+        "length" : 1,
+        "id" : "3e394b2f-aa0a-48c1-99a8-648d6ad6432c",
+        "pitch" : 52
       },
       {
         "beat" : 3,
-        "id" : "824ea525-d830-4601-8aa8-a68b5bc77b77",
-        "pitch" : 62,
-        "length" : 1
+        "length" : 1,
+        "id" : "a00929ce-e487-48c4-8cc5-a1f46c95368e",
+        "pitch" : 53
       },
       {
         "beat" : 4,
-        "id" : "f3948747-4aaf-4717-942e-206326d43ae4",
-        "pitch" : 61,
-        "length" : 1
+        "length" : 1,
+        "id" : "83d026ff-c61d-448e-baf3-69a7003c330f",
+        "pitch" : 55
       },
       {
         "beat" : 5,
-        "id" : "4b314dee-a366-4d9a-a376-42c91e39c8f7",
-        "pitch" : 64,
-        "length" : 1
+        "length" : 1,
+        "id" : "3ef13c18-3a50-4686-890f-5338e08dfdc3",
+        "pitch" : 53
       },
       {
         "beat" : 6,
-        "id" : "fab94871-1deb-4d80-8e33-a3eed973dea2",
-        "pitch" : 62,
-        "length" : 1
+        "length" : 1,
+        "id" : "8b3d6cb3-d3bc-4173-a9e0-3129f91869e3",
+        "pitch" : 52
       },
       {
         "beat" : 7,
-        "id" : "40658ce7-17f6-4228-955b-1b29ec4c9c89",
-        "pitch" : 59,
-        "length" : 1
+        "length" : 1,
+        "id" : "782ace66-f38d-48f6-8362-72d92826d45f",
+        "pitch" : 50
       },
       {
         "beat" : 8,
-        "id" : "6d3ddbbb-58f7-41dc-b27e-3b9cd5bde1ef",
-        "pitch" : 57,
+        "length" : 1,
+        "id" : "2a3f7b05-f382-46a0-886f-1fef34d0d0ce",
+        "pitch" : 48
+      }
+    ],
+    "6B06AD2B-680C-44BD-9372-0E305762F706" : [
+      {
+        "pitch" : 47,
+        "id" : "74e34948-f2e1-4218-98d4-ff2115a5e479",
+        "beat" : 0,
         "length" : 1
+      },
+      {
+        "pitch" : 49,
+        "id" : "24b16580-9d09-4cd1-82d4-310cf6883f67",
+        "beat" : 1,
+        "length" : 1
+      },
+      {
+        "pitch" : 51,
+        "id" : "a9f419b2-10c4-4812-ac46-2d844e00547b",
+        "beat" : 2,
+        "length" : 1
+      },
+      {
+        "pitch" : 47,
+        "id" : "b0c0e44f-0a02-4565-8fcf-b13d593b6e30",
+        "beat" : 3,
+        "length" : 1
+      },
+      {
+        "pitch" : 49,
+        "id" : "a43a2292-9173-4dc1-8c61-13a5fe22396c",
+        "beat" : 4,
+        "length" : 1
+      },
+      {
+        "pitch" : 51,
+        "id" : "26039338-3d55-4064-84f8-d22758def7d7",
+        "beat" : 5,
+        "length" : 1
+      },
+      {
+        "pitch" : 47,
+        "id" : "7378ef5c-ed93-486a-ae0c-d7bc72dc0919",
+        "beat" : 6,
+        "length" : 1
+      },
+      {
+        "pitch" : 49,
+        "id" : "e7f5d228-3e00-440d-83c4-9fc6fcdb21c9",
+        "beat" : 7,
+        "length" : 1
+      },
+      {
+        "pitch" : 51,
+        "id" : "9f7269c6-28c8-4b32-94a7-d23a4f270d53",
+        "beat" : 8,
+        "length" : 1
+      },
+      {
+        "pitch" : 47,
+        "id" : "71bd1c1b-319d-4fb4-8874-baf8d8f7836f",
+        "beat" : 9,
+        "length" : 1
+      },
+      {
+        "pitch" : 49,
+        "id" : "e5d88868-bf1e-4f7e-a1ba-11fb467cc918",
+        "beat" : 10,
+        "length" : 1
+      },
+      {
+        "pitch" : 51,
+        "id" : "fa9c0e39-4899-4ee3-95fb-69e59f880f5c",
+        "beat" : 11,
+        "length" : 1
+      },
+      {
+        "pitch" : 47,
+        "id" : "a0c85435-8b31-4eba-a166-5066397675e5",
+        "beat" : 12,
+        "length" : 1
+      },
+      {
+        "pitch" : 49,
+        "id" : "60d44b59-dc02-4673-a1d5-be642ce1a3e0",
+        "beat" : 13,
+        "length" : 1
+      },
+      {
+        "pitch" : 51,
+        "id" : "334c9e66-0c5a-4b9c-921d-bfda7751bec5",
+        "beat" : 14,
+        "length" : 1
+      }
+    ],
+    "14CE8327-CD4C-42F8-8C74-28204356D47B" : [
+      {
+        "pitch" : 40,
+        "id" : "bd709199-2d7b-4428-a31e-b5e4243d1baa",
+        "length" : 1,
+        "beat" : 0
+      },
+      {
+        "pitch" : 44,
+        "id" : "ddf360ae-0636-4083-b5a2-eb4fbf91b151",
+        "length" : 1,
+        "beat" : 1
+      },
+      {
+        "pitch" : 47,
+        "id" : "3dcf7027-e421-465d-8c28-d6cd20ac8e14",
+        "length" : 1,
+        "beat" : 2
+      },
+      {
+        "pitch" : 52,
+        "id" : "e6aa3114-2469-4950-80fa-3ab549d571b9",
+        "length" : 1,
+        "beat" : 3
+      },
+      {
+        "pitch" : 47,
+        "id" : "8623d37b-f269-4a05-b7e3-b54d06a0d1e5",
+        "length" : 1,
+        "beat" : 4
+      },
+      {
+        "pitch" : 52,
+        "id" : "bbf8a98e-5f77-4bb6-9be5-10c0fb884dfb",
+        "length" : 1,
+        "beat" : 5
+      },
+      {
+        "pitch" : 47,
+        "id" : "bdc276dd-1e5b-4803-9c4f-f1af9457a814",
+        "length" : 1,
+        "beat" : 6
+      },
+      {
+        "pitch" : 52,
+        "id" : "9364d107-9163-4d35-8e53-7594e451d303",
+        "length" : 1,
+        "beat" : 7
+      },
+      {
+        "pitch" : 47,
+        "id" : "bb204503-6c01-4c81-8f13-dec743d965aa",
+        "length" : 1,
+        "beat" : 8
+      },
+      {
+        "pitch" : 44,
+        "id" : "39d2e35b-0d31-4795-a203-2181e340b359",
+        "length" : 1,
+        "beat" : 9
+      },
+      {
+        "pitch" : 40,
+        "id" : "bf2c29fd-c299-4153-9428-b866ab6338b4",
+        "length" : 1,
+        "beat" : 10
       }
     ],
     "A82EC056-B23E-46F6-97EA-A0E960C69C1B" : [
       {
+        "pitch" : 45,
+        "id" : "65739af9-35cc-47d8-983b-10cddc2900f6",
         "beat" : 0,
-        "id" : "867ac6a5-4779-43d8-84bc-41b28f82473d",
-        "pitch" : 45,
         "length" : 1
       },
       {
+        "pitch" : 45,
+        "id" : "57776615-e956-4cd8-9422-5d429e6ff04c",
         "beat" : 2,
-        "id" : "8c187ef7-4cb2-4950-8b74-b2667443dc68",
-        "pitch" : 45,
         "length" : 1
       },
       {
+        "pitch" : 47,
+        "id" : "488d6fec-0412-4964-824d-138a053fa086",
         "beat" : 3,
-        "id" : "6b10ed7d-ab19-4e21-b203-f190d6860a1f",
-        "pitch" : 47,
         "length" : 1
       },
       {
+        "pitch" : 49,
+        "id" : "66689676-79d4-4c54-bb0f-deb1c08c39f4",
         "beat" : 4,
-        "id" : "58f24220-6a58-4ed0-8d34-9373d86545fc",
-        "pitch" : 49,
         "length" : 1
       },
       {
+        "pitch" : 49,
+        "id" : "2caea7b4-0fc9-41cc-a13b-7487fbec167d",
         "beat" : 6,
-        "id" : "6a6d56e5-79ee-4ab5-ac9a-043573986e79",
-        "pitch" : 49,
         "length" : 1
       },
       {
+        "pitch" : 50,
+        "id" : "4e469c15-4c39-4c9e-9b90-afd72dee1831",
         "beat" : 7,
-        "id" : "3482d016-0549-4422-899b-459fa44ced79",
-        "pitch" : 50,
         "length" : 1
       },
       {
+        "pitch" : 52,
+        "id" : "978eff9a-aaca-4c33-ba49-b78ea6452a68",
         "beat" : 8,
-        "id" : "fc5885d3-55d7-45f4-95bd-a7fd10eb980f",
-        "pitch" : 52,
         "length" : 1
       },
       {
+        "pitch" : 52,
+        "id" : "8a476ff8-2686-4503-b232-c14745319d3b",
         "beat" : 10,
-        "id" : "6b13d523-28d2-45c7-b9e7-d5b14ee666a8",
-        "pitch" : 52,
         "length" : 1
       },
       {
-        "beat" : 11,
-        "id" : "f138a642-6f32-42b2-bf29-479c781a540e",
         "pitch" : 50,
+        "id" : "e304d733-1594-4a78-8017-248610c8ec6c",
+        "beat" : 11,
         "length" : 1
       },
       {
+        "pitch" : 49,
+        "id" : "d3a6ef64-5228-4da5-a26c-132a0753d2ec",
         "beat" : 12,
-        "id" : "870caff6-f40a-4c69-9c4d-88f1167b4ad3",
-        "pitch" : 49,
         "length" : 1
       },
       {
+        "pitch" : 49,
+        "id" : "e05dd7d9-ed05-4ffa-a9d9-c59fdbd654bb",
         "beat" : 14,
-        "id" : "bec2a0c9-bc05-4bb9-bb91-7f8dcd3d3813",
-        "pitch" : 49,
         "length" : 1
       },
       {
-        "beat" : 15,
-        "id" : "9782a161-622f-487b-8180-13b397da1b4a",
         "pitch" : 47,
+        "id" : "2e7a5afe-997c-4fdf-a2aa-baec06e5a7c2",
+        "beat" : 15,
         "length" : 1
       },
       {
-        "beat" : 16,
-        "id" : "b661f205-6e8c-43da-b25a-b9a4cb0fb4db",
         "pitch" : 45,
+        "id" : "5fcc7a68-12ee-408f-8e4a-c2a5896d53bc",
+        "beat" : 16,
         "length" : 1
       }
+    ]
+  },
+  "texts" : {
+    "4BFA2CC6-4A87-4C2B-B0D0-688042C23525" : [
+      {
+        "beat" : 0.25,
+        "id" : "82f0d06e-e1e7-4c95-ab14-97447eabf2c8",
+        "text" : "Mum",
+        "pitch" : 58
+      },
+      {
+        "beat" : 1.25,
+        "id" : "2a4b2610-02fa-47ca-babb-ce222d0f2173",
+        "text" : "Mum",
+        "pitch" : 60
+      },
+      {
+        "beat" : 2.25,
+        "id" : "bc7fb524-f128-458c-9eab-e14d55b4b675",
+        "text" : "Mum",
+        "pitch" : 62
+      },
+      {
+        "beat" : 3.25,
+        "id" : "2ba27103-1a57-4508-8024-44a2f777a815",
+        "text" : "Mum",
+        "pitch" : 60
+      },
+      {
+        "beat" : 4.25,
+        "id" : "dbfc17b7-7028-4d3e-b4dd-f2f7bb8db857",
+        "text" : "Mum",
+        "pitch" : 58
+      },
+      {
+        "beat" : 5.25,
+        "id" : "f9cfa170-14ac-4039-a008-d3e39426ad44",
+        "text" : "Mum",
+        "pitch" : 65
+      },
+      {
+        "beat" : 6.25,
+        "id" : "9d57c43e-8208-4d76-b0d1-db9c78ff2cef",
+        "text" : "Mum",
+        "pitch" : 62
+      },
+      {
+        "beat" : 7.25,
+        "id" : "11b4a232-9cd9-4961-b5a5-cc08b864b8f3",
+        "text" : "Mum",
+        "pitch" : 60
+      },
+      {
+        "beat" : 8.25,
+        "id" : "de0d4e74-c6b6-497d-8cb2-3bc24112f8fa",
+        "text" : "Mum",
+        "pitch" : 58
+      }
     ],
-    "044DA067-981F-4945-9382-438A410FCB0F" : [
-
-    ],
-    "636D3030-BD0E-4B90-995E-49D298E897A4" : [
+    "15863544-5AF3-4E04-BB4C-ACBD986A7CC6" : [
       {
         "beat" : 0,
-        "id" : "ca3cb16b-b2aa-4a06-b276-b3c7cf38f4d4",
-        "pitch" : 51,
-        "length" : 1
+        "id" : "6ab2ebf1-7cb0-4695-b647-e307544bceba",
+        "text" : "Nay",
+        "pitch" : 62
       },
       {
         "beat" : 1,
-        "id" : "f8eb50dc-772b-4c13-a960-bba2ba098eb6",
-        "pitch" : 49,
-        "length" : 1
+        "id" : "bc9a3269-020f-446b-bbaf-686b05d747cc",
+        "text" : "Nay",
+        "pitch" : 66
       },
       {
         "beat" : 2,
-        "id" : "44d0f774-a687-48a0-95f4-59329bb44efc",
-        "pitch" : 47,
-        "length" : 1
+        "id" : "ba07d1b2-a2f6-4592-a59b-3be86aea11d1",
+        "text" : "Nay",
+        "pitch" : 69
       },
       {
         "beat" : 3,
-        "id" : "776495b3-a650-4a5d-a9e6-aeeb58720512",
-        "pitch" : 51,
-        "length" : 1
+        "id" : "09648d5f-d4ee-4438-b7fd-0dc39aa9e917",
+        "text" : "Nay",
+        "pitch" : 74
       },
       {
         "beat" : 4,
-        "id" : "f67c2305-f7c7-48fc-b974-65349b8e953b",
-        "pitch" : 49,
-        "length" : 1
+        "id" : "daec68a0-a310-4761-a8f4-81744f0b9a4c",
+        "text" : "Nay",
+        "pitch" : 74
       },
       {
         "beat" : 5,
-        "id" : "db2a9269-b0a1-4d81-8af2-7eb4bf587213",
-        "pitch" : 47,
-        "length" : 1
+        "id" : "a903dc26-62ce-4323-a6a2-bde7986d06b0",
+        "text" : "Nay",
+        "pitch" : 74
       },
       {
         "beat" : 6,
-        "id" : "74c7d50b-0272-4380-a25a-9aa1e7e829ce",
-        "pitch" : 51,
-        "length" : 1
+        "id" : "76e3edb5-72c5-459c-85b1-ad0397d26ebd",
+        "text" : "Nay",
+        "pitch" : 74
       },
       {
         "beat" : 7,
-        "id" : "371aac79-4695-4eb2-8569-86aaeaaf840e",
-        "pitch" : 49,
-        "length" : 1
+        "id" : "2d2cf299-1c68-4c40-970f-9aea2edf5c7d",
+        "text" : "Nay",
+        "pitch" : 69
       },
       {
         "beat" : 8,
-        "id" : "42dc3889-1f8e-4401-b471-614c58f27b2a",
-        "pitch" : 47,
-        "length" : 1
+        "id" : "8d330a25-03b1-46cb-a584-1b86f725b810",
+        "text" : "Nay",
+        "pitch" : 66
       },
       {
         "beat" : 9,
-        "id" : "f561476a-c38e-49e7-aead-cd343ab64aa5",
+        "id" : "bac52d35-7ba4-4edc-8592-07772fd4ed4b",
+        "text" : "Nay",
+        "pitch" : 62
+      }
+    ],
+    "E5B18A98-4953-4DDC-A4A3-F5EE88B58D9F" : [
+      {
+        "beat" : 0.25,
+        "id" : "55084427-5f51-4f2d-aed5-9e6d61d47e92",
+        "text" : "Do",
+        "pitch" : 46
+      },
+      {
+        "beat" : 1.25,
+        "id" : "cae992eb-f0fa-46ff-ae4b-cdf67c606400",
+        "text" : "Re",
+        "pitch" : 48
+      },
+      {
+        "beat" : 2.25,
+        "id" : "ae7d16cd-a168-42ee-9dc8-c4d012082c25",
+        "text" : "Mi",
+        "pitch" : 49
+      },
+      {
+        "beat" : 3.25,
+        "id" : "554fd783-6b41-4561-ab54-5a64051ab97f",
+        "text" : "Fa",
+        "pitch" : 51
+      },
+      {
+        "beat" : 4.25,
+        "id" : "a873348c-dc8e-4ff1-a45d-b2ff969d5fa4",
+        "text" : "Sol",
+        "pitch" : 53
+      },
+      {
+        "beat" : 5.25,
+        "id" : "751f66e9-e32a-464e-b9f2-c74368025219",
+        "text" : "La",
+        "pitch" : 54
+      },
+      {
+        "beat" : 6.25,
+        "id" : "9768da0b-b388-4be7-91f3-821bac545966",
+        "text" : "Ti",
+        "pitch" : 56
+      },
+      {
+        "beat" : 7.25,
+        "id" : "efc8a384-4d4a-45bf-b031-0a312f6e1975",
+        "text" : "Do",
+        "pitch" : 58
+      }
+    ],
+    "24C5B25B-D49A-4A0D-9E7C-9E0F72AA8E86" : [
+      {
+        "beat" : 0.12541831915195173,
+        "id" : "5cada66d-b9bc-4801-9ec6-1631f3eec9a6",
+        "text" : "Mom",
+        "pitch" : 50
+      },
+      {
+        "beat" : 1.1254183191519518,
+        "id" : "d910ff48-15d6-4a36-a98f-19efee856dc0",
+        "text" : "Mom",
+        "pitch" : 52
+      },
+      {
+        "beat" : 2.125418319151952,
+        "id" : "e8557c67-95fe-4fb2-b526-15a5b2b491fb",
+        "text" : "Mom",
+        "pitch" : 54
+      },
+      {
+        "beat" : 3.125418319151952,
+        "id" : "ddf66fbb-421a-4f01-85e1-8c3672316359",
+        "text" : "Mom",
+        "pitch" : 52
+      },
+      {
+        "beat" : 4.230347848855532,
+        "id" : "ce184079-dea9-45c7-b2e1-d5c38165cbf2",
+        "text" : "Mo",
+        "pitch" : 50
+      },
+      {
+        "beat" : 5.243463768408849,
+        "id" : "18afc6a9-b0a8-4b3d-9130-45b969586879",
+        "text" : "Oo",
+        "pitch" : 52
+      },
+      {
+        "beat" : 6.243463768408849,
+        "id" : "f6556c33-6e2e-43e0-8529-7da83081844e",
+        "text" : "Oo",
+        "pitch" : 54
+      },
+      {
+        "beat" : 7.243463768408849,
+        "id" : "11f86070-04cd-4e6e-9f2f-2e47e9b25227",
+        "text" : "Oo",
+        "pitch" : 52
+      },
+      {
+        "beat" : 8.243463768408848,
+        "id" : "abe4a165-8476-44d1-9a84-ff36cb31078e",
+        "text" : "Oo",
+        "pitch" : 50
+      }
+    ],
+    "508A4B56-826C-4C7F-8A8A-EC4ADEF48F62" : [
+      {
+        "beat" : 0.25,
+        "id" : "4c055d1a-a611-471d-aad3-996c402a7c0b",
+        "text" : "Yum",
+        "pitch" : 46
+      },
+      {
+        "beat" : 1.25,
+        "id" : "bd319da4-b3c0-4397-aed7-131b6cf39401",
+        "text" : "Yum",
+        "pitch" : 48
+      },
+      {
+        "beat" : 2.25,
+        "id" : "04b7a936-9d45-4459-b6c3-5085652bee65",
+        "text" : "Yum",
+        "pitch" : 50
+      },
+      {
+        "beat" : 3.25,
+        "id" : "77b87810-8a8e-4320-b412-86124087d8e6",
+        "text" : "Yum",
+        "pitch" : 48
+      },
+      {
+        "beat" : 4.25,
+        "id" : "e4ffb418-65bc-4955-a480-5aaab3e980f1",
+        "text" : "Ya",
+        "pitch" : 46
+      },
+      {
+        "beat" : 5.25,
+        "id" : "ee3a0262-9bd6-4111-8b12-c832aa02362d",
+        "text" : "Aa",
+        "pitch" : 50
+      },
+      {
+        "beat" : 6.25,
+        "id" : "7ea42e3d-0918-420f-8655-a411e980a4ee",
+        "text" : "Aa",
+        "pitch" : 53
+      },
+      {
+        "beat" : 7.25,
+        "id" : "839a8a3a-ec8f-42dc-a518-d9735b3a8ded",
+        "text" : "Aa",
+        "pitch" : 50
+      },
+      {
+        "beat" : 8.25,
+        "id" : "5d485815-8b2e-4858-8c10-9b6d9c905906",
+        "text" : "Aa",
+        "pitch" : 46
+      }
+    ],
+    "A3F82060-9713-424E-8B2A-C8A285E9B9FE" : [
+      {
+        "beat" : 0.09076549915167004,
+        "id" : "6c9a333f-b8dc-47c8-8be2-fe40a1dce160",
+        "text" : "Mmm",
+        "pitch" : 49
+      },
+      {
+        "beat" : 1.09076549915167,
+        "id" : "c9974b9e-471c-4b10-a163-781e943b9b10",
+        "text" : "Mmm",
+        "pitch" : 53
+      },
+      {
+        "beat" : 2.09076549915167,
+        "id" : "581ac7a1-048e-4a70-bbd3-4de05d642d6c",
+        "text" : "Mmm",
+        "pitch" : 51
+      },
+      {
+        "beat" : 3.09076549915167,
+        "id" : "2e5a16ac-88ae-4ee2-8c5a-b279f6999ad5",
+        "text" : "Mmm",
+        "pitch" : 54
+      },
+      {
+        "beat" : 4.09076549915167,
+        "id" : "1f923ba0-ffab-4129-8553-976b7164ef0a",
+        "text" : "Mmm",
+        "pitch" : 53
+      },
+      {
+        "beat" : 5.09076549915167,
+        "id" : "b67b36b4-a8d1-4de1-a585-04f0d00c9555",
+        "text" : "Mmm",
+        "pitch" : 56
+      },
+      {
+        "beat" : 6.09076549915167,
+        "id" : "bda15771-145b-46c8-9805-366d61544766",
+        "text" : "Mmm",
+        "pitch" : 54
+      },
+      {
+        "beat" : 7.09076549915167,
+        "id" : "e976460b-a264-44c4-b6ab-dd035c74bbb4",
+        "text" : "Mmm",
+        "pitch" : 58
+      },
+      {
+        "beat" : 8.09076549915167,
+        "id" : "7bf7f581-49a3-4179-b46b-c64fd02c63cc",
+        "text" : "Mmm",
+        "pitch" : 56
+      },
+      {
+        "beat" : 9.09076549915167,
+        "id" : "8ba6dd18-7e54-4395-a95f-0d6122dda7fc",
+        "text" : "Mmm",
+        "pitch" : 60
+      },
+      {
+        "beat" : 10.09076549915167,
+        "id" : "a48209b4-e592-4c1f-aa7c-1183d565915b",
+        "text" : "Mmm",
+        "pitch" : 58
+      },
+      {
+        "beat" : 11.09076549915167,
+        "id" : "85a87179-596a-4fe1-953a-c028270db69b",
+        "text" : "Mmm",
+        "pitch" : 61
+      }
+    ],
+    "A9BB1A5C-23D2-40D2-A127-E7797C251BA0" : [
+      {
+        "beat" : 0.25,
+        "id" : "2ee36aae-1104-4259-bda9-4c0bb4b3f7a8",
+        "pitch" : 58,
+        "text" : "Do"
+      },
+      {
+        "beat" : 1.25,
+        "id" : "daa0f7eb-b135-4816-8f54-6977f3747f6b",
+        "pitch" : 56,
+        "text" : "Ti"
+      },
+      {
+        "beat" : 2.25,
+        "id" : "d671e489-cd1e-43fa-af5c-f51641fdc82d",
+        "pitch" : 54,
+        "text" : "La"
+      },
+      {
+        "beat" : 3.25,
+        "id" : "85427c6a-1591-4d65-b564-83e99cb12298",
+        "pitch" : 53,
+        "text" : "Sol"
+      },
+      {
+        "beat" : 4.25,
+        "id" : "26e921f7-22ad-49cc-bdf4-786e45499c33",
         "pitch" : 51,
-        "length" : 1
+        "text" : "Fa"
+      },
+      {
+        "beat" : 5.25,
+        "id" : "bbac7718-b0b1-4b30-b8f2-f99d350ad387",
+        "pitch" : 49,
+        "text" : "Mi"
+      },
+      {
+        "beat" : 6.25,
+        "id" : "bced540b-822c-4ffb-b9cb-f3a3345a2c91",
+        "pitch" : 48,
+        "text" : "Re"
+      },
+      {
+        "beat" : 7.25,
+        "id" : "e7695188-84d7-4aac-8c86-e28990b54a30",
+        "pitch" : 46,
+        "text" : "Do"
+      }
+    ],
+    "996B5E81-F3D8-4448-B26D-D2D94C780240" : [
+      {
+        "beat" : 0,
+        "pitch" : 49,
+        "text" : "Ma",
+        "id" : "ace39b53-1cc2-4854-b3e1-04265fb10115"
+      },
+      {
+        "beat" : 0.5,
+        "pitch" : 51,
+        "text" : "Aa",
+        "id" : "f0613ade-6720-43f6-8a0e-4c5079bdc2fd"
+      },
+      {
+        "beat" : 1,
+        "pitch" : 53,
+        "text" : "Aa",
+        "id" : "db6c8ae3-d1f0-4a69-948d-07343609445c"
+      },
+      {
+        "beat" : 1.5,
+        "pitch" : 51,
+        "text" : "Aa",
+        "id" : "be226007-a756-4a83-9965-6091725dd390"
+      },
+      {
+        "beat" : 2,
+        "pitch" : 53,
+        "text" : "Aa",
+        "id" : "3909766e-627c-4005-b90a-4c407b361bde"
+      },
+      {
+        "beat" : 2.5,
+        "pitch" : 54,
+        "text" : "Aa",
+        "id" : "470ddbef-5578-4002-ac41-380e248e7b97"
+      },
+      {
+        "beat" : 3,
+        "pitch" : 53,
+        "text" : "Aa",
+        "id" : "73a04e00-51fa-4e2f-afc8-8a91c4218c42"
+      },
+      {
+        "beat" : 3.5,
+        "pitch" : 54,
+        "text" : "Aa",
+        "id" : "5d1e607a-dcf4-4c92-9eb7-ca0952003083"
+      },
+      {
+        "beat" : 4,
+        "pitch" : 56,
+        "text" : "Aa",
+        "id" : "641512e9-eabf-4ad8-9fd6-5b1772d0e4a8"
+      },
+      {
+        "beat" : 4.5,
+        "pitch" : 54,
+        "text" : "Aa",
+        "id" : "8fe06ec7-cfea-4640-90dd-cb5f36ae4c01"
+      },
+      {
+        "beat" : 5,
+        "pitch" : 56,
+        "text" : "Aa",
+        "id" : "62c96efb-1528-42ef-8024-dd3c13f2ed82"
+      },
+      {
+        "beat" : 5.5,
+        "pitch" : 58,
+        "text" : "Aa",
+        "id" : "09fd8bc6-30c5-4734-a315-068f5682b91f"
+      },
+      {
+        "beat" : 6,
+        "pitch" : 56,
+        "text" : "Aa",
+        "id" : "f6f160d4-4b5c-47a6-8715-180985320485"
+      },
+      {
+        "beat" : 6.5,
+        "pitch" : 58,
+        "text" : "Aa",
+        "id" : "a83dad4c-874d-4cff-abca-3cd8498915cc"
+      },
+      {
+        "beat" : 7,
+        "pitch" : 60,
+        "text" : "Aa",
+        "id" : "6655dd0e-5d86-453d-a191-ca980eef0712"
+      },
+      {
+        "beat" : 7.5,
+        "pitch" : 58,
+        "text" : "Aa",
+        "id" : "5ca98241-97ff-4ed9-8c4e-77ccb8376c32"
+      },
+      {
+        "beat" : 8,
+        "pitch" : 60,
+        "text" : "Aa",
+        "id" : "92683585-0373-466a-a16a-73b4d9e9c502"
+      },
+      {
+        "beat" : 8.5,
+        "pitch" : 61,
+        "text" : "Aa",
+        "id" : "4b260c2b-f8c8-4385-8c1e-96521c2a851a"
+      },
+      {
+        "beat" : 9,
+        "pitch" : 60,
+        "text" : "Aa",
+        "id" : "fe2288f0-b976-4dc2-aa7e-56cda0150c2d"
       },
       {
         "beat" : 10,
-        "id" : "e14aba21-2f12-420b-a7d6-78b15ecca689",
-        "pitch" : 49,
-        "length" : 1
+        "pitch" : 63,
+        "text" : "Aa",
+        "id" : "acca536c-29cc-4b84-a42c-b57b27ce482f"
+      },
+      {
+        "beat" : 10.5,
+        "pitch" : 61,
+        "text" : "Ah",
+        "id" : "6d3365f9-f11a-4226-9bdf-a777453f69a7"
+      }
+    ],
+    "5C40BDD7-969C-43EA-BC16-E49E7CE3DFE5" : [
+      {
+        "beat" : 0.25,
+        "id" : "0173bafd-4a1e-4968-bbe6-055b4f3dc3e7",
+        "pitch" : 50,
+        "text" : "Bum"
+      },
+      {
+        "beat" : 1.25,
+        "id" : "944e9034-450e-4c5a-a4d3-533c5b3db18a",
+        "pitch" : 54,
+        "text" : "Ble"
+      },
+      {
+        "beat" : 2.25,
+        "id" : "9c3d9c8b-1864-4d22-825f-f1deeadbabf6",
+        "pitch" : 52,
+        "text" : "Bee"
+      },
+      {
+        "beat" : 3.25,
+        "id" : "a09110e2-ffcb-4e0c-9b31-22a80892bee7",
+        "pitch" : 55,
+        "text" : "Ee"
+      },
+      {
+        "beat" : 4.25,
+        "id" : "196a818d-5ea6-4c40-9a55-f7fae770f374",
+        "pitch" : 54,
+        "text" : "Bum"
+      },
+      {
+        "beat" : 5.25,
+        "id" : "a7369094-432b-461e-99a4-592993c88931",
+        "pitch" : 57,
+        "text" : "Ble"
+      },
+      {
+        "beat" : 6.25,
+        "id" : "f17064a6-d1e1-46d3-9940-62511635c6fe",
+        "pitch" : 55,
+        "text" : "Bee"
+      },
+      {
+        "beat" : 7.25,
+        "id" : "78b4ffdb-644e-403a-aa9a-bea53aeae453",
+        "pitch" : 59,
+        "text" : "Ee"
+      },
+      {
+        "beat" : 8.25,
+        "id" : "1287f744-d3a4-4b53-a30b-f56c3703f32b",
+        "pitch" : 57,
+        "text" : "Bum"
+      },
+      {
+        "beat" : 9.25,
+        "id" : "afa28a28-e5f6-4bfd-a186-96f3f540a56d",
+        "pitch" : 61,
+        "text" : "Ble"
+      },
+      {
+        "beat" : 10.25,
+        "id" : "5a806253-a027-458b-b258-9595f6060780",
+        "pitch" : 59,
+        "text" : "Bee"
+      },
+      {
+        "beat" : 11.25,
+        "id" : "17bcba61-e325-478a-941e-bb2508b0ecca",
+        "pitch" : 62,
+        "text" : "Ee"
+      },
+      {
+        "beat" : 12.25,
+        "id" : "f624661d-9619-447c-ba38-7201627e53e7",
+        "pitch" : 61,
+        "text" : "Bum"
+      },
+      {
+        "beat" : 13.25,
+        "id" : "dbd38ef5-864f-4361-a5c6-70a0ac779776",
+        "pitch" : 64,
+        "text" : "Ble"
+      },
+      {
+        "beat" : 14.5,
+        "id" : "e79dbce9-a223-4a5e-9aac-1ca1df2d1c92",
+        "pitch" : 62,
+        "text" : "Beeee"
+      },
+      {
+        "beat" : 16.25,
+        "id" : "aa4c9db3-f568-4c43-8db6-68cff4f611b9",
+        "pitch" : 66,
+        "text" : "Bum"
+      },
+      {
+        "beat" : 17.25,
+        "id" : "c3625607-d8ba-4cdc-97f0-2ba3ede46d6e",
+        "pitch" : 62,
+        "text" : "Ble"
+      },
+      {
+        "beat" : 18.25,
+        "id" : "42287137-4d00-472f-902f-b01e5ccefb33",
+        "pitch" : 64,
+        "text" : "Bee"
+      },
+      {
+        "beat" : 19.25,
+        "id" : "c6577b5f-3653-45ac-8cb8-28902da24bdb",
+        "pitch" : 61,
+        "text" : "Ee"
+      },
+      {
+        "beat" : 20.25,
+        "id" : "39764be6-ebce-480f-a9ff-e5bca358dcd7",
+        "pitch" : 62,
+        "text" : "Bum"
+      },
+      {
+        "beat" : 21.25,
+        "id" : "7b6204b3-e38d-4de0-adc6-d99e3c0b395c",
+        "pitch" : 59,
+        "text" : "Ble"
+      },
+      {
+        "beat" : 22.25,
+        "id" : "9631375f-1d7a-4eb6-9f1d-5aa1819eb66b",
+        "pitch" : 61,
+        "text" : "Bee"
+      },
+      {
+        "beat" : 23.25,
+        "id" : "aa068325-c431-4a00-9e0d-17f7cec2038c",
+        "pitch" : 57,
+        "text" : "Ee"
+      },
+      {
+        "beat" : 24.25,
+        "id" : "e322ddb6-fca5-4da6-ac17-d858e5a47a9c",
+        "pitch" : 59,
+        "text" : "Bum"
+      },
+      {
+        "beat" : 25.25,
+        "id" : "adfd89aa-6ae9-4406-ad0e-4941a0f3ad2f",
+        "pitch" : 55,
+        "text" : "Ble"
+      },
+      {
+        "beat" : 26.25,
+        "id" : "0af09e95-f2b3-44b6-81a9-167309c6cad4",
+        "pitch" : 57,
+        "text" : "Bee"
+      },
+      {
+        "beat" : 27.25,
+        "id" : "6e9394de-c003-431d-9f0b-4b01321b9b52",
+        "pitch" : 54,
+        "text" : "Ee"
+      },
+      {
+        "beat" : 28.25,
+        "id" : "03f8115f-9495-4d2c-b391-9b0ed4616202",
+        "pitch" : 55,
+        "text" : "Bum"
+      },
+      {
+        "beat" : 29.25,
+        "id" : "9cb6ef4d-87e0-4ade-90e2-6f72b6afa596",
+        "pitch" : 52,
+        "text" : "Ble"
+      },
+      {
+        "beat" : 30.5,
+        "id" : "2bc31b0c-67c1-4437-9299-9de1fe95fa02",
+        "pitch" : 50,
+        "text" : "Beeee"
+      }
+    ],
+    "AB235E23-8BCD-4D78-9468-40F0B6060DAE" : [
+      {
+        "beat" : 0.25,
+        "id" : "8d73c1ab-29b9-4fa9-834e-82a8baa39eee",
+        "text" : "Do",
+        "pitch" : 46
+      },
+      {
+        "beat" : 1.25,
+        "id" : "0ee66be1-579e-47ee-a17f-26d88b13b1ca",
+        "text" : "Ti",
+        "pitch" : 45
+      },
+      {
+        "beat" : 2.25,
+        "id" : "a64b4541-4126-40b3-9ded-8898095695b8",
+        "text" : "La",
+        "pitch" : 43
+      },
+      {
+        "beat" : 3.25,
+        "id" : "00589588-3931-495c-870d-a0c40a96877b",
+        "text" : "Sol",
+        "pitch" : 41
+      },
+      {
+        "beat" : 4.25,
+        "id" : "f4e42593-211a-40ca-b04b-ab94aa6250b5",
+        "text" : "Fa",
+        "pitch" : 39
+      },
+      {
+        "beat" : 5.25,
+        "id" : "f068a60b-3e82-4533-8a25-c26be5a78ef3",
+        "text" : "Mi",
+        "pitch" : 38
+      },
+      {
+        "beat" : 6.25,
+        "id" : "07d9295e-957d-4949-a4b7-3e1fcd1883c6",
+        "text" : "Re",
+        "pitch" : 36
+      },
+      {
+        "beat" : 7.25,
+        "id" : "43a2ce5d-bf22-4625-ae90-3222dbd8f83b",
+        "text" : "Do",
+        "pitch" : 34
+      }
+    ],
+    "636D3030-BD0E-4B90-995E-49D298E897A4" : [
+      {
+        "pitch" : 52,
+        "id" : "9cc8f9ab-f43b-4a6f-b21b-d67e202d7f77",
+        "text" : "Ma",
+        "beat" : 0.25
+      },
+      {
+        "pitch" : 50,
+        "id" : "150223a8-64a1-495d-aaa0-c11872efb9a0",
+        "text" : "Aa",
+        "beat" : 1.25
+      },
+      {
+        "pitch" : 48,
+        "id" : "16e41ecc-9ba2-43b2-a04b-6bed58b56a0f",
+        "text" : "Aa",
+        "beat" : 2.25
+      },
+      {
+        "pitch" : 52,
+        "id" : "359f5027-b5c1-437b-b711-a88682a3bd50",
+        "text" : "Me",
+        "beat" : 3.25
+      },
+      {
+        "pitch" : 50,
+        "id" : "e2e2dcb7-2b2b-4c80-8f27-afd313406e3f",
+        "text" : "Ee",
+        "beat" : 4.25
+      },
+      {
+        "pitch" : 48,
+        "id" : "6067ebf3-84a3-486d-9e38-ac385d98b000",
+        "text" : "Ee",
+        "beat" : 5.25
+      },
+      {
+        "pitch" : 52,
+        "id" : "71cc5589-081a-449f-93f8-fdb9dbdaa1a2",
+        "text" : "Me",
+        "beat" : 6.25
+      },
+      {
+        "pitch" : 50,
+        "id" : "f58828f2-c7f5-4a11-b05a-e91f2c05716e",
+        "text" : "Ee",
+        "beat" : 7.25
+      },
+      {
+        "pitch" : 48,
+        "id" : "f7561450-8b2c-4f33-aa00-578ae4693190",
+        "text" : "Ee",
+        "beat" : 8.25
+      },
+      {
+        "pitch" : 52,
+        "id" : "955ee422-3f2b-4de6-b0ef-c95ff79d4c19",
+        "text" : "Mo",
+        "beat" : 9.25
+      },
+      {
+        "pitch" : 50,
+        "id" : "3a38690c-5580-4fbf-9bc7-3d3deefdfb11",
+        "text" : "Oo",
+        "beat" : 10.25
+      },
+      {
+        "pitch" : 48,
+        "id" : "b827e975-23f8-41b4-a167-1c51ebcd3538",
+        "text" : "Oo",
+        "beat" : 11.25
+      },
+      {
+        "pitch" : 52,
+        "id" : "76cf3f7e-73f3-449a-bf59-ca7e5e3d7e64",
+        "text" : "Mo",
+        "beat" : 12.25
+      },
+      {
+        "pitch" : 50,
+        "id" : "bb710e6e-9e7a-44e6-95de-678a92e2604d",
+        "text" : "Oo",
+        "beat" : 13.25
+      },
+      {
+        "pitch" : 48,
+        "id" : "f6800cfd-2ba3-4063-b32d-6bfcc8933814",
+        "text" : "Oo",
+        "beat" : 14.25
+      }
+    ],
+    "52F6A03F-8B99-4601-820D-E9E8657D8ED3" : [
+      {
+        "beat" : 0.16999999999999998,
+        "id" : "ea0ce9d4-afa7-4ba7-85b2-5b0c40a4b309",
+        "text" : "May",
+        "pitch" : 58
+      },
+      {
+        "beat" : 1.17,
+        "id" : "f1583fc7-88d7-4a7b-9044-ba8c5fdc4c87",
+        "text" : "May",
+        "pitch" : 62
+      },
+      {
+        "beat" : 2.17,
+        "id" : "5e4597e2-51f1-436c-9469-b0abd531488c",
+        "text" : "May",
+        "pitch" : 60
+      },
+      {
+        "beat" : 3.17,
+        "id" : "8b04c6e4-00ee-4457-8f99-2485db1e79dd",
+        "text" : "May",
+        "pitch" : 63
+      },
+      {
+        "beat" : 4.17,
+        "id" : "38b7fe1b-11ff-4391-a2f3-58caa954f037",
+        "text" : "May",
+        "pitch" : 62
+      },
+      {
+        "beat" : 5.17,
+        "id" : "c0525d9f-05c1-41aa-a8c1-b80c12887420",
+        "text" : "May",
+        "pitch" : 65
+      },
+      {
+        "beat" : 6.17,
+        "id" : "1461aabf-10fb-4fb2-8567-9ba886eaf343",
+        "text" : "May",
+        "pitch" : 63
+      },
+      {
+        "beat" : 7.17,
+        "id" : "86e0738c-b63a-440c-a9e7-ea5f0401128d",
+        "text" : "May",
+        "pitch" : 60
+      },
+      {
+        "beat" : 8.17,
+        "id" : "cf1edab7-4095-40aa-afac-92dd0799fba4",
+        "text" : "May",
+        "pitch" : 58
+      }
+    ],
+    "64B6BD4E-255C-400D-B754-5C81B098F749" : [
+      {
+        "beat" : 0.25,
+        "id" : "88f6cfa8-38a3-40be-bf61-00faff2d166d",
+        "text" : "Da",
+        "pitch" : 49
+      },
+      {
+        "beat" : 1.25,
+        "id" : "b52a9e4a-c478-4182-9857-a27f2150c310",
+        "text" : "Da",
+        "pitch" : 51
+      },
+      {
+        "beat" : 2.25,
+        "id" : "512772ea-56a2-4743-a319-7c180264a2b0",
+        "text" : "Da",
+        "pitch" : 53
+      },
+      {
+        "beat" : 3.25,
+        "id" : "ef65aa8b-b61c-4875-9a28-54c72bd66b25",
+        "text" : "Da",
+        "pitch" : 54
+      },
+      {
+        "beat" : 4.25,
+        "id" : "5479570d-ff4c-438a-ba69-3df56cfaf9af",
+        "text" : "Da",
+        "pitch" : 56
+      },
+      {
+        "beat" : 5.25,
+        "id" : "a8b37606-35b7-4e87-8cc4-6b0fe611dc64",
+        "text" : "Da",
+        "pitch" : 54
+      },
+      {
+        "beat" : 6.25,
+        "id" : "2032395f-ba17-42f5-9d51-82948fd24632",
+        "text" : "Da",
+        "pitch" : 53
+      },
+      {
+        "beat" : 7.25,
+        "id" : "d5d38361-6d23-43bc-80cc-ad0fb7b4ec50",
+        "text" : "Da",
+        "pitch" : 51
+      },
+      {
+        "beat" : 8.25,
+        "id" : "c26fc460-b3a8-4a8f-b232-f6be3605c86b",
+        "text" : "Da",
+        "pitch" : 49
+      }
+    ],
+    "06E2B2D0-7B6B-45C6-98FD-154B166C4B02" : [
+      {
+        "beat" : 0,
+        "id" : "48032fce-1997-4f40-a79a-f6f618cff5c1",
+        "text" : "Myam",
+        "pitch" : 50
+      },
+      {
+        "beat" : 1,
+        "id" : "c3241eff-60b3-41fa-9fa6-6de13f1493f7",
+        "text" : "Myam",
+        "pitch" : 52
+      },
+      {
+        "beat" : 2,
+        "id" : "54987eb7-402a-4235-bc65-09372d7b8453",
+        "text" : "Myam",
+        "pitch" : 54
+      },
+      {
+        "beat" : 3,
+        "id" : "ba551c84-0018-4350-b4ef-8563de7cd72c",
+        "text" : "Myam",
+        "pitch" : 52
+      },
+      {
+        "beat" : 4,
+        "id" : "4e1abf74-15a4-42e5-9542-78d5aee96e71",
+        "text" : "Myom",
+        "pitch" : 50
+      },
+      {
+        "beat" : 5,
+        "id" : "af2aad8a-2150-4418-8916-b50f44452d69",
+        "text" : "Myom",
+        "pitch" : 52
+      },
+      {
+        "beat" : 6,
+        "id" : "97ae3a06-078f-4e39-a5df-ffc88a5f37ec",
+        "text" : "Myom",
+        "pitch" : 54
+      },
+      {
+        "beat" : 7,
+        "id" : "7eba0553-02e4-4e5f-8860-4753f0a709fc",
+        "text" : "Myom",
+        "pitch" : 55
+      },
+      {
+        "beat" : 8,
+        "id" : "b41c4b72-edd4-4088-a761-8875b9d04880",
+        "text" : "Myom",
+        "pitch" : 57
+      },
+      {
+        "beat" : 9,
+        "id" : "c2c54752-0c44-4671-848a-5df0155d14e1",
+        "text" : "Myom",
+        "pitch" : 55
+      },
+      {
+        "beat" : 10,
+        "id" : "40ce3b15-519c-4275-845f-a795fd895dc9",
+        "text" : "Myom",
+        "pitch" : 54
       },
       {
         "beat" : 11,
-        "id" : "21ebe27f-d1a3-444f-b9d1-7fb910ab98c6",
-        "pitch" : 47,
-        "length" : 1
+        "id" : "0692d6c2-e931-4fdb-ba47-555e15b684b4",
+        "text" : "Myom",
+        "pitch" : 52
       },
       {
         "beat" : 12,
-        "id" : "cf85022c-178b-4b6c-a25e-f574a2397a94",
-        "pitch" : 51,
-        "length" : 1
-      },
-      {
-        "beat" : 13,
-        "id" : "1f147e72-e1e4-4630-9ab4-99d35c740f16",
-        "pitch" : 49,
-        "length" : 1
-      },
-      {
-        "beat" : 14,
-        "id" : "56a3c722-d596-4941-a589-15f4178eaeba",
-        "pitch" : 47,
-        "length" : 1
+        "id" : "d40677a0-9365-4b95-b5dd-770fd4675a19",
+        "text" : "Myom",
+        "pitch" : 50
       }
     ],
-    "792D6600-F430-4B86-8F52-88C86C4DE5C8" : [
-
+    "7A76BACA-20D0-4665-B8B8-CA9721C0CF1B" : [
+      {
+        "beat" : 0.18011451684511626,
+        "pitch" : 49,
+        "text" : "Brrr",
+        "id" : "dca85ef4-46d4-40ce-a7ee-bbaf6579413f"
+      },
+      {
+        "beat" : 1.1801145168451161,
+        "pitch" : 51,
+        "text" : "Brrr",
+        "id" : "80552023-78f4-48d4-b603-7a6db41acdb5"
+      },
+      {
+        "beat" : 2.180114516845116,
+        "pitch" : 53,
+        "text" : "Brrr",
+        "id" : "da354ecb-8715-4a18-b784-22cabfc5a07e"
+      },
+      {
+        "beat" : 3.180114516845116,
+        "pitch" : 54,
+        "text" : "Brrr",
+        "id" : "36d13bb8-9b36-42f3-bf3b-919f73fbd692"
+      },
+      {
+        "beat" : 4.180114516845117,
+        "pitch" : 56,
+        "text" : "Brrr",
+        "id" : "9326a7cf-86e3-4876-95bf-e50eaf185be4"
+      },
+      {
+        "beat" : 5.180114516845117,
+        "pitch" : 54,
+        "text" : "Brrr",
+        "id" : "51d1c186-a5d5-402f-bf95-bec41443f76c"
+      },
+      {
+        "beat" : 6.180114516845117,
+        "pitch" : 53,
+        "text" : "Brrr",
+        "id" : "1c46ffd0-5584-4680-aa1d-e504ab83a0be"
+      },
+      {
+        "beat" : 7.180114516845117,
+        "pitch" : 51,
+        "text" : "Brrr",
+        "id" : "b080762a-fbfe-4b7a-95cf-cef2b998bfd3"
+      },
+      {
+        "beat" : 8.180114516845116,
+        "pitch" : 49,
+        "text" : "Brrr",
+        "id" : "69e16e05-d4ef-4f91-bea4-90b3459d0e2a"
+      }
+    ],
+    "0ECAE354-AEDE-40A4-98EF-7AADECCDC3E4" : [
+      {
+        "beat" : 0.25,
+        "id" : "e69460a0-0099-443c-a5fa-7817dd9e3218",
+        "text" : "Do",
+        "pitch" : 46
+      },
+      {
+        "beat" : 1.25,
+        "id" : "bf7f3b84-7c5a-448f-95c9-5b2ea47d448e",
+        "text" : "Re",
+        "pitch" : 48
+      },
+      {
+        "beat" : 2.25,
+        "id" : "98568fe9-1833-4c4b-b358-4d693d24a683",
+        "text" : "Mi",
+        "pitch" : 50
+      },
+      {
+        "beat" : 3.25,
+        "id" : "d003b99c-107e-4b5f-8446-e70ccee79faf",
+        "text" : "Fa",
+        "pitch" : 51
+      },
+      {
+        "beat" : 4.25,
+        "id" : "f5492867-a27f-4bbb-9710-23db1c99f819",
+        "text" : "Sol",
+        "pitch" : 53
+      },
+      {
+        "beat" : 5.25,
+        "id" : "de0387f9-73f5-45a9-aec6-b62785dd1f94",
+        "text" : "La",
+        "pitch" : 55
+      },
+      {
+        "beat" : 6.25,
+        "id" : "94c2d6d6-9416-4c5c-89c2-6c75209dcc47",
+        "text" : "Ti",
+        "pitch" : 57
+      },
+      {
+        "beat" : 7.25,
+        "id" : "93d1bb34-dd30-40b4-81ee-8410312820fa",
+        "text" : "Do",
+        "pitch" : 58
+      }
+    ],
+    "6B06AD2B-680C-44BD-9372-0E305762F706" : [
+      {
+        "beat" : 0.2341949756328876,
+        "id" : "dd016592-1be3-4ca8-bbe3-d59665946eb8",
+        "pitch" : 48,
+        "text" : "Ma"
+      },
+      {
+        "beat" : 1.25,
+        "id" : "ba390b54-799b-46f7-bcfe-37cca59372d2",
+        "pitch" : 50,
+        "text" : "Aa"
+      },
+      {
+        "beat" : 2.25,
+        "id" : "b568fe97-7d88-47dd-9fe3-37a2e231903b",
+        "pitch" : 52,
+        "text" : "Aa"
+      },
+      {
+        "beat" : 3.232547934238727,
+        "id" : "3d456351-65b0-4bf6-a488-90b37fda6423",
+        "pitch" : 48,
+        "text" : "Me"
+      },
+      {
+        "beat" : 4.25,
+        "id" : "96accda7-6ef4-4b38-a9ef-cd014ec28760",
+        "pitch" : 50,
+        "text" : "Ee"
+      },
+      {
+        "beat" : 5.25,
+        "id" : "8498b786-bc7d-4006-864b-267cfdf71749",
+        "pitch" : 52,
+        "text" : "Ee"
+      },
+      {
+        "beat" : 6.2325479342387275,
+        "id" : "ce56ad39-dcd8-490e-a795-33273d9b84cf",
+        "pitch" : 48,
+        "text" : "Me"
+      },
+      {
+        "beat" : 7.25,
+        "id" : "6ccdef92-37ee-42f3-b1fa-399c857bd5b9",
+        "pitch" : 50,
+        "text" : "Ee"
+      },
+      {
+        "beat" : 8.25,
+        "id" : "e99a4688-5653-458a-8183-dd294885ede0",
+        "pitch" : 52,
+        "text" : "Ee"
+      },
+      {
+        "beat" : 9.230347848855532,
+        "id" : "5be4ad24-226c-429b-afb9-0a2376c181a6",
+        "pitch" : 48,
+        "text" : "Mo"
+      },
+      {
+        "beat" : 10.243463768408848,
+        "id" : "d4ec0e4a-e36e-416d-a02b-5107b0ab109c",
+        "pitch" : 50,
+        "text" : "Oo"
+      },
+      {
+        "beat" : 11.243463768408848,
+        "id" : "229ca04d-e999-4126-a57e-25c9a17e4e64",
+        "pitch" : 52,
+        "text" : "Oo"
+      },
+      {
+        "beat" : 12.230347848855532,
+        "id" : "c3df17aa-3af2-48b8-aaf3-9ea6299afd2b",
+        "pitch" : 48,
+        "text" : "Mo"
+      },
+      {
+        "beat" : 13.243463768408848,
+        "id" : "30c78f84-5d67-4901-8b24-7daf44512e86",
+        "pitch" : 50,
+        "text" : "Oo"
+      },
+      {
+        "beat" : 14.243463768408848,
+        "id" : "949faa94-c81e-4ac4-90fb-4fd866f29e2c",
+        "pitch" : 52,
+        "text" : "Oo"
+      }
+    ],
+    "14CE8327-CD4C-42F8-8C74-28204356D47B" : [
+      {
+        "beat" : 0.25,
+        "id" : "c3b2314b-424e-449f-8631-b6b969c8ebd5",
+        "text" : "Ee",
+        "pitch" : 41
+      },
+      {
+        "beat" : 1.25,
+        "id" : "e2e9f538-9cf2-46f2-af17-01abf7c4e2b6",
+        "text" : "Ee",
+        "pitch" : 45
+      },
+      {
+        "beat" : 2.25,
+        "id" : "5c612c38-b3c1-4f17-8861-17b57ce3e2b7",
+        "text" : "Ee",
+        "pitch" : 48
+      },
+      {
+        "beat" : 3.25,
+        "id" : "1258e47b-e7f9-4a02-a98b-3073868c19fd",
+        "text" : "Ee",
+        "pitch" : 53
+      },
+      {
+        "beat" : 4.25,
+        "id" : "fb828aa8-ac6d-49dc-b442-c09615e06886",
+        "text" : "Ee",
+        "pitch" : 48
+      },
+      {
+        "beat" : 5.25,
+        "id" : "00e49527-81ee-4c8c-a525-c5b20bdcb4f7",
+        "text" : "Ee",
+        "pitch" : 53
+      },
+      {
+        "beat" : 6.25,
+        "id" : "da07dcd8-3f4e-45a8-af22-24676ac6ab8f",
+        "text" : "Ee",
+        "pitch" : 48
+      },
+      {
+        "beat" : 7.25,
+        "id" : "98f6bd77-1288-452c-a4d3-4b4fed1050d7",
+        "text" : "Ee",
+        "pitch" : 53
+      },
+      {
+        "beat" : 8.25,
+        "id" : "4b55c66a-e856-4528-bc64-22985ed3ae06",
+        "text" : "Ee",
+        "pitch" : 48
+      },
+      {
+        "beat" : 9.25,
+        "id" : "ad2cf442-709d-4b72-867b-ace60f7e9265",
+        "text" : "Ee",
+        "pitch" : 45
+      },
+      {
+        "beat" : 10.25,
+        "id" : "5b0fe979-b503-4ecf-9683-43f29f7ba803",
+        "text" : "Ee",
+        "pitch" : 41
+      }
+    ],
+    "A82EC056-B23E-46F6-97EA-A0E960C69C1B" : [
+      {
+        "beat" : 0.25,
+        "id" : "f7edc855-233f-40f6-86d2-0c712408b1e7",
+        "pitch" : 46,
+        "text" : "Doo"
+      },
+      {
+        "beat" : 2.25,
+        "id" : "1d56f7c8-851f-4dcc-ba0f-e18deb4327eb",
+        "pitch" : 46,
+        "text" : "Hoo"
+      },
+      {
+        "beat" : 3.25,
+        "id" : "0a094f03-9d7e-4574-a433-da3a33efd780",
+        "pitch" : 48,
+        "text" : "Oo"
+      },
+      {
+        "beat" : 4.25,
+        "id" : "a78807d5-f189-4804-8818-de5da91295c7",
+        "pitch" : 50,
+        "text" : "Oo"
+      },
+      {
+        "beat" : 6.25,
+        "id" : "4de1717e-c810-4816-9759-fdf1b62261ee",
+        "pitch" : 50,
+        "text" : "Hoo"
+      },
+      {
+        "beat" : 7.25,
+        "id" : "843ce987-3626-470a-886b-e36ad6c4fbf4",
+        "pitch" : 51,
+        "text" : "Oo"
+      },
+      {
+        "beat" : 8.25,
+        "id" : "ff7a4434-35f1-4f57-885d-6d0d4c64e694",
+        "pitch" : 53,
+        "text" : "Oo"
+      },
+      {
+        "beat" : 10.25,
+        "id" : "d6cde2a7-6778-410a-9e53-df2191d97106",
+        "pitch" : 53,
+        "text" : "Hoo"
+      },
+      {
+        "beat" : 11.25,
+        "id" : "c776f3c7-55b0-44a9-b318-7354f2ef18d0",
+        "pitch" : 51,
+        "text" : "Oo"
+      },
+      {
+        "beat" : 12.25,
+        "id" : "46141ecf-3325-4df9-b9f9-2b2ae6c833a4",
+        "pitch" : 50,
+        "text" : "Oo"
+      },
+      {
+        "beat" : 14.25,
+        "id" : "0cb67032-2f04-47cb-bd11-a3c69859dd96",
+        "pitch" : 50,
+        "text" : "Hoo"
+      },
+      {
+        "beat" : 15.25,
+        "id" : "70a25e0b-416e-4a95-8e03-345a199491e1",
+        "pitch" : 48,
+        "text" : "Oo"
+      },
+      {
+        "beat" : 16.25,
+        "id" : "c651a554-5f13-4057-98d1-c817b81265ee",
+        "pitch" : 46,
+        "text" : "Oo"
+      }
     ]
   },
   "exercises" : [
     {
-      "bpm" : 138,
-      "transposePerRepeat" : 1,
-      "pitchShift" : -12,
-      "repeatCount" : 10,
-      "visibility" : "private",
-      "switchDirectionAfter" : 0,
-      "id" : "52f6a03f-8b99-4601-820d-e9e8657d8ed3",
       "beatsBetweenReps" : 4,
-      "uploaderName" : "",
+      "pitchShift" : -12,
+      "visibility" : "private",
+      "category" : "Tone",
+      "repeatCount" : 10,
+      "switchDirectionAfter" : 0,
+      "transposePerRepeat" : 1,
       "name" : "May",
       "details" : "Keep your jaw and throat relaxed, lowering your larynx. You should feel some resonance in your lips.",
-      "category" : "Tone"
+      "speedPerRepeat" : 0,
+      "bpm" : 138,
+      "uploaderName" : "",
+      "id" : "52f6a03f-8b99-4601-820d-e9e8657d8ed3"
     },
     {
-      "bpm" : 204,
-      "transposePerRepeat" : 1,
-      "pitchShift" : 0,
-      "repeatCount" : 8,
-      "visibility" : "private",
-      "switchDirectionAfter" : 0,
-      "id" : "a82ec056-b23e-46f6-97ea-a0e960c69c1b",
       "beatsBetweenReps" : 4,
-      "uploaderName" : "",
+      "pitchShift" : 0,
+      "visibility" : "private",
+      "category" : "Tone",
+      "repeatCount" : 8,
+      "switchDirectionAfter" : 0,
+      "transposePerRepeat" : 1,
       "name" : "Doo Hoo",
       "details" : "",
-      "category" : "Tone"
+      "speedPerRepeat" : 0,
+      "bpm" : 204,
+      "uploaderName" : "",
+      "id" : "a82ec056-b23e-46f6-97ea-a0e960c69c1b"
     },
     {
-      "bpm" : 120,
-      "transposePerRepeat" : 1,
-      "pitchShift" : -12,
-      "repeatCount" : 10,
-      "visibility" : "private",
-      "switchDirectionAfter" : 0,
-      "id" : "4bfa2cc6-4a87-4c2b-b0d0-688042c23525",
       "beatsBetweenReps" : 4,
-      "uploaderName" : "",
+      "pitchShift" : -12,
+      "visibility" : "private",
+      "category" : "Tone",
+      "repeatCount" : 10,
+      "switchDirectionAfter" : 0,
+      "transposePerRepeat" : 1,
       "name" : "Mum",
       "details" : "",
-      "category" : "Tone"
+      "speedPerRepeat" : 0,
+      "bpm" : 120,
+      "uploaderName" : "",
+      "id" : "4bfa2cc6-4a87-4c2b-b0d0-688042c23525"
     },
     {
-      "bpm" : 130,
-      "transposePerRepeat" : 1,
-      "pitchShift" : 0,
-      "repeatCount" : 10,
-      "visibility" : "private",
-      "switchDirectionAfter" : 0,
-      "id" : "508a4b56-826c-4c7f-8a8a-ec4adef48f62",
       "beatsBetweenReps" : 4,
-      "uploaderName" : "",
+      "pitchShift" : 0,
+      "visibility" : "private",
+      "category" : "Tone",
+      "repeatCount" : 10,
+      "switchDirectionAfter" : 0,
+      "transposePerRepeat" : 1,
       "name" : "Yum Ya",
       "details" : "Move your jaw freely on the \"Yum\" and maintain the relaxed feeling on the \"Ya.\"",
-      "category" : "Tone"
+      "speedPerRepeat" : 0,
+      "bpm" : 130,
+      "uploaderName" : "",
+      "id" : "508a4b56-826c-4c7f-8a8a-ec4adef48f62"
     },
     {
-      "bpm" : 170,
-      "transposePerRepeat" : 1,
-      "pitchShift" : 0,
-      "repeatCount" : 11,
-      "visibility" : "private",
-      "switchDirectionAfter" : 0,
-      "id" : "06e2b2d0-7b6b-45c6-98fd-154b166c4b02",
       "beatsBetweenReps" : 3,
-      "uploaderName" : "",
+      "pitchShift" : 0,
+      "visibility" : "private",
+      "category" : "Tone",
+      "repeatCount" : 11,
+      "switchDirectionAfter" : 0,
+      "transposePerRepeat" : 1,
       "name" : "Myam Myom",
       "details" : "Focus on smooth jaw movement and keep it free of tension.",
-      "category" : "Tone"
-    },
-    {
-      "bpm" : 125,
-      "transposePerRepeat" : 1,
-      "pitchShift" : 0,
-      "repeatCount" : 10,
-      "visibility" : "private",
-      "switchDirectionAfter" : 0,
-      "id" : "24c5b25b-d49a-4a0d-9e7c-9e0f72aa8e86",
-      "beatsBetweenReps" : 4,
+      "speedPerRepeat" : 0,
+      "bpm" : 170,
       "uploaderName" : "",
-      "name" : "Mom Moh",
-      "details" : "Widen your nasal cavities and envision the sound projecting into the nose and forehead.",
-      "category" : "Tone"
+      "id" : "06e2b2d0-7b6b-45c6-98fd-154b166c4b02"
     },
     {
-      "bpm" : 125,
-      "transposePerRepeat" : 1,
+      "beatsBetweenReps" : 4,
       "pitchShift" : 0,
+      "visibility" : "private",
+      "category" : "Scales",
       "repeatCount" : 7,
-      "visibility" : "private",
       "switchDirectionAfter" : 0,
-      "id" : "0ecae354-aede-40a4-98ef-7aadeccdc3e4",
-      "beatsBetweenReps" : 4,
-      "uploaderName" : "",
+      "transposePerRepeat" : 1,
       "name" : "Major Ascending",
       "details" : "",
-      "category" : "Scales"
+      "speedPerRepeat" : 0,
+      "bpm" : 125,
+      "uploaderName" : "",
+      "id" : "0ecae354-aede-40a4-98ef-7aadeccdc3e4"
     },
     {
-      "bpm" : 125,
-      "transposePerRepeat" : 1,
-      "pitchShift" : 12,
-      "repeatCount" : 7,
-      "visibility" : "private",
-      "switchDirectionAfter" : 0,
-      "id" : "ab235e23-8bcd-4d78-9468-40f0b6060dae",
       "beatsBetweenReps" : 4,
-      "uploaderName" : "",
+      "pitchShift" : 12,
+      "visibility" : "private",
+      "category" : "Scales",
+      "repeatCount" : 7,
+      "switchDirectionAfter" : 0,
+      "transposePerRepeat" : 1,
       "name" : "Major Descending",
       "details" : "",
-      "category" : "Scales"
+      "speedPerRepeat" : 0,
+      "bpm" : 125,
+      "uploaderName" : "",
+      "id" : "ab235e23-8bcd-4d78-9468-40f0b6060dae"
     },
     {
-      "bpm" : 125,
-      "transposePerRepeat" : 1,
-      "pitchShift" : 0,
-      "repeatCount" : 7,
-      "visibility" : "private",
-      "switchDirectionAfter" : 0,
-      "id" : "e5b18a98-4953-4ddc-a4a3-f5ee88b58d9f",
       "beatsBetweenReps" : 4,
-      "uploaderName" : "",
+      "pitchShift" : 0,
+      "visibility" : "private",
+      "category" : "Scales",
+      "repeatCount" : 7,
+      "switchDirectionAfter" : 0,
+      "transposePerRepeat" : 1,
       "name" : "Minor Ascending",
       "details" : "",
-      "category" : "Scales"
+      "speedPerRepeat" : 0,
+      "bpm" : 125,
+      "uploaderName" : "",
+      "id" : "e5b18a98-4953-4ddc-a4a3-f5ee88b58d9f"
     },
     {
-      "bpm" : 125,
-      "transposePerRepeat" : 1,
-      "pitchShift" : 0,
-      "repeatCount" : 7,
-      "visibility" : "private",
-      "switchDirectionAfter" : 0,
-      "id" : "a9bb1a5c-23d2-40d2-a127-e7797c251ba0",
       "beatsBetweenReps" : 4,
-      "uploaderName" : "",
+      "pitchShift" : 0,
+      "visibility" : "private",
+      "category" : "Scales",
+      "repeatCount" : 7,
+      "switchDirectionAfter" : 0,
+      "transposePerRepeat" : 1,
       "name" : "Minor Descending",
       "details" : "",
-      "category" : "Scales"
+      "speedPerRepeat" : 0,
+      "bpm" : 125,
+      "uploaderName" : "",
+      "id" : "a9bb1a5c-23d2-40d2-a127-e7797c251ba0"
     },
     {
-      "bpm" : 132,
-      "transposePerRepeat" : 1,
-      "pitchShift" : -5,
-      "repeatCount" : 5,
-      "visibility" : "private",
-      "switchDirectionAfter" : 0,
-      "id" : "5c40bdd7-969c-43ea-bc16-e49e7ce3dfe5",
       "beatsBetweenReps" : 4,
-      "uploaderName" : "",
+      "pitchShift" : -5,
+      "visibility" : "private",
+      "category" : "Articulation",
+      "repeatCount" : 5,
+      "switchDirectionAfter" : 0,
+      "transposePerRepeat" : 1,
       "name" : "Bumblebee",
       "details" : "Focus on keeping your lips flexible and your larynx low.",
-      "category" : "Articulation"
+      "speedPerRepeat" : 0,
+      "bpm" : 132,
+      "uploaderName" : "",
+      "id" : "5c40bdd7-969c-43ea-bc16-e49e7ce3dfe5"
     },
     {
-      "bpm" : 200,
-      "transposePerRepeat" : 1,
-      "pitchShift" : 0,
-      "repeatCount" : 8,
-      "visibility" : "private",
-      "switchDirectionAfter" : 0,
-      "id" : "636d3030-bd0e-4b90-995e-49d298e897a4",
       "beatsBetweenReps" : 4,
-      "uploaderName" : "U2",
+      "pitchShift" : 0,
+      "visibility" : "private",
+      "category" : "Agility",
+      "repeatCount" : 8,
+      "switchDirectionAfter" : 0,
+      "transposePerRepeat" : 1,
       "name" : "Three-Note Run",
       "details" : "Maintain a steady airflow and consistent mouth placement.",
-      "category" : "Agility"
+      "speedPerRepeat" : 0,
+      "bpm" : 200,
+      "uploaderName" : "U2",
+      "id" : "636d3030-bd0e-4b90-995e-49d298e897a4"
     },
     {
-      "bpm" : 120,
-      "transposePerRepeat" : 1,
+      "beatsBetweenReps" : 4,
       "pitchShift" : 0,
-      "repeatCount" : 5,
       "visibility" : "private",
+      "category" : "Agility",
+      "repeatCount" : 8,
       "switchDirectionAfter" : 0,
-      "id" : "996b5e81-f3d8-4448-b26d-d2d94c780240",
-      "beatsBetweenReps" : 3,
+      "transposePerRepeat" : 1,
+      "name" : "Three-Note Run Ascending",
+      "details" : "",
+      "speedPerRepeat" : 0,
+      "bpm" : 200,
       "uploaderName" : "",
+      "id" : "6b06ad2b-680c-44bd-9372-0e305762f706"
+    },
+    {
+      "beatsBetweenReps" : 3,
+      "pitchShift" : 0,
+      "visibility" : "private",
+      "category" : "Agility",
+      "repeatCount" : 5,
+      "switchDirectionAfter" : 0,
+      "transposePerRepeat" : 1,
       "name" : "Ascending Run",
       "details" : "Sing each repetition on a different vowel. Maintain a steady airflow and consistent mouth placement.",
-      "category" : "Agility"
-    },
-    {
+      "speedPerRepeat" : 0,
       "bpm" : 120,
-      "transposePerRepeat" : 1,
-      "pitchShift" : -12,
-      "repeatCount" : 8,
-      "visibility" : "private",
-      "switchDirectionAfter" : 0,
-      "id" : "15863544-5af3-4e04-bb4c-acbd986a7cc6",
-      "beatsBetweenReps" : 4,
       "uploaderName" : "",
-      "name" : "Octave Repeat Nay",
-      "details" : "Make a bratty \"Nay\" sound. You should feel some buzzing in your nose.",
-      "category" : "Range"
+      "id" : "996b5e81-f3d8-4448-b26d-d2d94c780240"
     },
     {
-      "bpm" : 130,
-      "transposePerRepeat" : 1,
-      "pitchShift" : 12,
-      "repeatCount" : 8,
-      "visibility" : "private",
-      "switchDirectionAfter" : 0,
-      "id" : "14ce8327-cd4c-42f8-8c74-28204356d47b",
       "beatsBetweenReps" : 4,
-      "uploaderName" : "",
+      "pitchShift" : 12,
+      "visibility" : "private",
+      "category" : "Range",
+      "repeatCount" : 8,
+      "switchDirectionAfter" : 0,
+      "transposePerRepeat" : 1,
       "name" : "Octave Alternate Ee",
       "details" : "Make a nasty \"Ee\" sound. You should feel some resonance in your nose.",
-      "category" : "Range"
-    },
-    {
-      "bpm" : 120,
-      "transposePerRepeat" : 6,
-      "pitchShift" : 0,
-      "repeatCount" : 1,
-      "visibility" : "private",
-      "switchDirectionAfter" : 0,
-      "id" : "511866dd-f3c3-4111-8dad-50846f1e7a47",
-      "beatsBetweenReps" : 2,
-      "uploaderName" : "U2",
-      "name" : "Test 22",
-      "details" : "\n",
-      "category" : "No Category"
-    },
-    {
-      "bpm" : 120,
-      "transposePerRepeat" : 4,
-      "pitchShift" : 0,
-      "repeatCount" : 1,
-      "visibility" : "public",
-      "switchDirectionAfter" : 0,
-      "id" : "0c48c105-f842-446f-8448-ee7f43d8f8cd",
-      "beatsBetweenReps" : 0,
-      "uploaderName" : "U4",
-      "name" : "Test 2",
-      "details" : "Hello",
-      "category" : "No Category"
-    },
-    {
-      "bpm" : 120,
-      "transposePerRepeat" : 0,
-      "pitchShift" : 0,
-      "repeatCount" : 1,
-      "visibility" : "private",
-      "switchDirectionAfter" : 0,
-      "id" : "044da067-981f-4945-9382-438a410fcb0f",
-      "beatsBetweenReps" : 0,
+      "speedPerRepeat" : 0,
+      "bpm" : 130,
       "uploaderName" : "",
-      "name" : "Server test",
-      "details" : "",
-      "category" : "No Category"
+      "id" : "14ce8327-cd4c-42f8-8c74-28204356d47b"
     },
     {
-      "bpm" : 120,
-      "transposePerRepeat" : 0,
-      "pitchShift" : 0,
-      "repeatCount" : 1,
-      "visibility" : "public",
+      "beatsBetweenReps" : 4,
+      "pitchShift" : -12,
+      "visibility" : "private",
+      "category" : "Range",
+      "repeatCount" : 8,
       "switchDirectionAfter" : 0,
-      "id" : "792d6600-f430-4b86-8f52-88c86c4de5c8",
-      "beatsBetweenReps" : 0,
-      "uploaderName" : "U5",
-      "name" : "PublicIdTest",
-      "details" : "",
-      "category" : "No Category"
-    },
-    {
-      "repeatCount" : 1,
-      "uploaderName" : "U6",
-      "transposePerRepeat" : 0,
-      "downloadedFrom" : "Sim",
-      "switchDirectionAfter" : 0,
-      "beatsBetweenReps" : 0,
-      "details" : "A",
-      "id" : "1a401fed-939d-498c-a0f8-beabb16723f1",
-      "name" : "SimEx",
+      "transposePerRepeat" : 1,
+      "name" : "Octave Repeat Nay",
+      "details" : "Make a bratty \"Nay\" sound. You should feel some buzzing in your nose.",
+      "speedPerRepeat" : 0,
       "bpm" : 120,
-      "pitchShift" : 0,
-      "visibility" : "public",
-      "category" : "No Category"
-    },
-    {
-      "repeatCount" : 1,
       "uploaderName" : "",
-      "transposePerRepeat" : 4,
-      "downloadedFrom" : "U6",
-      "switchDirectionAfter" : 0,
-      "beatsBetweenReps" : 0,
-      "details" : "Hello",
-      "id" : "e1d40ea9-4181-4562-b6dd-ee09d104aa5c",
-      "name" : "Test 2",
-      "bpm" : 120,
+      "id" : "15863544-5af3-4e04-bb4c-acbd986a7cc6"
+    },
+    {
+      "beatsBetweenReps" : 4,
       "pitchShift" : 0,
       "visibility" : "private",
-      "category" : "No Category"
+      "category" : "Bundle this",
+      "repeatCount" : 14,
+      "switchDirectionAfter" : 0,
+      "transposePerRepeat" : 0,
+      "name" : "da da da speed up",
+      "details" : "Focus on keeping the pitch unchanging, with quick transitions from note to note.",
+      "speedPerRepeat" : 9,
+      "bpm" : 120,
+      "uploaderName" : "",
+      "id" : "64b6bd4e-255c-400d-b754-5c81b098f749"
+    },
+    {
+      "beatsBetweenReps" : 4,
+      "pitchShift" : 0,
+      "visibility" : "private",
+      "category" : "Bundle this",
+      "repeatCount" : 13,
+      "switchDirectionAfter" : 7,
+      "transposePerRepeat" : 1,
+      "name" : "Mmmm ladder",
+      "details" : "Hum the notes and listen for the resonance when you’re on pitch. If you’re not on pitch, try to tell if you’re too high\/ low yourself, while only looking at the screen periodically.",
+      "speedPerRepeat" : 0,
+      "bpm" : 136,
+      "uploaderName" : "",
+      "id" : "a3f82060-9713-424e-8b2a-c8a285e9b9fe"
+    },
+    {
+      "beatsBetweenReps" : 4,
+      "pitchShift" : 0,
+      "visibility" : "private",
+      "category" : "Bundle this",
+      "repeatCount" : 15,
+      "switchDirectionAfter" : 0,
+      "transposePerRepeat" : 0,
+      "name" : "Mom Moh",
+      "details" : "Widen your nasal cavities and envision the sound projecting into the nose and forehead. (Todo: change words)",
+      "speedPerRepeat" : 7,
+      "bpm" : 125,
+      "uploaderName" : "",
+      "id" : "24c5b25b-d49a-4a0d-9e7c-9e0f72aa8e86"
+    },
+    {
+      "beatsBetweenReps" : 4,
+      "pitchShift" : 0,
+      "visibility" : "private",
+      "category" : "Bundle this",
+      "repeatCount" : 20,
+      "switchDirectionAfter" : 10,
+      "transposePerRepeat" : 1,
+      "name" : "Brrrr",
+      "details" : "Keep your lips loose and let them flutter on steady air, like a motorboat. Focus on keeping everything relaxed.",
+      "speedPerRepeat" : 0,
+      "bpm" : 120,
+      "uploaderName" : "",
+      "id" : "7a76baca-20d0-4665-b8b8-ca9721c0cf1b"
     }
   ],
   "categories" : [
@@ -1616,1174 +3090,7 @@
     "Articulation",
     "Agility",
     "Range",
+    "Bundle this",
     "No Category"
-  ],
-  "texts" : {
-    "0ECAE354-AEDE-40A4-98EF-7AADECCDC3E4" : [
-      {
-        "text" : "Do",
-        "beat" : 0.25,
-        "id" : "a91b6ac0-bbd4-42f4-b39b-ea906bdd3387",
-        "pitch" : 46
-      },
-      {
-        "text" : "Re",
-        "beat" : 1.25,
-        "id" : "73dcd77d-14f2-464b-bf64-4e95abd7be09",
-        "pitch" : 48
-      },
-      {
-        "text" : "Mi",
-        "beat" : 2.25,
-        "id" : "b34fd8bf-2ec0-4bb3-9b54-e67dbf7a1d04",
-        "pitch" : 50
-      },
-      {
-        "text" : "Fa",
-        "beat" : 3.25,
-        "id" : "96c1c86b-3252-452a-9846-c2a7d583e38e",
-        "pitch" : 51
-      },
-      {
-        "text" : "Sol",
-        "beat" : 4.25,
-        "id" : "0a41c69e-ff00-4b46-97c4-21a70f4c1c69",
-        "pitch" : 53
-      },
-      {
-        "text" : "La",
-        "beat" : 5.25,
-        "id" : "8cfea5a6-3927-4249-a067-680534ad7271",
-        "pitch" : 55
-      },
-      {
-        "text" : "Ti",
-        "beat" : 6.25,
-        "id" : "f8a9f0b3-32c6-4946-a979-67070d0026b0",
-        "pitch" : 57
-      },
-      {
-        "text" : "Do",
-        "beat" : 7.25,
-        "id" : "3144faa8-a593-4093-a0ab-bbb19c1c952c",
-        "pitch" : 58
-      }
-    ],
-    "4BFA2CC6-4A87-4C2B-B0D0-688042C23525" : [
-      {
-        "beat" : 0.25,
-        "id" : "9b15d17f-ac78-4841-9140-0d6ec0b951c4",
-        "pitch" : 58,
-        "text" : "Mum"
-      },
-      {
-        "beat" : 1.25,
-        "id" : "58e98eff-fa78-4127-bfa2-75851494cc0f",
-        "pitch" : 60,
-        "text" : "Mum"
-      },
-      {
-        "beat" : 2.25,
-        "id" : "0a1b73fe-f951-4d44-bb6c-087bbfe55d30",
-        "pitch" : 62,
-        "text" : "Mum"
-      },
-      {
-        "beat" : 3.25,
-        "id" : "604748f6-d20a-402b-bc83-92a28c7e4cba",
-        "pitch" : 60,
-        "text" : "Mum"
-      },
-      {
-        "beat" : 4.25,
-        "id" : "642d1ab1-b2fd-438e-9aa7-c05fbdfa7df9",
-        "pitch" : 58,
-        "text" : "Mum"
-      },
-      {
-        "beat" : 5.25,
-        "id" : "31201662-1513-4315-a5ea-8a0546e5fd7a",
-        "pitch" : 65,
-        "text" : "Mum"
-      },
-      {
-        "beat" : 6.25,
-        "id" : "d15e5dce-5590-42a5-ab14-b186312acaba",
-        "pitch" : 62,
-        "text" : "Mum"
-      },
-      {
-        "beat" : 7.25,
-        "id" : "de8a9bd1-ecb1-4701-ae3b-1cf03670a8f2",
-        "pitch" : 60,
-        "text" : "Mum"
-      },
-      {
-        "beat" : 8.25,
-        "id" : "a3e8659d-119e-4307-8eb8-938434b41067",
-        "pitch" : 58,
-        "text" : "Mum"
-      }
-    ],
-    "15863544-5AF3-4E04-BB4C-ACBD986A7CC6" : [
-      {
-        "text" : "Nay",
-        "beat" : 0,
-        "id" : "f34c2e9b-4464-47a2-8ebf-06d9b719fb80",
-        "pitch" : 62
-      },
-      {
-        "text" : "Nay",
-        "beat" : 1,
-        "id" : "b1d3c5f8-eb1a-4cae-a038-db2cbf44ad99",
-        "pitch" : 66
-      },
-      {
-        "text" : "Nay",
-        "beat" : 2,
-        "id" : "3f56b323-f851-44be-82b5-dca77b05bea0",
-        "pitch" : 69
-      },
-      {
-        "text" : "Nay",
-        "beat" : 3,
-        "id" : "2fe31b83-6964-4c01-9cc8-568a0c2c4113",
-        "pitch" : 74
-      },
-      {
-        "text" : "Nay",
-        "beat" : 4,
-        "id" : "be76c906-0d5c-459e-b39c-20d8eec3047c",
-        "pitch" : 74
-      },
-      {
-        "text" : "Nay",
-        "beat" : 5,
-        "id" : "92cb9f92-0853-4c2b-8972-c5d653926893",
-        "pitch" : 74
-      },
-      {
-        "text" : "Nay",
-        "beat" : 6,
-        "id" : "db0e4c45-70fc-47fa-b6d5-a7f0a35ae0a2",
-        "pitch" : 74
-      },
-      {
-        "text" : "Nay",
-        "beat" : 7,
-        "id" : "cf765bbf-3b48-4b25-94d5-ba8c43e15b04",
-        "pitch" : 69
-      },
-      {
-        "text" : "Nay",
-        "beat" : 8,
-        "id" : "61ec636d-dc50-4ee9-bb37-cd2c1657cb33",
-        "pitch" : 66
-      },
-      {
-        "text" : "Nay",
-        "beat" : 9,
-        "id" : "25e9ba54-ccba-4f69-8955-da3118793015",
-        "pitch" : 62
-      }
-    ],
-    "06E2B2D0-7B6B-45C6-98FD-154B166C4B02" : [
-      {
-        "text" : "Myam",
-        "beat" : 0,
-        "id" : "6b1d1096-7d22-4e3b-8e50-9a4584fc2855",
-        "pitch" : 50
-      },
-      {
-        "text" : "Myam",
-        "beat" : 1,
-        "id" : "7c0e5c01-53db-4e3b-a6a3-2a04b210078f",
-        "pitch" : 52
-      },
-      {
-        "text" : "Myam",
-        "beat" : 2,
-        "id" : "efa823c0-55e6-4a1f-8f47-338ad06ab4a8",
-        "pitch" : 54
-      },
-      {
-        "text" : "Myam",
-        "beat" : 3,
-        "id" : "43348cbf-3781-4bd0-98f6-a42442a8c4ba",
-        "pitch" : 52
-      },
-      {
-        "text" : "Myom",
-        "beat" : 4,
-        "id" : "09375427-3e79-46cb-b798-04e16dfb13dc",
-        "pitch" : 50
-      },
-      {
-        "text" : "Myom",
-        "beat" : 5,
-        "id" : "e9edd734-d543-48fe-aab5-ab1b315f716b",
-        "pitch" : 52
-      },
-      {
-        "text" : "Myom",
-        "beat" : 6,
-        "id" : "43453f9a-d27d-421c-9d47-2bb1fc9c5f7b",
-        "pitch" : 54
-      },
-      {
-        "text" : "Myom",
-        "beat" : 7,
-        "id" : "e7b0feb9-509d-4148-9b5f-69e846bdfa1c",
-        "pitch" : 55
-      },
-      {
-        "text" : "Myom",
-        "beat" : 8,
-        "id" : "6447ab56-8fdf-4efc-a1c4-9ee9775c2602",
-        "pitch" : 57
-      },
-      {
-        "text" : "Myom",
-        "beat" : 9,
-        "id" : "18d42e9c-246b-4727-8ca9-5f12192435f6",
-        "pitch" : 55
-      },
-      {
-        "text" : "Myom",
-        "beat" : 10,
-        "id" : "a860d137-8e6e-4a1c-a13e-55a2afcc9dd5",
-        "pitch" : 54
-      },
-      {
-        "text" : "Myom",
-        "beat" : 11,
-        "id" : "a86452b9-30d0-4e20-ba8f-cdc4a69c8fe2",
-        "pitch" : 52
-      },
-      {
-        "text" : "Myom",
-        "beat" : 12,
-        "id" : "a88b4575-c628-4528-b794-5d09b9ca5523",
-        "pitch" : 50
-      }
-    ],
-    "24C5B25B-D49A-4A0D-9E7C-9E0F72AA8E86" : [
-      {
-        "text" : "Mom",
-        "beat" : 0,
-        "id" : "a3e539b9-e67a-49d9-b8e8-360ab97b2e00",
-        "pitch" : 50
-      },
-      {
-        "text" : "Mom",
-        "beat" : 1,
-        "id" : "c1d5bcd9-4ff4-4f30-8343-3320da4d93af",
-        "pitch" : 52
-      },
-      {
-        "text" : "Mom",
-        "beat" : 2,
-        "id" : "dbfe747c-67c9-4e9e-970c-35711685d03e",
-        "pitch" : 54
-      },
-      {
-        "text" : "Mom",
-        "beat" : 3,
-        "id" : "f0295c4c-75a3-4995-b1d6-e45cea53e295",
-        "pitch" : 52
-      },
-      {
-        "text" : "Mo",
-        "beat" : 4.25,
-        "id" : "42b6b1cc-ee03-4c7b-97bf-363053865d44",
-        "pitch" : 50
-      },
-      {
-        "text" : "Oo",
-        "beat" : 5.25,
-        "id" : "91b89594-d0bd-4fed-a3fe-fca750e600d9",
-        "pitch" : 52
-      },
-      {
-        "text" : "Oo",
-        "beat" : 6.25,
-        "id" : "52575542-a773-402d-9475-8e6441018eb3",
-        "pitch" : 54
-      },
-      {
-        "text" : "Oo",
-        "beat" : 7.25,
-        "id" : "e05d5080-15d9-4fb7-8ced-a99b7bd3705d",
-        "pitch" : 52
-      },
-      {
-        "text" : "Oo",
-        "beat" : 8.25,
-        "id" : "13bb00d2-5c5d-47c7-86a6-ef0bdfca009b",
-        "pitch" : 50
-      }
-    ],
-    "5C40BDD7-969C-43EA-BC16-E49E7CE3DFE5" : [
-      {
-        "beat" : 0.25,
-        "id" : "fd6d7a53-a9ce-40c9-9dce-44452a7f9590",
-        "pitch" : 50,
-        "text" : "Bum"
-      },
-      {
-        "beat" : 1.25,
-        "id" : "9f0a0134-5dab-418c-a560-911f3395614f",
-        "pitch" : 54,
-        "text" : "Ble"
-      },
-      {
-        "beat" : 2.25,
-        "id" : "9e637d2d-0396-4497-81e0-db6d1a09d2be",
-        "pitch" : 52,
-        "text" : "Bee"
-      },
-      {
-        "beat" : 3.25,
-        "id" : "8c39aed2-206d-4811-a289-598fb37e527e",
-        "pitch" : 55,
-        "text" : "Ee"
-      },
-      {
-        "beat" : 4.25,
-        "id" : "8e5895d4-1769-4d31-bf60-5630fcfea101",
-        "pitch" : 54,
-        "text" : "Bum"
-      },
-      {
-        "beat" : 5.25,
-        "id" : "3050d77e-09c6-48da-85f0-42b7def27046",
-        "pitch" : 57,
-        "text" : "Ble"
-      },
-      {
-        "beat" : 6.25,
-        "id" : "d452f3eb-7cfe-47b3-9bdf-4b15f80b948e",
-        "pitch" : 55,
-        "text" : "Bee"
-      },
-      {
-        "beat" : 7.25,
-        "id" : "20b725fc-a34d-41b0-82a3-7ec986d7d06d",
-        "pitch" : 59,
-        "text" : "Ee"
-      },
-      {
-        "beat" : 8.25,
-        "id" : "714141a5-cf9e-44e7-9542-43bcc6cbcef7",
-        "pitch" : 57,
-        "text" : "Bum"
-      },
-      {
-        "beat" : 9.25,
-        "id" : "c66a7e4c-2450-4450-915a-e3324c8133f1",
-        "pitch" : 61,
-        "text" : "Ble"
-      },
-      {
-        "beat" : 10.25,
-        "id" : "86bd9e36-9593-4294-8da4-b6520a0599b6",
-        "pitch" : 59,
-        "text" : "Bee"
-      },
-      {
-        "beat" : 11.25,
-        "id" : "ba086bff-f36b-4272-8efe-34f1d44bb69a",
-        "pitch" : 62,
-        "text" : "Ee"
-      },
-      {
-        "beat" : 12.25,
-        "id" : "86a4f5d6-febf-4817-bef2-4fb200ef451e",
-        "pitch" : 61,
-        "text" : "Bum"
-      },
-      {
-        "beat" : 13.25,
-        "id" : "a7bfee75-c7f9-48ae-978a-1355641cee60",
-        "pitch" : 64,
-        "text" : "Ble"
-      },
-      {
-        "beat" : 14.5,
-        "id" : "105975a7-e3b0-4148-8b48-45fcc89443a0",
-        "pitch" : 62,
-        "text" : "Beeee"
-      },
-      {
-        "beat" : 16.25,
-        "id" : "fc538e1e-f3f8-4102-837a-d354b06f30ac",
-        "pitch" : 66,
-        "text" : "Bum"
-      },
-      {
-        "beat" : 17.25,
-        "id" : "d94f418f-acfe-475c-90e1-71e1d4c5f305",
-        "pitch" : 62,
-        "text" : "Ble"
-      },
-      {
-        "beat" : 18.25,
-        "id" : "859efcc7-417f-4765-be7a-148a3d15bb67",
-        "pitch" : 64,
-        "text" : "Bee"
-      },
-      {
-        "beat" : 19.25,
-        "id" : "d30179bc-ea93-4ab2-9740-34e23d6231a5",
-        "pitch" : 61,
-        "text" : "Ee"
-      },
-      {
-        "beat" : 20.25,
-        "id" : "4c3a917b-6345-4f07-befc-563440aaedcd",
-        "pitch" : 62,
-        "text" : "Bum"
-      },
-      {
-        "beat" : 21.25,
-        "id" : "6584b650-265d-41a4-a08f-7ea81aebd87c",
-        "pitch" : 59,
-        "text" : "Ble"
-      },
-      {
-        "beat" : 22.25,
-        "id" : "52440043-6050-4c1a-bc12-2d5f12637c11",
-        "pitch" : 61,
-        "text" : "Bee"
-      },
-      {
-        "beat" : 23.25,
-        "id" : "3bee9e53-bdb9-4776-9576-3d893b483ccb",
-        "pitch" : 57,
-        "text" : "Ee"
-      },
-      {
-        "beat" : 24.25,
-        "id" : "a13f6f26-155f-44a3-b346-dda76b3839ae",
-        "pitch" : 59,
-        "text" : "Bum"
-      },
-      {
-        "beat" : 25.25,
-        "id" : "3646bcbf-ae6b-4e60-aa52-ec283105941e",
-        "pitch" : 55,
-        "text" : "Ble"
-      },
-      {
-        "beat" : 26.25,
-        "id" : "f6a48b0e-33d8-4e33-b0f2-e1b80f65539a",
-        "pitch" : 57,
-        "text" : "Bee"
-      },
-      {
-        "beat" : 27.25,
-        "id" : "57b6ba93-9989-4446-8381-565cc64fae8a",
-        "pitch" : 54,
-        "text" : "Ee"
-      },
-      {
-        "beat" : 28.25,
-        "id" : "cb9e9e2a-aa69-47a2-a130-2f98854bf895",
-        "pitch" : 55,
-        "text" : "Bum"
-      },
-      {
-        "beat" : 29.25,
-        "id" : "d49a4e0f-e4e7-4d47-a260-d9978df45c6a",
-        "pitch" : 52,
-        "text" : "Ble"
-      },
-      {
-        "beat" : 30.5,
-        "id" : "c72630cf-f48b-4ce4-a5b5-10e74342c3d9",
-        "pitch" : 50,
-        "text" : "Beeee"
-      }
-    ],
-    "996B5E81-F3D8-4448-B26D-D2D94C780240" : [
-      {
-        "beat" : 0,
-        "id" : "dd4628b7-edf7-444b-802f-f350d01c2382",
-        "pitch" : 49,
-        "text" : "Ma"
-      },
-      {
-        "beat" : 0.5,
-        "id" : "e4bc0303-5e3f-425a-9b73-11934d7eb188",
-        "pitch" : 51,
-        "text" : "Aa"
-      },
-      {
-        "beat" : 1,
-        "id" : "d1ea7033-cedb-43c0-931a-652f3f548a30",
-        "pitch" : 53,
-        "text" : "Aa"
-      },
-      {
-        "beat" : 1.5,
-        "id" : "078a3323-705e-4208-942c-82f36bb1b60b",
-        "pitch" : 51,
-        "text" : "Aa"
-      },
-      {
-        "beat" : 2,
-        "id" : "33f9ff14-9ea2-4ee3-9d31-c6c337c89236",
-        "pitch" : 53,
-        "text" : "Aa"
-      },
-      {
-        "beat" : 2.5,
-        "id" : "2d2c2bbf-40a1-4c18-9ca0-e0aa95ae959c",
-        "pitch" : 54,
-        "text" : "Aa"
-      },
-      {
-        "beat" : 3,
-        "id" : "68583604-b8ca-4e97-95f3-0f6135d48d0c",
-        "pitch" : 53,
-        "text" : "Aa"
-      },
-      {
-        "beat" : 3.5,
-        "id" : "b0817579-462c-41e7-97c7-9782a933319e",
-        "pitch" : 54,
-        "text" : "Aa"
-      },
-      {
-        "beat" : 4,
-        "id" : "32d03b8f-7e49-49e8-bcfc-ccdde47df49f",
-        "pitch" : 56,
-        "text" : "Aa"
-      },
-      {
-        "beat" : 4.5,
-        "id" : "943fd4d8-93b2-4499-92f4-a3fa36dbdfab",
-        "pitch" : 54,
-        "text" : "Aa"
-      },
-      {
-        "beat" : 5,
-        "id" : "42cd9083-6585-4af2-9dba-879678f51ffa",
-        "pitch" : 56,
-        "text" : "Aa"
-      },
-      {
-        "beat" : 5.5,
-        "id" : "6003f093-a372-4e7e-b1a2-41c0835dfd11",
-        "pitch" : 58,
-        "text" : "Aa"
-      },
-      {
-        "beat" : 6,
-        "id" : "1c1ca058-892f-4012-9de8-cc2c843597c4",
-        "pitch" : 56,
-        "text" : "Aa"
-      },
-      {
-        "beat" : 6.5,
-        "id" : "7ead9dba-56a1-4317-bf59-1364625a6a03",
-        "pitch" : 58,
-        "text" : "Aa"
-      },
-      {
-        "beat" : 7,
-        "id" : "6100ebfc-aa0f-4c04-a5f1-69676c195a1a",
-        "pitch" : 60,
-        "text" : "Aa"
-      },
-      {
-        "beat" : 7.5,
-        "id" : "f5a5173c-9dd7-4760-aa99-1a9bf65645b6",
-        "pitch" : 58,
-        "text" : "Aa"
-      },
-      {
-        "beat" : 8,
-        "id" : "59bd01c7-4388-408f-ad04-90287e48ca97",
-        "pitch" : 60,
-        "text" : "Aa"
-      },
-      {
-        "beat" : 8.5,
-        "id" : "5f50362d-6eed-4239-bf81-ca6e3f30c04b",
-        "pitch" : 61,
-        "text" : "Aa"
-      },
-      {
-        "beat" : 9,
-        "id" : "d61319f4-fb17-46b2-bb64-a8feebc78a5b",
-        "pitch" : 60,
-        "text" : "Aa"
-      },
-      {
-        "beat" : 10,
-        "id" : "120b2474-ce24-476a-980f-e883b6ac987f",
-        "pitch" : 63,
-        "text" : "Aa"
-      },
-      {
-        "beat" : 10.5,
-        "id" : "fafb2ad2-db19-4d0e-b369-bb0422b23e0f",
-        "pitch" : 61,
-        "text" : "Ah"
-      }
-    ],
-    "14CE8327-CD4C-42F8-8C74-28204356D47B" : [
-      {
-        "text" : "Ee",
-        "beat" : 0.25,
-        "id" : "feacd760-3dba-4886-8a13-9473c583b0d3",
-        "pitch" : 41
-      },
-      {
-        "text" : "Ee",
-        "beat" : 1.25,
-        "id" : "46a0bff8-e503-431a-a96b-911168c91a37",
-        "pitch" : 45
-      },
-      {
-        "text" : "Ee",
-        "beat" : 2.25,
-        "id" : "bf058397-3e3b-4b4b-acbe-82aa48848d35",
-        "pitch" : 48
-      },
-      {
-        "text" : "Ee",
-        "beat" : 3.25,
-        "id" : "a1b4c69f-185f-4409-b10f-a96a25d221b1",
-        "pitch" : 53
-      },
-      {
-        "text" : "Ee",
-        "beat" : 4.25,
-        "id" : "401c77db-7162-4d53-9d74-9f82239ba5b4",
-        "pitch" : 48
-      },
-      {
-        "text" : "Ee",
-        "beat" : 5.25,
-        "id" : "7b170779-3b40-4dde-9bf6-3ba8ff2d365e",
-        "pitch" : 53
-      },
-      {
-        "text" : "Ee",
-        "beat" : 6.25,
-        "id" : "322f2667-b94d-4327-9c82-2acfd786e47e",
-        "pitch" : 48
-      },
-      {
-        "text" : "Ee",
-        "beat" : 7.25,
-        "id" : "899c14da-f31b-4947-b200-06a735983f6e",
-        "pitch" : 53
-      },
-      {
-        "text" : "Ee",
-        "beat" : 8.25,
-        "id" : "cec790a8-8600-4e4e-8c9b-5fe09fd7a5c9",
-        "pitch" : 48
-      },
-      {
-        "text" : "Ee",
-        "beat" : 9.25,
-        "id" : "13b32817-fd90-499b-9625-4732099e5e92",
-        "pitch" : 45
-      },
-      {
-        "text" : "Ee",
-        "beat" : 10.25,
-        "id" : "eeecb347-909b-4924-ab7b-234f28a68a2e",
-        "pitch" : 41
-      }
-    ],
-    "A9BB1A5C-23D2-40D2-A127-E7797C251BA0" : [
-      {
-        "beat" : 0.25,
-        "id" : "edc31342-750b-4dcc-9279-a9ad9d9267f7",
-        "pitch" : 58,
-        "text" : "Do"
-      },
-      {
-        "beat" : 1.25,
-        "id" : "8ab1e81a-d212-44d5-8ff7-9dd67116d68b",
-        "pitch" : 56,
-        "text" : "Ti"
-      },
-      {
-        "beat" : 2.25,
-        "id" : "f3e99765-12f3-4738-bce4-32326476113e",
-        "pitch" : 54,
-        "text" : "La"
-      },
-      {
-        "beat" : 3.25,
-        "id" : "48544811-a928-41f2-b2b5-b4bcf5111e3e",
-        "pitch" : 53,
-        "text" : "Sol"
-      },
-      {
-        "beat" : 4.25,
-        "id" : "5672bbbf-238f-4cb9-bb50-995903a9ab80",
-        "pitch" : 51,
-        "text" : "Fa"
-      },
-      {
-        "beat" : 5.25,
-        "id" : "fc811e12-b675-46cc-ac51-d4b9558d763b",
-        "pitch" : 49,
-        "text" : "Mi"
-      },
-      {
-        "beat" : 6.25,
-        "id" : "69252f1a-cbb9-4cf1-9f12-a6aa043dafc1",
-        "pitch" : 48,
-        "text" : "Re"
-      },
-      {
-        "beat" : 7.25,
-        "id" : "9ac2bb16-326f-4273-bbc4-0838c69d0e1c",
-        "pitch" : 46,
-        "text" : "Do"
-      }
-    ],
-    "AB235E23-8BCD-4D78-9468-40F0B6060DAE" : [
-      {
-        "text" : "Do",
-        "beat" : 0.25,
-        "id" : "9fdcab64-0ce1-4929-8f11-795a680485bd",
-        "pitch" : 46
-      },
-      {
-        "text" : "Ti",
-        "beat" : 1.25,
-        "id" : "f7b24bdc-8325-44c7-918f-913fbc4bacc3",
-        "pitch" : 45
-      },
-      {
-        "text" : "La",
-        "beat" : 2.25,
-        "id" : "985cef97-8032-4e57-8c02-842594bf1626",
-        "pitch" : 43
-      },
-      {
-        "text" : "Sol",
-        "beat" : 3.25,
-        "id" : "dd7ee3c1-51b8-4140-a834-9eabee9f7cbe",
-        "pitch" : 41
-      },
-      {
-        "text" : "Fa",
-        "beat" : 4.25,
-        "id" : "1f39cb9c-4c46-4290-8a85-063188084ad3",
-        "pitch" : 39
-      },
-      {
-        "text" : "Mi",
-        "beat" : 5.25,
-        "id" : "84e76a5f-8e30-4a18-b19e-a73ba1767fce",
-        "pitch" : 38
-      },
-      {
-        "text" : "Re",
-        "beat" : 6.25,
-        "id" : "eef266b4-c172-425f-adf8-0794864975f6",
-        "pitch" : 36
-      },
-      {
-        "text" : "Do",
-        "beat" : 7.25,
-        "id" : "2765041e-910c-4cb5-94fb-7b1dab53f1cc",
-        "pitch" : 34
-      }
-    ],
-    "511866DD-F3C3-4111-8DAD-50846F1E7A47" : [
-      {
-        "beat" : 2,
-        "id" : "89b8e6e6-2c09-4f1d-8bd3-8a08e49eb760",
-        "pitch" : 55,
-        "text" : "Ooooooooo"
-      },
-      {
-        "beat" : 4,
-        "id" : "c977cef5-7966-4d67-9fa3-13fec6223113",
-        "pitch" : 56,
-        "text" : "Aaaaaa"
-      },
-      {
-        "beat" : 5,
-        "id" : "38b99c3c-6daf-4636-8bd3-c086c2e97f6d",
-        "pitch" : 55,
-        "text" : "iiiiii"
-      },
-      {
-        "beat" : 0,
-        "id" : "b9f25737-92a2-4379-8ea0-7bad548b51df",
-        "pitch" : 56,
-        "text" : "Jaaaaa"
-      },
-      {
-        "beat" : 0,
-        "id" : "934cb8b6-e579-4767-8108-c2e60ec7535c",
-        "pitch" : 63,
-        "text" : "1"
-      },
-      {
-        "beat" : 2,
-        "id" : "38573c83-f6f3-4aa3-9802-b78182839720",
-        "pitch" : 63,
-        "text" : "2"
-      },
-      {
-        "beat" : 0,
-        "id" : "40d13485-cf48-459b-abda-99a609626fce",
-        "pitch" : 66,
-        "text" : "3"
-      },
-      {
-        "beat" : 0,
-        "id" : "3a9925d3-cdec-423e-8876-9dd25bf6ab93",
-        "pitch" : 68,
-        "text" : "Ahahavdjfbfbdkdndndkdndndndkdnxkxnfflfnfidndbdifb"
-      }
-    ],
-    "E5B18A98-4953-4DDC-A4A3-F5EE88B58D9F" : [
-      {
-        "text" : "Do",
-        "beat" : 0.25,
-        "id" : "c3533871-e143-4518-b9b3-37649ef8d8bb",
-        "pitch" : 46
-      },
-      {
-        "text" : "Re",
-        "beat" : 1.25,
-        "id" : "ca81a54c-6957-4c21-b9e4-1f3c5b182cfc",
-        "pitch" : 48
-      },
-      {
-        "text" : "Mi",
-        "beat" : 2.25,
-        "id" : "a61362b9-a404-497e-9a09-258f88fda503",
-        "pitch" : 49
-      },
-      {
-        "text" : "Fa",
-        "beat" : 3.25,
-        "id" : "849f0203-3b0b-4ff3-861e-78cb4689d4bc",
-        "pitch" : 51
-      },
-      {
-        "text" : "Sol",
-        "beat" : 4.25,
-        "id" : "4ad012f6-2b0c-4b5f-877d-81539a1f9ea1",
-        "pitch" : 53
-      },
-      {
-        "text" : "La",
-        "beat" : 5.25,
-        "id" : "4fcd6b92-8dee-4bb2-89d2-0b22c2b05182",
-        "pitch" : 54
-      },
-      {
-        "text" : "Ti",
-        "beat" : 6.25,
-        "id" : "814f5400-ff0c-4296-bb7a-8e43dc35569f",
-        "pitch" : 56
-      },
-      {
-        "text" : "Do",
-        "beat" : 7.25,
-        "id" : "d96c2bed-2344-46ac-9099-d2c55621b50d",
-        "pitch" : 58
-      }
-    ],
-    "508A4B56-826C-4C7F-8A8A-EC4ADEF48F62" : [
-      {
-        "text" : "Yum",
-        "beat" : 0.25,
-        "id" : "34c32d9b-322b-4697-993c-5c86e007d81a",
-        "pitch" : 46
-      },
-      {
-        "text" : "Yum",
-        "beat" : 1.25,
-        "id" : "018e351e-067c-4383-ad47-0c9a94c2df17",
-        "pitch" : 48
-      },
-      {
-        "text" : "Yum",
-        "beat" : 2.25,
-        "id" : "a361c333-10b3-4b18-9fa2-19487c4f083f",
-        "pitch" : 50
-      },
-      {
-        "text" : "Yum",
-        "beat" : 3.25,
-        "id" : "ca6fdc14-fa14-4a89-adf7-4b44d0e4dc3c",
-        "pitch" : 48
-      },
-      {
-        "text" : "Ya",
-        "beat" : 4.25,
-        "id" : "825e9bd1-0d4f-44f8-9859-25fe0b61c150",
-        "pitch" : 46
-      },
-      {
-        "text" : "Aa",
-        "beat" : 5.25,
-        "id" : "088c993a-9485-47aa-8037-00bbb7a0b6bc",
-        "pitch" : 50
-      },
-      {
-        "text" : "Aa",
-        "beat" : 6.25,
-        "id" : "82d95395-2b1f-4745-a399-b53c7a0348a8",
-        "pitch" : 53
-      },
-      {
-        "text" : "Aa",
-        "beat" : 7.25,
-        "id" : "65ba3e9c-e530-477f-ada5-a26b28514f7e",
-        "pitch" : 50
-      },
-      {
-        "text" : "Aa",
-        "beat" : 8.25,
-        "id" : "19579d07-49a5-4bf6-841e-5c313a575413",
-        "pitch" : 46
-      }
-    ],
-    "52F6A03F-8B99-4601-820D-E9E8657D8ED3" : [
-      {
-        "beat" : 0.25,
-        "id" : "92125877-72ec-4ee8-9b25-a5702ca48f53",
-        "pitch" : 58,
-        "text" : "May"
-      },
-      {
-        "beat" : 1.25,
-        "id" : "82c3c352-92e3-420a-8c43-293e4823d10c",
-        "pitch" : 62,
-        "text" : "May"
-      },
-      {
-        "beat" : 2.25,
-        "id" : "06ca072e-fc34-4434-b625-baa48e0e0fa7",
-        "pitch" : 60,
-        "text" : "May"
-      },
-      {
-        "beat" : 3.25,
-        "id" : "07470470-ce69-42a6-b879-c15c29da1dac",
-        "pitch" : 63,
-        "text" : "May"
-      },
-      {
-        "beat" : 4.25,
-        "id" : "aac8d8b9-ce5f-467d-b8e0-83a32cca9091",
-        "pitch" : 62,
-        "text" : "May"
-      },
-      {
-        "beat" : 5.25,
-        "id" : "aed8f244-42d8-4a07-8d0f-a6b1379208a8",
-        "pitch" : 65,
-        "text" : "May"
-      },
-      {
-        "beat" : 6.25,
-        "id" : "4c393e30-3055-45e2-85ea-5a2bf05ecd19",
-        "pitch" : 63,
-        "text" : "May"
-      },
-      {
-        "beat" : 7.25,
-        "id" : "c8899de1-336e-40c6-92ab-493d71992577",
-        "pitch" : 60,
-        "text" : "May"
-      },
-      {
-        "beat" : 8.25,
-        "id" : "7d55ad06-45d7-410b-961f-52d666da4c47",
-        "pitch" : 58,
-        "text" : "May"
-      }
-    ],
-    "A82EC056-B23E-46F6-97EA-A0E960C69C1B" : [
-      {
-        "beat" : 0.25,
-        "id" : "b881ca9a-abdd-4ce9-aa06-ec537fba8044",
-        "pitch" : 46,
-        "text" : "Doo"
-      },
-      {
-        "beat" : 2.25,
-        "id" : "cd7e9b14-f925-4281-a447-6ad4b3d18ed7",
-        "pitch" : 46,
-        "text" : "Hoo"
-      },
-      {
-        "beat" : 3.25,
-        "id" : "0420363c-ec11-48f3-8ad6-6c6527de1e78",
-        "pitch" : 48,
-        "text" : "Oo"
-      },
-      {
-        "beat" : 4.25,
-        "id" : "349054cb-2e07-4c6f-897a-d9e99949629b",
-        "pitch" : 50,
-        "text" : "Oo"
-      },
-      {
-        "beat" : 6.25,
-        "id" : "71352cd2-f57a-4c50-939a-ff9d38f38185",
-        "pitch" : 50,
-        "text" : "Hoo"
-      },
-      {
-        "beat" : 7.25,
-        "id" : "831da566-ed7d-4444-a176-98163ec26047",
-        "pitch" : 51,
-        "text" : "Oo"
-      },
-      {
-        "beat" : 8.25,
-        "id" : "e612e4d7-ca7c-43ed-895f-693876cba59c",
-        "pitch" : 53,
-        "text" : "Oo"
-      },
-      {
-        "beat" : 10.25,
-        "id" : "e5fc2121-2f39-4ce2-b102-2726e3c82627",
-        "pitch" : 53,
-        "text" : "Hoo"
-      },
-      {
-        "beat" : 11.25,
-        "id" : "e21a3044-cdc0-4b37-a3b5-6b316149d05a",
-        "pitch" : 51,
-        "text" : "Oo"
-      },
-      {
-        "beat" : 12.25,
-        "id" : "119f72a2-254a-4ffa-8bd2-ef4ebe7ae207",
-        "pitch" : 50,
-        "text" : "Oo"
-      },
-      {
-        "beat" : 14.25,
-        "id" : "0eec897a-7cbb-4091-b10c-03716d81f6b0",
-        "pitch" : 50,
-        "text" : "Hoo"
-      },
-      {
-        "beat" : 15.25,
-        "id" : "2522b865-bff4-4d54-8efd-165fa8df95d0",
-        "pitch" : 48,
-        "text" : "Oo"
-      },
-      {
-        "beat" : 16.25,
-        "id" : "ec287f2b-c2ab-48f5-a1e4-b325685e7a31",
-        "pitch" : 46,
-        "text" : "Oo"
-      }
-    ],
-    "636D3030-BD0E-4B90-995E-49D298E897A4" : [
-      {
-        "text" : "Ma",
-        "beat" : 0.25,
-        "id" : "aa55d591-ee3e-4135-a2f9-e50d1a46bef7",
-        "pitch" : 52
-      },
-      {
-        "text" : "Aa",
-        "beat" : 1.25,
-        "id" : "76a84e15-5a26-4592-8ce2-8bd98015a710",
-        "pitch" : 50
-      },
-      {
-        "text" : "Aa",
-        "beat" : 2.25,
-        "id" : "e05cc05e-e3f0-43e1-9ce8-d71600c90531",
-        "pitch" : 48
-      },
-      {
-        "text" : "Me",
-        "beat" : 3.25,
-        "id" : "15c9cd3a-0d98-41cf-bc70-87f472363e59",
-        "pitch" : 52
-      },
-      {
-        "text" : "Ee",
-        "beat" : 4.25,
-        "id" : "0b84fde0-8149-48cc-ae18-b02f8dbcc16b",
-        "pitch" : 50
-      },
-      {
-        "text" : "Ee",
-        "beat" : 5.25,
-        "id" : "61ea0e99-4007-4ed9-9207-db65841b1396",
-        "pitch" : 48
-      },
-      {
-        "text" : "Me",
-        "beat" : 6.25,
-        "id" : "73b44029-7885-4c85-902c-0a1af9db4c7b",
-        "pitch" : 52
-      },
-      {
-        "text" : "Ee",
-        "beat" : 7.25,
-        "id" : "5c1f8c0d-5a09-4e9b-a097-0bfb2d7bace3",
-        "pitch" : 50
-      },
-      {
-        "text" : "Ee",
-        "beat" : 8.25,
-        "id" : "e46034c5-0b52-4fda-a736-280afc6d27b2",
-        "pitch" : 48
-      },
-      {
-        "text" : "Mo",
-        "beat" : 9.25,
-        "id" : "85efeae7-269f-4671-a945-8f1231beee24",
-        "pitch" : 52
-      },
-      {
-        "text" : "Oo",
-        "beat" : 10.25,
-        "id" : "c48ebdde-dd6f-45ef-91cf-39951f190d14",
-        "pitch" : 50
-      },
-      {
-        "text" : "Oo",
-        "beat" : 11.25,
-        "id" : "cc551f44-30fc-475b-b38d-5c7e7c6d474e",
-        "pitch" : 48
-      },
-      {
-        "text" : "Mo",
-        "beat" : 12.25,
-        "id" : "f888ca7f-717e-4aea-aceb-7a085dabc283",
-        "pitch" : 52
-      },
-      {
-        "text" : "Oo",
-        "beat" : 13.25,
-        "id" : "9ca1a9bf-a8bd-4f82-a7a2-60998d10ea85",
-        "pitch" : 50
-      },
-      {
-        "text" : "Oo",
-        "beat" : 14.25,
-        "id" : "066e497c-af1d-40e7-9886-6d8438d8782a",
-        "pitch" : 48
-      }
-    ]
-  }
+  ]
 }
