@@ -40,15 +40,29 @@ final class NewForYouFeed: ObservableObject {
     /// How many exercises the category lists.
     static let count = 5
 
+    /// How long the category goes on saying it is loading once it has started,
+    /// however quickly the answer comes back.
+    ///
+    /// Without a floor there are fetches nothing is ever drawn for. Both of this
+    /// object's published flags move inside one turn of the main actor when an
+    /// attempt is answered straight away — a request that fails the instant it
+    /// is made because there is no connection, or one the URL cache answers out
+    /// of the last launch — and SwiftUI draws the state a turn leaves behind,
+    /// not the ones it passed through. So the category jumps from the reload
+    /// button to five rows (or back to the reload button) with no spinner
+    /// between them, and a tap on that button looks like it did nothing at all.
+    static let minimumSpinner = Duration.milliseconds(500)
+
     /// Everything those pages returned, in the order the server ranked them —
     /// what `exercises(atLevel:)` picks out of. Published rather than the pick
     /// itself, since the pick depends on a level that moves with every run the
     /// singer finishes. Empty until the first fetch lands.
     @Published private(set) var candidates: [Exercise] = []
 
-    /// true while the fetch is on the wire. It keeps a second visit to the tab
-    /// from asking again mid-flight, and it is what the category draws its
-    /// spinner off while it has nothing to list yet.
+    /// true while the fetch is on the wire — and for as long after it as
+    /// `minimumSpinner` asks for. It keeps a second visit to the tab from asking
+    /// again mid-flight, and it is what the category draws its spinner off while
+    /// it has nothing to list yet.
     @Published private(set) var isFetching = false
 
     /// Whether a fetch has succeeded this session. A failed one leaves this
@@ -74,8 +88,38 @@ final class NewForYouFeed: ObservableObject {
         await refresh()
     }
 
+    /// Fetches the candidates and puts them on screen, with the spinner up for
+    /// as long as that takes — and never for less than `minimumSpinner`, so that
+    /// an answer that arrives too quickly to be drawn is still shown arriving.
+    ///
+    /// The wait is taken before the result is published rather than after: the
+    /// rows and the reload button are both what the category shows *instead* of
+    /// the spinner, so holding one of them back for a moment is what leaves the
+    /// spinner standing there.
+    func refresh() async {
+        guard !isFetching else { return }
+        isFetching = true
+        didFail = false
+        let started = ContinuousClock.now
+
+        let fetched = await fetchCandidates()
+
+        let remaining = Self.minimumSpinner - started.duration(to: .now)
+        if remaining > .zero { try? await Task.sleep(for: remaining) }
+        if let fetched {
+            candidates = fetched
+            hasLoaded = true
+        }
+        isFetching = false
+        // Every way out of the fetch that isn't a list is a call that didn't
+        // come back, and that is how the category is told to offer the reload
+        // button rather than go on spinning at something that has stopped.
+        didFail = fetched == nil
+    }
+
     /// Reads the first `pageCount` pages of the community's "Hot" order and looks
-    /// up what the server rates each exercise at.
+    /// up what the server rates each exercise at, answering with the candidates
+    /// those pages turned up — or nil if any of the calls didn't come back.
     ///
     /// The pages are read one after the other rather than at once: the fetch
     /// endpoint answers for one page per call, and two calls off to the side of a
@@ -83,20 +127,7 @@ final class NewForYouFeed: ObservableObject {
     /// thing — a half-read pair of pages is a narrower net, not a shorter list,
     /// and would quietly change what the category is — leaving whatever an
     /// earlier fetch turned up in place.
-    func refresh() async {
-        guard !isFetching else { return }
-        isFetching = true
-        didFail = false
-        // Set on the one path that runs to the end. Every `return` before that
-        // is a call that didn't come back, and leaving this false is how the
-        // category is told to offer the reload button rather than go on
-        // spinning at something that has stopped.
-        var succeeded = false
-        defer {
-            isFetching = false
-            didFail = !succeeded
-        }
-
+    private func fetchCandidates() async -> [Exercise]? {
         let sort = CommunitySort.hot
         // Which spelling of the sort key this backend takes, most likely first —
         // see `CommunitySort.serverSortBy`. A rejected one is dropped and the
@@ -112,7 +143,7 @@ final class NewForYouFeed: ObservableObject {
         var page = 0
         var isLastPage = false
         while page < Self.pageCount, !isLastPage {
-            guard let sortKey = sortBy.first else { return }
+            guard let sortKey = sortBy.first else { return nil }
             let result = await CommunityFeed.fetchPage(storageType: "SHARED_EXERCISE",
                                                        sortBy: sortKey,
                                                        sortDirection: sort.serverSortDirection(reversed: false),
@@ -120,9 +151,9 @@ final class NewForYouFeed: ObservableObject {
                                                        extraQuery: query)
             switch result {
             case .failed:
-                return
+                return nil
             case .unknownSortKey:
-                guard sortBy.count > 1 else { return }
+                guard sortBy.count > 1 else { return nil }
                 sortBy.removeFirst()
             case .page(let fetched, let isLast):
                 for record in fetched where entityIDs.insert(record.entityId).inserted {
@@ -151,9 +182,7 @@ final class NewForYouFeed: ObservableObject {
         let unrated = applied.exercises.map(\.id).filter { sync.counts.difficulties[$0] == nil }
         await sync.refreshDifficulties(for: unrated)
 
-        candidates = applied.exercises
-        hasLoaded = true
-        succeeded = true
+        return applied.exercises
     }
 
     /// The exercises the category lists for a singer at `level`: the `count`

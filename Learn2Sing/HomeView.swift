@@ -449,12 +449,16 @@ struct HomeView: View {
                                 uploaderName: $0.uploaderName, showsSettings: false)
             }
         }
+        // A fetch on the wire is what the category is doing now, so it outranks
+        // the failure an earlier one left behind: the spinner goes back up the
+        // moment another attempt starts, rather than the reload button standing
+        // there through an attempt already under way.
+        if newForYou.isFetching || !newForYou.hasLoaded && !newForYou.didFail {
+            return [placeholderRow(HomeCategories.newForYouLoadingRowID, content: .loading)]
+        }
         if newForYou.didFail {
             let help = L("These exercises come from the community and didn’t load. Tap to try again.")
             return [placeholderRow(HomeCategories.newForYouRetryRowID, content: .retry(help: help))]
-        }
-        if !newForYou.hasLoaded {
-            return [placeholderRow(HomeCategories.newForYouLoadingRowID, content: .loading)]
         }
         return []
     }
