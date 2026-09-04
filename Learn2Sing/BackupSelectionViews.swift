@@ -41,11 +41,18 @@ private struct BackupSelectionScreen: View {
     /// Nothing left to tick, so the button offers the other direction.
     private var isEverythingSelected: Bool { selectedCount == totalCount }
 
+    /// How tall the bottom bar measures. Handed to the list as extra room under
+    /// its last row: the list ignores the safe area, so the space `safeAreaInset`
+    /// holds for the bar is space the list scrolls straight through — without
+    /// this the last exercises can't be brought out from under it.
+    @State private var barHeight: CGFloat = 0
+
     var body: some View {
         ExerciseCollectionList(
             sections: sections,
             onSelect: { id, _ in onToggle(id) },
-            onToggleCollapse: onToggleCollapse
+            onToggleCollapse: onToggleCollapse,
+            bottomContentInset: barHeight
         )
         // Span the full screen like a List so content scrolls under the
         // navigation and tab bars.
@@ -101,6 +108,7 @@ private struct BackupSelectionScreen: View {
         .padding(.bottom, 8)
         .frame(maxWidth: .infinity)
         .background(.bar)
+        .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { barHeight = $0 }
     }
 }
 

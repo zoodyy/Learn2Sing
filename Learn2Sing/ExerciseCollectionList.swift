@@ -165,6 +165,13 @@ struct ExerciseCollectionList: UIViewControllerRepresentable {
     /// true starts the list scrolled just past the navigation bar's search drawer,
     /// so the field only appears when the user pulls down (Exercises tab).
     var hidesSearchBarInitially = false
+    /// Extra room under the last row, on top of what the safe area reserves
+    /// already. For a screen with a bar of its own along the bottom of the list
+    /// (the backup pickers): the list ignores the safe area — that is what lets
+    /// it scroll under the navigation and tab bars — so the room a SwiftUI
+    /// `.safeAreaInset` holds for that bar never reaches it, and the last rows
+    /// would sit under the bar with no way to scroll them clear.
+    var bottomContentInset: CGFloat = 0
     /// Set to an exercise to scroll it into view and flash it once — how a
     /// just-created exercise is pointed out when its settings screen is popped
     /// (Exercises tab). Each id is acted on only once.
@@ -201,6 +208,7 @@ struct ExerciseCollectionList: UIViewControllerRepresentable {
         controller.loadMoreThreshold = loadMoreThreshold
         controller.setShowsLoadMoreSpinner(showsLoadMoreSpinner)
         controller.hidesSearchBarInitially = hidesSearchBarInitially
+        controller.setBottomContentInset(bottomContentInset)
         controller.setLanguage(language)
         controller.setSections(sections, animated: true)
         if let highlightedID {
@@ -322,6 +330,22 @@ final class ExerciseListController: UIViewController {
     var onLoadMore: (() -> Void)?
     var loadMoreThreshold = 30
     var hidesSearchBarInitially = false
+
+    /// See `ExerciseCollectionList.bottomContentInset`. Held rather than applied
+    /// on the spot because it is handed over before the view loads.
+    private var bottomContentInset: CGFloat = 0
+
+    func setBottomContentInset(_ inset: CGFloat) {
+        guard inset != bottomContentInset else { return }
+        bottomContentInset = inset
+        applyBottomContentInset()
+    }
+
+    private func applyBottomContentInset() {
+        guard let collectionView else { return }
+        collectionView.contentInset.bottom = bottomContentInset
+        collectionView.verticalScrollIndicatorInsets.bottom = bottomContentInset
+    }
 
     /// Set once the initial scroll past the search drawer has been performed, so
     /// later layout passes leave the user's scroll position alone.
@@ -455,6 +479,7 @@ final class ExerciseListController: UIViewController {
         // hosting SwiftUI view (see TopEdgeFade.swift for the why).
         cv.topEdgeEffect.isHidden = true
         collectionView = cv
+        applyBottomContentInset()
         // Lets the navigation/tab bars apply their scrolled-under effects, like
         // they do for a SwiftUI List.
         setContentScrollView(cv, for: [.top, .bottom])
