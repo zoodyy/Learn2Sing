@@ -279,9 +279,10 @@ struct VoiceSettingsView: View {
     @AppStorage(VocalRange.customHighKey) private var customHigh = VocalRange.customDefault.high
     @AppStorage(ScoreTargetWindow.storageKey) private var targetWindow = ScoreTargetWindow.defaultPercent
 
-    /// True while a finger is on the target-window slider, which is the only time
-    /// the picture of the note below it is shown — it is there to explain the number
-    /// being chosen, not to sit on the screen afterwards.
+    /// True from the first value a drag moves the target-window slider to until that
+    /// drag ends, which is the only time the picture of the note below it is shown:
+    /// it is there to explain the number being chosen, not to sit on the screen
+    /// afterwards.
     @State private var isAdjustingTargetWindow = false
 
     /// Bumped on every sign of life from that slider: it starting, it stopping, and
@@ -351,8 +352,18 @@ struct VoiceSettingsView: View {
                        step: 1,
                        onEditingChanged: { editing in
                            targetWindowActivity += 1
+                           // Only the *end* of a drag is believed. A Slider reports
+                           // editing beginning again the instant it ends — the same
+                           // value, no movement behind it — so a handler that trusts
+                           // `true` puts the picture back up the moment the finger
+                           // leaves, and, having spent its beginning, the slider has
+                           // none left to report when the next drag really does start:
+                           // that one would run with no picture at all. What a drag is
+                           // under way is told instead by the values it writes, in
+                           // `targetWindowBinding`.
+                           guard !editing else { return }
                            withAnimation(.easeInOut(duration: 0.2)) {
-                               isAdjustingTargetWindow = editing
+                               isAdjustingTargetWindow = false
                            }
                        })
                     .settingHelp(targetWindowHelp)
@@ -365,7 +376,6 @@ struct VoiceSettingsView: View {
                 Text("Score Calculation")
             }
         }
-        .onChange(of: targetWindow) { _, _ in targetWindowActivity += 1 }
         // The safety net the comment on `targetWindowActivity` describes: restarted by
         // every bump, so a drag that is still moving keeps the picture, and one that
         // vanished without a word loses it a moment later.
@@ -388,9 +398,24 @@ struct VoiceSettingsView: View {
 
     /// The percentage, as the whole number it is stored as, through the `Double` a
     /// slider works in.
+    ///
+    /// Writing through here is also what puts the picture of the note up. The first
+    /// value a drag moves to is the earliest sign of a finger on the slider that can
+    /// be trusted — see the slider's `onEditingChanged` for what is wrong with the
+    /// obvious one — and only the slider ever writes here, so a value arriving from
+    /// somewhere else (a restored profile, a reset) doesn't flash the picture onto a
+    /// screen nobody is touching.
     private var targetWindowBinding: Binding<Double> {
         Binding(get: { Double(targetWindow) },
-                set: { targetWindow = Int($0.rounded()) })
+                set: { newValue in
+                    let percent = ScoreTargetWindow.clamped(Int(newValue.rounded()))
+                    guard percent != targetWindow else { return }
+                    targetWindow = percent
+                    targetWindowActivity += 1
+                    withAnimation(.easeInOut(duration: 0.2)) {
+                        isAdjustingTargetWindow = true
+                    }
+                })
     }
 
     /// Said the same way on the row and on the slider under it, the way the other
