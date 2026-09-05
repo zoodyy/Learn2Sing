@@ -30,21 +30,22 @@ struct ResetSettingsView: View {
             Section {
                 SettingsHubRow(title: L("Scores"), systemImage: "chart.line.uptrend.xyaxis",
                                action: openScores)
-                    .settingHelp(L("Delete the scores recorded for a single exercise, or wipe them all."))
+                    .setting(.resetScoresRow)
 
                 SettingsHubRow(title: L("Settings"), systemImage: "gearshape", action: openSettings)
-                    .settingHelp(L("Put a single settings category — or every one of them — back to how the app started out."))
+                    .setting(.resetSettingsRow)
 
                 SettingsHubRow(title: L("Exercises"), systemImage: "list.bullet",
                                action: openExercises)
-                    .settingHelp(L("Delete the exercises you made or downloaded, and undo your changes to the ones that came with the app."))
+                    .setting(.resetExercisesRow)
 
                 SettingsHubRow(title: L("Home"), systemImage: "house", action: openHome)
-                    .settingHelp(L("Clear the Home tab's favourites, routines and recently played list."))
+                    .setting(.resetHomeRow)
             }
         }
         .navigationTitle(L("Reset"))
         .navigationBarTitleDisplayMode(.inline)
+        .settingsSearchable(.reset)
     }
 }
 
@@ -122,7 +123,7 @@ struct ScoresResetView: View {
                 }
                 .dangerRow()
                 .disabled(scored.isEmpty)
-                .settingHelp(L("Deletes the scores of every exercise, including any left behind by exercises you have since deleted. The exercises themselves are kept."))
+                .setting(.deleteAllScores)
                 .resetConfirmation(
                     $pending, for: .all,
                     confirmLabel: L("Delete"),
@@ -135,6 +136,7 @@ struct ScoresResetView: View {
         }
         .navigationTitle(L("Scores"))
         .navigationBarTitleDisplayMode(.inline)
+        .settingsSearchable(.resetScores)
         .onAppear(perform: reload)
     }
 
@@ -283,7 +285,7 @@ struct SettingsResetView: View {
                         Label(category.title, systemImage: category.systemImage)
                     }
                     .foregroundStyle(.primary)
-                    .settingHelp(category.help)
+                    .setting(.resetCategory(category))
                     .resetConfirmation(
                         $pending, for: .one(category),
                         confirmLabel: L("Reset"),
@@ -304,7 +306,7 @@ struct SettingsResetView: View {
                     Label("Reset All Settings", systemImage: "arrow.counterclockwise")
                 }
                 .dangerRow()
-                .settingHelp(L("Puts every category above back at once. Your exercises, scores and routines are untouched."))
+                .setting(.resetAllSettings)
                 .resetConfirmation(
                     $pending, for: .all,
                     confirmLabel: L("Reset"),
@@ -316,6 +318,7 @@ struct SettingsResetView: View {
         }
         .navigationTitle(L("Settings"))
         .navigationBarTitleDisplayMode(.inline)
+        .settingsSearchable(.resetSettings)
     }
 }
 
@@ -359,7 +362,7 @@ struct ExercisesResetView: View {
                               count: store.ownExerciseIDs.count) {
                     pending = .own
                 }
-                .settingHelp(L("Deletes every exercise you created yourself, with its MIDI pattern and scores. Exercises that came with the app or from the Community tab are kept."))
+                .setting(.deleteOwnExercises)
                 .resetConfirmation(
                     $pending, for: .own,
                     confirmLabel: L("Delete"),
@@ -372,7 +375,7 @@ struct ExercisesResetView: View {
                               count: store.downloadedExerciseIDs.count) {
                     pending = .downloaded
                 }
-                .settingHelp(L("Deletes every exercise you downloaded from the Community tab, with its MIDI pattern and scores. Your own exercises and the ones that came with the app are kept."))
+                .setting(.deleteDownloadedExercises)
                 .resetConfirmation(
                     $pending, for: .downloaded,
                     confirmLabel: L("Delete"),
@@ -421,7 +424,7 @@ struct ExercisesResetView: View {
                 }
                 .dangerRow()
                 .disabled(changed.isEmpty)
-                .settingHelp(L("Puts every exercise that came with the app back to how it shipped, bringing back any you deleted."))
+                .setting(.revertAllBundled)
                 .resetConfirmation(
                     $pending, for: .allBundled,
                     confirmLabel: L("Revert"),
@@ -435,6 +438,7 @@ struct ExercisesResetView: View {
         }
         .navigationTitle(L("Exercises"))
         .navigationBarTitleDisplayMode(.inline)
+        .settingsSearchable(.resetExercises)
     }
 
     /// A destructive row with the number of exercises it would delete on its
@@ -488,7 +492,7 @@ struct HomeResetView: View {
                               count: store.favourites.count) {
                     pending = .favourites
                 }
-                .settingHelp(L("Empties the Home tab's “Favourites” list. The exercises in it are kept."))
+                .setting(.clearFavourites)
                 .resetConfirmation(
                     $pending, for: .favourites,
                     confirmLabel: L("Delete"),
@@ -501,7 +505,7 @@ struct HomeResetView: View {
                               count: store.routines.count) {
                     pending = .routines
                 }
-                .settingHelp(L("Deletes every routine you assembled. The exercises they were made of are kept."))
+                .setting(.deleteRoutines)
                 .resetConfirmation(
                     $pending, for: .routines,
                     confirmLabel: L("Delete"),
@@ -514,7 +518,7 @@ struct HomeResetView: View {
                               count: store.recentlyPlayed.count) {
                     pending = .history
                 }
-                .settingHelp(L("Forgets what you played and when, emptying the Home tab's “Recent” list and the order “Recommended” picks by."))
+                .setting(.clearRecentlyPlayed)
                 .resetConfirmation(
                     $pending, for: .history,
                     confirmLabel: L("Delete"),
@@ -527,7 +531,7 @@ struct HomeResetView: View {
                               count: practiceDays) {
                     pending = .practice
                 }
-                .settingHelp(L("Forgets how long you practised on each day, emptying the Home tab's “Time Spent Singing”."))
+                .setting(.clearPracticeTime)
                 .resetConfirmation(
                     $pending, for: .practice,
                     confirmLabel: L("Delete"),
@@ -540,6 +544,7 @@ struct HomeResetView: View {
         }
         .navigationTitle(L("Home"))
         .navigationBarTitleDisplayMode(.inline)
+        .settingsSearchable(.resetHome)
         .onAppear { practiceDays = PracticeLog.all().count }
     }
 

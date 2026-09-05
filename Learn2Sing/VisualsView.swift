@@ -100,7 +100,7 @@ struct VisualsHubView: View {
                 .onChange(of: themeRaw) { oldTheme, newTheme in
                     handleThemeChange(from: oldTheme, to: newTheme)
                 }
-                .settingHelp(L("Sets the app's appearance. “System” matches your device's light or dark setting."))
+                .setting(.theme)
             }
 
             Section {
@@ -112,7 +112,7 @@ struct VisualsHubView: View {
                 .onChange(of: orientationLockRaw) { _, newValue in
                     OrientationLockManager.apply(OrientationLock(rawValue: newValue) ?? .none)
                 }
-                .settingHelp(L("Keeps the app in the chosen orientation. “Don't lock” lets it rotate with your device."))
+                .setting(.orientationLock)
             } header: {
                 Text("Orientation")
             }
@@ -129,7 +129,7 @@ struct VisualsHubView: View {
                     }
                 }
                 .foregroundStyle(.primary)
-                .settingHelp(L("Customise how the app's own screens and lists look."))
+                .setting(.menus)
 
                 Button(action: openPlayback) {
                     HStack {
@@ -141,11 +141,12 @@ struct VisualsHubView: View {
                     }
                 }
                 .foregroundStyle(.primary)
-                .settingHelp(L("Customise how the note-scrolling playback screen looks."))
+                .setting(.playbackVisuals)
             }
         }
         .navigationTitle(L("Visuals"))
         .navigationBarTitleDisplayMode(.inline)
+        .settingsSearchable(.visuals)
         .alert("Playback screen", isPresented: Binding(
             get: { pendingSwitch != nil },
             set: { if !$0 { pendingSwitch = nil } }
@@ -218,13 +219,14 @@ struct MenusVisualsView: View {
                             selection: Binding(get: { Color(hex: exercisePreviewColor) },
                                                set: { exercisePreviewColor = $0.hexString }),
                             supportsOpacity: false)
-                .settingHelp(L("Sets the colour of the small note pattern drawn beside each exercise in the lists."))
+                .setting(.exercisePreviewColor)
             } header: {
                 Text("Exercise lists")
             }
         }
         .navigationTitle(L("Menus"))
         .navigationBarTitleDisplayMode(.inline)
+        .settingsSearchable(.menus)
     }
 }
 
@@ -376,6 +378,7 @@ struct PlaybackVisualsView: View {
         }
         .navigationTitle(L("Playback"))
         .navigationBarTitleDisplayMode(.inline)
+        .settingsSearchable(.playback)
         // Every change to a control on this screen goes through UserDefaults, so one
         // observer is enough to keep the selected template up to date with all of them.
         .onReceive(NotificationCenter.default.publisher(for: UserDefaults.didChangeNotification)) { _ in
@@ -446,79 +449,79 @@ struct PlaybackVisualsView: View {
         Form {
             Section("Notes") {
                 ColorPicker("Note colour", selection: colorBinding($noteColor), supportsOpacity: false)
-                    .settingHelp(L("The colour the notes to sing are drawn in."))
+                    .setting(.noteColor)
                 ColorPicker("Playing note colour", selection: colorBinding($playingNoteColor), supportsOpacity: false)
-                    .settingHelp(L("The colour a note takes on while it is the one being sung."))
+                    .setting(.playingNoteColor)
                 sliderRow(L("Note roundness"), value: $noteRoundness, range: 0...1)
-                    .settingHelp(L("How rounded the ends of the notes are, from square to fully rounded."))
+                    .setting(.noteRoundness)
             }
 
             Section("Zoom & position") {
                 sliderRow(L("Vertical zoom"), value: $verticalZoom, range: 0.5...3)
-                    .settingHelp(L("How tall a pitch is. Turn it up to spread the notes apart, down to fit more of your range on screen."))
+                    .setting(.verticalZoom)
                 sliderRow(L("Horizontal zoom"), value: $horizontalZoom, range: 0.4...3)
-                    .settingHelp(L("How wide a beat is. Turn it down to see more of what is coming."))
+                    .setting(.horizontalZoom)
                 Toggle("Follow notes vertically", isOn: $followVertical)
-                    .settingHelp(L("Scrolls the screen up and down so the notes being sung stay in the middle. Off, the whole exercise is shown at once."))
+                    .setting(.followVertical)
             }
 
             Section("Background") {
                 Toggle("Show horizontal lines", isOn: $showLines)
-                    .settingHelp(L("Draws a striped lane for every pitch behind the notes, like piano keys laid on their side."))
+                    .setting(.showLines)
                 if !showLines {
                     ColorPicker("Background colour", selection: colorBinding($background), supportsOpacity: false)
-                        .settingHelp(L("The colour behind the notes while the lanes are switched off."))
+                        .setting(.backgroundColor)
                 }
                 Toggle("Show keyboard", isOn: $showKeyboard)
-                    .settingHelp(L("Draws a piano keyboard down the left-hand side, so you can see which key each note sits on."))
+                    .setting(.showKeyboard)
                 Toggle("Show pitches", isOn: $showPitches)
-                    .settingHelp(L("Writes the note names (C4, A3 …) down the left-hand side."))
+                    .setting(.showPitches)
                 if showPitches {
                     Toggle("Automatic pitch name colour", isOn: $autoPitchNameColor)
-                        .settingHelp(L("Draws each pitch name in a colour that stands out where it sits: dark on the white keys, light on the black ones, and light over the background while the keyboard is hidden. Turn it off to pick the colour yourself."))
+                        .setting(.autoPitchNameColor)
                     if !autoPitchNameColor {
                         ColorPicker("Pitch name colour",
                                     selection: opacityColorBinding($pitchNameColor),
                                     supportsOpacity: true)
-                        .settingHelp(L("Sets the colour of the pitch names (C4, A3 …) down the left-hand side of the playback screen."))
+                        .setting(.pitchNameColor)
                     }
                 }
             }
 
             Section("Text") {
                 ColorPicker("Text colour", selection: colorBinding($textColor), supportsOpacity: false)
-                    .settingHelp(L("The colour of the labels written over the notes in the note editor."))
+                    .setting(.textColor)
                 Picker("Text font", selection: $textFont) {
                     ForEach(PlaybackFont.allCases) { font in
                         Text(L(font.rawValue)).tag(font.rawValue)
                     }
                 }
-                .settingHelp(L("The typeface those labels are written in."))
+                .setting(.textFont)
             }
 
             Section("Singing indicator") {
                 sliderRow(L("Size"), value: $singerSize, range: 0.5...3)
-                    .settingHelp(L("How big the dot that follows your voice is."))
+                    .setting(.singerSize)
                 ColorPicker("Inner colour", selection: opacityColorBinding($singerInnerColor), supportsOpacity: true)
-                    .settingHelp(L("The fill of the dot that follows your voice."))
+                    .setting(.singerInnerColor)
                 ColorPicker("Outer colour", selection: opacityColorBinding($singerOuterColor), supportsOpacity: true)
-                    .settingHelp(L("The ring around that dot."))
+                    .setting(.singerOuterColor)
                 ColorPicker("Line colour", selection: opacityColorBinding($singerLineColor), supportsOpacity: true)
-                    .settingHelp(L("The trail the dot leaves behind it, showing the pitch you have just sung."))
+                    .setting(.singerLineColor)
             }
 
             Section {
                 ColorPicker("Colour", selection: opacityColorBinding($playheadColor), supportsOpacity: true)
-                    .settingHelp(L("Sets the colour of the vertical line the singing indicator runs along."))
+                    .setting(.playheadColor)
                 Picker("Style", selection: $playheadStyle) {
                     ForEach(PlayheadStyle.allCases) { style in
                         Text(L(style.rawValue)).tag(style.rawValue)
                     }
                 }
-                .settingHelp(L("“Line” draws one continuous line. “Dots” replaces it with a dot in the middle of every pitch."))
+                .setting(.playheadStyle)
                 if playheadStyle == PlayheadStyle.dots.rawValue {
                     Toggle("Hide dots in unused pitches", isOn: $hideUnusedDots)
-                        .settingHelp(L("Leaves a dot only on the pitches the repetition you're singing uses. The dots change to the next repetition's pitches as soon as its last note has finished."))
+                        .setting(.hideUnusedDots)
                 }
             } header: {
                 Text("Vertical line")
@@ -526,14 +529,14 @@ struct PlaybackVisualsView: View {
 
             Section {
                 Toggle("Show repetition counter", isOn: $showRepetitionCounter)
-                    .settingHelp(L("Shows which repetition you're on out of the total, e.g. “2/5”. Hidden for exercises that don't repeat."))
+                    .setting(.showRepetitionCounter)
                 if showRepetitionCounter {
                     Picker("Position", selection: $repetitionCounterPosition) {
                         ForEach(RepetitionCounterPosition.allCases) { position in
                             Text(L(position.rawValue)).tag(position.rawValue)
                         }
                     }
-                    .settingHelp(L("Shows which repetition you're on out of the total, e.g. “2/5”. Hidden for exercises that don't repeat."))
+                    .setting(.repetitionPosition)
                 }
             } header: {
                 Text("Repetitions")
@@ -541,7 +544,7 @@ struct PlaybackVisualsView: View {
 
             Section {
                 Toggle("Hide tab bar", isOn: $hideTabBar)
-                    .settingHelp(L("Hides the Home, Exercises, Community and Settings tabs at the bottom of the screen while an exercise plays."))
+                    .setting(.hideTabBar)
             } header: {
                 Text("Screen")
             }
@@ -554,14 +557,14 @@ struct PlaybackVisualsView: View {
                 } label: {
                     Label("Export template", systemImage: "square.and.arrow.up")
                 }
-                .settingHelp(L("Export saves the current visual settings as a template file you can share. Import loads a template file and applies it."))
+                .setting(.exportTemplate)
 
                 Button {
                     isImportingTemplate = true
                 } label: {
                     Label("Import template", systemImage: "square.and.arrow.down")
                 }
-                .settingHelp(L("Export saves the current visual settings as a template file you can share. Import loads a template file and applies it."))
+                .setting(.importTemplate)
             }
         }
     }
@@ -600,7 +603,7 @@ struct PlaybackVisualsView: View {
             } label: {
                 Label("Save current as template", systemImage: "plus")
             }
-            .settingHelp(L("Tap a template to switch to it, or tap the selected one to deselect it. While a template is selected, the settings on this screen are saved into it as you change them."))
+            .setting(.saveTemplate)
         } header: {
             Text("Templates")
         }

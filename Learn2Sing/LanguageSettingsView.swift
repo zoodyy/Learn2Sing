@@ -40,6 +40,7 @@ struct LanguageSettingsView: View {
                     }
                     .foregroundStyle(.primary)
                     .accessibilityAddTraits(languages.language == language ? .isSelected : [])
+                    .settingAnchor(.appLanguage(language))
                 }
             } header: {
                 Text("App Language")
@@ -49,5 +50,6 @@ struct LanguageSettingsView: View {
         }
         .navigationTitle(L("Language"))
         .navigationBarTitleDisplayMode(.inline)
+        .settingsSearchable(.language)
     }
 }

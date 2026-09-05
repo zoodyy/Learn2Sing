@@ -16,7 +16,12 @@ struct SettingsView: View {
 
     @EnvironmentObject private var store: ExerciseStore
 
-    @State private var settingsPath = NavigationPath()
+    @State private var settingsPath: [SettingsRoute] = []
+
+    /// Carries a tapped search result from whichever screen found it to the
+    /// screen its row is on. Owned here because this is where the stack the
+    /// result travels through lives.
+    @StateObject private var search = SettingsSearchCoordinator()
 
     /// The exercise driving the clap delay test. Built once so the intro and
     /// playback screens share the same instance; it isn't stored in the library.
@@ -27,32 +32,32 @@ struct SettingsView: View {
             Form {
                 Section {
                     hubLink(L("Profile"), systemImage: "person.crop.circle", route: .profile)
-                        .settingHelp(L("Your username, picture and description, as other users see them on the Community tab."))
+                        .setting(.profile)
 
                     hubLink(L("Audio"), systemImage: "speaker.wave.2", route: .audio)
-                        .settingHelp(L("Instruments, playback and recording devices, and the microphone delay used for scoring."))
+                        .setting(.audio)
 
                     hubLink(L("Visuals"), systemImage: "paintpalette", route: .visualsHub)
-                        .settingHelp(L("Theme, orientation and the look of the playback screen."))
+                        .setting(.visuals)
 
                     hubLink(L("Voice"), systemImage: "music.mic", route: .voice)
-                        .settingHelp(L("Your vocal range, the test that measures it, and how precisely you have to hit a note for it to count."))
+                        .setting(.voice)
 
                     hubLink(L("Exercises"), systemImage: "list.bullet", route: .exercises)
-                        .settingHelp(L("How your exercise library is presented, including the Home tab's recommendations."))
+                        .setting(.exercises)
 
                     hubLink(L("Backup"), systemImage: "externaldrive", route: .backup)
-                        .settingHelp(L("Export your exercise library to a file, or import one."))
+                        .setting(.backup)
 
                     hubLink(L("Reset"), systemImage: "arrow.counterclockwise", route: .reset)
-                        .settingHelp(L("Delete your scores, exercises and Home tab lists, or put your settings back to how the app started out."))
+                        .setting(.reset)
 
                     hubLink(L("Language"), systemImage: "globe", route: .language)
-                        .settingHelp(L("The language the app is displayed in. Kept on this device only."))
+                        .setting(.language)
 
                     hubLink(L("Request a new Feature/ Report a Bug"),
                             systemImage: "exclamationmark.bubble", route: .feedback)
-                        .settingHelp(L("Write to the developer: report something that's broken, ask for a feature, or say what you make of the app."))
+                        .setting(.feedback)
 
                     // No chevron: it opens over the whole app rather than pushing
                     // onto this stack, so it isn't one of the rows above.
@@ -60,11 +65,12 @@ struct SettingsView: View {
                         Label(L("Tutorial"), systemImage: "graduationcap")
                     }
                     .foregroundStyle(.primary)
-                    .settingHelp(L("Play the introduction the app opens with on its first launch again."))
+                    .setting(.tutorial)
                 }
             }
             .navigationTitle(L("Settings"))
             .navigationBarTitleDisplayMode(.inline)
+            .settingsSearchable(.root)
             .stableTopEdgeFade()
             .navigationDestination(for: SettingsRoute.self) { route in
                 switch route {
@@ -102,7 +108,7 @@ struct SettingsView: View {
                 case .voice:
                     VoiceSettingsView { settingsPath.append(SettingsRoute.vocalRangeTest) }
                 case .vocalRangeTest:
-                    VocalRangeTestView { settingsPath = NavigationPath() }
+                    VocalRangeTestView { settingsPath = [] }
                 case .visualsHub:
                     VisualsHubView(
                         openMenus: { settingsPath.append(SettingsRoute.visualsMenus) },
@@ -161,6 +167,23 @@ struct SettingsView: View {
                 }
             }
         }
+        // Every screen on this stack reads the coordinator from here, which is
+        // also what tells them they are inside the Settings tab and may show a
+        // search field at all.
+        .environment(\.settingsSearch, search)
+        // A tapped result: open the screen its row is on, then hand the row over
+        // for that screen to scroll to and flash.
+        .onChange(of: search.request) { _, request in
+            guard let request, let entry = SettingsCatalog.entry(for: request) else { return }
+            let path = SettingsRoute.path(to: entry.screen)
+            // The search only ever finds rows on the screen it was started on or
+            // below it, so the route to one always begins with the screens
+            // already on the stack: assigning the whole path leaves those in
+            // place and pushes the rest.
+            if settingsPath != path { settingsPath = path }
+            search.request = nil
+            search.pending = request
+        }
     }
 
     /// Back to the Audio screen from the far end of the sung delay test, rather than
@@ -216,6 +239,31 @@ struct SettingsView: View {
         case resetHome
         case language
         case feedback
+
+        /// The pushes that lead from the tab's root to `screen`, which is how a
+        /// search result reaches the screen its row is on.
+        static func path(to screen: SettingsScreen) -> [SettingsRoute] {
+            switch screen {
+            case .root:           []
+            case .profile:        [.profile]
+            case .audio:          [.audio]
+            case .instruments:    [.audio, .instruments]
+            case .delayChoice:    [.audio, .delayChoice]
+            case .visuals:        [.visualsHub]
+            case .menus:          [.visualsHub, .visualsMenus]
+            case .playback:       [.visualsHub, .visualsPlayback]
+            case .voice:          [.voice]
+            case .exercises:      [.exercises]
+            case .backup:         [.backup]
+            case .reset:          [.reset]
+            case .resetScores:    [.reset, .resetScores]
+            case .resetSettings:  [.reset, .resetSettings]
+            case .resetExercises: [.reset, .resetExercises]
+            case .resetHome:      [.reset, .resetHome]
+            case .language:       [.language]
+            case .feedback:       [.feedback]
+            }
+        }
     }
 
     /// The throwaway exercise that drives the clap delay test, with the description
@@ -307,7 +355,7 @@ struct VoiceSettingsView: View {
                         Text(L(range.rawValue)).tag(range.rawValue)
                     }
                 }
-                .settingHelp(L("Choose your voice type, or pick “Custom” to enter your own lowest and highest notes. The test below can fill this in for you."))
+                .setting(.vocalRange)
 
                 if isCustom {
                     Picker("Lowest note", selection: $customLow) {
@@ -318,7 +366,7 @@ struct VoiceSettingsView: View {
                     .onChange(of: customLow) { _, newLow in
                         if newLow > customHigh { customHigh = newLow }
                     }
-                    .settingHelp(L("The lowest and highest notes you can comfortably sing. Exercises are transposed to fit between them."))
+                    .setting(.lowestNote)
 
                     Picker("Highest note", selection: $customHigh) {
                         ForEach(loPitch...hiPitch, id: \.self) { pitch in
@@ -328,13 +376,13 @@ struct VoiceSettingsView: View {
                     .onChange(of: customHigh) { _, newHigh in
                         if newHigh < customLow { customLow = newHigh }
                     }
-                    .settingHelp(L("The lowest and highest notes you can comfortably sing. Exercises are transposed to fit between them."))
+                    .setting(.highestNote)
                 }
 
                 Button(action: openRangeTest) {
                     Label("Test Vocal Range", systemImage: "waveform")
                 }
-                .settingHelp(L("Sing your lowest and highest notes and the app sets them as your custom vocal range above."))
+                .setting(.testVocalRange)
             } header: {
                 Text("Vocal Range")
             }
@@ -345,7 +393,7 @@ struct VoiceSettingsView: View {
                     Spacer()
                     Text(verbatim: "\(targetWindow)%").foregroundStyle(.secondary)
                 }
-                .settingHelp(targetWindowHelp)
+                .setting(.targetWindow)
 
                 Slider(value: targetWindowBinding,
                        in: Double(ScoreTargetWindow.range.lowerBound)...Double(ScoreTargetWindow.range.upperBound),
@@ -367,6 +415,8 @@ struct VoiceSettingsView: View {
                            }
                        })
                     .settingHelp(targetWindowHelp)
+                    // The slider says the same thing as the row above it, but
+                    // only that row is what a search result points at.
 
                 if isAdjustingTargetWindow {
                     TargetWindowPreview(percent: targetWindow)
@@ -388,6 +438,7 @@ struct VoiceSettingsView: View {
         .onDisappear { isAdjustingTargetWindow = false }
         .navigationTitle(L("Voice"))
         .navigationBarTitleDisplayMode(.inline)
+        .settingsSearchable(.voice)
     }
 
     /// How long the slider may go without a sign of life before the picture is taken
@@ -421,7 +472,7 @@ struct VoiceSettingsView: View {
     /// Said the same way on the row and on the slider under it, the way the other
     /// settings screens pair a value with the control that sets it.
     private var targetWindowHelp: String {
-        L("How much of a note counts as hit when your score is worked out. At 100% the whole note counts, as it always has; lower, and only that share of the note's middle does, so you have to sing nearer the centre of the pitch for it to count.")
+        SettingsCatalog.help(for: .targetWindow)
     }
 }
 
@@ -497,7 +548,7 @@ struct ExercisesSettingsView: View {
         Form {
             Section {
                 Toggle("Show recommendations as list", isOn: $recommendationsAsList)
-                    .settingHelp(L("Lists the recommended exercises in the Home tab's “Recommended” category, one row each. Off, the category shows a single card instead, which plays them all as one queue."))
+                    .setting(.recommendationsAsList)
 
                 Stepper(value: $practiceMinutes,
                         in: RecommendedExercises.minutesRange,
@@ -510,7 +561,7 @@ struct ExercisesSettingsView: View {
                             .foregroundStyle(.secondary)
                     }
                 }
-                .settingHelp(L("How long you mean to practise a day. The Home tab's “Recommended” category suggests exercises adding up to at least this long — favouring the whitelisted ones you haven't practised in the longest, pitched at your skill level — and a day of the Home tab's “Time Spent Singing” is filled in and ticked once you have practised this much."))
+                .setting(.dailyPracticeTime)
 
                 Menu {
                     ForEach(ExerciseOrigin.allCases) { origin in
@@ -530,7 +581,7 @@ struct ExercisesSettingsView: View {
                     }
                 }
                 .foregroundStyle(.primary)
-                .settingHelp(L("Which exercises are whitelisted for you: switching a group on whitelists everything in it, including what was already in your library, and switching it off takes them out again. Exercises you tick or untick yourself below are left as you left them."))
+                .setting(.autoWhitelist)
 
                 Button(action: openWhitelist) {
                     HStack {
@@ -544,13 +595,14 @@ struct ExercisesSettingsView: View {
                     }
                 }
                 .foregroundStyle(.primary)
-                .settingHelp(L("The exercises recommendations are picked from. The groups picked above are ticked for you; tap an exercise to add or remove it yourself, which the groups then leave alone."))
+                .setting(.whitelist)
             } header: {
                 Text("Recommendations")
             }
         }
         .navigationTitle(L("Exercises"))
         .navigationBarTitleDisplayMode(.inline)
+        .settingsSearchable(.exercises)
     }
 }
 
@@ -591,20 +643,21 @@ struct BackupSettingsView: View {
                 Button(action: openExport) {
                     Label("Export Exercises", systemImage: "square.and.arrow.up")
                 }
-                .settingHelp(L("Pick the exercises to save, then send the file, copy it, or save it to Files."))
+                .setting(.exportExercises)
 
                 Button {
                     isImporting = true
                 } label: {
                     Label("Import Exercises", systemImage: "square.and.arrow.down")
                 }
-                .settingHelp(L("Choose a file, then pick which of its exercises to add to your library or update."))
+                .setting(.importExercises)
             } header: {
                 Text("Exercises")
             }
         }
         .navigationTitle(L("Backup"))
         .navigationBarTitleDisplayMode(.inline)
+        .settingsSearchable(.backup)
         .fileImporter(
             isPresented: $isImporting,
             allowedContentTypes: [.json]

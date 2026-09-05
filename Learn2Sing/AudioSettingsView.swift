@@ -37,7 +37,7 @@ struct AudioSettingsView: View {
                     }
                 }
                 .foregroundStyle(.primary)
-                .settingHelp(L("Choose the sound that plays the notes, or upload your own."))
+                .setting(.instruments)
             }
 
             Section {
@@ -46,13 +46,13 @@ struct AudioSettingsView: View {
                         Text(AudioRouteManager.displayName(for: $0)).tag($0)
                     }
                 }
-                .settingHelp(L("“Automatic” uses connected earphones (e.g. AirPods) when available, otherwise the phone."))
+                .setting(.speaker)
                 Picker("Microphone", selection: $microphone) {
                     ForEach(options(routes.inputOptions, including: microphone), id: \.self) {
                         Text(AudioRouteManager.displayName(for: $0)).tag($0)
                     }
                 }
-                .settingHelp(L("“Automatic” uses connected earphones (e.g. AirPods) when available, otherwise the phone."))
+                .setting(.microphone)
             } header: {
                 Text("Devices")
             }
@@ -68,18 +68,19 @@ struct AudioSettingsView: View {
                         .frame(width: 70)
                     Text("ms").foregroundStyle(.secondary)
                 }
-                .settingHelp(L("Compensates for the lag between singing and pitch detection. Only the score is affected — playback and visuals are unchanged. Run the test to measure it automatically."))
+                .setting(.microphoneDelay)
 
                 Button(action: openDelayTest) {
                     Label("Test for delay", systemImage: "metronome")
                 }
-                .settingHelp(L("Compensates for the lag between singing and pitch detection. Only the score is affected — playback and visuals are unchanged. Run the test to measure it automatically."))
+                .setting(.delayTest)
             } header: {
                 Text("Scoring")
             }
         }
         .navigationTitle(L("Audio"))
         .navigationBarTitleDisplayMode(.inline)
+        .settingsSearchable(.audio)
         // The decimal pad has no return key: the shared keyboard bar's "Done" is
         // what closes it — in the same place and with the same look it has on
         // every other keyboard — and a scroll dismisses it too. A delay is never

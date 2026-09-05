@@ -211,7 +211,7 @@ struct InstrumentsView: View {
                             preview.play(instrument)
                         }
                     }
-                    .settingHelp(L("Tap the name to play the exercises' notes with this sound. The speaker plays a sample of it."))
+                    .setting(.instrument(instrument))
                 }
             }
 
@@ -261,6 +261,7 @@ struct InstrumentsView: View {
         }
         .navigationTitle(L("Instruments"))
         .navigationBarTitleDisplayMode(.inline)
+        .settingsSearchable(.instruments)
         // Leaving the screen cuts a sample short and hands the audio session back,
         // so nothing is left playing behind it.
         .onDisappear { preview.stop() }

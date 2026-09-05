@@ -246,6 +246,10 @@ struct ProfileView: View {
                 // one a row would have had, so the first button's words line up
                 // with the fields in the sections below.
                 .listRowInsets(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16))
+                // The row's own explanations sit on the buttons and the circle
+                // inside it, so it is marked for the search without one of its
+                // own.
+                .settingAnchor(.profilePicture)
             } header: {
                 Text("Profile Picture")
             } footer: {
@@ -260,7 +264,7 @@ struct ProfileView: View {
                     .autocorrectionDisabled()
                     .focused($isEditingUsername)
                     .onSubmit { commitUsername() }
-                    .settingHelp(L("The name shown beside the exercises you share. No two users can have the same one."))
+                    .setting(.username)
             } header: {
                 Text("Username")
             } footer: {
@@ -274,7 +278,7 @@ struct ProfileView: View {
                 TextField("Write something about yourself", text: $typedDescription, axis: .vertical)
                     .lineLimit(3...8)
                     .focused($isEditingDescription)
-                    .settingHelp(L("A few words about yourself, shown at the top of your profile in the Community tab."))
+                    .setting(.profileDescription)
             }
 
             Section {
@@ -282,11 +286,12 @@ struct ProfileView: View {
                     .onChange(of: joinDatePublic) { _, isPublic in
                         save { $0.joinDatePublic = isPublic }
                     }
-                    .settingHelp(L("Shows other users how long you have had the app, under your profile description."))
+                    .setting(.joinDatePublic)
             }
         }
         .navigationTitle(L("Profile"))
         .navigationBarTitleDisplayMode(.inline)
+        .settingsSearchable(.profile)
         .stableTopEdgeFade()
         // Swiping down over the keyboard puts it away, like everywhere else.
         .scrollDismissesKeyboard(.interactively)

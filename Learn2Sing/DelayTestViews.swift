@@ -27,17 +27,18 @@ struct DelayTestChoiceView: View {
             Section {
                 SettingsHubRow(title: L("Clap Test"), systemImage: "metronome",
                                action: openClapTest)
-                    .settingHelp(L("Clap along with a metronome and the app works the delay out for you. Quick, but it needs headphones and firm claps to be accurate."))
+                    .setting(.clapTest)
 
                 SettingsHubRow(title: L("Sing an Exercise"), systemImage: "music.mic",
                                action: openSungTest)
-                    .settingHelp(L("Sing one of your own exercises, then slide your recorded singing until it lines up with the notes. Takes longer, but you see exactly what you're setting."))
+                    .setting(.sungTest)
             } header: {
                 Text("Choose a Test")
             }
         }
         .navigationTitle(L("Test for delay"))
         .navigationBarTitleDisplayMode(.inline)
+        .settingsSearchable(.delayChoice)
     }
 }
 

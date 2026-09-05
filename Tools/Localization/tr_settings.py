@@ -495,3 +495,36 @@ T("Adds the ticked new exercises to your library and updates the ticked ones it 
   "選択した新しいエクササイズをライブラリに追加し、選択した既存のエクササイズを更新します。選択していないものは取り込まれません。",
   "선택한 새 연습을 라이브러리에 추가하고, 이미 있는 연습 중 선택한 것을 업데이트합니다. 선택하지 않은 것은 넘어갑니다.",
   "把勾选的新练习加入你的练习库，并更新其中已有的勾选项。未勾选的一概不导入。")
+
+# --- Settings search ---
+# The search field on the Settings tab and every screen under it, labelled after
+# the screen it sits on ("Search Visuals"). Languages that would have to inflect
+# the inserted name use a colon instead of a preposition.
+T("Search %@",
+  "%@ durchsuchen",
+  "Buscar en %@",
+  "Rechercher dans %@",
+  "Cerca in %@",
+  "Buscar em %@",
+  "Zoeken in %@",
+  "Поиск: %@",
+  "Szukaj: %@",
+  "%@ içinde ara",
+  "Sök i %@",
+  "%@を検索",
+  "%@ 검색",
+  "搜索%@")
+T("Takes you to the screen this setting is on and points it out. Nothing is changed from here.",
+  "Bringt dich zu dem Bildschirm, auf dem diese Einstellung liegt, und hebt sie hervor. Hier wird nichts geändert.",
+  "Te lleva a la pantalla donde está este ajuste y lo señala. Aquí no se cambia nada.",
+  "Vous emmène à l’écran où se trouve ce réglage et le met en évidence. Rien n’est modifié ici.",
+  "Ti porta alla schermata in cui si trova questa impostazione e la evidenzia. Qui non viene cambiato nulla.",
+  "Leva você à tela onde esta configuração está e a destaca. Nada é alterado aqui.",
+  "Brengt je naar het scherm waar deze instelling staat en markeert die. Hier wordt niets gewijzigd.",
+  "Открывает экран, на котором находится эта настройка, и подсвечивает её. Здесь ничего не меняется.",
+  "Przenosi cię na ekran z tym ustawieniem i je podświetla. Tutaj nic nie jest zmieniane.",
+  "Seni bu ayarın bulunduğu ekrana götürür ve onu belirginleştirir. Burada hiçbir şey değişmez.",
+  "Tar dig till skärmen där den här inställningen finns och markerar den. Inget ändras härifrån.",
+  "この設定がある画面に移動して、その項目を目立たせます。ここでは何も変更されません。",
+  "이 설정이 있는 화면으로 이동해 해당 항목을 표시해 줍니다. 여기서는 아무것도 바뀌지 않습니다.",
+  "带你前往该设置所在的界面并高亮显示它。这里不会更改任何内容。")

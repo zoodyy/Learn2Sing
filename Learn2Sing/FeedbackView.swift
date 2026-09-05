@@ -165,7 +165,7 @@ struct FeedbackView: View {
                 } label: {
                     Text("Type") + Text(verbatim: " *")
                 }
-                .settingHelp(L("What the message is: something that's broken, something you'd like added, what you make of the app, or something you'd like to know."))
+                .setting(.feedbackType)
 
                 Picker("Where in the app", selection: $locationRaw) {
                     Text("Not set").tag("")
@@ -173,14 +173,14 @@ struct FeedbackView: View {
                         Text(L(location.rawValue)).tag(location.rawValue)
                     }
                 }
-                .settingHelp(L("Optional. The tab your message is about, so it's clear where to look."))
+                .setting(.feedbackLocation)
             }
 
             Section {
                 TextField("What would you like to say?", text: $message, axis: .vertical)
                     .lineLimit(5...15)
                     .focused($isWriting)
-                    .settingHelp(L("What you would like to say. The more exactly you describe it, the more can be done about it."))
+                    .setting(.feedbackMessage)
             } header: {
                 Text("Message") + Text(verbatim: " *")
             }
@@ -195,6 +195,10 @@ struct FeedbackView: View {
                     .textContentType(.emailAddress)
                     .textInputAutocapitalization(.never)
                     .autocorrectionDisabled()
+                    // The one field whose explanation is written out below it
+                    // rather than held for, so it is marked for the search
+                    // without a bubble of its own.
+                    .settingAnchor(.feedbackEmail)
             } header: {
                 Text("E-Mail")
             } footer: {
@@ -227,7 +231,7 @@ struct FeedbackView: View {
                     }
                 }
                 .disabled(!canSend || isSending)
-                .settingHelp(L("Sends your message straight to the developer. It stays greyed out until the type and the message are filled in."))
+                .setting(.feedbackSend)
             } footer: {
                 // The legend for the asterisks above stays put at the top, so
                 // the line below it — which says which of the two required
@@ -250,6 +254,7 @@ struct FeedbackView: View {
         }
         .navigationTitle(L("Request a new Feature/ Report a Bug"))
         .navigationBarTitleDisplayMode(.inline)
+        .settingsSearchable(.feedback)
         .stableTopEdgeFade()
         // The message field's return key inserts a newline rather than closing
         // the keyboard, so scrolling is what puts it away.
