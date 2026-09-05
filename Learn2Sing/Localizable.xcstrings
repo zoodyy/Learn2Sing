@@ -1834,6 +1834,89 @@
         }
       }
     },
+    "A public exercise has to last at least %@, counting all of its repetitions together, and your changes bring this one down to %@. Make it private, or undo everything you have changed since you opened its settings." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eine öffentliche Übung muss mit allen Wiederholungen zusammen mindestens %@ dauern, und deine Änderungen bringen diese auf %@. Mach sie privat, oder nimm alles zurück, was du seit dem Öffnen ihrer Einstellungen geändert hast."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un ejercicio público tiene que durar al menos %@ sumando todas sus repeticiones, y tus cambios dejan este en %@. Hazlo privado o deshaz todo lo que has cambiado desde que abriste sus ajustes."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un exercice public doit durer au moins %@, toutes répétitions confondues, et vos modifications le ramènent à %@. Rendez-le privé, ou annulez tout ce que vous avez changé depuis l’ouverture de ses réglages."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un esercizio pubblico deve durare almeno %@ contando tutte le sue ripetizioni, e le tue modifiche lo portano a %@. Rendilo privato, oppure annulla tutto ciò che hai cambiato da quando ne hai aperto le impostazioni."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "公開エクササイズは繰り返しをすべて合わせて%@以上でなければなりませんが、変更によってこのエクササイズは%@になります。非公開にするか、設定を開いてから変更した内容をすべて元に戻してください。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "공개 연습은 모든 반복을 합쳐 %@ 이상이어야 하는데, 변경으로 이 연습은 %@이(가) 됩니다. 비공개로 바꾸거나, 설정을 연 뒤 변경한 내용을 모두 되돌리세요."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Een openbare oefening moet met alle herhalingen samen minstens %@ duren, en door je wijzigingen komt deze op %@. Maak hem privé, of maak alles ongedaan wat je hebt gewijzigd sinds je de instellingen opende."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Publiczne ćwiczenie musi trwać co najmniej %@ łącznie ze wszystkimi powtórzeniami, a twoje zmiany skracają je do %@. Ustaw je jako prywatne albo cofnij wszystko, co zmieniono od otwarcia jego ustawień."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Um exercício público precisa durar pelo menos %@ somando todas as suas repetições, e suas alterações deixam este em %@. Torne-o privado ou desfaça tudo o que você mudou desde que abriu os ajustes dele."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Публичное упражнение должно длиться не менее %@ со всеми повторами вместе, а ваши изменения сокращают его до %@. Сделайте его личным или отмените всё, что вы изменили с момента открытия его настроек."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "En offentlig övning måste vara minst %@ med alla repetitioner sammanlagt, och dina ändringar tar ner den här till %@. Gör den privat, eller ångra allt du har ändrat sedan du öppnade dess inställningar."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Herkese açık bir egzersizin tüm tekrarları birlikte en az %@ sürmesi gerekir; değişiklikleriniz bunu %@ süreye düşürüyor. Egzersizi özel yapın ya da ayarlarını açtığınızdan beri değiştirdiğiniz her şeyi geri alın."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "公开的练习把所有重复加在一起至少要有 %@，而你的修改让这个练习只剩 %@。请将它设为私有，或撤销自打开其设置以来所做的全部修改。"
+          }
+        }
+      }
+    },
     "A sound you uploaded yourself. Tap the name to open it, the speaker to hear it, and swipe left to delete it." : {
       "extractionState" : "stale",
       "localizations" : {
@@ -20597,6 +20680,88 @@
         }
       }
     },
+    "Make Private" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Privat machen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hacerlo privado"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rendre privé"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rendi privato"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "非公開にする"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "비공개로 전환"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Privé maken"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ustaw jako prywatne"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tornar privado"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сделать личным"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gör privat"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Özel yap"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "设为私有"
+          }
+        }
+      }
+    },
     "Make your join date public" : {
       "localizations" : {
         "de" : {
@@ -29019,85 +29184,85 @@
         }
       }
     },
-    "Public exercises appear on the Community tab." : {
+    "Public exercises appear on the Community tab. Only an exercise lasting at least %@, counting all of its repetitions together, can be made public." : {
       "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Öffentliche Übungen erscheinen im Community-Tab."
+            "value" : "Öffentliche Übungen erscheinen im Community-Tab. Öffentlich machen lässt sich nur eine Übung, die mit allen Wiederholungen zusammen mindestens %@ dauert."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Los ejercicios públicos aparecen en la pestaña Comunidad."
+            "value" : "Los ejercicios públicos aparecen en la pestaña Comunidad. Solo se puede hacer público un ejercicio que dure al menos %@ sumando todas sus repeticiones."
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Les exercices publics apparaissent dans l’onglet Communauté."
+            "value" : "Les exercices publics apparaissent dans l’onglet Communauté. Seul un exercice durant au moins %@, toutes répétitions confondues, peut être rendu public."
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Gli esercizi pubblici compaiono nella scheda Comunità."
+            "value" : "Gli esercizi pubblici compaiono nella scheda Comunità. Può diventare pubblico solo un esercizio che dura almeno %@ contando tutte le sue ripetizioni."
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "公開エクササイズはコミュニティタブに表示されます。"
+            "value" : "公開エクササイズはコミュニティタブに表示されます。公開できるのは、繰り返しをすべて合わせて%@以上のエクササイズだけです。"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "공개 연습은 커뮤니티 탭에 표시됩니다."
+            "value" : "공개 연습은 커뮤니티 탭에 표시됩니다. 모든 반복을 합쳐 %@ 이상인 연습만 공개할 수 있습니다."
           }
         },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Openbare oefeningen verschijnen op het tabblad Community."
+            "value" : "Openbare oefeningen verschijnen op het tabblad Community. Alleen een oefening die met alle herhalingen samen minstens %@ duurt, kan openbaar worden gemaakt."
           }
         },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Publiczne ćwiczenia pojawiają się na karcie Społeczność."
+            "value" : "Publiczne ćwiczenia pojawiają się na karcie Społeczność. Publiczne może być tylko ćwiczenie trwające co najmniej %@ łącznie ze wszystkimi powtórzeniami."
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Exercícios públicos aparecem na aba Comunidade."
+            "value" : "Exercícios públicos aparecem na aba Comunidade. Só pode ser tornado público um exercício que dure pelo menos %@ somando todas as suas repetições."
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Публичные упражнения появляются на вкладке «Сообщество»."
+            "value" : "Публичные упражнения появляются на вкладке «Сообщество». Публичным можно сделать только упражнение, которое длится не менее %@ со всеми повторами вместе."
           }
         },
         "sv" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Offentliga övningar visas på fliken Community."
+            "value" : "Offentliga övningar visas på fliken Community. Bara en övning som varar minst %@ med alla repetitioner sammanlagt kan göras offentlig."
           }
         },
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Herkese açık egzersizler Topluluk sekmesinde görünür."
+            "value" : "Herkese açık egzersizler Topluluk sekmesinde görünür. Yalnızca tüm tekrarları birlikte en az %@ süren bir egzersiz herkese açık yapılabilir."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "公开的练习会出现在“社区”标签中。"
+            "value" : "公开的练习会出现在“社区”标签中。只有把所有重复加在一起至少达到 %@ 的练习才能设为公开。"
           }
         }
       }
@@ -42490,6 +42655,89 @@
         }
       }
     },
+    "This exercise lasts %@. A public exercise has to last at least %@, counting all of its repetitions together, so this one stays private." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Diese Übung dauert %@. Eine öffentliche Übung muss mit allen Wiederholungen zusammen mindestens %@ dauern, deshalb bleibt diese privat."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Este ejercicio dura %@. Un ejercicio público tiene que durar al menos %@ sumando todas sus repeticiones, así que este seguirá siendo privado."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cet exercice dure %@. Un exercice public doit durer au moins %@, toutes répétitions confondues : celui-ci reste donc privé."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Questo esercizio dura %@. Un esercizio pubblico deve durare almeno %@ contando tutte le sue ripetizioni, quindi questo resta privato."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "このエクササイズは%@です。公開エクササイズは繰り返しをすべて合わせて%@以上でなければならないため、こちらは非公開のままになります。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이 연습은 %@입니다. 공개 연습은 모든 반복을 합쳐 %@ 이상이어야 하므로 이 연습은 비공개로 유지됩니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deze oefening duurt %@. Een openbare oefening moet met alle herhalingen samen minstens %@ duren, dus deze blijft privé."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "To ćwiczenie trwa %@. Publiczne ćwiczenie musi trwać co najmniej %@ łącznie ze wszystkimi powtórzeniami, więc to pozostanie prywatne."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Este exercício dura %@. Um exercício público precisa durar pelo menos %@ somando todas as suas repetições, então este continua privado."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Это упражнение длится %@. Публичное упражнение должно длиться не менее %@ со всеми повторами вместе, поэтому это останется личным."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Den här övningen varar %@. En offentlig övning måste vara minst %@ med alla repetitioner sammanlagt, så den här förblir privat."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bu egzersiz %@ sürüyor. Herkese açık bir egzersizin tüm tekrarları birlikte en az %@ sürmesi gerekir; bu yüzden bu egzersiz özel kalır."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "该练习时长为 %@。公开的练习把所有重复加在一起至少要有 %@，因此该练习将保持私有。"
+          }
+        }
+      }
+    },
     "This test measures how long it takes your microphone to pick up sound, so the app can line your singing up with the notes when scoring.\n\nA steady metronome will tick along with short markers labelled “clap”. Clap your hands once on every tick. The first four ticks are just to help you settle into the beat and aren't counted — keep clapping through the rest, sixteen in all.\n\nWhen it finishes, the delay between your claps and the ticks is measured and your microphone delay setting is updated automatically.\n\nFor the most accurate result, use headphones so the metronome isn't picked up by the microphone, and clap firmly." : {
       "extractionState" : "stale",
       "localizations" : {
@@ -43404,6 +43652,170 @@
         }
       }
     },
+    "Too Short to Publish" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zu kurz zum Veröffentlichen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Demasiado corto para publicarlo"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trop court pour être publié"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Troppo breve per pubblicarlo"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "公開するには短すぎます"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "공개하기에는 너무 짧습니다"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Te kort om openbaar te maken"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Za krótkie, by opublikować"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Curto demais para publicar"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Слишком короткое для публикации"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "För kort för att publiceras"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Yayınlamak için çok kısa"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "太短，无法公开"
+          }
+        }
+      }
+    },
+    "Too Short to Stay Public" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zu kurz, um öffentlich zu bleiben"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Demasiado corto para seguir siendo público"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trop court pour rester public"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Troppo breve per restare pubblico"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "公開のままにするには短すぎます"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "공개로 두기에는 너무 짧습니다"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Te kort om openbaar te blijven"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Za krótkie, by pozostać publicznym"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Curto demais para continuar público"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Слишком короткое, чтобы остаться публичным"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "För kort för att förbli offentlig"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Herkese açık kalmak için çok kısa"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "太短，无法保持公开"
+          }
+        }
+      }
+    },
     "Top right" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -43976,6 +44388,88 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "类型"
+          }
+        }
+      }
+    },
+    "Undo My Changes" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Änderungen zurücknehmen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deshacer mis cambios"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Annuler mes modifications"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Annulla le modifiche"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "変更を元に戻す"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "내 변경 되돌리기"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mijn wijzigingen ongedaan maken"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cofnij moje zmiany"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Desfazer minhas alterações"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Отменить мои изменения"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ångra mina ändringar"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Değişikliklerimi geri al"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "撤销我的修改"
           }
         }
       }

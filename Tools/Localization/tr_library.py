@@ -57,7 +57,20 @@ T("beat(s)", "Schlag/Schläge", "tiempo(s)", "temps", "movimento/i", "tempo(s)",
 T("Visibility", "Sichtbarkeit", "Visibilidad", "Visibilité", "Visibilità", "Visibilidade", "Zichtbaarheid", "Видимость", "Widoczność", "Görünürlük", "Synlighet", "公開設定", "공개 범위", "可见性")
 T("Private", "Privat", "Privado", "Privé", "Privato", "Privado", "Privé", "Личное", "Prywatne", "Özel", "Privat", "非公開", "비공개", "私有")
 T("Public", "Öffentlich", "Público", "Public", "Pubblico", "Público", "Openbaar", "Публичное", "Publiczne", "Herkese açık", "Offentlig", "公開", "공개", "公开")
-T("Public exercises appear on the Community tab.", "Öffentliche Übungen erscheinen im Community-Tab.", "Los ejercicios públicos aparecen en la pestaña Comunidad.", "Les exercices publics apparaissent dans l’onglet Communauté.", "Gli esercizi pubblici compaiono nella scheda Comunità.", "Exercícios públicos aparecem na aba Comunidade.", "Openbare oefeningen verschijnen op het tabblad Community.", "Публичные упражнения появляются на вкладке «Сообщество».", "Publiczne ćwiczenia pojawiają się na karcie Społeczność.", "Herkese açık egzersizler Topluluk sekmesinde görünür.", "Offentliga övningar visas på fliken Community.", "公開エクササイズはコミュニティタブに表示されます。", "공개 연습은 커뮤니티 탭에 표시됩니다.", "公开的练习会出现在“社区”标签中。")
+T("Public exercises appear on the Community tab. Only an exercise lasting at least %@, counting all of its repetitions together, can be made public.",
+  "Öffentliche Übungen erscheinen im Community-Tab. Öffentlich machen lässt sich nur eine Übung, die mit allen Wiederholungen zusammen mindestens %@ dauert.",
+  "Los ejercicios públicos aparecen en la pestaña Comunidad. Solo se puede hacer público un ejercicio que dure al menos %@ sumando todas sus repeticiones.",
+  "Les exercices publics apparaissent dans l’onglet Communauté. Seul un exercice durant au moins %@, toutes répétitions confondues, peut être rendu public.",
+  "Gli esercizi pubblici compaiono nella scheda Comunità. Può diventare pubblico solo un esercizio che dura almeno %@ contando tutte le sue ripetizioni.",
+  "Exercícios públicos aparecem na aba Comunidade. Só pode ser tornado público um exercício que dure pelo menos %@ somando todas as suas repetições.",
+  "Openbare oefeningen verschijnen op het tabblad Community. Alleen een oefening die met alle herhalingen samen minstens %@ duurt, kan openbaar worden gemaakt.",
+  "Публичные упражнения появляются на вкладке «Сообщество». Публичным можно сделать только упражнение, которое длится не менее %@ со всеми повторами вместе.",
+  "Publiczne ćwiczenia pojawiają się na karcie Społeczność. Publiczne może być tylko ćwiczenie trwające co najmniej %@ łącznie ze wszystkimi powtórzeniami.",
+  "Herkese açık egzersizler Topluluk sekmesinde görünür. Yalnızca tüm tekrarları birlikte en az %@ süren bir egzersiz herkese açık yapılabilir.",
+  "Offentliga övningar visas på fliken Community. Bara en övning som varar minst %@ med alla repetitioner sammanlagt kan göras offentlig.",
+  "公開エクササイズはコミュニティタブに表示されます。公開できるのは、繰り返しをすべて合わせて%@以上のエクササイズだけです。",
+  "공개 연습은 커뮤니티 탭에 표시됩니다. 모든 반복을 합쳐 %@ 이상인 연습만 공개할 수 있습니다.",
+  "公开的练习会出现在“社区”标签中。只有把所有重复加在一起至少达到 %@ 的练习才能设为公开。")
 T("Delete Exercise", "Übung löschen", "Eliminar ejercicio", "Supprimer l’exercice", "Elimina esercizio", "Excluir exercício", "Oefening verwijderen", "Удалить упражнение", "Usuń ćwiczenie", "Egzersizi sil", "Radera övning", "エクササイズを削除", "연습 삭제", "删除练习")
 T("Delete Exercise?", "Übung löschen?", "¿Eliminar el ejercicio?", "Supprimer l’exercice ?", "Eliminare l’esercizio?", "Excluir exercício?", "Oefening verwijderen?", "Удалить упражнение?", "Usunąć ćwiczenie?", "Egzersiz silinsin mi?", "Radera övningen?", "エクササイズを削除しますか？", "연습을 삭제할까요?", "要删除该练习吗？")
 T("\"%@\" and its MIDI pattern will be deleted. This cannot be undone.",
@@ -74,6 +87,39 @@ T("\"%@\" and its MIDI pattern will be deleted. This cannot be undone.",
   "「%@」とそのMIDIパターンが削除されます。この操作は取り消せません。",
   "“%@”과(와) 해당 MIDI 패턴이 삭제됩니다. 이 작업은 되돌릴 수 없습니다.",
   "将删除“%@”及其 MIDI 音型。此操作无法撤销。")
+# --- The minimum length a public exercise has to reach ---
+T("Too Short to Publish", "Zu kurz zum Veröffentlichen", "Demasiado corto para publicarlo", "Trop court pour être publié", "Troppo breve per pubblicarlo", "Curto demais para publicar", "Te kort om openbaar te maken", "Слишком короткое для публикации", "Za krótkie, by opublikować", "Yayınlamak için çok kısa", "För kort för att publiceras", "公開するには短すぎます", "공개하기에는 너무 짧습니다", "太短，无法公开")
+T("This exercise lasts %@. A public exercise has to last at least %@, counting all of its repetitions together, so this one stays private.",
+  "Diese Übung dauert %@. Eine öffentliche Übung muss mit allen Wiederholungen zusammen mindestens %@ dauern, deshalb bleibt diese privat.",
+  "Este ejercicio dura %@. Un ejercicio público tiene que durar al menos %@ sumando todas sus repeticiones, así que este seguirá siendo privado.",
+  "Cet exercice dure %@. Un exercice public doit durer au moins %@, toutes répétitions confondues : celui-ci reste donc privé.",
+  "Questo esercizio dura %@. Un esercizio pubblico deve durare almeno %@ contando tutte le sue ripetizioni, quindi questo resta privato.",
+  "Este exercício dura %@. Um exercício público precisa durar pelo menos %@ somando todas as suas repetições, então este continua privado.",
+  "Deze oefening duurt %@. Een openbare oefening moet met alle herhalingen samen minstens %@ duren, dus deze blijft privé.",
+  "Это упражнение длится %@. Публичное упражнение должно длиться не менее %@ со всеми повторами вместе, поэтому это останется личным.",
+  "To ćwiczenie trwa %@. Publiczne ćwiczenie musi trwać co najmniej %@ łącznie ze wszystkimi powtórzeniami, więc to pozostanie prywatne.",
+  "Bu egzersiz %@ sürüyor. Herkese açık bir egzersizin tüm tekrarları birlikte en az %@ sürmesi gerekir; bu yüzden bu egzersiz özel kalır.",
+  "Den här övningen varar %@. En offentlig övning måste vara minst %@ med alla repetitioner sammanlagt, så den här förblir privat.",
+  "このエクササイズは%@です。公開エクササイズは繰り返しをすべて合わせて%@以上でなければならないため、こちらは非公開のままになります。",
+  "이 연습은 %@입니다. 공개 연습은 모든 반복을 합쳐 %@ 이상이어야 하므로 이 연습은 비공개로 유지됩니다.",
+  "该练习时长为 %@。公开的练习把所有重复加在一起至少要有 %@，因此该练习将保持私有。")
+T("Too Short to Stay Public", "Zu kurz, um öffentlich zu bleiben", "Demasiado corto para seguir siendo público", "Trop court pour rester public", "Troppo breve per restare pubblico", "Curto demais para continuar público", "Te kort om openbaar te blijven", "Слишком короткое, чтобы остаться публичным", "Za krótkie, by pozostać publicznym", "Herkese açık kalmak için çok kısa", "För kort för att förbli offentlig", "公開のままにするには短すぎます", "공개로 두기에는 너무 짧습니다", "太短，无法保持公开")
+T("A public exercise has to last at least %@, counting all of its repetitions together, and your changes bring this one down to %@. Make it private, or undo everything you have changed since you opened its settings.",
+  "Eine öffentliche Übung muss mit allen Wiederholungen zusammen mindestens %@ dauern, und deine Änderungen bringen diese auf %@. Mach sie privat, oder nimm alles zurück, was du seit dem Öffnen ihrer Einstellungen geändert hast.",
+  "Un ejercicio público tiene que durar al menos %@ sumando todas sus repeticiones, y tus cambios dejan este en %@. Hazlo privado o deshaz todo lo que has cambiado desde que abriste sus ajustes.",
+  "Un exercice public doit durer au moins %@, toutes répétitions confondues, et vos modifications le ramènent à %@. Rendez-le privé, ou annulez tout ce que vous avez changé depuis l’ouverture de ses réglages.",
+  "Un esercizio pubblico deve durare almeno %@ contando tutte le sue ripetizioni, e le tue modifiche lo portano a %@. Rendilo privato, oppure annulla tutto ciò che hai cambiato da quando ne hai aperto le impostazioni.",
+  "Um exercício público precisa durar pelo menos %@ somando todas as suas repetições, e suas alterações deixam este em %@. Torne-o privado ou desfaça tudo o que você mudou desde que abriu os ajustes dele.",
+  "Een openbare oefening moet met alle herhalingen samen minstens %@ duren, en door je wijzigingen komt deze op %@. Maak hem privé, of maak alles ongedaan wat je hebt gewijzigd sinds je de instellingen opende.",
+  "Публичное упражнение должно длиться не менее %@ со всеми повторами вместе, а ваши изменения сокращают его до %@. Сделайте его личным или отмените всё, что вы изменили с момента открытия его настроек.",
+  "Publiczne ćwiczenie musi trwać co najmniej %@ łącznie ze wszystkimi powtórzeniami, a twoje zmiany skracają je do %@. Ustaw je jako prywatne albo cofnij wszystko, co zmieniono od otwarcia jego ustawień.",
+  "Herkese açık bir egzersizin tüm tekrarları birlikte en az %@ sürmesi gerekir; değişiklikleriniz bunu %@ süreye düşürüyor. Egzersizi özel yapın ya da ayarlarını açtığınızdan beri değiştirdiğiniz her şeyi geri alın.",
+  "En offentlig övning måste vara minst %@ med alla repetitioner sammanlagt, och dina ändringar tar ner den här till %@. Gör den privat, eller ångra allt du har ändrat sedan du öppnade dess inställningar.",
+  "公開エクササイズは繰り返しをすべて合わせて%@以上でなければなりませんが、変更によってこのエクササイズは%@になります。非公開にするか、設定を開いてから変更した内容をすべて元に戻してください。",
+  "공개 연습은 모든 반복을 합쳐 %@ 이상이어야 하는데, 변경으로 이 연습은 %@이(가) 됩니다. 비공개로 바꾸거나, 설정을 연 뒤 변경한 내용을 모두 되돌리세요.",
+  "公开的练习把所有重复加在一起至少要有 %@，而你的修改让这个练习只剩 %@。请将它设为私有，或撤销自打开其设置以来所做的全部修改。")
+T("Make Private", "Privat machen", "Hacerlo privado", "Rendre privé", "Rendi privato", "Tornar privado", "Privé maken", "Сделать личным", "Ustaw jako prywatne", "Özel yap", "Gör privat", "非公開にする", "비공개로 전환", "设为私有")
+T("Undo My Changes", "Änderungen zurücknehmen", "Deshacer mis cambios", "Annuler mes modifications", "Annulla le modifiche", "Desfazer minhas alterações", "Mijn wijzigingen ongedaan maken", "Отменить мои изменения", "Cofnij moje zmiany", "Değişikliklerimi geri al", "Ångra mina ändringar", "変更を元に戻す", "내 변경 되돌리기", "撤销我的修改")
 T("Name Already Public", "Name bereits öffentlich", "El nombre ya es público", "Nom déjà public", "Nome già pubblico", "Nome já público", "Naam al openbaar", "Название уже опубликовано", "Nazwa już publiczna", "Ad zaten herkese açık", "Namnet är redan offentligt", "その名前は公開済みです", "이미 공개된 이름", "名称已被公开使用")
 T("You already have a public exercise named \"%@\". Each of your public exercises needs a unique name, so this one stays private.",
   "Du hast bereits eine öffentliche Übung namens „%@“. Jede deiner öffentlichen Übungen braucht einen eindeutigen Namen, deshalb bleibt diese privat.",

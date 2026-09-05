@@ -20,6 +20,30 @@ struct ExerciseSettingsView: View {
     /// put back to) private. Different users may share the same name.
     @State private var isWarningDuplicateName = false
 
+    /// Shown when publishing is refused because the exercise is shorter than
+    /// `Exercise.minimumPublicDuration`; it stays private.
+    @State private var isWarningTooShortToPublish = false
+
+    /// Shown when a change made here drops an exercise that is already public
+    /// under that minimum. It can't stay as it is, so the user picks which way
+    /// out: off the Community tab, or back to how this screen found it.
+    @State private var isResolvingTooShort = false
+
+    /// The exercise, its notes and the labels over them exactly as this screen
+    /// found them, which "Undo My Changes" puts back. Taken on the first
+    /// appearance only: the screen appears again every time the MIDI editor is
+    /// left, and what was drawn in there is a change made from here too.
+    @State private var openState: Exercise?
+    @State private var openNotes: [MIDINote] = []
+    @State private var openLabels: [MIDIText] = []
+
+    /// Whether the exercise obeyed the public-length rule when the screen
+    /// opened. One that was already public and too short — published before the
+    /// rule existed, or imported that way — is left alone: nothing done here
+    /// caused it, and putting the screen back the way it was found wouldn't fix
+    /// it either.
+    @State private var wasWithinLengthRuleOnOpen = true
+
     /// The exercise's saved MIDI pattern and the labels written over it, for the
     /// preview at the top of the screen. Read when the screen appears rather than
     /// per frame — the pattern lives in UserDefaults, and only the MIDI editor
@@ -90,8 +114,31 @@ struct ExerciseSettingsView: View {
         // Read again every time the screen comes back, so a pattern just changed in
         // the MIDI editor is the one the preview draws.
         .onAppear {
-            pattern = store.notes(for: exercise.id)
-            labels = store.texts(for: exercise.id)
+            let notes = store.notes(for: exercise.id)
+            let texts = store.texts(for: exercise.id)
+            pattern = notes
+            labels = texts
+            if openState == nil {
+                openState = exercise
+                openNotes = notes
+                openLabels = texts
+                wasWithinLengthRuleOnOpen = exercise.visibility != .public
+                    || clearsMinimumLength(exercise.contentDuration(pattern: notes))
+            } else {
+                // Back from the MIDI editor: notes taken out in there shorten the
+                // exercise exactly as the settings below do. Asked for a tick later
+                // so the alert isn't put up while the screen is still arriving.
+                DispatchQueue.main.async { enforcePublicMinimumLength() }
+            }
+        }
+        // A value typed into one of the repetition fields is committed as it is
+        // typed but only measured once the field is done being edited, so leaving
+        // with the keyboard still up is the one way past the question below. The
+        // rule holds anyway: the exercise comes off the Community tab.
+        .onDisappear {
+            guard wasWithinLengthRuleOnOpen, exercise.visibility == .public,
+                  !isLongEnoughToPublish else { return }
+            exercise.visibility = .private
         }
         .alert("Delete Exercise?", isPresented: $isConfirmingDelete) {
             Button("Delete", role: .destructive) {
@@ -107,11 +154,15 @@ struct ExerciseSettingsView: View {
             Text(L("\"%@\" and its MIDI pattern will be deleted. This cannot be undone.", exercise.name))
         }
         // Publishing stamps the current profile username as the uploader shown
-        // next to the exercise on the Community tab — unless the user already
-        // shares another exercise with this name, which is refused.
+        // next to the exercise on the Community tab — unless the exercise is too
+        // short to be worth anyone's download, or the user already shares another
+        // exercise with this name. Either one is refused.
         .onChange(of: exercise.visibility) { _, newValue in
             guard newValue == .public else { return }
-            if isPublicNameTaken() {
+            if !isLongEnoughToPublish {
+                exercise.visibility = .private
+                isWarningTooShortToPublish = true
+            } else if isPublicNameTaken() {
                 exercise.visibility = .private
                 isWarningDuplicateName = true
             } else {
@@ -119,15 +170,45 @@ struct ExerciseSettingsView: View {
             }
         }
         // Renames are checked when editing ends, not per keystroke — a name
-        // passes through spurious collisions while being typed.
+        // passes through spurious collisions while being typed. The same goes for
+        // the fields that decide how long the exercise runs: "20" repetitions
+        // passes through "2" on its way in.
         .onChange(of: focusedField) { old, new in
-            if old == .name, new != .name { demoteIfNameTaken() }
-            if old == .speed, new != .speed { clampSpeedPerRepeat() }
+            guard old != new else { return }
+            switch old {
+            case .name:
+                demoteIfNameTaken()
+            case .speed:
+                clampSpeedPerRepeat()
+                enforcePublicMinimumLength()
+            case .repeatCount, .betweenReps:
+                enforcePublicMinimumLength()
+            default:
+                break
+            }
         }
         .alert("Name Already Public", isPresented: $isWarningDuplicateName) {
             Button("OK", role: .cancel) {}
         } message: {
             Text(L("You already have a public exercise named \"%@\". Each of your public exercises needs a unique name, so this one stays private.", exercise.name))
+        }
+        .alert("Too Short to Publish", isPresented: $isWarningTooShortToPublish) {
+            Button("OK", role: .cancel) {}
+        } message: {
+            Text(L("This exercise lasts %@. A public exercise has to last at least %@, counting all of its repetitions together, so this one stays private.",
+                   formattedLength(contentLength),
+                   formattedLength(Exercise.minimumPublicDuration)))
+        }
+        // Two ways out and no way past: whichever the user picks leaves the
+        // exercise inside the rule, so the question is only ever asked once per
+        // change that breaks it.
+        .alert("Too Short to Stay Public", isPresented: $isResolvingTooShort) {
+            Button("Make Private") { exercise.visibility = .private }
+            Button("Undo My Changes") { revertToOpenState() }
+        } message: {
+            Text(L("A public exercise has to last at least %@, counting all of its repetitions together, and your changes bring this one down to %@. Make it private, or undo everything you have changed since you opened its settings.",
+                   formattedLength(Exercise.minimumPublicDuration),
+                   formattedLength(contentLength)))
         }
         .navigationTitle(exercise.localizedName)
         .navigationBarTitleDisplayMode(.inline)
@@ -191,7 +272,12 @@ struct ExerciseSettingsView: View {
                     Text(L("%d BPM", Int(exercise.bpm))).foregroundStyle(.secondary)
                 }
                 .settingHelp(L("How fast the exercise is played, in beats per minute."))
-                Slider(value: $exercise.bpm, in: 40...240, step: 1)
+                // Measured when the drag ends rather than as it moves: a tempo on
+                // its way past the limit isn't one the singer has settled on.
+                Slider(value: $exercise.bpm, in: 40...240, step: 1,
+                       onEditingChanged: { editing in
+                           if !editing { enforcePublicMinimumLength() }
+                       })
                     .settingHelp(L("How fast the exercise is played, in beats per minute."))
             }
 
@@ -287,7 +373,8 @@ struct ExerciseSettingsView: View {
                             Text(visibility.label).tag(visibility)
                         }
                     }
-                    .settingHelp(L("Public exercises appear on the Community tab."))
+                    .settingHelp(L("Public exercises appear on the Community tab. Only an exercise lasting at least %@, counting all of its repetitions together, can be made public.",
+                                   formattedLength(Exercise.minimumPublicDuration)))
                 } header: {
                     Text("Visibility")
                 }
@@ -304,6 +391,56 @@ struct ExerciseSettingsView: View {
                 .settingHelp(L("Deletes this exercise, its notes and its scores. This cannot be undone."))
             }
         }
+    }
+
+    // MARK: - Minimum length for a public exercise
+
+    /// How long the exercise lasts as this screen currently has it: all of its
+    /// repetitions and the silence between them, without the count-in. This is
+    /// what the public minimum is measured against.
+    private var contentLength: Double {
+        exercise.contentDuration(pattern: pattern)
+    }
+
+    private var isLongEnoughToPublish: Bool { clearsMinimumLength(contentLength) }
+
+    /// Whether `seconds` clears `Exercise.minimumPublicDuration`. The slack
+    /// absorbs the rounding of beats into seconds, so an exercise landing exactly
+    /// on the limit is never refused over a fraction of a millisecond.
+    private func clearsMinimumLength(_ seconds: Double) -> Bool {
+        seconds >= Exercise.minimumPublicDuration - 0.0001
+    }
+
+    /// A length written out for the alerts and the help bubble, in whole seconds
+    /// and in the app's chosen language. Rounded down, so an exercise a hair
+    /// under the limit is never reported as the length the rule asks for.
+    private func formattedLength(_ seconds: Double) -> String {
+        Duration.seconds(max(0, seconds).rounded(.down)).formatted(
+            Duration.UnitsFormatStyle(allowedUnits: [.seconds], width: .wide)
+                .locale(appLanguage.language.locale))
+    }
+
+    /// Called wherever a change to the exercise's length is finished being made.
+    /// A public exercise that has just dropped under the minimum can't be left
+    /// as it is, so the user is asked which way out they want.
+    private func enforcePublicMinimumLength() {
+        guard wasWithinLengthRuleOnOpen, exercise.visibility == .public,
+              !isLongEnoughToPublish, !isResolvingTooShort else { return }
+        isResolvingTooShort = true
+    }
+
+    /// Puts the exercise back exactly as this screen found it: its settings, its
+    /// notes and the labels over them. The pattern goes back too because the MIDI
+    /// editor writes every stroke through as it is drawn, so a repetition emptied
+    /// out in there is one of the changes made from here.
+    private func revertToOpenState() {
+        guard let openState else { return }
+        store.restorePattern(notes: openNotes, texts: openLabels, for: openState.id)
+        pattern = openNotes
+        labels = openLabels
+        // Last, so the write to the store that the server syncs watch happens
+        // once the pattern they upload alongside it is back in place.
+        exercise = openState
     }
 
     /// Whether another of this user's public exercises already uses this

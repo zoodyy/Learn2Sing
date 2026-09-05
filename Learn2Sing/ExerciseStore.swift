@@ -974,6 +974,17 @@ final class ExerciseStore: ObservableObject {
         UserDefaults.standard.set(data, forKey: Self.midiTextKey(id))
     }
 
+    /// Puts a pattern back the way it was, notes and the labels over them
+    /// together. The exercise settings screen's "undo my changes" uses it: the
+    /// MIDI editor writes every stroke straight to UserDefaults, so restoring
+    /// the exercise alone would leave the notes its length is measured from
+    /// changed. The caller is expected to be writing the exercise back too,
+    /// which is what the server syncs watch.
+    func restorePattern(notes: [MIDINote], texts: [MIDIText], for id: UUID) {
+        setNotes(notes, for: id)
+        setTexts(texts, for: id)
+    }
+
     // MARK: - Export / Import
 
     /// Snapshots every exercise (with all its settings) and its MIDI pattern.
