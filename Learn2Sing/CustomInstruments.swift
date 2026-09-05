@@ -185,7 +185,7 @@ struct InstrumentsView: View {
 
     var body: some View {
         Form {
-            Section("Built-in") {
+            Section {
                 ForEach(Instrument.allCases) { instrument in
                     // Two buttons in the row — pick the instrument, or hear it — so
                     // both are borderless: the row-wide button style would take the
@@ -213,6 +213,8 @@ struct InstrumentsView: View {
                     }
                     .setting(.instrument(instrument))
                 }
+            } header: {
+                Text("Built-in").settingSection(.instrumentsBuiltIn)
             }
 
             Section {
@@ -255,8 +257,7 @@ struct InstrumentsView: View {
                     }
                 }
             } header: {
-                Text("Custom")
-                    .settingHelp(L("Upload an MP3 or WAV file containing a single sound. Playback shifts it up and down from its pitch to reach every note. After uploading, set the pitch the recording actually has."))
+                Text("Custom").settingSection(.instrumentsCustom)
             }
         }
         .navigationTitle(L("Instruments"))

@@ -54,7 +54,7 @@ struct AudioSettingsView: View {
                 }
                 .setting(.microphone)
             } header: {
-                Text("Devices")
+                Text("Devices").settingSection(.audioDevices)
             }
 
             Section {
@@ -75,7 +75,7 @@ struct AudioSettingsView: View {
                 }
                 .setting(.delayTest)
             } header: {
-                Text("Scoring")
+                Text("Scoring").settingSection(.audioScoring)
             }
         }
         .navigationTitle(L("Audio"))

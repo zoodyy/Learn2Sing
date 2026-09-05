@@ -114,7 +114,7 @@ struct VisualsHubView: View {
                 }
                 .setting(.orientationLock)
             } header: {
-                Text("Orientation")
+                Text("Orientation").settingSection(.visualsOrientation)
             }
 
             // One section, so "Menus" sits directly above "Playback" with no gap.
@@ -221,7 +221,7 @@ struct MenusVisualsView: View {
                             supportsOpacity: false)
                 .setting(.exercisePreviewColor)
             } header: {
-                Text("Exercise lists")
+                Text("Exercise lists").settingSection(.menusExerciseLists)
             }
         }
         .navigationTitle(L("Menus"))
@@ -447,25 +447,29 @@ struct PlaybackVisualsView: View {
 
     private var settingsForm: some View {
         Form {
-            Section("Notes") {
+            Section {
                 ColorPicker("Note colour", selection: colorBinding($noteColor), supportsOpacity: false)
                     .setting(.noteColor)
                 ColorPicker("Playing note colour", selection: colorBinding($playingNoteColor), supportsOpacity: false)
                     .setting(.playingNoteColor)
                 sliderRow(L("Note roundness"), value: $noteRoundness, range: 0...1)
                     .setting(.noteRoundness)
+            } header: {
+                Text("Notes").settingSection(.playbackNotes)
             }
 
-            Section("Zoom & position") {
+            Section {
                 sliderRow(L("Vertical zoom"), value: $verticalZoom, range: 0.5...3)
                     .setting(.verticalZoom)
                 sliderRow(L("Horizontal zoom"), value: $horizontalZoom, range: 0.4...3)
                     .setting(.horizontalZoom)
                 Toggle("Follow notes vertically", isOn: $followVertical)
                     .setting(.followVertical)
+            } header: {
+                Text("Zoom & position").settingSection(.playbackZoom)
             }
 
-            Section("Background") {
+            Section {
                 Toggle("Show horizontal lines", isOn: $showLines)
                     .setting(.showLines)
                 if !showLines {
@@ -486,9 +490,11 @@ struct PlaybackVisualsView: View {
                         .setting(.pitchNameColor)
                     }
                 }
+            } header: {
+                Text("Background").settingSection(.playbackBackground)
             }
 
-            Section("Text") {
+            Section {
                 ColorPicker("Text colour", selection: colorBinding($textColor), supportsOpacity: false)
                     .setting(.textColor)
                 Picker("Text font", selection: $textFont) {
@@ -497,9 +503,11 @@ struct PlaybackVisualsView: View {
                     }
                 }
                 .setting(.textFont)
+            } header: {
+                Text("Text").settingSection(.playbackText)
             }
 
-            Section("Singing indicator") {
+            Section {
                 sliderRow(L("Size"), value: $singerSize, range: 0.5...3)
                     .setting(.singerSize)
                 ColorPicker("Inner colour", selection: opacityColorBinding($singerInnerColor), supportsOpacity: true)
@@ -508,6 +516,8 @@ struct PlaybackVisualsView: View {
                     .setting(.singerOuterColor)
                 ColorPicker("Line colour", selection: opacityColorBinding($singerLineColor), supportsOpacity: true)
                     .setting(.singerLineColor)
+            } header: {
+                Text("Singing indicator").settingSection(.playbackSinger)
             }
 
             Section {
@@ -524,7 +534,7 @@ struct PlaybackVisualsView: View {
                         .setting(.hideUnusedDots)
                 }
             } header: {
-                Text("Vertical line")
+                Text("Vertical line").settingSection(.playbackVerticalLine)
             }
 
             Section {
@@ -539,14 +549,14 @@ struct PlaybackVisualsView: View {
                     .setting(.repetitionPosition)
                 }
             } header: {
-                Text("Repetitions")
+                Text("Repetitions").settingSection(.playbackRepetitions)
             }
 
             Section {
                 Toggle("Hide tab bar", isOn: $hideTabBar)
                     .setting(.hideTabBar)
             } header: {
-                Text("Screen")
+                Text("Screen").settingSection(.playbackScreen)
             }
 
             templatesSection
@@ -605,7 +615,7 @@ struct PlaybackVisualsView: View {
             }
             .setting(.saveTemplate)
         } header: {
-            Text("Templates")
+            Text("Templates").settingSection(.playbackTemplates)
         }
     }
 

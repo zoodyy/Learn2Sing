@@ -384,7 +384,7 @@ struct VoiceSettingsView: View {
                 }
                 .setting(.testVocalRange)
             } header: {
-                Text("Vocal Range")
+                Text("Vocal Range").settingSection(.voiceRange)
             }
 
             Section {
@@ -423,7 +423,7 @@ struct VoiceSettingsView: View {
                         .transition(.opacity)
                 }
             } header: {
-                Text("Score Calculation")
+                Text("Score Calculation").settingSection(.voiceScoreCalculation)
             }
         }
         // The safety net the comment on `targetWindowActivity` describes: restarted by
@@ -597,7 +597,7 @@ struct ExercisesSettingsView: View {
                 .foregroundStyle(.primary)
                 .setting(.whitelist)
             } header: {
-                Text("Recommendations")
+                Text("Recommendations").settingSection(.exercisesRecommendations)
             }
         }
         .navigationTitle(L("Exercises"))
@@ -652,7 +652,7 @@ struct BackupSettingsView: View {
                 }
                 .setting(.importExercises)
             } header: {
-                Text("Exercises")
+                Text("Exercises").settingSection(.backupExercises)
             }
         }
         .navigationTitle(L("Backup"))

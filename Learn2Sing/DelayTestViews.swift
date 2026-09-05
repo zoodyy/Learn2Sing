@@ -33,7 +33,7 @@ struct DelayTestChoiceView: View {
                                action: openSungTest)
                     .setting(.sungTest)
             } header: {
-                Text("Choose a Test")
+                Text("Choose a Test").settingSection(.delayChooseTest)
             }
         }
         .navigationTitle(L("Test for delay"))

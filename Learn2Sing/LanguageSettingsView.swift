@@ -43,7 +43,7 @@ struct LanguageSettingsView: View {
                     .settingAnchor(.appLanguage(language))
                 }
             } header: {
-                Text("App Language")
+                Text("App Language").settingSection(.languageAppLanguage)
             } footer: {
                 Text("Applies to the app's own screens and the exercises it came with. Your own exercise names and notes are left as you wrote them. This setting is kept on this device only, so reinstalling the app returns it to English.")
             }

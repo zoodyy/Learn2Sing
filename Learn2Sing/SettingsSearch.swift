@@ -151,6 +151,35 @@ extension SettingKey {
     static let profileDescription = SettingKey("profile.description")
     static let joinDatePublic     = SettingKey("profile.joinDate")
 
+    // Section headings. Only the ones that say something the rows under them
+    // don't: a heading that repeats the title of its own row (Profile's
+    // "Username", the message form's "E-Mail") would only turn up twice.
+    static let audioDevices          = SettingKey("section.audio.devices")
+    static let audioScoring          = SettingKey("section.audio.scoring")
+    static let instrumentsBuiltIn    = SettingKey("section.instruments.builtIn")
+    static let instrumentsCustom     = SettingKey("section.instruments.custom")
+    static let delayChooseTest       = SettingKey("section.delay.choose")
+    static let visualsOrientation    = SettingKey("section.visuals.orientation")
+    static let menusExerciseLists    = SettingKey("section.menus.exerciseLists")
+    static let playbackNotes         = SettingKey("section.playback.notes")
+    static let playbackZoom          = SettingKey("section.playback.zoom")
+    static let playbackBackground    = SettingKey("section.playback.background")
+    static let playbackText          = SettingKey("section.playback.text")
+    static let playbackSinger        = SettingKey("section.playback.singer")
+    static let playbackVerticalLine  = SettingKey("section.playback.verticalLine")
+    static let playbackRepetitions   = SettingKey("section.playback.repetitions")
+    static let playbackScreen        = SettingKey("section.playback.screen")
+    static let playbackTemplates     = SettingKey("section.playback.templates")
+    static let voiceRange            = SettingKey("section.voice.range")
+    static let voiceScoreCalculation = SettingKey("section.voice.score")
+    static let exercisesRecommendations = SettingKey("section.exercises.recommendations")
+    static let backupExercises       = SettingKey("section.backup.exercises")
+    static let resetRecordedScores   = SettingKey("section.reset.scores")
+    static let resetCategories       = SettingKey("section.reset.categories")
+    static let resetYourExercises    = SettingKey("section.reset.yourExercises")
+    static let resetBundledExercises = SettingKey("section.reset.bundledExercises")
+    static let languageAppLanguage   = SettingKey("section.language.app")
+
     // Audio
     static let instruments     = SettingKey("audio.instruments")
     static let speaker         = SettingKey("audio.speaker")
@@ -265,7 +294,8 @@ struct SettingsSearchEntry: Identifiable {
     let screen: SettingsScreen
     /// The section it sits in, where the screen has more than one — shown after
     /// the screen in a result's trail, since several titles ("Size", "Colour")
-    /// only mean something under their heading.
+    /// only mean something under their heading. nil on a heading, which *is* a
+    /// section.
     let section: String?
     /// What the row is called, as it reads on the screen.
     let title: String
@@ -371,6 +401,14 @@ enum SettingsCatalog {
                                                title: title, help: help, isAvailable: available))
         }
 
+        /// A section heading, listed just before the rows it heads. It carries
+        /// no section of its own — it *is* one — so a result names the screen it
+        /// is on and nothing more.
+        func heading(_ key: SettingKey, _ screen: SettingsScreen, _ title: String,
+                     help: String = "") {
+            add(key, screen, title: title, help: help)
+        }
+
         // MARK: Settings hub
         add(.profile, .root, title: L("Profile"),
             help: L("Your username, picture and description, as other users see them on the Community tab."))
@@ -409,19 +447,25 @@ enum SettingsCatalog {
         let delayHelp = L("Compensates for the lag between singing and pitch detection. Only the score is affected — playback and visuals are unchanged. Run the test to measure it automatically.")
         add(.instruments, .audio, title: L("Instruments"),
             help: L("Choose the sound that plays the notes, or upload your own."))
+        heading(.audioDevices, .audio, L("Devices"))
         add(.speaker, .audio, section: L("Devices"), title: L("Speaker"), help: routeHelp)
         add(.microphone, .audio, section: L("Devices"), title: L("Microphone"), help: routeHelp)
+        heading(.audioScoring, .audio, L("Scoring"))
         add(.microphoneDelay, .audio, section: L("Scoring"), title: L("Microphone delay"), help: delayHelp)
         add(.delayTest, .audio, section: L("Scoring"), title: L("Test for delay"), help: delayHelp)
 
         // MARK: Instruments
         let builtInHelp = L("Tap the name to play the exercises' notes with this sound. The speaker plays a sample of it.")
+        heading(.instrumentsBuiltIn, .instruments, L("Built-in"))
+        heading(.instrumentsCustom, .instruments, L("Custom"),
+                help: L("Upload an MP3 or WAV file containing a single sound. Playback shifts it up and down from its pitch to reach every note. After uploading, set the pitch the recording actually has."))
         for instrument in Instrument.allCases {
             add(.instrument(instrument), .instruments, section: L("Built-in"),
                 title: L(instrument.rawValue), help: builtInHelp)
         }
 
         // MARK: Delay test
+        heading(.delayChooseTest, .delayChoice, L("Choose a Test"))
         add(.clapTest, .delayChoice, section: L("Choose a Test"), title: L("Clap Test"),
             help: L("Clap along with a metronome and the app works the delay out for you. Quick, but it needs headphones and firm claps to be accurate."))
         add(.sungTest, .delayChoice, section: L("Choose a Test"), title: L("Sing an Exercise"),
@@ -430,6 +474,7 @@ enum SettingsCatalog {
         // MARK: Visuals
         add(.theme, .visuals, title: L("Theme"),
             help: L("Sets the app's appearance. “System” matches your device's light or dark setting."))
+        heading(.visualsOrientation, .visuals, L("Orientation"))
         add(.orientationLock, .visuals, section: L("Orientation"), title: L("Lock orientation"),
             help: L("Keeps the app in the chosen orientation. “Don't lock” lets it rotate with your device."))
         add(.menus, .visuals, title: L("Menus"),
@@ -438,6 +483,7 @@ enum SettingsCatalog {
             help: L("Customise how the note-scrolling playback screen looks."))
 
         // MARK: Menus
+        heading(.menusExerciseLists, .menus, L("Exercise lists"))
         add(.exercisePreviewColor, .menus, section: L("Exercise lists"),
             title: L("Exercise preview colour"),
             help: L("Sets the colour of the small note pattern drawn beside each exercise in the lists."))
@@ -446,6 +492,7 @@ enum SettingsCatalog {
         let repetitionHelp = L("Shows which repetition you're on out of the total, e.g. “2/5”. Hidden for exercises that don't repeat.")
         let templateFileHelp = L("Export saves the current visual settings as a template file you can share. Import loads a template file and applies it.")
 
+        heading(.playbackNotes, .playback, L("Notes"))
         add(.noteColor, .playback, section: L("Notes"), title: L("Note colour"),
             help: L("The colour the notes to sing are drawn in."))
         add(.playingNoteColor, .playback, section: L("Notes"), title: L("Playing note colour"),
@@ -453,6 +500,7 @@ enum SettingsCatalog {
         add(.noteRoundness, .playback, section: L("Notes"), title: L("Note roundness"),
             help: L("How rounded the ends of the notes are, from square to fully rounded."))
 
+        heading(.playbackZoom, .playback, L("Zoom & position"))
         add(.verticalZoom, .playback, section: L("Zoom & position"), title: L("Vertical zoom"),
             help: L("How tall a pitch is. Turn it up to spread the notes apart, down to fit more of your range on screen."))
         add(.horizontalZoom, .playback, section: L("Zoom & position"), title: L("Horizontal zoom"),
@@ -460,6 +508,7 @@ enum SettingsCatalog {
         add(.followVertical, .playback, section: L("Zoom & position"), title: L("Follow notes vertically"),
             help: L("Scrolls the screen up and down so the notes being sung stay in the middle. Off, the whole exercise is shown at once."))
 
+        heading(.playbackBackground, .playback, L("Background"))
         add(.showLines, .playback, section: L("Background"), title: L("Show horizontal lines"),
             help: L("Draws a striped lane for every pitch behind the notes, like piano keys laid on their side."))
         add(.backgroundColor, .playback, section: L("Background"), title: L("Background colour"),
@@ -477,11 +526,13 @@ enum SettingsCatalog {
             help: L("Sets the colour of the pitch names (C4, A3 …) down the left-hand side of the playback screen."),
             available: { picksPitchNameColor })
 
+        heading(.playbackText, .playback, L("Text"))
         add(.textColor, .playback, section: L("Text"), title: L("Text colour"),
             help: L("The colour of the labels written over the notes in the note editor."))
         add(.textFont, .playback, section: L("Text"), title: L("Text font"),
             help: L("The typeface those labels are written in."))
 
+        heading(.playbackSinger, .playback, L("Singing indicator"))
         add(.singerSize, .playback, section: L("Singing indicator"), title: L("Size"),
             help: L("How big the dot that follows your voice is."))
         add(.singerInnerColor, .playback, section: L("Singing indicator"), title: L("Inner colour"),
@@ -491,6 +542,7 @@ enum SettingsCatalog {
         add(.singerLineColor, .playback, section: L("Singing indicator"), title: L("Line colour"),
             help: L("The trail the dot leaves behind it, showing the pitch you have just sung."))
 
+        heading(.playbackVerticalLine, .playback, L("Vertical line"))
         add(.playheadColor, .playback, section: L("Vertical line"), title: L("Colour"),
             help: L("Sets the colour of the vertical line the singing indicator runs along."))
         add(.playheadStyle, .playback, section: L("Vertical line"), title: L("Style"),
@@ -500,14 +552,17 @@ enum SettingsCatalog {
             help: L("Leaves a dot only on the pitches the repetition you're singing uses. The dots change to the next repetition's pitches as soon as its last note has finished."),
             available: { playheadIsDots })
 
+        heading(.playbackRepetitions, .playback, L("Repetitions"))
         add(.showRepetitionCounter, .playback, section: L("Repetitions"),
             title: L("Show repetition counter"), help: repetitionHelp)
         add(.repetitionPosition, .playback, section: L("Repetitions"), title: L("Position"),
             help: repetitionHelp, available: { countsRepetitions })
 
+        heading(.playbackScreen, .playback, L("Screen"))
         add(.hideTabBar, .playback, section: L("Screen"), title: L("Hide tab bar"),
             help: L("Hides the Home, Exercises, Community and Settings tabs at the bottom of the screen while an exercise plays."))
 
+        heading(.playbackTemplates, .playback, L("Templates"))
         add(.saveTemplate, .playback, section: L("Templates"), title: L("Save current as template"),
             help: L("Tap a template to switch to it, or tap the selected one to deselect it. While a template is selected, the settings on this screen are saved into it as you change them."))
         add(.exportTemplate, .playback, title: L("Export template"), help: templateFileHelp)
@@ -515,6 +570,7 @@ enum SettingsCatalog {
 
         // MARK: Voice
         let customNotesHelp = L("The lowest and highest notes you can comfortably sing. Exercises are transposed to fit between them.")
+        heading(.voiceRange, .voice, L("Vocal Range"))
         add(.vocalRange, .voice, section: L("Vocal Range"), title: L("Vocal range"),
             help: L("Choose your voice type, or pick “Custom” to enter your own lowest and highest notes. The test below can fill this in for you."))
         add(.lowestNote, .voice, section: L("Vocal Range"), title: L("Lowest note"),
@@ -523,10 +579,12 @@ enum SettingsCatalog {
             help: customNotesHelp, available: { hasCustomVocalRange })
         add(.testVocalRange, .voice, section: L("Vocal Range"), title: L("Test Vocal Range"),
             help: L("Sing your lowest and highest notes and the app sets them as your custom vocal range above."))
+        heading(.voiceScoreCalculation, .voice, L("Score Calculation"))
         add(.targetWindow, .voice, section: L("Score Calculation"), title: L("Target window size"),
             help: L("How much of a note counts as hit when your score is worked out. At 100% the whole note counts, as it always has; lower, and only that share of the note's middle does, so you have to sing nearer the centre of the pitch for it to count."))
 
         // MARK: Exercises
+        heading(.exercisesRecommendations, .exercises, L("Recommendations"))
         add(.recommendationsAsList, .exercises, section: L("Recommendations"),
             title: L("Show recommendations as list"),
             help: L("Lists the recommended exercises in the Home tab's “Recommended” category, one row each. Off, the category shows a single card instead, which plays them all as one queue."))
@@ -540,6 +598,7 @@ enum SettingsCatalog {
             help: L("The exercises recommendations are picked from. The groups picked above are ticked for you; tap an exercise to add or remove it yourself, which the groups then leave alone."))
 
         // MARK: Backup
+        heading(.backupExercises, .backup, L("Exercises"))
         add(.exportExercises, .backup, section: L("Exercises"), title: L("Export Exercises"),
             help: L("Pick the exercises to save, then send the file, copy it, or save it to Files."))
         add(.importExercises, .backup, section: L("Exercises"), title: L("Import Exercises"),
@@ -555,9 +614,11 @@ enum SettingsCatalog {
         add(.resetHomeRow, .reset, title: L("Home"),
             help: L("Clear the Home tab's favourites, routines and recently played list."))
 
+        heading(.resetRecordedScores, .resetScores, L("Recorded scores"))
         add(.deleteAllScores, .resetScores, title: L("Delete All Scores"),
             help: L("Deletes the scores of every exercise, including any left behind by exercises you have since deleted. The exercises themselves are kept."))
 
+        heading(.resetCategories, .resetSettings, L("Categories"))
         for category in ResettableSettings.allCases {
             add(.resetCategory(category), .resetSettings, section: L("Categories"),
                 title: category.title, help: category.help)
@@ -565,12 +626,14 @@ enum SettingsCatalog {
         add(.resetAllSettings, .resetSettings, title: L("Reset All Settings"),
             help: L("Puts every category above back at once. Your exercises, scores and routines are untouched."))
 
+        heading(.resetYourExercises, .resetExercises, L("Your exercises"))
         add(.deleteOwnExercises, .resetExercises, section: L("Your exercises"),
             title: L("Delete Own Exercises"),
             help: L("Deletes every exercise you created yourself, with its MIDI pattern and scores. Exercises that came with the app or from the Community tab are kept."))
         add(.deleteDownloadedExercises, .resetExercises, section: L("Your exercises"),
             title: L("Delete Downloaded Exercises"),
             help: L("Deletes every exercise you downloaded from the Community tab, with its MIDI pattern and scores. Your own exercises and the ones that came with the app are kept."))
+        heading(.resetBundledExercises, .resetExercises, L("Bundled Exercises"))
         add(.revertAllBundled, .resetExercises, section: L("Bundled Exercises"),
             title: L("Revert All Bundled Exercises"),
             help: L("Puts every exercise that came with the app back to how it shipped, bringing back any you deleted."))
@@ -587,6 +650,7 @@ enum SettingsCatalog {
         // MARK: Language
         // Both names are searched, so the list answers to "German" as readily as
         // to "Deutsch" whichever language the app is currently in.
+        heading(.languageAppLanguage, .language, L("App Language"))
         for language in AppLanguage.allCases {
             add(.appLanguage(language), .language, section: L("App Language"),
                 title: language.nativeName, help: language.englishName)
@@ -637,7 +701,7 @@ final class SettingsSearchCoordinator: ObservableObject {
             flashing = key
             // Held until the tint has faded all the way back out, so taking it
             // away is never something the user sees.
-            try? await Task.sleep(for: .seconds(SettingFlash.duration))
+            try? await Task.sleep(for: .seconds(SettingFlashTiming.total))
             guard flashing == key else { return }
             flashing = nil
         }
@@ -668,7 +732,22 @@ extension EnvironmentValues {
     }
 }
 
-// MARK: - Rows
+// MARK: - The mark a result leaves
+
+/// The shape of the wash a search result leaves on the row or heading it points
+/// at, taken from the one the Exercises tab gives a newly created exercise (see
+/// `ExerciseCollectionList.flash(at:)`) so the two look alike.
+enum SettingFlashTiming {
+    static let fadeIn: Double = 0.25
+    /// When the wash starts going again, measured from the moment it appeared.
+    static let fadeOutStart: Double = 1.2
+    static let fadeOut: Double = 0.4
+    /// How long the mark has to stay switched on for all of that to happen, plus
+    /// a moment so taking it away is never something the user sees.
+    static var total: Double { fadeOutStart + fadeOut + 0.1 }
+}
+
+// MARK: - Rows and headings
 
 extension View {
     /// A settings row the search can find. Shows the catalogue's explanation on
@@ -683,6 +762,14 @@ extension View {
     /// screen instead (the e-mail field's note).
     func settingAnchor(_ key: SettingKey) -> some View {
         modifier(SettingAnchor(key: key))
+    }
+
+    /// A section heading the search can find. Marks it so a result can scroll to
+    /// it and wash it in the accent colour, the way a row is pointed out, and
+    /// shows the catalogue's explanation on a press and hold where the heading
+    /// has one.
+    func settingSection(_ key: SettingKey) -> some View {
+        modifier(SettingSectionAnchor(key: key))
     }
 }
 
@@ -699,6 +786,58 @@ private struct SettingAnchor: ViewModifier {
     }
 }
 
+/// The heading equivalent of `SettingAnchor`. A heading is not a list row, so
+/// there is no cell background to tint: the wash is drawn behind the words
+/// themselves, which is also what the user is looking for after searching for a
+/// heading by name. Ordinary view content, so the fade animates from here rather
+/// than from UIKit.
+private struct SettingSectionAnchor: ViewModifier {
+    let key: SettingKey
+    @Environment(\.settingsFlash) private var flash
+
+    /// How far the wash has faded in. Run on a timer of its own, because it has
+    /// to hold at full for a moment before it goes again.
+    @State private var wash: Double = 0
+
+    @ViewBuilder
+    func body(content: Content) -> some View {
+        // Constant for a given heading, so the branch costs the content no
+        // identity: only the "Custom" instruments heading has help of its own.
+        let help = SettingsCatalog.help(for: key)
+        if help.isEmpty {
+            marked(content)
+        } else {
+            marked(content.settingHelp(help))
+        }
+    }
+
+    private func marked(_ view: some View) -> some View {
+        view
+            // The wash reaches a little past the words on every side; the
+            // padding is then taken back, so the heading sits where it did.
+            .padding(.horizontal, 8)
+            .padding(.vertical, 4)
+            .background {
+                RoundedRectangle(cornerRadius: 6)
+                    .fill(Color.accentColor.opacity(0.3))
+                    .opacity(wash)
+            }
+            .padding(.horizontal, -8)
+            .padding(.vertical, -4)
+            .id(key)
+            .task(id: flash == key) {
+                guard flash == key else {
+                    wash = 0
+                    return
+                }
+                withAnimation(.easeInOut(duration: SettingFlashTiming.fadeIn)) { wash = 1 }
+                try? await Task.sleep(for: .seconds(SettingFlashTiming.fadeOutStart))
+                guard !Task.isCancelled else { return }
+                withAnimation(.easeInOut(duration: SettingFlashTiming.fadeOut)) { wash = 0 }
+            }
+    }
+}
+
 /// Tints the row it sits in and fades the tint back out, to point out the
 /// setting a search result named.
 ///
@@ -709,10 +848,6 @@ private struct SettingAnchor: ViewModifier {
 /// SwiftUI list row is drawn once, from the colour it has at that moment, and
 /// never redrawn.
 private struct SettingFlash: UIViewRepresentable {
-    /// How long the whole flash lasts, which is how long the row has to stay
-    /// marked for.
-    static let duration: Double = 1.7
-
     let isFlashing: Bool
 
     func makeUIView(context: Context) -> FlashView { FlashView() }
@@ -734,18 +869,20 @@ private struct SettingFlash: UIViewRepresentable {
             guard !isFlashing, let cell = enclosingCell else { return }
             isFlashing = true
             let base = (cell as? UICollectionViewListCell)?.defaultBackgroundConfiguration()
-                ?? UIBackgroundConfiguration.listGroupedCell()
+                ?? UIBackgroundConfiguration.listCell()
             var tinted = base
             tinted.backgroundColor = UIColor.tintColor.withAlphaComponent(0.3)
             // The cell would otherwise recompute its background from its state
             // at any moment and drop the tint mid-fade.
             cell.automaticallyUpdatesBackgroundConfiguration = false
-            UIView.animate(withDuration: 0.25) {
+            UIView.animate(withDuration: SettingFlashTiming.fadeIn) {
                 cell.backgroundConfiguration = tinted
             }
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) { [weak self, weak cell] in
+            DispatchQueue.main.asyncAfter(
+                deadline: .now() + SettingFlashTiming.fadeOutStart
+            ) { [weak self, weak cell] in
                 guard let cell else { return }
-                UIView.animate(withDuration: 0.4) {
+                UIView.animate(withDuration: SettingFlashTiming.fadeOut) {
                     cell.backgroundConfiguration = base
                 } completion: { _ in
                     // Hand the background back to the cell, so selection and

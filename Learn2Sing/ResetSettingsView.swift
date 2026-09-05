@@ -112,7 +112,7 @@ struct ScoresResetView: View {
                     }
                 }
             } header: {
-                Text("Recorded scores")
+                Text("Recorded scores").settingSection(.resetRecordedScores)
             }
 
             Section {
@@ -296,7 +296,7 @@ struct SettingsResetView: View {
                     }
                 }
             } header: {
-                Text("Categories")
+                Text("Categories").settingSection(.resetCategories)
             }
 
             Section {
@@ -384,7 +384,7 @@ struct ExercisesResetView: View {
                     store.deleteDownloadedExercises()
                 }
             } header: {
-                Text("Your exercises")
+                Text("Your exercises").settingSection(.resetYourExercises)
             }
 
             Section {
@@ -433,7 +433,7 @@ struct ExercisesResetView: View {
                     store.revertAllBundled()
                 }
             } header: {
-                Text("Bundled Exercises")
+                Text("Bundled Exercises").settingSection(.resetBundledExercises)
             }
         }
         .navigationTitle(L("Exercises"))
