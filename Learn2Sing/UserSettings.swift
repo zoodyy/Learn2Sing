@@ -64,6 +64,9 @@ struct UserSettings: Codable {
     /// is "Custom".
     var vocalRangeCustomLow: Int?
     var vocalRangeCustomHigh: Int?
+    /// How much of a note counts as hit when a run is scored, as a percentage of the
+    /// note. Lives under Voice alongside the range, which is where its setting is.
+    var scoreTargetWindow: Int?
 
     // MARK: Exercises
 
@@ -125,6 +128,7 @@ struct UserSettings: Codable {
             vocalRange: d.string(forKey: VocalRange.storageKey) ?? "",
             vocalRangeCustomLow: custom.low,
             vocalRangeCustomHigh: custom.high,
+            scoreTargetWindow: ScoreTargetWindow.percent,
             recommendedPracticeMinutes: RecommendedExercises.minutes,
             recommendationsAsList: d.object(forKey: RecommendedExercises.asListKey) == nil
                 ? RecommendedExercises.defaultAsList
@@ -181,6 +185,9 @@ struct UserSettings: Codable {
         if let vocalRange { d.set(vocalRange, forKey: VocalRange.storageKey) }
         if let vocalRangeCustomLow { d.set(vocalRangeCustomLow, forKey: VocalRange.customLowKey) }
         if let vocalRangeCustomHigh { d.set(vocalRangeCustomHigh, forKey: VocalRange.customHighKey) }
+        if let scoreTargetWindow {
+            d.set(ScoreTargetWindow.clamped(scoreTargetWindow), forKey: ScoreTargetWindow.storageKey)
+        }
 
         if let recommendedPracticeMinutes {
             d.set(recommendedPracticeMinutes, forKey: RecommendedExercises.minutesKey)

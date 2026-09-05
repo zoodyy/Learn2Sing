@@ -855,6 +855,10 @@ struct PlaybackView: View {
     // repetition is too tall to fit inside the safe area.
     @State private var repetitionMaxExtent: Double = 0
     @AppStorage(microphoneDelayKey) private var micDelayMs = 0.0
+    /// How much of a note counts as hit, read here so the draw pass — which is where
+    /// the score is integrated — picks a change up without going back to UserDefaults
+    /// on every frame.
+    @AppStorage(ScoreTargetWindow.storageKey) private var scoreTargetWindow = ScoreTargetWindow.defaultPercent
     @AppStorage(VocalRange.storageKey) private var vocalRangeRaw = ""
     @EnvironmentObject private var store: ExerciseStore
     @Environment(\.dismiss) private var dismiss
@@ -1265,7 +1269,14 @@ struct PlaybackView: View {
         // Score this frame from the trailing pitch line: a note counts only while the
         // line sits within its drawn rectangle. The tolerance is derived from the
         // *unzoomed* row height so the score doesn't change when the user zooms.
-        let lineToleranceSemitones = Double(((baseRowH - 2) / 2 + 1.25) / baseRowH)
+        //
+        // The target-window setting shrinks the note towards its middle for this
+        // comparison alone — the note is still drawn full height — so at 40% only the
+        // middle 40% of it counts. The pitch line's own 1.25pt reach is added on top
+        // either way: what counts is the drawn line *touching* the window, which at
+        // 100% leaves the reach exactly as it always was.
+        let targetHalfHeight = (baseRowH - 2) / 2 * CGFloat(ScoreTargetWindow.fraction(percent: scoreTargetWindow))
+        let lineToleranceSemitones = Double((targetHalfHeight + 1.25) / baseRowH)
         // Convert the user's microphone-delay setting (ms) into beats so notes are
         // scored as if shifted that far to the right (later in time).
         let noteShift = micDelayBeats(micDelayMs, bpm: bpm)

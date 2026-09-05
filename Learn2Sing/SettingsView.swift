@@ -36,7 +36,7 @@ struct SettingsView: View {
                         .settingHelp(L("Theme, orientation and the look of the playback screen."))
 
                     hubLink(L("Voice"), systemImage: "music.mic", route: .voice)
-                        .settingHelp(L("Your vocal range and the test that measures it."))
+                        .settingHelp(L("Your vocal range, the test that measures it, and how precisely you have to hit a note for it to count."))
 
                     hubLink(L("Exercises"), systemImage: "list.bullet", route: .exercises)
                         .settingHelp(L("How your exercise library is presented, including the Home tab's recommendations."))
@@ -267,8 +267,8 @@ struct SettingsHubRow: View {
     }
 }
 
-/// The "Voice" hub reached from Settings: the user's vocal range and the test
-/// that measures it. A screen of its own so further voice areas can be added.
+/// The "Voice" hub reached from Settings: the user's vocal range, the test that
+/// measures it, and how much of a note counts as hit when a run is scored.
 struct VoiceSettingsView: View {
     /// Re-renders this screen when the language is changed in Settings; the
     /// strings are resolved when the body runs, so SwiftUI needs telling.
@@ -277,6 +277,20 @@ struct VoiceSettingsView: View {
     @AppStorage(VocalRange.storageKey) private var vocalRangeRaw = ""
     @AppStorage(VocalRange.customLowKey)  private var customLow  = VocalRange.customDefault.low
     @AppStorage(VocalRange.customHighKey) private var customHigh = VocalRange.customDefault.high
+    @AppStorage(ScoreTargetWindow.storageKey) private var targetWindow = ScoreTargetWindow.defaultPercent
+
+    /// True while a finger is on the target-window slider, which is the only time
+    /// the picture of the note below it is shown — it is there to explain the number
+    /// being chosen, not to sit on the screen afterwards.
+    @State private var isAdjustingTargetWindow = false
+
+    /// Bumped on every sign of life from that slider: it starting, it stopping, and
+    /// each value it passes through. A drag that is *cancelled* rather than ended
+    /// never reports stopping — the press-and-hold help tears the control down
+    /// mid-gesture to cancel the touch under its bubble, and a system gesture taking
+    /// over does the same — so the picture is also taken away once this has been
+    /// still for a moment. See `targetWindowIdleTimeout`.
+    @State private var targetWindowActivity = 0
 
     /// Push the vocal-range test onto the shared Settings navigation stack.
     let openRangeTest: () -> Void
@@ -323,9 +337,116 @@ struct VoiceSettingsView: View {
             } header: {
                 Text("Vocal Range")
             }
+
+            Section {
+                HStack {
+                    Text("Target window size")
+                    Spacer()
+                    Text(verbatim: "\(targetWindow)%").foregroundStyle(.secondary)
+                }
+                .settingHelp(targetWindowHelp)
+
+                Slider(value: targetWindowBinding,
+                       in: Double(ScoreTargetWindow.range.lowerBound)...Double(ScoreTargetWindow.range.upperBound),
+                       step: 1,
+                       onEditingChanged: { editing in
+                           targetWindowActivity += 1
+                           withAnimation(.easeInOut(duration: 0.2)) {
+                               isAdjustingTargetWindow = editing
+                           }
+                       })
+                    .settingHelp(targetWindowHelp)
+
+                if isAdjustingTargetWindow {
+                    TargetWindowPreview(percent: targetWindow)
+                        .transition(.opacity)
+                }
+            } header: {
+                Text("Score Calculation")
+            }
         }
+        .onChange(of: targetWindow) { _, _ in targetWindowActivity += 1 }
+        // The safety net the comment on `targetWindowActivity` describes: restarted by
+        // every bump, so a drag that is still moving keeps the picture, and one that
+        // vanished without a word loses it a moment later.
+        .task(id: targetWindowActivity) {
+            guard isAdjustingTargetWindow else { return }
+            try? await Task.sleep(for: .seconds(targetWindowIdleTimeout))
+            guard !Task.isCancelled else { return }
+            withAnimation(.easeInOut(duration: 0.2)) { isAdjustingTargetWindow = false }
+        }
+        .onDisappear { isAdjustingTargetWindow = false }
         .navigationTitle(L("Voice"))
         .navigationBarTitleDisplayMode(.inline)
+    }
+
+    /// How long the slider may go without a sign of life before the picture is taken
+    /// away anyway. Comfortably longer than the pause between two steps of even a very
+    /// slow drag, and a finger held stiller than this has already brought the
+    /// press-and-hold bubble up over the picture.
+    private var targetWindowIdleTimeout: Double { 2 }
+
+    /// The percentage, as the whole number it is stored as, through the `Double` a
+    /// slider works in.
+    private var targetWindowBinding: Binding<Double> {
+        Binding(get: { Double(targetWindow) },
+                set: { targetWindow = Int($0.rounded()) })
+    }
+
+    /// Said the same way on the row and on the slider under it, the way the other
+    /// settings screens pair a value with the control that sets it.
+    private var targetWindowHelp: String {
+        L("How much of a note counts as hit when your score is worked out. At 100% the whole note counts, as it always has; lower, and only that share of the note's middle does, so you have to sing nearer the centre of the pitch for it to count.")
+    }
+}
+
+/// The picture shown while the target-window slider is being dragged: a note with
+/// the middle `percent` of its height in green, which is the part of it the singer
+/// has to be inside for it to count. The caption is the same green, so it reads as
+/// naming the coloured band rather than the note.
+private struct TargetWindowPreview: View {
+    /// Re-renders when the language is changed, the same as the screen around it.
+    @ObservedObject private var appLanguage = LanguageManager.shared
+
+    let percent: Int
+
+    /// The green the playback screen paints a note in by default, so the band is the
+    /// colour the singer already reads as "note" rather than one picked for this
+    /// picture. The rest of the note is grey, which is the whole point of the
+    /// drawing: at a glance, green counts and grey does not.
+    private static let green = Color(hex: VisualDefaults.noteColor)
+
+    /// Tall enough that a 5% band is still a band rather than a hairline, and wide
+    /// enough to read as a note rather than as a bar across the row.
+    private static let noteHeight: CGFloat = 64
+    private static let noteWidth: CGFloat = 220
+
+    /// The same rounding the playback screen gives a note by default.
+    private static let cornerRadius = noteHeight * CGFloat(VisualDefaults.noteRoundness) / 2
+
+    var body: some View {
+        VStack(spacing: 10) {
+            // The note's full height stays the same at every setting: what the slider
+            // changes is how much of it is green, which is only legible against the
+            // rest of the note still being there. The band is centred by the stack,
+            // so it is the note's middle at every size.
+            ZStack {
+                Rectangle().fill(.secondary.opacity(0.35))
+                Rectangle().fill(Self.green)
+                    .frame(height: Self.noteHeight * CGFloat(ScoreTargetWindow.fraction(percent: percent)))
+            }
+            .frame(width: Self.noteWidth, height: Self.noteHeight)
+            // Clipped to the note's own shape, so the band doesn't square off its
+            // rounded ends at 100%.
+            .clipShape(RoundedRectangle(cornerRadius: Self.cornerRadius))
+
+            Text(L("The part of the note you have to hit for it to count"))
+                .font(.footnote)
+                .foregroundStyle(Self.green)
+                .multilineTextAlignment(.center)
+                .frame(maxWidth: .infinity)
+        }
+        .padding(.vertical, 4)
     }
 }
 

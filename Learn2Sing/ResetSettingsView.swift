@@ -190,7 +190,7 @@ enum ResettableSettings: String, CaseIterable, Identifiable {
         case .visuals:
             L("Puts the theme, the orientation lock and the look of the menus and the playback screen back to how they started out. Templates you saved are deleted, and the app's own two come back as they started out.")
         case .voice:
-            L("Clears your vocal range, including the custom lowest and highest notes.")
+            L("Clears your vocal range, including the custom lowest and highest notes, and puts the target window back to the whole note.")
         case .exercises:
             L("Puts the number of recommended exercises back, and returns the whitelist to every exercise in your library, dropping the ones you ticked or unticked yourself.")
         case .language:
@@ -236,7 +236,7 @@ enum ResettableSettings: String, CaseIterable, Identifiable {
             templates.resetToBundled()
         case .voice:
             for key in [VocalRange.storageKey, VocalRange.customLowKey,
-                        VocalRange.customHighKey] {
+                        VocalRange.customHighKey, ScoreTargetWindow.storageKey] {
                 defaults.removeObject(forKey: key)
             }
         case .exercises:

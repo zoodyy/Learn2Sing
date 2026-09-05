@@ -30,20 +30,20 @@ T("Theme, orientation and the look of the playback screen.",
   "テーマ、画面の向き、再生画面の見た目。",
   "테마, 화면 방향, 재생 화면의 모양.",
   "主题、屏幕方向以及播放界面的外观。")
-T("Your vocal range and the test that measures it.",
-  "Dein Stimmumfang und der Test, der ihn misst.",
-  "Tu tesitura y la prueba que la mide.",
-  "Votre tessiture et le test qui la mesure.",
-  "La tua estensione vocale e il test che la misura.",
-  "Sua extensão vocal e o teste que a mede.",
-  "Je stembereik en de test die het meet.",
-  "Ваш диапазон голоса и тест, который его измеряет.",
-  "Twoja skala głosu i test, który ją mierzy.",
-  "Ses aralığınız ve onu ölçen test.",
-  "Ditt röstomfång och testet som mäter det.",
-  "あなたの声域と、それを測定するテスト。",
-  "음역대와 이를 측정하는 테스트.",
-  "你的音域，以及测量音域的测试。")
+T("Your vocal range, the test that measures it, and how precisely you have to hit a note for it to count.",
+  "Dein Stimmumfang, der Test, der ihn misst, und wie genau du eine Note treffen musst, damit sie zählt.",
+  "Tu tesitura, la prueba que la mide y con cuánta precisión debes acertar una nota para que cuente.",
+  "Votre tessiture, le test qui la mesure et la précision avec laquelle vous devez atteindre une note pour qu’elle compte.",
+  "La tua estensione vocale, il test che la misura e con quanta precisione devi centrare una nota perché conti.",
+  "Sua extensão vocal, o teste que a mede e com que precisão você precisa acertar uma nota para que ela conte.",
+  "Je stembereik, de test die het meet en hoe nauwkeurig je een noot moet raken om te tellen.",
+  "Ваш диапазон голоса, тест, который его измеряет, и то, насколько точно нужно попасть в ноту, чтобы она засчиталась.",
+  "Twoja skala głosu, test, który ją mierzy, i to, jak dokładnie trzeba trafić nutę, żeby się liczyła.",
+  "Ses aralığınız, onu ölçen test ve bir notanın sayılması için ne kadar isabetli söylemeniz gerektiği.",
+  "Ditt röstomfång, testet som mäter det och hur exakt du måste träffa en ton för att den ska räknas.",
+  "あなたの声域、それを測定するテスト、そして音符が当たりとみなされる正確さ。",
+  "음역대, 이를 측정하는 테스트, 그리고 음표가 인정되려면 얼마나 정확히 맞혀야 하는지.",
+  "你的音域、测量音域的测试，以及唱中一个音符需要多准确才会计分。")
 T("How your exercise library is presented, including the Home tab's recommendations.",
   "Wie deine Übungsbibliothek dargestellt wird, einschließlich der Empfehlungen im Start-Tab.",
   "Cómo se presenta tu biblioteca de ejercicios, incluidas las recomendaciones de la pestaña Inicio.",
@@ -282,6 +282,38 @@ T("Sing your lowest and highest notes and the app sets them as your custom vocal
   "最低音と最高音を歌うと、アプリが上のカスタム声域に設定します。",
   "최저음과 최고음을 부르면 앱이 위의 사용자 지정 음역대로 설정합니다.",
   "唱出你的最低音和最高音，应用会将其设置为上方的自定义音域。")
+
+# --- Voice: score calculation ---
+T("Score Calculation", "Punkteberechnung", "Cálculo de la puntuación", "Calcul de la note", "Calcolo del punteggio", "Cálculo da pontuação", "Scoreberekening", "Подсчёт оценки", "Obliczanie wyniku", "Puan hesaplama", "Poängberäkning", "採点方法", "점수 계산", "评分计算")
+T("Target window size", "Größe des Zielfensters", "Tamaño de la ventana objetivo", "Taille de la fenêtre cible", "Dimensione della finestra target", "Tamanho da janela alvo", "Grootte van het doelvenster", "Размер целевого окна", "Rozmiar okna docelowego", "Hedef pencere boyutu", "Målfönstrets storlek", "ターゲット範囲の大きさ", "목표 범위 크기", "目标范围大小")
+T("How much of a note counts as hit when your score is worked out. At 100% the whole note counts, as it always has; lower, and only that share of the note's middle does, so you have to sing nearer the centre of the pitch for it to count.",
+  "Wie viel einer Note als getroffen zählt, wenn deine Punktzahl berechnet wird. Bei 100 % zählt die ganze Note, wie bisher; darunter zählt nur dieser Anteil ihrer Mitte, du musst also näher an der Mitte der Tonhöhe singen, damit sie zählt.",
+  "Qué parte de una nota cuenta como acertada al calcular tu puntuación. Al 100 % cuenta la nota entera, como hasta ahora; por debajo solo cuenta esa proporción de su centro, así que tienes que cantar más cerca del centro del tono para que cuente.",
+  "Quelle part d’une note compte comme atteinte lors du calcul de votre note. À 100 %, toute la note compte, comme jusqu’ici ; en dessous, seule cette part de son centre compte, vous devez donc chanter plus près du centre de la hauteur pour qu’elle compte.",
+  "Quanta parte di una nota conta come centrata quando viene calcolato il punteggio. Al 100 % conta l’intera nota, come è sempre stato; sotto, conta solo quella porzione del suo centro, quindi devi cantare più vicino al centro dell’altezza perché conti.",
+  "Quanto de uma nota conta como acertada no cálculo da sua pontuação. Em 100 %, a nota inteira conta, como sempre foi; abaixo disso, só essa parte do centro dela conta, então você precisa cantar mais perto do centro da altura para que conte.",
+  "Hoeveel van een noot als geraakt telt wanneer je score wordt berekend. Op 100 % telt de hele noot, zoals altijd; lager telt alleen dat deel van het midden, dus je moet dichter bij het midden van de toonhoogte zingen om te scoren.",
+  "Какая часть ноты засчитывается как попадание при подсчёте оценки. При 100 % засчитывается вся нота, как и раньше; ниже засчитывается только такая доля её середины, поэтому петь нужно ближе к центру высоты тона.",
+  "Jaka część nuty liczy się jako trafiona przy obliczaniu wyniku. Przy 100 % liczy się cała nuta, tak jak dotąd; poniżej liczy się tylko taka część jej środka, więc musisz śpiewać bliżej środka wysokości dźwięku, żeby się liczyło.",
+  "Puanınız hesaplanırken bir notanın ne kadarının tutturulmuş sayılacağı. %100’de notanın tamamı sayılır, her zaman olduğu gibi; daha düşükte yalnızca ortasının bu kadarı sayılır, yani sayılması için perdenin ortasına daha yakın söylemeniz gerekir.",
+  "Hur mycket av en not som räknas som träffad när dina poäng beräknas. Vid 100 % räknas hela noten, precis som förut; lägre räknas bara den andelen av dess mitt, så du måste sjunga närmare tonhöjdens mitt för att den ska räknas.",
+  "採点のときに音符のどこまでを当たりとみなすか。100 % では今までどおり音符全体が対象になり、それより低いと中央のその割合だけが対象になるため、音程の中心に近づけて歌う必要があります。",
+  "점수를 계산할 때 음표의 어느 정도까지 맞힌 것으로 볼지 정합니다. 100 %에서는 지금까지처럼 음표 전체가 인정되고, 그보다 낮으면 가운데의 그만큼만 인정되므로 음높이의 중심에 더 가깝게 불러야 합니다.",
+  "计算得分时，音符的多少算作唱中。为 100 % 时整个音符都算，和以前一样；更低时只有中间的这一部分算，因此你需要唱得更接近音高的中心才会计入。")
+T("The part of the note you have to hit for it to count",
+  "Der Teil der Note, den du treffen musst, damit sie zählt",
+  "La parte de la nota que debes acertar para que cuente",
+  "La partie de la note à atteindre pour qu’elle compte",
+  "La parte della nota che devi centrare perché conti",
+  "A parte da nota que você precisa acertar para que conte",
+  "Het deel van de noot dat je moet raken om te tellen",
+  "Часть ноты, в которую нужно попасть, чтобы она засчиталась",
+  "Część nuty, którą trzeba trafić, żeby się liczyła",
+  "Sayılması için tutturmanız gereken nota bölümü",
+  "Den del av noten du måste träffa för att den ska räknas",
+  "音符が当たりとみなされる範囲",
+  "인정받으려면 맞혀야 하는 음표 부분",
+  "需要唱中才会计分的音符部分")
 
 # --- Exercises settings ---
 T("Show recommendations as list", "Empfehlungen als Liste zeigen", "Mostrar recomendaciones como lista", "Afficher les recommandations en liste", "Mostra i consigliati come elenco", "Mostrar recomendações como lista", "Aanbevelingen als lijst tonen", "Показывать рекомендации списком", "Pokazuj polecane jako listę", "Önerileri liste olarak göster", "Visa rekommendationer som lista", "おすすめをリストで表示", "추천을 목록으로 표시", "以列表显示推荐")

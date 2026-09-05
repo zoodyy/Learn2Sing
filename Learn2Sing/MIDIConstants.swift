@@ -32,6 +32,41 @@ let microphoneDelayKey = "microphoneDelayMs"
 /// how the review screen lines the sung line up with the notes.
 func micDelayBeats(_ ms: Double, bpm: Double) -> Double { ms / 1000.0 * bpm / 60.0 }
 
+/// How much of a note has to be hit for it to count towards the score, as a
+/// percentage of the note's drawn height. At 100 the whole note counts and a run
+/// is scored exactly as it was before this setting existed; lower, and only that
+/// share of the note's middle does, so the singer has to sit nearer the centre of
+/// the pitch. Set in Settings ▸ Voice ▸ Score Calculation.
+enum ScoreTargetWindow {
+    static let storageKey = "scoreTargetWindowPercent"
+
+    /// The whole note, so an install that never touches this scores as it always did.
+    static let defaultPercent = 100
+
+    /// Narrower than 5% the window is thinner than the pitch line drawn over it,
+    /// which leaves nothing to aim at; 100 is the whole note.
+    static let range = 5...100
+
+    /// A percentage brought inside the range the slider offers, so a value restored
+    /// from a profile written by a later version can't widen the window past the note,
+    /// close it altogether, or show up on the settings screen as a number the slider
+    /// has no room for.
+    static func clamped(_ percent: Int) -> Int {
+        min(range.upperBound, max(range.lowerBound, percent))
+    }
+
+    /// The share of the note's height that counts, 0.05...1.
+    static func fraction(percent: Int) -> Double {
+        Double(clamped(percent)) / 100
+    }
+
+    /// The setting as it currently stands, for the places that read it once rather
+    /// than binding to it.
+    static var percent: Int {
+        UserDefaults.standard.object(forKey: storageKey) as? Int ?? defaultPercent
+    }
+}
+
 /// Whether the singer has been shown the microphone-delay calibration off the back
 /// of a real run.
 ///

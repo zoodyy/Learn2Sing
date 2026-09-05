@@ -6545,85 +6545,85 @@
         }
       }
     },
-    "Clears your vocal range, including the custom lowest and highest notes." : {
+    "Clears your vocal range, including the custom lowest and highest notes, and puts the target window back to the whole note." : {
       "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Löscht deinen Stimmumfang samt den eigenen tiefsten und höchsten Noten."
+            "value" : "Löscht deinen Stimmumfang samt den eigenen tiefsten und höchsten Noten und setzt das Zielfenster wieder auf die ganze Note."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Borra tu tesitura, incluidas las notas más grave y más aguda personalizadas."
+            "value" : "Borra tu tesitura, incluidas las notas más grave y más aguda personalizadas, y devuelve la ventana objetivo a la nota entera."
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Efface votre tessiture, y compris les notes la plus grave et la plus aiguë personnalisées."
+            "value" : "Efface votre tessiture, y compris les notes la plus grave et la plus aiguë personnalisées, et remet la fenêtre cible sur la note entière."
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Cancella la tua estensione vocale, comprese le note più bassa e più alta personalizzate."
+            "value" : "Cancella la tua estensione vocale, comprese le note più bassa e più alta personalizzate, e riporta la finestra target all’intera nota."
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "声域を、カスタムの最低音と最高音を含めて消去します。"
+            "value" : "声域を、カスタムの最低音と最高音を含めて消去し、ターゲット範囲を音符全体に戻します。"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "직접 지정한 최저음과 최고음을 포함해 음역대를 지웁니다."
+            "value" : "직접 지정한 최저음과 최고음을 포함해 음역대를 지우고, 목표 범위를 음표 전체로 되돌립니다."
           }
         },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Wist je stembereik, inclusief de eigen laagste en hoogste noot."
+            "value" : "Wist je stembereik, inclusief de eigen laagste en hoogste noot, en zet het doelvenster terug op de hele noot."
           }
         },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Czyści twoją skalę głosu wraz z własnymi najniższą i najwyższą nutą."
+            "value" : "Czyści twoją skalę głosu wraz z własnymi najniższą i najwyższą nutą i przywraca okno docelowe do całej nuty."
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Limpa sua extensão vocal, incluindo as notas mais grave e mais aguda personalizadas."
+            "value" : "Limpa sua extensão vocal, incluindo as notas mais grave e mais aguda personalizadas, e devolve a janela alvo à nota inteira."
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Очищает ваш диапазон голоса, включая собственные самую низкую и самую высокую ноты."
+            "value" : "Очищает ваш диапазон голоса, включая собственные самую низкую и самую высокую ноты, и возвращает целевое окно ко всей ноте."
           }
         },
         "sv" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Rensar ditt röstomfång, inklusive de egna lägsta och högsta tonerna."
+            "value" : "Rensar ditt röstomfång, inklusive de egna lägsta och högsta tonerna, och återställer målfönstret till hela noten."
           }
         },
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ses aralığınızı, özel en pes ve en tiz notalar dahil temizler."
+            "value" : "Ses aralığınızı, özel en pes ve en tiz notalar dahil temizler ve hedef pencereyi tüm notaya geri döndürür."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "清除你的音域，包括自定的最低音和最高音。"
+            "value" : "清除你的音域，包括自定的最低音和最高音，并将目标范围恢复为整个音符。"
           }
         }
       }
@@ -16873,6 +16873,89 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "这个练习被下载的次数。"
+          }
+        }
+      }
+    },
+    "How much of a note counts as hit when your score is worked out. At 100% the whole note counts, as it always has; lower, and only that share of the note's middle does, so you have to sing nearer the centre of the pitch for it to count." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wie viel einer Note als getroffen zählt, wenn deine Punktzahl berechnet wird. Bei 100 % zählt die ganze Note, wie bisher; darunter zählt nur dieser Anteil ihrer Mitte, du musst also näher an der Mitte der Tonhöhe singen, damit sie zählt."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Qué parte de una nota cuenta como acertada al calcular tu puntuación. Al 100 % cuenta la nota entera, como hasta ahora; por debajo solo cuenta esa proporción de su centro, así que tienes que cantar más cerca del centro del tono para que cuente."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quelle part d’une note compte comme atteinte lors du calcul de votre note. À 100 %, toute la note compte, comme jusqu’ici ; en dessous, seule cette part de son centre compte, vous devez donc chanter plus près du centre de la hauteur pour qu’elle compte."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quanta parte di una nota conta come centrata quando viene calcolato il punteggio. Al 100 % conta l’intera nota, come è sempre stato; sotto, conta solo quella porzione del suo centro, quindi devi cantare più vicino al centro dell’altezza perché conti."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "採点のときに音符のどこまでを当たりとみなすか。100 % では今までどおり音符全体が対象になり、それより低いと中央のその割合だけが対象になるため、音程の中心に近づけて歌う必要があります。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "점수를 계산할 때 음표의 어느 정도까지 맞힌 것으로 볼지 정합니다. 100 %에서는 지금까지처럼 음표 전체가 인정되고, 그보다 낮으면 가운데의 그만큼만 인정되므로 음높이의 중심에 더 가깝게 불러야 합니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hoeveel van een noot als geraakt telt wanneer je score wordt berekend. Op 100 % telt de hele noot, zoals altijd; lager telt alleen dat deel van het midden, dus je moet dichter bij het midden van de toonhoogte zingen om te scoren."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jaka część nuty liczy się jako trafiona przy obliczaniu wyniku. Przy 100 % liczy się cała nuta, tak jak dotąd; poniżej liczy się tylko taka część jej środka, więc musisz śpiewać bliżej środka wysokości dźwięku, żeby się liczyło."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quanto de uma nota conta como acertada no cálculo da sua pontuação. Em 100 %, a nota inteira conta, como sempre foi; abaixo disso, só essa parte do centro dela conta, então você precisa cantar mais perto do centro da altura para que conte."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Какая часть ноты засчитывается как попадание при подсчёте оценки. При 100 % засчитывается вся нота, как и раньше; ниже засчитывается только такая доля её середины, поэтому петь нужно ближе к центру высоты тона."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hur mycket av en not som räknas som träffad när dina poäng beräknas. Vid 100 % räknas hela noten, precis som förut; lägre räknas bara den andelen av dess mitt, så du måste sjunga närmare tonhöjdens mitt för att den ska räknas."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Puanınız hesaplanırken bir notanın ne kadarının tutturulmuş sayılacağı. %100’de notanın tamamı sayılır, her zaman olduğu gibi; daha düşükte yalnızca ortasının bu kadarı sayılır, yani sayılması için perdenin ortasına daha yakın söylemeniz gerekir."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "计算得分时，音符的多少算作唱中。为 100 % 时整个音符都算，和以前一样；更低时只有中间的这一部分算，因此你需要唱得更接近音高的中心才会计入。"
           }
         }
       }
@@ -32735,6 +32818,88 @@
         }
       }
     },
+    "Score Calculation" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Punkteberechnung"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cálculo de la puntuación"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Calcul de la note"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Calcolo del punteggio"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "採点方法"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "점수 계산"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scoreberekening"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Obliczanie wyniku"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cálculo da pontuação"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Подсчёт оценки"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Poängberäkning"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Puan hesaplama"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "评分计算"
+          }
+        }
+      }
+    },
     "Scores" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -39014,6 +39179,88 @@
         }
       }
     },
+    "Target window size" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Größe des Zielfensters"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tamaño de la ventana objetivo"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Taille de la fenêtre cible"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dimensione della finestra target"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ターゲット範囲の大きさ"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "목표 범위 크기"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Grootte van het doelvenster"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rozmiar okna docelowego"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tamanho da janela alvo"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Размер целевого окна"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Målfönstrets storlek"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hedef pencere boyutu"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "目标范围大小"
+          }
+        }
+      }
+    },
     "Templates" : {
       "localizations" : {
         "de" : {
@@ -41574,6 +41821,89 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "应用听到你唱的音。保持发声时圆环会填满，满了就进入下一步。"
+          }
+        }
+      }
+    },
+    "The part of the note you have to hit for it to count" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Der Teil der Note, den du treffen musst, damit sie zählt"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La parte de la nota que debes acertar para que cuente"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La partie de la note à atteindre pour qu’elle compte"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La parte della nota che devi centrare perché conti"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "音符が当たりとみなされる範囲"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "인정받으려면 맞혀야 하는 음표 부분"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Het deel van de noot dat je moet raken om te tellen"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Część nuty, którą trzeba trafić, żeby się liczyła"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A parte da nota que você precisa acertar para que conte"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Часть ноты, в которую нужно попасть, чтобы она засчиталась"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Den del av noten du måste träffa för att den ska räknas"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sayılması için tutturmanız gereken nota bölümü"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "需要唱中才会计分的音符部分"
           }
         }
       }
@@ -49104,85 +49434,85 @@
         }
       }
     },
-    "Your vocal range and the test that measures it." : {
+    "Your vocal range, the test that measures it, and how precisely you have to hit a note for it to count." : {
       "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Dein Stimmumfang und der Test, der ihn misst."
+            "value" : "Dein Stimmumfang, der Test, der ihn misst, und wie genau du eine Note treffen musst, damit sie zählt."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Tu tesitura y la prueba que la mide."
+            "value" : "Tu tesitura, la prueba que la mide y con cuánta precisión debes acertar una nota para que cuente."
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Votre tessiture et le test qui la mesure."
+            "value" : "Votre tessiture, le test qui la mesure et la précision avec laquelle vous devez atteindre une note pour qu’elle compte."
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "La tua estensione vocale e il test che la misura."
+            "value" : "La tua estensione vocale, il test che la misura e con quanta precisione devi centrare una nota perché conti."
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "あなたの声域と、それを測定するテスト。"
+            "value" : "あなたの声域、それを測定するテスト、そして音符が当たりとみなされる正確さ。"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "음역대와 이를 측정하는 테스트."
+            "value" : "음역대, 이를 측정하는 테스트, 그리고 음표가 인정되려면 얼마나 정확히 맞혀야 하는지."
           }
         },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Je stembereik en de test die het meet."
+            "value" : "Je stembereik, de test die het meet en hoe nauwkeurig je een noot moet raken om te tellen."
           }
         },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Twoja skala głosu i test, który ją mierzy."
+            "value" : "Twoja skala głosu, test, który ją mierzy, i to, jak dokładnie trzeba trafić nutę, żeby się liczyła."
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sua extensão vocal e o teste que a mede."
+            "value" : "Sua extensão vocal, o teste que a mede e com que precisão você precisa acertar uma nota para que ela conte."
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ваш диапазон голоса и тест, который его измеряет."
+            "value" : "Ваш диапазон голоса, тест, который его измеряет, и то, насколько точно нужно попасть в ноту, чтобы она засчиталась."
           }
         },
         "sv" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ditt röstomfång och testet som mäter det."
+            "value" : "Ditt röstomfång, testet som mäter det och hur exakt du måste träffa en ton för att den ska räknas."
           }
         },
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ses aralığınız ve onu ölçen test."
+            "value" : "Ses aralığınız, onu ölçen test ve bir notanın sayılması için ne kadar isabetli söylemeniz gerektiği."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "你的音域，以及测量音域的测试。"
+            "value" : "你的音域、测量音域的测试，以及唱中一个音符需要多准确才会计分。"
           }
         }
       }
