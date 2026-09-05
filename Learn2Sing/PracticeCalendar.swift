@@ -196,7 +196,9 @@ struct PracticeCalendarView: View {
     /// nonsense setting can't tick every square, empty days included.
     private var goalSeconds: Double { Double(max(1, goalMinutes)) * 60 }
 
-    /// Whether a day met the goal — what puts the tick on its square.
+    /// Whether a day met the goal — what puts the tick on its square. Weighed
+    /// in seconds, which is also why the bubble's minutes are rounded down: see
+    /// `durationStyle`.
     private func reachedGoal(_ day: PracticeDay) -> Bool {
         Double(day.seconds) >= goalSeconds
     }
@@ -319,10 +321,18 @@ struct PracticeCalendarView: View {
     /// day with nothing still reads as the round "0 min". The style is handed
     /// the environment's locale by hand: that is the app's chosen language,
     /// which is not necessarily the device's.
+    ///
+    /// The part-minute is dropped rather than rounded, which is what the style
+    /// would otherwise do: a minute is only counted once it has been sung
+    /// through. That is what keeps this reading and the tick on the square in
+    /// step, since the tick weighs the seconds themselves — rounded up, a day
+    /// of 19 min 40 s read as a reached 20-minute goal on a square that was
+    /// not ticked.
     static func durationStyle(_ seconds: Int, locale: Locale) -> Duration.UnitsFormatStyle {
         Duration.UnitsFormatStyle(
             allowedUnits: (1..<60).contains(seconds) ? [.seconds] : [.hours, .minutes],
-            width: .abbreviated
+            width: .abbreviated,
+            fractionalPart: .hide(rounded: .down)
         ).locale(locale)
     }
 
