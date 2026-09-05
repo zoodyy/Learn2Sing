@@ -145,8 +145,8 @@ nonisolated struct PracticeCalendarSelection: Equatable {
 /// on them — a day is read off its colour. A day nothing was practised on is
 /// grey, and the only colour that goes over that grey is the app's own accent
 /// one: it fades in in step with the time spent on the day, covering the grey
-/// completely at `goalMinutes` — the daily practice time from Settings ▸
-/// Exercises, the same one the "Recommended" category fills — and staying there
+/// completely at `goalMinutes` — the daily practice goal from Settings ▸ Home
+/// Tab, the same one the "Recommended" category fills — and staying there
 /// beyond it. A day that reached it is ticked, so the days that count can be
 /// picked out at a glance rather than judged off the end of a fade.
 ///
@@ -161,7 +161,7 @@ struct PracticeCalendarView: View {
     let days: [PracticeDay]
 
     /// The practice time a day needs for its square to reach the accent colour
-    /// and be ticked: the daily practice time from Settings ▸ Exercises.
+    /// and be ticked: the daily practice goal from Settings ▸ Home Tab.
     let goalMinutes: Int
 
     /// The square a tap landed on, or nil for a tap that landed on none — which

@@ -7783,84 +7783,166 @@
         }
       }
     },
-    "Daily practice time" : {
+    "Customise your Home Screen" : {
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Tägliche Übungszeit"
+            "value" : "Start-Tab anpassen"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Tiempo de práctica diario"
+            "value" : "Personalizar la pestaña Inicio"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Temps de pratique quotidien"
+            "value" : "Personnaliser l’onglet Accueil"
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Tempo di pratica giornaliero"
+            "value" : "Personalizza la scheda Home"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "1日の練習時間"
+            "value" : "ホームタブをカスタマイズ"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "하루 연습 시간"
+            "value" : "홈 탭 맞춤 설정"
           }
         },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Dagelijkse oefentijd"
+            "value" : "Tabblad Start aanpassen"
           }
         },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Dzienny czas ćwiczeń"
+            "value" : "Dostosuj kartę Start"
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Tempo de prática diário"
+            "value" : "Personalizar a aba Início"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ежедневное время занятий"
+            "value" : "Настроить вкладку «Главная»"
           }
         },
         "sv" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Daglig övningstid"
+            "value" : "Anpassa fliken Hem"
           }
         },
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Günlük çalışma süresi"
+            "value" : "Ana Sayfa sekmesini özelleştir"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "每天的练习时长"
+            "value" : "自定义首页标签"
+          }
+        }
+      }
+    },
+    "Daily practice goal" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tägliches Übungsziel"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Objetivo diario de práctica"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Objectif de pratique quotidien"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Obiettivo di pratica giornaliero"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1日の練習目標"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "하루 연습 목표"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dagelijks oefendoel"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dzienny cel ćwiczeń"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Meta diária de prática"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ежедневная цель занятий"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dagligt övningsmål"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Günlük çalışma hedefi"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "每天的练习目标"
           }
         }
       }
@@ -15882,6 +15964,89 @@
         }
       }
     },
+    "Home Tab" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Start-Tab"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pestaña Inicio"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Onglet Accueil"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scheda Home"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ホームタブ"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "홈 탭"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tabblad Start"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Karta Start"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aba Início"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Вкладка «Главная»"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fliken Hem"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ana Sayfa Sekmesi"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "首页标签"
+          }
+        }
+      }
+    },
     "Horizontal zoom" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -17209,6 +17374,89 @@
         }
       }
     },
+    "How the Home tab is put together: which categories it shows and in what order, and the recommendations it suggests." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wie der Start-Tab aufgebaut ist: welche Kategorien er zeigt und in welcher Reihenfolge, und was er dir empfiehlt."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cómo se compone la pestaña Inicio: qué categorías muestra y en qué orden, y las recomendaciones que ofrece."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La composition de l’onglet Accueil : les catégories qu’il affiche et dans quel ordre, et les recommandations qu’il propose."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Come è composta la scheda Home: quali categorie mostra e in che ordine, e i consigli che propone."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ホームタブの構成：どのカテゴリをどの順で表示するか、そしておすすめの内容。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "홈 탭의 구성: 어떤 분류를 어떤 순서로 보여주는지, 그리고 어떤 연습을 추천하는지."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hoe het tabblad Start is opgebouwd: welke categorieën het toont en in welke volgorde, en de aanbevelingen die het doet."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jak zbudowana jest karta Start: jakie kategorie pokazuje i w jakiej kolejności oraz co poleca."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Como a aba Início é montada: quais categorias ela mostra e em que ordem, e as recomendações que ela sugere."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Как устроена вкладка «Главная»: какие категории она показывает и в каком порядке, и какие упражнения рекомендует."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hur fliken Hem är uppbyggd: vilka kategorier den visar och i vilken ordning, och vad den rekommenderar."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ana Sayfa sekmesinin nasıl oluştuğu: hangi kategorileri hangi sırayla gösterdiği ve önerdikleri."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“首页”标签的构成：显示哪些分类、以何种顺序显示，以及它推荐的内容。"
+          }
+        }
+      }
+    },
     "How wide a beat is. Turn it down to see more of what is coming." : {
       "extractionState" : "stale",
       "localizations" : {
@@ -17288,89 +17536,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "每一拍占的宽度。调低可以看到更多后面的内容。"
-          }
-        }
-      }
-    },
-    "How your exercise library is presented, including the Home tab's recommendations." : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Wie deine Übungsbibliothek dargestellt wird, einschließlich der Empfehlungen im Start-Tab."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Cómo se presenta tu biblioteca de ejercicios, incluidas las recomendaciones de la pestaña Inicio."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "La présentation de votre bibliothèque d’exercices, y compris les recommandations de l’onglet Accueil."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Come viene presentata la tua libreria di esercizi, comprese le raccomandazioni della scheda Home."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "エクササイズライブラリの表示方法（ホームタブのおすすめを含む）。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "연습 라이브러리가 표시되는 방식 및 홈 탭의 추천."
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Hoe je oefenbibliotheek wordt weergegeven, inclusief de aanbevelingen op het tabblad Start."
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sposób prezentacji biblioteki ćwiczeń, w tym rekomendacje na karcie Start."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Como sua biblioteca de exercícios é apresentada, incluindo as recomendações da aba Início."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Как отображается ваша библиотека упражнений, включая рекомендации на вкладке «Главная»."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Hur ditt övningsbibliotek visas, inklusive rekommendationerna på fliken Hem."
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Egzersiz kitaplığınızın nasıl sunulduğu ve Ana Sayfa sekmesindeki öneriler."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "练习库的呈现方式，包括“首页”标签的推荐。"
           }
         }
       }
@@ -28524,88 +28689,6 @@
         }
       }
     },
-    "Practice a day" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Üben pro Tag"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Práctica al día"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Pratique par jour"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Pratica al giorno"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "1日の練習"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "하루 연습"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Oefenen per dag"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ćwiczenia dziennie"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Prática por dia"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Занятия в день"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Övning per dag"
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Günlük çalışma"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "每天的练习"
-          }
-        }
-      }
-    },
     "Press and hold anything to see what it does." : {
       "localizations" : {
         "de" : {
@@ -29930,85 +30013,85 @@
         }
       }
     },
-    "Puts the number of recommended exercises back, and returns the whitelist to every exercise in your library, dropping the ones you ticked or unticked yourself." : {
+    "Puts the number of recommended exercises back, and returns the whitelist to every exercise in your library, dropping the ones you ticked or unticked yourself. The categories the tab shows and the order they come in are left as you arranged them." : {
       "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Setzt die Anzahl der empfohlenen Übungen zurück und lässt wieder alle Übungen deiner Bibliothek zu; selbst an- oder abgewählte Übungen werden dabei verworfen."
+            "value" : "Setzt die Anzahl der empfohlenen Übungen zurück und lässt wieder alle Übungen deiner Bibliothek zu; selbst an- oder abgewählte Übungen werden dabei verworfen. Welche Kategorien der Tab zeigt und in welcher Reihenfolge, bleibt so, wie du es eingerichtet hast."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Restablece el número de ejercicios recomendados y vuelve a permitir todos los ejercicios de tu biblioteca, descartando los que marcaste o desmarcaste tú."
+            "value" : "Restablece el número de ejercicios recomendados y vuelve a permitir todos los ejercicios de tu biblioteca, descartando los que marcaste o desmarcaste tú. Las categorías que muestra la pestaña y su orden se quedan como las dejaste."
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Rétablit le nombre d’exercices recommandés et autorise de nouveau tous les exercices de votre bibliothèque, en abandonnant ceux que vous aviez cochés ou décochés vous-même."
+            "value" : "Rétablit le nombre d’exercices recommandés et autorise de nouveau tous les exercices de votre bibliothèque, en abandonnant ceux que vous aviez cochés ou décochés vous-même. Les catégories affichées par l’onglet et leur ordre restent comme vous les avez réglés."
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ripristina il numero di esercizi consigliati e riammette tutti gli esercizi della tua libreria, scartando quelli che avevi selezionato o deselezionato tu."
+            "value" : "Ripristina il numero di esercizi consigliati e riammette tutti gli esercizi della tua libreria, scartando quelli che avevi selezionato o deselezionato tu. Le categorie mostrate dalla scheda e il loro ordine restano come li hai sistemati."
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "おすすめエクササイズの数を元に戻し、ライブラリのすべてのエクササイズを再び対象にします。自分で付け外ししたチェックは破棄されます。"
+            "value" : "おすすめエクササイズの数を元に戻し、ライブラリのすべてのエクササイズを再び対象にします。自分で付け外ししたチェックは破棄されます。タブに表示するカテゴリとその並び順は、あなたが並べたままです。"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "추천 연습 개수를 되돌리고, 라이브러리의 모든 연습을 다시 허용하며 직접 선택하거나 해제한 항목은 사라집니다."
+            "value" : "추천 연습 개수를 되돌리고, 라이브러리의 모든 연습을 다시 허용하며 직접 선택하거나 해제한 항목은 사라집니다. 탭에 보이는 분류와 그 순서는 정해 둔 그대로 남습니다."
           }
         },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Zet het aantal aanbevolen oefeningen terug en staat weer alle oefeningen in je bibliotheek toe, waarbij de oefeningen die je zelf aan- of uitvinkte vervallen."
+            "value" : "Zet het aantal aanbevolen oefeningen terug en staat weer alle oefeningen in je bibliotheek toe, waarbij de oefeningen die je zelf aan- of uitvinkte vervallen. Welke categorieën het tabblad toont en in welke volgorde, blijft zoals je het hebt ingericht."
           }
         },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Przywraca liczbę polecanych ćwiczeń i ponownie dopuszcza wszystkie ćwiczenia w twojej bibliotece, odrzucając te, które sam zaznaczyłeś lub odznaczyłeś."
+            "value" : "Przywraca liczbę polecanych ćwiczeń i ponownie dopuszcza wszystkie ćwiczenia w twojej bibliotece, odrzucając te, które sam zaznaczyłeś lub odznaczyłeś. To, jakie kategorie pokazuje karta i w jakiej kolejności, zostaje tak, jak to ustawiłeś."
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Restaura o número de exercícios recomendados e volta a permitir todos os exercícios da sua biblioteca, descartando os que você marcou ou desmarcou."
+            "value" : "Restaura o número de exercícios recomendados e volta a permitir todos os exercícios da sua biblioteca, descartando os que você marcou ou desmarcou. As categorias que a aba mostra e a ordem delas ficam como você organizou."
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Возвращает количество рекомендуемых упражнений и снова разрешает все упражнения в вашей библиотеке, отменяя те, что вы отметили или сняли сами."
+            "value" : "Возвращает количество рекомендуемых упражнений и снова разрешает все упражнения в вашей библиотеке, отменяя те, что вы отметили или сняли сами. Какие категории показывает вкладка и в каком порядке, остаётся так, как вы настроили."
           }
         },
         "sv" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Återställer antalet rekommenderade övningar och tillåter åter alla övningar i ditt bibliotek, och släpper dem du själv kryssat i eller ur."
+            "value" : "Återställer antalet rekommenderade övningar och tillåter åter alla övningar i ditt bibliotek, och släpper dem du själv kryssat i eller ur. Vilka kategorier fliken visar och i vilken ordning lämnas som du ordnat dem."
           }
         },
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Önerilen egzersiz sayısını geri getirir ve kitaplığındaki tüm egzersizlere yeniden izin verir; kendin işaretlediklerin ya da işaretini kaldırdıkların silinir."
+            "value" : "Önerilen egzersiz sayısını geri getirir ve kitaplığındaki tüm egzersizlere yeniden izin verir; kendin işaretlediklerin ya da işaretini kaldırdıkların silinir. Sekmenin hangi kategorileri hangi sırayla gösterdiği, senin düzenlediğin gibi kalır."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "恢复推荐练习的数量，并将练习库中的全部练习重新列入，同时放弃你自己勾选或取消的项。"
+            "value" : "恢复推荐练习的数量，并将练习库中的全部练习重新列入，同时放弃你自己勾选或取消的项。标签显示哪些分类以及它们的顺序会保持你安排的样子。"
           }
         }
       }
@@ -47199,6 +47282,89 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "播放头所在位置，以小节和拍表示。"
+          }
+        }
+      }
+    },
+    "Which categories the Home tab shows and the order they come in. The same screen opens by pressing and holding a category name on the Home tab." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Welche Kategorien der Start-Tab zeigt und in welcher Reihenfolge. Dieselbe Ansicht öffnet sich, wenn du im Start-Tab einen Kategorienamen gedrückt hältst."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Qué categorías muestra la pestaña Inicio y en qué orden. La misma pantalla se abre manteniendo pulsado el nombre de una categoría en la pestaña Inicio."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Les catégories que l’onglet Accueil affiche et dans quel ordre. Le même écran s’ouvre en maintenant le doigt sur le nom d’une catégorie dans l’onglet Accueil."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quali categorie mostra la scheda Home e in che ordine. La stessa schermata si apre tenendo premuto il nome di una categoria nella scheda Home."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ホームタブがどのカテゴリをどの順で表示するか。同じ画面は、ホームタブでカテゴリ名を長押ししても開きます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "홈 탭이 어떤 분류를 어떤 순서로 보여주는지 정합니다. 홈 탭에서 분류 이름을 길게 누르면 같은 화면이 열립니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Welke categorieën het tabblad Start toont en in welke volgorde. Hetzelfde scherm opent door op het tabblad Start een categorienaam ingedrukt te houden."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jakie kategorie pokazuje karta Start i w jakiej kolejności. Ten sam ekran otworzysz, przytrzymując nazwę kategorii na karcie Start."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quais categorias a aba Início mostra e em que ordem. A mesma tela abre ao manter pressionado o nome de uma categoria na aba Início."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Какие категории показывает вкладка «Главная» и в каком порядке. Тот же экран открывается долгим нажатием на название категории на вкладке «Главная»."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vilka kategorier fliken Hem visar och i vilken ordning. Samma skärm öppnas om du håller in ett kategorinamn på fliken Hem."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ana Sayfa sekmesinin hangi kategorileri hangi sırayla gösterdiği. Aynı ekran, Ana Sayfa sekmesinde bir kategori adına basılı tutunca da açılır."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“首页”标签显示哪些分类以及它们的顺序。在“首页”标签中长按分类名称也会打开同一界面。"
           }
         }
       }

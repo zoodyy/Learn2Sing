@@ -568,7 +568,7 @@ struct FavouritesExercisePickerView: View {
 }
 
 /// The exercises the Home tab's "Recommended" category may draw from, reached
-/// from Settings ▸ Exercises. Every exercise in the library is listed; the
+/// from Settings ▸ Home Tab. Every exercise in the library is listed; the
 /// ticked ones start out as those that shipped with the app.
 struct RecommendationWhitelistView: View {
     @EnvironmentObject private var store: ExerciseStore

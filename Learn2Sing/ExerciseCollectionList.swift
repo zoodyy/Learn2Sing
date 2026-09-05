@@ -9,13 +9,13 @@ import UIKit
 enum ExerciseListRowContent: Equatable {
     case exercise
     /// The practice calendar: the days it draws, and the daily practice time
-    /// their squares are measured against (Settings ▸ Exercises). The goal rides
+    /// their squares are measured against (Settings ▸ Home Tab). The goal rides
     /// along so that changing it reaches the cell as a changed row.
     case practiceCalendar([PracticeDay], goalMinutes: Int)
     /// The recommendation card, naming the category most of the recommended
     /// exercises come from and the singer's own level (0-100 — see
     /// SkillLevelStore). Shown in place of the "Recommended" list when
-    /// Settings ▸ Exercises says so.
+    /// Settings ▸ Home Tab says so.
     case recommendation(category: String, skill: Double)
     /// A spinner filling the row: the category's exercises are still on their
     /// way (Home ▸ "New for You", whose rows come off the server).

@@ -719,6 +719,20 @@ T("Narrows the list to where the exercises came from, or to the ones you have sh
   "按练习的来源筛选，或只显示你分享过的。筛选开启时按钮为实心。")
 
 # --- Home tab ---
+T("Which categories the Home tab shows and the order they come in. The same screen opens by pressing and holding a category name on the Home tab.",
+  "Welche Kategorien der Start-Tab zeigt und in welcher Reihenfolge. Dieselbe Ansicht öffnet sich, wenn du im Start-Tab einen Kategorienamen gedrückt hältst.",
+  "Qué categorías muestra la pestaña Inicio y en qué orden. La misma pantalla se abre manteniendo pulsado el nombre de una categoría en la pestaña Inicio.",
+  "Les catégories que l’onglet Accueil affiche et dans quel ordre. Le même écran s’ouvre en maintenant le doigt sur le nom d’une catégorie dans l’onglet Accueil.",
+  "Quali categorie mostra la scheda Home e in che ordine. La stessa schermata si apre tenendo premuto il nome di una categoria nella scheda Home.",
+  "Quais categorias a aba Início mostra e em que ordem. A mesma tela abre ao manter pressionado o nome de uma categoria na aba Início.",
+  "Welke categorieën het tabblad Start toont en in welke volgorde. Hetzelfde scherm opent door op het tabblad Start een categorienaam ingedrukt te houden.",
+  "Какие категории показывает вкладка «Главная» и в каком порядке. Тот же экран открывается долгим нажатием на название категории на вкладке «Главная».",
+  "Jakie kategorie pokazuje karta Start i w jakiej kolejności. Ten sam ekran otworzysz, przytrzymując nazwę kategorii na karcie Start.",
+  "Ana Sayfa sekmesinin hangi kategorileri hangi sırayla gösterdiği. Aynı ekran, Ana Sayfa sekmesinde bir kategori adına basılı tutunca da açılır.",
+  "Vilka kategorier fliken Hem visar och i vilken ordning. Samma skärm öppnas om du håller in ett kategorinamn på fliken Hem.",
+  "ホームタブがどのカテゴリをどの順で表示するか。同じ画面は、ホームタブでカテゴリ名を長押ししても開きます。",
+  "홈 탭이 어떤 분류를 어떤 순서로 보여주는지 정합니다. 홈 탭에서 분류 이름을 길게 누르면 같은 화면이 열립니다.",
+  "“首页”标签显示哪些分类以及它们的顺序。在“首页”标签中长按分类名称也会打开同一界面。")
 T("Drag by the handle on the right to set the order these categories come in on the Home tab. The eye takes one off the tab, or puts it back; the last one left cannot be hidden.",
   "Ziehe am Griff rechts, um festzulegen, in welcher Reihenfolge diese Kategorien im Start-Tab stehen. Das Auge nimmt eine vom Tab weg oder holt sie zurück; die letzte verbliebene lässt sich nicht ausblenden.",
   "Arrastra por el asa de la derecha para fijar el orden de estas categorías en la pestaña Inicio. El ojo quita una de la pestaña o la devuelve; la última que quede no se puede ocultar.",

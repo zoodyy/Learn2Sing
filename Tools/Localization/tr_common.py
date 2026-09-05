@@ -9,6 +9,7 @@ T("Profile", "Profil", "Perfil", "Profil", "Profilo", "Perfil", "Profiel", "Пр
 T("Audio", "Audio", "Audio", "Audio", "Audio", "Áudio", "Audio", "Аудио", "Dźwięk", "Ses", "Ljud", "オーディオ", "오디오", "音频")
 T("Visuals", "Darstellung", "Apariencia", "Apparence", "Aspetto", "Aparência", "Weergave", "Оформление", "Wygląd", "Görünüm", "Utseende", "表示", "화면", "视觉")
 T("Voice", "Stimme", "Voz", "Voix", "Voce", "Voz", "Stem", "Голос", "Głos", "Ses", "Röst", "声", "음성", "嗓音")
+T("Home Tab", "Start-Tab", "Pestaña Inicio", "Onglet Accueil", "Scheda Home", "Aba Início", "Tabblad Start", "Вкладка «Главная»", "Karta Start", "Ana Sayfa Sekmesi", "Fliken Hem", "ホームタブ", "홈 탭", "首页标签")
 T("Backup", "Sicherung", "Copia de seguridad", "Sauvegarde", "Backup", "Backup", "Back-up", "Резервная копия", "Kopia zapasowa", "Yedekleme", "Säkerhetskopia", "バックアップ", "백업", "备份")
 T("Language", "Sprache", "Idioma", "Langue", "Lingua", "Idioma", "Taal", "Язык", "Język", "Dil", "Språk", "言語", "언어", "语言")
 T("App Language", "App-Sprache", "Idioma de la app", "Langue de l’app", "Lingua dell’app", "Idioma do app", "App-taal", "Язык приложения", "Język aplikacji", "Uygulama dili", "Appspråk", "アプリの言語", "앱 언어", "应用语言")

@@ -199,8 +199,8 @@ enum ExerciseRoute: Hashable {
     case recommendationPlayback(Int) // playback of the queue's #index exercise
     // What the recommendation queue's screen has in place of a routine's edit
     // screen: the settings its suggestion is made under, which are the Settings
-    // tab's Exercises screen and the whitelist picker that screen opens.
-    case exercisesSettings
+    // tab's Home Tab screen and the whitelist picker that screen opens.
+    case homeTabSettings
     case recommendationWhitelist
     // A community exercise opened from the Home tab's "New for You", which is
     // listed straight off the server: its own pair of screens, since `play` and
@@ -833,7 +833,7 @@ struct ExercisesView: View {
                     CategoryEditView(newCategory: $newCategory, onRename: renameCategory)
                 case .user, .routine, .routineIntro, .routinePicker, .routinePlay, .routinePlayback,
                      .recommendationIntro, .recommendationPlay, .recommendationPlayback,
-                     .exercisesSettings, .recommendationWhitelist,
+                     .homeTabSettings, .recommendationWhitelist,
                      .favourites, .favouritesPicker,
                      .communityPlay, .communityPlayback:
                     // Never appended from this tab; usernames only show in

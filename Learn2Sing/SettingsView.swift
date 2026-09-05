@@ -37,35 +37,35 @@ struct SettingsView: View {
                     hubLink(L("Audio"), systemImage: "speaker.wave.2", route: .audio)
                         .setting(.audio)
 
-                    hubLink(L("Visuals"), systemImage: "paintpalette", route: .visualsHub)
-                        .setting(.visuals)
-
                     hubLink(L("Voice"), systemImage: "music.mic", route: .voice)
                         .setting(.voice)
 
-                    hubLink(L("Exercises"), systemImage: "list.bullet", route: .exercises)
-                        .setting(.exercises)
+                    hubLink(L("Visuals"), systemImage: "paintpalette", route: .visualsHub)
+                        .setting(.visuals)
 
-                    hubLink(L("Backup"), systemImage: "externaldrive", route: .backup)
-                        .setting(.backup)
+                    hubLink(L("Home Tab"), systemImage: "house", route: .homeTab)
+                        .setting(.homeTab)
 
                     hubLink(L("Reset"), systemImage: "arrow.counterclockwise", route: .reset)
                         .setting(.reset)
 
+                    hubLink(L("Backup"), systemImage: "externaldrive", route: .backup)
+                        .setting(.backup)
+
                     hubLink(L("Language"), systemImage: "globe", route: .language)
                         .setting(.language)
 
-                    hubLink(L("Request a new Feature/ Report a Bug"),
-                            systemImage: "exclamationmark.bubble", route: .feedback)
-                        .setting(.feedback)
-
                     // No chevron: it opens over the whole app rather than pushing
-                    // onto this stack, so it isn't one of the rows above.
+                    // onto this stack, so it isn't one of the hub rows.
                     Button { IntroTutorial.shared.present() } label: {
                         Label(L("Tutorial"), systemImage: "graduationcap")
                     }
                     .foregroundStyle(.primary)
                     .setting(.tutorial)
+
+                    hubLink(L("Request a new Feature/ Report a Bug"),
+                            systemImage: "exclamationmark.bubble", route: .feedback)
+                        .setting(.feedback)
                 }
             }
             .navigationTitle(L("Settings"))
@@ -119,10 +119,14 @@ struct SettingsView: View {
                     PlaybackVisualsView()
                 case .profile:
                     ProfileView()
-                case .exercises:
-                    ExercisesSettingsView {
-                        settingsPath.append(SettingsRoute.recommendationWhitelist)
-                    }
+                case .homeTab:
+                    HomeTabSettingsView(
+                        openCategories: { settingsPath.append(SettingsRoute.homeCategories) },
+                        openWhitelist: { settingsPath.append(SettingsRoute.recommendationWhitelist) })
+                case .homeCategories:
+                    // The same screen the Home tab pushes when a category header
+                    // is held down, reached from here as well.
+                    HomeCategoryEditView()
                 case .recommendationWhitelist:
                     RecommendationWhitelistView()
                 case .backup:
@@ -204,7 +208,7 @@ struct SettingsView: View {
     }
 
     /// Screens pushed onto the Settings navigation stack: the category hubs
-    /// (Audio with its instruments screens, Visuals, Voice, Exercises, Backup,
+    /// (Audio with its instruments screens, Visuals, Voice, Home Tab, Backup,
     /// Reset with its four screens, Language, Profile, and the message form) and
     /// the microphone-delay and vocal-range tests they lead to. The delay test
     /// branches in two: the clap test's intro and playback, or the sung test's
@@ -224,7 +228,8 @@ struct SettingsView: View {
         case visualsMenus
         case visualsPlayback
         case profile
-        case exercises
+        case homeTab
+        case homeCategories
         case recommendationWhitelist
         case backup
         case backupExport
@@ -253,7 +258,7 @@ struct SettingsView: View {
             case .menus:          [.visualsHub, .visualsMenus]
             case .playback:       [.visualsHub, .visualsPlayback]
             case .voice:          [.voice]
-            case .exercises:      [.exercises]
+            case .homeTab:        [.homeTab]
             case .backup:         [.backup]
             case .reset:          [.reset]
             case .resetScores:    [.reset, .resetScores]
@@ -526,11 +531,12 @@ private struct TargetWindowPreview: View {
     }
 }
 
-/// The "Exercises" hub reached from Settings: how the exercise library is
-/// presented — the shape and size of the Home tab's "Recommended" category and
-/// which exercises it may draw from. Also reached from the toolbar of the screen
-/// that category's card opens, which is where a suggestion is looked at.
-struct ExercisesSettingsView: View {
+/// The "Home Tab" hub reached from Settings: how that tab is put together — the
+/// categories it shows and the order they come in, then the shape and size of its
+/// "Recommended" category and which exercises it may draw from. Also reached from
+/// the toolbar of the screen that category's card opens, which is where a
+/// suggestion is looked at.
+struct HomeTabSettingsView: View {
     /// Re-renders this screen when the language is changed in Settings; the
     /// strings are resolved when the body runs, so SwiftUI needs telling.
     @ObservedObject private var appLanguage = LanguageManager.shared
@@ -541,11 +547,30 @@ struct ExercisesSettingsView: View {
     @AppStorage(RecommendedExercises.asListKey)
     private var recommendationsAsList = RecommendedExercises.defaultAsList
 
-    /// Push the whitelist picker onto the shared Settings navigation stack.
+    /// Push the Home tab's edit-categories screen onto the navigation stack this
+    /// screen is on — the Settings tab's, or the Home tab's own when the screen was
+    /// opened from the recommendation card's toolbar.
+    let openCategories: () -> Void
+
+    /// Push the whitelist picker onto that same stack.
     let openWhitelist: () -> Void
 
     var body: some View {
         Form {
+            Section {
+                Button(action: openCategories) {
+                    HStack {
+                        Text("Customise your Home Screen")
+                        Spacer()
+                        Image(systemName: "chevron.right")
+                            .font(.footnote.weight(.semibold))
+                            .foregroundStyle(.tertiary)
+                    }
+                }
+                .foregroundStyle(.primary)
+                .setting(.customiseHome)
+            }
+
             Section {
                 Toggle("Show recommendations as list", isOn: $recommendationsAsList)
                     .setting(.recommendationsAsList)
@@ -554,14 +579,14 @@ struct ExercisesSettingsView: View {
                         in: RecommendedExercises.minutesRange,
                         step: RecommendedExercises.minutesStep) {
                     HStack {
-                        Text("Daily practice time")
+                        Text("Daily practice goal")
                         Spacer()
                         Text(RecommendedExercises.formatted(minutes: practiceMinutes,
                                                             locale: appLanguage.language.locale))
                             .foregroundStyle(.secondary)
                     }
                 }
-                .setting(.dailyPracticeTime)
+                .setting(.dailyPracticeGoal)
 
                 Menu {
                     ForEach(ExerciseOrigin.allCases) { origin in
@@ -597,12 +622,12 @@ struct ExercisesSettingsView: View {
                 .foregroundStyle(.primary)
                 .setting(.whitelist)
             } header: {
-                Text("Recommendations").settingSection(.exercisesRecommendations)
+                Text("Recommendations").settingSection(.homeTabRecommendations)
             }
         }
-        .navigationTitle(L("Exercises"))
+        .navigationTitle(L("Home Tab"))
         .navigationBarTitleDisplayMode(.inline)
-        .settingsSearchable(.exercises)
+        .settingsSearchable(.homeTab)
     }
 }
 

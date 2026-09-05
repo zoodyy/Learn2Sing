@@ -52,12 +52,12 @@ final class ExerciseStore: ObservableObject {
     /// out rather than stored: an exercise is in it when
     /// "Automatically whitelisted exercises" covers the group it came from, and
     /// the user hasn't said otherwise for that exercise under
-    /// Settings ▸ Exercises ▸ Whitelisted Exercises — see
+    /// Settings ▸ Home Tab ▸ Whitelisted Exercises — see
     /// `refreshRecommendationWhitelist`.
     @Published private(set) var recommendationWhitelist: Set<UUID> = []
 
     /// The groups of exercises whitelisted for recommendations automatically,
-    /// from Settings ▸ Exercises. Every group by default, so a library recommends
+    /// from Settings ▸ Home Tab. Every group by default, so a library recommends
     /// from all of itself until the user says otherwise — which is also what an
     /// upgrade lands on, the whitelist not having recorded until now which of its
     /// omissions were the user's doing.
@@ -330,13 +330,13 @@ final class ExerciseStore: ObservableObject {
 
     /// The exercises the Home tab's "Recommended" category suggests, easiest
     /// first and ramping up to the hardest of them, adding up to at least
-    /// `minutes` of practice — the daily practice time from Settings ▸ Exercises.
+    /// `minutes` of practice — the daily practice goal from Settings ▸ Home Tab.
     /// The suggestion runs a little over rather than under, and only comes out
     /// short when the whole whitelist is shorter than that.
     ///
     /// Every whitelisted exercise is in the running — that starts out as the
     /// ones that shipped with the app, and the user edits it under
-    /// Settings ▸ Exercises — and each is drawn with a chance made of two things:
+    /// Settings ▸ Home Tab — and each is drawn with a chance made of two things:
     ///
     /// * **How long ago it was last sung.** The whitelist is ranked longest-ago
     ///   first (never sung at all leads it), and the chance halves every so many
@@ -703,7 +703,7 @@ final class ExerciseStore: ObservableObject {
 
     /// Put the whitelist back to how it starts out: every group whitelisted
     /// automatically, and no exercise picked out by hand. Used by
-    /// Settings ▸ Reset ▸ Settings ▸ Exercises.
+    /// Settings ▸ Reset ▸ Settings ▸ Home Tab.
     func resetRecommendationWhitelist() {
         UserDefaults.standard.removeObject(forKey: RecommendedExercises.autoWhitelistKey)
         autoWhitelistOrigins = RecommendedExercises.storedAutoWhitelist
@@ -1061,7 +1061,7 @@ final class ExerciseStore: ObservableObject {
 
 /// Settings for the Home tab's "Recommended" category — and, since the daily
 /// practice time below is what both of them are measured in, for its calendar
-/// too. Edited under Settings ▸ Exercises.
+/// too. Edited under Settings ▸ Home Tab.
 enum RecommendedExercises {
     /// How long a day the singer means to practise for, in minutes. It is what
     /// the "Recommended" category fills — it suggests exercises until they add

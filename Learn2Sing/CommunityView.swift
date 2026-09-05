@@ -333,7 +333,7 @@ struct CommunityView: View {
                     }
                 case .settings, .edit, .editCategories, .routine, .routineIntro, .routinePicker,
                      .routinePlay, .routinePlayback, .recommendationIntro, .recommendationPlay,
-                     .recommendationPlayback, .exercisesSettings, .recommendationWhitelist,
+                     .recommendationPlayback, .homeTabSettings, .recommendationWhitelist,
                      .favourites, .favouritesPicker,
                      .communityPlay, .communityPlayback:
                     // Never appended from this tab; exercises aren't editable

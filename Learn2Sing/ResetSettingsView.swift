@@ -155,30 +155,30 @@ struct ScoresResetView: View {
 /// A settings category from the Settings hub that has something to put back.
 /// "Backup" and "Reset" itself are absent: neither stores a setting.
 enum ResettableSettings: String, CaseIterable, Identifiable {
-    case profile, audio, visuals, voice, exercises, language
+    case profile, audio, voice, visuals, homeTab, language
 
     var id: String { rawValue }
 
     /// Title and symbol match the category's row on the Settings hub.
     var title: String {
         switch self {
-        case .profile:   L("Profile")
-        case .audio:     L("Audio")
-        case .visuals:   L("Visuals")
-        case .voice:     L("Voice")
-        case .exercises: L("Exercises")
-        case .language:  L("Language")
+        case .profile:  L("Profile")
+        case .audio:    L("Audio")
+        case .voice:    L("Voice")
+        case .visuals:  L("Visuals")
+        case .homeTab:  L("Home Tab")
+        case .language: L("Language")
         }
     }
 
     var systemImage: String {
         switch self {
-        case .profile:   "person.crop.circle"
-        case .audio:     "speaker.wave.2"
-        case .visuals:   "paintpalette"
-        case .voice:     "music.mic"
-        case .exercises: "list.bullet"
-        case .language:  "globe"
+        case .profile:  "person.crop.circle"
+        case .audio:    "speaker.wave.2"
+        case .voice:    "music.mic"
+        case .visuals:  "paintpalette"
+        case .homeTab:  "house"
+        case .language: "globe"
         }
     }
 
@@ -193,8 +193,8 @@ enum ResettableSettings: String, CaseIterable, Identifiable {
             L("Puts the theme, the orientation lock and the look of the menus and the playback screen back to how they started out. Templates you saved are deleted, and the app's own two come back as they started out.")
         case .voice:
             L("Clears your vocal range, including the custom lowest and highest notes, and puts the target window back to the whole note.")
-        case .exercises:
-            L("Puts the number of recommended exercises back, and returns the whitelist to every exercise in your library, dropping the ones you ticked or unticked yourself.")
+        case .homeTab:
+            L("Puts the number of recommended exercises back, and returns the whitelist to every exercise in your library, dropping the ones you ticked or unticked yourself. The categories the tab shows and the order they come in are left as you arranged them.")
         case .language:
             L("Puts the app's language back to English.")
         }
@@ -241,7 +241,7 @@ enum ResettableSettings: String, CaseIterable, Identifiable {
                         VocalRange.customHighKey, ScoreTargetWindow.storageKey] {
                 defaults.removeObject(forKey: key)
             }
-        case .exercises:
+        case .homeTab:
             defaults.removeObject(forKey: RecommendedExercises.minutesKey)
             defaults.removeObject(forKey: RecommendedExercises.asListKey)
             store.resetRecommendationWhitelist()

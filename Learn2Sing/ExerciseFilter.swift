@@ -69,7 +69,7 @@ extension Set<ExerciseFilter> {
 /// Where an exercise came from: every exercise is exactly one of these. The same
 /// three groups `ExerciseFilter.sourceCases` splits the Exercises tab's filter
 /// menu into, but as one value rather than as three independent picks, and named
-/// the way Settings ▸ Exercises ▸ "Automatically whitelisted exercises" names
+/// the way Settings ▸ Home Tab ▸ "Automatically whitelisted exercises" names
 /// them — that setting whitelists whole groups for the Home tab's
 /// recommendations, so what it needs of an exercise is which group it is in.
 enum ExerciseOrigin: String, CaseIterable, Identifiable {

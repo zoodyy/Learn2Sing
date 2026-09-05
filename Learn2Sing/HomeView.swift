@@ -97,7 +97,7 @@ enum HomeCategories {
 /// The Home tab's "Recommended" category as a single card: a big play button
 /// beside the name of the category most of the suggested exercises come from,
 /// with the singer's own level under it. Shown instead of listing them unless
-/// Settings ▸ Exercises ▸ Recommendations asks for the list; tapping it opens
+/// Settings ▸ Home Tab ▸ Recommendations asks for the list; tapping it opens
 /// the whole suggestion as one queue.
 ///
 /// Drawn to the practice calendar's shape, so the tab's two cards are exactly
@@ -161,7 +161,7 @@ struct RecommendationCard: View {
 /// The Home tab's edit-categories screen: the built-in categories as draggable
 /// rows, each with an eye button that hides it from the tab. There is nothing to
 /// add, delete or rename here — the categories are fixed. Opened by long-pressing
-/// a category header.
+/// a category header, or from Settings ▸ Home Tab ▸ "Customise your Home Screen".
 ///
 /// Pushed onto the tab's navigation stack rather than swapped in behind the same
 /// title, so it is left the way every other screen is: the back button, or the
@@ -169,7 +169,7 @@ struct RecommendationCard: View {
 /// it belongs to. Either way the edits stay — the order and the hidden set are
 /// written to UserDefaults as they are changed. Both are read straight from
 /// storage here, so the tab underneath follows along without anything passed down.
-private struct HomeCategoryEditView: View {
+struct HomeCategoryEditView: View {
     /// Re-renders this screen when the language is changed in Settings; the
     /// strings are resolved when the body runs, so SwiftUI needs telling.
     @ObservedObject private var appLanguage = LanguageManager.shared
@@ -253,7 +253,7 @@ private struct HomeCategoryEditView: View {
 /// "Favourites" (a single ordered exercise list, its + button opening the
 /// edit-favourites screen), "Recommended" (whitelisted exercises drawn on how
 /// long ago each was last sung and how close it is to the singer's level, as
-/// many as Settings ▸ Exercises asks for — as one card that plays them all in a
+/// many as Settings ▸ Home Tab asks for — as one card that plays them all in a
 /// row, or as a list of them if that same screen says so),
 /// "Time Spent Singing" (the last 30 days of practice as coloured squares — see
 /// PracticeCalendarView), and "New for You" (five exercises off the community's
@@ -291,14 +291,14 @@ struct HomeView: View {
 
     private var categories: [String] { HomeCategories.parse(categoryOrderRaw) }
 
-    /// How long a day the singer means to practise for, from Settings ▸ Exercises:
+    /// How long a day the singer means to practise for, from Settings ▸ Home Tab:
     /// how much "Recommended" suggests, and what a day of the calendar's squares
     /// is measured against.
     @AppStorage(RecommendedExercises.minutesKey)
     private var practiceMinutes = RecommendedExercises.defaultMinutes
 
     /// Whether "Recommended" lists those exercises or shows the single card that
-    /// opens them all as one queue, likewise from Settings ▸ Exercises. Either
+    /// opens them all as one queue, likewise from Settings ▸ Home Tab. Either
     /// way the same exercises are suggested — this only decides how.
     @AppStorage(RecommendedExercises.asListKey)
     private var recommendationsAsList = RecommendedExercises.defaultAsList
@@ -1004,17 +1004,17 @@ struct HomeView: View {
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
-                        navigationPath.append(ExerciseRoute.exercisesSettings)
+                        navigationPath.append(ExerciseRoute.homeTabSettings)
                     } label: {
                         Label("Settings", systemImage: "slider.horizontal.3")
                     }
                     .explain(L("Opens the settings these suggestions are made under: how long you practise a day, and which exercises may be picked."))
                 }
             }
-        case .exercisesSettings:
-            ExercisesSettingsView {
-                navigationPath.append(ExerciseRoute.recommendationWhitelist)
-            }
+        case .homeTabSettings:
+            HomeTabSettingsView(
+                openCategories: { navigationPath.append(ExerciseRoute.editCategories) },
+                openWhitelist: { navigationPath.append(ExerciseRoute.recommendationWhitelist) })
         case .recommendationWhitelist:
             RecommendationWhitelistView()
         case .recommendationPlay(let index):

@@ -299,9 +299,9 @@ struct IntroTutorialView: View {
         VocalRangeTestView(onFinish: advance)
     }
 
-    // MARK: - Practice a day
+    // MARK: - Daily practice goal
 
-    /// The practice time as it is written on this slide, in the app's own
+    /// The practice goal as it is written on this slide, in the app's own
     /// language — which a presentation doesn't inherit, so it is handed over by
     /// hand here as everywhere else in this file.
     private var minutesText: String {
@@ -311,7 +311,7 @@ struct IntroTutorialView: View {
     private var minutesSlide: some View {
         slideBody {
             slideHeader(icon: "calendar",
-                        title: Text("Practice a day"),
+                        title: Text("Daily practice goal"),
                         subtitle: Text("How long do you want to sing?"))
 
             HStack(spacing: 24) {
@@ -335,7 +335,7 @@ struct IntroTutorialView: View {
             // One adjustable element rather than two unlabelled buttons, which is
             // what VoiceOver makes of a pair of bare symbols.
             .accessibilityElement(children: .ignore)
-            .accessibilityLabel("Practice a day")
+            .accessibilityLabel("Daily practice goal")
             .accessibilityValue(Text(minutesText))
             .accessibilityAdjustableAction { direction in
                 switch direction {

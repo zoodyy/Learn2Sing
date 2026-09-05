@@ -4,7 +4,7 @@
 //
 //  The search field on the Settings tab and every screen under it. A screen
 //  searches itself and the screens below it — searching from "Visuals" never
-//  turns up something on "Exercises" — which is why the field is labelled after
+//  turns up something on "Home Tab" — which is why the field is labelled after
 //  the screen it sits on ("Search Visuals").
 //
 //  What it searches is `SettingsCatalog`: one entry per settings row, holding
@@ -39,7 +39,7 @@ enum SettingsScreen: String, CaseIterable, Hashable {
     case menus
     case playback
     case voice
-    case exercises
+    case homeTab
     case backup
     case reset
     case resetScores
@@ -53,7 +53,7 @@ enum SettingsScreen: String, CaseIterable, Hashable {
     var parent: SettingsScreen? {
         switch self {
         case .root:                                                  nil
-        case .profile, .audio, .visuals, .voice, .exercises,
+        case .profile, .audio, .visuals, .voice, .homeTab,
              .backup, .reset, .language, .feedback:                  .root
         case .instruments, .delayChoice:                             .audio
         case .menus, .playback:                                      .visuals
@@ -75,7 +75,7 @@ enum SettingsScreen: String, CaseIterable, Hashable {
         case .menus:          L("Menus")
         case .playback:       L("Playback")
         case .voice:          L("Voice")
-        case .exercises:      L("Exercises")
+        case .homeTab:        L("Home Tab")
         case .backup:         L("Backup")
         case .reset:          L("Reset")
         case .resetScores:    L("Scores")
@@ -136,14 +136,14 @@ extension SettingKey {
     // Settings hub
     static let profile        = SettingKey("profile")
     static let audio          = SettingKey("audio")
-    static let visuals        = SettingKey("visuals")
     static let voice          = SettingKey("voice")
-    static let exercises      = SettingKey("exercises")
-    static let backup         = SettingKey("backup")
+    static let visuals        = SettingKey("visuals")
+    static let homeTab        = SettingKey("homeTab")
     static let reset          = SettingKey("reset")
+    static let backup         = SettingKey("backup")
     static let language       = SettingKey("language")
-    static let feedback       = SettingKey("feedback")
     static let tutorial       = SettingKey("tutorial")
+    static let feedback       = SettingKey("feedback")
 
     // Profile
     static let profilePicture     = SettingKey("profile.picture")
@@ -172,7 +172,7 @@ extension SettingKey {
     static let playbackTemplates     = SettingKey("section.playback.templates")
     static let voiceRange            = SettingKey("section.voice.range")
     static let voiceScoreCalculation = SettingKey("section.voice.score")
-    static let exercisesRecommendations = SettingKey("section.exercises.recommendations")
+    static let homeTabRecommendations = SettingKey("section.homeTab.recommendations")
     static let backupExercises       = SettingKey("section.backup.exercises")
     static let resetRecordedScores   = SettingKey("section.reset.scores")
     static let resetCategories       = SettingKey("section.reset.categories")
@@ -239,11 +239,12 @@ extension SettingKey {
     static let testVocalRange = SettingKey("voice.test")
     static let targetWindow   = SettingKey("voice.targetWindow")
 
-    // Exercises
-    static let recommendationsAsList = SettingKey("exercises.asList")
-    static let dailyPracticeTime     = SettingKey("exercises.practiceTime")
-    static let autoWhitelist         = SettingKey("exercises.autoWhitelist")
-    static let whitelist             = SettingKey("exercises.whitelist")
+    // Home tab
+    static let customiseHome         = SettingKey("homeTab.customise")
+    static let recommendationsAsList = SettingKey("homeTab.asList")
+    static let dailyPracticeGoal     = SettingKey("homeTab.practiceGoal")
+    static let autoWhitelist         = SettingKey("homeTab.autoWhitelist")
+    static let whitelist             = SettingKey("homeTab.whitelist")
 
     // Backup
     static let exportExercises = SettingKey("backup.export")
@@ -414,22 +415,22 @@ enum SettingsCatalog {
             help: L("Your username, picture and description, as other users see them on the Community tab."))
         add(.audio, .root, title: L("Audio"),
             help: L("Instruments, playback and recording devices, and the microphone delay used for scoring."))
-        add(.visuals, .root, title: L("Visuals"),
-            help: L("Theme, orientation and the look of the playback screen."))
         add(.voice, .root, title: L("Voice"),
             help: L("Your vocal range, the test that measures it, and how precisely you have to hit a note for it to count."))
-        add(.exercises, .root, title: L("Exercises"),
-            help: L("How your exercise library is presented, including the Home tab's recommendations."))
-        add(.backup, .root, title: L("Backup"),
-            help: L("Export your exercise library to a file, or import one."))
+        add(.visuals, .root, title: L("Visuals"),
+            help: L("Theme, orientation and the look of the playback screen."))
+        add(.homeTab, .root, title: L("Home Tab"),
+            help: L("How the Home tab is put together: which categories it shows and in what order, and the recommendations it suggests."))
         add(.reset, .root, title: L("Reset"),
             help: L("Delete your scores, exercises and Home tab lists, or put your settings back to how the app started out."))
+        add(.backup, .root, title: L("Backup"),
+            help: L("Export your exercise library to a file, or import one."))
         add(.language, .root, title: L("Language"),
             help: L("The language the app is displayed in. Kept on this device only."))
-        add(.feedback, .root, title: L("Request a new Feature/ Report a Bug"),
-            help: L("Write to the developer: report something that's broken, ask for a feature, or say what you make of the app."))
         add(.tutorial, .root, title: L("Tutorial"),
             help: L("Play the introduction the app opens with on its first launch again."))
+        add(.feedback, .root, title: L("Request a new Feature/ Report a Bug"),
+            help: L("Write to the developer: report something that's broken, ask for a feature, or say what you make of the app."))
 
         // MARK: Profile
         add(.profilePicture, .profile, section: L("Profile Picture"), title: L("Profile Picture"),
@@ -583,18 +584,20 @@ enum SettingsCatalog {
         add(.targetWindow, .voice, section: L("Score Calculation"), title: L("Target window size"),
             help: L("How much of a note counts as hit when your score is worked out. At 100% the whole note counts, as it always has; lower, and only that share of the note's middle does, so you have to sing nearer the centre of the pitch for it to count."))
 
-        // MARK: Exercises
-        heading(.exercisesRecommendations, .exercises, L("Recommendations"))
-        add(.recommendationsAsList, .exercises, section: L("Recommendations"),
+        // MARK: Home tab
+        add(.customiseHome, .homeTab, title: L("Customise your Home Screen"),
+            help: L("Which categories the Home tab shows and the order they come in. The same screen opens by pressing and holding a category name on the Home tab."))
+        heading(.homeTabRecommendations, .homeTab, L("Recommendations"))
+        add(.recommendationsAsList, .homeTab, section: L("Recommendations"),
             title: L("Show recommendations as list"),
             help: L("Lists the recommended exercises in the Home tab's “Recommended” category, one row each. Off, the category shows a single card instead, which plays them all as one queue."))
-        add(.dailyPracticeTime, .exercises, section: L("Recommendations"),
-            title: L("Daily practice time"),
+        add(.dailyPracticeGoal, .homeTab, section: L("Recommendations"),
+            title: L("Daily practice goal"),
             help: L("How long you mean to practise a day. The Home tab's “Recommended” category suggests exercises adding up to at least this long — favouring the whitelisted ones you haven't practised in the longest, pitched at your skill level — and a day of the Home tab's “Time Spent Singing” is filled in and ticked once you have practised this much."))
-        add(.autoWhitelist, .exercises, section: L("Recommendations"),
+        add(.autoWhitelist, .homeTab, section: L("Recommendations"),
             title: L("Automatically whitelisted exercises"),
             help: L("Which exercises are whitelisted for you: switching a group on whitelists everything in it, including what was already in your library, and switching it off takes them out again. Exercises you tick or untick yourself below are left as you left them."))
-        add(.whitelist, .exercises, section: L("Recommendations"), title: L("Whitelisted exercises"),
+        add(.whitelist, .homeTab, section: L("Recommendations"), title: L("Whitelisted exercises"),
             help: L("The exercises recommendations are picked from. The groups picked above are ticked for you; tap an exercise to add or remove it yourself, which the groups then leave alone."))
 
         // MARK: Backup

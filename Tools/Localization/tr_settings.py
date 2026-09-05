@@ -44,20 +44,20 @@ T("Your vocal range, the test that measures it, and how precisely you have to hi
   "あなたの声域、それを測定するテスト、そして音符が当たりとみなされる正確さ。",
   "음역대, 이를 측정하는 테스트, 그리고 음표가 인정되려면 얼마나 정확히 맞혀야 하는지.",
   "你的音域、测量音域的测试，以及唱中一个音符需要多准确才会计分。")
-T("How your exercise library is presented, including the Home tab's recommendations.",
-  "Wie deine Übungsbibliothek dargestellt wird, einschließlich der Empfehlungen im Start-Tab.",
-  "Cómo se presenta tu biblioteca de ejercicios, incluidas las recomendaciones de la pestaña Inicio.",
-  "La présentation de votre bibliothèque d’exercices, y compris les recommandations de l’onglet Accueil.",
-  "Come viene presentata la tua libreria di esercizi, comprese le raccomandazioni della scheda Home.",
-  "Como sua biblioteca de exercícios é apresentada, incluindo as recomendações da aba Início.",
-  "Hoe je oefenbibliotheek wordt weergegeven, inclusief de aanbevelingen op het tabblad Start.",
-  "Как отображается ваша библиотека упражнений, включая рекомендации на вкладке «Главная».",
-  "Sposób prezentacji biblioteki ćwiczeń, w tym rekomendacje na karcie Start.",
-  "Egzersiz kitaplığınızın nasıl sunulduğu ve Ana Sayfa sekmesindeki öneriler.",
-  "Hur ditt övningsbibliotek visas, inklusive rekommendationerna på fliken Hem.",
-  "エクササイズライブラリの表示方法（ホームタブのおすすめを含む）。",
-  "연습 라이브러리가 표시되는 방식 및 홈 탭의 추천.",
-  "练习库的呈现方式，包括“首页”标签的推荐。")
+T("How the Home tab is put together: which categories it shows and in what order, and the recommendations it suggests.",
+  "Wie der Start-Tab aufgebaut ist: welche Kategorien er zeigt und in welcher Reihenfolge, und was er dir empfiehlt.",
+  "Cómo se compone la pestaña Inicio: qué categorías muestra y en qué orden, y las recomendaciones que ofrece.",
+  "La composition de l’onglet Accueil : les catégories qu’il affiche et dans quel ordre, et les recommandations qu’il propose.",
+  "Come è composta la scheda Home: quali categorie mostra e in che ordine, e i consigli che propone.",
+  "Como a aba Início é montada: quais categorias ela mostra e em que ordem, e as recomendações que ela sugere.",
+  "Hoe het tabblad Start is opgebouwd: welke categorieën het toont en in welke volgorde, en de aanbevelingen die het doet.",
+  "Как устроена вкладка «Главная»: какие категории она показывает и в каком порядке, и какие упражнения рекомендует.",
+  "Jak zbudowana jest karta Start: jakie kategorie pokazuje i w jakiej kolejności oraz co poleca.",
+  "Ana Sayfa sekmesinin nasıl oluştuğu: hangi kategorileri hangi sırayla gösterdiği ve önerdikleri.",
+  "Hur fliken Hem är uppbyggd: vilka kategorier den visar och i vilken ordning, och vad den rekommenderar.",
+  "ホームタブの構成：どのカテゴリをどの順で表示するか、そしておすすめの内容。",
+  "홈 탭의 구성: 어떤 분류를 어떤 순서로 보여주는지, 그리고 어떤 연습을 추천하는지.",
+  "“首页”标签的构成：显示哪些分类、以何种顺序显示，以及它推荐的内容。")
 T("Export your exercise library to a file, or import one.",
   "Exportiere deine Übungsbibliothek in eine Datei oder importiere eine.",
   "Exporta tu biblioteca de ejercicios a un archivo, o importa una.",
@@ -315,10 +315,11 @@ T("The part of the note you have to hit for it to count",
   "인정받으려면 맞혀야 하는 음표 부분",
   "需要唱中才会计分的音符部分")
 
-# --- Exercises settings ---
+# --- Home Tab settings ---
 T("Show recommendations as list", "Empfehlungen als Liste zeigen", "Mostrar recomendaciones como lista", "Afficher les recommandations en liste", "Mostra i consigliati come elenco", "Mostrar recomendações como lista", "Aanbevelingen als lijst tonen", "Показывать рекомендации списком", "Pokazuj polecane jako listę", "Önerileri liste olarak göster", "Visa rekommendationer som lista", "おすすめをリストで表示", "추천을 목록으로 표시", "以列表显示推荐")
 T("Recommendations", "Empfehlungen", "Recomendaciones", "Recommandations", "Raccomandazioni", "Recomendações", "Aanbevelingen", "Рекомендации", "Rekomendacje", "Öneriler", "Rekommendationer", "おすすめ", "추천", "推荐")
-T("Daily practice time", "Tägliche Übungszeit", "Tiempo de práctica diario", "Temps de pratique quotidien", "Tempo di pratica giornaliero", "Tempo de prática diário", "Dagelijkse oefentijd", "Ежедневное время занятий", "Dzienny czas ćwiczeń", "Günlük çalışma süresi", "Daglig övningstid", "1日の練習時間", "하루 연습 시간", "每天的练习时长")
+T("Daily practice goal", "Tägliches Übungsziel", "Objetivo diario de práctica", "Objectif de pratique quotidien", "Obiettivo di pratica giornaliero", "Meta diária de prática", "Dagelijks oefendoel", "Ежедневная цель занятий", "Dzienny cel ćwiczeń", "Günlük çalışma hedefi", "Dagligt övningsmål", "1日の練習目標", "하루 연습 목표", "每天的练习目标")
+T("Customise your Home Screen", "Start-Tab anpassen", "Personalizar la pestaña Inicio", "Personnaliser l’onglet Accueil", "Personalizza la scheda Home", "Personalizar a aba Início", "Tabblad Start aanpassen", "Настроить вкладку «Главная»", "Dostosuj kartę Start", "Ana Sayfa sekmesini özelleştir", "Anpassa fliken Hem", "ホームタブをカスタマイズ", "홈 탭 맞춤 설정", "自定义首页标签")
 T("Whitelisted exercises", "Zugelassene Übungen", "Ejercicios permitidos", "Exercices autorisés", "Esercizi ammessi", "Exercícios permitidos", "Toegestane oefeningen", "Разрешённые упражнения", "Dozwolone ćwiczenia", "İzin verilen egzersizler", "Tillåtna övningar", "対象のエクササイズ", "허용된 연습", "已列入的练习")
 T("Automatically whitelisted exercises", "Automatisch zugelassene Übungen", "Ejercicios permitidos automáticamente", "Exercices autorisés automatiquement", "Esercizi ammessi automaticamente", "Exercícios permitidos automaticamente", "Automatisch toegestane oefeningen", "Автоматически разрешённые упражнения", "Automatycznie dozwolone ćwiczenia", "Otomatik izin verilen egzersizler", "Automatiskt tillåtna övningar", "自動で対象にするエクササイズ", "자동으로 허용되는 연습", "自动列入的练习")
 T("Whitelisted Exercises", "Zugelassene Übungen", "Ejercicios permitidos", "Exercices autorisés", "Esercizi ammessi", "Exercícios permitidos", "Toegestane oefeningen", "Разрешённые упражнения", "Dozwolone ćwiczenia", "İzin verilen egzersizler", "Tillåtna övningar", "対象のエクササイズ", "허용된 연습", "已列入的练习")

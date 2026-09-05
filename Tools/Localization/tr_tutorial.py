@@ -77,20 +77,8 @@ T("Play the introduction the app opens with on its first launch again.",
   "重新播放应用首次启动时显示的介绍。")
 
 # --- Slide: how long a day to practise ---
-T("Practice a day",
-  "Üben pro Tag",
-  "Práctica al día",
-  "Pratique par jour",
-  "Pratica al giorno",
-  "Prática por dia",
-  "Oefenen per dag",
-  "Занятия в день",
-  "Ćwiczenia dziennie",
-  "Günlük çalışma",
-  "Övning per dag",
-  "1日の練習",
-  "하루 연습",
-  "每天的练习")
+# The title is "Daily practice goal", shared with the Settings row it sets — see
+# tr_settings.py.
 T("How long do you want to sing?",
   "Wie lange möchtest du singen?",
   "¿Cuánto tiempo quieres cantar?",
