@@ -90,31 +90,25 @@ extension CommunitySort {
         }
     }
 
-    /// The order to fetch the rest of the list in, for the orders the server
-    /// derives from the user-event tables — or nil for the ones that already come
-    /// back whole.
+    /// The order to fetch the rest of the list in, for the one order the server
+    /// derives from the user-event tables — or nil for the orders that already
+    /// come back whole.
     ///
-    /// Those orders return *only* exercises with at least one event row, which is
-    /// how they are meant to work but would drop everything untouched out of the
-    /// tab, a just-published exercise included. So the query for one is followed
-    /// by a second in this order, topped up with whatever the first left out as
-    /// it is paged (see `CommunityFeed.makeFeed`). `hot` ranks recency against
-    /// engagement, so its remainder is topped up in the order it would rank them
-    /// in; the count orders put theirs, all of them zero, at the tail newest
-    /// first.
+    /// `hot` returns *only* exercises with an event on them from the last two
+    /// weeks, which is how the ranking is meant to work but would drop
+    /// everything untouched out of the tab, a just-published exercise included.
+    /// So its query is followed by a second in this order, topped up with
+    /// whatever the first left out as it is paged (see
+    /// `CommunityFeed.makeFeed`). `hot` ranks recency against engagement, so its
+    /// remainder is topped up in the order it would rank them in.
     ///
-    /// With the reverse switch on the remainder belongs at the *head* instead —
-    /// a tally of zero is the lowest there is — so a reversed count order reads
-    /// its own query out first and holds those records back for the tail,
-    /// listing this one's as they are paged (see `CommunityFeed.makeFeed`).
-    /// Without that, an order whose query returns nothing at all — which is
-    /// where the server stands today, with no exercise carrying an event row it
-    /// will list — leaves the tab empty.
+    /// The count orders once needed the same treatment, leaving out every
+    /// exercise whose tally was zero. The server now ranks the whole community
+    /// in them, zeroes at the far end, so they are fetched as they are.
     var topUpSort: CommunitySort? {
         switch self {
         case .hot: .recentlyUpdated
-        case .mostLiked, .mostPlayed, .mostDownloaded: .newest
-        case .newest, .recentlyUpdated, .alphabetical: nil
+        case .newest, .recentlyUpdated, .mostLiked, .mostPlayed, .mostDownloaded, .alphabetical: nil
         }
     }
 }
