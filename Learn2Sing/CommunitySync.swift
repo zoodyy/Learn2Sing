@@ -1048,8 +1048,8 @@ final class CommunitySync: ObservableObject {
               !ExerciseStore.bundledExerciseIDs.contains(exerciseID),
               difficulties[PublicIdentifier.exercise(exerciseID)] == nil,
               let exercise = store.exercises.first(where: { $0.id == exerciseID }),
-              let rating = ExerciseDifficulty.rating(for: store.notes(for: exerciseID),
-                                                     bpm: exercise.bpm)
+              let rating = ExerciseDifficulty.rating(for: exercise,
+                                                     pattern: store.notes(for: exerciseID))
         else { return }
         let score = ExerciseDifficulty.expectedScore(forRating: rating)
         seededDifficultyIDs.insert(exerciseID)
