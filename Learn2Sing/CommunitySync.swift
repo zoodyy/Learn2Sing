@@ -248,10 +248,21 @@ final class CommunitySync: ObservableObject {
     /// install (see PublicIdentifier), and they are deliberately unmistakable:
     /// nothing else can collide with them, and anyone reading the event rows can
     /// see at a glance which scores were sung and which were estimated.
+    ///
+    /// The run starts at 2 rather than 1, which is not tidiness to be corrected:
+    /// the backend silently drops everything posted from the all-ones id. It
+    /// answers the POST 200 like any other and the row simply never reaches
+    /// `event-average` — measured 2026-09-06 on throwaway exercise ids, both as
+    /// the only post on an exercise (the average stayed `{}`) and against a
+    /// settled one (a value that should have moved it left it alone, where the
+    /// same post from an ordinary id moved it at once). While it was in this
+    /// list the seed carried two voices and this comment claimed three. If the
+    /// server ever stops filtering it, it can come back — but prove that with an
+    /// average that moves, since the status code says nothing either way.
     private static let seedUserIDs = [
-        "11111111-1111-1111-1111-111111111111",
         "22222222-2222-2222-2222-222222222222",
         "33333333-3333-3333-3333-333333333333",
+        "44444444-4444-4444-4444-444444444444",
     ]
     /// The most a public profile document may weigh. The backend keeps each
     /// document in a TEXT column and answers 500 to anything much over 64KB, so
