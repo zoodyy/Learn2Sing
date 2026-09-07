@@ -1326,6 +1326,9 @@ extension ExerciseListController: UICollectionViewDragDelegate, UICollectionView
 
     func collectionView(_ collectionView: UICollectionView, dropSessionDidUpdate session: UIDropSession,
                         withDestinationIndexPath destinationIndexPath: IndexPath?) -> UICollectionViewDropProposal {
+        // Whatever this update answers, UIKit fades a row down to half off the
+        // back of it. Undone as soon as it has (see undimRows).
+        DispatchQueue.main.async { [weak self] in self?.undimRows() }
         let point = session.location(in: collectionView)
         guard session.localDragSession != nil,
               var target = dropTarget(at: point, dragged: draggedItem)
@@ -1354,6 +1357,27 @@ extension ExerciseListController: UICollectionViewDragDelegate, UICollectionView
         // The list holds that gap itself, so UIKit is asked to leave the
         // arrangement alone.
         return UICollectionViewDropProposal(operation: .move, intent: .unspecified)
+    }
+
+    /// Take back the fade UIKit puts on the row it thinks the drop will land
+    /// on top of.
+    ///
+    /// `.unspecified` is UIKit's "the row is being dropped into that one", and
+    /// half opacity is how it says so — an answer this list never means, since
+    /// a drop here always goes between rows. UIKit picks the row by index path
+    /// after the answer is given, by which time the list has already closed
+    /// ranks around the row in the air: at a category's first or last spot that
+    /// index belongs to a row that is staying put, and nothing takes the fade
+    /// off it again for the rest of the drag.
+    ///
+    /// The row in the air is the one fade that belongs — UIKit puts it there as
+    /// the row is lifted — and it is left alone: it is hidden as well (see
+    /// `beginDrag`), so it is none of `visibleCells`.
+    private func undimRows() {
+        guard draggedItem != nil else { return }
+        for cell in collectionView.visibleCells where cell !== gapCell && cell.alpha < 1 {
+            cell.alpha = 1
+        }
     }
 
     /// Hold the gap open at `gap`, or take it away — the rows animate into
