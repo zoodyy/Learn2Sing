@@ -397,6 +397,9 @@ final class ExerciseListController: UIViewController {
     /// Held on to by hand: a hidden cell is not one of `visibleCells`, so there
     /// is no finding it again by looking.
     private weak var gapCell: UICollectionViewCell?
+    /// Whether there is a row in the air right now, which is when the rows keep
+    /// their own opacity — see `ExerciseListCell`.
+    fileprivate private(set) var hasRowInTheAir = false
     /// The spot the list is holding open for that row: the gap its category has
     /// parted to make. nil for the spots the insertion line marks instead — a
     /// category's first and last — where the row is listed nowhere and every
@@ -494,7 +497,7 @@ final class ExerciseListController: UIViewController {
         // they do for a SwiftUI List.
         setContentScrollView(cv, for: [.top, .bottom])
 
-        let cellRegistration = UICollectionView.CellRegistration<UICollectionViewListCell, ItemID> {
+        let cellRegistration = UICollectionView.CellRegistration<ExerciseListCell, ItemID> {
             [weak self] cell, _, itemID in
             // Drop any leftover flash tint (see flash(at:)) if this cell is being
             // recycled for another row mid-highlight.
@@ -563,7 +566,7 @@ final class ExerciseListController: UIViewController {
         // branches of the one above: they share nothing with an exercise row but
         // the cell class, and keeping them apart keeps any of them from having
         // to undo another's leftovers.
-        let calendarRegistration = UICollectionView.CellRegistration<UICollectionViewListCell, ItemID> {
+        let calendarRegistration = UICollectionView.CellRegistration<ExerciseListCell, ItemID> {
             [weak self] cell, _, itemID in
             guard case .practiceCalendar(let days, let goalMinutes)
                     = self?.rowsByID[itemID.id]?.content
@@ -580,7 +583,7 @@ final class ExerciseListController: UIViewController {
             }
             cell.accessories = []
         }
-        let recommendationRegistration = UICollectionView.CellRegistration<UICollectionViewListCell, ItemID> {
+        let recommendationRegistration = UICollectionView.CellRegistration<ExerciseListCell, ItemID> {
             [weak self] cell, _, itemID in
             guard case .recommendation(let category, let skill) = self?.rowsByID[itemID.id]?.content
             else { return }
@@ -596,14 +599,14 @@ final class ExerciseListController: UIViewController {
         // they are on their way, a reload button when they aren't coming. Both
         // fill the row the way the cards do, centred rather than left-aligned —
         // they stand for the whole category, not for one of its exercises.
-        let loadingRegistration = UICollectionView.CellRegistration<UICollectionViewListCell, ItemID> {
+        let loadingRegistration = UICollectionView.CellRegistration<ExerciseListCell, ItemID> {
             cell, _, _ in
             cell.contentConfiguration = UIHostingConfiguration {
                 ProgressView().frame(maxWidth: .infinity)
             }
             cell.accessories = []
         }
-        let retryRegistration = UICollectionView.CellRegistration<UICollectionViewListCell, ItemID> {
+        let retryRegistration = UICollectionView.CellRegistration<ExerciseListCell, ItemID> {
             [weak self] cell, _, itemID in
             guard case .retry(let help) = self?.rowsByID[itemID.id]?.content else { return }
             let locale = (self?.language ?? LanguageManager.shared.language).locale
@@ -616,23 +619,27 @@ final class ExerciseListController: UIViewController {
         }
         dataSource = UICollectionViewDiffableDataSource<String, ItemID>(collectionView: cv) {
             [weak self] collectionView, indexPath, itemID in
+            let cell: ExerciseListCell
             switch self?.rowsByID[itemID.id]?.content {
             case .practiceCalendar:
-                return collectionView.dequeueConfiguredReusableCell(
+                cell = collectionView.dequeueConfiguredReusableCell(
                     using: calendarRegistration, for: indexPath, item: itemID)
             case .recommendation:
-                return collectionView.dequeueConfiguredReusableCell(
+                cell = collectionView.dequeueConfiguredReusableCell(
                     using: recommendationRegistration, for: indexPath, item: itemID)
             case .loading:
-                return collectionView.dequeueConfiguredReusableCell(
+                cell = collectionView.dequeueConfiguredReusableCell(
                     using: loadingRegistration, for: indexPath, item: itemID)
             case .retry:
-                return collectionView.dequeueConfiguredReusableCell(
+                cell = collectionView.dequeueConfiguredReusableCell(
                     using: retryRegistration, for: indexPath, item: itemID)
             default:
-                return collectionView.dequeueConfiguredReusableCell(
+                cell = collectionView.dequeueConfiguredReusableCell(
                     using: cellRegistration, for: indexPath, item: itemID)
             }
+            // Which is how a row knows there is one in the air; see ExerciseListCell.
+            cell.list = self
+            return cell
         }
 
         let headerRegistration = UICollectionView.SupplementaryRegistration<ExerciseSectionHeaderView>(
@@ -1205,6 +1212,9 @@ extension ExerciseListController: UICollectionViewDragDelegate, UICollectionView
         draggedRowHeight = cellFrame(indexPath)?.height ?? draggedRowHeight
         gapCell = collectionView.cellForItem(at: indexPath)
         gapCell?.isHidden = true
+        // After the hiding above, so UIKit's own fade on the row it has just
+        // lifted is let through — that one is on a cell nobody can see anyway.
+        hasRowInTheAir = true
     }
 
     /// The drag ended without a drop taking the row: it goes back where it was
@@ -1221,6 +1231,7 @@ extension ExerciseListController: UICollectionViewDragDelegate, UICollectionView
 
     /// Undoes the hiding above — every row is a row again.
     private func showEveryRow() {
+        hasRowInTheAir = false
         gapCell?.isHidden = false
         gapCell = nil
     }
@@ -1326,9 +1337,6 @@ extension ExerciseListController: UICollectionViewDragDelegate, UICollectionView
 
     func collectionView(_ collectionView: UICollectionView, dropSessionDidUpdate session: UIDropSession,
                         withDestinationIndexPath destinationIndexPath: IndexPath?) -> UICollectionViewDropProposal {
-        // Whatever this update answers, UIKit fades a row down to half off the
-        // back of it. Undone as soon as it has (see undimRows).
-        DispatchQueue.main.async { [weak self] in self?.undimRows() }
         let point = session.location(in: collectionView)
         guard session.localDragSession != nil,
               var target = dropTarget(at: point, dragged: draggedItem)
@@ -1357,27 +1365,6 @@ extension ExerciseListController: UICollectionViewDragDelegate, UICollectionView
         // The list holds that gap itself, so UIKit is asked to leave the
         // arrangement alone.
         return UICollectionViewDropProposal(operation: .move, intent: .unspecified)
-    }
-
-    /// Take back the fade UIKit puts on the row it thinks the drop will land
-    /// on top of.
-    ///
-    /// `.unspecified` is UIKit's "the row is being dropped into that one", and
-    /// half opacity is how it says so — an answer this list never means, since
-    /// a drop here always goes between rows. UIKit picks the row by index path
-    /// after the answer is given, by which time the list has already closed
-    /// ranks around the row in the air: at a category's first or last spot that
-    /// index belongs to a row that is staying put, and nothing takes the fade
-    /// off it again for the rest of the drag.
-    ///
-    /// The row in the air is the one fade that belongs — UIKit puts it there as
-    /// the row is lifted — and it is left alone: it is hidden as well (see
-    /// `beginDrag`), so it is none of `visibleCells`.
-    private func undimRows() {
-        guard draggedItem != nil else { return }
-        for cell in collectionView.visibleCells where cell !== gapCell && cell.alpha < 1 {
-            cell.alpha = 1
-        }
     }
 
     /// Hold the gap open at `gap`, or take it away — the rows animate into
@@ -1502,6 +1489,37 @@ extension ExerciseListController: UIGestureRecognizerDelegate {
     func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer,
                            shouldRecognizeSimultaneouslyWith other: UIGestureRecognizer) -> Bool {
         true
+    }
+}
+
+// MARK: - Rows
+
+/// A row that keeps its own opacity for as long as the list has one in the air.
+///
+/// UIKit fades the row at a drop session's destination index path to half: that
+/// is how it offers to drop one row *into* another, which is not something this
+/// list ever means — a drop here always goes between rows, and `.unspecified`
+/// is only ever the answer that keeps UIKit's hands off the arrangement (see
+/// `dropSessionDidUpdate`). It picks the row by index path straight after each
+/// update is answered, by which time the list has already closed ranks around
+/// the row in the air, so the fade lands on whichever row has just moved into
+/// that spot.
+///
+/// Refused here rather than taken off again afterwards: the earliest anything
+/// can put it back is the next turn of the run loop, a frame after the fade has
+/// already been drawn, and a frame of half a row is exactly the grey flash this
+/// is here to stop.
+///
+/// The row in the air is the one fade that belongs, and it is let through — it
+/// is put up before this starts refusing anything (see `beginDrag`), and the
+/// cell is hidden for the whole drag regardless.
+private final class ExerciseListCell: UICollectionViewListCell {
+    /// The list this row is in, which is what knows when a row is in the air.
+    weak var list: ExerciseListController?
+
+    override var alpha: CGFloat {
+        get { super.alpha }
+        set { super.alpha = list?.hasRowInTheAir == true && !isHidden ? 1 : newValue }
     }
 }
 
