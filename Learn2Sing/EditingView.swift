@@ -791,6 +791,18 @@ struct EditingView: View {
                 }
             }
 
+            // The snap line: while a label is being dragged onto a note's middle, a
+            // stroke down the beat the two share, so it's plain they line up. Drawn
+            // over the notes but under the labels, so the text on top of it stays
+            // readable.
+            if let line = textSnapLine {
+                var path = Path()
+                path.move(to: CGPoint(x: line.x, y: line.top))
+                path.addLine(to: CGPoint(x: line.x, y: line.bottom))
+                ctx.stroke(path, with: .color(.appAccent),
+                           style: StrokeStyle(lineWidth: 2, lineCap: .round))
+            }
+
             // Text labels
             for label in texts {
                 let rect = textRect(for: label)
@@ -1201,6 +1213,34 @@ struct EditingView: View {
     private func snappedTextCentre(_ centre: Double) -> Double {
         if let note = noteSounding(at: centre) { return note.beat + note.length / 2 }
         return snapped(centre)
+    }
+
+    /// The line shown while a label under the finger is snapped to a note's middle, in
+    /// grid coordinates: the beat both middles stand on, and how far up and down it
+    /// reaches. `nil` whenever there's nothing to mark — no label being held, or one
+    /// that has fallen back to the 1/4-beat grid — so the line goes as the finger
+    /// lifts, and the moment the label is dragged off the note.
+    ///
+    /// Drawn for a label being held still as well as one being dragged: the drag's own
+    /// `moved` flag turns off again whenever the finger comes back within the tap
+    /// threshold of where it started, which would blink the line off under a finger
+    /// that hasn't left the note.
+    ///
+    /// A label dragged onto the note's own row has its middle *on* the note's, leaving
+    /// no gap between the two to draw across. There the line is the note's own height
+    /// instead, so the alignment still shows without reaching outside the note.
+    private var textSnapLine: (x: CGFloat, top: CGFloat, bottom: CGFloat)? {
+        guard case .movingText(let id, _, _) = interaction,
+              let label = texts.first(where: { $0.id == id }),
+              let note = noteSounding(at: label.centreBeat),
+              abs(note.beat + note.length / 2 - label.centreBeat) < beatEpsilon
+        else { return nil }
+
+        let noteBox = rect(for: note).insetBy(dx: 1, dy: 1)
+        let x = CGFloat(label.centreBeat) * beatW
+        guard label.pitch != note.pitch else { return (x, noteBox.minY, noteBox.maxY) }
+        let textMid = textRect(for: label).midY
+        return (x, min(textMid, noteBox.midY), max(textMid, noteBox.midY))
     }
 
     /// Touches land in the roll's own space, which starts at the dead margin; notes
