@@ -8,6 +8,9 @@
 //  chart, a picture), and surface in a popover only while the user holds down on
 //  it. The tutorial's last slide is what tells the user this is there.
 //
+//  The same bubble goes up unasked for exactly once, to point out something a
+//  singer would otherwise have to stumble on: see `presentHint` and CategoryHint.
+//
 
 import SwiftUI
 import UIKit
@@ -127,6 +130,10 @@ enum SettingHelpBubble {
         }
     }
 
+    /// The SwiftUI bubble is 260pt wide plus its padding; asking the hosting
+    /// controller what that comes to keeps the two the same size.
+    private static let bubbleWidth: CGFloat = 260 + 32
+
     static func present(_ text: String, from view: UIView) {
         // Presenting from a controller that already has something up throws,
         // so the bubble simply doesn't appear while it does.
@@ -135,17 +142,7 @@ enum SettingHelpBubble {
               presenter.view.window != nil else { return }
         UIImpactFeedbackGenerator(style: .light).impactOccurred()
 
-        let host = UIHostingController(rootView: SettingHelpText(text: text)
-            .environment(\.locale, LanguageManager.shared.language.locale))
-        host.modalPresentationStyle = .popover
-        // The SwiftUI bubble is 260pt wide plus its padding; asking the hosting
-        // controller what that comes to keeps the two the same size.
-        let bubbleWidth: CGFloat = 260 + 32
-        host.preferredContentSize = host.sizeThatFits(
-            in: CGSize(width: bubbleWidth, height: .greatestFiniteMagnitude))
-        // The bubble is read, not used: nothing in it is tappable, so a tap
-        // anywhere puts it away like the SwiftUI one.
-        host.view.backgroundColor = .clear
+        let host = bubbleController(text)
         if let popover = host.popoverPresentationController {
             popover.sourceView = view
             popover.sourceRect = view.bounds
@@ -153,6 +150,150 @@ enum SettingHelpBubble {
             popover.delegate = KeepAsPopover.shared
         }
         presenter.present(host, animated: true)
+    }
+
+    /// The bubble itself, sized and cleared of its own background, ready to be
+    /// pointed at something.
+    private static func bubbleController(_ text: String) -> UIViewController {
+        let host = UIHostingController(rootView: SettingHelpText(text: text)
+            .environment(\.locale, LanguageManager.shared.language.locale))
+        host.modalPresentationStyle = .popover
+        host.preferredContentSize = host.sizeThatFits(
+            in: CGSize(width: bubbleWidth, height: .greatestFiniteMagnitude))
+        // The bubble is read, not used: nothing in it is tappable, so a tap
+        // anywhere puts it away like the SwiftUI one.
+        host.view.backgroundColor = .clear
+        return host
+    }
+
+    // MARK: One-off hint
+
+    /// The hint that is up, holding the popover's delegate and the view that
+    /// decides when it goes. A popover holds its delegate weakly, so something has
+    /// to hold it, and only ever one hint is on screen at a time.
+    fileprivate static var hint: HintBubble?
+
+    /// The same bubble, put up by the app rather than by a press: the one-off hint
+    /// the exercise list points at a category name (see CategoryHint). False when
+    /// there was nothing to present from, so a hint that couldn't be given waits
+    /// for a better moment instead of counting itself as given.
+    ///
+    /// How it goes away is the one thing that differs from a held-down explanation,
+    /// because this one arrived unasked for. A popover leaves of its own accord as
+    /// soon as anything outside it is touched, and the touch that begins a scroll is
+    /// one of those: a singer who opened the tab and flicked the list on autopilot
+    /// would have lost the hint without ever reading it. So everything under it is
+    /// inert while it is up, and only a tap — a touch that ends where it began —
+    /// puts it away.
+    @discardableResult
+    static func presentHint(_ text: String, from view: UIView) -> Bool {
+        guard hint == nil, let presenter = view.owningViewController,
+              let window = presenter.view.window
+        else { return false }
+        // Presenting from a controller whose ancestor already has something up
+        // fails, and a hint that never appeared must not count as given — so the
+        // whole chain is asked, not just the controller presenting it.
+        var ancestor: UIViewController? = presenter
+        while let controller = ancestor {
+            guard controller.presentedViewController == nil else { return false }
+            ancestor = controller.parent
+        }
+
+        let host = bubbleController(text)
+        // Refuses the dismissal UIKit would do by itself on a touch outside, for
+        // the moment between this and the catcher going up.
+        host.isModalInPresentation = true
+        guard let popover = host.popoverPresentationController else { return false }
+        popover.sourceView = view
+        popover.sourceRect = view.bounds
+        popover.permittedArrowDirections = [.up, .down]
+
+        let bubble = HintBubble(host: host)
+        popover.delegate = bubble
+        hint = bubble
+        presenter.present(host, animated: true) { bubble.catchTouches(in: window) }
+        return true
+    }
+}
+
+/// The one-off hint's popover while it is up: the delegate that keeps it from
+/// putting itself away, and the clear view over the window that does.
+private final class HintBubble: NSObject, UIPopoverPresentationControllerDelegate {
+    private weak var host: UIViewController?
+    private weak var catcher: UIView?
+
+    init(host: UIViewController) {
+        self.host = host
+    }
+
+    /// A bubble on iPhone too, exactly as `KeepAsPopover` keeps the held-down one.
+    func adaptivePresentationStyle(for controller: UIPresentationController,
+                                   traitCollection: UITraitCollection) -> UIModalPresentationStyle {
+        .none
+    }
+
+    /// Nothing puts the hint away but a tap on the catcher.
+    func presentationControllerShouldDismiss(_ controller: UIPresentationController) -> Bool { false }
+
+    /// Should it ever be dismissed from elsewhere all the same, let go of it as if
+    /// it had been tapped away, so a later hint isn't blocked by one that has gone.
+    func presentationControllerDidDismiss(_ controller: UIPresentationController) {
+        catcher?.removeFromSuperview()
+        SettingHelpBubble.hint = nil
+    }
+
+    /// Lay the catcher over the whole window — above the bubble, which is presented
+    /// by now — so every touch on the screen is the hint's to answer.
+    func catchTouches(in window: UIWindow) {
+        let catcher = HintTouchCatcher(frame: window.bounds)
+        catcher.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        catcher.onTap = { [weak self] in self?.dismiss() }
+        window.addSubview(catcher)
+        self.catcher = catcher
+    }
+
+    private func dismiss() {
+        catcher?.removeFromSuperview()
+        host?.dismiss(animated: true)
+        SettingHelpBubble.hint = nil
+    }
+}
+
+/// A clear view over everything while the hint is up. It takes every touch, so the
+/// list underneath doesn't scroll, rearrange or open anything while the bubble is
+/// being read, and it reports only the touches that are a tap: one that ends where
+/// it began. A flick deliberately isn't one — the hint is answered by a tap, so it
+/// can't be skipped by a scroll nobody meant as an answer to it.
+private final class HintTouchCatcher: UIView {
+    var onTap: (() -> Void)?
+
+    /// Where the touch went down, or nil once it has travelled far enough to be a
+    /// drag rather than a tap.
+    private var origin: CGPoint?
+
+    /// How far a finger may travel and still count as a tap: the same slop UIKit's
+    /// own tap recognizer allows.
+    private let allowedMovement: CGFloat = 10
+
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        origin = touches.first?.location(in: self)
+    }
+
+    override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
+        guard let start = origin, let point = touches.first?.location(in: self) else { return }
+        if hypot(point.x - start.x, point.y - start.y) > allowedMovement { origin = nil }
+    }
+
+    /// A press that ends without having moved, however long it was held. Held down
+    /// counts: the hint asks to be tapped away, not to be tapped away quickly.
+    override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
+        let wasTap = origin != nil
+        origin = nil
+        if wasTap { onTap?() }
+    }
+
+    override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent?) {
+        origin = nil
     }
 }
 

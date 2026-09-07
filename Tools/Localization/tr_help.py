@@ -718,6 +718,21 @@ T("Narrows the list to where the exercises came from, or to the ones you have sh
   "연습의 출처별로, 또는 내가 공유한 것만 보이도록 좁힙니다. 필터가 켜져 있는 동안 버튼이 채워집니다.",
   "按练习的来源筛选，或只显示你分享过的。筛选开启时按钮为实心。")
 
+T("Press and hold any category name to rearrange your categories, rename them, or add new ones.",
+  "Halte einen Kategorienamen gedrückt, um deine Kategorien umzusortieren, umzubenennen oder neue hinzuzufügen.",
+  "Mantén pulsado el nombre de cualquier categoría para reordenar tus categorías, renombrarlas o añadir nuevas.",
+  "Appuyez longuement sur le nom d’une catégorie pour réorganiser vos catégories, les renommer ou en ajouter.",
+  "Tieni premuto il nome di una categoria per riordinare le tue categorie, rinominarle o aggiungerne di nuove.",
+  "Toque e segure o nome de qualquer categoria para reordenar suas categorias, renomeá-las ou adicionar novas.",
+  "Houd een categorienaam ingedrukt om je categorieën te herschikken, te hernoemen of nieuwe toe te voegen.",
+  "Нажмите и удерживайте название любой категории, чтобы изменить их порядок, переименовать их или добавить новые.",
+  "Przytrzymaj nazwę dowolnej kategorii, aby zmienić kolejność kategorii, zmienić ich nazwy lub dodać nowe.",
+  "Kategorilerinizi yeniden sıralamak, adlarını değiştirmek veya yenilerini eklemek için herhangi bir kategori adına basılı tutun.",
+  "Håll in ett kategorinamn för att ordna om dina kategorier, byta namn på dem eller lägga till nya.",
+  "カテゴリ名を長押しすると、カテゴリの並べ替えや名前の変更、追加ができます。",
+  "분류 이름을 길게 누르면 분류의 순서를 바꾸거나 이름을 바꾸고, 새 분류를 추가할 수 있습니다.",
+  "长按任意分类名称即可调整分类顺序、重命名分类或添加新分类。")
+
 # --- Home tab ---
 T("Which categories the Home tab shows and the order they come in. The same screen opens by pressing and holding a category name on the Home tab.",
   "Welche Kategorien der Start-Tab zeigt und in welcher Reihenfolge. Dieselbe Ansicht öffnet sich, wenn du im Start-Tab einen Kategorienamen gedrückt hältst.",

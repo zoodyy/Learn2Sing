@@ -176,6 +176,13 @@ struct ExerciseCollectionList: UIViewControllerRepresentable {
     /// just-created exercise is pointed out when its settings screen is popped
     /// (Exercises tab). Each id is acted on only once.
     var highlightedID: UUID? = nil
+    /// What the one-off hint pointing at a category name says, or nil for a list
+    /// with no hint to give (see CategoryHint). The list picks a category name
+    /// that's on screen to point the bubble at, and holds the hint back until
+    /// there is one.
+    var categoryHint: String? = nil
+    /// Called as that bubble goes up, so the hint is never given twice.
+    var onCategoryHintShown: (() -> Void)? = nil
     /// Captured when SwiftUI rebuilds this view. Cell text and headers are
     /// translated as they're written into UIKit, and the section data itself is
     /// unchanged by a language switch, so the controller is told separately.
@@ -203,6 +210,7 @@ struct ExerciseCollectionList: UIViewControllerRepresentable {
         controller.onCalendarSelect = onCalendarSelect
         controller.onMove = onMove
         controller.onDragChange = onDragChange
+        controller.onCategoryHintShown = onCategoryHintShown
         controller.movesStayInSection = movesStayInSection
         controller.onLoadMore = onLoadMore
         controller.loadMoreThreshold = loadMoreThreshold
@@ -214,6 +222,7 @@ struct ExerciseCollectionList: UIViewControllerRepresentable {
         if let highlightedID {
             controller.highlight(highlightedID)
         }
+        controller.setCategoryHint(categoryHint)
         // Every update is a chance to notice that the list is running out of rows
         // below the screen — including the one that follows a page finishing
         // loading, which is where a list parked at its end would otherwise sit
@@ -326,6 +335,7 @@ final class ExerciseListController: UIViewController {
     var onCalendarSelect: ((PracticeCalendarSelection?) -> Void)?
     var onMove: ((UUID, String, UUID?) -> Void)?
     var onDragChange: ((Bool) -> Void)?
+    var onCategoryHintShown: (() -> Void)?
     var movesStayInSection = false
     var onLoadMore: (() -> Void)?
     var loadMoreThreshold = 30
@@ -796,6 +806,76 @@ final class ExerciseListController: UIViewController {
         header.onLongPress = { [weak self] in self?.onHeaderLongPress?() }
         header.onAdd = section.showsAdd ? { [weak self] in self?.onAdd?(section.category) } : nil
         header.addHelp = section.showsAdd ? section.addHelp : nil
+    }
+
+    // MARK: - Category hint
+
+    /// The one-off hint's text while it is still waiting for a category name to
+    /// point at, or nil when there is none to give (see CategoryHint).
+    private var categoryHint: String?
+    /// Set once it has been put up, so the repeated calls SwiftUI makes on every
+    /// update ask for it only once — and so a list that has given it never does
+    /// again.
+    private var hasShownCategoryHint = false
+    /// True between an ask and the deferred attempt it made, so the asks that
+    /// arrive in between don't each queue one of their own.
+    private var isCategoryHintPending = false
+
+    /// Hand the hint over, or take back one that is no longer wanted. The list
+    /// shows it the moment it has somewhere to point.
+    func setCategoryHint(_ text: String?) {
+        guard !hasShownCategoryHint, text != categoryHint else { return }
+        categoryHint = text
+        showCategoryHintIfPossible()
+    }
+
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        // A hint the last appearance couldn't place — the list wasn't laid out
+        // yet, or nothing but uncategorized exercises was on screen — is still
+        // waiting to be given.
+        showCategoryHintIfPossible()
+    }
+
+    /// Put the hint up, once there is a category name on screen to point it at.
+    ///
+    /// Deferred a beat, since the ask arrives while the screen it was made from is
+    /// still being popped and before the list has laid its headers out. An ask
+    /// that finds nothing to point at leaves the hint where it is, to be given the
+    /// next time the tab is opened.
+    private func showCategoryHintIfPossible() {
+        guard categoryHint != nil, !hasShownCategoryHint, !isCategoryHintPending else { return }
+        isCategoryHintPending = true
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) { [weak self] in
+            guard let self else { return }
+            self.isCategoryHintPending = false
+            guard let text = self.categoryHint, !self.hasShownCategoryHint,
+                  // Not into a list already moving under the finger: the bubble
+                  // points at a header, and a header being scrolled is not
+                  // somewhere to point.
+                  self.collectionView?.isDragging == false,
+                  self.collectionView?.isDecelerating == false,
+                  let header = self.visibleCategoryHeader(),
+                  SettingHelpBubble.presentHint(text, from: header.categoryNameView)
+            else { return }
+            self.hasShownCategoryHint = true
+            self.categoryHint = nil
+            self.onCategoryHintShown?()
+        }
+    }
+
+    /// The topmost category name in view: the first header standing clear of the
+    /// navigation and tab bars, rather than one half under either of them — the
+    /// list scrolls beneath both. nil when no category has its name on screen.
+    private func visibleCategoryHeader() -> ExerciseSectionHeaderView? {
+        guard let collectionView else { return nil }
+        // A scroll view's bounds are its visible window onto the content; the
+        // adjusted inset is the part of it the bars cover.
+        let inView = collectionView.bounds.inset(by: collectionView.adjustedContentInset)
+        let headers = collectionView.indexPathsForVisibleSupplementaryElements(
+            ofKind: UICollectionView.elementKindSectionHeader).sorted()
+        return headers.lazy.compactMap { self.header(ofSection: $0.section) }
+            .first { $0.frame.minY >= inView.minY && $0.frame.maxY <= inView.maxY }
     }
 
     // MARK: - Highlight
@@ -1626,6 +1706,10 @@ final class ExerciseSectionHeaderView: UICollectionReusableView {
     /// SwiftUI screens use (see SettingHelp). nil leaves the hold doing nothing:
     /// the header's own hold is excluded from controls, so it can't stand in.
     var addHelp: String?
+
+    /// The category name itself, for the one-off hint's bubble to point at rather
+    /// than at the whole width of the header (see CategoryHint).
+    var categoryNameView: UIView { nameLabel }
 
     private let nameLabel = UILabel()
     private let countLabel = UILabel()

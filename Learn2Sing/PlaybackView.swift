@@ -1094,9 +1094,11 @@ struct PlaybackView: View {
                     // The run played through to the end, so it counts for the
                     // Home tab's "Recent" category regardless of the score — and
                     // for its full length on the Home tab's calendar, which a
-                    // run walked out of before this point never reaches.
+                    // run walked out of before this point never reaches. It is a
+                    // finished exercise for the exercise list's one-off hint too.
                     store.markPlayed(exercise.id)
                     PracticeLog.record(seconds: runDuration)
+                    CategoryHint.recordFinishedExercise()
                     if MicDelayCalibration.isNeeded(score: score, currentDelayMs: micDelayMs) {
                         // The first run the singer really sang along to. The score
                         // waits behind the calibration: the setting it depends on

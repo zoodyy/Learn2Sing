@@ -28689,6 +28689,89 @@
         }
       }
     },
+    "Press and hold any category name to rearrange your categories, rename them, or add new ones." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Halte einen Kategorienamen gedrückt, um deine Kategorien umzusortieren, umzubenennen oder neue hinzuzufügen."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mantén pulsado el nombre de cualquier categoría para reordenar tus categorías, renombrarlas o añadir nuevas."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Appuyez longuement sur le nom d’une catégorie pour réorganiser vos catégories, les renommer ou en ajouter."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tieni premuto il nome di una categoria per riordinare le tue categorie, rinominarle o aggiungerne di nuove."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "カテゴリ名を長押しすると、カテゴリの並べ替えや名前の変更、追加ができます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "분류 이름을 길게 누르면 분류의 순서를 바꾸거나 이름을 바꾸고, 새 분류를 추가할 수 있습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Houd een categorienaam ingedrukt om je categorieën te herschikken, te hernoemen of nieuwe toe te voegen."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Przytrzymaj nazwę dowolnej kategorii, aby zmienić kolejność kategorii, zmienić ich nazwy lub dodać nowe."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Toque e segure o nome de qualquer categoria para reordenar suas categorias, renomeá-las ou adicionar novas."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Нажмите и удерживайте название любой категории, чтобы изменить их порядок, переименовать их или добавить новые."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Håll in ett kategorinamn för att ordna om dina kategorier, byta namn på dem eller lägga till nya."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kategorilerinizi yeniden sıralamak, adlarını değiştirmek veya yenilerini eklemek için herhangi bir kategori adına basılı tutun."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "长按任意分类名称即可调整分类顺序、重命名分类或添加新分类。"
+          }
+        }
+      }
+    },
     "Press and hold anything to see what it does." : {
       "localizations" : {
         "de" : {

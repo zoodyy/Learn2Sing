@@ -607,6 +607,17 @@ struct ExercisesView: View {
     /// once the flash is over so it isn't repeated.
     @State private var highlightedExerciseID: UUID?
 
+    /// The one-off hint pointing at a category name, from the moment this screen
+    /// is reached with it due (see CategoryHint) until the list has put it up.
+    @State private var categoryHint: String?
+
+    /// Hand the hint to the list, if the singer hasn't been given it yet. When it
+    /// goes up is the list's own to decide: it needs a category name on screen to
+    /// point the bubble at.
+    private func showCategoryHintIfDue() {
+        if CategoryHint.isDue { categoryHint = CategoryHint.text }
+    }
+
     /// Create the exercise immediately and open its settings, where the user
     /// picks the name and everything else.
     private func addExercise() {
@@ -690,7 +701,12 @@ struct ExercisesView: View {
                         },
                         onDragChange: { isDraggingExercise = $0 },
                         hidesSearchBarInitially: true,
-                        highlightedID: highlightedExerciseID
+                        highlightedID: highlightedExerciseID,
+                        categoryHint: categoryHint,
+                        onCategoryHintShown: {
+                            CategoryHint.markShown()
+                            categoryHint = nil
+                        }
                     )
                     // Span the full screen like a List so content scrolls under the
                     // navigation and tab bars.
@@ -766,7 +782,14 @@ struct ExercisesView: View {
                     .explain(L("Narrows the list to where the exercises came from, or to the ones you have shared. The button is filled in while a filter is on."))
                 }
             }
+            // On the list itself rather than on the tab, so the tab being opened
+            // and a pushed screen being left both ask for the hint.
+            .onAppear(perform: showCategoryHintIfDue)
             .onChange(of: navigationPath) { old, new in
+                // Back at the list, where the hint is given: the singer who has
+                // just finished their fifth exercise arrives here from its score
+                // screen, which is the moment it falls due.
+                if new.isEmpty { showCategoryHintIfDue() }
                 // Back at the list after creating an exercise: if it was never
                 // touched (settings screens deeper in this path can't be showing
                 // anymore), remove it again — and skip the "Saved!" toast for it.
