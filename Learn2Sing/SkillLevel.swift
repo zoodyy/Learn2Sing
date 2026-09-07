@@ -51,10 +51,11 @@ nonisolated struct RatedExercise {
 /// them a long way.
 ///
 /// The one thing an average of readings can't be trusted with is a run that ran
-/// out of scale. A hundred on something well within reach says the exercise was
-/// easy for this singer, not how much easier — and averaged in flat, a shelf of
-/// them holds a good singer down around the easy exercises they aced. Those
-/// readings are therefore taken as the bounds they are (see `ceilingScore` and
+/// out of scale — and the scale runs out below 100, at whatever the exercise
+/// itself leaves reachable. A run up there says the exercise was easy for this
+/// singer, not how much easier, and averaged in flat a shelf of them holds a
+/// good singer down around the easy exercises they aced. Those readings are
+/// therefore taken as the bounds they are (see `ceilingScore` and
 /// `floorScore`): a maxed-out run may push the level up but never pull it down,
 /// and a bottomed-out one the reverse. Which runs those are depends on where the
 /// level lands, and the level on which runs count, so it is settled by repeating
@@ -85,7 +86,22 @@ enum SkillLevel {
     /// At or above this, a run has run out of room at the top: it says the
     /// exercise was within the singer's reach without saying by how much, so it
     /// counts only towards a higher level, never a lower one.
-    static let ceilingScore: Double = 95
+    ///
+    /// Set well below the top of the scale, because that is where the singing
+    /// runs out rather than where the numbers do. A score is the share of each
+    /// note's length the voice spent on pitch (see `PlaybackView.Scorer`), and
+    /// the voice takes time to travel between notes — time charged to the note
+    /// being arrived at, since that is the one sounding while the pitch is still
+    /// on its way. The more onsets an exercise has and the further apart they
+    /// sit, the more of its length goes on transit and the lower the best a
+    /// human can do; and those are the very things that made it rate hard in the
+    /// first place (see `ExerciseDifficulty`). The last few points are a score
+    /// only an easy exercise can give up, so reading them as a measurement would
+    /// mean the harder an exercise was, the more surely it read as over the
+    /// singer's head. The line is drawn instead at what a very good run looks
+    /// like wherever it is sung: comfortably clear of `cleanRun`, and past it
+    /// the points that are left say more about the exercise than the singer.
+    static let ceilingScore: Double = 85
 
     /// And at or below this, out of room at the bottom: the exercise was over
     /// the singer's head, which likewise says nothing about how far. (A run that
