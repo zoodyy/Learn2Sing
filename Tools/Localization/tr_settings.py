@@ -73,6 +73,23 @@ T("Export your exercise library to a file, or import one.",
   "연습 라이브러리를 파일로 내보내거나 가져옵니다.",
   "将练习库导出为文件，或导入一个文件。")
 
+# --- The website line under the hub ---
+T("Website", "Website", "Sitio web", "Site web", "Sito web", "Site", "Website", "Сайт", "Strona internetowa", "Web sitesi", "Webbplats", "ウェブサイト", "웹사이트", "网站")
+T("The website of the app. Tapping it leaves the app and opens the site in your browser.",
+  "Die Website der App. Ein Tipp verlässt die App und öffnet die Seite in deinem Browser.",
+  "El sitio web de la app. Al tocarlo sales de la app y se abre el sitio en tu navegador.",
+  "Le site web de l’app. En le touchant, vous quittez l’app et le site s’ouvre dans votre navigateur.",
+  "Il sito web dell’app. Toccandolo esci dall’app e il sito si apre nel tuo browser.",
+  "O site do app. Ao tocar, você sai do app e o site abre no seu navegador.",
+  "De website van de app. Als je erop tikt, verlaat je de app en opent de site in je browser.",
+  "Сайт приложения. Нажатие закрывает приложение и открывает сайт в браузере.",
+  "Strona internetowa aplikacji. Dotknięcie opuszcza aplikację i otwiera stronę w przeglądarce.",
+  "Uygulamanın web sitesi. Dokunduğunuzda uygulamadan çıkılır ve site tarayıcınızda açılır.",
+  "Appens webbplats. Ett tryck lämnar appen och öppnar sidan i din webbläsare.",
+  "アプリのウェブサイトです。タップするとアプリを離れ、ブラウザでサイトが開きます。",
+  "앱의 웹사이트입니다. 탭하면 앱을 나가 브라우저에서 사이트가 열립니다.",
+  "应用的网站。点按后会离开应用，在浏览器中打开该网站。")
+
 # --- Audio ---
 T("Devices", "Geräte", "Dispositivos", "Appareils", "Dispositivi", "Dispositivos", "Apparaten", "Устройства", "Urządzenia", "Aygıtlar", "Enheter", "デバイス", "기기", "设备")
 T("Speaker", "Lautsprecher", "Altavoz", "Haut-parleur", "Altoparlante", "Alto-falante", "Luidspreker", "Динамик", "Głośnik", "Hoparlör", "Högtalare", "スピーカー", "스피커", "扬声器")

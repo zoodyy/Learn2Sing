@@ -67,6 +67,10 @@ struct SettingsView: View {
                             systemImage: "exclamationmark.bubble", route: .feedback)
                         .setting(.feedback)
                 }
+
+                // Under the list rather than on it: somewhere to go, not
+                // something to set, so it gets no row of its own.
+                websiteLink
             }
             .navigationTitle(L("Settings"))
             .navigationBarTitleDisplayMode(.inline)
@@ -199,6 +203,32 @@ struct SettingsView: View {
         guard settingsPath.count > 1 else { return }
         settingsPath.removeLast(settingsPath.count - 1)
     }
+
+    /// The app's own site, as a line of small print at the foot of the screen:
+    /// no row, no chevron, nothing but the word in the accent colour, so it
+    /// doesn't read as another category to work through.
+    private var websiteLink: some View {
+        HStack {
+            Spacer()
+            Link(destination: Self.website) {
+                Text(L("Website"))
+                    .font(.footnote)
+                    .foregroundStyle(Color.accentColor)
+            }
+            // The plain style so the line is coloured by the text above rather
+            // than tinted as a button, and stays that colour while pressed.
+            .buttonStyle(.plain)
+            .explain(L("The website of the app. Tapping it leaves the app and opens the site in your browser."))
+            Spacer()
+        }
+        .listRowBackground(Color.clear)
+        .listRowSeparator(.hidden)
+    }
+
+    /// Where that goes. Plain http because the site serves no https yet; App
+    /// Transport Security has no say in it either way, since the browser does
+    /// the loading and not the app.
+    private static let website = URL(string: "http://you-can-sing.net")!
 
     /// A row that pushes a settings category screen onto the navigation stack.
     private func hubLink(_ title: String, systemImage: String, route: SettingsRoute) -> some View {
