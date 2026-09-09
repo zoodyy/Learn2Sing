@@ -32,6 +32,84 @@ let microphoneDelayKey = "microphoneDelayMs"
 /// how the review screen lines the sung line up with the notes.
 func micDelayBeats(_ ms: Double, bpm: Double) -> Double { ms / 1000.0 * bpm / 60.0 }
 
+/// How long the voice needs to travel from one pitch to another, and what the score
+/// therefore lets a note off.
+///
+/// A pitch change is not instant. The larynx accelerates, glides, and settles again,
+/// and all of that happens while the note being moved *to* is already sounding — so
+/// the singer is off it at its start however well they sing. Scoring every note over
+/// its full length charged that travel to the singer, which cost the most on exactly
+/// the exercises that ask for the most: many onsets, far apart (see
+/// `SkillLevel.ceilingScore`). So the note being arrived at asks for that much less.
+///
+/// The numbers are the mean of 33 subjects shifting pitch as fast as they could, over
+/// the *complete* movement rather than the fast middle of it: 89.6 ms + 8.7 ms per
+/// semitone rising, 100.4 + 5.8 falling (Xu & Sun, "Maximum speed of pitch change and
+/// how it may relate to speech", JASA 111(3), 2002, Table V). The rising figures are
+/// used both ways: Sundberg (1979) found that untrained voices drop faster than they
+/// rise but trained ones do not, and the two formulas are within 8 ms of each other
+/// anywhere it matters.
+///
+/// Note how flat that is — a semitone costs 98 ms and an octave 194, because nearly
+/// all of it is the fixed price of starting and stopping a move rather than the
+/// distance covered. It is also measured at maximum effort, which is the point: it is
+/// meant to be the most a good singer could possibly need, so that what is left of a
+/// note is time they really were expected to be on pitch.
+enum PitchTravel {
+    /// The fixed part: what it costs to get the voice moving and settled again,
+    /// whatever the interval.
+    static let onsetSeconds = 0.0896
+
+    /// The part that grows with the distance travelled.
+    static let perSemitoneSeconds = 0.0087
+
+    /// How long a move of `semitones` takes, in seconds, up or down alike. Zero for
+    /// no move at all.
+    static func seconds(semitones: Int) -> Double {
+        guard semitones != 0 else { return 0 }
+        return onsetSeconds + perSemitoneSeconds * Double(abs(semitones))
+    }
+
+    /// How much of each note has to be sung on pitch for it to count as fully hit,
+    /// in beats, in the order the notes are given.
+    ///
+    /// That is the note's own length, less the travel from the note before it — the
+    /// pitch the voice is coming from. A note the voice was already at (a repeated
+    /// pitch) is free, and so is a note the exercise leaves silence in front of,
+    /// because the voice can do its travelling in the rest: only what the rest does
+    /// not already cover comes off the note.
+    ///
+    /// A note can end up asking for nothing, when it is shorter than the travel it is
+    /// reached by. There is no way to be on such a note for as long as it lasts, so
+    /// the scorer treats it as all or nothing instead (see `Scorer.score`).
+    static func requiredBeats(notes: [MIDINote], bpm: Double) -> [Double] {
+        var required = notes.map { max(0, $0.length) }
+        guard bpm > 0, notes.count > 1 else { return required }
+        let secPerBeat = 60.0 / bpm
+
+        // Written for one voice at a time: the note before this one is the last one to
+        // have started before it. Notes sharing a start beat are nobody's predecessor,
+        // so the walk steps back over them rather than reading one as the note sung
+        // before the other.
+        let order = notes.indices.sorted { notes[$0].beat < notes[$1].beat }
+        for k in 1..<order.count {
+            let i = order[k]
+            let note = notes[i]
+            var p = k - 1
+            while p >= 0, notes[order[p]].beat >= note.beat { p -= 1 }
+            guard p >= 0 else { continue }
+            let from = notes[order[p]]
+
+            let semitones = abs(note.pitch - from.pitch)
+            guard semitones > 0 else { continue }
+            let rest = max(0, note.beat - (from.beat + from.length)) * secPerBeat
+            let travel = max(0, PitchTravel.seconds(semitones: semitones) - rest)
+            required[i] = max(0, required[i] - travel / secPerBeat)
+        }
+        return required
+    }
+}
+
 /// How much of a note has to be hit for it to count towards the score, as a
 /// percentage of the note's drawn height. At 100 the whole note counts and a run
 /// is scored exactly as it was before this setting existed; lower, and only that

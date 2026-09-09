@@ -681,11 +681,18 @@ private final class PitchTrail {
 
 /// Accumulates how much of the exercise the singer covered correctly. For every
 /// rendered frame it adds the elapsed beat-time of each active note during which
-/// the singer's trailing pitch line lay within that note's drawn rectangle. The
-/// final score is `coveredBeats / (sum of all note lengths)`, so if half of the
-/// notes' combined length was sung on pitch the score is 50%.
+/// the singer's trailing pitch line lay within that note's drawn rectangle.
+///
+/// Each note is then marked against what it actually asks for, which is its length
+/// less the time the voice needs to arrive on it from the note before (see
+/// `PitchTravel`): cover that much and the note counts in full, cover half of it and
+/// the note counts half. The score is those marks weighted by note length, so a note
+/// still counts for as long as it lasts, and a run that was on pitch for every note's
+/// full length still scores 100.
 private final class Scorer {
-    private(set) var coveredBeats: Double = 0
+    /// Beats each note was covered for, in the order the notes were handed to
+    /// `update` — the same array all run long, and the one `score` marks against.
+    private(set) var coveredBeats: [Double] = []
     private var lastBeat: Double? = nil
     /// The tolerance the frames were scored with, remembered because `rescored`
     /// needs it and only the draw pass — which works it out from the canvas height
@@ -693,7 +700,7 @@ private final class Scorer {
     private var tolerance: Double = 0
 
     func reset() {
-        coveredBeats = 0
+        coveredBeats = []
         lastBeat = nil
     }
 
@@ -709,24 +716,39 @@ private final class Scorer {
     func update(beat: Double, notes: [MIDINote], singerPitch: Double?, tolerance: Double, noteShift: Double) {
         self.tolerance = tolerance
         defer { lastBeat = beat }
+        if coveredBeats.count != notes.count {
+            coveredBeats = Array(repeating: 0, count: notes.count)
+        }
         guard let last = lastBeat else { return }
         let dt = beat - last
         // Ignore non-advancing frames and large jumps (e.g. a restart) so the
         // integral can't be corrupted by a discontinuity in the playhead.
         guard dt > 0, dt < 0.5 else { return }
         guard let pitch = singerPitch else { return }
-        for note in notes where beat >= note.beat + noteShift && beat < note.beat + note.length + noteShift {
+        for (i, note) in notes.enumerated()
+        where beat >= note.beat + noteShift && beat < note.beat + note.length + noteShift {
             if abs(pitch - Double(note.pitch)) <= tolerance {
-                coveredBeats += dt
+                coveredBeats[i] += dt
             }
         }
     }
 
-    /// Final score as a whole-number percentage (0...100).
-    func score(notes: [MIDINote]) -> Int {
-        let total = notes.reduce(0.0) { $0 + $1.length }
+    /// Final score as a whole-number percentage (0...100): every note marked against
+    /// what it asks for, weighted by how long the note is.
+    func score(notes: [MIDINote], bpm: Double) -> Int {
+        let total = notes.reduce(0.0) { $0 + max(0, $1.length) }
         guard total > 0 else { return 0 }
-        return min(100, max(0, Int((coveredBeats / total * 100).rounded())))
+        let required = PitchTravel.requiredBeats(notes: notes, bpm: bpm)
+        var earned = 0.0
+        for (i, note) in notes.enumerated() {
+            let covered = i < coveredBeats.count ? coveredBeats[i] : 0
+            // A note that asks for nothing is one shorter than the travel that reaches
+            // it: there is no length of it a singer could hold, so it goes all or
+            // nothing on whether they got to it at all.
+            let hit = required[i] > 0 ? min(1, covered / required[i]) : (covered > 0 ? 1 : 0)
+            earned += max(0, note.length) * hit
+        }
+        return min(100, max(0, Int((earned / total * 100).rounded())))
     }
 
     /// The run just scored, scored again at a different microphone delay.
@@ -735,13 +757,13 @@ private final class Scorer {
     /// pitch)` pair `update` was handed on each frame, in order — so replaying it
     /// through a fresh scorer at `noteShift` gives exactly what the run would have
     /// scored had the setting been that all along.
-    func rescored(samples: [PitchSample], notes: [MIDINote], noteShift: Double) -> Int {
+    func rescored(samples: [PitchSample], notes: [MIDINote], noteShift: Double, bpm: Double) -> Int {
         let replay = Scorer()
         for sample in samples {
             replay.update(beat: sample.beat, notes: notes, singerPitch: sample.pitch,
                           tolerance: tolerance, noteShift: noteShift)
         }
-        return replay.score(notes: notes)
+        return replay.score(notes: notes, bpm: bpm)
     }
 }
 
@@ -1100,7 +1122,7 @@ struct PlaybackView: View {
                     // the mic, leaving the synth rendering on the shared playAndRecord
                     // session) is what avoids the intermittent freeze when navigating back.
                     teardownAudio()
-                    let score = scorer.score(notes: notes)
+                    let score = scorer.score(notes: notes, bpm: bpm)
                     // DEBUG RECORDING — remove together with DebugRecording.swift.
                     // After teardownAudio, so no more microphone hops can arrive.
                     debugRecording = debugRecorder.finish(
@@ -1197,7 +1219,8 @@ struct PlaybackView: View {
             delayResultMs = delay
         } else {
             finishRun(score: scorer.rescored(samples: trail.recording, notes: notes,
-                                             noteShift: micDelayBeats(delay, bpm: bpm)))
+                                             noteShift: micDelayBeats(delay, bpm: bpm),
+                                             bpm: bpm))
             isCalibrating = false
         }
     }
@@ -1210,7 +1233,7 @@ struct PlaybackView: View {
         if mode == .sungDelayTest {
             dismiss()
         } else {
-            finishRun(score: scorer.score(notes: notes))
+            finishRun(score: scorer.score(notes: notes, bpm: bpm))
             isCalibrating = false
         }
     }

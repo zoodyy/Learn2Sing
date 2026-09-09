@@ -89,18 +89,19 @@ enum SkillLevel {
     ///
     /// Set well below the top of the scale, because that is where the singing
     /// runs out rather than where the numbers do. A score is the share of each
-    /// note's length the voice spent on pitch (see `PlaybackView.Scorer`), and
-    /// the voice takes time to travel between notes — time charged to the note
-    /// being arrived at, since that is the one sounding while the pitch is still
-    /// on its way. The more onsets an exercise has and the further apart they
-    /// sit, the more of its length goes on transit and the lower the best a
-    /// human can do; and those are the very things that made it rate hard in the
-    /// first place (see `ExerciseDifficulty`). The last few points are a score
-    /// only an easy exercise can give up, so reading them as a measurement would
-    /// mean the harder an exercise was, the more surely it read as over the
-    /// singer's head. The line is drawn instead at what a very good run looks
-    /// like wherever it is sung: comfortably clear of `cleanRun`, and past it
-    /// the points that are left say more about the exercise than the singer.
+    /// note the voice spent on pitch (see `PlaybackView.Scorer`), and the voice
+    /// takes time to travel between notes — time spent on the note being arrived
+    /// at, since that is the one sounding while the pitch is still on its way.
+    /// Each note now asks for that much less of itself (`PitchTravel`), so an
+    /// exercise of many onsets far apart no longer costs the singer the transit
+    /// it was always going to take; what it is let off, though, is what a good
+    /// singer needs at full stretch, and an ordinary one still spends more than
+    /// that on every leap. So the last points on the scale are still a score an
+    /// easy exercise gives up more readily than a hard one, and reading them as
+    /// a measurement would still say more about the exercise (see
+    /// `ExerciseDifficulty`) than about the singer. The line is drawn instead at
+    /// what a very good run looks like wherever it is sung: comfortably clear of
+    /// `cleanRun`, and past it the points that are left are not worth reading.
     static let ceilingScore: Double = 85
 
     /// And at or below this, out of room at the bottom: the exercise was over
