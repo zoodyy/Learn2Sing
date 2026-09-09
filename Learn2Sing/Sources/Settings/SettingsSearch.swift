@@ -184,6 +184,7 @@ extension SettingKey {
     static let instruments     = SettingKey("audio.instruments")
     static let speaker         = SettingKey("audio.speaker")
     static let microphone      = SettingKey("audio.microphone")
+    static let autoMicDelay    = SettingKey("audio.autoMicDelay")
     static let microphoneDelay = SettingKey("audio.micDelay")
     static let delayTest       = SettingKey("audio.delayTest")
 
@@ -391,6 +392,9 @@ enum SettingsCatalog {
     private static var hasCustomVocalRange: Bool {
         UserDefaults.standard.string(forKey: VocalRange.storageKey) == VocalRange.custom.rawValue
     }
+    /// The delay tests are off the Audio screen entirely while the runs measure the
+    /// delay themselves, so the whole screen they lead to goes with them.
+    private static var setsDelayByHand: Bool { !AutoMicDelay.isEnabled }
 
     private static func build() -> [SettingsSearchEntry] {
         var entries: [SettingsSearchEntry] = []
@@ -406,8 +410,8 @@ enum SettingsCatalog {
         /// no section of its own — it *is* one — so a result names the screen it
         /// is on and nothing more.
         func heading(_ key: SettingKey, _ screen: SettingsScreen, _ title: String,
-                     help: String = "") {
-            add(key, screen, title: title, help: help)
+                     help: String = "", available: @escaping () -> Bool = { true }) {
+            add(key, screen, title: title, help: help, available: available)
         }
 
         // MARK: Settings hub
@@ -445,15 +449,20 @@ enum SettingsCatalog {
 
         // MARK: Audio
         let routeHelp = L("“Automatic” uses connected earphones (e.g. AirPods) when available, otherwise the phone.")
-        let delayHelp = L("Compensates for the lag between singing and pitch detection. Only the score is affected — playback and visuals are unchanged. Run the test to measure it automatically.")
         add(.instruments, .audio, title: L("Instruments"),
             help: L("Choose the sound that plays the notes, or upload your own."))
         heading(.audioDevices, .audio, L("Devices"))
         add(.speaker, .audio, section: L("Devices"), title: L("Speaker"), help: routeHelp)
         add(.microphone, .audio, section: L("Devices"), title: L("Microphone"), help: routeHelp)
         heading(.audioScoring, .audio, L("Scoring"))
-        add(.microphoneDelay, .audio, section: L("Scoring"), title: L("Microphone delay"), help: delayHelp)
-        add(.delayTest, .audio, section: L("Scoring"), title: L("Test for delay"), help: delayHelp)
+        add(.autoMicDelay, .audio, section: L("Scoring"),
+            title: L("Automatically Recognise Microphone Delay"),
+            help: L("Sets the delay below for you: every exercise you play to the end is scored at every delay it could have been sung at, and the one that scores highest is kept. Turn it off to measure the delay yourself and type it in."))
+        add(.microphoneDelay, .audio, section: L("Scoring"), title: L("Microphone delay"),
+            help: L("Compensates for the lag between singing and pitch detection. Only the score is affected, playback and visuals are unchanged. While the setting above is on it is worked out for you and can't be edited here."))
+        add(.delayTest, .audio, section: L("Scoring"), title: L("Test for delay"),
+            help: L("Compensates for the lag between singing and pitch detection. Only the score is affected — playback and visuals are unchanged. Run the test to measure it automatically."),
+            available: { setsDelayByHand })
 
         // MARK: Instruments
         let builtInHelp = L("Tap the name to play the exercises' notes with this sound. The speaker plays a sample of it.")
@@ -466,11 +475,13 @@ enum SettingsCatalog {
         }
 
         // MARK: Delay test
-        heading(.delayChooseTest, .delayChoice, L("Choose a Test"))
+        heading(.delayChooseTest, .delayChoice, L("Choose a Test"), available: { setsDelayByHand })
         add(.clapTest, .delayChoice, section: L("Choose a Test"), title: L("Clap Test"),
-            help: L("Clap along with a metronome and the app works the delay out for you. Quick, but it needs headphones and firm claps to be accurate."))
+            help: L("Clap along with a metronome and the app works the delay out for you. Quick, but it needs headphones and firm claps to be accurate."),
+            available: { setsDelayByHand })
         add(.sungTest, .delayChoice, section: L("Choose a Test"), title: L("Sing an Exercise"),
-            help: L("Sing one of your own exercises, then slide your recorded singing until it lines up with the notes. Takes longer, but you see exactly what you're setting."))
+            help: L("Sing one of your own exercises, then slide your recorded singing until it lines up with the notes. Takes longer, but you see exactly what you're setting."),
+            available: { setsDelayByHand })
 
         // MARK: Visuals
         add(.theme, .visuals, title: L("Theme"),

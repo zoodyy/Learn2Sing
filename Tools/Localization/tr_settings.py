@@ -98,6 +98,7 @@ T("Automatic", "Automatisch", "Automático", "Automatique", "Automatico", "Autom
 T("iPhone Speaker", "iPhone-Lautsprecher", "Altavoz del iPhone", "Haut-parleur de l’iPhone", "Altoparlante dell’iPhone", "Alto-falante do iPhone", "iPhone-luidspreker", "Динамик iPhone", "Głośnik iPhone’a", "iPhone Hoparlörü", "iPhone-högtalare", "iPhoneのスピーカー", "iPhone 스피커", "iPhone 扬声器")
 T("iPhone Microphone", "iPhone-Mikrofon", "Micrófono del iPhone", "Micro de l’iPhone", "Microfono dell’iPhone", "Microfone do iPhone", "iPhone-microfoon", "Микрофон iPhone", "Mikrofon iPhone’a", "iPhone Mikrofonu", "iPhone-mikrofon", "iPhoneのマイク", "iPhone 마이크", "iPhone 麦克风")
 T("Scoring", "Bewertung", "Puntuación", "Notation", "Punteggio", "Pontuação", "Score", "Оценка", "Ocena", "Puanlama", "Poäng", "採点", "점수", "评分")
+T("Automatically Recognise Microphone Delay", "Mikrofonverzögerung automatisch erkennen", "Detectar automáticamente el retardo del micrófono", "Détecter automatiquement le retard du micro", "Rileva automaticamente il ritardo del microfono", "Detectar automaticamente o atraso do microfone", "Microfoonvertraging automatisch herkennen", "Автоматически определять задержку микрофона", "Automatycznie rozpoznawaj opóźnienie mikrofonu", "Mikrofon gecikmesini otomatik algıla", "Känn av mikrofonfördröjningen automatiskt", "マイク遅延を自動で認識", "마이크 지연 자동 인식", "自动识别麦克风延迟")
 T("Microphone delay", "Mikrofonverzögerung", "Retardo del micrófono", "Retard du micro", "Ritardo del microfono", "Atraso do microfone", "Microfoonvertraging", "Задержка микрофона", "Opóźnienie mikrofonu", "Mikrofon gecikmesi", "Mikrofonfördröjning", "マイク遅延", "마이크 지연", "麦克风延迟")
 T("ms", "ms", "ms", "ms", "ms", "ms", "ms", "мс", "ms", "ms", "ms", "ミリ秒", "밀리초", "毫秒")
 T("Test for delay", "Verzögerung messen", "Medir el retardo", "Mesurer le retard", "Misura il ritardo", "Medir o atraso", "Vertraging meten", "Измерить задержку", "Zmierz opóźnienie", "Gecikmeyi ölç", "Mät fördröjning", "遅延を測定", "지연 측정", "测量延迟")
@@ -181,6 +182,34 @@ T("“Automatic” uses connected earphones (e.g. AirPods) when available, other
   "「自動」は接続中のイヤフォン（AirPodsなど）があればそれを、なければ本体を使います。",
   "“자동”은 연결된 이어폰(예: AirPods)이 있으면 그것을, 없으면 기기를 사용합니다.",
   "“自动”会在有已连接耳机（如 AirPods）时使用耳机，否则使用手机。")
+T("Sets the delay below for you: every exercise you play to the end is scored at every delay it could have been sung at, and the one that scores highest is kept. Turn it off to measure the delay yourself and type it in.",
+  "Stellt die Verzögerung unten für dich ein: Jede Übung, die du bis zum Ende spielst, wird mit jeder möglichen Verzögerung bewertet, und die mit der höchsten Punktzahl wird übernommen. Schalte es aus, um die Verzögerung selbst zu messen und einzutragen.",
+  "Ajusta por ti el retardo de abajo: cada ejercicio que completes se puntúa con todos los retardos con los que podría haberse cantado, y se guarda el que da la puntuación más alta. Desactívalo para medir el retardo tú mismo e introducirlo.",
+  "Règle le retard ci-dessous à votre place : chaque exercice que vous menez à son terme est noté avec tous les retards possibles, et celui qui donne la meilleure note est conservé. Désactivez cette option pour mesurer le retard vous-même et le saisir.",
+  "Imposta per te il ritardo qui sotto: ogni esercizio che porti a termine viene valutato con tutti i ritardi con cui poteva essere cantato, e viene tenuto quello con il punteggio più alto. Disattivalo per misurare il ritardo da solo e inserirlo.",
+  "Define o atraso abaixo para você: cada exercício que você toca até o fim é pontuado com todos os atrasos com que poderia ter sido cantado, e o de maior pontuação é mantido. Desative para medir o atraso você mesmo e digitá-lo.",
+  "Stelt de vertraging hieronder voor je in: elke oefening die je helemaal afspeelt, wordt bij elke mogelijke vertraging gescoord en die met de hoogste score wordt bewaard. Zet het uit om de vertraging zelf te meten en in te vullen.",
+  "Сам подбирает задержку ниже: каждое упражнение, доигранное до конца, оценивается со всеми возможными задержками, и сохраняется та, что дала наивысшую оценку. Выключите, чтобы измерить задержку самостоятельно и ввести её.",
+  "Ustawia opóźnienie poniżej za Ciebie: każde ćwiczenie zagrane do końca jest oceniane przy każdym możliwym opóźnieniu, a zapisywane jest to z najwyższym wynikiem. Wyłącz, aby zmierzyć opóźnienie samodzielnie i je wpisać.",
+  "Aşağıdaki gecikmeyi senin yerine ayarlar: sonuna kadar oynattığın her egzersiz, söylenmiş olabileceği tüm gecikmelerle puanlanır ve en yüksek puanı veren gecikme saklanır. Gecikmeyi kendin ölçüp girmek için kapat.",
+  "Ställer in fördröjningen nedan åt dig: varje övning du spelar klart poängsätts vid alla fördröjningar den kunde ha sjungits med, och den som ger högst poäng behålls. Stäng av för att mäta fördröjningen själv och skriva in den.",
+  "下の遅延を自動で設定します。最後まで再生したエクササイズは、考えられるすべての遅延で採点され、いちばん点数の高い値が保存されます。オフにすると、自分で遅延を測定して入力できます。",
+  "아래 지연을 대신 설정합니다. 끝까지 재생한 연습은 가능한 모든 지연으로 채점되고, 가장 높은 점수가 나온 값이 저장됩니다. 끄면 지연을 직접 측정해 입력할 수 있습니다.",
+  "自动为你设置下方的延迟：每个完整播放到结束的练习都会按所有可能的延迟计分，并保留得分最高的那个。关闭后可以自己测量延迟并手动输入。")
+T("Compensates for the lag between singing and pitch detection. Only the score is affected, playback and visuals are unchanged. While the setting above is on it is worked out for you and can't be edited here.",
+  "Gleicht die Verzögerung zwischen Singen und Tonhöhenerkennung aus. Betrifft nur die Bewertung, Wiedergabe und Darstellung bleiben unverändert. Solange die Einstellung darüber an ist, wird sie für dich ermittelt und kann hier nicht bearbeitet werden.",
+  "Compensa el desfase entre el canto y la detección de tono. Solo afecta a la puntuación, la reproducción y la imagen no cambian. Mientras el ajuste de arriba esté activado, se calcula por ti y no se puede editar aquí.",
+  "Compense le décalage entre le chant et la détection de hauteur. Seule la note est concernée, la lecture et l’affichage ne changent pas. Tant que le réglage ci-dessus est activé, il est calculé pour vous et ne peut pas être modifié ici.",
+  "Compensa il ritardo tra il canto e il rilevamento dell’intonazione. Riguarda solo il punteggio, riproduzione e grafica restano invariate. Finché l’impostazione qui sopra è attiva, viene calcolato per te e non si può modificare qui.",
+  "Compensa o atraso entre o canto e a detecção de altura. Afeta apenas a pontuação, a reprodução e os visuais não mudam. Enquanto a opção acima estiver ligada, ele é calculado para você e não pode ser editado aqui.",
+  "Compenseert de vertraging tussen zingen en toonhoogtedetectie. Alleen de score wordt beïnvloed, weergave en beeld blijven gelijk. Zolang de instelling hierboven aanstaat, wordt hij voor je bepaald en kun je hem hier niet wijzigen.",
+  "Компенсирует задержку между пением и определением высоты тона. Влияет только на оценку, воспроизведение и графика не меняются. Пока настройка выше включена, значение подбирается автоматически и здесь его изменить нельзя.",
+  "Kompensuje opóźnienie między śpiewem a wykrywaniem wysokości dźwięku. Wpływa tylko na ocenę, odtwarzanie i grafika pozostają bez zmian. Dopóki ustawienie powyżej jest włączone, wartość jest dobierana automatycznie i nie można jej tu edytować.",
+  "Şarkı söyleme ile perde algılama arasındaki gecikmeyi telafi eder. Yalnızca puanı etkiler, oynatma ve görseller değişmez. Yukarıdaki ayar açıkken değer senin için hesaplanır ve burada düzenlenemez.",
+  "Kompenserar fördröjningen mellan sång och tonhöjdsavläsning. Bara poängen påverkas, uppspelning och grafik ändras inte. Så länge inställningen ovan är på räknas värdet ut åt dig och kan inte ändras här.",
+  "歌声とピッチ検出の間の遅れを補正します。影響するのは採点だけで、再生や表示は変わりません。上の設定がオンの間は自動で求められ、ここでは編集できません。",
+  "노래와 음정 인식 사이의 지연을 보정합니다. 점수에만 영향을 주며 재생과 화면은 그대로입니다. 위 설정이 켜져 있는 동안에는 자동으로 계산되며 여기서 수정할 수 없습니다.",
+  "补偿演唱与音高识别之间的延迟。只影响评分，播放和画面不受影响。上方的设置开启时，该数值会自动算出，无法在这里修改。")
 T("Compensates for the lag between singing and pitch detection. Only the score is affected — playback and visuals are unchanged. Run the test to measure it automatically.",
   "Gleicht die Verzögerung zwischen Singen und Tonhöhenerkennung aus. Betrifft nur die Bewertung – Wiedergabe und Darstellung bleiben unverändert. Führe den Test aus, um sie automatisch zu messen.",
   "Compensa el desfase entre el canto y la detección de tono. Solo afecta a la puntuación: la reproducción y la imagen no cambian. Haz la prueba para medirlo automáticamente.",

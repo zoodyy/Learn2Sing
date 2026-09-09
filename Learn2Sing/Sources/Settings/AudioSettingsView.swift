@@ -16,6 +16,7 @@ struct AudioSettingsView: View {
     @AppStorage(AudioRouteManager.speakerKey) private var speaker = AudioRouteManager.automatic
     @AppStorage(AudioRouteManager.micKey) private var microphone = AudioRouteManager.builtInMic
     @AppStorage(microphoneDelayKey) private var micDelayMs = 0.0
+    @AppStorage(AutoMicDelay.enabledKey) private var autoMicDelay = AutoMicDelay.defaultEnabled
     @FocusState private var micDelayFocused: Bool
     @ObservedObject private var routes = AudioRouteManager.shared
 
@@ -58,6 +59,13 @@ struct AudioSettingsView: View {
             }
 
             Section {
+                Toggle("Automatically Recognise Microphone Delay", isOn: $autoMicDelay)
+                    .setting(.autoMicDelay)
+
+                // Still shown while it is recognised automatically, because it is the
+                // number every score is worked out with and worth seeing, but greyed
+                // out and untouchable: the next finished run would overwrite anything
+                // typed here.
                 HStack {
                     Text("Microphone delay")
                     Spacer()
@@ -68,12 +76,19 @@ struct AudioSettingsView: View {
                         .frame(width: 70)
                     Text("ms").foregroundStyle(.secondary)
                 }
+                .foregroundStyle(autoMicDelay ? .secondary : .primary)
+                .disabled(autoMicDelay)
                 .setting(.microphoneDelay)
 
-                Button(action: openDelayTest) {
-                    Label("Test for delay", systemImage: "metronome")
+                // Nothing left for the tests to measure while the runs measure it, so
+                // the way to them goes away rather than sitting there setting a number
+                // that would be replaced.
+                if !autoMicDelay {
+                    Button(action: openDelayTest) {
+                        Label("Test for delay", systemImage: "metronome")
+                    }
+                    .setting(.delayTest)
                 }
-                .setting(.delayTest)
             } header: {
                 Text("Scoring").settingSection(.audioScoring)
             }
@@ -87,6 +102,11 @@ struct AudioSettingsView: View {
         // negative, so this one gets no sign toggle.
         .scrollDismissesKeyboard(.interactively)
         .keyboardBar { micDelayFocused = false }
+        // Switching recognition on while the field is open leaves the keyboard over a
+        // row that has just stopped accepting anything, so it goes with it.
+        .onChange(of: autoMicDelay) { _, isOn in
+            if isOn { micDelayFocused = false }
+        }
         // Probe for devices the playback configuration hides (a Bluetooth microphone
         // is only visible while the Hands-Free Profile is allowed), so everything
         // that's connected can be picked here.

@@ -17,8 +17,8 @@ import Foundation
 /// fifth run the list is familiar and worth tidying.
 ///
 /// Both keys live in UserDefaults and deliberately outside `UserSettings`, like the
-/// tutorial's own flag and the microphone calibration's: they record what has
-/// happened on this install rather than something the singer chose.
+/// tutorial's own flag and the delay recogniser's (see `AutoMicDelay`): they record
+/// what has happened on this install rather than something the singer chose.
 enum CategoryHint {
     /// How many finished exercises come before the hint.
     static let runsBeforeShowing = 5

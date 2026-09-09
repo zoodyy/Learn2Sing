@@ -145,42 +145,82 @@ enum ScoreTargetWindow {
     }
 }
 
-/// Whether the singer has been shown the microphone-delay calibration off the back
-/// of a real run.
+/// The microphone delay worked out from the singing itself, rather than measured by
+/// one of the tests and typed in.
 ///
-/// That setting is what lines a singer's voice up with the notes when the score is
+/// The delay is what lines a singer's voice up with the notes when the score is
 /// worked out, and a new singer has no reason to go looking for it in Settings — so
-/// the first run that shows they were genuinely singing along ends on the screen the
-/// sung delay test ends on, and they set it there. It is offered exactly once,
-/// however that goes; from then on it lives in Settings ▸ Audio, which is what the
-/// prompt tells them.
-enum MicDelayCalibration {
-    /// UserDefaults key, set the moment the calibration is opened rather than when it
-    /// is finished — a singer who backs out of it has still been asked.
+/// with this on (which is how the app ships) every run that plays through to the end
+/// is re-scored at every delay it could have been sung at, and the one that scores
+/// highest becomes the setting. The score the singer is then shown is the one at that
+/// delay, so the number on the screen is the best the run was worth. While it is on,
+/// the delay field is read-only and the tests are put away: there is nothing left for
+/// them to do.
+enum AutoMicDelay {
+    /// UserDefaults key for the switch in Settings ▸ Audio ▸ Scoring.
+    static let enabledKey = "automaticMicrophoneDelay"
+
+    /// On, so a singer who never opens Settings still gets scored against their own
+    /// microphone rather than against a delay of zero.
+    static let defaultEnabled = true
+
+    /// The score a recognised delay has to beat before it replaces the one already
+    /// set. Below it the run says more about the singing than about the microphone:
+    /// a line that lies over the notes nowhere has a "best" offset, but it is noise,
+    /// and adopting it would move a delay that a better run had got right.
+    static let minimumScore = 40
+
+    /// UserDefaults key recording that a run has scored above that with this on, so
+    /// there is a delay worth protecting. Until then every run's best offset is
+    /// adopted however low it scores: a singer whose microphone lags by half a second
+    /// cannot score above the bar until the delay is roughly right, so holding out for
+    /// the score first would leave them stuck at zero forever.
     ///
     /// Kept out of `UserSettings` for the same reason the tutorial's flag is: it
     /// records what has happened on this install rather than something the singer
-    /// chose. A restored profile brings the measured delay itself along, and that is
-    /// what `isNeeded` looks at.
-    static let promptedKey = "didPromptMicDelayCalibration"
+    /// chose. A restored profile brings a delay measured on another device's
+    /// microphone, which this device's first run should be free to correct.
+    static let establishedKey = "automaticMicrophoneDelayEstablished"
 
-    /// Lowest score that opens it. At or below this the singer was barely on a note
-    /// at all — most likely not singing — so there is no line worth sliding over the
-    /// notes.
-    static let minimumScore = 5
-
-    /// Whether a run that just scored `score` should detour through the calibration
-    /// instead of going straight to the score. Never twice, and never for a singer
-    /// who already has a delay — measured by one of the tests on this device, or
-    /// restored from their profile onto it.
-    static func isNeeded(score: Int, currentDelayMs: Double) -> Bool {
-        score > minimumScore && currentDelayMs == 0
-            && !UserDefaults.standard.bool(forKey: promptedKey)
+    /// The setting as it currently stands, for the places that read it once rather
+    /// than binding to it.
+    static var isEnabled: Bool {
+        UserDefaults.standard.object(forKey: enabledKey) as? Bool ?? defaultEnabled
     }
 
-    /// Remember it has been offered, so it never interrupts a run again.
-    static func markPrompted() {
-        UserDefaults.standard.set(true, forKey: promptedKey)
+    static var isEstablished: Bool {
+        UserDefaults.standard.bool(forKey: establishedKey)
+    }
+
+    static func markEstablished() {
+        UserDefaults.standard.set(true, forKey: establishedKey)
+    }
+
+    /// The largest delay any of this is allowed to arrive at, in milliseconds. Far
+    /// past any real microphone's round trip, and the same ceiling the sung test's
+    /// offset controls stop at.
+    static let ceilingMs: Double = 2000
+
+    /// The highest delay worth trying on this run, in milliseconds.
+    ///
+    /// A delay shifts the notes later for scoring, so a big enough one slides the last
+    /// note clean past the end of the singing: nothing was sung while it sounds, it can
+    /// never be hit, and the notes before it are all that is left to score. That is not
+    /// a delay the run measured, it is the run being cut short, so the search stops at
+    /// the largest offset that still leaves the last note sounding over something the
+    /// singer sang.
+    ///
+    /// `samples` is the run's pitch line, oldest first; a sample with no pitch is
+    /// silence rather than singing and doesn't hold the last note up.
+    static func maxDelayMs(notes: [MIDINote], samples: [PitchSample], bpm: Double) -> Double {
+        guard bpm > 0,
+              let lastNote = notes.max(by: { ($0.beat, $0.length) < ($1.beat, $1.length) }),
+              let lastSung = samples.last(where: { $0.pitch != nil })?.beat
+        else { return 0 }
+        // In beats the note may be shifted by, then back into milliseconds: the
+        // shift that puts the note's start exactly on the final sung sample.
+        let beats = lastSung - lastNote.beat
+        return min(ceilingMs, max(0, beats * 60_000 / bpm))
     }
 }
 

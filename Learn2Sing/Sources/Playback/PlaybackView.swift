@@ -765,6 +765,95 @@ private final class Scorer {
         }
         return replay.score(notes: notes, bpm: bpm)
     }
+
+    /// The microphone delay this run would have scored highest at, in whole
+    /// milliseconds, searching every delay from none up to `maxMs`. nil when there is
+    /// nothing to search — no notes, no singing, or no room above zero.
+    ///
+    /// Rescoring the run once per candidate would be the obvious way to do it and far
+    /// too slow: a two-minute run at 120 Hz leaves 14,000 samples, and two thousand
+    /// replays over a hundred notes is hundreds of millions of comparisons in the
+    /// moment the singer is waiting for their score. This costs one pass instead,
+    /// because a sample doesn't need scoring at every delay to say which delays it
+    /// counts at. A sample is inside a note exactly while the shifted note is still
+    /// sounding under it, which is one contiguous run of candidate delays, so each
+    /// (note, sample) pair is added once at the delay that run starts and taken away
+    /// again where it ends. Running totals down the array then give what every note
+    /// was covered for at every delay at once.
+    ///
+    /// The score at a candidate is marked exactly as `score` marks it, so the answer
+    /// is the same one rescoring would have given, and the caller rescores at the
+    /// delay this returns to get the number it shows.
+    func bestDelayMs(samples: [PitchSample], notes: [MIDINote], bpm: Double,
+                     upTo maxMs: Double) -> Double? {
+        let steps = Int(maxMs.rounded(.down))          // one candidate per millisecond
+        guard steps > 0, !notes.isEmpty, bpm > 0 else { return nil }
+        let total = notes.reduce(0.0) { $0 + max(0, $1.length) }
+        guard total > 0 else { return nil }
+        let beatsPerMs = micDelayBeats(1, bpm: bpm)
+
+        // The samples that count towards a score, with the slice of time each one
+        // stands for: the same `dt` and the same guards on it as `update`, which
+        // measures the gap back to the previous sample whether or not that one had a
+        // pitch of its own.
+        var heard: [(beat: Double, pitch: Double, dt: Double)] = []
+        heard.reserveCapacity(samples.count)
+        var previousBeat: Double? = nil
+        for sample in samples {
+            defer { previousBeat = sample.beat }
+            guard let previous = previousBeat, let pitch = sample.pitch else { continue }
+            let dt = sample.beat - previous
+            guard dt > 0, dt < 0.5 else { continue }
+            heard.append((beat: sample.beat, pitch: pitch, dt: dt))
+        }
+        guard !heard.isEmpty else { return nil }
+
+        let required = PitchTravel.requiredBeats(notes: notes, bpm: bpm)
+        // What the whole run has earned at each candidate delay, built up a note at a
+        // time, and the note being worked on: how its coverage changes from one
+        // candidate to the next.
+        var earned = [Double](repeating: 0, count: steps + 1)
+        var change = [Double](repeating: 0, count: steps + 2)
+
+        for (i, note) in notes.enumerated() {
+            let length = max(0, note.length)
+            guard length > 0 else { continue }         // weightless: nothing to earn
+            for index in change.indices { change[index] = 0 }
+
+            for sample in heard where abs(sample.pitch - Double(note.pitch)) <= tolerance {
+                // Shifted by `d` beats the note sounds over [beat + d, beat + length + d),
+                // so this sample is inside it for every delay from just above
+                // `sampleBeat - noteEnd` up to and including `sampleBeat - noteBeat`.
+                let highest = (sample.beat - note.beat) / beatsPerMs
+                let lowest = (sample.beat - note.beat - length) / beatsPerMs
+                guard highest >= 0, lowest < Double(steps) else { continue }
+                let last = min(steps, Int(highest.rounded(.down)))
+                let first = max(0, Int(lowest.rounded(.down)) + 1)
+                guard first <= last else { continue }
+                change[first] += sample.dt
+                change[last + 1] -= sample.dt
+            }
+
+            var covered = 0.0
+            for ms in 0...steps {
+                covered += change[ms]
+                // Marked as `score` marks it, including the all-or-nothing case for a
+                // note that asks for nothing. The tolerance there is what is left of a
+                // sample after it has been added and taken away again.
+                let hit = required[i] > 0
+                    ? min(1, max(0, covered) / required[i])
+                    : (covered > 1e-9 ? 1 : 0)
+                earned[ms] += length * hit
+            }
+        }
+
+        // The lowest delay that earns the most: a stretch of equally good offsets means
+        // the singer was inside the notes throughout it, and the near end of that
+        // stretch is the one that doesn't push the last note off the end of the run.
+        var best = 0
+        for ms in 1...steps where earned[ms] > earned[best] { best = ms }
+        return Double(best)
+    }
 }
 
 /// What an exercise is measuring. A normal exercise scores the singer's pitch; the
@@ -846,12 +935,9 @@ struct PlaybackView: View {
     @State private var isReviewing = false
     /// Set when a run has played out and the microphone delay is what comes next:
     /// the same review screen takes over from playback, with the controls that dial
-    /// the delay in. That is the whole point of the sung delay test, and the last
-    /// step of the first run a singer scores anything on (see `MicDelayCalibration`).
+    /// the delay in. That is the whole point of the sung delay test, and nothing else
+    /// reaches it.
     @State private var isCalibrating = false
-    /// Set alongside it on that first run only, for the alert saying what the screen
-    /// is for. The sung delay test was asked for and needs no explaining.
-    @State private var isExplainingCalibration = false
     @State private var claps = ClapCollector()
     // DEBUG RECORDING — remove together with DebugRecording.swift.
     @State private var debugRecorder = DebugRunRecorder()
@@ -939,10 +1025,9 @@ struct PlaybackView: View {
                     if let onDelayTestExit { onDelayTestExit() } else { dismiss() }
                 }
             } else if isCalibrating {
-                // The finished run drawn as usual, with controls that slide the sung
-                // line over the notes. Done saves what was dialled in; the back
-                // button leaves without it. Where either goes next depends on which
-                // run this was — see `calibrationDone` and `calibrationSkipped`.
+                // The sung delay test's last step: the finished run drawn as usual,
+                // with controls that slide the sung line over the notes. Done saves
+                // what was dialled in and shows it; the back button leaves without it.
                 ExerciseReviewView(exercise: exercise, notes: notes, texts: texts,
                                    samples: trail.recording, bpm: bpm,
                                    repeatLayout: repeatLayout,
@@ -988,18 +1073,6 @@ struct PlaybackView: View {
         // toolbar modifier that stays put across them, rather than one appearing
         // as another goes and the bar animating on whichever wins.
         .toolbar(visuals.hideTabBar && showsRunCanvas ? .hidden : .automatic, for: .tabBar)
-        // What the calibration screen is doing there, the once it shows up
-        // uninvited. Attached out here rather than to that screen so it is already
-        // mounted when the flag is set, and goes up with the screen behind it.
-        //
-        // `L(_:)` inside the alert, per the localization notes: its button and its
-        // message are built in the alert's own environment, which the locale set on
-        // the tab view doesn't reach — only the title resolves against this view's.
-        .alert("Microphone Delay", isPresented: $isExplainingCalibration) {
-            Button(L("OK")) {}
-        } message: {
-            Text(L("Slide your singing until it lines up with the notes. The delay this sets only affects how your score is worked out, and you can redo it any time in Settings under Audio."))
-        }
     }
 
     private var playback: some View {
@@ -1122,7 +1195,11 @@ struct PlaybackView: View {
                     // the mic, leaving the synth rendering on the shared playAndRecord
                     // session) is what avoids the intermittent freeze when navigating back.
                     teardownAudio()
-                    let score = scorer.score(notes: notes, bpm: bpm)
+                    // The run played through to the end, which is the only kind of run
+                    // the delay can be recognised from: one walked out of half way
+                    // never gets here, and its part-sung line would put the best offset
+                    // anywhere.
+                    let score = recogniseDelay(scoring: scorer.score(notes: notes, bpm: bpm))
                     // DEBUG RECORDING — remove together with DebugRecording.swift.
                     // After teardownAudio, so no more microphone hops can arrive.
                     debugRecording = debugRecorder.finish(
@@ -1130,26 +1207,14 @@ struct PlaybackView: View {
                                         samples: trail.recording, bpm: bpm, leadInBeats: leadIn,
                                         repeatSpan: repeatLayout.span, micDelayMs: micDelayMs,
                                         score: score))
-                    // The run played through to the end, so it counts for the
-                    // Home tab's "Recent" category regardless of the score — and
-                    // for its full length on the Home tab's calendar, which a
-                    // run walked out of before this point never reaches. It is a
+                    // It counts for the Home tab's "Recent" category regardless of the
+                    // score — and for its full length on the Home tab's calendar, which
+                    // a run walked out of before this point never reaches. It is a
                     // finished exercise for the exercise list's one-off hint too.
                     store.markPlayed(exercise.id)
                     PracticeLog.record(seconds: runDuration)
                     CategoryHint.recordFinishedExercise()
-                    if MicDelayCalibration.isNeeded(score: score, currentDelayMs: micDelayMs) {
-                        // The first run the singer really sang along to. The score
-                        // waits behind the calibration: the setting it depends on
-                        // is about to become theirs, and the very first score they
-                        // are shown — and that goes into the history and up to the
-                        // server — should already be worked out with it.
-                        MicDelayCalibration.markPrompted()
-                        isCalibrating = true
-                        isExplainingCalibration = true
-                    } else {
-                        finishRun(score: score)
-                    }
+                    finishRun(score: score)
                 }
             }
             pitchDetector.start()
@@ -1186,9 +1251,9 @@ struct PlaybackView: View {
     // MARK: - Finishing a run
 
     /// Everything a finished run leaves behind that depends on its score, and the
-    /// score screen it ends on. Held back on the run that detours through the
-    /// calibration, so what the singer is shown — and what goes into the history and
-    /// up to the server — is the score at the microphone delay they settled on there.
+    /// score screen it ends on. The score handed in is the one the delay recognition
+    /// settled on (see `recogniseDelay`), so what the singer is shown — and what goes
+    /// into the history and up to the server — is all the same number.
     private func finishRun(score: Int) {
         // Asked before saving: once this run is in the history, it ties with
         // itself and nothing is ever a record.
@@ -1204,38 +1269,51 @@ struct PlaybackView: View {
         finalScore = score
     }
 
-    /// Done on the calibration screen: the offset the singer dialled in becomes the
-    /// microphone-delay setting, whichever run took them there.
+    /// Works the microphone delay out from the run that has just played and adopts it,
+    /// returning the score the singer is shown: the one at the delay this leaves set.
+    /// `played` is what the run scored at the delay it was actually played under, and
+    /// is what comes back whenever nothing is adopted.
     ///
-    /// The sung delay test then ends on the same result screen the clap test does —
-    /// measuring that number was the whole errand. A real run instead carries on to
-    /// its score, worked out again at the delay just set rather than at the one it
-    /// was played under, so the number matches the line the singer has this second
-    /// seen lying over the notes.
+    /// The delay is only moved when the run says something about the microphone worth
+    /// hearing. That means a score above `AutoMicDelay.minimumScore` at the offset
+    /// found, except while no run has ever cleared that bar with this switch on: a
+    /// singer whose delay is badly wrong cannot score well until it is roughly right,
+    /// so the first runs take the best offset going and the bar takes over once there
+    /// is a delay worth keeping.
+    private func recogniseDelay(scoring played: Int) -> Int {
+        guard AutoMicDelay.isEnabled else { return played }
+        guard let best = scorer.bestDelayMs(
+            samples: trail.recording, notes: notes, bpm: bpm,
+            upTo: AutoMicDelay.maxDelayMs(notes: notes, samples: trail.recording, bpm: bpm))
+        else { return played }
+
+        let found = scorer.rescored(samples: trail.recording, notes: notes,
+                                    noteShift: micDelayBeats(best, bpm: bpm), bpm: bpm)
+        // `found` beats `played` on any run whose delay was inside the range searched,
+        // which is all of them bar a delay set higher than the last note leaves room
+        // for; that one keeps the score it was played at.
+        let adopt = found >= played
+            && (found > AutoMicDelay.minimumScore || !AutoMicDelay.isEstablished)
+        if adopt { micDelayMs = best }
+        let score = adopt ? found : played
+        if score > AutoMicDelay.minimumScore { AutoMicDelay.markEstablished() }
+        return score
+    }
+
+    /// Done on the sung delay test's last screen: the offset the singer dialled in
+    /// becomes the microphone-delay setting, and the test ends on the same result
+    /// screen the clap test does. Measuring that number was the whole errand, so there
+    /// is no score behind it.
     private func calibrationDone(_ ms: Double) {
         let delay = ms.rounded()
         micDelayMs = delay
-        if mode == .sungDelayTest {
-            delayResultMs = delay
-        } else {
-            finishRun(score: scorer.rescored(samples: trail.recording, notes: notes,
-                                             noteShift: micDelayBeats(delay, bpm: bpm),
-                                             bpm: bpm))
-            isCalibrating = false
-        }
+        delayResultMs = delay
     }
 
-    /// The back button on the calibration screen. It abandons the sung delay test,
-    /// which has nothing behind it to go back to; a real run keeps the score it
-    /// earned at the delay it was played under and goes on to it — and, having been
-    /// asked once, is never interrupted again.
+    /// Its back button, which abandons the test. Nothing was scored and nothing was
+    /// saved, and there is no screen behind it to go back to.
     private func calibrationSkipped() {
-        if mode == .sungDelayTest {
-            dismiss()
-        } else {
-            finishRun(score: scorer.score(notes: notes, bpm: bpm))
-            isCalibrating = false
-        }
+        dismiss()
     }
 
     // MARK: - Drawing

@@ -13,8 +13,7 @@ import UIKit
 /// the detected pitch that much further left (see `micDelayBeats`).
 ///
 /// The same screen is the last step of the sung microphone-delay test (Settings ▸
-/// Audio ▸ Test for delay), and of the first run a singer scores anything on (see
-/// `MicDelayCalibration`). There `onCalibrationDone` is set: the shift is no
+/// Audio ▸ Test for delay). There `onCalibrationDone` is set: the shift is no
 /// longer the saved setting but an offset the singer dials in with the controls
 /// along the bottom, sliding their whole line over the notes until it lines up,
 /// and Done hands that offset back to be saved as the new microphone delay.

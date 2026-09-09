@@ -3573,6 +3573,88 @@
         }
       }
     },
+    "Automatically Recognise Microphone Delay" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mikrofonverzögerung automatisch erkennen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Detectar automáticamente el retardo del micrófono"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Détecter automatiquement le retard du micro"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rileva automaticamente il ritardo del microfono"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "マイク遅延を自動で認識"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "마이크 지연 자동 인식"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Microfoonvertraging automatisch herkennen"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Automatycznie rozpoznawaj opóźnienie mikrofonu"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Detectar automaticamente o atraso do microfone"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Автоматически определять задержку микрофона"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Känn av mikrofonfördröjningen automatiskt"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mikrofon gecikmesini otomatik algıla"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "自动识别麦克风延迟"
+          }
+        }
+      }
+    },
     "Automatically whitelisted exercises" : {
       "localizations" : {
         "de" : {
@@ -7036,6 +7118,89 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "补偿演唱与音高检测之间的延迟。仅影响评分，播放和画面不受影响。运行测试可自动测量。"
+          }
+        }
+      }
+    },
+    "Compensates for the lag between singing and pitch detection. Only the score is affected, playback and visuals are unchanged. While the setting above is on it is worked out for you and can't be edited here." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gleicht die Verzögerung zwischen Singen und Tonhöhenerkennung aus. Betrifft nur die Bewertung, Wiedergabe und Darstellung bleiben unverändert. Solange die Einstellung darüber an ist, wird sie für dich ermittelt und kann hier nicht bearbeitet werden."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Compensa el desfase entre el canto y la detección de tono. Solo afecta a la puntuación, la reproducción y la imagen no cambian. Mientras el ajuste de arriba esté activado, se calcula por ti y no se puede editar aquí."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Compense le décalage entre le chant et la détection de hauteur. Seule la note est concernée, la lecture et l’affichage ne changent pas. Tant que le réglage ci-dessus est activé, il est calculé pour vous et ne peut pas être modifié ici."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Compensa il ritardo tra il canto e il rilevamento dell’intonazione. Riguarda solo il punteggio, riproduzione e grafica restano invariate. Finché l’impostazione qui sopra è attiva, viene calcolato per te e non si può modificare qui."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "歌声とピッチ検出の間の遅れを補正します。影響するのは採点だけで、再生や表示は変わりません。上の設定がオンの間は自動で求められ、ここでは編集できません。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "노래와 음정 인식 사이의 지연을 보정합니다. 점수에만 영향을 주며 재생과 화면은 그대로입니다. 위 설정이 켜져 있는 동안에는 자동으로 계산되며 여기서 수정할 수 없습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Compenseert de vertraging tussen zingen en toonhoogtedetectie. Alleen de score wordt beïnvloed, weergave en beeld blijven gelijk. Zolang de instelling hierboven aanstaat, wordt hij voor je bepaald en kun je hem hier niet wijzigen."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kompensuje opóźnienie między śpiewem a wykrywaniem wysokości dźwięku. Wpływa tylko na ocenę, odtwarzanie i grafika pozostają bez zmian. Dopóki ustawienie powyżej jest włączone, wartość jest dobierana automatycznie i nie można jej tu edytować."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Compensa o atraso entre o canto e a detecção de altura. Afeta apenas a pontuação, a reprodução e os visuais não mudam. Enquanto a opção acima estiver ligada, ele é calculado para você e não pode ser editado aqui."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Компенсирует задержку между пением и определением высоты тона. Влияет только на оценку, воспроизведение и графика не меняются. Пока настройка выше включена, значение подбирается автоматически и здесь его изменить нельзя."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kompenserar fördröjningen mellan sång och tonhöjdsavläsning. Bara poängen påverkas, uppspelning och grafik ändras inte. Så länge inställningen ovan är på räknas värdet ut åt dig och kan inte ändras här."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Şarkı söyleme ile perde algılama arasındaki gecikmeyi telafi eder. Yalnızca puanı etkiler, oynatma ve görseller değişmez. Yukarıdaki ayar açıkken değer senin için hesaplanır ve burada düzenlenemez."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "补偿演唱与音高识别之间的延迟。只影响评分，播放和画面不受影响。上方的设置开启时，该数值会自动算出，无法在这里修改。"
           }
         }
       }
@@ -34637,6 +34802,89 @@
         }
       }
     },
+    "Sets the delay below for you: every exercise you play to the end is scored at every delay it could have been sung at, and the one that scores highest is kept. Turn it off to measure the delay yourself and type it in." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stellt die Verzögerung unten für dich ein: Jede Übung, die du bis zum Ende spielst, wird mit jeder möglichen Verzögerung bewertet, und die mit der höchsten Punktzahl wird übernommen. Schalte es aus, um die Verzögerung selbst zu messen und einzutragen."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ajusta por ti el retardo de abajo: cada ejercicio que completes se puntúa con todos los retardos con los que podría haberse cantado, y se guarda el que da la puntuación más alta. Desactívalo para medir el retardo tú mismo e introducirlo."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Règle le retard ci-dessous à votre place : chaque exercice que vous menez à son terme est noté avec tous les retards possibles, et celui qui donne la meilleure note est conservé. Désactivez cette option pour mesurer le retard vous-même et le saisir."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Imposta per te il ritardo qui sotto: ogni esercizio che porti a termine viene valutato con tutti i ritardi con cui poteva essere cantato, e viene tenuto quello con il punteggio più alto. Disattivalo per misurare il ritardo da solo e inserirlo."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "下の遅延を自動で設定します。最後まで再生したエクササイズは、考えられるすべての遅延で採点され、いちばん点数の高い値が保存されます。オフにすると、自分で遅延を測定して入力できます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "아래 지연을 대신 설정합니다. 끝까지 재생한 연습은 가능한 모든 지연으로 채점되고, 가장 높은 점수가 나온 값이 저장됩니다. 끄면 지연을 직접 측정해 입력할 수 있습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stelt de vertraging hieronder voor je in: elke oefening die je helemaal afspeelt, wordt bij elke mogelijke vertraging gescoord en die met de hoogste score wordt bewaard. Zet het uit om de vertraging zelf te meten en in te vullen."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ustawia opóźnienie poniżej za Ciebie: każde ćwiczenie zagrane do końca jest oceniane przy każdym możliwym opóźnieniu, a zapisywane jest to z najwyższym wynikiem. Wyłącz, aby zmierzyć opóźnienie samodzielnie i je wpisać."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Define o atraso abaixo para você: cada exercício que você toca até o fim é pontuado com todos os atrasos com que poderia ter sido cantado, e o de maior pontuação é mantido. Desative para medir o atraso você mesmo e digitá-lo."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сам подбирает задержку ниже: каждое упражнение, доигранное до конца, оценивается со всеми возможными задержками, и сохраняется та, что дала наивысшую оценку. Выключите, чтобы измерить задержку самостоятельно и ввести её."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ställer in fördröjningen nedan åt dig: varje övning du spelar klart poängsätts vid alla fördröjningar den kunde ha sjungits med, och den som ger högst poäng behålls. Stäng av för att mäta fördröjningen själv och skriva in den."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aşağıdaki gecikmeyi senin yerine ayarlar: sonuna kadar oynattığın her egzersiz, söylenmiş olabileceği tüm gecikmelerle puanlanır ve en yüksek puanı veren gecikme saklanır. Gecikmeyi kendin ölçüp girmek için kapat."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "自动为你设置下方的延迟：每个完整播放到结束的练习都会按所有可能的延迟计分，并保留得分最高的那个。关闭后可以自己测量延迟并手动输入。"
+          }
+        }
+      }
+    },
     "Sets the order the exercises come in. “Reverse Order” turns whichever order is picked around." : {
       "extractionState" : "stale",
       "localizations" : {
@@ -37194,89 +37442,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "跳过练习"
-          }
-        }
-      }
-    },
-    "Slide your singing until it lines up with the notes. The delay this sets only affects how your score is worked out, and you can redo it any time in Settings under Audio." : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Verschiebe deinen Gesang, bis er zu den Noten passt. Die so eingestellte Verzögerung wirkt sich nur darauf aus, wie deine Punktzahl berechnet wird, und du kannst das jederzeit in den Einstellungen unter „Audio“ wiederholen."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Desplaza tu canto hasta que coincida con las notas. El retardo que se ajusta así solo afecta a cómo se calcula tu puntuación, y puedes repetirlo cuando quieras en Ajustes, en «Audio»."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Décalez votre chant jusqu’à ce qu’il coïncide avec les notes. Le retard ainsi réglé ne joue que sur le calcul de votre note, et vous pouvez recommencer à tout moment dans Réglages, sous « Audio »."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sposta il tuo canto finché non combacia con le note. Il ritardo così impostato incide solo su come viene calcolato il punteggio, e puoi rifarlo quando vuoi in Impostazioni, sotto “Audio”."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "歌がノーツに合うまでずらしてください。ここで設定される遅延はスコアの計算にだけ使われ、設定の「オーディオ」でいつでもやり直せます。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "노래가 음표에 맞을 때까지 옆으로 옮기세요. 이렇게 설정된 지연은 점수를 계산하는 데만 쓰이며, 설정의 ‘오디오’에서 언제든 다시 할 수 있습니다."
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Schuif je zang tot die op de noten valt. De vertraging die je zo instelt bepaalt alleen hoe je score wordt berekend, en je kunt dit altijd opnieuw doen in Instellingen onder ‘Audio’."
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Przesuwaj swój śpiew, aż pokryje się z nutami. Ustawione w ten sposób opóźnienie wpływa tylko na sposób obliczania wyniku i możesz to powtórzyć w dowolnej chwili w Ustawieniach, w sekcji „Dźwięk”."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Desloque seu canto até alinhar com as notas. O atraso definido assim só afeta como sua pontuação é calculada, e você pode refazer isso quando quiser em Ajustes, em “Áudio”."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Сдвиньте своё пение так, чтобы оно совпало с нотами. Заданная так задержка влияет только на расчёт оценки, и вы можете повторить это в любое время в Настройках, в разделе «Аудио»."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Skjut din sång tills den ligger i linje med noterna. Fördröjningen du ställer in påverkar bara hur din poäng räknas ut, och du kan göra om det när som helst i Inställningar under ”Ljud”."
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Şarkınızı notalarla hizalanana kadar kaydırın. Böylece ayarlanan gecikme yalnızca puanınızın nasıl hesaplandığını etkiler ve bunu istediğiniz zaman Ayarlar’da “Ses” bölümünden yineleyebilirsiniz."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "移动你的歌声，直到与音符对齐。这里设定的延迟只影响得分的计算方式，你随时可以在“设置”的“音频”中重新设置。"
           }
         }
       }

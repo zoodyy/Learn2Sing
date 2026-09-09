@@ -215,8 +215,12 @@ enum ResettableSettings: String, CaseIterable, Identifiable {
             ProfileSync.shared.scheduleUpload()
             CommunitySync.shared.scheduleUpload()
         case .audio:
+            // The automatic recogniser's "there is a delay worth keeping" flag goes
+            // with the delay it was about, so a reset install starts as an untouched
+            // one does and the next run's offset is taken whatever it scores.
             for key in [AudioRouteManager.speakerKey, AudioRouteManager.micKey,
-                        microphoneDelayKey, Instrument.storageKey] {
+                        microphoneDelayKey, AutoMicDelay.enabledKey,
+                        AutoMicDelay.establishedKey, Instrument.storageKey] {
                 defaults.removeObject(forKey: key)
             }
         case .visuals:

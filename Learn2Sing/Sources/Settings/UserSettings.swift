@@ -33,8 +33,13 @@ struct UserSettings: Codable {
     /// (including the "Automatic" / built-in sentinels).
     var speaker: String?
     var microphone: String?
-    /// Microphone-delay compensation in milliseconds, as measured by the delay test.
+    /// Microphone-delay compensation in milliseconds, as measured by the delay test
+    /// or recognised from a finished run.
     var microphoneDelayMs: Double?
+    /// Whether that number is recognised from the singing rather than set by hand.
+    /// The flag recording that a run has already found a delay worth keeping is not
+    /// carried: it is about this device's microphone (see `AutoMicDelay`).
+    var automaticMicrophoneDelay: Bool?
     /// The selected instrument's raw value. A `custom:` selection names an uploaded
     /// sound, which the profile can't carry — see `apply(store:templates:)`.
     var instrument: String?
@@ -117,6 +122,7 @@ struct UserSettings: Codable {
             speaker: d.string(forKey: AudioRouteManager.speakerKey) ?? AudioRouteManager.automatic,
             microphone: d.string(forKey: AudioRouteManager.micKey) ?? AudioRouteManager.builtInMic,
             microphoneDelayMs: d.double(forKey: microphoneDelayKey),
+            automaticMicrophoneDelay: AutoMicDelay.isEnabled,
             instrument: d.string(forKey: Instrument.storageKey) ?? Instrument.piano.rawValue,
             theme: d.string(forKey: AppTheme.storageKey) ?? AppTheme.system.rawValue,
             orientationLock: d.string(forKey: OrientationLock.storageKey) ?? OrientationLock.none.rawValue,
@@ -156,6 +162,9 @@ struct UserSettings: Codable {
         if let speaker { d.set(speaker, forKey: AudioRouteManager.speakerKey) }
         if let microphone { d.set(microphone, forKey: AudioRouteManager.micKey) }
         if let microphoneDelayMs { d.set(microphoneDelayMs, forKey: microphoneDelayKey) }
+        if let automaticMicrophoneDelay {
+            d.set(automaticMicrophoneDelay, forKey: AutoMicDelay.enabledKey)
+        }
         // A "custom:" selection names an instrument the user uploaded, and its audio
         // file isn't part of the profile — restoring the selection would pick a sound
         // that isn't here, so the built-in one this device starts on is left alone.
