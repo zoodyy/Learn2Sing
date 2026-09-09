@@ -87,11 +87,13 @@ struct ExerciseIntroView: View {
     /// layout so the two plots come out the same size. (Measured with the
     /// temporary debug-export button gone — while it is there it squeezes the
     /// result screen's chart, and this one is the taller of the two.)
+    /// Re-measured when that screen's button row moved down to sit level with
+    /// the Start button below, which its chart grew into.
     /// Landscape gets a shorter one: the result screen puts the chart beside the
     /// score rather than under it, and here the card has to share a short screen
     /// with the description and the Start button.
     private var chartHeight: CGFloat {
-        verticalSizeClass == .compact ? 200 : 380
+        verticalSizeClass == .compact ? 200 : 416
     }
 
     private var trimmedDetails: String {

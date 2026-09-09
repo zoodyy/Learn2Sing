@@ -898,11 +898,16 @@ struct PlaybackView: View {
     /// which only differs in where it goes once the exercise has played out.
     private var playsExercise: Bool { mode != .clapDelayTest }
 
-    /// Whether the run itself is on screen, as opposed to one of the screens that
-    /// take over once it has played out — the score, the review, the calibration
-    /// controls, the delay result. Mirrors the branches of `body`.
-    private var isPlayingBack: Bool {
-        delayResultMs == nil && !isCalibrating && finalScore == nil
+    /// Whether what is on screen is one of the full-screen drawings of the
+    /// exercise: the run itself, or the review screen in either of its jobs —
+    /// looking back over a finished run, and dialling the microphone delay in on
+    /// one. The score and delay-result screens are the two that are not. Mirrors
+    /// the branches of `body`, in the same order.
+    private var showsRunCanvas: Bool {
+        if delayResultMs != nil { return false }
+        if isCalibrating { return true }
+        if finalScore != nil { return isReviewing }
+        return true
     }
 
     var body: some View {
@@ -953,15 +958,14 @@ struct PlaybackView: View {
                 playback
             }
         }
-        // Hidden for the run and back the moment it is over, which is what the
-        // setting says it does: it hides the tabs *while an exercise plays*. The
-        // score screen and the review, calibration and delay-result screens are
-        // past that point and get the bar back.
+        // Hidden for as long as the exercise is drawn across the whole screen —
+        // the run and the review — and back on the score screen the run ends on,
+        // which is an ordinary screen of buttons and has the room for it.
         //
         // Attached out here rather than inside the branches so there is one
         // toolbar modifier that stays put across them, rather than one appearing
         // as another goes and the bar animating on whichever wins.
-        .toolbar(visuals.hideTabBar && isPlayingBack ? .hidden : .automatic, for: .tabBar)
+        .toolbar(visuals.hideTabBar && showsRunCanvas ? .hidden : .automatic, for: .tabBar)
         // What the calibration screen is doing there, the once it shows up
         // uninvited. Attached out here rather than to that screen so it is already
         // mounted when the flag is set, and goes up with the screen behind it.
@@ -1501,11 +1505,19 @@ private struct ScoreView: View {
     /// tapped, and a gesture on the screen around it wins over both.
     @State private var chartFrame: CGRect = .zero
 
-    /// Height of every button in the bottom row. Fixed rather than left to the
-    /// labels' own padding, so a title that shrank to fit can't make its button
-    /// shorter than the ones beside it — and it's the replay button's width too,
-    /// which makes that one square.
-    private let buttonHeight: CGFloat = 54
+    /// A `.headline` line at whatever size the reader has text set to, which is
+    /// all `buttonHeight` needs from the type system to come out at the intro
+    /// screen's Start button's height at any of them.
+    @ScaledMetric(relativeTo: .headline) private var headlineLine: CGFloat = 20.33
+
+    /// Height of every button in the bottom row: a headline line inside the same
+    /// default 16pt padding the intro screen's Start button is built from, so the
+    /// two rows are exactly the same size as well as at the same height, and
+    /// starting the exercise again doesn't shift the button under the finger.
+    /// Spelled out rather than left to the labels' own padding, so a title that
+    /// shrank to fit can't make its button shorter than the ones beside it — and
+    /// it's the replay button's width too, which makes that one square.
+    private var buttonHeight: CGFloat { headlineLine + 32 }
 
     /// One of the filled buttons along the bottom. The title shrinks rather than
     /// wraps, since a third button (Next) leaves each of them a narrow share of
@@ -1669,7 +1681,10 @@ private struct ScoreView: View {
                              action: onExit)
             }
             .padding(.horizontal, 40)
-            .padding(.bottom, verticalSizeClass == .compact ? 16 : 50)
+            // The plain default padding the intro screen's Start button sits on,
+            // rather than a number of its own: with `buttonHeight` matching that
+            // button too, the row lands in exactly the place it was tapped from.
+            .padding(.bottom)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         // Follows the app's theme rather than staying black behind a light UI —
