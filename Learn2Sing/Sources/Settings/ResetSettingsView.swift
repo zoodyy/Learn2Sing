@@ -19,11 +19,23 @@ struct ResetSettingsView: View {
     /// strings are resolved when the body runs, so SwiftUI needs telling.
     @ObservedObject private var appLanguage = LanguageManager.shared
 
+    @EnvironmentObject private var store: ExerciseStore
+    /// Wiping everything puts the bundled templates back and re-selects one, so
+    /// the live store has to hear about it and not only UserDefaults.
+    @EnvironmentObject private var visualTemplates: VisualTemplateStore
+
     /// Push each screen onto the shared Settings navigation stack.
     let openScores: () -> Void
     let openSettings: () -> Void
     let openExercises: () -> Void
     let openHome: () -> Void
+
+    /// What the confirmation is asking about, nil when it's closed. One case, but
+    /// still an enum: the dialog below is written around a row naming the action
+    /// it is the confirmation for, the same as on the four screens under here.
+    private enum Wipe: Equatable { case everything }
+
+    @State private var pending: Wipe?
 
     var body: some View {
         Form {
@@ -41,6 +53,23 @@ struct ResetSettingsView: View {
 
                 SettingsHubRow(title: L("Home"), systemImage: "house", action: openHome)
                     .setting(.resetHomeRow)
+            }
+
+            Section {
+                Button(role: .destructive) {
+                    pending = .everything
+                } label: {
+                    Label("Delete Everything", systemImage: "trash")
+                }
+                .dangerRow()
+                .setting(.deleteEverything)
+                .resetConfirmation(
+                    $pending, for: .everything,
+                    confirmLabel: L("Delete"),
+                    message: L("Everything the four screens above delete, and everything you have on the server with it: your backup, your public profile, the exercises you shared and every like, download and score you sent.")
+                ) {
+                    Task { await DeleteEverything.run(store: store, templates: visualTemplates) }
+                }
             }
         }
         .navigationTitle(L("Reset"))
@@ -107,6 +136,10 @@ struct ScoresResetView: View {
                             message: L("The scores recorded for “%@” will be deleted.", entry.name)
                         ) {
                             ScoreHistory.delete(for: entry.id)
+                            // A run's score is posted to the server too, where it
+                            // averages into the exercise's community difficulty.
+                            // A score deleted here is deleted there as well.
+                            CommunitySync.shared.deletePlayEvents(for: entry.id)
                             reload()
                         }
                     }
@@ -129,7 +162,13 @@ struct ScoresResetView: View {
                     confirmLabel: L("Delete"),
                     message: L("The scores recorded for every exercise will be deleted.")
                 ) {
+                    // Read before the deletion, and from the history rather than
+                    // from the library: it holds the scores of exercises the user
+                    // has since deleted too, and those runs are on the server
+                    // like any other.
+                    let scored = ScoreHistory.all().keys.compactMap(UUID.init(uuidString:))
                     ScoreHistory.deleteAll()
+                    CommunitySync.shared.deletePlayEvents(for: scored)
                     reload()
                 }
             }
@@ -186,7 +225,7 @@ enum ResettableSettings: String, CaseIterable, Identifiable {
     var help: String {
         switch self {
         case .profile:
-            L("Clears the username you chose. Your device ID and your exercises are kept.")
+            L("Clears the username you chose and deletes your public profile, so the name is free for someone else to take. Your device ID and your exercises are kept.")
         case .audio:
             L("Puts the instrument, the playback and recording devices and the microphone delay back to their starting values. Instruments you uploaded are kept.")
         case .visuals:
@@ -210,10 +249,16 @@ enum ResettableSettings: String, CaseIterable, Identifiable {
             var profile = UserProfile.load()
             profile.username = ""
             profile.save()
-            // Same pair of pushes the profile screen makes when the name changes,
-            // so the server copy and the Community tab's label follow.
+            // The public record is keyed on the username, and a user without one
+            // publishes nothing (see `CommunitySync.uploadPublicProfile`) — so no
+            // upload would ever take it down, and clearing the name here used to
+            // leave the old one, the description and the picture on the server
+            // for good. Deleting the record is what makes the reset mean anything
+            // to anybody else, and it puts the name back into circulation.
+            Task { await CommunitySync.shared.deletePublicProfile() }
+            // The private backup still carries the cleared name, so it is pushed
+            // as the profile screen pushes a rename.
             ProfileSync.shared.scheduleUpload()
-            CommunitySync.shared.scheduleUpload()
         case .audio:
             // The automatic recogniser's "there is a delay worth keeping" flag goes
             // with the delay it was about, so a reset install starts as an untouched

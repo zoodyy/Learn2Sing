@@ -21,6 +21,8 @@ final class ProfileSync {
     /// Set once a restore attempt has reached the server. Lives in UserDefaults,
     /// which is wiped on reinstall — exactly when a restore should run again.
     private static let restoredKey = "didAttemptProfileRestore"
+    /// Storage type of the private per-device backup this class owns.
+    private static let profileType = "PROFILE"
 
     /// Ceiling on the uploaded document. The backend takes 4 GB, far past
     /// anything this app could build, so this is no longer a server constraint
@@ -97,6 +99,54 @@ final class ProfileSync {
         uploadTrigger.send()
     }
 
+    /// Holds every upload back until `resumeUploads()`, and drops whatever the
+    /// debounce is sitting on. See `CommunitySync.suspendUploads()`, which this
+    /// matches; it matters more here, since this sync also listens to
+    /// UserDefaults and so hears every last thing a wipe clears.
+    func suspendUploads() {
+        readyToUpload = false
+        uploadDebounce?.cancel()
+        uploadDebounce = uploadTrigger
+            .debounce(for: .seconds(3), scheduler: DispatchQueue.main)
+            .sink { Task { @MainActor in await ProfileSync.shared.upload() } }
+    }
+
+    /// Lets uploads through again, with the profile as it stands taken as the one
+    /// the server already has.
+    ///
+    /// That last part is what keeps "Delete Everything" deleted. Resuming with
+    /// nothing remembered would have the next change — and after a wipe every
+    /// last thing has just changed — post the emptied profile straight back into
+    /// the record that was deleted a moment earlier, so the user would watch
+    /// their backup reappear. Adopting the wiped document as the server's means
+    /// nothing goes up until there is something new to say, and then it goes up
+    /// as usual.
+    func resumeUploads() {
+        guard let store else { return }
+        var profile = UserProfile.load()
+        profile.snapshot(store)
+        lastUploadedBody = Self.uploadBody(for: profile)
+        readyToUpload = true
+    }
+
+    // MARK: - Delete
+
+    /// Deletes this device's profile backup from the server: the record under the
+    /// Keychain device id that a reinstall restores the whole library, the
+    /// scores, the routines and the settings from.
+    ///
+    /// Nothing else in the app takes it down, which is what makes it worth its
+    /// own call — the restore is keyed on an id that outlives the app being
+    /// deleted, so a user who wipes the app without this gets everything back on
+    /// the next install (see `restoreIfNeeded`). The attempt flag is left set:
+    /// this device has already asked, there is now nothing to ask for, and a
+    /// relaunch should start empty rather than fetch the record again.
+    @discardableResult
+    func deleteBackup() async -> Bool {
+        lastUploadedBody = nil
+        return await ServerDelete.storage(DeviceIdentifier.uuidString, type: Self.profileType)
+    }
+
     // MARK: - Upload
 
     /// Builds the full profile JSON (username + device ID + exercise library +
@@ -109,7 +159,7 @@ final class ProfileSync {
         profile.snapshot(store)
         profile.save()
         guard let body = Self.uploadBody(for: profile),
-              let url = URL(string: "\(Self.baseURL)/persist/\(profile.deviceID)/PROFILE")
+              let url = URL(string: "\(Self.baseURL)/persist/\(profile.deviceID)/\(Self.profileType)")
         else { return }
         // Nothing to say: the last document the server took is this one.
         guard body != lastUploadedBody else { return }
@@ -197,7 +247,7 @@ final class ProfileSync {
     /// attempt flag unset so the next launch retries.
     private func restoreIfNeeded() async {
         guard !UserDefaults.standard.bool(forKey: Self.restoredKey), let store else { return }
-        guard let url = URL(string: "\(Self.baseURL)/fetch-private/\(DeviceIdentifier.uuidString)/PROFILE")
+        guard let url = URL(string: "\(Self.baseURL)/fetch-private/\(DeviceIdentifier.uuidString)/\(Self.profileType)")
         else { return }
         do {
             let (data, response) = try await URLSession.shared.data(from: url)

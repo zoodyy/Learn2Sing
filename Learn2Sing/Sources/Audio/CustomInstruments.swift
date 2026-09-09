@@ -94,6 +94,14 @@ final class CustomInstrumentStore: ObservableObject {
         }
     }
 
+    /// Remove every instrument the user uploaded, audio files and all. Only
+    /// "Delete Everything" in Settings ▸ Reset goes this far — the Audio
+    /// category's own reset deliberately keeps them, since putting a setting back
+    /// is not the same as deleting a file.
+    func deleteAll() {
+        for id in instruments.map(\.id) { delete(id: id) }
+    }
+
     /// A safe two-way binding to a single instrument: edits write back (and
     /// persist) by id, so it never crashes if the instrument is deleted while a
     /// view holds it.

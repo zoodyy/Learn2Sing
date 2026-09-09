@@ -257,6 +257,8 @@ extension SettingKey {
     static let resetExercisesRow = SettingKey("reset.exercises")
     static let resetHomeRow      = SettingKey("reset.home")
 
+    static let deleteEverything = SettingKey("reset.everything")
+
     static let deleteAllScores = SettingKey("reset.scores.all")
 
     /// One settings category on the Reset ▸ Settings screen.
@@ -627,6 +629,8 @@ enum SettingsCatalog {
             help: L("Delete the exercises you made or downloaded, and undo your changes to the ones that came with the app."))
         add(.resetHomeRow, .reset, title: L("Home"),
             help: L("Clear the Home tab's favourites, routines and recently played list."))
+        add(.deleteEverything, .reset, title: L("Delete Everything"),
+            help: L("Does what all four screens above do at once, and deletes what you have on the server too: the backup a new install would bring your library back from, your public profile, the exercises you shared and every like, download and score you sent. The only thing left is the ID your device was given, which lives outside the app."))
 
         heading(.resetRecordedScores, .resetScores, L("Recorded scores"))
         add(.deleteAllScores, .resetScores, title: L("Delete All Scores"),

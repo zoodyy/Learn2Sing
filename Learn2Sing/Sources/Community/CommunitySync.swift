@@ -7,10 +7,11 @@ import Foundation
 import Combine
 
 /// The document persisted per public exercise, under the exercise's own ID:
-/// the exercise together with its MIDI pattern and text labels. `exercise` is
-/// nil in a tombstone — the overwrite posted when an exercise is made private
-/// or deleted, since the server has no delete and keeps one latest record per
-/// ID.
+/// the exercise together with its MIDI pattern and text labels. An exercise made
+/// private or deleted now has its record deleted outright (see
+/// `deleteSharedExercise`), so nothing writes an `exercise` of nil any more —
+/// but the tombstones older versions left in place of a delete are still on the
+/// server, and are still what a nil `exercise` means when one is fetched.
 ///
 /// Like and download counts used to live in here too, written back by whoever
 /// tapped the heart; they are now the server's own tally of the user events
@@ -95,6 +96,9 @@ enum UsernameClaimResult {
 /// a download total is.
 enum UserEventType: String {
     case addLike = "ADD_LIKE"
+    /// No longer posted: an unlike deletes the like instead of offsetting it
+    /// (see `deleteLike(for:)`). Kept because the rows older versions posted are
+    /// still on the server, and deleting them is how they are cleared.
     case removeLike = "REMOVE_LIKE"
     case addDownload = "ADD_DOWNLOAD"
     case addPlay = "ADD_PLAY"
@@ -197,6 +201,8 @@ final class CommunitySync: ObservableObject {
     /// now a 400, so a build asking for it can neither claim a name nor read a
     /// profile.
     nonisolated static let publicProfileType = "PUBLIC_PROFILE"
+    /// Storage type of the per-exercise public document (see `SharedExerciseDoc`).
+    nonisolated static let sharedExerciseType = "SHARED_EXERCISE"
     /// UUID strings whose midi/miditext keys were written by a fetch, so a later
     /// fetch can clean up patterns of exercises that left the community list.
     private static let cachedPatternIDsKey = "communityPatternIDs"
@@ -452,6 +458,31 @@ final class CommunitySync: ObservableObject {
         uploadTrigger.send()
     }
 
+    /// Holds every upload back until `resumeUploads()`, and drops whatever the
+    /// debounce is sitting on.
+    ///
+    /// For the wipe in `DeleteEverything`: clearing the library and the settings
+    /// is hundreds of changes, each of which asks for an upload, and the one that
+    /// landed would republish the very records being deleted — or, worse, arrive
+    /// after them. Rebuilding the pipeline rather than only lowering the flag is
+    /// what throws away the request already in it, which would otherwise be
+    /// delivered three seconds later to a resumed sync.
+    func suspendUploads() {
+        readyToUpload = false
+        uploadDebounce?.cancel()
+        uploadDebounce = uploadTrigger
+            .debounce(for: .seconds(3), scheduler: DispatchQueue.main)
+            .sink { Task { @MainActor in await CommunitySync.shared.upload() } }
+    }
+
+    /// Lets uploads through again. Only meaningful after `suspendUploads()` —
+    /// before the first `start(with:)` there is nothing to resume, and this
+    /// leaves it that way.
+    func resumeUploads() {
+        guard store != nil else { return }
+        readyToUpload = true
+    }
+
     /// A list of one uploader's public exercises, scoped by their public user id
     /// — the `customId1` their records are persisted with. A fresh one per
     /// profile screen, so its own order, filter and search term start clean and
@@ -543,17 +574,41 @@ final class CommunitySync: ObservableObject {
 
         let publicIDs = Set(publicExercises.map { $0.id.uuidString })
         for idString in onServer.subtracting(publicIDs) {
-            guard let body = try? encoder.encode(SharedExerciseDoc(userID: userID)) else { continue }
-            if await post(body: body,
-                          publicExerciseID: PublicIdentifier.exerciseID(idString),
-                          userID: userID,
-                          exerciseName: "",
-                          description: "") {
+            if await deleteSharedExercise(publicExerciseID: PublicIdentifier.exerciseID(idString)) {
                 lastUploadedBodies.removeValue(forKey: idString)
                 onServer.remove(idString)
             }
         }
         defaults.set(onServer.sorted(), forKey: Self.uploadedExerciseIDsKey)
+    }
+
+    /// Takes one exercise off the server: the record itself and, with it, every
+    /// like, download and play anyone ever posted against it.
+    ///
+    /// This is what an exercise made private or deleted goes through. It used to
+    /// be an overwrite — a record with no exercise in it, which every client
+    /// skips (see `decodeDocs`) but which stayed in the table and came down with
+    /// every page fetched from then on. The row is now gone, and so is the reason
+    /// for the tombstones; the decoding still skips them, since the ones older
+    /// versions left behind are still up there.
+    ///
+    /// The tallies go with the record, so an exercise shared again starts from
+    /// nothing: no likes, no downloads, and no community difficulty until
+    /// somebody sings it. They are dropped here too rather than left to go stale
+    /// — they counted a record that no longer exists. The cached difficulty is
+    /// not: it is this device's own estimate of an exercise it still has (see
+    /// `seedDifficulty(for:)`), and its stars have no business disappearing
+    /// because it was made private.
+    private func deleteSharedExercise(publicExerciseID: String) async -> Bool {
+        guard await ServerDelete.storage(publicExerciseID, type: Self.sharedExerciseType)
+        else { return false }
+        guard let id = UUID(uuidString: publicExerciseID) else { return true }
+        likeCounts.removeValue(forKey: id)
+        downloadCounts.removeValue(forKey: id)
+        playCounts.removeValue(forKey: id)
+        persistCounts()
+        if shareDates.removeValue(forKey: id) != nil { persistShareDates() }
+        return true
     }
 
     /// When this exercise was first shared: the date the last fetch found on the
@@ -584,7 +639,8 @@ final class CommunitySync: ObservableObject {
                       userID: String,
                       exerciseName: String,
                       description: String) async -> Bool {
-        var components = URLComponents(string: "\(Self.baseURL)/persist/\(publicExerciseID)/SHARED_EXERCISE")
+        var components = URLComponents(
+            string: "\(Self.baseURL)/persist/\(publicExerciseID)/\(Self.sharedExerciseType)")
         components?.queryItems = [
             URLQueryItem(name: "customId1", value: userID),
             URLQueryItem(name: "customName", value: exerciseName),
@@ -756,6 +812,111 @@ final class CommunitySync: ObservableObject {
             .prefix { !"\"}\n".contains($0) }
             .trimmingCharacters(in: .whitespaces)
         return name.isEmpty ? nil : name
+    }
+
+    // MARK: - Delete
+
+    /// Takes this user's public profile off the server: the username they
+    /// claimed, the description they wrote and the picture they chose, which are
+    /// all one record.
+    ///
+    /// The name goes back into circulation with it — the persist endpoint's
+    /// uniqueness check has nothing left to refuse (see `claimUsername(_:)`), so
+    /// somebody else can take it. Their exercises keep the name that was stamped
+    /// on each record when it was shared; there is simply no profile behind it
+    /// any more for a tap on it to open.
+    ///
+    /// `lastUploadedProfile` is cleared whatever the server says, so a failed
+    /// delete can't leave this device believing the record it just tried to
+    /// remove is still the one up there.
+    @discardableResult
+    func deletePublicProfile() async -> Bool {
+        lastUploadedProfile = nil
+        uploaderNames.removeValue(forKey: PublicIdentifier.user)
+        return await ServerDelete.storage(PublicIdentifier.user, type: Self.publicProfileType)
+    }
+
+    /// Raw ids (uppercase UUID strings, as the store keys them) of the exercises
+    /// this device has a live record on the server for. What "Delete Everything"
+    /// takes down, and the list it holds on to while a wipe is still owed.
+    var uploadedExerciseIDs: [String] {
+        UserDefaults.standard.stringArray(forKey: Self.uploadedExerciseIDsKey) ?? []
+    }
+
+    /// Takes the named exercises off the server, each with the likes, downloads
+    /// and plays that were counted against it, and answers with the ones the
+    /// server wouldn't part with.
+    ///
+    /// Named rather than "every shared exercise" so that a wipe finished at a
+    /// later launch deletes what was shared when the user asked for it, not
+    /// whatever is shared by then: an exercise published in between is the user's
+    /// own doing after the wipe, and deleting it would come as a surprise.
+    ///
+    /// The bookkeeping of what is on the server keeps whatever couldn't be
+    /// deleted, so an ordinary upload has the same list to work from as before.
+    /// The exercises themselves are untouched: they stay in the library, private;
+    /// deleting them is the library's business, and the record is gone either way.
+    @discardableResult
+    func deleteSharedExercises(_ idStrings: [String]) async -> [String] {
+        let defaults = UserDefaults.standard
+        var onServer = Set(defaults.stringArray(forKey: Self.uploadedExerciseIDsKey) ?? [])
+        var failed: [String] = []
+        for idString in idStrings {
+            if await deleteSharedExercise(publicExerciseID: PublicIdentifier.exerciseID(idString)) {
+                lastUploadedBodies.removeValue(forKey: idString)
+                onServer.remove(idString)
+            } else {
+                failed.append(idString)
+            }
+        }
+        defaults.set(onServer.sorted(), forKey: Self.uploadedExerciseIDsKey)
+        return failed
+    }
+
+    /// Deletes every event this user has posted anywhere — every like, every
+    /// counted download and every score a finished run contributed to an
+    /// exercise's difficulty — and forgets the local side of them.
+    ///
+    /// The tallies other people's events add up to are not this user's to
+    /// remove, so the counts held here are dropped rather than zeroed: the next
+    /// time an exercise is opened its summary comes back down and says what it
+    /// is now.
+    @discardableResult
+    func deleteAllEvents() async -> Bool {
+        let deleted = await ServerDelete.allEvents(of: PublicIdentifier.user)
+        likedExerciseIDs = []
+        downloadedExerciseIDs = []
+        likeCounts = [:]
+        downloadCounts = [:]
+        playCounts = [:]
+        persistCounts()
+        saveProfileSets()
+        return deleted
+    }
+
+    /// Forgets everything this device remembers about the community: the
+    /// tallies, the difficulties, the share dates and the record of what has been
+    /// uploaded and estimated. Local only — what is on the server is deleted by
+    /// the calls above, and this is what stops the next upload from putting any
+    /// of it back.
+    func forgetLocalState() {
+        likeCounts = [:]
+        downloadCounts = [:]
+        playCounts = [:]
+        difficulties = [:]
+        likedExerciseIDs = []
+        downloadedExerciseIDs = []
+        shareDates = [:]
+        seededDifficultyIDs = []
+        pendingDifficultySeeds = [:]
+        lastUploadedBodies = [:]
+        lastUploadedProfile = nil
+        uploaderNames = [:]
+        persistCounts()
+        persistDifficulties()
+        persistShareDates()
+        persistDifficultySeeds()
+        UserDefaults.standard.removeObject(forKey: Self.uploadedExerciseIDsKey)
     }
 
     /// One uploader's published profile — their description and, if they made it
@@ -987,7 +1148,9 @@ final class CommunitySync: ObservableObject {
     /// exercise makes this one stale — the newer one owns the state, the pending
     /// mark and the settling from then on, so everything below is dropped.
     private func settleLike(_ liked: Bool, for publicExerciseID: UUID, generation: Int) async {
-        let posted = await postEvent(liked ? .addLike : .removeLike, for: publicExerciseID)
+        let posted = liked
+            ? await postEvent(.addLike, for: publicExerciseID)
+            : await deleteLike(for: publicExerciseID)
         guard likeGenerations[publicExerciseID] == generation else { return }
         guard posted else {
             pendingLikes.remove(publicExerciseID)
@@ -1004,6 +1167,63 @@ final class CommunitySync: ObservableObject {
         downloadCounts[publicExerciseID] = summary.totalDownloads
         playCounts[publicExerciseID] = summary.totalPlays
         persistCounts()
+    }
+
+    /// Takes this user's like off an exercise by deleting the event that made
+    /// it, and reports whether the server took both calls.
+    ///
+    /// It used to post a REMOVE_LIKE, which is not a removal: the server counts
+    /// events rather than keeping one row per user, so the like stayed and an
+    /// opposing row was added beside it, and the pair only *summed* to nothing.
+    /// A user who liked and unliked an exercise a few times left a row for every
+    /// tap.
+    ///
+    /// The REMOVE_LIKE rows are deleted alongside the likes, and that pairing is
+    /// the point of it: an older build's ADD/REMOVE pair on this exercise sums to
+    /// nothing today, so deleting only the ADD would leave its REMOVE behind to
+    /// count against everyone else's likes. Clearing both leaves this user with
+    /// no events on the exercise at all, which is what "not liked" should mean
+    /// however many times they changed their mind.
+    private func deleteLike(for publicExerciseID: UUID) async -> Bool {
+        let exerciseID = publicExerciseID.uuidString.lowercased()
+        let userID = PublicIdentifier.user
+        let likes = await ServerDelete.events(of: userID, on: exerciseID, type: .addLike)
+        let removals = await ServerDelete.events(of: userID, on: exerciseID, type: .removeLike)
+        return likes && removals
+    }
+
+    /// Deletes this user's finished runs of one exercise from the server: the
+    /// ADD_PLAY events they posted, which carry the score each run earned and are
+    /// what the exercise's community difficulty averages (see `EventAverage`).
+    /// Called when their recorded scores are deleted, so a score forgotten here
+    /// is forgotten there as well.
+    ///
+    /// Takes raw exercise ids, like the score history it goes with. Only this
+    /// user's plays are touched: every other singer's scores stay in the average,
+    /// and so does the estimate a new exercise was seeded with, which is posted
+    /// under fixed ids of its own rather than under this user's (see
+    /// `seedDifficulty(for:)`).
+    ///
+    /// A whole library's worth goes one after another in a single task rather
+    /// than as a call apiece all at once: "Delete All Scores" can be hundreds of
+    /// exercises, and nothing on screen is waiting for them.
+    func deletePlayEvents(for exerciseIDs: [UUID]) {
+        guard !exerciseIDs.isEmpty else { return }
+        let publicIDs = exerciseIDs.map(PublicIdentifier.exercise)
+        for id in publicIDs { playCounts.removeValue(forKey: id) }
+        persistCounts()
+        Task {
+            let userID = PublicIdentifier.user
+            for id in publicIDs {
+                await ServerDelete.events(of: userID, on: id.uuidString.lowercased(),
+                                          type: .addPlay)
+            }
+        }
+    }
+
+    /// One exercise's plays, for the row that deletes one exercise's scores.
+    func deletePlayEvents(for exerciseID: UUID) {
+        deletePlayEvents(for: [exerciseID])
     }
 
     /// Counts a download of a community exercise, addressed by its public id.

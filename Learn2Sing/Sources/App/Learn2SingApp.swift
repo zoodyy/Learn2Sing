@@ -20,6 +20,11 @@ struct Learn2SingApp: App {
                 // sync starts after the restore so a fresh install shares its
                 // restored public exercises instead of an empty list.
                 .task {
+                    // Before either sync: a "Delete Everything" that ran out of
+                    // network still owes the server four deletions, and an
+                    // upload beating them there would put back the very record
+                    // being deleted. Costs nothing when none is pending.
+                    await DeleteEverything.finishPendingWipe()
                     await ProfileSync.shared.start(with: store, templates: visualTemplates)
                     // Between the two: the singer's level is worked out from the
                     // scores the restore brings back and the difficulties
