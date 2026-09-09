@@ -66,11 +66,14 @@ struct SettingsView: View {
                     hubLink(L("Request a new Feature/ Report a Bug"),
                             systemImage: "exclamationmark.bubble", route: .feedback)
                         .setting(.feedback)
+                } footer: {
+                    // Under the list rather than on it: somewhere to go, not
+                    // something to set, so it gets no row of its own. The
+                    // section's footer rather than a row below the section,
+                    // which would leave a gap wide enough to push it off the
+                    // bottom of the screen.
+                    websiteLink
                 }
-
-                // Under the list rather than on it: somewhere to go, not
-                // something to set, so it gets no row of its own.
-                websiteLink
             }
             .navigationTitle(L("Settings"))
             .navigationBarTitleDisplayMode(.inline)
@@ -221,8 +224,7 @@ struct SettingsView: View {
             .explain(L("The website of the app. Tapping it leaves the app and opens the site in your browser."))
             Spacer()
         }
-        .listRowBackground(Color.clear)
-        .listRowSeparator(.hidden)
+        .padding(.top, 6)
     }
 
     /// Where that goes. Plain http because the site serves no https yet; App
