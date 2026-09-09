@@ -898,6 +898,13 @@ struct PlaybackView: View {
     /// which only differs in where it goes once the exercise has played out.
     private var playsExercise: Bool { mode != .clapDelayTest }
 
+    /// Whether the run itself is on screen, as opposed to one of the screens that
+    /// take over once it has played out — the score, the review, the calibration
+    /// controls, the delay result. Mirrors the branches of `body`.
+    private var isPlayingBack: Bool {
+        delayResultMs == nil && !isCalibrating && finalScore == nil
+    }
+
     var body: some View {
         Group {
             if let delayResultMs {
@@ -946,9 +953,15 @@ struct PlaybackView: View {
                 playback
             }
         }
-        // Kept on the whole flow (not just `playback`) so the bar doesn't pop back
-        // in on the score screen between a routine's exercises.
-        .toolbar(visuals.hideTabBar ? .hidden : .automatic, for: .tabBar)
+        // Hidden for the run and back the moment it is over, which is what the
+        // setting says it does: it hides the tabs *while an exercise plays*. The
+        // score screen and the review, calibration and delay-result screens are
+        // past that point and get the bar back.
+        //
+        // Attached out here rather than inside the branches so there is one
+        // toolbar modifier that stays put across them, rather than one appearing
+        // as another goes and the bar animating on whichever wins.
+        .toolbar(visuals.hideTabBar && isPlayingBack ? .hidden : .automatic, for: .tabBar)
         // What the calibration screen is doing there, the once it shows up
         // uninvited. Attached out here rather than to that screen so it is already
         // mounted when the flag is set, and goes up with the screen behind it.
