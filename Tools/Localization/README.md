@@ -22,8 +22,8 @@ rather than a raw key. Two kinds of call site:
   — those two are UIKit-backed and cache whatever they first resolved, so a live
   language switch wouldn't reach them.
 
-See `Learn2Sing/Localization.swift` for the language list and the bundle
-override, and `Learn2Sing/BundledLocalization.swift` for the rule that decides
+See `Learn2Sing/Sources/Localization/Localization.swift` for the language list and the bundle
+override, and `Learn2Sing/Sources/Localization/BundledLocalization.swift` for the rule that decides
 which exercise, category and template names are the app's (translated) versus the
 user's own (never touched).
 
@@ -42,7 +42,7 @@ in `NOT_TRANSLATED` in `generate.py` so they don't show up as missing.
 
 ## Adding a language
 
-1. Add a case to `AppLanguage` in `Learn2Sing/Localization.swift`, with its
+1. Add a case to `AppLanguage` in `Learn2Sing/Sources/Localization/Localization.swift`, with its
    native and English names.
 2. Add the code to `LANGS` in `trbase.py` and a translation to **every** row of
    every `tr_*.py` (the `T()` helper is positional and asserts on the count).

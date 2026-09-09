@@ -116,7 +116,9 @@ def collect(path):
 
 keys = []
 seen = set()
-for path in sorted(ROOT.glob("*.swift")):
+# The sources live in subfolders under Sources/, so this walks the tree.
+# Sorted by file name (not path) so the key order is independent of the folders.
+for path in sorted(ROOT.rglob("*.swift"), key=lambda p: p.name):
     if path.name in SKIP_FILES:
         continue
     for key in collect(path):
