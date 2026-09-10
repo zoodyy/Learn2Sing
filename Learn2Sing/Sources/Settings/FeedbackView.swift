@@ -140,15 +140,27 @@ struct FeedbackView: View {
     private var trimmedMessage: String { message.trimmingCharacters(in: .whitespacesAndNewlines) }
     private var trimmedEmail: String { email.trimmingCharacters(in: .whitespacesAndNewlines) }
 
+    /// A question is the one type that can't be answered by acting on it: it is
+    /// asked of someone, and the answer needs somewhere to go. So for that type
+    /// alone the address stops being optional and joins the required fields.
+    private var isEmailRequired: Bool { type == .question }
+
     /// An address that can't be replied to is worse than none at all — the user
     /// would be left waiting for an answer that never comes — so a malformed one
-    /// holds the message back rather than travelling with it. Blank is fine.
-    private var isEmailUsable: Bool {
-        trimmedEmail.isEmpty || Self.looksLikeEmail(trimmedEmail)
+    /// holds the message back rather than travelling with it.
+    private var isEmailMalformed: Bool {
+        !trimmedEmail.isEmpty && !Self.looksLikeEmail(trimmedEmail)
+    }
+
+    /// Kept apart from `isEmailMalformed` so an empty field on a question is
+    /// only ever asked for, never told off: the red line under the field is
+    /// about what was typed, and nothing was.
+    private var isEmailMissing: Bool {
+        isEmailRequired && trimmedEmail.isEmpty
     }
 
     private var canSend: Bool {
-        type != nil && !trimmedMessage.isEmpty && isEmailUsable
+        type != nil && !trimmedMessage.isEmpty && !isEmailMalformed && !isEmailMissing
     }
 
     var body: some View {
@@ -200,16 +212,28 @@ struct FeedbackView: View {
                     // without a bubble of its own.
                     .settingAnchor(.feedbackEmail)
             } header: {
-                Text("E-Mail")
+                // The asterisk joins the other two required fields only while
+                // a question is being asked, so the marker and the note below
+                // the field always say the same thing.
+                if isEmailRequired {
+                    Text("E-Mail") + Text(verbatim: " *")
+                } else {
+                    Text("E-Mail")
+                }
             } footer: {
                 // The one field whose explanation stays on screen rather than
-                // hiding behind `settingHelp`'s hold: that an address is optional
-                // is what stops someone leaving without sending, so it can't wait
-                // to be asked for. A malformed address adds a line below it, so
-                // the note itself doesn't move when the warning appears.
+                // hiding behind `settingHelp`'s hold: whether an address is
+                // needed is what stops someone leaving without sending, so it
+                // can't wait to be asked for. A malformed address adds a line
+                // below it, so the note itself doesn't move when the warning
+                // appears.
                 VStack(alignment: .leading, spacing: 4) {
-                    Text("Optional, and only needed if you'd like an answer. Left blank, your message is still read.")
-                    if !isEmailUsable {
+                    if isEmailRequired {
+                        Text("Required for a question, since there's no way to answer you without it.")
+                    } else {
+                        Text("Optional, and only needed if you'd like an answer. Left blank, your message is still read.")
+                    }
+                    if isEmailMalformed {
                         Text("That doesn't look like an e-mail address.")
                             .foregroundStyle(.red)
                     }
@@ -248,6 +272,8 @@ struct FeedbackView: View {
                         Text("Choose a type before sending.")
                     } else if trimmedMessage.isEmpty {
                         Text("Write a message before sending.")
+                    } else if isEmailMissing {
+                        Text("Add your e-mail address before sending.")
                     }
                 }
             }

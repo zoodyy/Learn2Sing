@@ -682,9 +682,9 @@ enum SettingsCatalog {
         add(.feedbackMessage, .feedback, title: L("Message"),
             help: L("What you would like to say. The more exactly you describe it, the more can be done about it."))
         add(.feedbackEmail, .feedback, title: L("E-Mail"),
-            help: L("Optional, and only needed if you'd like an answer. Left blank, your message is still read."))
+            help: L("Only needed if you'd like an answer, and required for a question, which can't be answered without it."))
         add(.feedbackSend, .feedback, title: L("Send"),
-            help: L("Sends your message straight to the developer. It stays greyed out until the type and the message are filled in."))
+            help: L("Sends your message straight to the developer. It stays greyed out until the type and the message are filled in, and for a question until there's an address to answer."))
 
         return entries
     }
