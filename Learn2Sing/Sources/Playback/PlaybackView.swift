@@ -1157,7 +1157,11 @@ struct PlaybackView: View {
             claps.reset()
             pitchDetector.detectClaps = (mode == .clapDelayTest)
             // DEBUG RECORDING — remove together with DebugRecording.swift.
-            if mode == .normal {
+            // The allowlist is checked here rather than at the button: an install
+            // that isn't on it never arms the recorder, so it does none of the
+            // capture work either, and `debugRecording` stays nil - which is what
+            // keeps the export button off its score screen.
+            if mode == .normal, DebugRecordingAccess.isAllowed {
                 debugRecording = nil
                 let clock = player
                 debugRecorder.start(bpm: bpm) { host in

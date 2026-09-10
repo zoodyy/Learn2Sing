@@ -29,6 +29,42 @@ import Combine
 import SwiftUI
 import os
 
+// MARK: - Who the feature is for
+
+/// The installs the debug recording is switched on for. Every other install
+/// runs as if the feature weren't compiled in: nothing is recorded, and the
+/// score screen has no export button.
+///
+/// An entry is either an install's public user id (`PublicIdentifier.user`, the
+/// id its Community uploads are stamped with) or the Keychain device id behind
+/// it (`DeviceIdentifier.uuidString`) - whichever of the two is to hand, since
+/// only the person adding it knows which one they looked up. Both are compared
+/// by their hex digits alone, so an entry pasted in upper case or without the
+/// dashes still matches. Both ids of the install this is running on are printed
+/// to the console the first time a run starts, so a tester can read theirs off
+/// the Xcode log and send it over.
+enum DebugRecordingAccess {
+    /// Who may record and export. One id per line; an empty list switches the
+    /// feature off for everybody.
+    private static let allowed: Set<String> = [
+        "11111111-1111-1111-1111-111111111111",
+    ]
+
+    /// Whether this install may record and export its runs. Worked out once:
+    /// both ids behind it are fixed for the life of the install.
+    static let isAllowed: Bool = {
+        let mine = [PublicIdentifier.user, DeviceIdentifier.uuidString]
+        print("DebugRecording: user id \(mine[0]), device id \(mine[1])")
+        let list = Set(allowed.map(key))
+        return mine.contains { list.contains(key($0)) }
+    }()
+
+    /// The comparable form of an id: its hex digits, lowercased.
+    private static func key(_ id: String) -> String {
+        id.lowercased().filter(\.isHexDigit)
+    }
+}
+
 // MARK: - Microphone tap hook
 
 /// What `PitchDetector` hands its microphone buffers to while a debug run
@@ -694,7 +730,12 @@ struct DebugRecordingExportButton: View {
     private let tint = Color.orange
 
     var body: some View {
-        if recording.files.isEmpty {
+        if !DebugRecordingAccess.isAllowed {
+            // Belt and braces: nothing off the allowlist gets a recording to
+            // begin with, so this only matters if a recording ever reaches the
+            // score screen by some other route.
+            EmptyView()
+        } else if recording.files.isEmpty {
             preparing
         } else if compact {
             ShareLink(items: recording.files) { icon }
