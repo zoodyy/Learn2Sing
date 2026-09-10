@@ -7,6 +7,10 @@ edit it through Xcode's String Catalog editor either) — regenerate instead:
 python3 Tools/Localization/generate.py
 ```
 
+A run only touches the entries that changed. The file is 50 000 lines long and
+Xcode writes it too, so it is written in Xcode's exact format — see *Note on the
+catalog format* at the bottom, which is the one thing to keep an eye on.
+
 ## How the app looks strings up
 
 Every string is keyed by its **English text**, gettext-style, so English works
@@ -34,7 +38,13 @@ user's own (never touched).
    language, in `trbase.LANGS` order.
 3. Run `generate.py`. It re-extracts the keys from the sources and reports both
    `MISSING` (in the app, not translated) and `UNUSED` (translated, no longer in
-   the app) — both should be empty before you commit.
+   the app) — both should be empty before you commit — then says how many entries
+   it added, edited and deleted. That count is what `git diff` will show; if the
+   diff is bigger than that, something is wrong with the format (see below).
+
+A key with no translation gets no entry at all, so `MISSING` shows up only on the
+console. Xcode prunes empty entries anyway, so writing them would just hand the
+next build something to undo.
 
 Strings that are deliberately the same in every language — the vowel syllables
 bundled exercises are named after ("Mum", "Yum Ya"), and file names — are listed
@@ -50,6 +60,39 @@ in `NOT_TRANSLATED` in `generate.py` so they don't show up as missing.
 4. Run `generate.py`.
 
 ## Note on the catalog format
+
+Xcode writes this file too: every build extracts the `Text("…")`-style strings
+out of the sources and merges them back in. So `generate.py` writes byte for byte
+what Xcode writes, and `xcformat.py` is that format — its indentation, its
+`" : "` separator, its rendering of an empty entry, its lack of a trailing
+newline, and its key order, which is Foundation's `localizedStandardCompare`
+rather than code point order (case- and diacritic-insensitive, digit runs
+compared as numbers so `7d` precedes `24h`, curly quotes folded onto straight
+ones, and punctuation in Unicode collation order so `*clap*` precedes `%d BPM`).
+
+Before that the two writers disagreed on every one of those, so each of them
+reformatted all 50 000 lines the other had just written: a commit that added one
+string carried a ~65 000 line diff, and Xcode struggled to open the result. If a
+future Xcode changes the format this comes back. The giveaways are a run that
+rewrites far more entries than it reports, and `generate.py` printing the `NOTE`
+about sorting having moved entries nobody changed.
+
+One thing that does *not* write the file this way: `xcstringstool sync`, the
+command-line half of the same merge, which sorts by code point instead. Running
+it by hand reorders the whole catalog. A command-line `xcodebuild` doesn't touch
+the file at all — only the IDE writes it back.
+
+Two things in the file are Xcode's, and are carried through rather than
+regenerated:
+
+- `"extractionState": "stale"`, which it puts on every key its own extractor
+  can't see — everything reached through `L()` or listed in `INDIRECT`.
+  `generate.py` writes that marker itself on a new key, so the next build finds
+  the entry already the way it wants it.
+- Keys it extracts that `extract.py` deliberately drops: `"0"`, `"1"`, and
+  `"Time"` from the Swift Charts `.value("Time", …)` in `ScoreHistory.swift`.
+  They hold no translations, so they are left alone — deleting one only gives
+  the next build something to add back.
 
 Entries deliberately carry no `"extractionState": "manual"`. That flag is what
 makes `xcstringstool` emit a Swift symbol per key, and several keys differ only

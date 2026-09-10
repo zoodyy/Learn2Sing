@@ -5,6 +5,11 @@ Two kinds of call site:
   * SwiftUI APIs taking a LocalizedStringKey (Text, Label, navigationTitle, ...)
 Both are keyed by the English text itself, so the key list is exactly what the
 String Catalog needs.
+
+Prints `{"keys": [...], "extractedByXcode": [...]}`. The second list is the
+LocalizedStringKey half — the only call sites Xcode's own build-time extractor
+can see, which is how `generate.py` knows which entries Xcode will consider
+stale. See that script for why writing the marker ourselves matters.
 """
 import json, pathlib, re, sys
 
@@ -90,6 +95,7 @@ def strip_line_comments(src):
 
 
 def collect(path):
+    """(key, is_localized_string_key) for every localizable literal in `path`."""
     src = strip_line_comments(path.read_text())
     found = []
     for m in re.finditer(r'\bL\(\s*', src):
@@ -97,7 +103,7 @@ def collect(path):
         if i < len(src) and src[i] == '"':
             val, _ = read_literal(src, i)
             if val:
-                found.append(val)
+                found.append((val, False))
     for prefix in LSK_PREFIXES + LSK_NAMED:
         start = 0
         while True:
@@ -111,20 +117,25 @@ def collect(path):
             if i < len(src) and src[i] == '"':
                 val, _ = read_literal(src, i)
                 if val:
-                    found.append(val)
+                    found.append((val, True))
     return found
 
 keys = []
 seen = set()
+localized_string_key = set()
 # The sources live in subfolders under Sources/, so this walks the tree.
 # Sorted by file name (not path) so the key order is independent of the folders.
 for path in sorted(ROOT.rglob("*.swift"), key=lambda p: p.name):
     if path.name in SKIP_FILES:
         continue
-    for key in collect(path):
-        if key and key not in seen:
+    for key, is_lsk in collect(path):
+        if not key:
+            continue
+        if key not in seen:
             seen.add(key)
             keys.append(key)
+        if is_lsk:
+            localized_string_key.add(key)
 
 # Not translatable: symbol names, format-only strings, single characters.
 def drop(k):
@@ -135,5 +146,6 @@ def drop(k):
     )
 
 keys = [k for k in keys if not drop(k)]
-print(json.dumps(keys, ensure_ascii=False, indent=1))
-print(f"\n// {len(keys)} keys", file=sys.stderr)
+by_xcode = sorted(localized_string_key & set(keys))
+print(json.dumps({"keys": keys, "extractedByXcode": by_xcode}, ensure_ascii=False, indent=1))
+print(f"\n// {len(keys)} keys, {len(by_xcode)} of them LocalizedStringKey", file=sys.stderr)
