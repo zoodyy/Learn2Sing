@@ -1,5 +1,6 @@
 import SwiftUI
 import AVFoundation
+import Combine
 import os
 
 // MARK: - Instrument timbre
@@ -142,6 +143,23 @@ final class ExercisePlayer {
     private var startCaptured = false
     private var needsStartCapture = false
 
+    // How far the audio may fall behind the on-screen clock before the schedule is
+    // skipped forward to meet it. What this is here to catch is an audio stall: the
+    // IO thread missing its deadlines — a system client restarting the shared
+    // microphone device out from under the app is enough — leaves the output behind
+    // the notes for the rest of the run, because the notes are drawn straight off
+    // the wall clock and nothing else ever compares the two. The tolerance sits well
+    // above the drift between the host clock and the audio device's own (tens of
+    // ppm, single-digit milliseconds over a long run) and above a buffer's worth of
+    // timestamp jitter, so only a real stall reaches it.
+    private static let driftTolerance = 0.040
+    /// Consecutive over-tolerance render passes before the catch-up runs, so one
+    /// jittery timestamp can never move the schedule.
+    private static let lateRendersBeforeCatchUp = 3
+    private var lateRenders = 0
+    /// The lateness the current streak of them agrees on.
+    private var lateDrift: Double = 0
+
     // Extra delay between a sample leaving the engine and reaching the speaker. Read
     // from the audio session when the route settles rather than on every frame — it
     // only changes with the route, and the session's own accessor is not something to
@@ -153,6 +171,10 @@ final class ExercisePlayer {
     // after the system tears down its IO (e.g. when the mic engine starts and
     // triggers a configuration change), without resurrecting it after teardown.
     private var shouldRun = false
+    /// Set while playback is deliberately paused (the toolbar button, backgrounding,
+    /// an interruption). Keeps the configuration-change observer from starting the
+    /// engine again behind the pause — an interruption raises both at once.
+    private var isSuspended = false
     private var configObserver: NSObjectProtocol?
 
     init() {
@@ -178,7 +200,7 @@ final class ExercisePlayer {
         configObserver = NotificationCenter.default.addObserver(
             forName: .AVAudioEngineConfigurationChange, object: engine, queue: .main
         ) { [weak self] _ in
-            guard let self, self.shouldRun, !self.engine.isRunning else { return }
+            guard let self, self.shouldRun, !self.isSuspended, !self.engine.isRunning else { return }
             try? self.engine.start()
         }
 
@@ -193,6 +215,7 @@ final class ExercisePlayer {
     /// output clock anchors to the correct route from the first buffer onward.
     func begin() {
         shouldRun = true
+        isSuspended = false
         refreshOutputLatency()
         guard !engine.isRunning else { return }
         engine.prepare()
@@ -203,6 +226,7 @@ final class ExercisePlayer {
     /// exercise resumes from the same spot; `shouldRun` stays set so the config-change
     /// observer and resume() can bring the engine back.
     func pauseForBackground() {
+        isSuspended = true
         if engine.isRunning { engine.pause() }
     }
 
@@ -211,6 +235,7 @@ final class ExercisePlayer {
     /// away. Safe to call only between begin() and stop().
     func resumeFromBackground() {
         guard shouldRun else { return }
+        isSuspended = false
         refreshOutputLatency()
         os_unfair_lock_lock(&clockLock)
         needsStartCapture = true   // next render re-anchors startHostTime to the playhead
@@ -242,20 +267,48 @@ final class ExercisePlayer {
 
         os_unfair_lock_lock(&lock)
         os_unfair_lock_lock(&clockLock)
+        // `hostTime` is when the first sample of this buffer (sample `playhead`) is
+        // played, so the host time for sample 0 is that minus the playhead's duration.
+        let playheadTicks = ticks(forSeconds: Double(playhead) / sampleRate)
+        let bufferAnchor = hostTime > playheadTicks ? hostTime - playheadTicks : hostTime
+        var catchUpSamples = 0
         if needsStartCapture {
-            // `hostTime` is when the first sample of this buffer (sample `playhead`)
-            // is played, so the host time for sample 0 is that minus the playhead's
-            // duration. At the initial start playhead == 0, so this is just hostTime;
-            // after a background pause the playhead has advanced, and subtracting it
-            // re-anchors the on-screen clock to the audio's real position — keeping
-            // visuals and audio in sync no matter how long the app was away.
-            let playheadNs = Double(playhead) / sampleRate * 1.0e9
-            let playheadTicks = UInt64(playheadNs * Double(timebase.denom) / Double(timebase.numer))
-            startHostTime = hostTime > playheadTicks ? hostTime - playheadTicks : hostTime
+            // At the initial start playhead == 0, so this is just hostTime; after a
+            // background pause the playhead has advanced, and subtracting it re-anchors
+            // the on-screen clock to the audio's real position — keeping visuals and
+            // audio in sync no matter how long the app was away.
+            startHostTime = bufferAnchor
             startCaptured = true
             needsStartCapture = false
+            lateRenders = 0
+        } else if startCaptured, bufferAnchor > startHostTime {
+            // The anchor this buffer implies has slipped later than the one the screen
+            // is drawn from, which means the audio stalled and never made the time up:
+            // it is now playing behind the notes. Catch the schedule up rather than
+            // moving the anchor, so the notes keep their own timing (and with it the
+            // scoring the singer is measured against) and the accompaniment rejoins them.
+            //
+            // A stall leaves every buffer after it late by the same amount, so the
+            // catch-up waits for a few in a row to agree on how late they are. A lone
+            // odd timestamp — which would otherwise skip part of the exercise for no
+            // reason — never gets there.
+            let behind = seconds(forTicks: bufferAnchor - startHostTime)
+            if behind > Self.driftTolerance,
+               lateRenders == 0 || abs(behind - lateDrift) < Self.driftTolerance {
+                lateRenders += 1
+                lateDrift = behind
+                if lateRenders >= Self.lateRendersBeforeCatchUp {
+                    catchUpSamples = Int(behind * sampleRate)
+                    lateRenders = 0
+                }
+            } else {
+                lateRenders = 0
+            }
+        } else {
+            lateRenders = 0
         }
         os_unfair_lock_unlock(&clockLock)
+        if catchUpSamples > 0 { catchUpScheduleLocked(by: catchUpSamples) }
         let spec = self.spec
         let harmonics = spec.harmonics
         let invHarm = 1.0 / harmonics.reduce(0, +)
@@ -374,6 +427,36 @@ final class ExercisePlayer {
             if let callback { DispatchQueue.main.async(execute: callback) }
         }
         os_unfair_lock_unlock(&lock)
+    }
+
+    /// Move the schedule forward by `samples` so the audio rejoins the on-screen
+    /// clock after a stall. Runs on the render thread with `lock` already held.
+    private func catchUpScheduleLocked(by samples: Int) {
+        playhead += samples
+        // Step over the events the jump passed rather than letting the render loop
+        // fire them all at the same sample, which would strike every note in that
+        // stretch as one chord.
+        while eventIndex < events.count && events[eventIndex].sample <= playhead {
+            eventIndex += 1
+        }
+        // Release whatever the jump left sounding so it fades instead of hanging on
+        // past the note it belongs to; the next note-on starts a fresh voice.
+        for i in 0..<voices.count where voices[i].active && !voices[i].released {
+            voices[i].released = true
+            voices[i].releaseAge = 0
+        }
+        clickCursors.removeAll(keepingCapacity: true)
+    }
+
+    /// Host-clock ticks for a duration, and back. `timebase` is filled in once at
+    /// init and never written again, so both are safe on the render thread.
+    private func ticks(forSeconds seconds: Double) -> UInt64 {
+        guard seconds > 0 else { return 0 }
+        return UInt64(seconds * 1.0e9 * Double(timebase.denom) / Double(timebase.numer))
+    }
+
+    private func seconds(forTicks ticks: UInt64) -> Double {
+        Double(ticks) * Double(timebase.numer) / Double(timebase.denom) / 1.0e9
     }
 
     // MARK: Note control (called from the render thread with the lock held)
@@ -1250,6 +1333,13 @@ struct PlaybackView: View {
                 break
             }
         }
+        // A call, Siri, or another app taking the microphone stops both engines
+        // behind the app's back, and `.began` is the only warning it gets.
+        .onReceive(NotificationCenter.default.publisher(for: AVAudioSession.interruptionNotification)) { note in
+            guard let raw = note.userInfo?[AVAudioSessionInterruptionTypeKey] as? UInt,
+                  AVAudioSession.InterruptionType(rawValue: raw) == .began else { return }
+            pauseForInterruption()
+        }
     }
 
     // MARK: - Finishing a run
@@ -1446,6 +1536,19 @@ struct PlaybackView: View {
             pitchDetector.stop()
             isPaused = true
         }
+    }
+
+    /// Pause the run when the system interrupts the audio session. iOS deactivates
+    /// the session and stops both engines without asking, so without this the notes
+    /// would carry on scrolling against silence and everything that passed during
+    /// the interruption would be scored as unsung. Picking the run back up is left
+    /// to the singer: the toolbar's play button reconfigures the session and resumes
+    /// from where it stopped, the same as any other pause.
+    private func pauseForInterruption() {
+        guard finalScore == nil, delayResultMs == nil, !isCalibrating, !isPaused else { return }
+        player.pauseForBackground()
+        pitchDetector.stop()
+        isPaused = true
     }
 
     private func teardownAudio() {

@@ -24,6 +24,11 @@ final class PitchDetector: ObservableObject {
 
     private let engine = AVAudioEngine()
     private var running = false
+    /// Whether the microphone is meant to be listening, i.e. between `start()` and
+    /// `stop()`. Separate from `running` (which tracks the tap that is actually
+    /// installed) so the engine can be brought back after the system stops it.
+    private var shouldRun = false
+    private var configObserver: NSObjectProtocol?
 
     /// DEBUG RECORDING — remove together with DebugRecording.swift.
     /// Set while a run is being recorded for debugging: every microphone hop is
@@ -55,6 +60,22 @@ final class PitchDetector: ObservableObject {
 
     init() {
         mach_timebase_info(&timebase)
+        // iOS stops the engine whenever the audio IO is reconfigured — a route
+        // change, an interruption ending, the playback engine starting — and nothing
+        // brings it back on its own. Without this the tap is gone for the rest of the
+        // run while `running` still claims the microphone is live, so the singer's
+        // pitch line simply stops moving.
+        configObserver = NotificationCenter.default.addObserver(
+            forName: .AVAudioEngineConfigurationChange, object: engine, queue: .main
+        ) { [weak self] _ in
+            guard let self, self.shouldRun, !self.engine.isRunning else { return }
+            self.running = false   // the system stopped it; the tap it left behind is dead
+            self.beginTap()
+        }
+    }
+
+    deinit {
+        if let configObserver { NotificationCenter.default.removeObserver(configObserver) }
     }
 
     /// Remove and return every clap onset (mach_absolute_time) seen since last call.
@@ -146,6 +167,10 @@ final class PitchDetector: ObservableObject {
     private var pitchIsShowing = false
 
     func start() {
+        shouldRun = true
+        // Heal a tap the system stopped without telling us, so resuming after an
+        // interruption isn't mistaken for "already listening" and skipped.
+        if running && !engine.isRunning { running = false }
         guard !running else { return }
         // The audio session / route is configured once by PlaybackView before this
         // is called, so we must not reconfigure it here — doing so would switch the
@@ -157,6 +182,7 @@ final class PitchDetector: ObservableObject {
     }
 
     func stop() {
+        shouldRun = false
         guard running else { return }
         engine.inputNode.removeTap(onBus: 0)
         engine.stop()
