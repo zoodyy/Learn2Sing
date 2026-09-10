@@ -230,10 +230,17 @@ final class CommunitySync: ObservableObject {
     /// edited exercise keeps the date it was first shared.
     private static let shareDatesKey = "communityShareDates"
     /// Raw ids of the exercises whose difficulty this device has already
-    /// estimated and posted. Persisted because the seed is once per exercise for
-    /// good (see `seedDifficulty(for:)`), so the record has to outlive the launch
-    /// that made it.
+    /// estimated and posted. Persisted because the estimate is one per exercise
+    /// for good (see `seedDifficulty(for:)`) — rewritten when an edit moves it,
+    /// never posted a second time alongside the first — so the record has to
+    /// outlive the launch that made it.
     private static let seededDifficultyIDsKey = "communitySeededDifficulties"
+    /// Raw exercise id to the estimate its rows on the server carry, which is
+    /// what an edit is measured against: the same score again is an edit that
+    /// left the difficulty alone and is not worth a round trip. An id estimated
+    /// before this was recorded has no entry, and the first edit to it rewrites
+    /// its rows whether or not it needed to.
+    private static let seededDifficultyScoresKey = "communitySeededDifficultyScores"
     /// Raw exercise id to the seeded score still owed to the server, for the
     /// exercises made while it couldn't be reached. Retried at the next launch.
     private static let pendingDifficultySeedsKey = "communityPendingDifficultySeeds"
@@ -334,8 +341,13 @@ final class CommunitySync: ObservableObject {
     private var pendingLikes: Set<UUID> = []
 
     /// Raw ids of the exercises this device has estimated a difficulty for, so
-    /// none of them is ever estimated twice — see `seedDifficulty(for:)`.
+    /// none of them is ever estimated a second time on top of the first — see
+    /// `seedDifficulty(for:)`.
     private var seededDifficultyIDs: Set<UUID> = []
+    /// What each of those estimates says, by raw exercise id: the score the
+    /// exercise's seed rows carry, so an edit can tell whether it changed the
+    /// difficulty. Empty for ids seeded by a version that didn't record it.
+    private var seededDifficultyScores: [UUID: Int] = [:]
     /// The seeded scores still owed to the server, by raw exercise id: filled
     /// when an estimate is made and emptied as the plays are posted, so one made
     /// offline goes up at the next launch instead of being lost.
@@ -400,6 +412,7 @@ final class CommunitySync: ObservableObject {
         }
         let seeded = UserDefaults.standard.stringArray(forKey: Self.seededDifficultyIDsKey) ?? []
         seededDifficultyIDs = Set(seeded.compactMap(UUID.init(uuidString:)))
+        seededDifficultyScores = Self.storedCounts(forKey: Self.seededDifficultyScoresKey)
         pendingDifficultySeeds = Self.storedCounts(forKey: Self.pendingDifficultySeedsKey)
     }
 
@@ -908,6 +921,7 @@ final class CommunitySync: ObservableObject {
         downloadedExerciseIDs = []
         shareDates = [:]
         seededDifficultyIDs = []
+        seededDifficultyScores = [:]
         pendingDifficultySeeds = [:]
         lastUploadedBodies = [:]
         lastUploadedProfile = nil
@@ -1259,39 +1273,80 @@ final class CommunitySync: ObservableObject {
     ///   it towards what the exercise actually turns out to be, which is the
     ///   point: the estimate is a starting position, not a verdict.
     ///
-    /// Once per exercise, ever. The server keeps a running mean per user rather
-    /// than a single value (a second play from the same id averages into the
-    /// first), so re-seeding an edited pattern wouldn't replace the old estimate
-    /// so much as blend with it — and by then real scores may be in the average
-    /// too, which a synthetic correction has no business moving.
+    /// One estimate per exercise, kept in step with the exercise. Called again
+    /// after an edit — leaving the MIDI editor, leaving the settings screen — it
+    /// works the difficulty out afresh, and if the run now plays differently
+    /// enough to be scored differently it takes the three rows it posted off the
+    /// server and posts the new value in their place.
+    ///
+    /// Replaced rather than added to, which is the whole reason it can be done
+    /// at all: the server keeps a running mean per user rather than a single
+    /// value (a second play from the same id averages into the first), so posting
+    /// over the old estimate would blend the two and leave the rating describing
+    /// a pattern that is half gone. Deleting the rows first is what makes the
+    /// value posted the value they hold — see ServerDelete, which is where this
+    /// became possible.
+    ///
+    /// Real singers' scores are untouched by it. `delete-events` is scoped to one
+    /// user, one exercise and one event type, so a correction takes down nothing
+    /// but this app's own three estimate rows: the estimate keeps exactly the
+    /// weight it always had in the average and only changes what it says. That is
+    /// also why an average that real scores have already moved is no reason to
+    /// leave a correction unmade — the alternative is three votes for a pattern
+    /// the exercise no longer plays.
+    ///
+    /// An edit that leaves the estimate where it was posts nothing at all, so
+    /// renaming an exercise or nudging a note within its beat costs no calls.
     ///
     /// Bundled exercises are left out. Their ids are the same on every install,
     /// so their ratings are shared by everyone who has the app, and a user who
     /// had edited their own copy of one would be posting their edit's difficulty
     /// as everybody's.
     ///
-    /// An exercise the server has already rated is left alone as well: real
-    /// scores are the thing the estimate stands in for, and once they exist
-    /// there is nothing to stand in for.
+    /// An exercise the server had already rated when it was first seen here is
+    /// never given a first estimate: real scores are the thing the estimate
+    /// stands in for, and once they exist there is nothing to stand in for.
+    ///
+    /// An exercise with nothing to rate — every note taken out of it, or no
+    /// tempo — keeps whatever it last posted. There is no estimate to correct it
+    /// with, and an empty exercise is on its way somewhere rather than finished:
+    /// the notes that come back are rated when they do.
     func seedDifficulty(for exerciseID: UUID) {
         guard let store,
-              !seededDifficultyIDs.contains(exerciseID),
               !ExerciseStore.bundledExerciseIDs.contains(exerciseID),
-              difficulties[PublicIdentifier.exercise(exerciseID)] == nil,
               let exercise = store.exercises.first(where: { $0.id == exerciseID }),
               let rating = ExerciseDifficulty.rating(for: exercise,
                                                      pattern: store.notes(for: exerciseID))
         else { return }
         let score = ExerciseDifficulty.expectedScore(forRating: rating)
+        let publicExerciseID = PublicIdentifier.exercise(exerciseID)
+        let estimated = seededDifficultyIDs.contains(exerciseID)
+        // Estimated before: only an edit that moves the estimate is worth
+        // posting. An estimate from a version that didn't record its score reads
+        // as moved, so the first edit to one of those rewrites it either way.
+        if estimated, seededDifficultyScores[exerciseID] == score { return }
+        // Never estimated, and the server has a rating already.
+        if !estimated, difficulties[publicExerciseID] != nil { return }
+
+        let replaced = seededDifficultyScores[exerciseID].map(Double.init)
         seededDifficultyIDs.insert(exerciseID)
+        seededDifficultyScores[exerciseID] = score
         pendingDifficultySeeds[exerciseID] = score
         persistDifficultySeeds()
 
         // The cache holds the server's side of the scale — what the exercise
-        // tends to be scored — which is the estimate the other way round.
-        difficulties[PublicIdentifier.exercise(exerciseID)] = Double(score)
-        persistDifficulties()
-        SkillLevelStore.shared.recompute()
+        // tends to be scored — which is the estimate the other way round. A
+        // correction writes it only while it still holds the estimate being
+        // corrected: anything else in there is an average real scores have
+        // moved, which the new estimate is one voice in rather than the whole of,
+        // and the intro screen fetches that average when it opens (see
+        // `refreshDifficulty(for:)`).
+        let cached = difficulties[publicExerciseID]
+        if cached == nil || cached == replaced {
+            difficulties[publicExerciseID] = Double(score)
+            persistDifficulties()
+            SkillLevelStore.shared.recompute()
+        }
 
         Task { await uploadDifficultySeeds() }
     }
@@ -1300,16 +1355,26 @@ final class CommunitySync: ObservableObject {
     /// each exercise from the pending list once all of its plays are in.
     ///
     /// An exercise made offline keeps its entry — and its local stars — until a
-    /// launch that can post it, which is the other place this runs. A partial
-    /// post is retried whole: the ids are fixed, so a play that did land is
-    /// simply written again with the same value.
+    /// launch that can post it, which is the other place this runs.
+    ///
+    /// Every row is deleted before it is written, whether or not there is
+    /// anything there to delete. The server averages a play into the row it
+    /// lands on rather than replacing it (see `seedDifficulty(for:)`), so
+    /// clearing the row first is what makes the value posted the value it ends
+    /// up holding — which is what an estimate corrected after an edit needs, and
+    /// what lets a post that half landed be retried whole. A delete that matches
+    /// nothing is answered 200 like any other and costs one round trip on a
+    /// first estimate.
     private func uploadDifficultySeeds() async {
         for (exerciseID, score) in pendingDifficultySeeds {
             let publicExerciseID = PublicIdentifier.exercise(exerciseID)
+            let entityID = publicExerciseID.uuidString.lowercased()
             var posted = true
             for userID in Self.seedUserIDs {
-                posted = await postEvent(.addPlay, for: publicExerciseID,
-                                         as: userID, customValue: score) && posted
+                let cleared = await ServerDelete.events(of: userID, on: entityID, type: .addPlay)
+                let wrote = await postEvent(.addPlay, for: publicExerciseID,
+                                            as: userID, customValue: score)
+                posted = posted && cleared && wrote
             }
             guard posted, pendingDifficultySeeds[exerciseID] == score else { continue }
             pendingDifficultySeeds.removeValue(forKey: exerciseID)
@@ -1401,10 +1466,14 @@ final class CommunitySync: ObservableObject {
         let defaults = UserDefaults.standard
         defaults.set(seededDifficultyIDs.map { $0.uuidString.lowercased() }.sorted(),
                      forKey: Self.seededDifficultyIDsKey)
-        let pending = pendingDifficultySeeds.reduce(into: [String: Int]()) { dict, entry in
-            dict[entry.key.uuidString.lowercased()] = entry.value
+        func store(_ scores: [UUID: Int], forKey key: String) {
+            let stored = scores.reduce(into: [String: Int]()) { dict, entry in
+                dict[entry.key.uuidString.lowercased()] = entry.value
+            }
+            defaults.set(stored, forKey: key)
         }
-        defaults.set(pending, forKey: Self.pendingDifficultySeedsKey)
+        store(seededDifficultyScores, forKey: Self.seededDifficultyScoresKey)
+        store(pendingDifficultySeeds, forKey: Self.pendingDifficultySeedsKey)
     }
 
     private func persistShareDates() {

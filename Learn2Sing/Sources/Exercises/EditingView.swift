@@ -438,8 +438,11 @@ struct EditingView: View {
             // is the first moment there is one to read — an exercise created
             // straight from the + button reaches its list again with its notes
             // already drawn, but one named and left empty only gets them here.
-            // Does nothing for an exercise that has been rated already, by this
-            // or by anyone singing it (CommunitySync.seedDifficulty(for:)).
+            // It is also the moment an estimate goes stale: notes changed in
+            // here can make the exercise a different exercise to sing, and the
+            // estimate posted for it is corrected to match. Costs nothing when
+            // the strokes made in here left the difficulty where it was
+            // (CommunitySync.seedDifficulty(for:)).
             if let exercise { CommunitySync.shared.seedDifficulty(for: exercise.id) }
         }
         .onChange(of: scenePhase) { _, phase in

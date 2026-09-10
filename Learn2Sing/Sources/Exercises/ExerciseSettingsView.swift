@@ -136,6 +136,14 @@ struct ExerciseSettingsView: View {
         // with the keyboard still up is the one way past the question below. The
         // rule holds anyway: the exercise comes off the Community tab.
         .onDisappear {
+            // How often the exercise comes round, how far it transposes and how
+            // much faster it gets are as much of the run as the notes are (see
+            // ExerciseDifficulty), so this is the other place an edit can leave
+            // the exercise's estimated difficulty describing something it no
+            // longer plays. Asked for a tick later than the delete button's own
+            // work, so an exercise on its way out isn't estimated on the way.
+            let id = exercise.id
+            DispatchQueue.main.async { CommunitySync.shared.seedDifficulty(for: id) }
             guard wasWithinLengthRuleOnOpen, exercise.visibility == .public,
                   !isLongEnoughToPublish else { return }
             exercise.visibility = .private
