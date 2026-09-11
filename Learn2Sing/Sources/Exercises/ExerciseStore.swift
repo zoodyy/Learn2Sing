@@ -393,9 +393,12 @@ final class ExerciseStore: ObservableObject {
         while length < target, batch.count < ranked.count {
             let total = weights.reduce(0, +)
             var draw = Double.random(in: 0..<total, using: &generator)
-            // The last one catches a draw that the rounding of the running
-            // subtraction leaves standing at the end.
-            var chosen = weights.count - 1
+            // The last one still in the running catches a draw that the rounding
+            // of the running subtraction leaves standing at the end. Not simply
+            // the last one: it may have been drawn already, and a batch holding
+            // an exercise twice lists two rows with the same id, which the Home
+            // list's diffable data source traps on.
+            var chosen = weights.lastIndex { $0 > 0 } ?? weights.count - 1
             for (index, weight) in weights.enumerated() {
                 draw -= weight
                 if draw < 0 {

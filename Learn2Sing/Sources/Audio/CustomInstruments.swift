@@ -260,9 +260,10 @@ struct InstrumentsView: View {
                     .settingHelp(L("A sound you uploaded yourself. Tap the name to open it, the speaker to hear it, and swipe left to delete it."))
                 }
                 .onDelete { offsets in
-                    for offset in offsets {
-                        store.delete(id: store.instruments[offset].id)
-                    }
+                    // Ids first: each delete shortens the list, so every offset
+                    // after the first would point at the wrong row, or past the end.
+                    let ids = offsets.map { store.instruments[$0].id }
+                    for id in ids { store.delete(id: id) }
                 }
             } header: {
                 Text("Custom").settingSection(.instrumentsCustom)

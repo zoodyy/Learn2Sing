@@ -177,7 +177,14 @@ final class PitchDetector: ObservableObject {
         // route out from under the already-running playback engine.
         AVAudioSession.sharedInstance().requestRecordPermission { [weak self] granted in
             guard granted else { return }
-            DispatchQueue.main.async { self?.beginTap() }
+            DispatchQueue.main.async {
+                // A `stop()` that came in while the answer was on its way — a pause
+                // tapped straight after resuming, the app going to the background —
+                // found no tap to remove yet. Starting one now would leave the
+                // microphone listening behind a run that has stopped asking for it.
+                guard let self, self.shouldRun else { return }
+                self.beginTap()
+            }
         }
     }
 

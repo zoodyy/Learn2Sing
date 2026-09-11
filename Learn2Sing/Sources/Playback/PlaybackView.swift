@@ -5,61 +5,50 @@ import os
 
 // MARK: - Instrument timbre
 
-// Each instrument is defined purely by its harmonic content + amplitude envelope,
-// so the same DSP renders identically on the simulator and on a real device — no
-// external SoundFont/DLS file (which only ships on macOS) is involved.
+// Every instrument is synthesised, so the same DSP renders identically on the
+// simulator and on a real device — no external SoundFont/DLS file (which only
+// ships on macOS) is involved. The sine and the voice are a fixed blend of
+// harmonics under an envelope; the piano and the guitar are modelled as the
+// strings they are, in StringSynth.swift.
 private struct InstrumentSpec {
     let harmonics: [Double]   // relative amplitude of each overtone (1st = fundamental)
     let attack: Double        // seconds to full volume
-    let decay: Double         // seconds from peak to sustain level (sustained instruments)
-    let sustain: Double       // sustain level 0...1 (sustained instruments)
+    let decay: Double         // seconds from peak to sustain level
+    let sustain: Double       // sustain level 0...1
     let release: Double       // seconds to fade after note-off
-    let decayToZero: Bool     // plucked/struck: ring out & fade even while held
-    let decayRate: Double     // ring-out speed when decayToZero
     let vibratoDepth: Double   // ± fraction of frequency
     let vibratoRate: Double    // Hz
     let gain: Double          // overall output level
 
-    // Rich (piano-like) rendering. Any non-zero value switches the voice to the
-    // per-partial path: independent phase, decay and detune per overtone.
-    var partialDecayStretch: Double = 0  // extra decay rate per partial index (highs die faster)
-    var inharmonicity: Double = 0        // B coefficient: partial k at k·f0·√(1+B·k²)
-    var decayKeyTrack: Double = 0        // decay-rate octaves per octave above middle C
+    static let sine = InstrumentSpec(
+        harmonics: [1.0],
+        attack: 0.02, decay: 0.0, sustain: 1.0, release: 0.15,
+        vibratoDepth: 0, vibratoRate: 0, gain: 0.30)
+
+    // Vowel-like formant emphasis on the 2nd/3rd harmonic + gentle vibrato.
+    static let voice = InstrumentSpec(
+        harmonics: [0.7, 1.0, 0.85, 0.4, 0.25, 0.15, 0.08],
+        attack: 0.06, decay: 0.08, sustain: 0.85, release: 0.22,
+        vibratoDepth: 0.012, vibratoRate: 5.5, gain: 0.30)
 }
 
 private extension Instrument {
-    var spec: InstrumentSpec {
+    /// The blend of harmonics this instrument is drawn from, or nil for the two
+    /// drawn as strings (see `stringModel`).
+    var spec: InstrumentSpec? {
         switch self {
-        case .sine:
-            return InstrumentSpec(
-                harmonics: [1.0],
-                attack: 0.02, decay: 0.0, sustain: 1.0, release: 0.15,
-                decayToZero: false, decayRate: 0,
-                vibratoDepth: 0, vibratoRate: 0, gain: 0.30)
-        case .piano:
-            // Starts brighter than the old mix because the upper partials decay
-            // away quickly (partialDecayStretch) — bright hammer strike settling
-            // into a mellow, slowly beating sustain, instead of a static organ tone.
-            return InstrumentSpec(
-                harmonics: [1.0, 0.62, 0.45, 0.32, 0.25, 0.18, 0.13, 0.09, 0.06, 0.04],
-                attack: 0.002, decay: 0.0, sustain: 0.0, release: 0.10,
-                decayToZero: true, decayRate: 0.9,
-                vibratoDepth: 0, vibratoRate: 0, gain: 0.32,
-                partialDecayStretch: 0.55, inharmonicity: 0.00045,
-                decayKeyTrack: 0.8)
-        case .guitar:
-            return InstrumentSpec(
-                harmonics: [1.0, 0.7, 0.5, 0.45, 0.3, 0.22, 0.16, 0.1, 0.06],
-                attack: 0.004, decay: 0.0, sustain: 0.0, release: 0.12,
-                decayToZero: true, decayRate: 3.2,
-                vibratoDepth: 0, vibratoRate: 0, gain: 0.26)
-        case .voice:
-            // Vowel-like formant emphasis on the 2nd/3rd harmonic + gentle vibrato.
-            return InstrumentSpec(
-                harmonics: [0.7, 1.0, 0.85, 0.4, 0.25, 0.15, 0.08],
-                attack: 0.06, decay: 0.08, sustain: 0.85, release: 0.22,
-                decayToZero: false, decayRate: 0,
-                vibratoDepth: 0.012, vibratoRate: 5.5, gain: 0.30)
+        case .sine: .sine
+        case .voice: .voice
+        case .piano, .guitar: nil
+        }
+    }
+
+    /// The string the piano and the guitar are modelled as; nil for the others.
+    var stringModel: StringInstrument? {
+        switch self {
+        case .piano: .piano
+        case .guitar: .guitar
+        case .sine, .voice: nil
         }
     }
 }
@@ -70,7 +59,8 @@ final class ExercisePlayer {
     private let engine = AVAudioEngine()
     private var sourceNode: AVAudioSourceNode!
 
-    private let sampleRate: Double = 44100
+    private static let renderRate: Double = 44100
+    private let sampleRate = renderRate
 
     // Voice state — only touched on the audio thread except via the lock below.
     private struct Voice {
@@ -81,29 +71,20 @@ final class ExercisePlayer {
         var released: Bool = false
         var releaseAge: Double = 0   // seconds since note-off
         var active: Bool = false
-        var decayRate: Double = 0    // spec.decayRate scaled by the note's pitch
+        var isString: Bool = false   // drawn by `strings` rather than from `spec`
     }
     private static let maxVoices = 24
-    private static let maxPartials = 16
     private var voices = [Voice](repeating: Voice(), count: maxVoices)
-    private var spec = Instrument.current.spec
+    /// The harmonics the sine and the voice are drawn from. Left as it was while a
+    /// string instrument is picked, so a note still ringing from before carries on.
+    private var spec = Instrument.current.spec ?? .sine
+    /// The string the piano or the guitar is modelled as while one of them is
+    /// picked; nil otherwise. A note keeps the string it was struck with.
+    private var stringModel = Instrument.current.stringModel
+    /// Every note the piano or the guitar is sounding, partials, envelopes and all.
+    /// Built up front, so the render thread never allocates.
+    private let strings = StringVoiceBank(voices: maxVoices, sampleRate: renderRate)
     private var lock = os_unfair_lock_s()
-
-    // Per-voice per-partial state for the rich (piano-like) path, preallocated as
-    // flat [voice × partial] arrays so the render thread never allocates.
-    private var partialPhase = [Double](repeating: 0, count: maxVoices * maxPartials)
-    private var partialInc   = [Double](repeating: 0, count: maxVoices * maxPartials)
-    private var partialEnv   = [Double](repeating: 0, count: maxVoices * maxPartials)
-    private var partialFade  = [Double](repeating: 0, count: maxVoices * maxPartials)
-
-    // Cheap audio-thread RNG (xorshift64) for the partials' random start phases.
-    private var noiseState: UInt64 = 0x9E3779B97F4A7C15
-    private func nextRandom() -> Double {
-        noiseState ^= noiseState << 13
-        noiseState ^= noiseState >> 7
-        noiseState ^= noiseState << 17
-        return Double(Int64(bitPattern: noiseState)) / Double(Int64.max)   // -1...1
-    }
 
     // Click playback: when `clickMode` is on, each note-on plays the loaded sample
     // (e.g. a metronome click) instead of a synthesised note. `clickCursors` holds
@@ -313,7 +294,6 @@ final class ExercisePlayer {
         let harmonics = spec.harmonics
         let invHarm = 1.0 / harmonics.reduce(0, +)
         let gain = spec.gain
-        let rich = spec.partialDecayStretch > 0 || spec.inharmonicity > 0
 
         for frame in 0..<frameCount {
             // Fire any note-on/off events due at this exact sample.
@@ -331,49 +311,38 @@ final class ExercisePlayer {
             }
 
             var mix = 0.0
+            var stringMix = 0.0
             for vi in 0..<voices.count where voices[vi].active {
+                if voices[vi].isString {
+                    // The piano and the guitar draw, shape and level their notes
+                    // themselves; all the voice keeps here is its age, for stealing.
+                    stringMix += strings.nextSample(vi)
+                    voices[vi].age += dt
+                    if strings.isFinished(vi) { voices[vi].active = false }
+                    continue
+                }
                 var v = voices[vi]
 
+                // Frequency (with optional vibrato) → phase increment.
+                let vib = spec.vibratoDepth > 0
+                    ? 1.0 + spec.vibratoDepth * sin(twoPi * spec.vibratoRate * v.age)
+                    : 1.0
+                let inc = twoPi * v.freq * vib * dt
+
+                // Timbre from summed harmonics.
                 var tone = 0.0
-                if rich {
-                    // Per-partial rendering: each overtone has its own (inharmonic)
-                    // frequency and its own decay — highs die faster — so the
-                    // spectrum evolves like a struck string's.
-                    let base = vi * Self.maxPartials
-                    for k in 0..<min(harmonics.count, Self.maxPartials) {
-                        let i = base + k
-                        let env = partialEnv[i]
-                        if env > 0.0001 {
-                            tone += harmonics[k] * env * sin(partialPhase[i])
-                            partialEnv[i] = env * partialFade[i]
-                        }
-                        partialPhase[i] += partialInc[i]
-                        if partialPhase[i] > twoPi { partialPhase[i] -= twoPi }
-                    }
-                    tone *= invHarm
-                } else {
-                    // Frequency (with optional vibrato) → phase increment.
-                    let vib = spec.vibratoDepth > 0
-                        ? 1.0 + spec.vibratoDepth * sin(twoPi * spec.vibratoRate * v.age)
-                        : 1.0
-                    let inc = twoPi * v.freq * vib * dt
-
-                    // Timbre from summed harmonics.
-                    for k in 0..<harmonics.count {
-                        tone += harmonics[k] * sin(Double(k + 1) * v.phase)
-                    }
-                    tone *= invHarm
-
-                    v.phase += inc
-                    if v.phase > twoPi { v.phase -= twoPi }
+                for k in 0..<harmonics.count {
+                    tone += harmonics[k] * sin(Double(k + 1) * v.phase)
                 }
+                tone *= invHarm
+
+                v.phase += inc
+                if v.phase > twoPi { v.phase -= twoPi }
 
                 // Amplitude envelope.
                 let base: Double
                 if v.age < spec.attack {
                     base = v.age / spec.attack
-                } else if spec.decayToZero {
-                    base = exp(-(v.age - spec.attack) * v.decayRate)
                 } else if v.age < spec.attack + spec.decay {
                     base = 1.0 - (1.0 - spec.sustain) * ((v.age - spec.attack) / spec.decay)
                 } else {
@@ -387,13 +356,13 @@ final class ExercisePlayer {
                 // Advance voice.
                 v.age += dt
                 if v.released { v.releaseAge += dt }
-                if env < 0.0004 && (v.released || (spec.decayToZero && v.age > spec.attack)) {
+                if env < 0.0004 && v.released {
                     v.active = false
                 }
                 voices[vi] = v
             }
 
-            var out = mix * gain
+            var out = mix * gain + stringMix
 
             // Mix in any sounding clicks (the metronome), advancing each cursor.
             if clickMode, let click = clickSamples {
@@ -444,6 +413,7 @@ final class ExercisePlayer {
         for i in 0..<voices.count where voices[i].active && !voices[i].released {
             voices[i].released = true
             voices[i].releaseAge = 0
+            if voices[i].isString { strings.release(i) }
         }
         clickCursors.removeAll(keepingCapacity: true)
     }
@@ -463,7 +433,8 @@ final class ExercisePlayer {
 
     func setInstrument(_ instrument: Instrument) {
         os_unfair_lock_lock(&lock)
-        spec = instrument.spec
+        stringModel = instrument.stringModel
+        if let spec = instrument.spec { self.spec = spec }
         os_unfair_lock_unlock(&lock)
     }
 
@@ -538,43 +509,17 @@ final class ExercisePlayer {
         }
         guard let i = idx else { return }
 
-        // Higher notes decay faster, low notes ring longer (like real strings).
-        let decayRate = spec.decayRate
-            * pow(2.0, Double(pitch - 60) / 12.0 * spec.decayKeyTrack)
         voices[i] = Voice(pitch: pitch, freq: freq, phase: 0, age: 0,
                           released: false, releaseAge: 0, active: true,
-                          decayRate: decayRate)
-
-        // Set up the per-partial tables for the rich (piano-like) path: stretched
-        // (inharmonic) partial frequencies, random start phases, and a per-partial
-        // fade so upper partials decay away faster.
-        if spec.partialDecayStretch > 0 || spec.inharmonicity > 0 {
-            let dt = 1.0 / sampleRate
-            let twoPi = 2.0 * Double.pi
-            let base = i * Self.maxPartials
-            let bCoeff = spec.inharmonicity
-            for k in 0..<min(spec.harmonics.count, Self.maxPartials) {
-                let n = Double(k + 1)
-                let f = freq * n * (bCoeff > 0 ? (1 + bCoeff * n * n).squareRoot() : 1)
-                let j = base + k
-                // Partials at or above Nyquist would alias — silence them.
-                if f >= sampleRate * 0.45 {
-                    partialEnv[j] = 0
-                    partialInc[j] = 0
-                    continue
-                }
-                partialInc[j] = twoPi * f * dt
-                partialPhase[j] = (nextRandom() + 1) * Double.pi
-                partialEnv[j] = 1
-                partialFade[j] = exp(-dt * decayRate * spec.partialDecayStretch * Double(k))
-            }
-        }
+                          isString: stringModel != nil)
+        if let stringModel { strings.start(i, pitch: pitch, instrument: stringModel) }
     }
 
     private func releaseVoiceLocked(pitch: Int) {
         for i in 0..<voices.count where voices[i].active && !voices[i].released && voices[i].pitch == pitch {
             voices[i].released = true
             voices[i].releaseAge = 0
+            if voices[i].isString { strings.release(i) }
         }
     }
 
@@ -1357,7 +1302,8 @@ struct PlaybackView: View {
         // Count the run for everyone: the score goes up to the server with the play,
         // which averages it into the difficulty the intro screen's stars show. Only a
         // run that reached a score is worth posting, so this is the one place it
-        // happens — a replay comes back through here with its own score.
+        // happens — a replay comes back through here with its own score. A 0% run
+        // stays off the server, as it stays out of the history (see `registerPlay`).
         CommunitySync.shared.registerPlay(
             for: communityID ?? PublicIdentifier.exercise(exercise.id), score: score)
         finalScore = score

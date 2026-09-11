@@ -352,6 +352,14 @@ final class CommunitySync: ObservableObject {
     /// when an estimate is made and emptied as the plays are posted, so one made
     /// offline goes up at the next launch instead of being lost.
     private var pendingDifficultySeeds: [UUID: Int] = [:]
+    /// Whether `uploadDifficultySeeds` is on the wire, and whether it has been
+    /// asked for again since it started. One pass at a time: every row is cleared
+    /// and then written, and two passes interleaving those calls on the same
+    /// exercise — an edit in the editor and another on the settings screen, a
+    /// second or two apart — would have the server average both estimates into
+    /// one row.
+    private var isUploadingSeeds = false
+    private var seedUploadRequested = false
 
     private weak var store: ExerciseStore?
     private var storeObservation: AnyCancellable?
@@ -1366,19 +1374,28 @@ final class CommunitySync: ObservableObject {
     /// nothing is answered 200 like any other and costs one round trip on a
     /// first estimate.
     private func uploadDifficultySeeds() async {
-        for (exerciseID, score) in pendingDifficultySeeds {
-            let publicExerciseID = PublicIdentifier.exercise(exerciseID)
-            let entityID = publicExerciseID.uuidString.lowercased()
-            var posted = true
-            for userID in Self.seedUserIDs {
-                let cleared = await ServerDelete.events(of: userID, on: entityID, type: .addPlay)
-                let wrote = await postEvent(.addPlay, for: publicExerciseID,
-                                            as: userID, customValue: score)
-                posted = posted && cleared && wrote
+        // A pass already running goes round again once it is done, so whatever
+        // was asked for meanwhile is posted after it rather than alongside it.
+        seedUploadRequested = true
+        guard !isUploadingSeeds else { return }
+        isUploadingSeeds = true
+        defer { isUploadingSeeds = false }
+        while seedUploadRequested {
+            seedUploadRequested = false
+            for (exerciseID, score) in pendingDifficultySeeds {
+                let publicExerciseID = PublicIdentifier.exercise(exerciseID)
+                let entityID = publicExerciseID.uuidString.lowercased()
+                var posted = true
+                for userID in Self.seedUserIDs {
+                    let cleared = await ServerDelete.events(of: userID, on: entityID, type: .addPlay)
+                    let wrote = await postEvent(.addPlay, for: publicExerciseID,
+                                                as: userID, customValue: score)
+                    posted = posted && cleared && wrote
+                }
+                guard posted, pendingDifficultySeeds[exerciseID] == score else { continue }
+                pendingDifficultySeeds.removeValue(forKey: exerciseID)
+                persistDifficultySeeds()
             }
-            guard posted, pendingDifficultySeeds[exerciseID] == score else { continue }
-            pendingDifficultySeeds.removeValue(forKey: exerciseID)
-            persistDifficultySeeds()
         }
     }
 
@@ -1393,8 +1410,13 @@ final class CommunitySync: ObservableObject {
     /// the singer walked out of never gets here, since it has no score to report.
     ///
     /// Unlike likes and downloads every play counts, so there is nothing to
-    /// remember locally.
+    /// remember locally — bar a run that scored 0%. That is a silent or abandoned
+    /// run rather than an attempt, which the score history leaves out for the same
+    /// reason (see `ScoreHistory.record`), and posted it would pull the exercise's
+    /// average — its difficulty — towards "nobody can sing this". It isn't counted
+    /// as a play here either: the count mirrors the server's, which never hears of it.
     func registerPlay(for publicExerciseID: UUID, score: Int) {
+        guard score > 0 else { return }
         playCounts[publicExerciseID] = (playCounts[publicExerciseID] ?? 0) + 1
         persistCounts()
         Task { await postEvent(.addPlay, for: publicExerciseID, customValue: score) }
