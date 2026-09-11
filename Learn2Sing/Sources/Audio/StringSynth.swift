@@ -65,19 +65,20 @@ nonisolated struct StringInstrument {
     /// How long the strike takes to reach full level, in seconds: a millisecond or
     /// so, just enough that the note doesn't click.
     let attackTime: Double
-    /// A struck string decays in two stages: fast at first, while the string still
-    /// swings in step with the hammer, then slowly once it has settled into
-    /// swinging with the bridge. How much of the note the first stage carries, and
-    /// the time constant of each stage at middle C, in seconds.
-    let promptWeight: Double
-    let promptTime: Double
-    let sustainTime: Double
-    /// How much longer a lower note rings: both times are scaled by 2 to the power
-    /// of this, per octave below middle C.
+    /// How long a note rings, as the time constant of its decay at middle C, in
+    /// seconds. One stage, and a gentle one: a real string drops away fast in its
+    /// first half second before settling into a slow decay, but that makes the
+    /// start of every note a burst well above the rest of it. Here a note starts at
+    /// the level it goes on at.
+    let decayTime: Double
+    /// How much longer a lower note rings: the time is scaled by 2 to the power of
+    /// this, per octave below middle C.
     let keyTracking: Double
     /// How much faster a partial dies the higher it is, per second at 1 kHz, and how
     /// that grows with frequency. The highs going first is what turns the bright
-    /// strike into a warm tail instead of a buzz that never changes.
+    /// strike into a warm tail instead of a buzz that never changes. The loudness
+    /// they take with them is given back to the note as a whole (see
+    /// `StringVoiceBank`), so it is the tone that mellows, not the level that drops.
     let partialDamping: Double
     let dampingExponent: Double
     /// Time constant of the damper (or the fretting hand) stopping the string when
@@ -92,8 +93,14 @@ nonisolated struct StringInstrument {
     let noiseTime: Double
     let noiseBand: ClosedRange<Double>
 
-    /// The loudness a note starts at, as the RMS of the tone.
+    /// The loudness a note at middle C starts at — and, but for its slow decay,
+    /// keeps — as the RMS of the tone.
     let level: Double
+    /// How that loudness changes with pitch, in dB per octave above middle C. Both
+    /// instruments' higher notes ring out sooner, so the middle of a note has always
+    /// sat lower the higher it is; a note now starts at the level its middle is at,
+    /// so the start comes down with the pitch as well.
+    let levelTracking: Double
 
     /// A grand piano struck at a moderate strength.
     static let piano = StringInstrument(
@@ -106,11 +113,11 @@ nonisolated struct StringInstrument {
         ],
         maxFrequency: 9_000,
         attackTime: 0.0015,
-        promptWeight: 0.62, promptTime: 0.45, sustainTime: 3.5, keyTracking: 0.55,
+        decayTime: 3.5, keyTracking: 0.55,
         partialDamping: 0.8, dampingExponent: 1.2,
         releaseTime: 0.09,
         noiseLevel: 0.12, noiseTime: 0.006, noiseBand: 200...2_500,
-        level: 0.11)
+        level: 0.042, levelTracking: -2.1)
 
     /// A steel-string acoustic guitar, picked.
     static let guitar = StringInstrument(
@@ -125,11 +132,11 @@ nonisolated struct StringInstrument {
         ],
         maxFrequency: 8_000,
         attackTime: 0.001,
-        promptWeight: 0.25, promptTime: 0.12, sustainTime: 1.6, keyTracking: 0.5,
+        decayTime: 1.6, keyTracking: 0.5,
         partialDamping: 1.0, dampingExponent: 1.4,
         releaseTime: 0.1,
         noiseLevel: 0.18, noiseTime: 0.004, noiseBand: 1_500...6_000,
-        level: 0.06)
+        level: 0.0305, levelTracking: -1.4)
 
     /// How loud harmonic `n`, sounding at `frequency`, starts out relative to the
     /// others — before the note is levelled as a whole.
@@ -168,6 +175,12 @@ nonisolated struct StringInstrument {
 /// one sample to the next — the envelope, the damper coming down, the strike's
 /// noise — is still applied sample by sample.
 ///
+/// A note holds its loudness while its tone mellows. The level its upper partials
+/// lose as they ring out is given back to it, eased in block by block, so what is
+/// heard dropping away is only the note's own slow decay. Left alone, the first
+/// moments of a note would stand several decibels above the rest of it — all of
+/// it brightness that the ear takes for a burst at the start.
+///
 /// Not thread-safe on its own; the player calls it with its render lock held.
 nonisolated final class StringVoiceBank {
     /// The most partials one note is drawn with. Enough for a low note to reach
@@ -181,6 +194,12 @@ nonisolated final class StringVoiceBank {
     /// Below this, a partial or a note is past hearing and is let go of.
     private static let silence = 1e-6
     private static let noteSilence = 2e-4
+
+    /// The most that loudness is given back by, as a factor. Every partial of a high
+    /// note rings out in time, its fundamental included, so without a ceiling one
+    /// held long enough would swell; this is past what a note of any ordinary length
+    /// needs.
+    private static let maxHold = 2.0
 
     private let voiceCount: Int
     private let sampleRate: Double
@@ -205,12 +224,13 @@ nonisolated final class StringVoiceBank {
         var partialCount = 0
         /// Where in its block of summed partials the note has got to.
         var blockPosition = StringVoiceBank.blockLength
-        /// The two stages of the decay, each already weighted, and what each is
-        /// multiplied by per sample.
-        var prompt = 0.0
-        var sustain = 0.0
-        var promptFade = 1.0
-        var sustainFade = 1.0
+        /// The note's decay, and what it is multiplied by per sample.
+        var decay = 1.0
+        var decayFade = 1.0
+        /// What the partials weighed together when the note was struck, and the
+        /// gain the last block ended on, giving back what they have lost since.
+        var initialPower = 0.0
+        var hold = 1.0
         var attackLength = 1
         var attackPosition = 0
         var isReleased = false
@@ -294,18 +314,18 @@ nonisolated final class StringVoiceBank {
             power += level * level
             fade[i] = exp(-instrument.damping(frequency: frequency) / sampleRate)
         }
-        // Levelled by what the note sounds like as a whole, so every note starts
-        // at the same loudness however its harmonics are spread.
-        let scale = power > 0 ? instrument.level / (power / 2).squareRoot() : 0
+        // Levelled by what the note sounds like as a whole, so every note starts at
+        // the loudness its pitch calls for however its harmonics are spread.
+        let noteLevel = instrument.level
+            * pow(10, instrument.levelTracking * Double(pitch - 60) / 12 / 20)
+        let scale = power > 0 ? noteLevel / (power / 2).squareRoot() : 0
         for i in base..<(base + count) { amplitude[i] *= scale }
 
         let keyScale = pow(2, -Double(pitch - 60) / 12 * instrument.keyTracking)
         var note = Note()
         note.partialCount = count
-        note.prompt = instrument.promptWeight
-        note.sustain = 1 - instrument.promptWeight
-        note.promptFade = exp(-1 / (instrument.promptTime * keyScale * sampleRate))
-        note.sustainFade = exp(-1 / (instrument.sustainTime * keyScale * sampleRate))
+        note.initialPower = power * scale * scale
+        note.decayFade = exp(-1 / (instrument.decayTime * keyScale * sampleRate))
         note.attackLength = max(1, Int(instrument.attackTime * sampleRate))
         note.releaseFade = exp(-1 / (instrument.releaseTime * sampleRate))
 
@@ -320,7 +340,7 @@ nonisolated final class StringVoiceBank {
         note.upperCoefficient = upper
         note.lowerCoefficient = lower
         note.noise = bandVariance > 0
-            ? instrument.noiseLevel * instrument.level / bandVariance.squareRoot() : 0
+            ? instrument.noiseLevel * noteLevel / bandVariance.squareRoot() : 0
         note.noiseFade = exp(-1 / (instrument.noiseTime * sampleRate))
         note.isFinished = false
         notes[voice] = note
@@ -342,18 +362,17 @@ nonisolated final class StringVoiceBank {
         guard !note.isFinished else { return 0 }
 
         if note.blockPosition == Self.blockLength {
-            sumPartials(voice, count: &note.partialCount)
+            sumPartials(voice, note: &note)
             note.blockPosition = 0
         }
-        var envelope = (note.prompt + note.sustain) * note.release
+        var envelope = note.decay * note.release
         if note.attackPosition < note.attackLength {
             envelope *= 0.5 - 0.5 * cos(.pi * Double(note.attackPosition) / Double(note.attackLength))
             note.attackPosition += 1
         }
         var sample = tone[voice * Self.blockLength + note.blockPosition] * envelope
         note.blockPosition += 1
-        note.prompt *= note.promptFade
-        note.sustain *= note.sustainFade
+        note.decay *= note.decayFade
         if note.isReleased { note.release *= note.releaseFade }
 
         if note.noise > Self.silence {
@@ -364,7 +383,7 @@ nonisolated final class StringVoiceBank {
             note.noise *= note.noiseFade
         }
 
-        if (note.prompt + note.sustain) * note.release < Self.noteSilence,
+        if note.decay * note.release < Self.noteSilence,
            note.noise <= Self.silence {
             note.isFinished = true
         }
@@ -372,9 +391,10 @@ nonisolated final class StringVoiceBank {
         return sample
     }
 
-    /// Sums the next block of the note's partials into its tone buffer, then stops
-    /// drawing the partials at the top that have rung out.
-    private func sumPartials(_ voice: Int, count: inout Int) {
+    /// Sums the next block of the note's partials into its tone buffer, gives back
+    /// the loudness they have lost to their damping, then stops drawing the
+    /// partials at the top that have rung out.
+    private func sumPartials(_ voice: Int, note: inout Note) {
         let out = tone + voice * Self.blockLength
         let length = Self.blockLength
         var j = 0
@@ -382,7 +402,8 @@ nonisolated final class StringVoiceBank {
 
         let base = voice * Self.maxPartials
         var i = base
-        let end = base + count
+        let end = base + note.partialCount
+        var power = 0.0
         while i < end {
             var x = real[i]
             var y = imaginary[i]
@@ -400,8 +421,25 @@ nonisolated final class StringVoiceBank {
             real[i] = x
             imaginary[i] = y
             amplitude[i] = a
+            power += a * a
             i += 1
         }
-        while count > 1, amplitude[base + count - 1] < Self.silence { count -= 1 }
+
+        // The gain that puts the partials back at the weight they were struck with,
+        // reached by the end of this block from where the last one left off, so it
+        // moves by a hair per sample and never steps.
+        let target = power > 0
+            ? min(Self.maxHold, (note.initialPower / power).squareRoot()) : Self.maxHold
+        let step = (target - note.hold) / Double(length)
+        j = 0
+        while j < length {
+            out[j] *= note.hold + step * Double(j + 1)
+            j += 1
+        }
+        note.hold = target
+
+        while note.partialCount > 1, amplitude[base + note.partialCount - 1] < Self.silence {
+            note.partialCount -= 1
+        }
     }
 }
