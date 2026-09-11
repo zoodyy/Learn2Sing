@@ -84,6 +84,9 @@ final class ExerciseStore: ObservableObject {
     private let favouritesKey = "favourites"
     private let whitelistOverridesKey = "recommendationWhitelistOverrides"
     private let bundledImportedKey = "didImportBundledExercises"
+    /// Ids of the bundled exercises this install has been given, whether or not
+    /// they are still in its library — see `importNewBundledIfNeeded`.
+    private let offeredBundledKey = "offeredBundledExerciseIDs"
     private let lastPlayedSeededKey = "didSeedLastPlayed"
 
     init() {
@@ -95,6 +98,7 @@ final class ExerciseStore: ObservableObject {
         loadFavourites()
         loadWhitelistOverrides()
         importBundledIfNeeded()
+        importNewBundledIfNeeded()
         adoptNoCategory()
         enforceBundledPrivacy()
         seedLastPlayedIfNeeded()
@@ -161,7 +165,74 @@ final class ExerciseStore: ObservableObject {
         guard let bundle = Self.bundledBundle else { return }
         importBundle(bundle)
         UserDefaults.standard.set(true, forKey: bundledImportedKey)
+        recordOfferedBundled(Self.bundledExerciseIDs)
     }
+
+    /// Adds the bundled exercises this install has never been given: the ones an
+    /// update shipped after its library was first seeded.
+    ///
+    /// The first import runs once per install, so without this an exercise added
+    /// to the bundle would only ever reach new installs. Each one is offered once,
+    /// under the same rule as that first import: one the user deletes afterwards
+    /// stays deleted, and one already in the library — a copy restored from the
+    /// profile, or imported — is left exactly as it is. They go in after
+    /// everything else, so each lands at the end of its category.
+    private func importNewBundledIfNeeded() {
+        guard let bundle = Self.bundledBundle else { return }
+        let offered = offeredBundledIDs
+        let new = bundle.exercises.filter { !offered.contains($0.id) }
+        guard !new.isEmpty else { return }
+        let inLibrary = Set(exercises.map(\.id))
+        let missing = new.filter { !inLibrary.contains($0.id) }
+        if !missing.isEmpty {
+            importBundle(ExerciseBundle(exercises: missing, midi: bundle.midi, texts: bundle.texts))
+        }
+        recordOfferedBundled(Set(new.map(\.id)))
+    }
+
+    /// The bundled exercises this install has been given (see `offeredBundledKey`).
+    private var offeredBundledIDs: Set<UUID> {
+        guard let stored = UserDefaults.standard.stringArray(forKey: offeredBundledKey) else {
+            // Nothing recorded: either nothing has been imported yet, or the
+            // library was seeded before the record was kept, from the bundle as
+            // it stood then.
+            return UserDefaults.standard.bool(forKey: bundledImportedKey)
+                ? Self.bundledBeforeOffersWereRecorded : []
+        }
+        return Set(stored.compactMap(UUID.init(uuidString:)))
+    }
+
+    private func recordOfferedBundled(_ ids: Set<UUID>) {
+        let offered = offeredBundledIDs.union(ids)
+        UserDefaults.standard.set(offered.map(\.uuidString).sorted(), forKey: offeredBundledKey)
+    }
+
+    /// The exercises the bundle held until `offeredBundledKey` started recording
+    /// what each install had been given (2026-09-11): what every install seeded
+    /// before then received. Frozen — an exercise bundled later is tracked by the
+    /// record instead, and one listed here is never offered again, which is what
+    /// keeps an upgrade from bringing back the ones the user deleted.
+    private static let bundledBeforeOffersWereRecorded: Set<UUID> = Set([
+        "52F6A03F-8B99-4601-820D-E9E8657D8ED3", // May
+        "A82EC056-B23E-46F6-97EA-A0E960C69C1B", // Doo Hoo
+        "4BFA2CC6-4A87-4C2B-B0D0-688042C23525", // Mum
+        "508A4B56-826C-4C7F-8A8A-EC4ADEF48F62", // Yum Ya
+        "06E2B2D0-7B6B-45C6-98FD-154B166C4B02", // Myam Myom
+        "0ECAE354-AEDE-40A4-98EF-7AADECCDC3E4", // Major Ascending
+        "AB235E23-8BCD-4D78-9468-40F0B6060DAE", // Major Descending
+        "E5B18A98-4953-4DDC-A4A3-F5EE88B58D9F", // Minor Ascending
+        "A9BB1A5C-23D2-40D2-A127-E7797C251BA0", // Minor Descending
+        "5C40BDD7-969C-43EA-BC16-E49E7CE3DFE5", // Bumblebee
+        "636D3030-BD0E-4B90-995E-49D298E897A4", // Three-Note Run
+        "6B06AD2B-680C-44BD-9372-0E305762F706", // Three-Note Run Ascending
+        "996B5E81-F3D8-4448-B26D-D2D94C780240", // Ascending Run
+        "14CE8327-CD4C-42F8-8C74-28204356D47B", // Octave Alternate Ee
+        "15863544-5AF3-4E04-BB4C-ACBD986A7CC6", // Octave Repeat Nay
+        "64B6BD4E-255C-400D-B754-5C81B098F749", // da da da speed up
+        "A3F82060-9713-424E-8B2A-C8A285E9B9FE", // Mmmm ladder
+        "24C5B25B-D49A-4A0D-9E7C-9E0F72AA8E86", // Mom Moh
+        "7A76BACA-20D0-4665-B8B8-CA9721C0CF1B", // Brrrr
+    ].compactMap(UUID.init(uuidString:)))
 
     // MARK: - Exercise list persistence
 
