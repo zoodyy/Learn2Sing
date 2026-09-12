@@ -305,19 +305,53 @@ final class ExerciseStore: ObservableObject {
     /// exercise `targetID` (or at the end of that category when `targetID` is nil).
     /// Sections in the list are rendered by filtering on `category`, so only the
     /// exercise's own `category` and its order relative to its new siblings matter.
+    ///
+    /// With one wrinkle: the Exercises tab draws a category's favourites above
+    /// the rest of it, while starring an exercise leaves it where it is in this
+    /// array — so the list a row is dropped into isn't this array's order, and
+    /// `targetID` is the row the drop landed in front of *there*. A drop aimed
+    /// across the line between the two groups — a favourite let go at the last
+    /// favourite spot, which is the spot just in front of the first plain
+    /// exercise — is carried to that line and no further. Filed against the
+    /// plain exercise itself it would land wherever that one happens to sit
+    /// here, which is usually back above the favourites it was dragged past.
     func moveExercise(_ id: UUID, toCategory category: String, before targetID: UUID?) {
         guard id != targetID,
               let from = exercises.firstIndex(where: { $0.id == id }) else { return }
         var moved = exercises.remove(at: from)
         moved.category = category
+        let isFavourite = favourites.contains(id)
         if let targetID, let to = exercises.firstIndex(where: { $0.id == targetID }) {
-            exercises.insert(moved, at: to)
+            // The two are shown side by side only when they're in the same
+            // group; otherwise the drop goes to the group's own edge.
+            let sameGroup = favourites.contains(targetID) == isFavourite
+            let at = sameGroup ? to : groupEdge(inCategory: category, favourite: isFavourite) ?? to
+            exercises.insert(moved, at: at)
         } else if let lastInCategory = exercises.lastIndex(where: { $0.category == category }) {
             exercises.insert(moved, at: lastInCategory + 1)
         } else {
             exercises.append(moved)
         }
         save()
+    }
+
+    /// Where the favourites of `category` give way to the rest of it: just after
+    /// its last favourite, or just before its first plain exercise — the same
+    /// spot from either side, since the two groups are told apart by the star
+    /// and not by where they sit in this array.
+    ///
+    /// nil when the category has nothing of the kind asked for. The exercise
+    /// being moved is then the only one of its kind there, no other row of its
+    /// group can be next to it, and the drop's own target stands.
+    private func groupEdge(inCategory category: String, favourite: Bool) -> Int? {
+        if favourite {
+            return exercises.lastIndex {
+                $0.category == category && favourites.contains($0.id)
+            }.map { $0 + 1 }
+        }
+        return exercises.firstIndex {
+            $0.category == category && !favourites.contains($0.id)
+        }
     }
 
     /// Remove a category and move its exercises into "No Category" so none are
