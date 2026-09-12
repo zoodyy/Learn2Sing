@@ -314,7 +314,12 @@ final class ProfileSync {
         profile.likedExercises = remote.likedExercises
         profile.save()
         if let bundle = remote.exercises {
-            store.importBundle(bundle)
+            // Not stamped as just added: these are the exercises the profile
+            // already had, and their dates come down with them.
+            store.importBundle(bundle, recordsDates: false)
+        }
+        if let dates = remote.exerciseDates {
+            ExerciseDates.merge(dates)
         }
         // The Home tab's own lists and the score chart's data. Merged rather than
         // replaced: a restore the server failed on is retried on a later launch,

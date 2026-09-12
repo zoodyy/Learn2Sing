@@ -9,11 +9,12 @@
 import Foundation
 
 /// Every setting that rides along in the profile ProfileSync uploads: the Audio,
-/// Visuals, Voice and Exercises categories of the Settings tab, plus the two
+/// Visuals, Voice and Exercises categories of the Settings tab, plus the
 /// preferences kept outside it — the categories hidden from the Home tab and the
-/// Community tab's sort order. Each one is read from, and written back to, the
-/// very UserDefaults key its settings screen binds to with @AppStorage, so a
-/// restored setting is indistinguishable from one picked on the device.
+/// Exercises and Community tabs' sort orders. Each one is read from, and written
+/// back to, the very UserDefaults key its settings screen binds to with
+/// @AppStorage, so a restored setting is indistinguishable from one picked on the
+/// device.
 ///
 /// Three things are deliberately absent. The app's language belongs to the device
 /// it was chosen on (Settings says as much on its row), so it is never carried.
@@ -104,6 +105,14 @@ struct UserSettings: Codable {
     var communitySort: String?
     var communitySortReversed: Bool?
 
+    // MARK: Exercises tab
+
+    /// The Exercises tab's sort order, its reverse switch and its "Ignore
+    /// Categories".
+    var exercisesSort: String?
+    var exercisesSortReversed: Bool?
+    var exercisesSortIgnoresCategories: Bool?
+
     /// The id given to the unnamed template `playbackVisuals` carries the live
     /// settings as. Fixed rather than freshly generated so two captures of an
     /// unchanged look encode identically — otherwise every upload would look like
@@ -145,7 +154,10 @@ struct UserSettings: Codable {
             recommendationWhitelist: store.recommendationWhitelist.sorted { $0.uuidString < $1.uuidString },
             hiddenHomeCategories: HomeCategories.hidden.sorted(),
             communitySort: d.string(forKey: CommunityFeed.sortKey) ?? CommunitySort.hot.rawValue,
-            communitySortReversed: d.bool(forKey: CommunityFeed.reversedKey))
+            communitySortReversed: d.bool(forKey: CommunityFeed.reversedKey),
+            exercisesSort: d.string(forKey: ExerciseSort.storageKey) ?? ExerciseSort.own.rawValue,
+            exercisesSortReversed: d.bool(forKey: ExerciseSort.reversedKey),
+            exercisesSortIgnoresCategories: d.bool(forKey: ExerciseSort.ignoresCategoriesKey))
     }
 
     /// Puts these settings back on this device: writes each one to the key its
@@ -219,5 +231,11 @@ struct UserSettings: Codable {
 
         if let communitySort { d.set(communitySort, forKey: CommunityFeed.sortKey) }
         if let communitySortReversed { d.set(communitySortReversed, forKey: CommunityFeed.reversedKey) }
+
+        if let exercisesSort { d.set(exercisesSort, forKey: ExerciseSort.storageKey) }
+        if let exercisesSortReversed { d.set(exercisesSortReversed, forKey: ExerciseSort.reversedKey) }
+        if let exercisesSortIgnoresCategories {
+            d.set(exercisesSortIgnoresCategories, forKey: ExerciseSort.ignoresCategoriesKey)
+        }
     }
 }

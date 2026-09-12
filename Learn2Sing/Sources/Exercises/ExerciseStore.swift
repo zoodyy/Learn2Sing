@@ -858,6 +858,7 @@ final class ExerciseStore: ObservableObject {
         var exercise = Exercise(name: name)
         exercise.category = Self.noCategoryName
         exercises.append(exercise)
+        ExerciseDates.markAdded([exercise.id])
         save()
         return exercise
     }
@@ -881,6 +882,7 @@ final class ExerciseStore: ObservableObject {
         exercises.append(copy)
         setNotes(notes(for: source.id), for: copy.id)
         setTexts(texts(for: source.id), for: copy.id)
+        ExerciseDates.markAdded([copy.id])
         save()
         return copy
     }
@@ -902,6 +904,7 @@ final class ExerciseStore: ObservableObject {
         UserDefaults.standard.removeObject(forKey: Self.midiKey(id))
         UserDefaults.standard.removeObject(forKey: Self.midiTextKey(id))
         ScoreHistory.delete(for: id)
+        ExerciseDates.remove(id)
         if recentlyPlayed.contains(id) {
             recentlyPlayed.removeAll { $0 == id }
             saveRecentlyPlayed()
@@ -933,6 +936,10 @@ final class ExerciseStore: ObservableObject {
             get: { self.exercises.first(where: { $0.id == id }) ?? Exercise(name: "") },
             set: { newValue in
                 guard let idx = self.exercises.firstIndex(where: { $0.id == id }) else { return }
+                // Only a write that changes something is an edit, so a field
+                // committed as it was doesn't move the exercise up "Recently
+                // Updated".
+                if self.exercises[idx] != newValue { ExerciseDates.markEdited(id) }
                 self.exercises[idx] = newValue
                 self.save()
             }
@@ -992,10 +999,15 @@ final class ExerciseStore: ObservableObject {
     /// left alone; those are reset from their own screens.
     func revertBundled(_ id: UUID) {
         guard let original = Self.bundledOriginal(id) else { return }
+        // Asked first, while the library still holds what is being undone.
+        let wasChanged = isBundledChanged(id)
         if let idx = exercises.firstIndex(where: { $0.id == id }) {
             exercises[idx] = original
+            if wasChanged { ExerciseDates.markEdited(id) }
         } else {
+            // It had been deleted, so it comes back into the library new.
             exercises.append(original)
+            ExerciseDates.markAdded([id])
         }
         setNotes(Self.bundledNotes(id), for: id)
         setTexts(Self.bundledTexts(id), for: id)
@@ -1129,22 +1141,41 @@ final class ExerciseStore: ObservableObject {
 
     /// Merges the exercises in `bundle` into the library (by id: existing ones are
     /// replaced, new ones appended), restoring their MIDI patterns too.
-    func importBundle(_ bundle: ExerciseBundle) {
+    ///
+    /// `recordsDates` stamps the exercises new to the library as just added and
+    /// the ones the import changes as just edited (see ExerciseDates). A profile
+    /// restore passes false: its exercises aren't new, and the dates they already
+    /// had come down alongside them.
+    func importBundle(_ bundle: ExerciseBundle, recordsDates: Bool = true) {
+        var added: [UUID] = []
         for var exercise in bundle.exercises {
             // Bundles written before the "No Category" group existed use "".
             if exercise.category.isEmpty { exercise.category = Self.noCategoryName }
+            let pattern = bundle.midi[exercise.id.uuidString]
+            let labels = bundle.texts?[exercise.id.uuidString]
+            // Measured before anything is replaced, against the library as it was.
+            if recordsDates {
+                if let existing = exercises.first(where: { $0.id == exercise.id }) {
+                    if isChanged(existing, into: exercise, pattern: pattern, labels: labels) {
+                        ExerciseDates.markEdited(exercise.id)
+                    }
+                } else {
+                    added.append(exercise.id)
+                }
+            }
             // Imported exercises take the order they have in the bundle: any
             // existing copy is dropped and re-appended, so importing a full
             // export reproduces its list order exactly.
             exercises.removeAll { $0.id == exercise.id }
             exercises.append(exercise)
-            if let notes = bundle.midi[exercise.id.uuidString] {
-                setNotes(notes, for: exercise.id)
+            if let pattern {
+                setNotes(pattern, for: exercise.id)
             }
-            if let texts = bundle.texts?[exercise.id.uuidString] {
-                setTexts(texts, for: exercise.id)
+            if let labels {
+                setTexts(labels, for: exercise.id)
             }
         }
+        ExerciseDates.markAdded(added)
         // Register imported categories in the order the bundle lists them (older
         // bundles carry no category list, so fall back to the order categories
         // first appear on the exercises), keeping the exported grouping order.
@@ -1153,6 +1184,19 @@ final class ExerciseStore: ObservableObject {
         }
         save()
         enforceBundledPrivacy()
+    }
+
+    /// Whether importing `imported` over `existing` changes the exercise: its
+    /// settings, or the pattern and labels the bundle carries for it. Which
+    /// category it sits in is where it is rather than what it is, so that is
+    /// left out.
+    private func isChanged(_ existing: Exercise, into imported: Exercise,
+                           pattern: [MIDINote]?, labels: [MIDIText]?) -> Bool {
+        var placed = existing
+        placed.category = imported.category
+        return placed != imported
+            || (pattern.map { $0 != notes(for: existing.id) } ?? false)
+            || (labels.map { $0 != texts(for: existing.id) } ?? false)
     }
 }
 

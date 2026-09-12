@@ -209,6 +209,9 @@ struct EditingView: View {
     // snapshot back.
     @State private var savedNotes: [MIDINote] = []
     @State private var savedTexts: [MIDIText] = []
+    /// The exercise's dates as they were when the editor opened, which leaving
+    /// without saving puts back along with the pattern (see ExerciseDates).
+    @State private var savedDates: ExerciseTimestamps?
     @State private var didLoad = false
     @State private var showOverlapWarning = false
     @Environment(\.dismiss) private var dismiss
@@ -426,6 +429,7 @@ struct EditingView: View {
             loadTexts()
             savedNotes = notes
             savedTexts = texts
+            savedDates = exercise.flatMap { ExerciseDates.timestamps(for: $0.id) }
         }
         .onDisappear {
             isPlaying = false
@@ -544,6 +548,8 @@ struct EditingView: View {
         texts = savedTexts
         writeNotes(savedNotes)
         writeTexts(savedTexts)
+        // The edits are gone, so the date they stamped goes with them.
+        if let exercise { ExerciseDates.restore(savedDates, for: exercise.id) }
         toasts.suppressNext()
         dismiss()
     }
@@ -1305,6 +1311,7 @@ struct EditingView: View {
     private func writeNotes(_ value: [MIDINote]) {
         guard let data = try? JSONEncoder().encode(value) else { return }
         UserDefaults.standard.set(data, forKey: saveKey)
+        recordEdit(if: value != savedNotes)
         scheduleServerSync()
     }
 
@@ -1320,7 +1327,16 @@ struct EditingView: View {
     private func writeTexts(_ value: [MIDIText]) {
         guard let data = try? JSONEncoder().encode(value) else { return }
         UserDefaults.standard.set(data, forKey: textSaveKey)
+        recordEdit(if: value != savedTexts)
         scheduleServerSync()
+    }
+
+    /// Stamps the exercise as just edited when a write leaves its pattern
+    /// different from how the editor found it. The editor writes back what it
+    /// loaded the moment it opens, and that isn't an edit.
+    private func recordEdit(if changed: Bool) {
+        guard changed, let exercise else { return }
+        ExerciseDates.markEdited(exercise.id)
     }
 
     /// Pattern edits write to UserDefaults directly, bypassing the store the

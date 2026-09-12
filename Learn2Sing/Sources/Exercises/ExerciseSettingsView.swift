@@ -36,6 +36,9 @@ struct ExerciseSettingsView: View {
     @State private var openState: Exercise?
     @State private var openNotes: [MIDINote] = []
     @State private var openLabels: [MIDIText] = []
+    /// The exercise's dates as this screen found them, put back with the rest so
+    /// an undo doesn't leave the exercise looking freshly edited.
+    @State private var openDates: ExerciseTimestamps?
 
     /// Whether the exercise obeyed the public-length rule when the screen
     /// opened. One that was already public and too short — published before the
@@ -122,6 +125,7 @@ struct ExerciseSettingsView: View {
                 openState = exercise
                 openNotes = notes
                 openLabels = texts
+                openDates = ExerciseDates.timestamps(for: exercise.id)
                 wasWithinLengthRuleOnOpen = exercise.visibility != .public
                     || clearsMinimumLength(exercise.contentDuration(pattern: notes))
             } else {
@@ -449,6 +453,8 @@ struct ExerciseSettingsView: View {
         // Last, so the write to the store that the server syncs watch happens
         // once the pattern they upload alongside it is back in place.
         exercise = openState
+        // After that write, which stamps the exercise as edited like any other.
+        ExerciseDates.restore(openDates, for: openState.id)
     }
 
     /// Whether another of this user's public exercises already uses this

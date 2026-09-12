@@ -11170,6 +11170,89 @@
         }
       }
     },
+    "Difficulty" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Schwierigkeit"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dificultad"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Difficulté"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Difficoltà"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "難易度"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "난이도"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Moeilijkheid"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trudność"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dificuldade"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сложность"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Svårighetsgrad"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zorluk"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "难度"
+          }
+        }
+      }
+    },
     "Difficulty:" : {
       "localizations" : {
         "de" : {
@@ -13483,6 +13566,89 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "每次重复都比上一次高这么多个半音。设为负数则向下走。"
+          }
+        }
+      }
+    },
+    "Easiest for Me" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Am leichtesten für mich"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Más fáciles para mí"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Les plus faciles pour moi"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Più facili per me"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "自分に易しい順"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "나에게 쉬운 순"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Makkelijkst voor mij"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Najłatwiejsze dla mnie"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mais fáceis para mim"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Самые лёгкие для меня"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lättast för mig"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Benim için en kolaylar"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "对我最简单"
           }
         }
       }
@@ -20935,6 +21101,88 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "匈牙利小调下行"
+          }
+        }
+      }
+    },
+    "Ignore Categories" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kategorien ignorieren"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ignorar categorías"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ignorer les catégories"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ignora categorie"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "カテゴリを無視"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "분류 무시"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Categorieën negeren"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ignoruj kategorie"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ignorar categorias"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Без учёта категорий"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ignorera kategorier"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kategorileri yok say"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "忽略分类"
           }
         }
       }
@@ -34172,6 +34420,89 @@
         }
       }
     },
+    "Own Sorting" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eigene Sortierung"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Orden propio"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ordre personnel"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ordine personale"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "自分の並び順"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "내 순서"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eigen volgorde"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Własna kolejność"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ordem própria"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Свой порядок"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Egen ordning"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kendi sıralamam"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "自定义排序"
+          }
+        }
+      }
+    },
     "Pauses the exercise. Tap again to carry on from where you stopped." : {
       "extractionState" : "stale",
       "localizations" : {
@@ -43094,6 +43425,89 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "自动为你设置下方的延迟：每个完整播放到结束的练习都会按所有可能的延迟计分，并保留得分最高的那个。关闭后可以自己测量延迟并手动输入。"
+          }
+        }
+      }
+    },
+    "Sets the order the exercises come in, within each category or in one list with “Ignore Categories”. Only “Own Sorting” lets you drag exercises into place, and keeps favourites at the top." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Legt fest, in welcher Reihenfolge die Übungen stehen, innerhalb jeder Kategorie oder mit „Kategorien ignorieren“ in einer einzigen Liste. Nur bei „Eigene Sortierung“ lassen sich Übungen an ihren Platz ziehen, und nur dort stehen Favoriten oben."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Define el orden en que aparecen los ejercicios, dentro de cada categoría o en una sola lista con «Ignorar categorías». Solo «Orden propio» te deja arrastrar los ejercicios a su sitio y mantiene los favoritos arriba."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Définit l’ordre des exercices, dans chaque catégorie ou en une seule liste avec « Ignorer les catégories ». Seul « Ordre personnel » permet de glisser les exercices à leur place et garde les favoris en haut."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Imposta l’ordine in cui compaiono gli esercizi, dentro ogni categoria o in un unico elenco con “Ignora categorie”. Solo “Ordine personale” ti permette di trascinare gli esercizi al loro posto e tiene i preferiti in cima."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "エクササイズの並び順を、カテゴリごと、または「カテゴリを無視」で1つのリストとして決めます。ドラッグで並べ替えられ、お気に入りが上に来るのは「自分の並び順」のときだけです。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "연습이 나열되는 순서를 분류마다, 또는 “분류 무시”로 하나의 목록에서 정합니다. 끌어서 순서를 바꾸고 즐겨찾기를 맨 위에 두는 것은 “내 순서”에서만 됩니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bepaalt de volgorde van de oefeningen, binnen elke categorie of in één lijst met ‘Categorieën negeren’. Alleen bij ‘Eigen volgorde’ kun je oefeningen op hun plek slepen en staan favorieten bovenaan."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ustala kolejność ćwiczeń w każdej kategorii albo na jednej liście z „Ignoruj kategorie”. Tylko „Własna kolejność” pozwala przeciągać ćwiczenia na miejsce i trzyma ulubione na górze."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Define a ordem em que os exercícios aparecem, dentro de cada categoria ou em uma única lista com “Ignorar categorias”. Só “Ordem própria” permite arrastar os exercícios para o lugar e mantém os favoritos no topo."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Задаёт порядок упражнений внутри каждой категории или одним списком с «Без учёта категорий». Только в режиме «Свой порядок» упражнения можно перетаскивать, а избранные остаются наверху."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bestämmer ordningen övningarna visas i, inom varje kategori eller i en enda lista med ”Ignorera kategorier”. Bara ”Egen ordning” låter dig dra övningarna på plats och håller favoriterna överst."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Egzersizlerin sırasını her kategorinin içinde ya da “Kategorileri yok say” ile tek bir listede belirler. Egzersizleri sürükleyip yerleştirmek ve favorileri üstte tutmak yalnızca “Kendi sıralamam” ile olur."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "设置练习的排列顺序，可在每个分类内排列，也可用“忽略分类”排成一个列表。只有“自定义排序”能拖动练习调整位置，并让收藏保持在最上面。"
           }
         }
       }

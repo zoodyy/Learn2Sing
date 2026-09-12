@@ -65,6 +65,11 @@ struct UserProfile: Codable {
     /// the level it left off at. Optional so profiles written before it existed
     /// still decode.
     var skillLevel: Double? = nil
+    /// When each exercise came into the library and was last changed, keyed by
+    /// exercise UUID string: what the Exercises tab's "Newest First" and
+    /// "Recently Updated" sort by. Optional so profiles written before the dates
+    /// were recorded still decode.
+    var exerciseDates: [String: ExerciseTimestamps]? = nil
 
     static var fileURL: URL {
         FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
@@ -85,9 +90,10 @@ struct UserProfile: Codable {
 
     /// Fills in the parts of the profile that live outside the profile file: the
     /// exercise library, the Home tab's category order, routines and favourites,
-    /// every exercise's score history, the practice calendar, the settings, and
-    /// the singer's skill level. Used for both the copy ProfileSync uploads and
-    /// the file the profile screen shares.
+    /// every exercise's score history, the practice calendar, the settings, the
+    /// singer's skill level, and when each exercise was added and last edited.
+    /// Used for both the copy ProfileSync uploads and the file the profile screen
+    /// shares.
     mutating func snapshot(_ store: ExerciseStore) {
         exercises = store.exportBundle()
         homeCategoryOrder = HomeCategories.stored
@@ -98,6 +104,11 @@ struct UserProfile: Codable {
         practice = PracticeLog.doc()
         settings = UserSettings.capturingCurrent(store: store)
         skillLevel = SkillLevelStore.shared.level
+        // Only the library's own, so dates a restore brought for exercises that
+        // aren't here don't travel on.
+        let libraryIDs = Set(store.exercises.map(\.id.uuidString))
+        let dates = ExerciseDates.all().filter { libraryIDs.contains($0.key) }
+        exerciseDates = dates.isEmpty ? nil : dates
     }
 
     func jsonData() -> Data? {

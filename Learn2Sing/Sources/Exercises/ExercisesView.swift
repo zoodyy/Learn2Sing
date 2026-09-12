@@ -447,6 +447,30 @@ struct ExercisesView: View {
     /// relaunch would look like exercises had gone missing.
     @State private var activeFilters: Set<ExerciseFilter> = []
 
+    /// The order the list is shown in, picked from the toolbar's sort menu.
+    /// Persisted, like the Community tab's order and unlike the filters above:
+    /// an order hides nothing, so one that outlives a relaunch can't make
+    /// exercises look lost.
+    @AppStorage(ExerciseSort.storageKey) private var sort: ExerciseSort = .own
+    /// The sort menu's reverse switch, persisted alongside the order it flips.
+    /// Hidden rather than reset on "Own Sorting", which ignores it, so it comes
+    /// back as it was left.
+    @AppStorage(ExerciseSort.reversedKey) private var isReversed = false
+    /// The sort menu's "Ignore Categories" pick, kept the same way as the reverse
+    /// switch. See `ignoresCategories` for whether it applies.
+    @AppStorage(ExerciseSort.ignoresCategoriesKey) private var isIgnoringCategories = false
+
+    /// Whether the list is one run of every exercise with no category headers:
+    /// "Ignore Categories" as it applies to the current order. Never on "Own
+    /// Sorting", which is arranged inside the categories.
+    private var ignoresCategories: Bool {
+        sort.canIgnoreCategories && isIgnoringCategories
+    }
+
+    /// The difficulties "Difficulty" puts the list in order by. Observed so the
+    /// list sorts again when they arrive from the server, or a run moves them.
+    @ObservedObject private var skillLevels = SkillLevelStore.shared
+
     /// The search field's text. Unlike the Community tab's field — which also
     /// looks up uploaders — this one only matches exercise names and descriptions,
     /// since everything here is the user's own.
@@ -496,25 +520,56 @@ struct ExercisesView: View {
     /// order, empty ones included) plus the uncategorized group — exercises with
     /// no category, or whose category was deleted, so none are ever lost from the
     /// list — at the end, ready to hand to the UIKit-backed list that does the
-    /// rendering and drag & drop.
+    /// rendering and drag & drop. With "Ignore Categories" on, one unheaded
+    /// section holding every exercise instead.
     private var listSections: [ExerciseListSection] {
         let favourites = Set(store.favourites)
-        // Favourites first, each group in the order the library holds it, so a
-        // starred exercise rises to the top of its category and the rest of the
-        // category keeps the arrangement the user dragged it into. A category is
-        // still a category: nothing moves out of one.
+        let isOwnSorting = sort == .own
+        // In the user's own order, favourites first, each group in the order the
+        // library holds it, so a starred exercise rises to the top of its
+        // category and the rest of the category keeps the arrangement the user
+        // dragged it into. Any other order is the order itself: a favourite is
+        // placed like every other exercise, still wearing its star. A category
+        // is still a category either way: nothing moves out of one.
         func rows(_ exercises: [Exercise]) -> [ExerciseListRow] {
-            let sorted = exercises.filter { favourites.contains($0.id) }
-                + exercises.filter { !favourites.contains($0.id) }
-            return sorted.map {
+            let arranged = isOwnSorting
+                ? exercises.filter { favourites.contains($0.id) }
+                    + exercises.filter { !favourites.contains($0.id) }
+                : exercises
+            return arranged.map {
                 ExerciseListRow(exercise: $0, pattern: store.notes(for: $0.id),
                                 isFavourite: favourites.contains($0.id))
             }
         }
-        let exercises = filteredExercises
+        // Put in order once, as a whole. Every group below is drawn out of this
+        // with `filter`, which keeps the order, so each category comes out in
+        // the picked order within itself and the single list in it across the
+        // whole library.
+        let exercises = sort.ordered(filteredExercises, reversed: isReversed,
+                                     hardness: skillLevels.hardness)
         let query = self.query
         let isSearching = !query.isEmpty
         let isFiltering = !activeFilters.isEmpty || isSearching
+
+        if ignoresCategories {
+            // Listed by exactly the rule the categorised list uses, so switching
+            // "Ignore Categories" on only takes the headers away: an exercise
+            // found through its category's name is still found, just without
+            // that name above it.
+            let listed = isSearching
+                ? exercises.filter {
+                    matchesQuery($0, query)
+                        || (store.categories.contains($0.category)
+                            && matchesQuery(category: $0.category, query))
+                }
+                : exercises
+            guard !listed.isEmpty else { return [] }
+            return [ExerciseListSection(category: "",
+                                        isCollapsed: false,
+                                        totalCount: listed.count,
+                                        items: rows(listed))]
+        }
+
         var result: [ExerciseListSection] = []
         for category in store.categories {
             let inCategory = exercises.filter { $0.category == category }
@@ -711,9 +766,12 @@ struct ExercisesView: View {
                         onHeaderLongPress: {
                             navigationPath.append(ExerciseRoute.editCategories)
                         },
-                        onMove: { id, category, before in
+                        // Only the user's own arrangement can be dragged into
+                        // shape: under any other order a dropped row would
+                        // spring straight back to where the order puts it.
+                        onMove: sort == .own ? { id, category, before in
                             store.moveExercise(id, toCategory: category, before: before)
-                        },
+                        } : nil,
                         onDragChange: { isDraggingExercise = $0 },
                         hidesSearchBarInitially: true,
                         highlightedID: highlightedExerciseID,
@@ -806,6 +864,11 @@ struct ExercisesView: View {
                     .accessibilityLabel("Filter")
                     .explain(L("Narrows the list to where the exercises came from, to the ones you have shared, or to your favourites. The button is filled in while a filter is on."))
                 }
+                // After the filter, where the Community tab has its own.
+                ToolbarItem(placement: .topBarTrailing) {
+                    ExerciseSortMenu(sort: $sort, isReversed: $isReversed,
+                                     ignoresCategories: $isIgnoringCategories)
+                }
             }
             // On the list itself rather than on the tab, so the tab being opened
             // and a pushed screen being left both ask for the hint.
@@ -891,5 +954,45 @@ struct ExercisesView: View {
                 }
             }
         }
+    }
+}
+
+/// The toolbar's order menu, built like the Community tab's: the orders, the
+/// reverse switch under them, and "Ignore Categories" at the bottom. Neither
+/// switch is offered on "Own Sorting" (see `ExerciseSort.isReversible` and
+/// `canIgnoreCategories`), and both are hidden there rather than turned off, so
+/// they come back as they were left.
+private struct ExerciseSortMenu: View {
+    @Binding var sort: ExerciseSort
+    @Binding var isReversed: Bool
+    @Binding var ignoresCategories: Bool
+
+    var body: some View {
+        Menu {
+            Picker("Sort By", selection: $sort) {
+                ForEach(ExerciseSort.allCases) { option in
+                    Label(option.label, systemImage: option.systemImage)
+                        .tag(option)
+                }
+            }
+            if sort.isReversible {
+                Section {
+                    Toggle(isOn: $isReversed) {
+                        Label("Reverse Order", systemImage: "arrow.up.arrow.down")
+                    }
+                }
+            }
+            if sort.canIgnoreCategories {
+                Section {
+                    Toggle(isOn: $ignoresCategories) {
+                        Label("Ignore Categories", systemImage: "list.bullet")
+                    }
+                }
+            }
+        } label: {
+            Image(systemName: "arrow.up.arrow.down.circle")
+        }
+        .accessibilityLabel("Sort")
+        .explain(L("Sets the order the exercises come in, within each category or in one list with “Ignore Categories”. Only “Own Sorting” lets you drag exercises into place, and keeps favourites at the top."))
     }
 }

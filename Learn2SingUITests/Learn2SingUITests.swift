@@ -74,6 +74,9 @@ final class Learn2SingUITests: XCTestCase {
         /// compared by the rows they happen to be showing. An open category
         /// hides its count (unless it is empty) and so isn't in here.
         var counts: [String: Int] = [:]
+        /// Every row on screen, top to bottom, whichever header it sits under:
+        /// the only reading a list with no headers at all has.
+        var rows: [String] = []
     }
 
     private func snapshotList(_ app: XCUIApplication) -> ListSnapshot {
@@ -123,7 +126,8 @@ final class Learn2SingUITests: XCTestCase {
             }), abs(match.y - header.y) < 5 else { continue }
             counts[header.label] = match.count
         }
-        return ListSnapshot(headers: headerRows.map(\.label), items: items, counts: counts)
+        return ListSnapshot(headers: headerRows.map(\.label), items: items, counts: counts,
+                            rows: cellRows.sorted { $0.y < $1.y }.map(\.label))
     }
 
     private func cell(_ app: XCUIApplication, named name: String) -> XCUIElement {
@@ -1733,6 +1737,107 @@ final class Learn2SingUITests: XCTestCase {
         header(app, named: starredCategory).tap()
         sleep(1)
         setFavourite(app, target, to: false)
+    }
+
+    /// The sort menu: "Alphabetical" puts each category's rows in A-to-Z order,
+    /// "Reverse Order" turns that around, "Ignore Categories" takes the headers
+    /// away for one list in the same order, and "Own Sorting" brings the
+    /// categories back with neither switch on offer. The picks are remembered
+    /// (and synced), so the run reads what an earlier failed run may have left
+    /// switched on rather than assuming it, and finishes on "Own Sorting" with
+    /// both switches off.
+    func testExerciseSortMenu() throws {
+        let app = openExercises()
+        sleep(2)
+
+        func openSortMenu() {
+            app.navigationBars["Exercises"].buttons["Sort"].firstMatch.tap()
+            XCTAssertTrue(app.buttons["Own Sorting"].firstMatch.waitForExistence(timeout: 3),
+                          "sort menu did not open")
+        }
+        /// One pick per opening: choosing from the menu closes it.
+        func pick(_ option: String) {
+            openSortMenu()
+            app.buttons[option].firstMatch.tap()
+            sleep(1)
+        }
+        /// Whether `names` run A to Z (or Z to A), compared the way the app
+        /// compares them in English.
+        func inOrder(_ names: [String], descending: Bool) -> Bool {
+            zip(names, names.dropFirst()).allSatisfy { first, second in
+                let result = first.compare(second, options: [.caseInsensitive, .numeric, .widthInsensitive],
+                                           range: nil, locale: Locale(identifier: "en"))
+                return result == .orderedSame
+                    || result == (descending ? .orderedDescending : .orderedAscending)
+            }
+        }
+
+        // The user's own arrangement, with neither switch on offer.
+        pick("Own Sorting")
+        let own = snapshotList(app)
+        XCTAssertFalse(own.headers.isEmpty, "Own Sorting should list the categories")
+        openSortMenu()
+        saveScreenshot("sort-menu-own")
+        XCTAssertFalse(app.buttons["Reverse Order"].firstMatch.exists,
+                       "Own Sorting should not offer Reverse Order")
+        XCTAssertFalse(app.buttons["Ignore Categories"].firstMatch.exists,
+                       "Own Sorting should not offer Ignore Categories")
+        app.buttons["Own Sorting"].firstMatch.tap()   // closes the menu, changing nothing
+        sleep(1)
+
+        pick("Alphabetical")
+        if snapshotList(app).headers.isEmpty { pick("Ignore Categories") }   // left on earlier
+        var sorted = snapshotList(app)
+        XCTAssertEqual(sorted.headers, own.headers, "sorting should leave the categories where they are")
+        guard let category = sorted.headers.first(where: { (sorted.items[$0]?.count ?? 0) >= 3 }) else {
+            XCTFail("no open category with three rows to compare"); return
+        }
+        if !inOrder(sorted.items[category] ?? [], descending: false) {
+            pick("Reverse Order")   // left on earlier
+            sorted = snapshotList(app)
+        }
+        openSortMenu()
+        saveScreenshot("sort-menu-alphabetical")
+        XCTAssertTrue(app.buttons["Reverse Order"].firstMatch.exists,
+                      "Alphabetical should offer Reverse Order")
+        XCTAssertTrue(app.buttons["Ignore Categories"].firstMatch.exists,
+                      "Alphabetical should offer Ignore Categories")
+        app.buttons["Alphabetical"].firstMatch.tap()   // closes the menu, changing nothing
+        sleep(1)
+        saveScreenshot("sort-alphabetical")
+        XCTAssertTrue(inOrder(sorted.items[category] ?? [], descending: false),
+                      "\(category) should run A to Z: \(sorted.items[category] ?? [])")
+
+        pick("Reverse Order")
+        let reversed = snapshotList(app)
+        saveScreenshot("sort-alphabetical-reversed")
+        XCTAssertTrue(inOrder(reversed.items[category] ?? [], descending: true),
+                      "\(category) should run Z to A: \(reversed.items[category] ?? [])")
+        XCTAssertNotEqual(reversed.items[category], sorted.items[category],
+                          "Reverse Order should have turned \(category) around")
+        pick("Reverse Order")
+
+        // One list, no headers, A to Z across every category.
+        pick("Ignore Categories")
+        let flat = snapshotList(app)
+        saveScreenshot("sort-ignore-categories")
+        XCTAssertTrue(flat.headers.isEmpty, "Ignore Categories should drop the headers, found \(flat.headers)")
+        XCTAssertGreaterThanOrEqual(flat.rows.count, 3, "the single list should show exercises")
+        XCTAssertTrue(inOrder(flat.rows, descending: false), "the single list should run A to Z: \(flat.rows)")
+
+        // Own Sorting brings the categories back, arranged as they were, even
+        // with "Ignore Categories" still remembered as on.
+        pick("Own Sorting")
+        let back = snapshotList(app)
+        XCTAssertEqual(back.headers, own.headers, "Own Sorting should bring the categories back")
+        XCTAssertEqual(back.items[category], own.items[category],
+                       "Own Sorting should put \(category) back in the user's own order")
+
+        // Leave the remembered switch off for whoever picks an order next.
+        pick("Alphabetical")
+        pick("Ignore Categories")
+        XCTAssertFalse(snapshotList(app).headers.isEmpty, "Ignore Categories should be off again")
+        pick("Own Sorting")
     }
 
     /// Star or un-star an exercise the way the app offers it: the star on the
