@@ -6,7 +6,9 @@ import Foundation
 /// combine like this: within a group the picks are OR'd, across groups they're
 /// AND'd, and a group with nothing picked doesn't restrict anything. So
 /// "Bundled + Public" means every bundled *and* every public exercise, while
-/// "Own + Public" means only the user's own public ones.
+/// "Own + Public" means only the user's own public ones. The visibility group is
+/// the exception to the OR: its two picks exclude each other in the menu, so it
+/// never holds more than one.
 enum ExerciseFilter: String, CaseIterable, Identifiable {
     case bundled     // shipped with the app
     case community   // downloaded from the Community tab
@@ -19,7 +21,10 @@ enum ExerciseFilter: String, CaseIterable, Identifiable {
 
     /// Where an exercise came from. Every exercise matches exactly one of these.
     static let sourceCases: [ExerciseFilter] = [.bundled, .community, .own]
-    /// Whether an exercise is shared on the Community tab.
+    /// Whether an exercise is shared on the Community tab. Every exercise is
+    /// exactly one of the two, so the menu keeps them mutually exclusive — both
+    /// on would narrow nothing, which reads as a broken filter rather than as
+    /// "show everything".
     static let visibilityCases: [ExerciseFilter] = [.public, .private]
     /// A group of its own, with the one pick in it: the favourites. Kept apart
     /// from the two above so it narrows whatever they leave rather than widening

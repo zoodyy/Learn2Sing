@@ -573,12 +573,17 @@ struct ExercisesView: View {
         navigationPath.append(ExerciseRoute.play(id))
     }
 
-    /// Menu toggle state for one filter.
+    /// Menu toggle state for one filter. Public and Private exclude each other:
+    /// an exercise is exactly one of the two, so having both on would narrow
+    /// nothing — picking one drops the other instead.
     private func filterBinding(_ filter: ExerciseFilter) -> Binding<Bool> {
         Binding(
             get: { activeFilters.contains(filter) },
             set: { isOn in
                 if isOn {
+                    if ExerciseFilter.visibilityCases.contains(filter) {
+                        activeFilters.subtract(ExerciseFilter.visibilityCases)
+                    }
                     activeFilters.insert(filter)
                 } else {
                     activeFilters.remove(filter)
