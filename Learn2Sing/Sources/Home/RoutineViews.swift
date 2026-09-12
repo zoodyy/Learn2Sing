@@ -379,97 +379,14 @@ struct RoutineIntroView: View {
     }
 }
 
-/// Edit screen for the favourites list, reached from the + button in the Home
-/// tab's "Favourites" header. The same layout as the edit-routine screen —
-/// draggable rows, a trash toggle that swaps the drag handles for delete
-/// buttons, and a + button pushing the exercise picker — minus the name field,
-/// since the built-in category can't be renamed.
-struct FavouritesEditView: View {
-    /// Re-renders this screen when the language is changed in Settings; the
-    /// strings are resolved when the body runs, so SwiftUI needs telling.
-    @ObservedObject private var appLanguage = LanguageManager.shared
-
-    @EnvironmentObject private var store: ExerciseStore
-    /// Called by the + button; the Home stack pushes the exercise picker.
-    let onAddExercises: () -> Void
-
-    /// Always active so the exercise rows show drag handles, exactly like the
-    /// edit-routine screen; turned off while deleting (see below).
-    @State private var editMode: EditMode = .active
-
-    /// True while the drag handles are swapped for per-row delete buttons.
-    /// Toggled by the trash toolbar button.
-    @State private var isDeletingExercises = false
-
-    private func exerciseRow(_ exerciseID: UUID) -> some View {
-        HStack {
-            Text(store.exercises.first { $0.id == exerciseID }?.localizedName ?? "")
-                .frame(maxWidth: .infinity, alignment: .leading)
-            if isDeletingExercises {
-                Button {
-                    withAnimation { store.removeFavourite(exerciseID) }
-                } label: {
-                    Image(systemName: "minus.circle.fill")
-                        .foregroundStyle(.red)
-                }
-                .buttonStyle(.borderless)
-            }
-        }
-        .settingHelp(L("Your favourite exercises, in the order the Home tab shows them. Drag by the handle on the right to rearrange them."))
-    }
-
-    /// Swap the rows' drag handles for delete buttons and back. Edit mode is what
-    /// makes the List show drag handles, so it's turned off while deleting.
-    private func toggleDeleteMode() {
-        withAnimation {
-            isDeletingExercises.toggle()
-            editMode = isDeletingExercises ? .inactive : .active
-        }
-    }
-
-    var body: some View {
-        List {
-            Section {
-                ForEach(store.favourites, id: \.self) { exerciseID in
-                    exerciseRow(exerciseID)
-                }
-                .onMove { source, destination in
-                    store.moveFavourites(from: source, to: destination)
-                }
-            }
-        }
-        .environment(\.editMode, $editMode)
-        .navigationTitle(L("Edit Favourites"))
-        .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
-            ToolbarItem(placement: .topBarTrailing) {
-                Button {
-                    toggleDeleteMode()
-                } label: {
-                    Image(systemName: isDeletingExercises ? "trash.fill" : "trash")
-                }
-                .explain(L("Swaps the drag handles for delete buttons, to take exercises off this list. They stay in your library."))
-            }
-            ToolbarItem(placement: .topBarTrailing) {
-                Button {
-                    onAddExercises()
-                } label: {
-                    Image(systemName: "plus")
-                }
-                .explain(L("Opens your library, where you tick the exercises this list is made of."))
-            }
-        }
-    }
-}
-
 /// Multi-select exercise picker, reached from an edit screen's + button. The
 /// same categorized list as the Exercises tab (tap a header to collapse), but
 /// rows can't be started, edited, or dragged — tapping one toggles its
 /// membership in the target list, shown by a leading check circle. Changes
-/// apply immediately, so leaving the screen "adds" the selection. Shared by
-/// the edit-routine and edit-favourites screens and the recommendation
-/// whitelist, which titles it differently because it deselects as much as it
-/// adds — and by the sung delay test, which picks a single exercise.
+/// apply immediately, so leaving the screen "adds" the selection. Shared by the
+/// edit-routine screen and the recommendation whitelist, which titles it
+/// differently because it deselects as much as it adds — and by the sung delay
+/// test, which picks a single exercise.
 struct ExerciseMultiPickerList: View {
     /// Re-renders this screen when the language is changed in Settings; the
     /// strings are resolved when the body runs, so SwiftUI needs telling.
@@ -550,19 +467,6 @@ struct RoutineExercisePickerView: View {
         ExerciseMultiPickerList(
             selectedIDs: Set(store.routines.first(where: { $0.id == routineID })?.exerciseIDs ?? []),
             onToggle: { store.toggleExercise($0, in: routineID) }
-        )
-    }
-}
-
-/// The exercise picker for the favourites list, reached from the
-/// edit-favourites screen's + button.
-struct FavouritesExercisePickerView: View {
-    @EnvironmentObject private var store: ExerciseStore
-
-    var body: some View {
-        ExerciseMultiPickerList(
-            selectedIDs: Set(store.favourites),
-            onToggle: { store.toggleFavourite($0) }
         )
     }
 }

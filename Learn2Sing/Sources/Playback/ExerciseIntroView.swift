@@ -4,11 +4,16 @@ import SwiftUI
 /// exercise's description so the singer knows what to do, with a button to start.
 /// When opened from the Community tab a like button sits above the Download
 /// button, on the trailing edge, and Download copies the exercise into the user's
-/// own library (the Exercises tab).
+/// own library (the Exercises tab). Opened from that tab, the same spot holds
+/// the star that makes the exercise a favourite instead.
 struct ExerciseIntroView: View {
     /// Re-renders this screen when the language is changed in Settings; the
     /// strings are resolved when the body runs, so SwiftUI needs telling.
     @ObservedObject private var appLanguage = LanguageManager.shared
+
+    /// Where the favourite button writes to, and what it reads its own state
+    /// from. Also what redraws this screen when the star is tapped.
+    @EnvironmentObject private var store: ExerciseStore
 
     let exercise: Exercise
     /// Whether to ask the server how hard this exercise is and draw the stars.
@@ -18,6 +23,12 @@ struct ExerciseIntroView: View {
     /// Public id of the community exercise the like button acts on; nil (every
     /// tab but Community) hides the button.
     var likeID: UUID? = nil
+    /// Whether the star that marks this exercise a favourite is shown, in the
+    /// spot the Community tab's like button sits in. Set by the Exercises tab,
+    /// which is where the library is kept; false everywhere else, including for
+    /// exercises that aren't in the library at all and so can't be favourites
+    /// (Community's, and the audio delay test's stand-in).
+    var showsFavourite = false
     /// Whoever uploaded this exercise, shown under the title as the "Created by"
     /// line. Empty (every tab but Community, where an exercise in the library is
     /// the user's own) leaves the line out.
@@ -140,6 +151,13 @@ struct ExerciseIntroView: View {
                     downloadCount(for: likeID)
                     Spacer()
                     likeButton(for: likeID)
+                }
+                .padding(.horizontal)
+                .padding(.bottom, 8)
+            } else if showsFavourite {
+                HStack(spacing: 8) {
+                    Spacer()
+                    favouriteButton
                 }
                 .padding(.horizontal)
                 .padding(.bottom, 8)
@@ -332,6 +350,31 @@ struct ExerciseIntroView: View {
         .accessibilityLabel(isLiked ? L("Unlike") : L("Like"))
         .accessibilityValue(L("%d likes", count))
         .explain(L("Tap the heart to like this exercise. The number is how many users have."))
+    }
+
+    /// The star that makes this exercise a favourite, in the same spot on the
+    /// same capsule as the Community tab's like button, since the two are the
+    /// same kind of answer to an exercise. It marks the user's own library
+    /// rather than the server, so there is no count beside it and no round trip
+    /// behind it: the star fills in the app's accent colour, the Exercises tab
+    /// lists the exercise at the top of its category, and the Home tab's
+    /// "Favourites" picks it up.
+    private var favouriteButton: some View {
+        let isFavourite = store.favourites.contains(exercise.id)
+        return Button {
+            withAnimation(.snappy) { store.toggleFavourite(exercise.id) }
+        } label: {
+            Image(systemName: isFavourite ? "star.fill" : "star")
+                .symbolEffect(.bounce, value: isFavourite)
+                .font(.headline)
+                .foregroundStyle(isFavourite ? Color.accentColor : Color.secondary)
+                .padding(.horizontal, 14)
+                .padding(.vertical, 8)
+                .background(.fill.tertiary, in: Capsule())
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(isFavourite ? L("Remove Favourite") : L("Favourite"))
+        .explain(L("Tap the star to make this exercise a favourite. Favourites come first in their category on the Exercises tab and fill the Home tab's “Favourites”."))
     }
 
     /// How often this exercise has been downloaded — the same number the

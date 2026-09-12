@@ -53,6 +53,11 @@ struct ExerciseListRow: Equatable {
     /// nil hides the selection mark; true/false draws a filled/empty circle on
     /// the row's leading edge (the routine exercise picker).
     var isSelected: Bool? = nil
+    /// true draws a star in the app's accent colour just before the name, for a
+    /// favourite exercise (Exercises tab, where the favourites also sort to the
+    /// top of their category). Not set on the Home tab's "Favourites", where a
+    /// star on every row of a starred category says nothing.
+    var isFavourite = false
     /// Title and symbol of the leading "Settings" swipe action, so rows that
     /// aren't exercises (routines on the Home tab) can label it differently.
     var swipeActionTitle = L("Settings")
@@ -89,6 +94,10 @@ struct ExerciseListSection: Equatable {
     /// false drops the collapse chevron from the header, for sections that only
     /// label a group and can't be collapsed (the Community search results).
     var showsChevron = true
+    /// A symbol drawn in the app's accent colour just before the header's name,
+    /// or nil for a plain one. The Home tab's "Favourites" wears the same star
+    /// its exercises wear on the Exercises tab.
+    var nameSymbol: String? = nil
     /// What the header reads, when it isn't the category name itself. `category`
     /// stays the English identifier the sections are diffed and grouped by, so a
     /// section whose heading is a fixed piece of UI text (the Community search
@@ -525,7 +534,26 @@ final class ExerciseListController: UIViewController {
                 content.text = row?.exercise.localizedName
                 cell.contentConfiguration = content
             }
+            cell.keepsSeparatorAtMargin = row?.isFavourite == true
             var accessories: [UICellAccessory] = []
+            if row?.isFavourite == true {
+                // Wrapped in a plain view for the same reason the selection mark
+                // below is: a bare UIImageView as the accessory makes
+                // accessibility expose the whole row as an Image rather than as
+                // a cell, which breaks VoiceOver and the UI tests alike.
+                let star = UIImageView(image: UIImage(systemName: "star.fill"))
+                star.preferredSymbolConfiguration = UIImage.SymbolConfiguration(textStyle: .subheadline)
+                star.tintColor = UIColor(named: "AccentColor") ?? .tintColor
+                star.sizeToFit()
+                let container = UIView(frame: star.bounds)
+                container.addSubview(star)
+                accessories.append(.customView(configuration: .init(
+                    customView: container,
+                    placement: .leading(),
+                    reservedLayoutWidth: .actual,
+                    maintainsFixedSize: true
+                )))
+            }
             if let isSelected = row?.isSelected {
                 // The picker's selection mark, mimicking the system multi-select
                 // circles: filled blue checkmark when selected, hollow grey when
@@ -808,7 +836,8 @@ final class ExerciseListController: UIViewController {
         header.configure(name: section.displayName ?? ExerciseCategoryName.localized(section.category),
                          count: section.totalCount,
                          isCollapsed: section.isCollapsed, showsCount: section.showsCount,
-                         showsChevron: section.showsChevron, animated: animated)
+                         showsChevron: section.showsChevron, symbol: section.nameSymbol,
+                         animated: animated)
         header.onTap = { [weak self] in self?.onToggleCollapse?(section.category) }
         header.onLongPress = { [weak self] in self?.onHeaderLongPress?() }
         header.onAdd = section.showsAdd ? { [weak self] in self?.onAdd?(section.category) } : nil
@@ -1521,6 +1550,22 @@ private final class ExerciseListCell: UICollectionViewListCell {
         get { super.alpha }
         set { super.alpha = list?.hasRowInTheAir == true && !isHidden ? 1 : newValue }
     }
+
+    /// Made once and then switched on and off, since a cell is reused for rows
+    /// that want it and rows that don't.
+    private lazy var separatorAtMargin: NSLayoutConstraint = separatorLayoutGuide.leadingAnchor
+        .constraint(equalTo: layoutMarginsGuide.leadingAnchor)
+
+    /// Where this row's separator starts. UIKit tucks it in behind whatever a
+    /// leading accessory takes up, which is right for a list where every row has
+    /// one and wrong here: only the favourites wear a star, and their separators
+    /// would be the only indented ones in the category.
+    var keepsSeparatorAtMargin = false {
+        didSet {
+            guard keepsSeparatorAtMargin != oldValue else { return }
+            separatorAtMargin.isActive = keepsSeparatorAtMargin
+        }
+    }
 }
 
 // MARK: - Name + uploader cell content
@@ -1757,6 +1802,9 @@ final class ExerciseSectionHeaderView: UICollectionReusableView {
     private let countLabel = UILabel()
     private let addButton = UIButton(type: .system)
     private let chevron = UIImageView()
+    /// The accent-coloured symbol some categories wear in front of their name
+    /// (the Home tab's "Favourites"); hidden for the rest.
+    private let symbolView = UIImageView()
     private var isCollapsed = false
 
     override init(frame: CGRect) {
@@ -1775,6 +1823,11 @@ final class ExerciseSectionHeaderView: UICollectionReusableView {
         chevron.preferredSymbolConfiguration = UIImage.SymbolConfiguration(font: headerDefaults.textProperties.font)
         chevron.tintColor = .tertiaryLabel
         chevron.setContentHuggingPriority(.required, for: .horizontal)
+        symbolView.preferredSymbolConfiguration =
+            UIImage.SymbolConfiguration(font: headerDefaults.textProperties.font)
+        symbolView.tintColor = UIColor(named: "AccentColor") ?? .tintColor
+        symbolView.setContentHuggingPriority(.required, for: .horizontal)
+        symbolView.isHidden = true
 
         // A grey circle behind the + marks it as tappable, the same way the like
         // button on the exercise intro sits on a `.fill.tertiary` capsule.
@@ -1802,10 +1855,14 @@ final class ExerciseSectionHeaderView: UICollectionReusableView {
 
         let spacer = UIView()
         spacer.setContentHuggingPriority(.defaultLow, for: .horizontal)
-        let stack = UIStackView(arrangedSubviews: [nameLabel, addButton, countLabel, spacer, chevron])
+        let stack = UIStackView(arrangedSubviews: [symbolView, nameLabel, addButton, countLabel,
+                                                   spacer, chevron])
         stack.axis = .horizontal
         stack.alignment = .center
         stack.spacing = 8
+        // The symbol belongs to the name it stands in front of, so it sits
+        // closer to it than the rest of the header's parts sit to each other.
+        stack.setCustomSpacing(5, after: symbolView)
         stack.translatesAutoresizingMaskIntoConstraints = false
         addSubview(stack)
         NSLayoutConstraint.activate([
@@ -1828,8 +1885,10 @@ final class ExerciseSectionHeaderView: UICollectionReusableView {
     required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
 
     func configure(name: String, count: Int, isCollapsed: Bool, showsCount: Bool,
-                   showsChevron: Bool, animated: Bool) {
+                   showsChevron: Bool, symbol: String?, animated: Bool) {
         nameLabel.text = name
+        symbolView.image = symbol.flatMap { UIImage(systemName: $0) }
+        symbolView.isHidden = symbolView.image == nil
         countLabel.text = "(\(count))"
         countLabel.isHidden = !showsCount || (!isCollapsed && count > 0)
         chevron.isHidden = !showsChevron

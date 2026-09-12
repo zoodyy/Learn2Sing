@@ -250,11 +250,11 @@ struct HomeCategoryEditView: View {
 /// last five exercises that played through to the end), "Routines" (the
 /// user's own ordered exercise lists, created via the + button; swipe right on
 /// one to edit it, swipe left to delete it after a confirmation),
-/// "Favourites" (a single ordered exercise list, its + button opening the
-/// edit-favourites screen), "Recommended" (whitelisted exercises drawn on how
-/// long ago each was last sung and how close it is to the singer's level, as
-/// many as Settings ▸ Home Tab asks for — as one card that plays them all in a
-/// row, or as a list of them if that same screen says so),
+/// "Favourites" (every exercise starred on its own intro screen, in the order
+/// they were starred), "Recommended" (whitelisted exercises drawn on how long
+/// ago each was last sung and how close it is to the singer's level, as many as
+/// Settings ▸ Home Tab asks for — as one card that plays them all in a row, or
+/// as a list of them if that same screen says so),
 /// "Time Spent Singing" (the last 30 days of practice as coloured squares — see
 /// PracticeCalendarView), and "New for You" (five exercises off the community's
 /// hot list, the ones pitched at the singer's own level — see NewForYouFeed).
@@ -522,15 +522,13 @@ struct HomeView: View {
         category == HomeCategories.routines || category == HomeCategories.favourites
     }
 
-    /// What holding a category's + button explains. The two categories that have
-    /// one add different things: a routine is made here, while the favourites are
-    /// picked on a screen of their own.
+    /// What holding a category's + button explains. "Routines" is the only
+    /// category with one: a favourite is made with the star on an exercise's own
+    /// intro screen, and the rest of the categories are the app's to fill.
     private func addHelp(for category: String) -> String? {
         switch category {
         case HomeCategories.routines:
             L("Makes a new routine: your own list of exercises, sung one after the other.")
-        case HomeCategories.favourites:
-            L("Opens the list of your favourites, where you pick which exercises are in it and what order they come in.")
         default:
             nil
         }
@@ -545,9 +543,14 @@ struct HomeView: View {
                                        totalCount: items.count,
                                        items: isCollapsed ? [] : items,
                                        showsCount: false,
-                                       showsAdd: category == HomeCategories.routines
-                                           || category == HomeCategories.favourites,
+                                       showsAdd: category == HomeCategories.routines,
                                        addHelp: addHelp(for: category),
+                                       // The same star the Exercises tab draws
+                                       // beside a favourite's name, so the
+                                       // category and the exercises in it are
+                                       // plainly the same thing.
+                                       nameSymbol: category == HomeCategories.favourites
+                                           ? "star.fill" : nil,
                                        allowsReorder: isReorderable(category))
         }
     }
@@ -767,13 +770,11 @@ struct HomeView: View {
                 }
             },
             onHeaderLongPress: { navigationPath.append(ExerciseRoute.editCategories) },
-            onAdd: { category in
-                if category == HomeCategories.favourites {
-                    navigationPath.append(ExerciseRoute.favourites)
-                } else {
-                    newRoutineName = ""
-                    isNamingNewRoutine = true
-                }
+            // "Routines" is the only category with a + button left, so a tap on
+            // one is always a new routine.
+            onAdd: { _ in
+                newRoutineName = ""
+                isNamingNewRoutine = true
             },
             onCalendarSelect: { selection in
                 withAnimation(.snappy(duration: 0.2)) {
@@ -1076,12 +1077,6 @@ struct HomeView: View {
                              onScoreDownload: { downloadCommunity(ex) },
                              communityID: ex.id)
             }
-        case .favourites:
-            FavouritesEditView {
-                navigationPath.append(ExerciseRoute.favouritesPicker)
-            }
-        case .favouritesPicker:
-            FavouritesExercisePickerView()
         case .editCategories:
             HomeCategoryEditView()
         case .user(let id, let name):

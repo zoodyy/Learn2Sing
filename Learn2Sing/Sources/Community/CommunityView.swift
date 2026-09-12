@@ -334,12 +334,11 @@ struct CommunityView: View {
                 case .settings, .edit, .editCategories, .routine, .routineIntro, .routinePicker,
                      .routinePlay, .routinePlayback, .recommendationIntro, .recommendationPlay,
                      .recommendationPlayback, .homeTabSettings, .recommendationWhitelist,
-                     .favourites, .favouritesPicker,
                      .communityPlay, .communityPlayback:
                     // Never appended from this tab; exercises aren't editable
-                    // here, routines, favourites and recommendations live on the
-                    // Home tab, and every exercise this tab lists is a community
-                    // one already — `play` is the community pair here.
+                    // here, routines and recommendations live on the Home tab,
+                    // and every exercise this tab lists is a community one
+                    // already — `play` is the community pair here.
                     EmptyView()
                 }
             }

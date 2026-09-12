@@ -185,8 +185,6 @@ enum ExerciseRoute: Hashable {
     case routine(UUID)         // a routine's edit screen (Home tab)
     case routineIntro(UUID)    // a routine's description/exercise-order screen (Home tab)
     case routinePicker(UUID)   // multi-select exercise picker for a routine (Home tab)
-    case favourites            // the edit-favourites screen (Home tab)
-    case favouritesPicker      // multi-select exercise picker for favourites (Home tab)
     // Playing a routine walks these two alternately through the routine's
     // exercises: intro of exercise #index, its playback, intro of #index+1, …
     case routinePlay(UUID, Int)      // intro screen of the routine's #index exercise
@@ -469,8 +467,10 @@ struct ExercisesView: View {
     /// name matches keeps all of its exercises.
     private var filteredExercises: [Exercise] {
         guard !activeFilters.isEmpty else { return store.exercises }
+        let favourites = Set(store.favourites)
         return store.exercises.filter {
-            activeFilters.matches($0, isBundled: store.isBundled($0.id))
+            activeFilters.matches($0, isBundled: store.isBundled($0.id),
+                                  isFavourite: favourites.contains($0.id))
         }
     }
 
@@ -498,8 +498,18 @@ struct ExercisesView: View {
     /// list — at the end, ready to hand to the UIKit-backed list that does the
     /// rendering and drag & drop.
     private var listSections: [ExerciseListSection] {
+        let favourites = Set(store.favourites)
+        // Favourites first, each group in the order the library holds it, so a
+        // starred exercise rises to the top of its category and the rest of the
+        // category keeps the arrangement the user dragged it into. A category is
+        // still a category: nothing moves out of one.
         func rows(_ exercises: [Exercise]) -> [ExerciseListRow] {
-            exercises.map { ExerciseListRow(exercise: $0, pattern: store.notes(for: $0.id)) }
+            let sorted = exercises.filter { favourites.contains($0.id) }
+                + exercises.filter { !favourites.contains($0.id) }
+            return sorted.map {
+                ExerciseListRow(exercise: $0, pattern: store.notes(for: $0.id),
+                                isFavourite: favourites.contains($0.id))
+            }
         }
         let exercises = filteredExercises
         let query = self.query
@@ -764,6 +774,16 @@ struct ExercisesView: View {
                                 }
                             }
                         }
+                        // Its own group, unheaded: the one pick names itself,
+                        // and a heading over a single toggle reading the same
+                        // word twice would say nothing the toggle doesn't.
+                        Section {
+                            ForEach(ExerciseFilter.favouriteCases) { filter in
+                                Toggle(isOn: filterBinding(filter)) {
+                                    Label(filter.label, systemImage: filter.systemImage)
+                                }
+                            }
+                        }
                         if !activeFilters.isEmpty {
                             Section {
                                 Button(role: .destructive) {
@@ -779,7 +799,7 @@ struct ExercisesView: View {
                               : "line.3.horizontal.decrease.circle.fill")
                     }
                     .accessibilityLabel("Filter")
-                    .explain(L("Narrows the list to where the exercises came from, or to the ones you have shared. The button is filled in while a filter is on."))
+                    .explain(L("Narrows the list to where the exercises came from, to the ones you have shared, or to your favourites. The button is filled in while a filter is on."))
                 }
             }
             // On the list itself rather than on the tab, so the tab being opened
@@ -829,6 +849,7 @@ struct ExercisesView: View {
                     if let ex = store.exercises.first(where: { $0.id == id }) {
                         ExerciseIntroView(
                             exercise: ex,
+                            showsFavourite: true,
                             onSettings: { navigationPath.append(ExerciseRoute.settings(id)) }
                         ) {
                             navigationPath.append(ExerciseRoute.playback(id))
@@ -857,11 +878,10 @@ struct ExercisesView: View {
                 case .user, .routine, .routineIntro, .routinePicker, .routinePlay, .routinePlayback,
                      .recommendationIntro, .recommendationPlay, .recommendationPlayback,
                      .homeTabSettings, .recommendationWhitelist,
-                     .favourites, .favouritesPicker,
                      .communityPlay, .communityPlayback:
                     // Never appended from this tab; usernames only show in
-                    // Community, and routines, favourites, recommendations and
-                    // the community suggestions live on the Home tab.
+                    // Community, and routines, recommendations and the community
+                    // suggestions live on the Home tab.
                     EmptyView()
                 }
             }

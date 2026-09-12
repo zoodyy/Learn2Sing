@@ -13653,89 +13653,6 @@
         }
       }
     },
-    "Edit Favourites" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Favoriten bearbeiten"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Editar favoritos"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Modifier les favoris"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Modifica preferiti"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "お気に入りを編集"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "즐겨찾기 편집"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Favorieten bewerken"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Edytuj ulubione"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Editar favoritos"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Изменить избранное"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Redigera favoriter"
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Favorileri düzenle"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "编辑收藏"
-          }
-        }
-      }
-    },
     "Edit MIDI" : {
       "localizations" : {
         "de" : {
@@ -15963,6 +15880,89 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "将练习库导出为文件，或导入一个文件。"
+          }
+        }
+      }
+    },
+    "Favourite" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zu Favoriten hinzufügen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Añadir a favoritos"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ajouter aux favoris"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aggiungi ai preferiti"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "お気に入りに追加"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "즐겨찾기에 추가"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Toevoegen aan favorieten"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dodaj do ulubionych"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Adicionar aos favoritos"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Добавить в избранное"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lägg till i favoriter"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Favorilere ekle"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "添加到收藏"
           }
         }
       }
@@ -29545,85 +29545,85 @@
         }
       }
     },
-    "Narrows the list to where the exercises came from, or to the ones you have shared. The button is filled in while a filter is on." : {
+    "Narrows the list to where the exercises came from, to the ones you have shared, or to your favourites. The button is filled in while a filter is on." : {
       "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Schränkt die Liste darauf ein, woher die Übungen stammen, oder auf die von dir geteilten. Der Knopf ist ausgefüllt, solange ein Filter aktiv ist."
+            "value" : "Schränkt die Liste darauf ein, woher die Übungen stammen, auf die von dir geteilten oder auf deine Favoriten. Der Knopf ist ausgefüllt, solange ein Filter aktiv ist."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Limita la lista según de dónde vienen los ejercicios, o a los que has compartido. El botón se rellena mientras hay un filtro activo."
+            "value" : "Limita la lista según de dónde vienen los ejercicios, a los que has compartido o a tus favoritos. El botón se rellena mientras hay un filtro activo."
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Limite la liste selon la provenance des exercices, ou à ceux que vous avez partagés. Le bouton est rempli tant qu’un filtre est actif."
+            "value" : "Limite la liste selon la provenance des exercices, à ceux que vous avez partagés ou à vos favoris. Le bouton est rempli tant qu’un filtre est actif."
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Restringe l’elenco in base alla provenienza degli esercizi, o a quelli che hai condiviso. Il pulsante è pieno finché un filtro è attivo."
+            "value" : "Restringe l’elenco in base alla provenienza degli esercizi, a quelli che hai condiviso o ai tuoi preferiti. Il pulsante è pieno finché un filtro è attivo."
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "エクササイズの入手元や、自分が公開したものだけに絞り込みます。フィルタが有効な間、ボタンは塗りつぶされます。"
+            "value" : "エクササイズの入手元、自分が公開したもの、またはお気に入りだけに絞り込みます。フィルタが有効な間、ボタンは塗りつぶされます。"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "연습의 출처별로, 또는 내가 공유한 것만 보이도록 좁힙니다. 필터가 켜져 있는 동안 버튼이 채워집니다."
+            "value" : "연습의 출처별로, 내가 공유한 것만, 또는 즐겨찾기만 보이도록 좁힙니다. 필터가 켜져 있는 동안 버튼이 채워집니다."
           }
         },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Beperkt de lijst tot waar de oefeningen vandaan komen, of tot die je hebt gedeeld. De knop is gevuld zolang er een filter aanstaat."
+            "value" : "Beperkt de lijst tot waar de oefeningen vandaan komen, tot die je hebt gedeeld of tot je favorieten. De knop is gevuld zolang er een filter aanstaat."
           }
         },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Zawęża listę według tego, skąd pochodzą ćwiczenia, albo do tych, które udostępniłeś. Przycisk jest wypełniony, dopóki filtr działa."
+            "value" : "Zawęża listę według tego, skąd pochodzą ćwiczenia, do tych, które udostępniłeś, albo do ulubionych. Przycisk jest wypełniony, dopóki filtr działa."
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Restringe a lista conforme a origem dos exercícios, ou aos que você compartilhou. O botão fica preenchido enquanto há um filtro ativo."
+            "value" : "Restringe a lista conforme a origem dos exercícios, aos que você compartilhou ou aos seus favoritos. O botão fica preenchido enquanto há um filtro ativo."
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Сужает список по происхождению упражнений или до тех, которыми вы поделились. Пока фильтр включён, кнопка залита."
+            "value" : "Сужает список по происхождению упражнений, до тех, которыми вы поделились, или до избранных. Пока фильтр включён, кнопка залита."
           }
         },
         "sv" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Begränsar listan efter var övningarna kommer ifrån, eller till dem du delat. Knappen är ifylld så länge ett filter är på."
+            "value" : "Begränsar listan efter var övningarna kommer ifrån, till dem du delat eller till dina favoriter. Knappen är ifylld så länge ett filter är på."
           }
         },
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Listeyi egzersizlerin nereden geldiğine göre ya da paylaştıklarınıza göre daraltır. Bir filtre açıkken düğme dolu görünür."
+            "value" : "Listeyi egzersizlerin nereden geldiğine, paylaştıklarınıza ya da favorilerinize göre daraltır. Bir filtre açıkken düğme dolu görünür."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "按练习的来源筛选，或只显示你分享过的。筛选开启时按钮为实心。"
+            "value" : "按练习的来源筛选，或只显示你分享过的或收藏的。筛选开启时按钮为实心。"
           }
         }
       }
@@ -33093,89 +33093,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "打开列表中排在这个之后的练习。"
-          }
-        }
-      }
-    },
-    "Opens the list of your favourites, where you pick which exercises are in it and what order they come in." : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Öffnet die Liste deiner Favoriten, in der du bestimmst, welche Übungen darin stehen und in welcher Reihenfolge."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Abre la lista de tus favoritos, donde eliges qué ejercicios contiene y en qué orden."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ouvre la liste de vos favoris, où vous choisissez les exercices qu’elle contient et leur ordre."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Apre l’elenco dei tuoi preferiti, dove scegli quali esercizi contiene e in che ordine."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "お気に入りの一覧を開きます。どのエクササイズを入れるか、どの順に並べるかをここで決めます。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "즐겨찾기 목록을 엽니다. 어떤 연습을 넣고 어떤 순서로 둘지 여기서 정합니다."
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Opent de lijst met je favorieten, waar je kiest welke oefeningen erin staan en in welke volgorde."
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Otwiera listę ulubionych, na której wybierasz, jakie ćwiczenia się w niej znajdą i w jakiej kolejności."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Abre a lista dos seus favoritos, onde você escolhe quais exercícios ela contém e em que ordem."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Открывает список избранного, где вы выбираете, какие упражнения в нём и в каком порядке."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Öppnar listan med dina favoriter, där du väljer vilka övningar som ingår och i vilken ordning."
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Favorilerinizin listesini açar; hangi egzersizlerin olacağını ve sıralarını orada seçersiniz."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "打开你的收藏列表，在其中挑选包含哪些练习以及它们的顺序。"
           }
         }
       }
@@ -38882,6 +38799,89 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "移除"
+          }
+        }
+      }
+    },
+    "Remove Favourite" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aus Favoriten entfernen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quitar de favoritos"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Retirer des favoris"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rimuovi dai preferiti"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "お気に入りから削除"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "즐겨찾기에서 제거"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verwijderen uit favorieten"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Usuń z ulubionych"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Remover dos favoritos"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Убрать из избранного"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ta bort från favoriter"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Favorilerden çıkar"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "取消收藏"
           }
         }
       }
@@ -48715,6 +48715,89 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "点按名称可重命名分类，拖动右侧手柄可调整顺序。数字是其中的练习数量。"
+          }
+        }
+      }
+    },
+    "Tap the star to make this exercise a favourite. Favourites come first in their category on the Exercises tab and fill the Home tab's “Favourites”." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tippe auf den Stern, um diese Übung zu einem Favoriten zu machen. Favoriten stehen im Übungen-Tab ganz oben in ihrer Kategorie und füllen im Start-Tab die Kategorie „Favoriten“."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Toca la estrella para marcar este ejercicio como favorito. Los favoritos aparecen primero en su categoría en la pestaña Ejercicios y llenan la categoría «Favoritos» de la pestaña Inicio."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Touchez l’étoile pour ajouter cet exercice aux favoris. Les favoris passent en premier dans leur catégorie dans l’onglet Exercices et remplissent la catégorie « Favoris » de l’onglet Accueil."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tocca la stella per rendere questo esercizio un preferito. I preferiti vengono per primi nella loro categoria nella scheda Esercizi e riempiono la categoria “Preferiti” della scheda Home."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "星をタップすると、このエクササイズをお気に入りにできます。お気に入りはエクササイズタブで自分のカテゴリの先頭に並び、ホームタブの「お気に入り」に入ります。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "별을 탭하면 이 연습을 즐겨찾기에 넣습니다. 즐겨찾기는 연습 탭에서 해당 분류의 맨 앞에 오고, 홈 탭의 “즐겨찾기”를 채웁니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tik op de ster om deze oefening een favoriet te maken. Favorieten staan bovenaan hun categorie op het tabblad Oefeningen en vullen de categorie ‘Favorieten’ op het tabblad Start."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dotknij gwiazdki, aby dodać to ćwiczenie do ulubionych. Ulubione są pierwsze w swojej kategorii na karcie Ćwiczenia i wypełniają kategorię „Ulubione” na karcie Start."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Toque na estrela para tornar este exercício um favorito. Os favoritos vêm primeiro na sua categoria na aba Exercícios e preenchem a categoria “Favoritos” da aba Início."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Нажмите на звёздочку, чтобы добавить упражнение в избранное. Избранные идут первыми в своей категории на вкладке «Упражнения» и попадают в категорию «Избранное» на вкладке «Главная»."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tryck på stjärnan för att göra övningen till en favorit. Favoriter kommer först i sin kategori på fliken Övningar och fyller kategorin ”Favoriter” på fliken Hem."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bu egzersizi favori yapmak için yıldıza dokunun. Favoriler, Egzersizler sekmesinde kendi kategorilerinde en üstte yer alır ve Ana Sayfa sekmesindeki “Favoriler” kategorisini doldurur."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "点按星星即可把这个练习设为收藏。收藏的练习会排在“练习”标签中所属分类的最前面，并出现在“首页”标签的“收藏”中。"
           }
         }
       }
@@ -59886,89 +59969,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "你的练习"
-          }
-        }
-      }
-    },
-    "Your favourite exercises, in the order the Home tab shows them. Drag by the handle on the right to rearrange them." : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Deine Lieblingsübungen, in der Reihenfolge, in der der Start-Tab sie zeigt. Ziehe sie am Griff rechts, um sie umzusortieren."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tus ejercicios favoritos, en el orden en que los muestra la pestaña Inicio. Arrástralos por el asa de la derecha para reordenarlos."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Vos exercices favoris, dans l’ordre où l’onglet Accueil les affiche. Faites-les glisser par la poignée à droite pour les réorganiser."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "I tuoi esercizi preferiti, nell’ordine in cui la scheda Home li mostra. Trascinali dalla maniglia a destra per riordinarli."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "お気に入りのエクササイズを、ホームタブでの表示順に並べています。右のハンドルをドラッグすると並べ替えられます。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "즐겨찾는 연습들을 홈 탭에 보이는 순서대로 나열합니다. 오른쪽 손잡이를 끌면 순서를 바꿉니다."
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Je favoriete oefeningen, in de volgorde waarin het Start-tabblad ze toont. Sleep ze aan de greep rechts om ze te herschikken."
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Twoje ulubione ćwiczenia, w kolejności, w jakiej pokazuje je karta Start. Przeciągaj je za uchwyt po prawej, aby zmienić kolejność."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Seus exercícios favoritos, na ordem em que a aba Início os mostra. Arraste pela alça à direita para reorganizá-los."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ваши избранные упражнения в том порядке, в котором их показывает вкладка «Главная». Потяните за ручку справа, чтобы переставить их."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Dina favoritövningar, i den ordning Start-fliken visar dem. Dra i handtaget till höger för att ordna om dem."
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Favori egzersizleriniz; Ana Sayfa sekmesinin gösterdiği sırayla. Yeniden düzenlemek için sağdaki tutamaktan sürükleyin."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "你收藏的练习，按首页标签中的显示顺序排列。拖动右侧手柄可重新排序。"
           }
         }
       }

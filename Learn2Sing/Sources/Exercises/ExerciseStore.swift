@@ -668,12 +668,6 @@ final class ExerciseStore: ObservableObject {
         UserDefaults.standard.set(data, forKey: favouritesKey)
     }
 
-    /// Reorder the favourites (drives the edit-favourites screen).
-    func moveFavourites(from source: IndexSet, to destination: Int) {
-        favourites.move(fromOffsets: source, toOffset: destination)
-        saveFavourites()
-    }
-
     /// Move a dragged favourite so it sits just before the exercise `targetID`
     /// (or at the end of the list when `targetID` is nil) — the Home tab's
     /// drag & drop, the same way `moveRoutine(_:before:)` works.
@@ -688,19 +682,14 @@ final class ExerciseStore: ObservableObject {
         saveFavourites()
     }
 
-    /// Add the exercise to the favourites' end, or remove it if already present.
-    /// Backs the picker's tap-to-select rows, which is why membership toggles.
+    /// Add the exercise to the favourites' end, or remove it if already present:
+    /// the star on its intro screen, which is the one way in and out of the list.
     func toggleFavourite(_ exerciseID: UUID) {
         if let existing = favourites.firstIndex(of: exerciseID) {
             favourites.remove(at: existing)
         } else {
             favourites.append(exerciseID)
         }
-        saveFavourites()
-    }
-
-    func removeFavourite(_ exerciseID: UUID) {
-        favourites.removeAll { $0 == exerciseID }
         saveFavourites()
     }
 
