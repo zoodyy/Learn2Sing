@@ -47,7 +47,7 @@ console. Xcode prunes empty entries anyway, so writing them would just hand the
 next build something to undo.
 
 Strings that are deliberately the same in every language — the vowel syllables
-bundled exercises are named after ("Mum", "Yum Ya"), and file names — are listed
+bundled exercises are named after ("Moo", "Nee Nay Nah"), and file names — are listed
 in `NOT_TRANSLATED` in `generate.py` so they don't show up as missing.
 
 ## Adding a language

@@ -68,8 +68,7 @@ for exercise in bundle["exercises"]:
 # Names that are the syllable the singer sings, or a product/file name: shown
 # as-is in every language, so they are deliberately left untranslated.
 NOT_TRANSLATED = {
-    "May", "Doo Hoo", "Mum", "Yum Ya", "Myam Myom", "Mom Moh",
-    "Ng", "Mee May Mah Moh Moo", "Hoo", "Moo", "Mmm Mah", "Nee Nay Nah", "Vee",
+    "Mom Moh", "Ng", "Mee May Mah Moh Moo", "Hoo", "Moo", "Mmm Mah", "Nee Nay Nah", "Vee",
     "Nyah", "Wee Woo", "Ming", "Gah", "Nuh",
     "La Le Li Lo Lu", "Ta Ka", "Pa Ba", "Hup", "Dee Dah", "Kah Gah", "Ti Ki Ta",
     "Ning Nong", "Ta Da La Na", "Buh Duh Guh", "Pa Ta Ka",

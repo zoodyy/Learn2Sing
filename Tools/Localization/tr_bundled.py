@@ -1,6 +1,6 @@
 # Batch 6: the exercises that ship in BundledExercises.json.
 #
-# The vowel-syllable names ("May", "Mum", "Yum Ya", …) are the sounds the singer
+# The vowel-syllable names ("Moo", "Mom Moh", "Nee Nay Nah", …) are the sounds the singer
 # actually sings, so they stay as they are in every language; only the words
 # around them are translated.
 from trbase import T
@@ -9,56 +9,49 @@ T("Major Ascending", "Dur aufsteigend", "Mayor ascendente", "Majeur ascendant", 
 T("Major Descending", "Dur absteigend", "Mayor descendente", "Majeur descendant", "Maggiore discendente", "Maior descendente", "Majeur dalend", "Мажор вниз", "Durowa w dół", "Majör inici", "Dur nedåt", "長調 下行", "장조 하행", "大调下行")
 T("Minor Ascending", "Moll aufsteigend", "Menor ascendente", "Mineur ascendant", "Minore ascendente", "Menor ascendente", "Mineur stijgend", "Минор вверх", "Molowa w górę", "Minör çıkıcı", "Moll uppåt", "短調 上行", "단조 상행", "小调上行")
 T("Minor Descending", "Moll absteigend", "Menor descendente", "Mineur descendant", "Minore discendente", "Menor descendente", "Mineur dalend", "Минор вниз", "Molowa w dół", "Minör inici", "Moll nedåt", "短調 下行", "단조 하행", "小调下行")
-T("Bumblebee", "Hummel", "Abejorro", "Bourdon", "Calabrone", "Zangão", "Hommel", "Шмель", "Trzmiel", "Yaban arısı", "Humla", "マルハナバチ", "호박벌", "大黄蜂")
-T("Three-Note Run", "Dreiton-Lauf", "Carrerilla de tres notas", "Trait de trois notes", "Volata di tre note", "Corrida de três notas", "Loopje van drie noten", "Пробежка из трёх нот", "Przebieg trzech dźwięków", "Üç notalı geçiş", "Trenotslinga", "3音のラン", "3음 런", "三音跑动")
-T("Ascending Run", "Aufsteigender Lauf", "Carrerilla ascendente", "Trait ascendant", "Volata ascendente", "Corrida ascendente", "Stijgend loopje", "Восходящая пробежка", "Przebieg wznoszący", "Çıkıcı geçiş", "Stigande slinga", "上行のラン", "상행 런", "上行跑动")
-T("Octave Repeat Nay", "Oktavwiederholung Nay", "Octava repetida Nay", "Octave répétée Nay", "Ottava ripetuta Nay", "Oitava repetida Nay", "Octaafherhaling Nay", "Повтор октавы Nay", "Powtórzenie oktawy Nay", "Oktav tekrarı Nay", "Oktavupprepning Nay", "オクターブ反復 Nay", "옥타브 반복 Nay", "八度重复 Nay")
-T("Octave Alternate Ee", "Oktavwechsel Ee", "Octava alterna Ee", "Octave alternée Ee", "Ottava alternata Ee", "Oitava alternada Ee", "Octaafwisseling Ee", "Чередование октав Ee", "Naprzemienna oktawa Ee", "Oktav değişimi Ee", "Oktavväxling Ee", "オクターブ交互 Ee", "옥타브 교대 Ee", "八度交替 Ee")
+T("Harmonic Minor Ascending", "Harmonisches Moll aufsteigend", "Menor armónica ascendente", "Mineur harmonique ascendant", "Minore armonica ascendente", "Menor harmônica ascendente", "Harmonisch mineur stijgend", "Гармонический минор вверх", "Molowa harmoniczna w górę", "Armonik minör çıkıcı", "Harmonisk moll uppåt", "和声的短音階 上行", "화성단음계 상행", "和声小调上行")
+T("Harmonic Minor Descending", "Harmonisches Moll absteigend", "Menor armónica descendente", "Mineur harmonique descendant", "Minore armonica discendente", "Menor harmônica descendente", "Harmonisch mineur dalend", "Гармонический минор вниз", "Molowa harmoniczna w dół", "Armonik minör inici", "Harmonisk moll nedåt", "和声的短音階 下行", "화성단음계 하행", "和声小调下行")
+T("Melodic Minor Ascending", "Melodisches Moll aufsteigend", "Menor melódica ascendente", "Mineur mélodique ascendant", "Minore melodica ascendente", "Menor melódica ascendente", "Melodisch mineur stijgend", "Мелодический минор вверх", "Molowa melodyczna w górę", "Melodik minör çıkıcı", "Melodisk moll uppåt", "旋律的短音階 上行", "가락단음계 상행", "旋律小调上行")
+T("Melodic Minor Descending", "Melodisches Moll absteigend", "Menor melódica descendente", "Mineur mélodique descendant", "Minore melodica discendente", "Menor melódica descendente", "Melodisch mineur dalend", "Мелодический минор вниз", "Molowa melodyczna w dół", "Melodik minör inici", "Melodisk moll nedåt", "旋律的短音階 下行", "가락단음계 하행", "旋律小调下行")
+T("Dorian Ascending", "Dorisch aufsteigend", "Dórico ascendente", "Dorien ascendant", "Dorico ascendente", "Dórico ascendente", "Dorisch stijgend", "Дорийский лад вверх", "Dorycka w górę", "Dor çıkıcı", "Dorisk uppåt", "ドリア旋法 上行", "도리안 상행", "多利亚调式上行")
+T("Dorian Descending", "Dorisch absteigend", "Dórico descendente", "Dorien descendant", "Dorico discendente", "Dórico descendente", "Dorisch dalend", "Дорийский лад вниз", "Dorycka w dół", "Dor inici", "Dorisk nedåt", "ドリア旋法 下行", "도리안 하행", "多利亚调式下行")
+T("Phrygian Ascending", "Phrygisch aufsteigend", "Frigio ascendente", "Phrygien ascendant", "Frigio ascendente", "Frígio ascendente", "Frygisch stijgend", "Фригийский лад вверх", "Frygijska w górę", "Frigyen çıkıcı", "Frygisk uppåt", "フリギア旋法 上行", "프리지안 상행", "弗里几亚调式上行")
+T("Phrygian Descending", "Phrygisch absteigend", "Frigio descendente", "Phrygien descendant", "Frigio discendente", "Frígio descendente", "Frygisch dalend", "Фригийский лад вниз", "Frygijska w dół", "Frigyen inici", "Frygisk nedåt", "フリギア旋法 下行", "프리지안 하행", "弗里几亚调式下行")
+T("Lydian Ascending", "Lydisch aufsteigend", "Lidio ascendente", "Lydien ascendant", "Lidio ascendente", "Lídio ascendente", "Lydisch stijgend", "Лидийский лад вверх", "Lidyjska w górę", "Lidyen çıkıcı", "Lydisk uppåt", "リディア旋法 上行", "리디안 상행", "利底亚调式上行")
+T("Lydian Descending", "Lydisch absteigend", "Lidio descendente", "Lydien descendant", "Lidio discendente", "Lídio descendente", "Lydisch dalend", "Лидийский лад вниз", "Lidyjska w dół", "Lidyen inici", "Lydisk nedåt", "リディア旋法 下行", "리디안 하행", "利底亚调式下行")
+T("Mixolydian Ascending", "Mixolydisch aufsteigend", "Mixolidio ascendente", "Mixolydien ascendant", "Misolidio ascendente", "Mixolídio ascendente", "Mixolydisch stijgend", "Миксолидийский лад вверх", "Miksolidyjska w górę", "Miksolidyen çıkıcı", "Mixolydisk uppåt", "ミクソリディア旋法 上行", "믹솔리디안 상행", "混合利底亚调式上行")
+T("Mixolydian Descending", "Mixolydisch absteigend", "Mixolidio descendente", "Mixolydien descendant", "Misolidio discendente", "Mixolídio descendente", "Mixolydisch dalend", "Миксолидийский лад вниз", "Miksolidyjska w dół", "Miksolidyen inici", "Mixolydisk nedåt", "ミクソリディア旋法 下行", "믹솔리디안 하행", "混合利底亚调式下行")
+T("Locrian Ascending", "Lokrisch aufsteigend", "Locrio ascendente", "Locrien ascendant", "Locrio ascendente", "Lócrio ascendente", "Locrisch stijgend", "Локрийский лад вверх", "Lokrycka w górę", "Lokriyen çıkıcı", "Lokrisk uppåt", "ロクリア旋法 上行", "로크리안 상행", "洛克里亚调式上行")
+T("Locrian Descending", "Lokrisch absteigend", "Locrio descendente", "Locrien descendant", "Locrio discendente", "Lócrio descendente", "Locrisch dalend", "Локрийский лад вниз", "Lokrycka w dół", "Lokriyen inici", "Lokrisk nedåt", "ロクリア旋法 下行", "로크리안 하행", "洛克里亚调式下行")
+T("Major Pentatonic Ascending", "Dur-Pentatonik aufsteigend", "Pentatónica mayor ascendente", "Pentatonique majeure ascendante", "Pentatonica maggiore ascendente", "Pentatônica maior ascendente", "Majeur pentatonisch stijgend", "Мажорная пентатоника вверх", "Pentatonika durowa w górę", "Majör pentatonik çıkıcı", "Durpentatonik uppåt", "メジャー・ペンタトニック 上行", "메이저 펜타토닉 상행", "大调五声音阶上行")
+T("Major Pentatonic Descending", "Dur-Pentatonik absteigend", "Pentatónica mayor descendente", "Pentatonique majeure descendante", "Pentatonica maggiore discendente", "Pentatônica maior descendente", "Majeur pentatonisch dalend", "Мажорная пентатоника вниз", "Pentatonika durowa w dół", "Majör pentatonik inici", "Durpentatonik nedåt", "メジャー・ペンタトニック 下行", "메이저 펜타토닉 하행", "大调五声音阶下行")
+T("Minor Pentatonic Ascending", "Moll-Pentatonik aufsteigend", "Pentatónica menor ascendente", "Pentatonique mineure ascendante", "Pentatonica minore ascendente", "Pentatônica menor ascendente", "Mineur pentatonisch stijgend", "Минорная пентатоника вверх", "Pentatonika molowa w górę", "Minör pentatonik çıkıcı", "Mollpentatonik uppåt", "マイナー・ペンタトニック 上行", "마이너 펜타토닉 상행", "小调五声音阶上行")
+T("Minor Pentatonic Descending", "Moll-Pentatonik absteigend", "Pentatónica menor descendente", "Pentatonique mineure descendante", "Pentatonica minore discendente", "Pentatônica menor descendente", "Mineur pentatonisch dalend", "Минорная пентатоника вниз", "Pentatonika molowa w dół", "Minör pentatonik inici", "Mollpentatonik nedåt", "マイナー・ペンタトニック 下行", "마이너 펜타토닉 하행", "小调五声音阶下行")
+T("Whole Tone Ascending", "Ganztonleiter aufsteigend", "Tonos enteros ascendente", "Gamme par tons ascendante", "Esatonale ascendente", "Tons inteiros ascendente", "Heletoonsladder stijgend", "Целотонная гамма вверх", "Całotonowa w górę", "Tam ton çıkıcı", "Heltonsskala uppåt", "全音音階 上行", "온음음계 상행", "全音音阶上行")
+T("Whole Tone Descending", "Ganztonleiter absteigend", "Tonos enteros descendente", "Gamme par tons descendante", "Esatonale discendente", "Tons inteiros descendente", "Heletoonsladder dalend", "Целотонная гамма вниз", "Całotonowa w dół", "Tam ton inici", "Heltonsskala nedåt", "全音音階 下行", "온음음계 하행", "全音音阶下行")
+T("Harmonic Major Ascending", "Harmonisches Dur aufsteigend", "Mayor armónica ascendente", "Majeur harmonique ascendant", "Maggiore armonica ascendente", "Maior harmônica ascendente", "Harmonisch majeur stijgend", "Гармонический мажор вверх", "Durowa harmoniczna w górę", "Armonik majör çıkıcı", "Harmonisk dur uppåt", "和声的長音階 上行", "화성장음계 상행", "和声大调上行")
+T("Harmonic Major Descending", "Harmonisches Dur absteigend", "Mayor armónica descendente", "Majeur harmonique descendant", "Maggiore armonica discendente", "Maior harmônica descendente", "Harmonisch majeur dalend", "Гармонический мажор вниз", "Durowa harmoniczna w dół", "Armonik majör inici", "Harmonisk dur nedåt", "和声的長音階 下行", "화성장음계 하행", "和声大调下行")
+T("Phrygian Dominant Ascending", "Phrygisch-Dominant aufsteigend", "Frigio dominante ascendente", "Phrygien dominant ascendant", "Frigio dominante ascendente", "Frígio dominante ascendente", "Frygisch dominant stijgend", "Фригийский доминантовый вверх", "Frygijska dominantowa w górę", "Frigyen dominant çıkıcı", "Frygisk dominant uppåt", "フリジアン・ドミナント 上行", "프리지안 도미넌트 상행", "弗里几亚属调式上行")
+T("Phrygian Dominant Descending", "Phrygisch-Dominant absteigend", "Frigio dominante descendente", "Phrygien dominant descendant", "Frigio dominante discendente", "Frígio dominante descendente", "Frygisch dominant dalend", "Фригийский доминантовый вниз", "Frygijska dominantowa w dół", "Frigyen dominant inici", "Frygisk dominant nedåt", "フリジアン・ドミナント 下行", "프리지안 도미넌트 하행", "弗里几亚属调式下行")
+T("Double Harmonic Ascending", "Doppelt harmonisch aufsteigend", "Doble armónica ascendente", "Double harmonique ascendante", "Doppia armonica ascendente", "Dupla harmônica ascendente", "Dubbel harmonisch stijgend", "Двойной гармонический вверх", "Podwójnie harmoniczna w górę", "Çift armonik çıkıcı", "Dubbelharmonisk uppåt", "ダブル・ハーモニック 上行", "더블 하모닉 상행", "双和声音阶上行")
+T("Double Harmonic Descending", "Doppelt harmonisch absteigend", "Doble armónica descendente", "Double harmonique descendante", "Doppia armonica discendente", "Dupla harmônica descendente", "Dubbel harmonisch dalend", "Двойной гармонический вниз", "Podwójnie harmoniczna w dół", "Çift armonik inici", "Dubbelharmonisk nedåt", "ダブル・ハーモニック 下行", "더블 하모닉 하행", "双和声音阶下行")
+T("Hungarian Minor Ascending", "Ungarisch Moll aufsteigend", "Menor húngara ascendente", "Mineur hongrois ascendant", "Minore ungherese ascendente", "Menor húngara ascendente", "Hongaars mineur stijgend", "Венгерский минор вверх", "Węgierska molowa w górę", "Macar minör çıkıcı", "Ungersk moll uppåt", "ハンガリー短音階 上行", "헝가리안 마이너 상행", "匈牙利小调上行")
+T("Hungarian Minor Descending", "Ungarisch Moll absteigend", "Menor húngara descendente", "Mineur hongrois descendant", "Minore ungherese discendente", "Menor húngara descendente", "Hongaars mineur dalend", "Венгерский минор вниз", "Węgierska molowa w dół", "Macar minör inici", "Ungersk moll nedåt", "ハンガリー短音階 下行", "헝가리안 마이너 하행", "匈牙利小调下行")
+T("Lydian Dominant Ascending", "Lydisch-Dominant aufsteigend", "Lidio dominante ascendente", "Lydien dominant ascendant", "Lidio dominante ascendente", "Lídio dominante ascendente", "Lydisch dominant stijgend", "Лидийский доминантовый вверх", "Lidyjska dominantowa w górę", "Lidyen dominant çıkıcı", "Lydisk dominant uppåt", "リディアン・ドミナント 上行", "리디안 도미넌트 상행", "利底亚属调式上行")
+T("Lydian Dominant Descending", "Lydisch-Dominant absteigend", "Lidio dominante descendente", "Lydien dominant descendant", "Lidio dominante discendente", "Lídio dominante descendente", "Lydisch dominant dalend", "Лидийский доминантовый вниз", "Lidyjska dominantowa w dół", "Lidyen dominant inici", "Lydisk dominant nedåt", "リディアン・ドミナント 下行", "리디안 도미넌트 하행", "利底亚属调式下行")
+T("Altered Ascending", "Alteriert aufsteigend", "Alterada ascendente", "Altérée ascendante", "Alterata ascendente", "Alterada ascendente", "Gealtereerd stijgend", "Альтерированный лад вверх", "Alterowana w górę", "Altere çıkıcı", "Altererad uppåt", "オルタード 上行", "얼터드 상행", "变化音阶上行")
+T("Altered Descending", "Alteriert absteigend", "Alterada descendente", "Altérée descendante", "Alterata discendente", "Alterada descendente", "Gealtereerd dalend", "Альтерированный лад вниз", "Alterowana w dół", "Altere inici", "Altererad nedåt", "オルタード 下行", "얼터드 하행", "变化音阶下行")
+T("Neapolitan Major Ascending", "Neapolitanisch Dur aufsteigend", "Napolitana mayor ascendente", "Majeur napolitain ascendant", "Napoletana maggiore ascendente", "Napolitana maior ascendente", "Napolitaans majeur stijgend", "Неаполитанский мажор вверх", "Neapolitańska durowa w górę", "Napoliten majör çıkıcı", "Neapolitansk dur uppåt", "ナポリ長音階 上行", "나폴리 장음계 상행", "那不勒斯大调上行")
+T("Neapolitan Major Descending", "Neapolitanisch Dur absteigend", "Napolitana mayor descendente", "Majeur napolitain descendant", "Napoletana maggiore discendente", "Napolitana maior descendente", "Napolitaans majeur dalend", "Неаполитанский мажор вниз", "Neapolitańska durowa w dół", "Napoliten majör inici", "Neapolitansk dur nedåt", "ナポリ長音階 下行", "나폴리 장음계 하행", "那不勒斯大调下行")
+T("Neapolitan Minor Ascending", "Neapolitanisch Moll aufsteigend", "Napolitana menor ascendente", "Mineur napolitain ascendant", "Napoletana minore ascendente", "Napolitana menor ascendente", "Napolitaans mineur stijgend", "Неаполитанский минор вверх", "Neapolitańska molowa w górę", "Napoliten minör çıkıcı", "Neapolitansk moll uppåt", "ナポリ短音階 上行", "나폴리 단음계 상행", "那不勒斯小调上行")
+T("Neapolitan Minor Descending", "Neapolitanisch Moll absteigend", "Napolitana menor descendente", "Mineur napolitain descendant", "Napoletana minore discendente", "Napolitana menor descendente", "Napolitaans mineur dalend", "Неаполитанский минор вниз", "Neapolitańska molowa w dół", "Napoliten minör inici", "Neapolitansk moll nedåt", "ナポリ短音階 下行", "나폴리 단음계 하행", "那不勒斯小调下行")
+T("Hirajoshi Ascending", "Hirajoshi aufsteigend", "Hirajoshi ascendente", "Hirajoshi ascendant", "Hirajoshi ascendente", "Hirajoshi ascendente", "Hirajoshi stijgend", "Хирадзёси вверх", "Hirajoshi w górę", "Hirajoshi çıkıcı", "Hirajoshi uppåt", "平調子 上行", "히라조시 상행", "平调子上行")
+T("Hirajoshi Descending", "Hirajoshi absteigend", "Hirajoshi descendente", "Hirajoshi descendant", "Hirajoshi discendente", "Hirajoshi descendente", "Hirajoshi dalend", "Хирадзёси вниз", "Hirajoshi w dół", "Hirajoshi inici", "Hirajoshi nedåt", "平調子 下行", "히라조시 하행", "平调子下行")
+T("Ukrainian Dorian Ascending", "Ukrainisch Dorisch aufsteigend", "Dórico ucraniano ascendente", "Dorien ukrainien ascendant", "Dorico ucraino ascendente", "Dórico ucraniano ascendente", "Oekraïens Dorisch stijgend", "Украинский дорийский вверх", "Ukraińska dorycka w górę", "Ukrayna Dor çıkıcı", "Ukrainsk dorisk uppåt", "ウクライナ・ドリア旋法 上行", "우크라이나 도리안 상행", "乌克兰多利亚调式上行")
+T("Ukrainian Dorian Descending", "Ukrainisch Dorisch absteigend", "Dórico ucraniano descendente", "Dorien ukrainien descendant", "Dorico ucraino discendente", "Dórico ucraniano descendente", "Oekraïens Dorisch dalend", "Украинский дорийский вниз", "Ukraińska dorycka w dół", "Ukrayna Dor inici", "Ukrainsk dorisk nedåt", "ウクライナ・ドリア旋法 下行", "우크라이나 도리안 하행", "乌克兰多利亚调式下行")
 T("Test", "Test", "Prueba", "Test", "Test", "Teste", "Test", "Тест", "Test", "Test", "Test", "テスト", "테스트", "测试")
 T("Test 2", "Test 2", "Prueba 2", "Test 2", "Test 2", "Teste 2", "Test 2", "Тест 2", "Test 2", "Test 2", "Test 2", "テスト 2", "테스트 2", "测试 2")
 
-T("Keep your jaw and throat relaxed, lowering your larynx. You should feel some resonance in your lips.",
-  "Halte Kiefer und Kehle entspannt und senke den Kehlkopf. Du solltest etwas Resonanz in den Lippen spüren.",
-  "Mantén relajados la mandíbula y la garganta, bajando la laringe. Deberías notar algo de resonancia en los labios.",
-  "Gardez la mâchoire et la gorge détendues, en abaissant le larynx. Vous devriez sentir une résonance dans les lèvres.",
-  "Tieni mascella e gola rilassate, abbassando la laringe. Dovresti sentire una certa risonanza sulle labbra.",
-  "Mantenha o maxilar e a garganta relaxados, abaixando a laringe. Você deve sentir alguma ressonância nos lábios.",
-  "Houd je kaak en keel ontspannen en laat je strottenhoofd zakken. Je hoort en voelt wat resonantie in je lippen.",
-  "Держите челюсть и горло расслабленными, опуская гортань. Вы должны почувствовать резонанс в губах.",
-  "Trzymaj szczękę i gardło rozluźnione, obniżając krtań. Powinieneś czuć rezonans w wargach.",
-  "Çenenizi ve boğazınızı gevşek tutun, gırtlağınızı aşağıda tutun. Dudaklarınızda bir miktar rezonans hissetmelisiniz.",
-  "Håll käken och halsen avslappnade och sänk struphuvudet. Du ska känna viss resonans i läpparna.",
-  "あごとのどをリラックスさせ、喉頭を下げます。唇に少し響きを感じるはずです。",
-  "턱과 목을 편안하게 유지하고 후두를 낮추세요. 입술에서 약간의 울림이 느껴져야 합니다.",
-  "保持下颌和喉咙放松，并降低喉头。你应该能感觉到嘴唇有一些共鸣。")
-T("Move your jaw freely on the \"Yum\" and maintain the relaxed feeling on the \"Ya.\"",
-  "Bewege den Kiefer beim „Yum“ frei und behalte das entspannte Gefühl beim „Ya“ bei.",
-  "Mueve la mandíbula con libertad en el «Yum» y mantén esa sensación relajada en el «Ya».",
-  "Bougez librement la mâchoire sur le « Yum » et gardez cette sensation de détente sur le « Ya ».",
-  "Muovi liberamente la mascella sul “Yum” e mantieni la sensazione di rilassamento sul “Ya”.",
-  "Mova o maxilar livremente no “Yum” e mantenha a sensação relaxada no “Ya”.",
-  "Beweeg je kaak vrij bij de ‘Yum’ en houd dat ontspannen gevoel vast bij de ‘Ya’.",
-  "Свободно двигайте челюстью на «Yum» и сохраняйте это расслабленное ощущение на «Ya».",
-  "Poruszaj swobodnie szczęką na „Yum” i utrzymaj to rozluźnione odczucie na „Ya”.",
-  "“Yum” hecesinde çenenizi serbestçe hareket ettirin ve “Ya” hecesinde bu gevşek hissi koruyun.",
-  "Rör käken fritt på ”Yum” och behåll den avslappnade känslan på ”Ya”.",
-  "「Yum」ではあごを自由に動かし、「Ya」でもそのリラックスした感覚を保ちます。",
-  "“Yum”에서는 턱을 자유롭게 움직이고, “Ya”에서도 그 편안한 느낌을 유지하세요.",
-  "在“Yum”上自由活动下颌，并在“Ya”上保持这种放松的感觉。")
-T("Focus on smooth jaw movement and keep it free of tension.",
-  "Achte auf eine geschmeidige Kieferbewegung und halte ihn frei von Spannung.",
-  "Céntrate en un movimiento suave de la mandíbula y mantenla sin tensión.",
-  "Concentrez-vous sur un mouvement souple de la mâchoire et gardez-la sans tension.",
-  "Concentrati su un movimento fluido della mascella e mantienila priva di tensione.",
-  "Concentre-se em um movimento suave do maxilar e mantenha-o sem tensão.",
-  "Let op een soepele kaakbeweging en houd je kaak spanningsvrij.",
-  "Следите за плавным движением челюсти и не допускайте в ней напряжения.",
-  "Skup się na płynnym ruchu szczęki i utrzymuj ją bez napięcia.",
-  "Çenenizin akıcı hareketine odaklanın ve gergin olmasına izin vermeyin.",
-  "Fokusera på en mjuk käkrörelse och håll käken fri från spänning.",
-  "あごをなめらかに動かすことに集中し、力みを入れないようにします。",
-  "턱을 부드럽게 움직이는 데 집중하고 긴장을 주지 마세요.",
-  "专注于下颌的顺畅活动，并保持没有紧张感。")
 T("Widen your nasal cavities and envision the sound projecting into the nose and forehead.",
   "Weite die Nasenhöhlen und stell dir vor, wie der Klang in Nase und Stirn strömt.",
   "Ensancha las fosas nasales e imagina que el sonido se proyecta hacia la nariz y la frente.",
@@ -73,20 +66,6 @@ T("Widen your nasal cavities and envision the sound projecting into the nose and
   "鼻腔を広げ、音が鼻と額へ向かって響いていくのをイメージします。",
   "비강을 넓히고 소리가 코와 이마 쪽으로 퍼져 나가는 것을 상상하세요.",
   "扩张鼻腔，并想象声音投射到鼻子和额头。")
-T("Focus on keeping your lips flexible and your larynx low.",
-  "Achte darauf, die Lippen locker und den Kehlkopf tief zu halten.",
-  "Concéntrate en mantener los labios flexibles y la laringe baja.",
-  "Veillez à garder les lèvres souples et le larynx bas.",
-  "Concentrati sul mantenere le labbra flessibili e la laringe bassa.",
-  "Concentre-se em manter os lábios flexíveis e a laringe baixa.",
-  "Let erop dat je lippen soepel blijven en je strottenhoofd laag.",
-  "Старайтесь держать губы подвижными, а гортань — низко.",
-  "Skup się na utrzymaniu elastycznych warg i niskiej krtani.",
-  "Dudaklarınızı esnek ve gırtlağınızı aşağıda tutmaya odaklanın.",
-  "Fokusera på att hålla läpparna följsamma och struphuvudet lågt.",
-  "唇を柔らかく保ち、喉頭を低く保つことに集中します。",
-  "입술을 유연하게, 후두는 낮게 유지하는 데 집중하세요.",
-  "专注于保持嘴唇灵活、喉头放低。")
 T("Maintain a steady airflow and consistent mouth placement.",
   "Halte einen gleichmäßigen Luftstrom und eine gleichbleibende Mundstellung.",
   "Mantén un flujo de aire constante y una posición de la boca estable.",
@@ -115,34 +94,6 @@ T("Sing each repetition on a different vowel. Maintain a steady airflow and cons
   "繰り返しごとに母音を変えて歌います。息の流れを一定に保ち、口の形も変えないようにします。",
   "반복할 때마다 다른 모음으로 부르세요. 일정한 호흡 흐름과 변함없는 입 모양을 유지하세요.",
   "每次重复都用不同的元音演唱。保持稳定的气流和一致的口型位置。")
-T("Make a bratty \"Nay\" sound. You should feel some buzzing in your nose.",
-  "Erzeuge ein freches „Nay“. Du solltest ein Kribbeln in der Nase spüren.",
-  "Haz un «Nay» descarado. Deberías notar un cosquilleo en la nariz.",
-  "Produisez un « Nay » insolent. Vous devriez sentir un léger bourdonnement dans le nez.",
-  "Produci un “Nay” sfacciato. Dovresti sentire un ronzio nel naso.",
-  "Faça um “Nay” atrevido. Você deve sentir uma vibração no nariz.",
-  "Maak een brutaal ‘Nay’-geluid. Je voelt daarbij wat gezoem in je neus.",
-  "Издайте дерзкое «Nay». Вы должны почувствовать лёгкое жужжание в носу.",
-  "Wydaj bezczelne „Nay”. Powinieneś czuć brzęczenie w nosie.",
-  "Şımarık bir “Nay” sesi çıkarın. Burnunuzda bir titreşim hissetmelisiniz.",
-  "Gör ett näsvist ”Nay”-ljud. Du ska känna ett surrande i näsan.",
-  "生意気な感じの「Nay」を出します。鼻にビリビリした響きを感じるはずです。",
-  "짓궂은 느낌의 “Nay” 소리를 내세요. 코에서 약간의 진동이 느껴져야 합니다.",
-  "发出略带调皮的“Nay”。你应该能感觉到鼻子里有些嗡嗡的振动。")
-T("Make a nasty \"Ee\" sound. You should feel some resonance in your nose.",
-  "Erzeuge ein garstiges „Ee“. Du solltest etwas Resonanz in der Nase spüren.",
-  "Haz un «Ee» desagradable. Deberías notar algo de resonancia en la nariz.",
-  "Produisez un « Ee » désagréable. Vous devriez sentir une résonance dans le nez.",
-  "Produci un “Ee” sgradevole. Dovresti sentire una certa risonanza nel naso.",
-  "Faça um “Ee” áspero. Você deve sentir alguma ressonância no nariz.",
-  "Maak een venijnig ‘Ee’-geluid. Je voelt daarbij wat resonantie in je neus.",
-  "Издайте резкое «Ee». Вы должны почувствовать резонанс в носу.",
-  "Wydaj nieprzyjemne „Ee”. Powinieneś czuć rezonans w nosie.",
-  "Sert bir “Ee” sesi çıkarın. Burnunuzda bir miktar rezonans hissetmelisiniz.",
-  "Gör ett vasst ”Ee”-ljud. Du ska känna viss resonans i näsan.",
-  "きつい感じの「Ee」を出します。鼻に響きを感じるはずです。",
-  "날카로운 느낌의 “Ee” 소리를 내세요. 코에서 울림이 느껴져야 합니다.",
-  "发出较尖锐的“Ee”。你应该能感觉到鼻子里有共鸣。")
 
 # The sixty exercises added on 2026-09-11. The ones named after the syllables
 # they are sung on are in generate.py's NOT_TRANSLATED instead.
