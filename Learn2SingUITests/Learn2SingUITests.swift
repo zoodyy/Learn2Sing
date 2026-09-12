@@ -67,6 +67,13 @@ final class Learn2SingUITests: XCTestCase {
     private struct ListSnapshot {
         var headers: [String]
         var items: [String: [String]]
+        /// The "(n)" a category shows while it is closed, by category. That
+        /// count is the whole category where `items` is only the screenful of
+        /// rows that fits, so it is what a filtered list has to be checked by:
+        /// filtering pulls rows up from below the fold, and two lists can't be
+        /// compared by the rows they happen to be showing. An open category
+        /// hides its count (unless it is empty) and so isn't in here.
+        var counts: [String: Int] = [:]
     }
 
     private func snapshotList(_ app: XCUIApplication) -> ListSnapshot {
@@ -85,12 +92,18 @@ final class Learn2SingUITests: XCTestCase {
         let cellLabels = Set(cellRows.map(\.label))
 
         var headerRows: [(label: String, y: CGFloat)] = []
+        var countRows: [(count: Int, y: CGFloat)] = []
         for text in app.staticTexts.allElementsBoundByIndex {
             let frame = text.frame
             guard frame.height > 0, frame.midY > contentTop, frame.midY < contentBottom else { continue }
             let label = text.label
-            guard !label.isEmpty, !label.hasPrefix("("), !cellLabels.contains(label) else { continue }
-            headerRows.append((label, frame.midY))
+            guard !label.isEmpty, !cellLabels.contains(label) else { continue }
+            if label.hasPrefix("("), label.hasSuffix(")"),
+               let count = Int(label.dropFirst().dropLast()) {
+                countRows.append((count, frame.midY))
+            } else if !label.hasPrefix("(") {
+                headerRows.append((label, frame.midY))
+            }
         }
         headerRows.sort { $0.y < $1.y }
 
@@ -102,7 +115,15 @@ final class Learn2SingUITests: XCTestCase {
                 .sorted { $0.y < $1.y }
                 .map(\.label)
         }
-        return ListSnapshot(headers: headerRows.map(\.label), items: items)
+        // A category's count sits in the header itself, so the two share a row.
+        var counts: [String: Int] = [:]
+        for header in headerRows {
+            guard let match = countRows.min(by: {
+                abs($0.y - header.y) < abs($1.y - header.y)
+            }), abs(match.y - header.y) < 5 else { continue }
+            counts[header.label] = match.count
+        }
+        return ListSnapshot(headers: headerRows.map(\.label), items: items, counts: counts)
     }
 
     private func cell(_ app: XCUIApplication, named name: String) -> XCUIElement {
@@ -111,6 +132,29 @@ final class Learn2SingUITests: XCTestCase {
 
     private func header(_ app: XCUIApplication, named name: String) -> XCUIElement {
         app.staticTexts[name].firstMatch
+    }
+
+    /// Tap every category shut, so they all show their counts. Headers below the
+    /// fold come into view as the ones above them close, so this keeps looking
+    /// until nothing is left open.
+    /// `seen` is a reading of the list taken already, to save taking another:
+    /// reading it costs a query per row on screen.
+    private func collapseAllCategories(_ app: XCUIApplication, seen: ListSnapshot? = nil) {
+        // The first pass closes every category in view off one reading. That is
+        // most of the list, and every reading after it is cheap with the rows
+        // gone.
+        let visible = seen ?? snapshotList(app)
+        for category in visible.headers where visible.counts[category] == nil {
+            header(app, named: category).tap()
+            usleep(300_000)
+        }
+        for _ in 0..<12 {
+            let now = snapshotList(app)
+            guard let open = now.headers.first(where: { now.counts[$0] == nil }) else { return }
+            header(app, named: open).tap()
+            usleep(300_000)
+        }
+        XCTFail("categories would not all close")
     }
 
     /// Return to a fresh Exercises list. Relaunching is the only reliable way
@@ -1576,40 +1620,138 @@ final class Learn2SingUITests: XCTestCase {
 
     /// The Exercises tab's filter menu. Picks within a group are OR'd and groups
     /// are AND'd, so "Bundled" alone lists exercises while "Bundled" + "Public"
-    /// can't match anything — bundled exercises are always private.
+    /// can't match anything — bundled exercises are always private. The
+    /// "Favourites" pick is a group of its own, and follows the star on an
+    /// exercise's intro screen.
+    ///
+    /// Checked by the counts the closed categories show rather than by the rows
+    /// on screen: only a screenful of rows is ever readable, and filtering pulls
+    /// rows up from below the fold, so a filtered list's rows are not a subset
+    /// of the ones the unfiltered list happened to be showing. The counts are of
+    /// the whole category.
     func testExerciseFilterMenu() throws {
         let app = openExercises()
         sleep(2)
-        let unfiltered = snapshotList(app)
 
         func openFilterMenu() {
             app.navigationBars["Exercises"].buttons["Filter"].firstMatch.tap()
             XCTAssertTrue(app.buttons["Bundled Exercises"].firstMatch.waitForExistence(timeout: 3),
                           "filter menu did not open")
         }
+        /// One pick per opening: choosing from the menu closes it. Picking a
+        /// filter that is already on turns it off again.
+        func pick(_ filter: String) {
+            openFilterMenu()
+            app.buttons[filter].firstMatch.tap()
+            sleep(1)
+        }
+        /// Back to the whole library, through the menu or through the button the
+        /// empty state offers, whichever is showing.
+        func clearFilters() {
+            if !app.buttons["Clear Filters"].firstMatch.exists { openFilterMenu() }
+            app.buttons["Clear Filters"].firstMatch.tap()
+            sleep(1)
+        }
 
+        // One reading with the rows still showing: what to star is chosen off
+        // it, and the collapsing below starts from it rather than taking
+        // another. The bottom row of a category is the pick, since a favourite
+        // would have moved to the top of it and so isn't starred already.
+        let listed = snapshotList(app)
+        guard let starring = listed.headers.compactMap({ category -> (String, String)? in
+            guard let last = listed.items[category]?.last else { return nil }
+            return (category, last)
+        }).first else {
+            XCTFail("no category with exercises in it"); return
+        }
+        let (starredCategory, target) = starring
+
+        collapseAllCategories(app, seen: listed)
+        sleep(1)
+        let closed = snapshotList(app)
+        let categories = closed.headers
+        let whole = closed.counts
+        XCTAssertFalse(whole.isEmpty, "a closed category should show its exercise count")
+        saveScreenshot("filter-none")
+
+        // Every exercise is bundled, or downloaded, or the user's own, and never
+        // two of those, so the three picks of the source group add back up to
+        // the library.
         openFilterMenu()
         saveScreenshot("filter-menu")
         app.buttons["Bundled Exercises"].firstMatch.tap()
         sleep(2)
         saveScreenshot("filter-bundled")
-        let bundled = snapshotList(app)
-        let bundledNames = Set(bundled.items.values.flatMap { $0 })
-        XCTAssertFalse(bundledNames.isEmpty, "filtering to bundled exercises emptied the list")
-        XCTAssertTrue(bundledNames.isSubset(of: Set(unfiltered.items.values.flatMap { $0 })),
-                      "filtered list shows exercises the unfiltered one didn't")
+        let bundled = snapshotList(app).counts
+        XCTAssertFalse(bundled.isEmpty, "filtering to bundled exercises emptied the list")
+        pick("Bundled Exercises")
+        pick("Community Exercises")
+        let community = snapshotList(app).counts
+        pick("Community Exercises")
+        pick("Own Exercises")
+        let own = snapshotList(app).counts
+        for (category, count) in whole {
+            let parts = (bundled[category] ?? 0) + (community[category] ?? 0) + (own[category] ?? 0)
+            XCTAssertEqual(parts, count,
+                           "\(category) holds \(count) exercises, but bundled + community + own "
+                           + "come to \(parts)")
+        }
+        pick("Own Exercises")
 
         // Adding a visibility pick narrows further, across groups.
-        openFilterMenu()
-        app.buttons["Public Exercises"].firstMatch.tap()
+        pick("Bundled Exercises")
+        pick("Public Exercises")
         XCTAssertTrue(app.staticTexts["No Matching Exercises"].waitForExistence(timeout: 3),
                       "bundled + public should match nothing")
         saveScreenshot("filter-empty")
-
-        app.buttons["Clear Filters"].firstMatch.tap()
-        sleep(2)
-        XCTAssertEqual(snapshotList(app).headers, unfiltered.headers,
+        clearFilters()
+        XCTAssertEqual(snapshotList(app).headers, categories,
                        "clearing the filters should restore the full list")
+
+        // "Favourites" is a group of its own: starring one more exercise puts
+        // exactly one more into it.
+        pick("Favourites")
+        let starredBefore = snapshotList(app).counts
+        saveScreenshot("filter-favourites")
+        clearFilters()
+
+        header(app, named: starredCategory).tap()   // open it again, to reach a row
+        sleep(1)
+        setFavourite(app, target, to: true)
+        header(app, named: starredCategory).tap()   // and closed again, for the count
+        sleep(1)
+
+        pick("Favourites")
+        let starredNow = snapshotList(app).counts
+        XCTAssertEqual(starredNow[starredCategory] ?? 0, (starredBefore[starredCategory] ?? 0) + 1,
+                       "starring \(target) should have added one to the favourites in "
+                       + starredCategory)
+        saveScreenshot("filter-favourites-starred")
+        clearFilters()
+
+        // Put it back the way it was: the favourites outlive the run.
+        header(app, named: starredCategory).tap()
+        sleep(1)
+        setFavourite(app, target, to: false)
+    }
+
+    /// Star or un-star an exercise the way the app offers it: the star on the
+    /// intro screen its row opens, which is the one way in and out of the
+    /// favourites. Leaves the list showing again.
+    private func setFavourite(_ app: XCUIApplication, _ name: String, to wanted: Bool) {
+        cell(app, named: name).tap()
+        XCTAssertTrue(app.navigationBars[name].waitForExistence(timeout: 3),
+                      "tapping \(name) should open its intro screen")
+        let star = app.buttons[wanted ? "Favourite" : "Remove Favourite"]
+        XCTAssertTrue(star.waitForExistence(timeout: 3),
+                      "\(name) should offer to be \(wanted ? "starred" : "un-starred")")
+        star.tap()
+        XCTAssertTrue(app.buttons[wanted ? "Remove Favourite" : "Favourite"]
+                        .waitForExistence(timeout: 3),
+                      "the star should have changed for \(name)")
+        app.buttons["BackButton"].firstMatch.tap()
+        XCTAssertTrue(app.navigationBars["Exercises"].waitForExistence(timeout: 3))
+        sleep(1)
     }
 
     /// The Home tab's "Recent" category: at most five rows, a header that
