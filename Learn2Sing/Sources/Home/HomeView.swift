@@ -256,8 +256,9 @@ struct HomeCategoryEditView: View {
 /// Settings ▸ Home Tab asks for — as one card that plays them all in a row, or
 /// as a list of them if that same screen says so),
 /// "Time Spent Singing" (the last 30 days of practice as coloured squares — see
-/// PracticeCalendarView), and "New for You" (five exercises off the community's
-/// hot list, the ones pitched at the singer's own level — see NewForYouFeed).
+/// PracticeCalendarView), and "New for You" (five of other people's exercises
+/// off the community's hot list, the ones pitched at the singer's own level —
+/// see NewForYouFeed).
 /// Routines and favourites are rearranged in place by long-pressing a row and
 /// dragging it, each within its own category — the computed categories can't
 /// be, and neither can the calendar. The categories look and behave like the

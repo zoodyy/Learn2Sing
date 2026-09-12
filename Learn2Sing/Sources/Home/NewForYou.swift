@@ -13,6 +13,13 @@ import Combine
 /// the community's hottest exercises, cut down to the handful whose difficulty
 /// sits closest to the singer's own level.
 ///
+/// Other people's exercises only. This install's own uploads are on the server
+/// like anyone else's and the hot order ranks them like anyone else's, but a
+/// category offering the singer something new to sing has nothing to offer in an
+/// exercise they wrote themselves and already have in their library. They are
+/// dropped as the pages are read, so the net still closes on `candidateTarget`
+/// of other people's (see `readPages`).
+///
 /// Deliberately not the Community tab's feed. That one is the whole community in
 /// whatever order the sort menu is set to, paged as the user scrolls; this is a
 /// fixed question — the top of the community's "Hot" order — asked once a session
@@ -135,7 +142,8 @@ final class NewForYouFeed: ObservableObject {
     /// (see `CommunitySort.topUpSort`), until the net is `candidateTarget` wide
     /// or there is no more community to read.
     private func fetchCandidates() async -> [Exercise]? {
-        let query = [URLQueryItem(name: "userId", value: PublicIdentifier.user)]
+        let mine = PublicIdentifier.user
+        let query = [URLQueryItem(name: "userId", value: mine)]
         guard var records = await readPages(of: .hot, onto: [], query: query) else { return nil }
         if records.count < Self.candidateTarget, let topUp = CommunitySort.hot.topUpSort {
             guard let topped = await readPages(of: topUp, onto: records, query: query) else {
@@ -147,11 +155,17 @@ final class NewForYouFeed: ObservableObject {
 
         let sync = CommunitySync.shared
         sync.remember(fetchedNames: CommunityFeed.publicNames(in: records))
+        // The pages were read past this install's own uploads by the uploader id
+        // the server stamps on each row, which is what can be skipped without
+        // decoding anything. The document inside carries that id as well, and is
+        // the last word on it: a row persisted without the stamp — or handed back
+        // without it — would otherwise come through as somebody else's.
+        let docs = sync.decodeDocs(from: records).filter { $0.doc.userID != mine }
         // Never `isComplete`: these pages are a slice of the community, and
         // everything below them is still there — see `applyFetched`. Patterns,
         // share dates and the exercises the pushed screens resolve through all
         // come out of this, exactly as they do for the Community tab's list.
-        let applied = sync.applyFetched(docs: sync.decodeDocs(from: records),
+        let applied = sync.applyFetched(docs: docs,
                                         entityIDs: entityIDs,
                                         isComplete: false)
 
@@ -167,10 +181,11 @@ final class NewForYouFeed: ObservableObject {
     }
 
     /// Reads pages of one order onto the end of `earlier` — skipping the records
-    /// it already holds — until the net is `candidateTarget` wide, `pageCount`
-    /// pages have been read, or the query runs out. nil means a call didn't come
-    /// back, which abandons the whole fetch: a half-read net is a narrower one,
-    /// not a shorter list, and would quietly change what the category is.
+    /// it already holds, and this install's own uploads — until the net is
+    /// `candidateTarget` wide, `pageCount` pages have been read, or the query
+    /// runs out. nil means a call didn't come back, which abandons the whole
+    /// fetch: a half-read net is a narrower one, not a shorter list, and would
+    /// quietly change what the category is.
     ///
     /// The pages are read one after the other rather than at once: the fetch
     /// endpoint answers for one page per call, and a handful of calls off to the
@@ -184,6 +199,10 @@ final class NewForYouFeed: ObservableObject {
         // the top-up behind it; each belongs in the list once, where the first
         // query to turn it up put it.
         var entityIDs = Set(records.map(\.entityId))
+        // This install's own uploads, which the category leaves out — dropped as
+        // they turn up rather than once the net is full, so they don't take up
+        // room in it and leave the pick that many of other people's short.
+        let mine = PublicIdentifier.user
         // Which spelling of the sort key this backend takes, most likely first —
         // see `CommunitySort.serverSortBy`. A rejected one is dropped and the
         // same page asked for again with the next.
@@ -203,7 +222,9 @@ final class NewForYouFeed: ObservableObject {
                 guard sortBy.count > 1 else { return nil }
                 sortBy.removeFirst()
             case .page(let fetched, let isLast):
-                for record in fetched where entityIDs.insert(record.entityId).inserted {
+                for record in fetched {
+                    guard record.customId1 != mine,
+                          entityIDs.insert(record.entityId).inserted else { continue }
                     records.append(record)
                 }
                 if isLast { return records }
