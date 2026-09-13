@@ -15,7 +15,8 @@ T("Instruments, playback and recording devices, and the microphone delay used fo
   "Instrument, uppspelnings- och inspelningsenheter samt mikrofonfördröjningen som används vid poängsättning.",
   "楽器、再生・録音デバイス、採点に使うマイク遅延。",
   "악기, 재생 및 녹음 기기, 점수 계산에 사용되는 마이크 지연.",
-  "乐器、播放和录音设备，以及评分所用的麦克风延迟。")
+  "乐器、播放和录音设备，以及评分所用的麦克风延迟。",
+  "الآلات الموسيقية، وأجهزة التشغيل والتسجيل، وتأخير الميكروفون المستخدم في احتساب النتيجة.")
 T("Theme, orientation and the look of the playback screen.",
   "Erscheinungsbild, Ausrichtung und Aussehen des Wiedergabebildschirms.",
   "Tema, orientación y aspecto de la pantalla de reproducción.",
@@ -29,7 +30,8 @@ T("Theme, orientation and the look of the playback screen.",
   "Tema, orientering och uppspelningsskärmens utseende.",
   "テーマ、画面の向き、再生画面の見た目。",
   "테마, 화면 방향, 재생 화면의 모양.",
-  "主题、屏幕方向以及播放界面的外观。")
+  "主题、屏幕方向以及播放界面的外观。",
+  "السمة والاتجاه ومظهر شاشة التشغيل.")
 T("Your vocal range, the test that measures it, and how precisely you have to hit a note for it to count.",
   "Dein Stimmumfang, der Test, der ihn misst, und wie genau du eine Note treffen musst, damit sie zählt.",
   "Tu tesitura, la prueba que la mide y con cuánta precisión debes acertar una nota para que cuente.",
@@ -43,7 +45,8 @@ T("Your vocal range, the test that measures it, and how precisely you have to hi
   "Ditt röstomfång, testet som mäter det och hur exakt du måste träffa en ton för att den ska räknas.",
   "あなたの声域、それを測定するテスト、そして音符が当たりとみなされる正確さ。",
   "음역대, 이를 측정하는 테스트, 그리고 음표가 인정되려면 얼마나 정확히 맞혀야 하는지.",
-  "你的音域、测量音域的测试，以及唱中一个音符需要多准确才会计分。")
+  "你的音域、测量音域的测试，以及唱中一个音符需要多准确才会计分。",
+  "مداك الصوتي، والاختبار الذي يقيسه، ومدى الدقة المطلوبة لإصابة النغمة حتى تُحتسب.")
 T("How the Home tab is put together: which categories it shows and in what order, and the recommendations it suggests.",
   "Wie der Start-Tab aufgebaut ist: welche Kategorien er zeigt und in welcher Reihenfolge, und was er dir empfiehlt.",
   "Cómo se compone la pestaña Inicio: qué categorías muestra y en qué orden, y las recomendaciones que ofrece.",
@@ -57,7 +60,8 @@ T("How the Home tab is put together: which categories it shows and in what order
   "Hur fliken Hem är uppbyggd: vilka kategorier den visar och i vilken ordning, och vad den rekommenderar.",
   "ホームタブの構成：どのカテゴリをどの順で表示するか、そしておすすめの内容。",
   "홈 탭의 구성: 어떤 분류를 어떤 순서로 보여주는지, 그리고 어떤 연습을 추천하는지.",
-  "“首页”标签的构成：显示哪些分类、以何种顺序显示，以及它推荐的内容。")
+  "“首页”标签的构成：显示哪些分类、以何种顺序显示，以及它推荐的内容。",
+  "كيف يُبنى تبويب الرئيسية: الفئات التي يعرضها وترتيبها، والتمارين التي يقترحها.")
 T("Export your exercise library to a file, or import one.",
   "Exportiere deine Übungsbibliothek in eine Datei oder importiere eine.",
   "Exporta tu biblioteca de ejercicios a un archivo, o importa una.",
@@ -71,10 +75,11 @@ T("Export your exercise library to a file, or import one.",
   "Exportera ditt övningsbibliotek till en fil, eller importera ett.",
   "エクササイズライブラリをファイルに書き出す、または読み込む。",
   "연습 라이브러리를 파일로 내보내거나 가져옵니다.",
-  "将练习库导出为文件，或导入一个文件。")
+  "将练习库导出为文件，或导入一个文件。",
+  "صدّر مكتبة تمارينك إلى ملف، أو استورد ملفًا.")
 
 # --- The website line under the hub ---
-T("Website", "Website", "Sitio web", "Site web", "Sito web", "Site", "Website", "Сайт", "Strona internetowa", "Web sitesi", "Webbplats", "ウェブサイト", "웹사이트", "网站")
+T("Website", "Website", "Sitio web", "Site web", "Sito web", "Site", "Website", "Сайт", "Strona internetowa", "Web sitesi", "Webbplats", "ウェブサイト", "웹사이트", "网站", "الموقع الإلكتروني")
 T("The website of the app. Tapping it leaves the app and opens the site in your browser.",
   "Die Website der App. Ein Tipp verlässt die App und öffnet die Seite in deinem Browser.",
   "El sitio web de la app. Al tocarlo sales de la app y se abre el sitio en tu navegador.",
@@ -88,25 +93,26 @@ T("The website of the app. Tapping it leaves the app and opens the site in your 
   "Appens webbplats. Ett tryck lämnar appen och öppnar sidan i din webbläsare.",
   "アプリのウェブサイトです。タップするとアプリを離れ、ブラウザでサイトが開きます。",
   "앱의 웹사이트입니다. 탭하면 앱을 나가 브라우저에서 사이트가 열립니다.",
-  "应用的网站。点按后会离开应用，在浏览器中打开该网站。")
+  "应用的网站。点按后会离开应用，在浏览器中打开该网站。",
+  "موقع التطبيق الإلكتروني. الضغط عليه يغادر التطبيق ويفتح الموقع في متصفحك.")
 
 # --- Audio ---
-T("Devices", "Geräte", "Dispositivos", "Appareils", "Dispositivi", "Dispositivos", "Apparaten", "Устройства", "Urządzenia", "Aygıtlar", "Enheter", "デバイス", "기기", "设备")
-T("Speaker", "Lautsprecher", "Altavoz", "Haut-parleur", "Altoparlante", "Alto-falante", "Luidspreker", "Динамик", "Głośnik", "Hoparlör", "Högtalare", "スピーカー", "스피커", "扬声器")
-T("Microphone", "Mikrofon", "Micrófono", "Micro", "Microfono", "Microfone", "Microfoon", "Микрофон", "Mikrofon", "Mikrofon", "Mikrofon", "マイク", "마이크", "麦克风")
-T("Automatic", "Automatisch", "Automático", "Automatique", "Automatico", "Automático", "Automatisch", "Автоматически", "Automatycznie", "Otomatik", "Automatiskt", "自動", "자동", "自动")
-T("iPhone Speaker", "iPhone-Lautsprecher", "Altavoz del iPhone", "Haut-parleur de l’iPhone", "Altoparlante dell’iPhone", "Alto-falante do iPhone", "iPhone-luidspreker", "Динамик iPhone", "Głośnik iPhone’a", "iPhone Hoparlörü", "iPhone-högtalare", "iPhoneのスピーカー", "iPhone 스피커", "iPhone 扬声器")
-T("iPhone Microphone", "iPhone-Mikrofon", "Micrófono del iPhone", "Micro de l’iPhone", "Microfono dell’iPhone", "Microfone do iPhone", "iPhone-microfoon", "Микрофон iPhone", "Mikrofon iPhone’a", "iPhone Mikrofonu", "iPhone-mikrofon", "iPhoneのマイク", "iPhone 마이크", "iPhone 麦克风")
-T("Scoring", "Bewertung", "Puntuación", "Notation", "Punteggio", "Pontuação", "Score", "Оценка", "Ocena", "Puanlama", "Poäng", "採点", "점수", "评分")
-T("Automatically Recognise Microphone Delay", "Mikrofonverzögerung automatisch erkennen", "Detectar automáticamente el retardo del micrófono", "Détecter automatiquement le retard du micro", "Rileva automaticamente il ritardo del microfono", "Detectar automaticamente o atraso do microfone", "Microfoonvertraging automatisch herkennen", "Автоматически определять задержку микрофона", "Automatycznie rozpoznawaj opóźnienie mikrofonu", "Mikrofon gecikmesini otomatik algıla", "Känn av mikrofonfördröjningen automatiskt", "マイク遅延を自動で認識", "마이크 지연 자동 인식", "自动识别麦克风延迟")
-T("Microphone delay", "Mikrofonverzögerung", "Retardo del micrófono", "Retard du micro", "Ritardo del microfono", "Atraso do microfone", "Microfoonvertraging", "Задержка микрофона", "Opóźnienie mikrofonu", "Mikrofon gecikmesi", "Mikrofonfördröjning", "マイク遅延", "마이크 지연", "麦克风延迟")
-T("ms", "ms", "ms", "ms", "ms", "ms", "ms", "мс", "ms", "ms", "ms", "ミリ秒", "밀리초", "毫秒")
-T("Test for delay", "Verzögerung messen", "Medir el retardo", "Mesurer le retard", "Misura il ritardo", "Medir o atraso", "Vertraging meten", "Измерить задержку", "Zmierz opóźnienie", "Gecikmeyi ölç", "Mät fördröjning", "遅延を測定", "지연 측정", "测量延迟")
+T("Devices", "Geräte", "Dispositivos", "Appareils", "Dispositivi", "Dispositivos", "Apparaten", "Устройства", "Urządzenia", "Aygıtlar", "Enheter", "デバイス", "기기", "设备", "الأجهزة")
+T("Speaker", "Lautsprecher", "Altavoz", "Haut-parleur", "Altoparlante", "Alto-falante", "Luidspreker", "Динамик", "Głośnik", "Hoparlör", "Högtalare", "スピーカー", "스피커", "扬声器", "مكبر الصوت")
+T("Microphone", "Mikrofon", "Micrófono", "Micro", "Microfono", "Microfone", "Microfoon", "Микрофон", "Mikrofon", "Mikrofon", "Mikrofon", "マイク", "마이크", "麦克风", "الميكروفون")
+T("Automatic", "Automatisch", "Automático", "Automatique", "Automatico", "Automático", "Automatisch", "Автоматически", "Automatycznie", "Otomatik", "Automatiskt", "自動", "자동", "自动", "تلقائي")
+T("iPhone Speaker", "iPhone-Lautsprecher", "Altavoz del iPhone", "Haut-parleur de l’iPhone", "Altoparlante dell’iPhone", "Alto-falante do iPhone", "iPhone-luidspreker", "Динамик iPhone", "Głośnik iPhone’a", "iPhone Hoparlörü", "iPhone-högtalare", "iPhoneのスピーカー", "iPhone 스피커", "iPhone 扬声器", "مكبر صوت iPhone")
+T("iPhone Microphone", "iPhone-Mikrofon", "Micrófono del iPhone", "Micro de l’iPhone", "Microfono dell’iPhone", "Microfone do iPhone", "iPhone-microfoon", "Микрофон iPhone", "Mikrofon iPhone’a", "iPhone Mikrofonu", "iPhone-mikrofon", "iPhoneのマイク", "iPhone 마이크", "iPhone 麦克风", "ميكروفون iPhone")
+T("Scoring", "Bewertung", "Puntuación", "Notation", "Punteggio", "Pontuação", "Score", "Оценка", "Ocena", "Puanlama", "Poäng", "採点", "점수", "评分", "احتساب النتيجة")
+T("Automatically Recognise Microphone Delay", "Mikrofonverzögerung automatisch erkennen", "Detectar automáticamente el retardo del micrófono", "Détecter automatiquement le retard du micro", "Rileva automaticamente il ritardo del microfono", "Detectar automaticamente o atraso do microfone", "Microfoonvertraging automatisch herkennen", "Автоматически определять задержку микрофона", "Automatycznie rozpoznawaj opóźnienie mikrofonu", "Mikrofon gecikmesini otomatik algıla", "Känn av mikrofonfördröjningen automatiskt", "マイク遅延を自動で認識", "마이크 지연 자동 인식", "自动识别麦克风延迟", "التعرف على تأخير الميكروفون تلقائيًا")
+T("Microphone delay", "Mikrofonverzögerung", "Retardo del micrófono", "Retard du micro", "Ritardo del microfono", "Atraso do microfone", "Microfoonvertraging", "Задержка микрофона", "Opóźnienie mikrofonu", "Mikrofon gecikmesi", "Mikrofonfördröjning", "マイク遅延", "마이크 지연", "麦克风延迟", "تأخير الميكروفون")
+T("ms", "ms", "ms", "ms", "ms", "ms", "ms", "мс", "ms", "ms", "ms", "ミリ秒", "밀리초", "毫秒", "مللي ث")
+T("Test for delay", "Verzögerung messen", "Medir el retardo", "Mesurer le retard", "Misura il ritardo", "Medir o atraso", "Vertraging meten", "Измерить задержку", "Zmierz opóźnienie", "Gecikmeyi ölç", "Mät fördröjning", "遅延を測定", "지연 측정", "测量延迟", "اختبار التأخير")
 
 # --- The two delay tests: choosing one, and the sung one's review controls ---
-T("Choose a Test", "Test wählen", "Elige una prueba", "Choisir un test", "Scegli un test", "Escolha um teste", "Kies een test", "Выберите тест", "Wybierz test", "Bir test seçin", "Välj ett test", "テストを選ぶ", "테스트 선택", "选择测试")
-T("Clap Test", "Klatschtest", "Prueba de palmadas", "Test de claps", "Test dei battiti", "Teste de palmas", "Klaptest", "Тест с хлопками", "Test z klaśnięciami", "Alkış testi", "Klapptest", "手拍子テスト", "박수 테스트", "拍手测试")
-T("Sing an Exercise", "Übung singen", "Cantar un ejercicio", "Chanter un exercice", "Canta un esercizio", "Cantar um exercício", "Oefening zingen", "Спеть упражнение", "Zaśpiewaj ćwiczenie", "Bir egzersiz söyle", "Sjung en övning", "エクササイズを歌う", "연습 부르기", "唱一个练习")
+T("Choose a Test", "Test wählen", "Elige una prueba", "Choisir un test", "Scegli un test", "Escolha um teste", "Kies een test", "Выберите тест", "Wybierz test", "Bir test seçin", "Välj ett test", "テストを選ぶ", "테스트 선택", "选择测试", "اختر اختبارًا")
+T("Clap Test", "Klatschtest", "Prueba de palmadas", "Test de claps", "Test dei battiti", "Teste de palmas", "Klaptest", "Тест с хлопками", "Test z klaśnięciami", "Alkış testi", "Klapptest", "手拍子テスト", "박수 테스트", "拍手测试", "اختبار التصفيق")
+T("Sing an Exercise", "Übung singen", "Cantar un ejercicio", "Chanter un exercice", "Canta un esercizio", "Cantar um exercício", "Oefening zingen", "Спеть упражнение", "Zaśpiewaj ćwiczenie", "Bir egzersiz söyle", "Sjung en övning", "エクササイズを歌う", "연습 부르기", "唱一个练习", "غنِّ تمرينًا")
 T("Clap along with a metronome and the app works the delay out for you. Quick, but it needs headphones and firm claps to be accurate.",
   "Klatsche zu einem Metronom mit und die App ermittelt die Verzögerung für dich. Schnell, aber für ein genaues Ergebnis brauchst du Kopfhörer und festes Klatschen.",
   "Da palmadas al ritmo de un metrónomo y la app calcula el retardo por ti. Rápido, pero para ser preciso necesita auriculares y palmadas firmes.",
@@ -120,7 +126,8 @@ T("Clap along with a metronome and the app works the delay out for you. Quick, b
   "Klappa med till en metronom så räknar appen ut fördröjningen åt dig. Snabbt, men det krävs hörlurar och bestämda klappar för att bli exakt.",
   "メトロノームに合わせて手を叩くと、アプリが遅延を計算します。手軽ですが、正確に測るにはヘッドホンとしっかりした手拍子が必要です。",
   "메트로놈에 맞춰 박수를 치면 앱이 지연을 계산합니다. 빠르지만 정확하려면 헤드폰과 또렷한 박수가 필요합니다.",
-  "跟着节拍器拍手，应用会为你算出延迟。速度快，但要准确需要耳机和干脆的拍手。")
+  "跟着节拍器拍手，应用会为你算出延迟。速度快，但要准确需要耳机和干脆的拍手。",
+  "صفّق مع المترونوم وسيحسب التطبيق التأخير نيابةً عنك. سريع، لكنه يحتاج إلى سماعات رأس وتصفيق قوي ليكون دقيقًا.")
 T("Sing one of your own exercises, then slide your recorded singing until it lines up with the notes. Takes longer, but you see exactly what you're setting.",
   "Singe eine deiner eigenen Übungen und verschiebe danach deine aufgenommene Linie, bis sie zu den Noten passt. Dauert länger, dafür siehst du genau, was du einstellst.",
   "Canta uno de tus propios ejercicios y luego desplaza tu canto grabado hasta que coincida con las notas. Lleva más tiempo, pero ves exactamente lo que ajustas.",
@@ -134,8 +141,9 @@ T("Sing one of your own exercises, then slide your recorded singing until it lin
   "Sjung en av dina egna övningar och skjut sedan din inspelade sång tills den ligger i linje med noterna. Tar längre tid, men du ser exakt vad du ställer in.",
   "自分のエクササイズを歌い、録音された歌をノーツに合うまでずらします。時間はかかりますが、何を設定しているかがはっきり見えます。",
   "직접 만든 연습을 부른 뒤, 녹음된 노래를 음표에 맞을 때까지 옮기세요. 시간은 더 걸리지만 무엇을 설정하는지 정확히 보입니다.",
-  "唱一个你自己的练习，然后移动录下的歌声，直到与音符对齐。花的时间更久，但你能清楚看到自己在设置什么。")
-T("Choose an Exercise", "Übung wählen", "Elige un ejercicio", "Choisir un exercice", "Scegli un esercizio", "Escolha um exercício", "Kies een oefening", "Выберите упражнение", "Wybierz ćwiczenie", "Bir egzersiz seçin", "Välj en övning", "エクササイズを選ぶ", "연습 선택", "选择练习")
+  "唱一个你自己的练习，然后移动录下的歌声，直到与音符对齐。花的时间更久，但你能清楚看到自己在设置什么。",
+  "غنِّ أحد تمارينك، ثم حرّك غناءك المسجَّل حتى يتطابق مع النغمات. يستغرق وقتًا أطول، لكنك ترى بالضبط ما تضبطه.")
+T("Choose an Exercise", "Übung wählen", "Elige un ejercicio", "Choisir un exercice", "Scegli un esercizio", "Escolha um exercício", "Kies een oefening", "Выберите упражнение", "Wybierz ćwiczenie", "Bir egzersiz seçin", "Välj en övning", "エクササイズを選ぶ", "연습 선택", "选择练习", "اختر تمرينًا")
 T("Line your singing up with the notes, then tap Done.",
   "Bringe deinen Gesang mit den Noten in Deckung und tippe dann auf „Fertig“.",
   "Alinea tu canto con las notas y luego toca «Listo».",
@@ -149,11 +157,12 @@ T("Line your singing up with the notes, then tap Done.",
   "Lägg din sång i linje med noterna och tryck sedan på ”Klar”.",
   "歌をノーツに合わせてから「完了」をタップします。",
   "노래를 음표에 맞춘 다음 ‘완료’를 누르세요.",
-  "把你的歌声与音符对齐，然后点按“完成”。")
-T("%d ms earlier", "%d ms früher", "%d ms antes", "%d ms plus tôt", "%d ms prima", "%d ms antes", "%d ms eerder", "на %d мс раньше", "%d ms wcześniej", "%d ms daha erken", "%d ms tidigare", "%d ミリ秒早く", "%d밀리초 앞으로", "提前 %d 毫秒")
-T("%d ms later", "%d ms später", "%d ms después", "%d ms plus tard", "%d ms dopo", "%d ms depois", "%d ms later", "на %d мс позже", "%d ms później", "%d ms daha geç", "%d ms senare", "%d ミリ秒遅く", "%d밀리초 뒤로", "延后 %d 毫秒")
+  "把你的歌声与音符对齐，然后点按“完成”。",
+  "طابِق غناءك مع النغمات، ثم اضغط على «تم».")
+T("%d ms earlier", "%d ms früher", "%d ms antes", "%d ms plus tôt", "%d ms prima", "%d ms antes", "%d ms eerder", "на %d мс раньше", "%d ms wcześniej", "%d ms daha erken", "%d ms tidigare", "%d ミリ秒早く", "%d밀리초 앞으로", "提前 %d 毫秒", "مُقدَّم بمقدار %d مللي ث")
+T("%d ms later", "%d ms später", "%d ms después", "%d ms plus tard", "%d ms dopo", "%d ms depois", "%d ms later", "на %d мс позже", "%d ms później", "%d ms daha geç", "%d ms senare", "%d ミリ秒遅く", "%d밀리초 뒤로", "延后 %d 毫秒", "مُؤخَّر بمقدار %d مللي ث")
 
-T("Instruments", "Instrumente", "Instrumentos", "Instruments", "Strumenti", "Instrumentos", "Instrumenten", "Инструменты", "Instrumenty", "Enstrümanlar", "Instrument", "楽器", "악기", "乐器")
+T("Instruments", "Instrumente", "Instrumentos", "Instruments", "Strumenti", "Instrumentos", "Instrumenten", "Инструменты", "Instrumenty", "Enstrümanlar", "Instrument", "楽器", "악기", "乐器", "الآلات الموسيقية")
 T("Choose the sound that plays the notes, or upload your own.",
   "Wähle den Klang, mit dem die Noten gespielt werden, oder lade einen eigenen hoch.",
   "Elige el sonido con el que suenan las notas, o sube el tuyo.",
@@ -167,7 +176,8 @@ T("Choose the sound that plays the notes, or upload your own.",
   "Välj ljudet som spelar noterna, eller ladda upp ett eget.",
   "音を鳴らす楽器を選ぶか、自分の音源をアップロードします。",
   "음을 재생할 소리를 선택하거나 직접 업로드하세요.",
-  "选择用于演奏音符的声音，或上传你自己的声音。")
+  "选择用于演奏音符的声音，或上传你自己的声音。",
+  "اختر الصوت الذي تُعزف به النغمات، أو ارفع صوتك الخاص.")
 T("“Automatic” uses connected earphones (e.g. AirPods) when available, otherwise the phone.",
   "„Automatisch“ nutzt angeschlossene Kopfhörer (z. B. AirPods), sonst das Telefon.",
   "«Automático» usa los auriculares conectados (p. ej. AirPods) si los hay; si no, el teléfono.",
@@ -181,7 +191,8 @@ T("“Automatic” uses connected earphones (e.g. AirPods) when available, other
   "”Automatiskt” använder anslutna hörlurar (t.ex. AirPods) när de finns, annars telefonen.",
   "「自動」は接続中のイヤフォン（AirPodsなど）があればそれを、なければ本体を使います。",
   "“자동”은 연결된 이어폰(예: AirPods)이 있으면 그것을, 없으면 기기를 사용합니다.",
-  "“自动”会在有已连接耳机（如 AirPods）时使用耳机，否则使用手机。")
+  "“自动”会在有已连接耳机（如 AirPods）时使用耳机，否则使用手机。",
+  "«تلقائي» يستخدم سماعات الأذن المتصلة (مثل AirPods) عند توفرها، وإلا فالهاتف.")
 T("Sets the delay below for you: every exercise you play to the end is scored at every delay it could have been sung at, and the one that scores highest is kept. Turn it off to measure the delay yourself and type it in.",
   "Stellt die Verzögerung unten für dich ein: Jede Übung, die du bis zum Ende spielst, wird mit jeder möglichen Verzögerung bewertet, und die mit der höchsten Punktzahl wird übernommen. Schalte es aus, um die Verzögerung selbst zu messen und einzutragen.",
   "Ajusta por ti el retardo de abajo: cada ejercicio que completes se puntúa con todos los retardos con los que podría haberse cantado, y se guarda el que da la puntuación más alta. Desactívalo para medir el retardo tú mismo e introducirlo.",
@@ -195,7 +206,8 @@ T("Sets the delay below for you: every exercise you play to the end is scored at
   "Ställer in fördröjningen nedan åt dig: varje övning du spelar klart poängsätts vid alla fördröjningar den kunde ha sjungits med, och den som ger högst poäng behålls. Stäng av för att mäta fördröjningen själv och skriva in den.",
   "下の遅延を自動で設定します。最後まで再生したエクササイズは、考えられるすべての遅延で採点され、いちばん点数の高い値が保存されます。オフにすると、自分で遅延を測定して入力できます。",
   "아래 지연을 대신 설정합니다. 끝까지 재생한 연습은 가능한 모든 지연으로 채점되고, 가장 높은 점수가 나온 값이 저장됩니다. 끄면 지연을 직접 측정해 입력할 수 있습니다.",
-  "自动为你设置下方的延迟：每个完整播放到结束的练习都会按所有可能的延迟计分，并保留得分最高的那个。关闭后可以自己测量延迟并手动输入。")
+  "自动为你设置下方的延迟：每个完整播放到结束的练习都会按所有可能的延迟计分，并保留得分最高的那个。关闭后可以自己测量延迟并手动输入。",
+  "يضبط التأخير أدناه نيابةً عنك: كل تمرين تشغّله حتى النهاية تُحتسب نتيجته عند كل تأخير كان من الممكن أن يُغنّى به، ويُحتفظ بالتأخير الذي يحقق أعلى نتيجة. أوقفه لتقيس التأخير بنفسك وتكتبه.")
 T("Compensates for the lag between singing and pitch detection. Only the score is affected, playback and visuals are unchanged. While the setting above is on it is worked out for you and can't be edited here.",
   "Gleicht die Verzögerung zwischen Singen und Tonhöhenerkennung aus. Betrifft nur die Bewertung, Wiedergabe und Darstellung bleiben unverändert. Solange die Einstellung darüber an ist, wird sie für dich ermittelt und kann hier nicht bearbeitet werden.",
   "Compensa el desfase entre el canto y la detección de tono. Solo afecta a la puntuación, la reproducción y la imagen no cambian. Mientras el ajuste de arriba esté activado, se calcula por ti y no se puede editar aquí.",
@@ -209,7 +221,8 @@ T("Compensates for the lag between singing and pitch detection. Only the score i
   "Kompenserar fördröjningen mellan sång och tonhöjdsavläsning. Bara poängen påverkas, uppspelning och grafik ändras inte. Så länge inställningen ovan är på räknas värdet ut åt dig och kan inte ändras här.",
   "歌声とピッチ検出の間の遅れを補正します。影響するのは採点だけで、再生や表示は変わりません。上の設定がオンの間は自動で求められ、ここでは編集できません。",
   "노래와 음정 인식 사이의 지연을 보정합니다. 점수에만 영향을 주며 재생과 화면은 그대로입니다. 위 설정이 켜져 있는 동안에는 자동으로 계산되며 여기서 수정할 수 없습니다.",
-  "补偿演唱与音高识别之间的延迟。只影响评分，播放和画面不受影响。上方的设置开启时，该数值会自动算出，无法在这里修改。")
+  "补偿演唱与音高识别之间的延迟。只影响评分，播放和画面不受影响。上方的设置开启时，该数值会自动算出，无法在这里修改。",
+  "يعوّض الفارق الزمني بين الغناء واكتشاف درجة الصوت. تتأثر النتيجة فقط، ولا يتغير التشغيل ولا العرض. أثناء تشغيل الإعداد أعلاه يُحسب نيابةً عنك ولا يمكن تعديله هنا.")
 T("Compensates for the lag between singing and pitch detection. Only the score is affected — playback and visuals are unchanged. Run the test to measure it automatically.",
   "Gleicht die Verzögerung zwischen Singen und Tonhöhenerkennung aus. Betrifft nur die Bewertung – Wiedergabe und Darstellung bleiben unverändert. Führe den Test aus, um sie automatisch zu messen.",
   "Compensa el desfase entre el canto y la detección de tono. Solo afecta a la puntuación: la reproducción y la imagen no cambian. Haz la prueba para medirlo automáticamente.",
@@ -223,12 +236,13 @@ T("Compensates for the lag between singing and pitch detection. Only the score i
   "Kompenserar fördröjningen mellan sång och tonhöjdsavläsning. Endast poängen påverkas – uppspelning och grafik är oförändrade. Kör testet för att mäta den automatiskt.",
   "歌声とピッチ検出の間の遅れを補正します。影響するのは採点のみで、再生と表示は変わりません。テストを実行すると自動で測定できます。",
   "노래와 음높이 감지 사이의 지연을 보정합니다. 점수에만 영향을 주며 재생과 화면은 그대로입니다. 테스트를 실행하면 자동으로 측정됩니다.",
-  "补偿演唱与音高检测之间的延迟。仅影响评分，播放和画面不受影响。运行测试可自动测量。")
+  "补偿演唱与音高检测之间的延迟。仅影响评分，播放和画面不受影响。运行测试可自动测量。",
+  "يعوّض الفارق الزمني بين الغناء واكتشاف درجة الصوت. تتأثر النتيجة فقط، ولا يتغير التشغيل ولا العرض. شغّل الاختبار لقياسه تلقائيًا.")
 
 # --- Instruments screen ---
-T("Built-in", "Integriert", "Integrados", "Intégrés", "Integrati", "Integrados", "Ingebouwd", "Встроенные", "Wbudowane", "Yerleşik", "Inbyggda", "内蔵", "기본 제공", "内置")
-T("Custom", "Eigene", "Personalizado", "Personnalisé", "Personalizzato", "Personalizado", "Aangepast", "Свои", "Własne", "Özel", "Egna", "カスタム", "사용자 지정", "自定义")
-T("Play sample", "Beispiel abspielen", "Reproducir muestra", "Écouter un exemple", "Riproduci esempio", "Reproduzir amostra", "Voorbeeld afspelen", "Прослушать пример", "Odtwórz próbkę", "Örneği çal", "Spela upp exempel", "サンプルを再生", "샘플 재생", "播放示例")
+T("Built-in", "Integriert", "Integrados", "Intégrés", "Integrati", "Integrados", "Ingebouwd", "Встроенные", "Wbudowane", "Yerleşik", "Inbyggda", "内蔵", "기본 제공", "内置", "مدمجة")
+T("Custom", "Eigene", "Personalizado", "Personnalisé", "Personalizzato", "Personalizado", "Aangepast", "Свои", "Własne", "Özel", "Egna", "カスタム", "사용자 지정", "自定义", "مخصص")
+T("Play sample", "Beispiel abspielen", "Reproducir muestra", "Écouter un exemple", "Riproduci esempio", "Reproduzir amostra", "Voorbeeld afspelen", "Прослушать пример", "Odtwórz próbkę", "Örneği çal", "Spela upp exempel", "サンプルを再生", "샘플 재생", "播放示例", "تشغيل عيّنة")
 T("Upload an MP3 or WAV file containing a single sound. Playback shifts it up and down from its pitch to reach every note. After uploading, set the pitch the recording actually has.",
   "Lade eine MP3- oder WAV-Datei mit einem einzelnen Klang hoch. Die Wiedergabe verschiebt ihn von seiner Tonhöhe aus nach oben und unten, um alle Noten zu erreichen. Stelle nach dem Hochladen die tatsächliche Tonhöhe der Aufnahme ein.",
   "Sube un archivo MP3 o WAV con un solo sonido. La reproducción lo desplaza hacia arriba y abajo desde su tono para alcanzar todas las notas. Después de subirlo, indica el tono real de la grabación.",
@@ -242,9 +256,10 @@ T("Upload an MP3 or WAV file containing a single sound. Playback shifts it up an
   "Ladda upp en MP3- eller WAV-fil med ett enda ljud. Vid uppspelning flyttas det upp och ner från sin tonhöjd för att nå alla toner. Ange den tonhöjd inspelningen faktiskt har efter uppladdningen.",
   "単一の音が入ったMP3またはWAVファイルをアップロードします。再生時にはその音を基準に上下へ移調して、すべての音をまかないます。アップロード後に、録音の実際の音高を設定してください。",
   "하나의 소리가 담긴 MP3 또는 WAV 파일을 업로드하세요. 재생 시 해당 음높이를 기준으로 위아래로 이동해 모든 음을 냅니다. 업로드한 뒤 녹음의 실제 음높이를 설정하세요.",
-  "上传包含单个声音的 MP3 或 WAV 文件。播放时会以该声音的音高为基准上下移调，以覆盖所有音符。上传后，请设置录音的实际音高。")
-T("Pitch of the Recording", "Tonhöhe der Aufnahme", "Tono de la grabación", "Hauteur de l’enregistrement", "Altezza della registrazione", "Altura da gravação", "Toonhoogte van de opname", "Высота записи", "Wysokość nagrania", "Kaydın perdesi", "Inspelningens tonhöjd", "録音の音高", "녹음의 음높이", "录音的音高")
-T("e.g. C3 or 130.81", "z. B. C3 oder 130.81", "p. ej. C3 o 130.81", "p. ex. C3 ou 130.81", "es. C3 o 130.81", "por ex. C3 ou 130.81", "bijv. C3 of 130.81", "например, C3 или 130.81", "np. C3 lub 130.81", "ör. C3 veya 130.81", "t.ex. C3 eller 130.81", "例: C3 または 130.81", "예: C3 또는 130.81", "例如 C3 或 130.81")
+  "上传包含单个声音的 MP3 或 WAV 文件。播放时会以该声音的音高为基准上下移调，以覆盖所有音符。上传后，请设置录音的实际音高。",
+  "ارفع ملف MP3 أو WAV يحتوي على صوت واحد. عند التشغيل يُنقل الصوت للأعلى وللأسفل من درجته ليصل إلى كل نغمة. بعد الرفع، حدّد درجة الصوت الفعلية للتسجيل.")
+T("Pitch of the Recording", "Tonhöhe der Aufnahme", "Tono de la grabación", "Hauteur de l’enregistrement", "Altezza della registrazione", "Altura da gravação", "Toonhoogte van de opname", "Высота записи", "Wysokość nagrania", "Kaydın perdesi", "Inspelningens tonhöjd", "録音の音高", "녹음의 음높이", "录音的音高", "درجة صوت التسجيل")
+T("e.g. C3 or 130.81", "z. B. C3 oder 130.81", "p. ej. C3 o 130.81", "p. ex. C3 ou 130.81", "es. C3 o 130.81", "por ex. C3 ou 130.81", "bijv. C3 of 130.81", "например, C3 или 130.81", "np. C3 lub 130.81", "ör. C3 veya 130.81", "t.ex. C3 eller 130.81", "例: C3 または 130.81", "예: C3 또는 130.81", "例如 C3 或 130.81", "مثل C3 أو 130.81")
 T("The note (e.g. C3) or frequency in Hz (e.g. 130.81) of the recorded sound. Playback shifts the recording up or down from here to reach each note.",
   "Die Note (z. B. C3) oder Frequenz in Hz (z. B. 130.81) des aufgenommenen Klangs. Von hier aus wird die Aufnahme bei der Wiedergabe nach oben oder unten verschoben, um jede Note zu erreichen.",
   "La nota (p. ej. C3) o la frecuencia en Hz (p. ej. 130.81) del sonido grabado. La reproducción desplaza la grabación hacia arriba o abajo desde ahí para alcanzar cada nota.",
@@ -258,12 +273,13 @@ T("The note (e.g. C3) or frequency in Hz (e.g. 130.81) of the recorded sound. Pl
   "Den inspelade ljudets ton (t.ex. C3) eller frekvens i Hz (t.ex. 130.81). Vid uppspelning flyttas inspelningen upp eller ner härifrån för att nå varje ton.",
   "録音された音の音名（例: C3）または周波数（Hz、例: 130.81）。再生時にはここを基準に上下へ移調して各音を鳴らします。",
   "녹음된 소리의 음이름(예: C3) 또는 주파수(Hz, 예: 130.81). 재생 시 여기를 기준으로 위아래로 이동해 각 음을 냅니다.",
-  "所录声音的音名（如 C3）或频率（Hz，如 130.81）。播放时会以此为基准上下移调，以奏出每个音符。")
-T("Interpreted as", "Erkannt als", "Interpretado como", "Interprété comme", "Interpretato come", "Interpretado como", "Gelezen als", "Распознано как", "Odczytano jako", "Şu şekilde yorumlandı", "Tolkas som", "解釈結果", "인식된 값", "识别为")
-T("Not recognized", "Nicht erkannt", "No reconocido", "Non reconnu", "Non riconosciuto", "Não reconhecido", "Niet herkend", "Не распознано", "Nie rozpoznano", "Tanınmadı", "Känns inte igen", "認識できません", "인식할 수 없음", "无法识别")
-T("Use for Playback", "Für Wiedergabe verwenden", "Usar para la reproducción", "Utiliser pour la lecture", "Usa per la riproduzione", "Usar na reprodução", "Gebruiken voor afspelen", "Использовать для воспроизведения", "Użyj do odtwarzania", "Çalma için kullan", "Använd vid uppspelning", "再生に使用", "재생에 사용", "用于播放")
-T("Delete Instrument", "Instrument löschen", "Eliminar instrumento", "Supprimer l’instrument", "Elimina strumento", "Excluir instrumento", "Instrument verwijderen", "Удалить инструмент", "Usuń instrument", "Enstrümanı sil", "Radera instrument", "楽器を削除", "악기 삭제", "删除乐器")
-T("Delete Instrument?", "Instrument löschen?", "¿Eliminar el instrumento?", "Supprimer l’instrument ?", "Eliminare lo strumento?", "Excluir instrumento?", "Instrument verwijderen?", "Удалить инструмент?", "Usunąć instrument?", "Enstrüman silinsin mi?", "Radera instrumentet?", "楽器を削除しますか？", "악기를 삭제할까요?", "要删除该乐器吗？")
+  "所录声音的音名（如 C3）或频率（Hz，如 130.81）。播放时会以此为基准上下移调，以奏出每个音符。",
+  "النغمة (مثل C3) أو التردد بالهرتز (مثل 130.81) للصوت المسجَّل. عند التشغيل يُنقل التسجيل للأعلى أو للأسفل من هنا ليصل إلى كل نغمة.")
+T("Interpreted as", "Erkannt als", "Interpretado como", "Interprété comme", "Interpretato come", "Interpretado como", "Gelezen als", "Распознано как", "Odczytano jako", "Şu şekilde yorumlandı", "Tolkas som", "解釈結果", "인식된 값", "识别为", "فُسِّر على أنه")
+T("Not recognized", "Nicht erkannt", "No reconocido", "Non reconnu", "Non riconosciuto", "Não reconhecido", "Niet herkend", "Не распознано", "Nie rozpoznano", "Tanınmadı", "Känns inte igen", "認識できません", "인식할 수 없음", "无法识别", "غير معروف")
+T("Use for Playback", "Für Wiedergabe verwenden", "Usar para la reproducción", "Utiliser pour la lecture", "Usa per la riproduzione", "Usar na reprodução", "Gebruiken voor afspelen", "Использовать для воспроизведения", "Użyj do odtwarzania", "Çalma için kullan", "Använd vid uppspelning", "再生に使用", "재생에 사용", "用于播放", "استخدام للتشغيل")
+T("Delete Instrument", "Instrument löschen", "Eliminar instrumento", "Supprimer l’instrument", "Elimina strumento", "Excluir instrumento", "Instrument verwijderen", "Удалить инструмент", "Usuń instrument", "Enstrümanı sil", "Radera instrument", "楽器を削除", "악기 삭제", "删除乐器", "حذف الآلة")
+T("Delete Instrument?", "Instrument löschen?", "¿Eliminar el instrumento?", "Supprimer l’instrument ?", "Eliminare lo strumento?", "Excluir instrumento?", "Instrument verwijderen?", "Удалить инструмент?", "Usunąć instrument?", "Enstrüman silinsin mi?", "Radera instrumentet?", "楽器を削除しますか？", "악기를 삭제할까요?", "要删除该乐器吗？", "حذف الآلة؟")
 T("\"%@\" and its audio file will be deleted. This cannot be undone.",
   "„%@“ und die zugehörige Audiodatei werden gelöscht. Das lässt sich nicht rückgängig machen.",
   "Se eliminarán «%@» y su archivo de audio. Esta acción no se puede deshacer.",
@@ -277,15 +293,16 @@ T("\"%@\" and its audio file will be deleted. This cannot be undone.",
   "”%@” och dess ljudfil raderas. Det går inte att ångra.",
   "「%@」とそのオーディオファイルが削除されます。この操作は取り消せません。",
   "“%@”과(와) 해당 오디오 파일이 삭제됩니다. 이 작업은 되돌릴 수 없습니다.",
-  "将删除“%@”及其音频文件。此操作无法撤销。")
+  "将删除“%@”及其音频文件。此操作无法撤销。",
+  "سيُحذف «%@» وملفه الصوتي. لا يمكن التراجع عن ذلك.")
 
 # --- Voice ---
-T("Vocal Range", "Stimmumfang", "Tesitura", "Tessiture", "Estensione vocale", "Extensão vocal", "Stembereik", "Диапазон голоса", "Skala głosu", "Ses aralığı", "Röstomfång", "声域", "음역대", "音域")
-T("Vocal range", "Stimmumfang", "Tesitura", "Tessiture", "Estensione vocale", "Extensão vocal", "Stembereik", "Диапазон голоса", "Skala głosu", "Ses aralığı", "Röstomfång", "声域", "음역대", "音域")
-T("Not set", "Nicht festgelegt", "Sin definir", "Non défini", "Non impostato", "Não definido", "Niet ingesteld", "Не задан", "Nie ustawiono", "Ayarlanmadı", "Ej angivet", "未設定", "설정 안 됨", "未设置")
-T("Lowest note", "Tiefster Ton", "Nota más grave", "Note la plus grave", "Nota più bassa", "Nota mais grave", "Laagste noot", "Самая низкая нота", "Najniższy dźwięk", "En pes nota", "Lägsta ton", "最低音", "최저음", "最低音")
-T("Highest note", "Höchster Ton", "Nota más aguda", "Note la plus aiguë", "Nota più alta", "Nota mais aguda", "Hoogste noot", "Самая высокая нота", "Najwyższy dźwięk", "En tiz nota", "Högsta ton", "最高音", "최고음", "最高音")
-T("Test Vocal Range", "Stimmumfang testen", "Probar la tesitura", "Tester la tessiture", "Testa l’estensione vocale", "Testar extensão vocal", "Stembereik testen", "Проверить диапазон", "Zbadaj skalę głosu", "Ses aralığını test et", "Testa röstomfång", "声域をテスト", "음역대 테스트", "测试音域")
+T("Vocal Range", "Stimmumfang", "Tesitura", "Tessiture", "Estensione vocale", "Extensão vocal", "Stembereik", "Диапазон голоса", "Skala głosu", "Ses aralığı", "Röstomfång", "声域", "음역대", "音域", "المدى الصوتي")
+T("Vocal range", "Stimmumfang", "Tesitura", "Tessiture", "Estensione vocale", "Extensão vocal", "Stembereik", "Диапазон голоса", "Skala głosu", "Ses aralığı", "Röstomfång", "声域", "음역대", "音域", "المدى الصوتي")
+T("Not set", "Nicht festgelegt", "Sin definir", "Non défini", "Non impostato", "Não definido", "Niet ingesteld", "Не задан", "Nie ustawiono", "Ayarlanmadı", "Ej angivet", "未設定", "설정 안 됨", "未设置", "غير محدد")
+T("Lowest note", "Tiefster Ton", "Nota más grave", "Note la plus grave", "Nota più bassa", "Nota mais grave", "Laagste noot", "Самая низкая нота", "Najniższy dźwięk", "En pes nota", "Lägsta ton", "最低音", "최저음", "最低音", "أخفض نغمة")
+T("Highest note", "Höchster Ton", "Nota más aguda", "Note la plus aiguë", "Nota più alta", "Nota mais aguda", "Hoogste noot", "Самая высокая нота", "Najwyższy dźwięk", "En tiz nota", "Högsta ton", "最高音", "최고음", "最高音", "أعلى نغمة")
+T("Test Vocal Range", "Stimmumfang testen", "Probar la tesitura", "Tester la tessiture", "Testa l’estensione vocale", "Testar extensão vocal", "Stembereik testen", "Проверить диапазон", "Zbadaj skalę głosu", "Ses aralığını test et", "Testa röstomfång", "声域をテスト", "음역대 테스트", "测试音域", "اختبر المدى الصوتي")
 T("Choose your voice type, or pick “Custom” to enter your own lowest and highest notes. The test below can fill this in for you.",
   "Wähle deine Stimmlage oder „Eigene“, um deinen tiefsten und höchsten Ton selbst einzugeben. Der Test unten kann das für dich ausfüllen.",
   "Elige tu tipo de voz, o selecciona «Personalizado» para introducir tus propias notas más grave y más aguda. La prueba de abajo puede rellenarlo por ti.",
@@ -299,7 +316,8 @@ T("Choose your voice type, or pick “Custom” to enter your own lowest and hig
   "Välj din rösttyp, eller välj ”Egna” för att ange din egen lägsta och högsta ton. Testet nedan kan fylla i det åt dig.",
   "声のタイプを選ぶか、「カスタム」を選んで自分の最低音と最高音を入力します。下のテストで自動的に入力することもできます。",
   "성종을 선택하거나 “사용자 지정”을 선택해 자신의 최저음과 최고음을 입력하세요. 아래 테스트로 자동 입력할 수도 있습니다.",
-  "选择你的声部，或选择“自定义”来输入自己的最低音和最高音。下方的测试可以为你自动填写。")
+  "选择你的声部，或选择“自定义”来输入自己的最低音和最高音。下方的测试可以为你自动填写。",
+  "اختر نوع صوتك، أو اختر «مخصص» لإدخال أخفض وأعلى نغماتك بنفسك. يمكن للاختبار أدناه ملء ذلك نيابةً عنك.")
 T("The lowest and highest notes you can comfortably sing. Exercises are transposed to fit between them.",
   "Der tiefste und höchste Ton, den du bequem singen kannst. Übungen werden so transponiert, dass sie dazwischen passen.",
   "Las notas más grave y más aguda que puedes cantar con comodidad. Los ejercicios se transportan para encajar entre ellas.",
@@ -313,7 +331,8 @@ T("The lowest and highest notes you can comfortably sing. Exercises are transpos
   "Den lägsta och högsta ton du kan sjunga bekvämt. Övningar transponeras för att rymmas däremellan.",
   "無理なく歌える最低音と最高音。エクササイズはこの範囲に収まるように移調されます。",
   "편하게 부를 수 있는 최저음과 최고음입니다. 연습은 이 범위에 맞게 조옮김됩니다.",
-  "你能轻松唱出的最低音和最高音。练习会移调以适应这个范围。")
+  "你能轻松唱出的最低音和最高音。练习会移调以适应这个范围。",
+  "أخفض وأعلى نغمة يمكنك غناؤهما براحة. تُنقل التمارين لتقع بينهما.")
 T("Sing your lowest and highest notes and the app sets them as your custom vocal range above.",
   "Singe deinen tiefsten und höchsten Ton – die App trägt sie oben als deinen eigenen Stimmumfang ein.",
   "Canta tus notas más grave y más aguda y la app las guarda arriba como tu tesitura personalizada.",
@@ -327,11 +346,12 @@ T("Sing your lowest and highest notes and the app sets them as your custom vocal
   "Sjung din lägsta och högsta ton, så anger appen dem ovan som ditt egna röstomfång.",
   "最低音と最高音を歌うと、アプリが上のカスタム声域に設定します。",
   "최저음과 최고음을 부르면 앱이 위의 사용자 지정 음역대로 설정합니다.",
-  "唱出你的最低音和最高音，应用会将其设置为上方的自定义音域。")
+  "唱出你的最低音和最高音，应用会将其设置为上方的自定义音域。",
+  "غنِّ أخفض وأعلى نغماتك وسيضبطهما التطبيق كمداك الصوتي المخصص أعلاه.")
 
 # --- Voice: score calculation ---
-T("Score Calculation", "Punkteberechnung", "Cálculo de la puntuación", "Calcul de la note", "Calcolo del punteggio", "Cálculo da pontuação", "Scoreberekening", "Подсчёт оценки", "Obliczanie wyniku", "Puan hesaplama", "Poängberäkning", "採点方法", "점수 계산", "评分计算")
-T("Target window size", "Größe des Zielfensters", "Tamaño de la ventana objetivo", "Taille de la fenêtre cible", "Dimensione della finestra target", "Tamanho da janela alvo", "Grootte van het doelvenster", "Размер целевого окна", "Rozmiar okna docelowego", "Hedef pencere boyutu", "Målfönstrets storlek", "ターゲット範囲の大きさ", "목표 범위 크기", "目标范围大小")
+T("Score Calculation", "Punkteberechnung", "Cálculo de la puntuación", "Calcul de la note", "Calcolo del punteggio", "Cálculo da pontuação", "Scoreberekening", "Подсчёт оценки", "Obliczanie wyniku", "Puan hesaplama", "Poängberäkning", "採点方法", "점수 계산", "评分计算", "حساب النتيجة")
+T("Target window size", "Größe des Zielfensters", "Tamaño de la ventana objetivo", "Taille de la fenêtre cible", "Dimensione della finestra target", "Tamanho da janela alvo", "Grootte van het doelvenster", "Размер целевого окна", "Rozmiar okna docelowego", "Hedef pencere boyutu", "Målfönstrets storlek", "ターゲット範囲の大きさ", "목표 범위 크기", "目标范围大小", "حجم النافذة المستهدفة")
 T("How much of a note counts as hit when your score is worked out. At 100% the whole note counts, as it always has; lower, and only that share of the note's middle does, so you have to sing nearer the centre of the pitch for it to count.",
   "Wie viel einer Note als getroffen zählt, wenn deine Punktzahl berechnet wird. Bei 100 % zählt die ganze Note, wie bisher; darunter zählt nur dieser Anteil ihrer Mitte, du musst also näher an der Mitte der Tonhöhe singen, damit sie zählt.",
   "Qué parte de una nota cuenta como acertada al calcular tu puntuación. Al 100 % cuenta la nota entera, como hasta ahora; por debajo solo cuenta esa proporción de su centro, así que tienes que cantar más cerca del centro del tono para que cuente.",
@@ -345,7 +365,8 @@ T("How much of a note counts as hit when your score is worked out. At 100% the w
   "Hur mycket av en not som räknas som träffad när dina poäng beräknas. Vid 100 % räknas hela noten, precis som förut; lägre räknas bara den andelen av dess mitt, så du måste sjunga närmare tonhöjdens mitt för att den ska räknas.",
   "採点のときに音符のどこまでを当たりとみなすか。100 % では今までどおり音符全体が対象になり、それより低いと中央のその割合だけが対象になるため、音程の中心に近づけて歌う必要があります。",
   "점수를 계산할 때 음표의 어느 정도까지 맞힌 것으로 볼지 정합니다. 100 %에서는 지금까지처럼 음표 전체가 인정되고, 그보다 낮으면 가운데의 그만큼만 인정되므로 음높이의 중심에 더 가깝게 불러야 합니다.",
-  "计算得分时，音符的多少算作唱中。为 100 % 时整个音符都算，和以前一样；更低时只有中间的这一部分算，因此你需要唱得更接近音高的中心才会计入。")
+  "计算得分时，音符的多少算作唱中。为 100 % 时整个音符都算，和以前一样；更低时只有中间的这一部分算，因此你需要唱得更接近音高的中心才会计入。",
+  "مقدار ما يُحتسب من النغمة إصابةً عند حساب نتيجتك. عند 100% تُحتسب النغمة كلها، كما كان دائمًا؛ وعند قيمة أقل يُحتسب ذلك الجزء من وسط النغمة فقط، فعليك أن تغني أقرب إلى مركز الدرجة حتى تُحتسب.")
 T("The part of the note you have to hit for it to count",
   "Der Teil der Note, den du treffen musst, damit sie zählt",
   "La parte de la nota que debes acertar para que cuente",
@@ -359,16 +380,17 @@ T("The part of the note you have to hit for it to count",
   "Den del av noten du måste träffa för att den ska räknas",
   "音符が当たりとみなされる範囲",
   "인정받으려면 맞혀야 하는 음표 부분",
-  "需要唱中才会计分的音符部分")
+  "需要唱中才会计分的音符部分",
+  "الجزء من النغمة الذي يجب أن تصيبه حتى يُحتسب")
 
 # --- Home Tab settings ---
-T("Show recommendations as list", "Empfehlungen als Liste zeigen", "Mostrar recomendaciones como lista", "Afficher les recommandations en liste", "Mostra i consigliati come elenco", "Mostrar recomendações como lista", "Aanbevelingen als lijst tonen", "Показывать рекомендации списком", "Pokazuj polecane jako listę", "Önerileri liste olarak göster", "Visa rekommendationer som lista", "おすすめをリストで表示", "추천을 목록으로 표시", "以列表显示推荐")
-T("Recommendations", "Empfehlungen", "Recomendaciones", "Recommandations", "Raccomandazioni", "Recomendações", "Aanbevelingen", "Рекомендации", "Rekomendacje", "Öneriler", "Rekommendationer", "おすすめ", "추천", "推荐")
-T("Daily practice goal", "Tägliches Übungsziel", "Objetivo diario de práctica", "Objectif de pratique quotidien", "Obiettivo di pratica giornaliero", "Meta diária de prática", "Dagelijks oefendoel", "Ежедневная цель занятий", "Dzienny cel ćwiczeń", "Günlük çalışma hedefi", "Dagligt övningsmål", "1日の練習目標", "하루 연습 목표", "每天的练习目标")
-T("Customise your Home Screen", "Start-Tab anpassen", "Personalizar la pestaña Inicio", "Personnaliser l’onglet Accueil", "Personalizza la scheda Home", "Personalizar a aba Início", "Tabblad Start aanpassen", "Настроить вкладку «Главная»", "Dostosuj kartę Start", "Ana Sayfa sekmesini özelleştir", "Anpassa fliken Hem", "ホームタブをカスタマイズ", "홈 탭 맞춤 설정", "自定义首页标签")
-T("Whitelisted exercises", "Zugelassene Übungen", "Ejercicios permitidos", "Exercices autorisés", "Esercizi ammessi", "Exercícios permitidos", "Toegestane oefeningen", "Разрешённые упражнения", "Dozwolone ćwiczenia", "İzin verilen egzersizler", "Tillåtna övningar", "対象のエクササイズ", "허용된 연습", "已列入的练习")
-T("Automatically whitelisted exercises", "Automatisch zugelassene Übungen", "Ejercicios permitidos automáticamente", "Exercices autorisés automatiquement", "Esercizi ammessi automaticamente", "Exercícios permitidos automaticamente", "Automatisch toegestane oefeningen", "Автоматически разрешённые упражнения", "Automatycznie dozwolone ćwiczenia", "Otomatik izin verilen egzersizler", "Automatiskt tillåtna övningar", "自動で対象にするエクササイズ", "자동으로 허용되는 연습", "自动列入的练习")
-T("Whitelisted Exercises", "Zugelassene Übungen", "Ejercicios permitidos", "Exercices autorisés", "Esercizi ammessi", "Exercícios permitidos", "Toegestane oefeningen", "Разрешённые упражнения", "Dozwolone ćwiczenia", "İzin verilen egzersizler", "Tillåtna övningar", "対象のエクササイズ", "허용된 연습", "已列入的练习")
+T("Show recommendations as list", "Empfehlungen als Liste zeigen", "Mostrar recomendaciones como lista", "Afficher les recommandations en liste", "Mostra i consigliati come elenco", "Mostrar recomendações como lista", "Aanbevelingen als lijst tonen", "Показывать рекомендации списком", "Pokazuj polecane jako listę", "Önerileri liste olarak göster", "Visa rekommendationer som lista", "おすすめをリストで表示", "추천을 목록으로 표시", "以列表显示推荐", "عرض الاقتراحات كقائمة")
+T("Recommendations", "Empfehlungen", "Recomendaciones", "Recommandations", "Raccomandazioni", "Recomendações", "Aanbevelingen", "Рекомендации", "Rekomendacje", "Öneriler", "Rekommendationer", "おすすめ", "추천", "推荐", "الاقتراحات")
+T("Daily practice goal", "Tägliches Übungsziel", "Objetivo diario de práctica", "Objectif de pratique quotidien", "Obiettivo di pratica giornaliero", "Meta diária de prática", "Dagelijks oefendoel", "Ежедневная цель занятий", "Dzienny cel ćwiczeń", "Günlük çalışma hedefi", "Dagligt övningsmål", "1日の練習目標", "하루 연습 목표", "每天的练习目标", "هدف التمرّن اليومي")
+T("Customise your Home Screen", "Start-Tab anpassen", "Personalizar la pestaña Inicio", "Personnaliser l’onglet Accueil", "Personalizza la scheda Home", "Personalizar a aba Início", "Tabblad Start aanpassen", "Настроить вкладку «Главная»", "Dostosuj kartę Start", "Ana Sayfa sekmesini özelleştir", "Anpassa fliken Hem", "ホームタブをカスタマイズ", "홈 탭 맞춤 설정", "自定义首页标签", "خصّص شاشتك الرئيسية")
+T("Whitelisted exercises", "Zugelassene Übungen", "Ejercicios permitidos", "Exercices autorisés", "Esercizi ammessi", "Exercícios permitidos", "Toegestane oefeningen", "Разрешённые упражнения", "Dozwolone ćwiczenia", "İzin verilen egzersizler", "Tillåtna övningar", "対象のエクササイズ", "허용된 연습", "已列入的练习", "التمارين المسموح بها")
+T("Automatically whitelisted exercises", "Automatisch zugelassene Übungen", "Ejercicios permitidos automáticamente", "Exercices autorisés automatiquement", "Esercizi ammessi automaticamente", "Exercícios permitidos automaticamente", "Automatisch toegestane oefeningen", "Автоматически разрешённые упражнения", "Automatycznie dozwolone ćwiczenia", "Otomatik izin verilen egzersizler", "Automatiskt tillåtna övningar", "自動で対象にするエクササイズ", "자동으로 허용되는 연습", "自动列入的练习", "التمارين المسموح بها تلقائيًا")
+T("Whitelisted Exercises", "Zugelassene Übungen", "Ejercicios permitidos", "Exercices autorisés", "Esercizi ammessi", "Exercícios permitidos", "Toegestane oefeningen", "Разрешённые упражнения", "Dozwolone ćwiczenia", "İzin verilen egzersizler", "Tillåtna övningar", "対象のエクササイズ", "허용된 연습", "已列入的练习", "التمارين المسموح بها")
 T("Lists the recommended exercises in the Home tab's “Recommended” category, one row each. Off, the category shows a single card instead, which plays them all as one queue.",
   "Zeigt die empfohlenen Übungen in der Kategorie „Empfohlen“ im Start-Tab einzeln untereinander. Aus zeigt die Kategorie stattdessen eine einzelne Karte, die alle nacheinander abspielt.",
   "Muestra los ejercicios recomendados en la categoría «Recomendado» de la pestaña Inicio, uno por fila. Desactivado, la categoría muestra una sola tarjeta que los reproduce todos como una cola.",
@@ -382,7 +404,8 @@ T("Lists the recommended exercises in the Home tab's “Recommended” category,
   "Visar de rekommenderade övningarna i kategorin ”Rekommenderat” på fliken Hem, en per rad. Av visar kategorin i stället ett enda kort som spelar alla i följd.",
   "ホームタブの「おすすめ」カテゴリで、おすすめのエクササイズを1行ずつ一覧表示します。オフの場合は、すべてを続けて再生する1枚のカードが表示されます。",
   "홈 탭의 “추천” 카테고리에서 추천 연습을 한 줄씩 목록으로 보여 줍니다. 끄면 카테고리가 대신 카드 하나를 보여 주며, 이를 누르면 전체를 하나의 대기열로 재생합니다.",
-  "在“首页”标签的“推荐”类别中逐行列出推荐练习。关闭时，该类别改为显示一张卡片，点按可将它们作为一个队列依次播放。")
+  "在“首页”标签的“推荐”类别中逐行列出推荐练习。关闭时，该类别改为显示一张卡片，点按可将它们作为一个队列依次播放。",
+  "يعرض التمارين المقترحة في فئة «المقترحة» في تبويب الرئيسية، كل تمرين في صف. عند إيقافه تعرض الفئة بطاقة واحدة بدلًا من ذلك، تشغّلها كلها كقائمة انتظار واحدة.")
 T("How long you mean to practise a day. The Home tab's “Recommended” category suggests exercises adding up to at least this long, pitched at your skill level and steering clear of the ones you've sung lately, above all the ones you've sung over and over. A day of the Home tab's “Time Spent Singing” is filled in and ticked once you have practised this much.",
   "Wie lange du am Tag üben möchtest. Die Kategorie „Empfohlen“ im Start-Tab schlägt Übungen vor, die zusammen mindestens so lange dauern, abgestimmt auf dein Niveau. Dabei meidet sie Übungen, die du kürzlich gesungen hast, und ganz besonders solche, die du immer wieder gesungen hast. Ein Tag in „Gesungene Zeit“ im Start-Tab wird ausgefüllt und bekommt einen Haken, sobald du so lange geübt hast.",
   "Cuánto tiempo quieres practicar al día. La categoría «Recomendado» de la pestaña Inicio sugiere ejercicios que sumen al menos ese tiempo, ajustados a tu nivel y evitando los que has cantado hace poco, sobre todo los que has cantado una y otra vez. Un día de «Tiempo cantado» de la pestaña Inicio se rellena y recibe una marca en cuanto has practicado ese tiempo.",
@@ -396,7 +419,8 @@ T("How long you mean to practise a day. The Home tab's “Recommended” categor
   "Hur länge du tänker öva per dag. Kategorin ”Rekommenderat” på fliken Hem föreslår övningar som tillsammans räcker minst så länge, anpassade till din nivå. Den undviker övningar du har sjungit nyligen, och allra mest dem du har sjungit om och om igen. En dag i ”Sångtid” på fliken Hem fylls i och får en bock så snart du har övat så länge.",
   "1日にどれくらい練習するかです。ホームタブの「おすすめ」カテゴリは、合計でこの時間以上になるエクササイズを、あなたのレベルに合わせて提案します。最近歌ったエクササイズ、特に何度も繰り返し歌ったものは避けて選びます。ホームタブの「歌った時間」の各日は、この時間だけ練習するとぬりつぶされ、チェックマークが付きます。",
   "하루에 얼마나 연습할지입니다. 홈 탭의 “추천” 카테고리는 합쳐서 최소 이만큼 걸리는 연습을 나의 레벨에 맞춰 제안합니다. 최근에 부른 연습, 특히 여러 번 반복해서 부른 연습은 피해서 고릅니다. 홈 탭 “노래한 시간”의 하루는 이만큼 연습하면 색이 채워지고 체크 표시가 붙습니다.",
-  "你打算每天练习多长时间。“首页”标签中的“推荐”类别会按你的水平，建议加起来至少这么长的练习，并避开你最近唱过的练习，尤其是反复唱过很多次的。“首页”标签的“歌唱时长”中，某一天练满这么久后就会被填满并打上对勾。")
+  "你打算每天练习多长时间。“首页”标签中的“推荐”类别会按你的水平，建议加起来至少这么长的练习，并避开你最近唱过的练习，尤其是反复唱过很多次的。“首页”标签的“歌唱时长”中，某一天练满这么久后就会被填满并打上对勾。",
+  "المدة التي تنوي التمرّن فيها يوميًا. تقترح فئة «المقترحة» في تبويب الرئيسية تمارين لا يقل مجموعها عن هذه المدة، تناسب مستوى مهارتك وتتجنب ما غنيته مؤخرًا، وخصوصًا ما غنيته مرارًا وتكرارًا. يُملأ اليوم في «وقت الغناء» في تبويب الرئيسية وتوضع عليه علامة بمجرد أن تتمرّن هذه المدة.")
 T("Which exercises are whitelisted for you: switching a group on whitelists everything in it, including what was already in your library, and switching it off takes them out again. Exercises you tick or untick yourself below are left as you left them.",
   "Welche Übungen automatisch zugelassen werden: Schaltest du eine Gruppe ein, wird alles darin zugelassen — auch was schon in deiner Bibliothek war —, schaltest du sie aus, wird es wieder entfernt. Übungen, die du unten selbst an- oder abwählst, bleiben so, wie du sie gelassen hast.",
   "Qué ejercicios se permiten automáticamente: al activar un grupo se permiten todos los suyos, incluidos los que ya estaban en tu biblioteca, y al desactivarlo se vuelven a quitar. Los ejercicios que marcas o desmarcas tú abajo se quedan como los dejaste.",
@@ -410,7 +434,8 @@ T("Which exercises are whitelisted for you: switching a group on whitelists ever
   "Vilka övningar som tillåts automatiskt: slår du på en grupp tillåts allt i den, även det som redan fanns i ditt bibliotek, och slår du av den tas de bort igen. Övningar som du själv kryssar i eller ur nedan lämnas som du lämnade dem.",
   "どのエクササイズを自動で対象にするか。グループをオンにすると、ライブラリにすでにあるものも含めてその中のすべてが対象になり、オフにすると再び外れます。下で自分でチェックを付けたり外したりしたエクササイズは、そのままにされます。",
   "어떤 연습을 자동으로 허용할지 정합니다. 그룹을 켜면 이미 라이브러리에 있던 것까지 그 안의 모든 연습이 허용되고, 끄면 다시 제외됩니다. 아래에서 직접 선택하거나 해제한 연습은 그대로 유지됩니다.",
-  "哪些练习会被自动列入：打开某一组会列入其中的全部练习，包括你库中已有的；关闭则会重新移除。你在下面自己勾选或取消的练习会保持原样。")
+  "哪些练习会被自动列入：打开某一组会列入其中的全部练习，包括你库中已有的；关闭则会重新移除。你在下面自己勾选或取消的练习会保持原样。",
+  "أي التمارين مسموح بها لك: تشغيل مجموعة يسمح بكل ما فيها، بما في ذلك ما كان في مكتبتك من قبل، وإيقافها يُخرجها مرة أخرى. التمارين التي تحددها أو تلغي تحديدها بنفسك أدناه تبقى كما تركتها.")
 T("The exercises recommendations are picked from. The groups picked above are ticked for you; tap an exercise to add or remove it yourself, which the groups then leave alone.",
   "Die Übungen, aus denen Empfehlungen ausgewählt werden. Die oben gewählten Gruppen werden automatisch angehakt; tippe auf eine Übung, um sie selbst hinzuzufügen oder zu entfernen — die Gruppen lassen sie dann in Ruhe.",
   "Los ejercicios entre los que se eligen las recomendaciones. Los grupos elegidos arriba se marcan por ti; toca un ejercicio para añadirlo o quitarlo tú mismo, y los grupos ya no lo tocarán.",
@@ -424,11 +449,12 @@ T("The exercises recommendations are picked from. The groups picked above are ti
   "Övningarna som rekommendationer väljs bland. Grupperna du valt ovan kryssas i åt dig; tryck på en övning för att lägga till eller ta bort den själv, så lämnar grupperna den i fred.",
   "おすすめの候補となるエクササイズ。上で選んだグループは自動でチェックされます。エクササイズをタップすれば自分で追加・削除でき、そのエクササイズは以後グループの影響を受けません。",
   "추천이 선택되는 연습 목록입니다. 위에서 고른 그룹은 자동으로 선택되며, 연습을 탭하면 직접 추가하거나 제거할 수 있고 그 뒤로는 그룹이 그 연습을 건드리지 않습니다.",
-  "推荐所选取的练习范围。上面选中的分组会自动勾选；点按某个练习可自行添加或移除，此后分组不再改动它。")
+  "推荐所选取的练习范围。上面选中的分组会自动勾选；点按某个练习可自行添加或移除，此后分组不再改动它。",
+  "التمارين التي تُختار منها الاقتراحات. المجموعات المختارة أعلاه محددة نيابةً عنك؛ اضغط على تمرين لإضافته أو إزالته بنفسك، وعندها تتركه المجموعات كما هو.")
 
 # --- Backup ---
-T("Export Exercises", "Übungen exportieren", "Exportar ejercicios", "Exporter les exercices", "Esporta esercizi", "Exportar exercícios", "Oefeningen exporteren", "Экспортировать упражнения", "Eksportuj ćwiczenia", "Egzersizleri dışa aktar", "Exportera övningar", "エクササイズを書き出す", "연습 내보내기", "导出练习")
-T("Import Exercises", "Übungen importieren", "Importar ejercicios", "Importer des exercices", "Importa esercizi", "Importar exercícios", "Oefeningen importeren", "Импортировать упражнения", "Importuj ćwiczenia", "Egzersizleri içe aktar", "Importera övningar", "エクササイズを読み込む", "연습 가져오기", "导入练习")
+T("Export Exercises", "Übungen exportieren", "Exportar ejercicios", "Exporter les exercices", "Esporta esercizi", "Exportar exercícios", "Oefeningen exporteren", "Экспортировать упражнения", "Eksportuj ćwiczenia", "Egzersizleri dışa aktar", "Exportera övningar", "エクササイズを書き出す", "연습 내보내기", "导出练习", "تصدير التمارين")
+T("Import Exercises", "Übungen importieren", "Importar ejercicios", "Importer des exercices", "Importa esercizi", "Importar exercícios", "Oefeningen importeren", "Импортировать упражнения", "Importuj ćwiczenia", "Egzersizleri içe aktar", "Importera övningar", "エクササイズを読み込む", "연습 가져오기", "导入练习", "استيراد التمارين")
 T("Pick the exercises to save, then send the file, copy it, or save it to Files.",
   "Wähle die Übungen aus, die gesichert werden sollen, und versende, kopiere oder sichere die Datei anschließend in „Dateien“.",
   "Elige los ejercicios que quieres guardar y luego envía el archivo, cópialo o guárdalo en Archivos.",
@@ -442,7 +468,8 @@ T("Pick the exercises to save, then send the file, copy it, or save it to Files.
   "Välj övningarna som ska sparas och skicka sedan filen, kopiera den eller spara den i Filer.",
   "保存するエクササイズを選ぶと、ファイルを送信したり、コピーしたり、「ファイル」に保存したりできます。",
   "저장할 연습을 고른 다음 파일을 보내거나 복사하거나 ‘파일’ 앱에 저장하세요.",
-  "先挑选要保存的练习，再发送、拷贝该文件或将其存储到“文件”。")
+  "先挑选要保存的练习，再发送、拷贝该文件或将其存储到“文件”。",
+  "اختر التمارين المراد حفظها، ثم أرسل الملف أو انسخه أو احفظه في «الملفات».")
 T("Choose a file, then pick which of its exercises to add to your library or update.",
   "Wähle eine Datei und dann, welche ihrer Übungen deiner Bibliothek hinzugefügt oder darin aktualisiert werden.",
   "Elige un archivo y luego qué ejercicios suyos añadir a tu biblioteca o actualizar en ella.",
@@ -456,22 +483,23 @@ T("Choose a file, then pick which of its exercises to add to your library or upd
   "Välj en fil och sedan vilka av dess övningar som ska läggas till i ditt bibliotek eller uppdateras där.",
   "ファイルを選び、その中のどのエクササイズをライブラリに追加・更新するかを選びます。",
   "파일을 고른 다음, 그 안의 어떤 연습을 라이브러리에 추가하거나 업데이트할지 고르세요.",
-  "先选择文件，再挑选其中要加入练习库或更新的练习。")
-T("Could not prepare the export file.", "Die Exportdatei konnte nicht erstellt werden.", "No se pudo preparar el archivo de exportación.", "Impossible de préparer le fichier d’export.", "Impossibile preparare il file di esportazione.", "Não foi possível preparar o arquivo de exportação.", "Kon het exportbestand niet aanmaken.", "Не удалось подготовить файл экспорта.", "Nie udało się przygotować pliku eksportu.", "Dışa aktarma dosyası hazırlanamadı.", "Det gick inte att förbereda exportfilen.", "書き出しファイルを準備できませんでした。", "내보내기 파일을 준비할 수 없습니다.", "无法准备导出文件。")
-T("That file could not be imported.", "Diese Datei konnte nicht importiert werden.", "No se pudo importar ese archivo.", "Ce fichier n’a pas pu être importé.", "Impossibile importare quel file.", "Não foi possível importar esse arquivo.", "Dat bestand kon niet worden geïmporteerd.", "Не удалось импортировать этот файл.", "Nie udało się zaimportować tego pliku.", "Bu dosya içe aktarılamadı.", "Filen kunde inte importeras.", "そのファイルは読み込めませんでした。", "해당 파일을 가져올 수 없습니다.", "无法导入该文件。")
-T("That file could not be imported: %@", "Diese Datei konnte nicht importiert werden: %@", "No se pudo importar ese archivo: %@", "Ce fichier n’a pas pu être importé : %@", "Impossibile importare quel file: %@", "Não foi possível importar esse arquivo: %@", "Dat bestand kon niet worden geïmporteerd: %@", "Не удалось импортировать этот файл: %@", "Nie udało się zaimportować tego pliku: %@", "Bu dosya içe aktarılamadı: %@", "Filen kunde inte importeras: %@", "そのファイルは読み込めませんでした: %@", "해당 파일을 가져올 수 없습니다: %@", "无法导入该文件：%@")
-T("Export failed: %@", "Export fehlgeschlagen: %@", "Error al exportar: %@", "Échec de l’export : %@", "Esportazione non riuscita: %@", "Falha na exportação: %@", "Exporteren mislukt: %@", "Не удалось выполнить экспорт: %@", "Eksport nie powiódł się: %@", "Dışa aktarma başarısız: %@", "Exporten misslyckades: %@", "書き出しに失敗しました: %@", "내보내기 실패: %@", "导出失败：%@")
-T("Import failed: %@", "Import fehlgeschlagen: %@", "Error al importar: %@", "Échec de l’import : %@", "Importazione non riuscita: %@", "Falha na importação: %@", "Importeren mislukt: %@", "Не удалось выполнить импорт: %@", "Import nie powiódł się: %@", "İçe aktarma başarısız: %@", "Importen misslyckades: %@", "読み込みに失敗しました: %@", "가져오기 실패: %@", "导入失败：%@")
+  "先选择文件，再挑选其中要加入练习库或更新的练习。",
+  "اختر ملفًا، ثم حدّد أي تمارينه تريد إضافتها إلى مكتبتك أو تحديثها.")
+T("Could not prepare the export file.", "Die Exportdatei konnte nicht erstellt werden.", "No se pudo preparar el archivo de exportación.", "Impossible de préparer le fichier d’export.", "Impossibile preparare il file di esportazione.", "Não foi possível preparar o arquivo de exportação.", "Kon het exportbestand niet aanmaken.", "Не удалось подготовить файл экспорта.", "Nie udało się przygotować pliku eksportu.", "Dışa aktarma dosyası hazırlanamadı.", "Det gick inte att förbereda exportfilen.", "書き出しファイルを準備できませんでした。", "내보내기 파일을 준비할 수 없습니다.", "无法准备导出文件。", "تعذّر تجهيز ملف التصدير.")
+T("That file could not be imported.", "Diese Datei konnte nicht importiert werden.", "No se pudo importar ese archivo.", "Ce fichier n’a pas pu être importé.", "Impossibile importare quel file.", "Não foi possível importar esse arquivo.", "Dat bestand kon niet worden geïmporteerd.", "Не удалось импортировать этот файл.", "Nie udało się zaimportować tego pliku.", "Bu dosya içe aktarılamadı.", "Filen kunde inte importeras.", "そのファイルは読み込めませんでした。", "해당 파일을 가져올 수 없습니다.", "无法导入该文件。", "تعذّر استيراد هذا الملف.")
+T("That file could not be imported: %@", "Diese Datei konnte nicht importiert werden: %@", "No se pudo importar ese archivo: %@", "Ce fichier n’a pas pu être importé : %@", "Impossibile importare quel file: %@", "Não foi possível importar esse arquivo: %@", "Dat bestand kon niet worden geïmporteerd: %@", "Не удалось импортировать этот файл: %@", "Nie udało się zaimportować tego pliku: %@", "Bu dosya içe aktarılamadı: %@", "Filen kunde inte importeras: %@", "そのファイルは読み込めませんでした: %@", "해당 파일을 가져올 수 없습니다: %@", "无法导入该文件：%@", "تعذّر استيراد هذا الملف: %@")
+T("Export failed: %@", "Export fehlgeschlagen: %@", "Error al exportar: %@", "Échec de l’export : %@", "Esportazione non riuscita: %@", "Falha na exportação: %@", "Exporteren mislukt: %@", "Не удалось выполнить экспорт: %@", "Eksport nie powiódł się: %@", "Dışa aktarma başarısız: %@", "Exporten misslyckades: %@", "書き出しに失敗しました: %@", "내보내기 실패: %@", "导出失败：%@", "فشل التصدير: %@")
+T("Import failed: %@", "Import fehlgeschlagen: %@", "Error al importar: %@", "Échec de l’import : %@", "Importazione non riuscita: %@", "Falha na importação: %@", "Importeren mislukt: %@", "Не удалось выполнить импорт: %@", "Import nie powiódł się: %@", "İçe aktarma başarısız: %@", "Importen misslyckades: %@", "読み込みに失敗しました: %@", "가져오기 실패: %@", "导入失败：%@", "فشل الاستيراد: %@")
 
 # --- Backup: the export/import picking screens ---
-T("Select All", "Alle auswählen", "Seleccionar todo", "Tout sélectionner", "Seleziona tutto", "Selecionar tudo", "Alles selecteren", "Выбрать все", "Zaznacz wszystko", "Tümünü seç", "Markera alla", "すべて選択", "모두 선택", "全选")
-T("Deselect All", "Auswahl aufheben", "Deseleccionar todo", "Tout désélectionner", "Deseleziona tutto", "Desmarcar tudo", "Selectie opheffen", "Снять выбор", "Odznacz wszystko", "Seçimi kaldır", "Avmarkera alla", "すべて解除", "모두 해제", "取消全选")
-T("Export", "Exportieren", "Exportar", "Exporter", "Esporta", "Exportar", "Exporteren", "Экспорт", "Eksportuj", "Dışa aktar", "Exportera", "書き出す", "내보내기", "导出")
-T("Import", "Importieren", "Importar", "Importer", "Importa", "Importar", "Importeren", "Импорт", "Importuj", "İçe aktar", "Importera", "読み込む", "가져오기", "导入")
-T("New Exercises", "Neue Übungen", "Ejercicios nuevos", "Nouveaux exercices", "Nuovi esercizi", "Exercícios novos", "Nieuwe oefeningen", "Новые упражнения", "Nowe ćwiczenia", "Yeni egzersizler", "Nya övningar", "新しいエクササイズ", "새 연습", "新练习")
-T("Already in Your Library", "Schon in deiner Bibliothek", "Ya en tu biblioteca", "Déjà dans votre bibliothèque", "Già nella tua libreria", "Já na sua biblioteca", "Al in je bibliotheek", "Уже в вашей библиотеке", "Już w twojej bibliotece", "Kitaplığında zaten var", "Redan i ditt bibliotek", "すでにライブラリにあるもの", "이미 라이브러리에 있음", "已在你的练习库中")
-T("Exercises Imported!", "Übungen importiert!", "¡Ejercicios importados!", "Exercices importés !", "Esercizi importati!", "Exercícios importados!", "Oefeningen geïmporteerd!", "Упражнения импортированы!", "Zaimportowano ćwiczenia!", "Egzersizler içe aktarıldı!", "Övningarna importerade!", "エクササイズを読み込みました！", "연습을 가져왔습니다!", "已导入练习！")
-T("That file holds no exercises.", "Diese Datei enthält keine Übungen.", "Ese archivo no contiene ejercicios.", "Ce fichier ne contient aucun exercice.", "Quel file non contiene esercizi.", "Esse arquivo não contém exercícios.", "Dat bestand bevat geen oefeningen.", "В этом файле нет упражнений.", "Ten plik nie zawiera żadnych ćwiczeń.", "Bu dosyada hiç egzersiz yok.", "Den filen innehåller inga övningar.", "このファイルにはエクササイズが含まれていません。", "이 파일에는 연습이 없습니다.", "该文件中没有练习。")
+T("Select All", "Alle auswählen", "Seleccionar todo", "Tout sélectionner", "Seleziona tutto", "Selecionar tudo", "Alles selecteren", "Выбрать все", "Zaznacz wszystko", "Tümünü seç", "Markera alla", "すべて選択", "모두 선택", "全选", "تحديد الكل")
+T("Deselect All", "Auswahl aufheben", "Deseleccionar todo", "Tout désélectionner", "Deseleziona tutto", "Desmarcar tudo", "Selectie opheffen", "Снять выбор", "Odznacz wszystko", "Seçimi kaldır", "Avmarkera alla", "すべて解除", "모두 해제", "取消全选", "إلغاء تحديد الكل")
+T("Export", "Exportieren", "Exportar", "Exporter", "Esporta", "Exportar", "Exporteren", "Экспорт", "Eksportuj", "Dışa aktar", "Exportera", "書き出す", "내보내기", "导出", "تصدير")
+T("Import", "Importieren", "Importar", "Importer", "Importa", "Importar", "Importeren", "Импорт", "Importuj", "İçe aktar", "Importera", "読み込む", "가져오기", "导入", "استيراد")
+T("New Exercises", "Neue Übungen", "Ejercicios nuevos", "Nouveaux exercices", "Nuovi esercizi", "Exercícios novos", "Nieuwe oefeningen", "Новые упражнения", "Nowe ćwiczenia", "Yeni egzersizler", "Nya övningar", "新しいエクササイズ", "새 연습", "新练习", "تمارين جديدة")
+T("Already in Your Library", "Schon in deiner Bibliothek", "Ya en tu biblioteca", "Déjà dans votre bibliothèque", "Già nella tua libreria", "Já na sua biblioteca", "Al in je bibliotheek", "Уже в вашей библиотеке", "Już w twojej bibliotece", "Kitaplığında zaten var", "Redan i ditt bibliotek", "すでにライブラリにあるもの", "이미 라이브러리에 있음", "已在你的练习库中", "موجودة في مكتبتك بالفعل")
+T("Exercises Imported!", "Übungen importiert!", "¡Ejercicios importados!", "Exercices importés !", "Esercizi importati!", "Exercícios importados!", "Oefeningen geïmporteerd!", "Упражнения импортированы!", "Zaimportowano ćwiczenia!", "Egzersizler içe aktarıldı!", "Övningarna importerade!", "エクササイズを読み込みました！", "연습을 가져왔습니다!", "已导入练习！", "تم استيراد التمارين!")
+T("That file holds no exercises.", "Diese Datei enthält keine Übungen.", "Ese archivo no contiene ejercicios.", "Ce fichier ne contient aucun exercice.", "Quel file non contiene esercizi.", "Esse arquivo não contém exercícios.", "Dat bestand bevat geen oefeningen.", "В этом файле нет упражнений.", "Ten plik nie zawiera żadnych ćwiczeń.", "Bu dosyada hiç egzersiz yok.", "Den filen innehåller inga övningar.", "このファイルにはエクササイズが含まれていません。", "이 파일에는 연습이 없습니다.", "该文件中没有练习。", "لا يحتوي هذا الملف على أي تمارين.")
 T("%1$d of %2$d selected",
   "%1$d von %2$d ausgewählt",
   "%1$d de %2$d seleccionados",
@@ -485,7 +513,8 @@ T("%1$d of %2$d selected",
   "%1$d av %2$d valda",
   "%2$d件中%1$d件を選択",
   "%2$d개 중 %1$d개 선택됨",
-  "已选择 %2$d 项中的 %1$d 项")
+  "已选择 %2$d 项中的 %1$d 项",
+  "تم تحديد %1$d من %2$d")
 T("Ticks every exercise at once, or clears them all.",
   "Wählt alle Übungen auf einmal aus oder hebt die Auswahl komplett auf.",
   "Marca todos los ejercicios de una vez, o los desmarca todos.",
@@ -499,7 +528,8 @@ T("Ticks every exercise at once, or clears them all.",
   "Markerar alla övningar på en gång, eller avmarkerar allihop.",
   "すべてのエクササイズを一度に選択、または選択をすべて解除します。",
   "모든 연습을 한 번에 선택하거나 모두 해제합니다.",
-  "一次勾选所有练习，或全部取消勾选。")
+  "一次勾选所有练习，或全部取消勾选。",
+  "يحدد كل التمارين دفعة واحدة، أو يلغي تحديدها كلها.")
 T("Writes the ticked exercises to a file and opens the share sheet, where you can send it, copy it, or save it to Files.",
   "Schreibt die ausgewählten Übungen in eine Datei und öffnet das Teilen-Menü, wo du sie versenden, kopieren oder in „Dateien“ sichern kannst.",
   "Guarda los ejercicios marcados en un archivo y abre el menú de compartir, desde donde puedes enviarlo, copiarlo o guardarlo en Archivos.",
@@ -513,7 +543,8 @@ T("Writes the ticked exercises to a file and opens the share sheet, where you ca
   "Skriver de markerade övningarna till en fil och öppnar delningsmenyn, där du kan skicka den, kopiera den eller spara den i Filer.",
   "選択したエクササイズをファイルに書き出し、共有メニューを開きます。そこから送信・コピー・「ファイル」への保存ができます。",
   "선택한 연습을 파일로 저장하고 공유 시트를 엽니다. 거기서 파일을 보내거나 복사하거나 ‘파일’ 앱에 저장할 수 있습니다.",
-  "将勾选的练习写入文件并打开共享菜单，你可以从那里发送、拷贝或存储到“文件”。")
+  "将勾选的练习写入文件并打开共享菜单，你可以从那里发送、拷贝或存储到“文件”。",
+  "يكتب التمارين المحددة في ملف ويفتح ورقة المشاركة، حيث يمكنك إرساله أو نسخه أو حفظه في «الملفات».")
 T("Ticked exercises you already have are replaced by the version in this file.",
   "Ausgewählte Übungen, die du schon hast, werden durch die Fassung aus dieser Datei ersetzt.",
   "Los ejercicios marcados que ya tienes se sustituyen por la versión de este archivo.",
@@ -527,7 +558,8 @@ T("Ticked exercises you already have are replaced by the version in this file.",
   "Markerade övningar du redan har ersätts av versionen i den här filen.",
   "選択した既存のエクササイズは、このファイルの内容で置き換えられます。",
   "선택한 연습 중 이미 가지고 있는 것은 이 파일의 버전으로 대체됩니다.",
-  "勾选的、你已拥有的练习将被此文件中的版本替换。")
+  "勾选的、你已拥有的练习将被此文件中的版本替换。",
+  "التمارين المحددة الموجودة لديك بالفعل تُستبدل بالنسخة الموجودة في هذا الملف.")
 T("Adds the ticked new exercises to your library and updates the ticked ones it already has. Everything left unticked is ignored.",
   "Fügt die ausgewählten neuen Übungen deiner Bibliothek hinzu und aktualisiert die ausgewählten, die schon darin sind. Alles nicht Ausgewählte wird übergangen.",
   "Añade a tu biblioteca los ejercicios nuevos marcados y actualiza los marcados que ya están en ella. Todo lo que quede sin marcar se ignora.",
@@ -541,7 +573,8 @@ T("Adds the ticked new exercises to your library and updates the ticked ones it 
   "Lägger till de markerade nya övningarna i ditt bibliotek och uppdaterar de markerade som redan finns där. Allt omarkerat hoppas över.",
   "選択した新しいエクササイズをライブラリに追加し、選択した既存のエクササイズを更新します。選択していないものは取り込まれません。",
   "선택한 새 연습을 라이브러리에 추가하고, 이미 있는 연습 중 선택한 것을 업데이트합니다. 선택하지 않은 것은 넘어갑니다.",
-  "把勾选的新练习加入你的练习库，并更新其中已有的勾选项。未勾选的一概不导入。")
+  "把勾选的新练习加入你的练习库，并更新其中已有的勾选项。未勾选的一概不导入。",
+  "يضيف التمارين الجديدة المحددة إلى مكتبتك ويحدّث المحددة الموجودة فيها بالفعل. يُتجاهل كل ما لم يُحدَّد.")
 
 # --- Settings search ---
 # The search field on the Settings tab and every screen under it, labelled after
@@ -560,7 +593,8 @@ T("Search %@",
   "Sök i %@",
   "%@を検索",
   "%@ 검색",
-  "搜索%@")
+  "搜索%@",
+  "البحث في %@")
 T("Takes you to the screen this setting is on and points it out. Nothing is changed from here.",
   "Bringt dich zu dem Bildschirm, auf dem diese Einstellung liegt, und hebt sie hervor. Hier wird nichts geändert.",
   "Te lleva a la pantalla donde está este ajuste y lo señala. Aquí no se cambia nada.",
@@ -574,4 +608,5 @@ T("Takes you to the screen this setting is on and points it out. Nothing is chan
   "Tar dig till skärmen där den här inställningen finns och markerar den. Inget ändras härifrån.",
   "この設定がある画面に移動して、その項目を目立たせます。ここでは何も変更されません。",
   "이 설정이 있는 화면으로 이동해 해당 항목을 표시해 줍니다. 여기서는 아무것도 바뀌지 않습니다.",
-  "带你前往该设置所在的界面并高亮显示它。这里不会更改任何内容。")
+  "带你前往该设置所在的界面并高亮显示它。这里不会更改任何内容。",
+  "ينقلك إلى الشاشة التي يوجد فيها هذا الإعداد ويشير إليه. لا يتغير شيء من هنا.")

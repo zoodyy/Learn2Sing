@@ -16,7 +16,8 @@ T("This user's picture. Tap it to see it at full size.",
   "Den här användarens bild. Tryck på den för att se den i full storlek.",
   "このユーザーの写真です。タップすると原寸で表示されます。",
   "이 사용자의 사진입니다. 탭하면 원본 크기로 볼 수 있습니다.",
-  "这位用户的头像。点按可查看原图。")
+  "这位用户的头像。点按可查看原图。",
+  "صورة هذا المستخدم. اضغط عليها لرؤيتها بالحجم الكامل.")
 T("What this user wrote about themselves, and when they started using the app if they chose to show it.",
   "Was dieser Nutzer über sich geschrieben hat, und seit wann er die App nutzt, falls er das zeigt.",
   "Lo que este usuario escribió sobre sí mismo y desde cuándo usa la app, si decidió mostrarlo.",
@@ -30,7 +31,8 @@ T("What this user wrote about themselves, and when they started using the app if
   "Vad den här användaren skrivit om sig själv, och sedan när hen använt appen om det visas.",
   "このユーザーが自分について書いた文章と、公開している場合は利用開始時期です。",
   "이 사용자가 자신에 대해 쓴 글과, 공개했다면 앱을 쓰기 시작한 시점입니다.",
-  "这位用户对自己的介绍，以及在其选择公开时的加入时间。")
+  "这位用户对自己的介绍，以及在其选择公开时的加入时间。",
+  "ما كتبه هذا المستخدم عن نفسه، ومتى بدأ استخدام التطبيق إذا اختار إظهار ذلك.")
 T("Narrows the list to the exercises you have liked, or to the ones you have not. The button is filled in while a filter is on.",
   "Zeigt nur die Übungen, die du magst, oder nur die anderen. Der Knopf ist ausgefüllt, solange ein Filter aktiv ist.",
   "Limita la lista a los ejercicios que te gustan, o a los que no. El botón se rellena mientras hay un filtro activo.",
@@ -44,7 +46,8 @@ T("Narrows the list to the exercises you have liked, or to the ones you have not
   "Begränsar listan till övningarna du gillat, eller till de andra. Knappen är ifylld så länge ett filter är på.",
   "「いいね」したエクササイズだけ、またはそれ以外だけに絞り込みます。フィルタが有効な間、ボタンは塗りつぶされます。",
   "좋아요를 누른 연습만, 또는 누르지 않은 연습만 보여줍니다. 필터가 켜져 있는 동안 버튼이 채워집니다.",
-  "只显示你点过赞的练习，或只显示未点赞的。筛选开启时按钮为实心。")
+  "只显示你点过赞的练习，或只显示未点赞的。筛选开启时按钮为实心。",
+  "يقصر القائمة على التمارين التي أُعجبت بها، أو على التي لم تُعجب بها. يكون الزر ممتلئًا أثناء تفعيل عامل تصفية.")
 T("Sets the order the exercises come in. “Reverse Order” turns whichever order is picked around.",
   "Legt fest, in welcher Reihenfolge die Übungen stehen. „Umgekehrte Reihenfolge“ dreht die gewählte Sortierung um.",
   "Define el orden en que aparecen los ejercicios. «Orden inverso» invierte el orden elegido.",
@@ -58,7 +61,8 @@ T("Sets the order the exercises come in. “Reverse Order” turns whichever ord
   "Bestämmer ordningen övningarna visas i. ”Omvänd ordning” vänder på den valda ordningen.",
   "エクササイズの並び順を決めます。「逆順」を選ぶと、選んだ順序が反転します。",
   "연습이 나열되는 순서를 정합니다. “역순”은 선택한 순서를 뒤집습니다.",
-  "设置练习的排列顺序。“倒序”会把所选顺序反过来。")
+  "设置练习的排列顺序。“倒序”会把所选顺序反过来。",
+  "يحدد ترتيب ظهور التمارين. «عكس الترتيب» يقلب الترتيب المختار أيًا كان.")
 
 T("The community list didn’t load. Tap to try again.",
   "Die Community-Liste konnte nicht geladen werden. Tippe, um es erneut zu versuchen.",
@@ -73,7 +77,8 @@ T("The community list didn’t load. Tap to try again.",
   "Communitylistan kunde inte laddas. Tryck för att försöka igen.",
   "コミュニティの一覧を読み込めませんでした。タップするともう一度試します。",
   "커뮤니티 목록을 불러오지 못했습니다. 탭하면 다시 시도합니다.",
-  "社区列表加载失败。点按可重试。")
+  "社区列表加载失败。点按可重试。",
+  "لم يتم تحميل قائمة المجتمع. اضغط للمحاولة مرة أخرى.")
 
 # --- Instruments ---
 T("Tap the name to play the exercises' notes with this sound. The speaker plays a sample of it.",
@@ -89,7 +94,8 @@ T("Tap the name to play the exercises' notes with this sound. The speaker plays 
   "Tryck på namnet för att spela övningarnas toner med det här ljudet. Högtalaren spelar ett smakprov.",
   "名前をタップすると、エクササイズの音がこの音色で鳴ります。スピーカーで試聴できます。",
   "이름을 탭하면 연습의 음이 이 소리로 재생됩니다. 스피커는 미리 듣기입니다.",
-  "点按名称即可用这个音色播放练习的音符。喇叭按钮可试听。")
+  "点按名称即可用这个音色播放练习的音符。喇叭按钮可试听。",
+  "اضغط على الاسم لتشغيل نغمات التمارين بهذا الصوت. يشغّل مكبر الصوت عيّنة منه.")
 T("A sound you uploaded yourself. Tap the name to open it, the speaker to hear it, and swipe left to delete it.",
   "Ein Klang, den du selbst hochgeladen hast. Tippe auf den Namen zum Öffnen, auf den Lautsprecher zum Anhören, und wische nach links zum Löschen.",
   "Un sonido que subiste tú. Toca el nombre para abrirlo, el altavoz para oírlo y desliza a la izquierda para borrarlo.",
@@ -103,7 +109,8 @@ T("A sound you uploaded yourself. Tap the name to open it, the speaker to hear i
   "Ett ljud du laddat upp själv. Tryck på namnet för att öppna det, på högtalaren för att höra det, och svep åt vänster för att radera det.",
   "自分でアップロードした音です。名前をタップして開き、スピーカーで試聴し、左にスワイプすると削除できます。",
   "직접 올린 소리입니다. 이름을 탭하면 열리고, 스피커로 들어보며, 왼쪽으로 밀면 삭제됩니다.",
-  "你自己上传的音色。点按名称可打开，点喇叭可试听，向左滑动可删除。")
+  "你自己上传的音色。点按名称可打开，点喇叭可试听，向左滑动可删除。",
+  "صوت رفعته بنفسك. اضغط على الاسم لفتحه، وعلى مكبر الصوت لسماعه، واسحب لليسار لحذفه.")
 T("Uploads an MP3 or WAV file holding one single sound, to play the notes with.",
   "Lädt eine MP3- oder WAV-Datei mit einem einzelnen Klang hoch, mit dem die Noten gespielt werden.",
   "Sube un archivo MP3 o WAV con un solo sonido para reproducir las notas.",
@@ -117,7 +124,8 @@ T("Uploads an MP3 or WAV file holding one single sound, to play the notes with."
   "Laddar upp en MP3- eller WAV-fil med ett enda ljud att spela tonerna med.",
   "音が 1 つだけ入った MP3 または WAV ファイルをアップロードし、その音で音符を鳴らします。",
   "소리 하나만 담긴 MP3 또는 WAV 파일을 올려 음을 그 소리로 재생합니다.",
-  "上传包含单个音的 MP3 或 WAV 文件，用来演奏音符。")
+  "上传包含单个音的 MP3 或 WAV 文件，用来演奏音符。",
+  "يرفع ملف MP3 أو WAV يحتوي على صوت واحد فقط، لتُعزف به النغمات.")
 T("What this sound is called in the list of instruments.",
   "Wie dieser Klang in der Liste der Instrumente heißt.",
   "Cómo se llama este sonido en la lista de instrumentos.",
@@ -131,7 +139,8 @@ T("What this sound is called in the list of instruments.",
   "Vad det här ljudet heter i listan över instrument.",
   "この音が楽器一覧でどう表示されるかです。",
   "이 소리가 악기 목록에 표시되는 이름입니다.",
-  "这个音色在乐器列表中显示的名称。")
+  "这个音色在乐器列表中显示的名称。",
+  "اسم هذا الصوت في قائمة الآلات الموسيقية.")
 T("Makes this the sound the notes are played with everywhere in the app.",
   "Macht diesen Klang zu dem, mit dem die Noten überall in der App gespielt werden.",
   "Hace que las notas suenen con este sonido en toda la app.",
@@ -145,7 +154,8 @@ T("Makes this the sound the notes are played with everywhere in the app.",
   "Gör det här till ljudet tonerna spelas med i hela appen.",
   "アプリ全体で音符を鳴らす音色をこれにします。",
   "앱 전체에서 음을 재생할 소리를 이것으로 정합니다.",
-  "让整个应用中的音符都用这个音色播放。")
+  "让整个应用中的音符都用这个音色播放。",
+  "يجعل هذا الصوت هو الذي تُعزف به النغمات في كل مكان في التطبيق.")
 T("Deletes this sound and the file it came from. This cannot be undone.",
   "Löscht diesen Klang und die Datei, aus der er stammt. Das lässt sich nicht rückgängig machen.",
   "Borra este sonido y el archivo del que salió. No se puede deshacer.",
@@ -159,7 +169,8 @@ T("Deletes this sound and the file it came from. This cannot be undone.",
   "Raderar det här ljudet och filen det kom från. Det går inte att ångra.",
   "この音と、その元になったファイルを削除します。取り消せません。",
   "이 소리와 원본 파일을 삭제합니다. 되돌릴 수 없습니다.",
-  "删除这个音色及其来源文件。此操作无法撤销。")
+  "删除这个音色及其来源文件。此操作无法撤销。",
+  "يحذف هذا الصوت والملف الذي جاء منه. لا يمكن التراجع عن ذلك.")
 
 # --- MIDI editor ---
 T("Saves what you drew and goes back to the exercise's settings.",
@@ -175,7 +186,8 @@ T("Saves what you drew and goes back to the exercise's settings.",
   "Sparar det du ritat och går tillbaka till övningens inställningar.",
   "描いた内容を保存して、エクササイズの設定に戻ります。",
   "그린 내용을 저장하고 연습 설정으로 돌아갑니다.",
-  "保存你画的内容并返回练习设置。")
+  "保存你画的内容并返回练习设置。",
+  "يحفظ ما رسمته ويعود إلى إعدادات التمرين.")
 T("Draw notes: drag on the grid to make one, drag a note to move it, or drag its ends to make it longer or shorter.",
   "Noten zeichnen: Ziehe auf dem Raster, um eine anzulegen, ziehe eine Note, um sie zu verschieben, oder ziehe an ihren Enden, um sie länger oder kürzer zu machen.",
   "Dibuja notas: arrastra en la cuadrícula para crear una, arrastra una nota para moverla o arrastra sus extremos para alargarla o acortarla.",
@@ -189,7 +201,8 @@ T("Draw notes: drag on the grid to make one, drag a note to move it, or drag its
   "Rita toner: dra på rutnätet för att skapa en, dra en ton för att flytta den, eller dra i dess ändar för att göra den längre eller kortare.",
   "音符を描きます。グリッド上をドラッグして作成し、音符をドラッグして移動、端をドラッグして長さを変えます。",
   "음을 그립니다. 격자를 드래그하면 만들어지고, 음을 드래그하면 옮겨지며, 양 끝을 끌면 길이가 바뀝니다.",
-  "绘制音符：在网格上拖动可新建，拖动音符可移动，拖动两端可改变长度。")
+  "绘制音符：在网格上拖动可新建，拖动音符可移动，拖动两端可改变长度。",
+  "ارسم النغمات: اسحب على الشبكة لإنشاء نغمة، واسحب نغمة لتحريكها، أو اسحب طرفيها لإطالتها أو تقصيرها.")
 T("Write a label on the grid, for the syllable to sing. Tap a label to change it, or drag it somewhere else.",
   "Schreibe eine Beschriftung ins Raster, etwa für die Silbe, die gesungen wird. Tippe eine Beschriftung an, um sie zu ändern, oder ziehe sie woanders hin.",
   "Escribe una etiqueta en la cuadrícula, para la sílaba que hay que cantar. Toca una etiqueta para cambiarla o arrástrala a otro sitio.",
@@ -203,7 +216,8 @@ T("Write a label on the grid, for the syllable to sing. Tap a label to change it
   "Skriv en etikett på rutnätet, för stavelsen som ska sjungas. Tryck på en etikett för att ändra den, eller dra den någon annanstans.",
   "歌う音節などのラベルをグリッドに書きます。ラベルをタップすると編集でき、ドラッグで移動できます。",
   "부를 음절 등을 격자에 라벨로 씁니다. 라벨을 탭하면 고칠 수 있고, 드래그하면 옮겨집니다.",
-  "在网格上写标签，比如要唱的音节。点按标签可修改，拖动可移动。")
+  "在网格上写标签，比如要唱的音节。点按标签可修改，拖动可移动。",
+  "اكتب تسمية على الشبكة، للمقطع الذي يُغنّى. اضغط على تسمية لتغييرها، أو اسحبها إلى مكان آخر.")
 T("Rub out notes and labels by dragging across them.",
   "Löscht Noten und Beschriftungen, indem du über sie hinwegziehst.",
   "Borra notas y etiquetas arrastrando por encima de ellas.",
@@ -217,7 +231,8 @@ T("Rub out notes and labels by dragging across them.",
   "Suddar toner och etiketter när du drar över dem.",
   "音符やラベルの上をドラッグして消します。",
   "음과 라벨 위를 드래그해 지웁니다.",
-  "在音符和标签上拖动即可擦除。")
+  "在音符和标签上拖动即可擦除。",
+  "امسح النغمات والتسميات بالسحب فوقها.")
 T("Scroll the grid around without changing anything.",
   "Verschiebt das Raster, ohne etwas zu verändern.",
   "Desplaza la cuadrícula sin cambiar nada.",
@@ -231,7 +246,8 @@ T("Scroll the grid around without changing anything.",
   "Flyttar rutnätet utan att ändra något.",
   "何も変えずにグリッドをスクロールします。",
   "아무것도 바꾸지 않고 격자를 움직입니다.",
-  "只移动网格，不改变任何内容。")
+  "只移动网格，不改变任何内容。",
+  "حرّك الشبكة دون تغيير أي شيء.")
 T("Puts the playhead back at the beginning.",
   "Setzt den Abspielkopf zurück an den Anfang.",
   "Devuelve el cabezal de reproducción al principio.",
@@ -245,7 +261,8 @@ T("Puts the playhead back at the beginning.",
   "Flyttar uppspelningsmarkören tillbaka till början.",
   "再生位置を先頭に戻します。",
   "재생 위치를 처음으로 되돌립니다.",
-  "把播放头移回开头。")
+  "把播放头移回开头。",
+  "يعيد رأس التشغيل إلى البداية.")
 T("Plays what you have drawn from the playhead, so you can hear it. Nothing is recorded or scored here.",
   "Spielt ab dem Abspielkopf, was du gezeichnet hast, damit du es hörst. Hier wird nichts aufgenommen und nichts bewertet.",
   "Reproduce lo que has dibujado desde el cabezal, para que lo oigas. Aquí no se graba ni se puntúa nada.",
@@ -259,7 +276,8 @@ T("Plays what you have drawn from the playhead, so you can hear it. Nothing is r
   "Spelar upp det du ritat från uppspelningsmarkören, så att du hör det. Inget spelas in och inget poängsätts här.",
   "描いた内容を再生位置から鳴らして確認できます。ここでは録音も採点もされません。",
   "재생 위치부터 그린 내용을 들려줍니다. 여기서는 녹음도 채점도 하지 않습니다.",
-  "从播放头开始播放你画的内容，方便试听。这里不录音也不计分。")
+  "从播放头开始播放你画的内容，方便试听。这里不录音也不计分。",
+  "يشغّل ما رسمته بدءًا من رأس التشغيل، لتسمعه. لا يُسجَّل شيء ولا تُحتسب نتيجة هنا.")
 T("Where the playhead stands, as bar and beat.",
   "Wo der Abspielkopf steht, als Takt und Zählzeit.",
   "Dónde está el cabezal de reproducción, en compás y tiempo.",
@@ -273,7 +291,8 @@ T("Where the playhead stands, as bar and beat.",
   "Var uppspelningsmarkören står, som takt och slag.",
   "再生位置を小節と拍で表しています。",
   "재생 위치를 마디와 박자로 나타냅니다.",
-  "播放头所在位置，以小节和拍表示。")
+  "播放头所在位置，以小节和拍表示。",
+  "موضع رأس التشغيل، بالمازورة والنبضة.")
 T("The exercise's tempo, which is set on its settings screen.",
   "Das Tempo der Übung, das auf ihrem Einstellungsbildschirm festgelegt wird.",
   "El tempo del ejercicio, que se ajusta en su pantalla de ajustes.",
@@ -287,7 +306,8 @@ T("The exercise's tempo, which is set on its settings screen.",
   "Övningens tempo, som ställs in på dess inställningsskärm.",
   "エクササイズのテンポです。設定画面で変更できます。",
   "연습의 템포입니다. 연습 설정 화면에서 정합니다.",
-  "练习的速度，在它的设置页面里调整。")
+  "练习的速度，在它的设置页面里调整。",
+  "سرعة التمرين، وتُضبط في شاشة إعداداته.")
 
 # --- Home tab cards ---
 T("One square per day, oldest first. The more you practised, the fuller the colour, and a day that reached your daily practice time gets a tick. Tap a square to see that day.",
@@ -303,7 +323,8 @@ T("One square per day, oldest first. The more you practised, the fuller the colo
   "En ruta per dag, äldst först. Ju mer du övat, desto fylligare färg, och en dag som nådde din dagliga övningstid får en bock. Tryck på en ruta för att se den dagen.",
   "1 日につき 1 マス、古い順に並びます。練習が長いほど色が濃くなり、1 日の練習時間に届いた日にはチェックが付きます。マスをタップするとその日の詳細が見られます。",
   "하루에 한 칸씩, 오래된 날부터 나열됩니다. 오래 연습할수록 색이 진해지고, 하루 연습 시간을 채운 날에는 체크가 붙습니다. 칸을 탭하면 그날을 볼 수 있습니다.",
-  "每天一格，从最早的一天开始。练得越久颜色越满，达到每日练习时长的那天会打勾。点按方格可查看当天详情。")
+  "每天一格，从最早的一天开始。练得越久颜色越满，达到每日练习时长的那天会打勾。点按方格可查看当天详情。",
+  "مربع لكل يوم، الأقدم أولًا. كلما تمرّنت أكثر امتلأ اللون أكثر، واليوم الذي بلغ وقت تمرّنك اليومي يحصل على علامة. اضغط على مربع لرؤية ذلك اليوم.")
 T("Tap to sing everything the app suggests for you today, one exercise after another. The stars are your own level, which the suggestions are pitched at.",
   "Tippe darauf, um alles zu singen, was die App dir heute vorschlägt, eine Übung nach der anderen. Die Sterne stehen für dein eigenes Niveau, auf das die Vorschläge zugeschnitten sind.",
   "Toca para cantar todo lo que la app te sugiere hoy, un ejercicio tras otro. Las estrellas son tu propio nivel, al que se ajustan las sugerencias.",
@@ -317,7 +338,8 @@ T("Tap to sing everything the app suggests for you today, one exercise after ano
   "Tryck för att sjunga allt appen föreslår åt dig i dag, en övning i taget. Stjärnorna är din egen nivå, som förslagen är anpassade efter.",
   "タップすると、今日おすすめのエクササイズを続けて歌えます。星はあなた自身のレベルで、おすすめはそれに合わせて選ばれます。",
   "탭하면 앱이 오늘 추천하는 연습을 차례로 이어서 부릅니다. 별은 당신의 실력이며, 추천은 그 수준에 맞춰집니다.",
-  "点按即可依次唱完应用今天为你推荐的全部练习。星星表示你自己的水平，推荐正是按它来挑选的。")
+  "点按即可依次唱完应用今天为你推荐的全部练习。星星表示你自己的水平，推荐正是按它来挑选的。",
+  "اضغط لغناء كل ما يقترحه التطبيق لك اليوم، تمرينًا تلو الآخر. النجوم تمثل مستواك، والاقتراحات مصممة له.")
 
 T("These exercises come from the community and didn’t load. Tap to try again.",
   "Diese Übungen kommen aus der Community und konnten nicht geladen werden. Tippe, um es erneut zu versuchen.",
@@ -332,7 +354,8 @@ T("These exercises come from the community and didn’t load. Tap to try again."
   "De här övningarna kommer från communityn och kunde inte laddas. Tryck för att försöka igen.",
   "これらはコミュニティのエクササイズで、読み込めませんでした。タップするともう一度試します。",
   "이 연습들은 커뮤니티에서 오며 불러오지 못했습니다. 탭하면 다시 시도합니다.",
-  "这些练习来自社区，加载失败。点按可重试。")
+  "这些练习来自社区，加载失败。点按可重试。",
+  "هذه التمارين من المجتمع ولم يتم تحميلها. اضغط للمحاولة مرة أخرى.")
 
 # --- Exercise intro screen ---
 T("What to do in this exercise. Whoever made it writes this in the exercise's settings.",
@@ -348,7 +371,8 @@ T("What to do in this exercise. Whoever made it writes this in the exercise's se
   "Vad du ska göra i den här övningen. Den som skapat den skriver det i övningens inställningar.",
   "このエクササイズで何をするかです。作った人がエクササイズの設定に書きます。",
   "이 연습에서 무엇을 할지 설명합니다. 만든 사람이 연습 설정에 적습니다.",
-  "这个练习要做什么。由创建者在练习设置里填写。")
+  "这个练习要做什么。由创建者在练习设置里填写。",
+  "ما يجب فعله في هذا التمرين. يكتبه من أنشأ التمرين في إعداداته.")
 T("Copies this exercise into your own library, where you can change it and keep your scores for it.",
   "Kopiert diese Übung in deine eigene Bibliothek, wo du sie ändern kannst und deine Ergebnisse dafür behältst.",
   "Copia este ejercicio a tu propia biblioteca, donde puedes modificarlo y guardar tus puntuaciones.",
@@ -362,7 +386,8 @@ T("Copies this exercise into your own library, where you can change it and keep 
   "Kopierar den här övningen till ditt eget bibliotek, där du kan ändra den och behålla dina poäng.",
   "このエクササイズを自分のライブラリにコピーします。ライブラリでは編集でき、スコアも残ります。",
   "이 연습을 내 라이브러리로 복사합니다. 거기서 수정할 수 있고 점수도 쌓입니다.",
-  "把这个练习复制到你自己的库中，可以修改，成绩也会保留。")
+  "把这个练习复制到你自己的库中，可以修改，成绩也会保留。",
+  "ينسخ هذا التمرين إلى مكتبتك، حيث يمكنك تغييره والاحتفاظ بنتائجك فيه.")
 T("Begins the exercise. Sing along with the notes as they scroll past, and you get a score at the end.",
   "Startet die Übung. Singe die Noten mit, während sie vorbeiziehen, und am Ende bekommst du eine Bewertung.",
   "Empieza el ejercicio. Canta las notas mientras pasan y al final recibirás una puntuación.",
@@ -376,7 +401,8 @@ T("Begins the exercise. Sing along with the notes as they scroll past, and you g
   "Startar övningen. Sjung med tonerna medan de rullar förbi, så får du poäng på slutet.",
   "エクササイズを始めます。流れてくる音符に合わせて歌うと、最後にスコアが出ます。",
   "연습을 시작합니다. 흘러가는 음에 맞춰 노래하면 끝에 점수가 나옵니다.",
-  "开始练习。跟着滚动的音符演唱，结束时会给出评分。")
+  "开始练习。跟着滚动的音符演唱，结束时会给出评分。",
+  "يبدأ التمرين. غنِّ مع النغمات أثناء مرورها، وستحصل على نتيجة في النهاية.")
 T("Shows how you have scored on this exercise so far, as a chart under the description.",
   "Zeigt unter der Beschreibung als Diagramm, wie du bei dieser Übung bisher abgeschnitten hast.",
   "Muestra cómo has puntuado hasta ahora en este ejercicio, como un gráfico bajo la descripción.",
@@ -390,7 +416,8 @@ T("Shows how you have scored on this exercise so far, as a chart under the descr
   "Visar hur du hittills presterat på den här övningen, som ett diagram under beskrivningen.",
   "このエクササイズのこれまでのスコアを、説明の下にグラフで表示します。",
   "이 연습에서 지금까지 받은 점수를 설명 아래에 그래프로 보여줍니다.",
-  "在说明下方以图表显示你在这个练习上的历史成绩。")
+  "在说明下方以图表显示你在这个练习上的历史成绩。",
+  "يعرض نتائجك في هذا التمرين حتى الآن، كرسم بياني أسفل الوصف.")
 T("Opens this exercise's settings: its name, tempo, repetitions and notes.",
   "Öffnet die Einstellungen dieser Übung: Name, Tempo, Wiederholungen und Noten.",
   "Abre los ajustes de este ejercicio: su nombre, tempo, repeticiones y notas.",
@@ -404,7 +431,8 @@ T("Opens this exercise's settings: its name, tempo, repetitions and notes.",
   "Öppnar den här övningens inställningar: namn, tempo, repetitioner och toner.",
   "このエクササイズの設定（名前、テンポ、繰り返し、音符）を開きます。",
   "이 연습의 설정을 엽니다. 이름, 템포, 반복, 음을 다룹니다.",
-  "打开这个练习的设置：名称、速度、重复和音符。")
+  "打开这个练习的设置：名称、速度、重复和音符。",
+  "يفتح إعدادات هذا التمرين: اسمه وسرعته وتكراراته ونغماته.")
 T("Leaves this exercise unsung and moves on to the next one in the queue.",
   "Lässt diese Übung ungesungen und geht zur nächsten in der Reihe.",
   "Deja este ejercicio sin cantar y pasa al siguiente de la cola.",
@@ -418,7 +446,8 @@ T("Leaves this exercise unsung and moves on to the next one in the queue.",
   "Hoppar över den här övningen och går vidare till nästa i kön.",
   "このエクササイズを歌わずに飛ばして、次のエクササイズへ進みます。",
   "이 연습을 부르지 않고 건너뛰어 대기열의 다음 연습으로 갑니다.",
-  "跳过这个练习，直接进入队列中的下一个。")
+  "跳过这个练习，直接进入队列中的下一个。",
+  "يترك هذا التمرين دون غناء وينتقل إلى التالي في قائمة الانتظار.")
 T("How hard this exercise turns out to be, worked out from everyone's scores on it. Five stars is the hardest.",
   "Wie schwer sich diese Übung erweist, errechnet aus den Ergebnissen aller. Fünf Sterne sind am schwersten.",
   "Lo difícil que resulta este ejercicio, calculado a partir de las puntuaciones de todos. Cinco estrellas es lo más difícil.",
@@ -432,7 +461,8 @@ T("How hard this exercise turns out to be, worked out from everyone's scores on 
   "Hur svår den här övningen visar sig vara, uträknat från allas poäng. Fem stjärnor är svårast.",
   "全員のスコアから算出した、このエクササイズの難しさです。星 5 つが最も難しいことを表します。",
   "모든 사용자의 점수로 계산한 이 연습의 난이도입니다. 별 다섯 개가 가장 어렵습니다.",
-  "根据所有人的成绩算出的难度。五颗星表示最难。")
+  "根据所有人的成绩算出的难度。五颗星表示最难。",
+  "مدى صعوبة هذا التمرين، محسوبًا من نتائج الجميع فيه. خمس نجوم هي الأصعب.")
 T("Who made this exercise. Tap to open their profile and see their other public exercises.",
   "Wer diese Übung gemacht hat. Tippe darauf, um das Profil mit den anderen öffentlichen Übungen zu öffnen.",
   "Quién creó este ejercicio. Toca para abrir su perfil y ver sus demás ejercicios públicos.",
@@ -446,7 +476,8 @@ T("Who made this exercise. Tap to open their profile and see their other public 
   "Vem som skapat den här övningen. Tryck för att öppna profilen med personens andra offentliga övningar.",
   "このエクササイズを作った人です。タップするとプロフィールが開き、ほかの公開エクササイズも見られます。",
   "이 연습을 만든 사람입니다. 탭하면 프로필이 열리고 그 사람의 다른 공개 연습도 볼 수 있습니다.",
-  "这个练习的创建者。点按可打开对方的主页，查看其他公开练习。")
+  "这个练习的创建者。点按可打开对方的主页，查看其他公开练习。",
+  "من أنشأ هذا التمرين. اضغط لفتح ملفه الشخصي ورؤية تمارينه العامة الأخرى.")
 T("Tap the heart to like this exercise. The number is how many users have.",
   "Tippe auf das Herz, um diese Übung zu mögen. Die Zahl sagt, wie vielen Nutzern sie gefällt.",
   "Toca el corazón para indicar que te gusta este ejercicio. El número dice a cuántos usuarios les gusta.",
@@ -460,7 +491,8 @@ T("Tap the heart to like this exercise. The number is how many users have.",
   "Tryck på hjärtat för att gilla den här övningen. Siffran är hur många användare som gjort det.",
   "ハートをタップするとこのエクササイズに「いいね」できます。数字は「いいね」したユーザー数です。",
   "하트를 탭하면 이 연습에 좋아요를 남깁니다. 숫자는 좋아요를 누른 사용자 수입니다.",
-  "点按爱心即可给这个练习点赞。数字是点赞的用户数。")
+  "点按爱心即可给这个练习点赞。数字是点赞的用户数。",
+  "اضغط على القلب لتسجيل إعجابك بهذا التمرين. الرقم هو عدد المستخدمين الذين أُعجبوا به.")
 T("Tap the star to make this exercise a favourite. Favourites come first in their category on the Exercises tab and fill the Home tab's “Favourites”.",
   "Tippe auf den Stern, um diese Übung zu einem Favoriten zu machen. Favoriten stehen im Übungen-Tab ganz oben in ihrer Kategorie und füllen im Start-Tab die Kategorie „Favoriten“.",
   "Toca la estrella para marcar este ejercicio como favorito. Los favoritos aparecen primero en su categoría en la pestaña Ejercicios y llenan la categoría «Favoritos» de la pestaña Inicio.",
@@ -474,7 +506,8 @@ T("Tap the star to make this exercise a favourite. Favourites come first in thei
   "Tryck på stjärnan för att göra övningen till en favorit. Favoriter kommer först i sin kategori på fliken Övningar och fyller kategorin ”Favoriter” på fliken Hem.",
   "星をタップすると、このエクササイズをお気に入りにできます。お気に入りはエクササイズタブで自分のカテゴリの先頭に並び、ホームタブの「お気に入り」に入ります。",
   "별을 탭하면 이 연습을 즐겨찾기에 넣습니다. 즐겨찾기는 연습 탭에서 해당 분류의 맨 앞에 오고, 홈 탭의 “즐겨찾기”를 채웁니다.",
-  "点按星星即可把这个练习设为收藏。收藏的练习会排在“练习”标签中所属分类的最前面，并出现在“首页”标签的“收藏”中。")
+  "点按星星即可把这个练习设为收藏。收藏的练习会排在“练习”标签中所属分类的最前面，并出现在“首页”标签的“收藏”中。",
+  "اضغط على النجمة لإضافة هذا التمرين إلى المفضلة. تأتي المفضلة أولًا في فئتها في تبويب التمارين وتملأ «المفضلة» في تبويب الرئيسية.")
 T("How many times this exercise has been downloaded.",
   "Wie oft diese Übung heruntergeladen wurde.",
   "Cuántas veces se ha descargado este ejercicio.",
@@ -488,7 +521,8 @@ T("How many times this exercise has been downloaded.",
   "Hur många gånger den här övningen laddats ned.",
   "このエクササイズがダウンロードされた回数です。",
   "이 연습이 다운로드된 횟수입니다.",
-  "这个练习被下载的次数。")
+  "这个练习被下载的次数。",
+  "عدد مرات تنزيل هذا التمرين.")
 
 # --- Exercise settings & preview ---
 T("This exercise as it will play, with the settings below already applied. Drag it sideways to look further along.",
@@ -504,7 +538,8 @@ T("This exercise as it will play, with the settings below already applied. Drag 
   "Den här övningen som den kommer att spelas, med inställningarna nedan redan tillämpade. Dra i sidled för att se längre fram.",
   "下の設定を反映した、このエクササイズの再生イメージです。横にドラッグすると先を確認できます。",
   "아래 설정이 이미 반영된 이 연습의 재생 모습입니다. 옆으로 끌면 더 뒤쪽을 볼 수 있습니다.",
-  "这个练习播放时的样子，已应用下方的设置。左右拖动可以看后面的部分。")
+  "这个练习播放时的样子，已应用下方的设置。左右拖动可以看后面的部分。",
+  "هذا التمرين كما سيُشغَّل، مع تطبيق الإعدادات أدناه بالفعل. اسحبه جانبيًا لرؤية ما يليه.")
 T("What this exercise is called in your lists.",
   "Wie diese Übung in deinen Listen heißt.",
   "Cómo se llama este ejercicio en tus listas.",
@@ -518,7 +553,8 @@ T("What this exercise is called in your lists.",
   "Vad den här övningen heter i dina listor.",
   "このエクササイズが一覧でどう表示されるかです。",
   "이 연습이 목록에 표시되는 이름입니다.",
-  "这个练习在你的列表中显示的名称。")
+  "这个练习在你的列表中显示的名称。",
+  "اسم هذا التمرين في قوائمك.")
 T("Your note on what to do, shown on the screen before the exercise starts.",
   "Deine Notiz dazu, was zu tun ist, die vor dem Start der Übung angezeigt wird.",
   "Tu nota sobre qué hacer, que aparece en la pantalla antes de empezar el ejercicio.",
@@ -532,7 +568,8 @@ T("Your note on what to do, shown on the screen before the exercise starts.",
   "Din anteckning om vad som ska göras, som visas på skärmen innan övningen börjar.",
   "何をするかについてのメモです。エクササイズが始まる前の画面に表示されます。",
   "무엇을 할지에 대한 메모입니다. 연습이 시작되기 전 화면에 표시됩니다.",
-  "你写的操作说明，会在练习开始前的页面上显示。")
+  "你写的操作说明，会在练习开始前的页面上显示。",
+  "ملاحظتك عما يجب فعله، وتُعرض على الشاشة قبل بدء التمرين.")
 T("Opens the note editor, where you draw this exercise's notes and write labels on them.",
   "Öffnet den Noteneditor, in dem du die Noten dieser Übung zeichnest und beschriftest.",
   "Abre el editor de notas, donde dibujas las notas de este ejercicio y les pones etiquetas.",
@@ -546,7 +583,8 @@ T("Opens the note editor, where you draw this exercise's notes and write labels 
   "Öppnar toneditorn, där du ritar övningens toner och skriver etiketter på dem.",
   "ノートエディタを開きます。ここでこのエクササイズの音符を描き、ラベルを書きます。",
   "음 편집기를 엽니다. 여기서 이 연습의 음을 그리고 라벨을 씁니다.",
-  "打开音符编辑器，在其中绘制这个练习的音符并写标签。")
+  "打开音符编辑器，在其中绘制这个练习的音符并写标签。",
+  "يفتح محرر النغمات، حيث ترسم نغمات هذا التمرين وتكتب تسميات عليها.")
 T("Moves every note of the exercise up or down by this many semitones. 12 is a whole octave.",
   "Verschiebt jede Note der Übung um so viele Halbtöne nach oben oder unten. 12 sind eine ganze Oktave.",
   "Sube o baja todas las notas del ejercicio estos semitonos. 12 es una octava entera.",
@@ -560,7 +598,8 @@ T("Moves every note of the exercise up or down by this many semitones. 12 is a w
   "Flyttar alla toner i övningen så här många halvtoner upp eller ner. 12 är en hel oktav.",
   "エクササイズのすべての音を、この半音数だけ上下に移動します。12 で 1 オクターブです。",
   "연습의 모든 음을 이만큼의 반음 단위로 올리거나 내립니다. 12는 한 옥타브입니다.",
-  "把练习中的所有音符上下移动这么多个半音。12 就是一个八度。")
+  "把练习中的所有音符上下移动这么多个半音。12 就是一个八度。",
+  "ينقل كل نغمات التمرين للأعلى أو للأسفل بهذا العدد من أنصاف التون. 12 تساوي أوكتافًا كاملًا.")
 T("How fast the exercise is played, in beats per minute.",
   "Wie schnell die Übung abgespielt wird, in Schlägen pro Minute.",
   "A qué velocidad se reproduce el ejercicio, en pulsos por minuto.",
@@ -574,7 +613,8 @@ T("How fast the exercise is played, in beats per minute.",
   "Hur snabbt övningen spelas, i slag per minut.",
   "エクササイズを再生する速さです（1 分あたりの拍数）。",
   "연습을 재생하는 빠르기입니다. 분당 박자 수로 나타냅니다.",
-  "练习的播放速度，以每分钟拍数计。")
+  "练习的播放速度，以每分钟拍数计。",
+  "سرعة تشغيل التمرين، بعدد النبضات في الدقيقة.")
 T("How many times the pattern is played in a row.",
   "Wie oft das Muster hintereinander gespielt wird.",
   "Cuántas veces se toca el patrón seguidas.",
@@ -588,7 +628,8 @@ T("How many times the pattern is played in a row.",
   "Hur många gånger mönstret spelas i rad.",
   "パターンを続けて何回鳴らすかです。",
   "패턴을 연달아 몇 번 재생할지 정합니다.",
-  "音型连续播放的次数。")
+  "音型连续播放的次数。",
+  "عدد مرات تشغيل النمط على التوالي.")
 T("Each repetition starts this many semitones above the one before it. A negative value works downwards.",
   "Jede Wiederholung beginnt so viele Halbtöne über der vorigen. Ein negativer Wert geht abwärts.",
   "Cada repetición empieza estos semitonos por encima de la anterior. Un valor negativo va hacia abajo.",
@@ -602,7 +643,8 @@ T("Each repetition starts this many semitones above the one before it. A negativ
   "Varje repetition börjar så här många halvtoner över den föregående. Ett negativt värde går nedåt.",
   "各繰り返しが、前の繰り返しよりこの半音数だけ高く始まります。マイナスにすると下がります。",
   "각 반복이 앞 반복보다 이만큼의 반음 위에서 시작합니다. 음수로 하면 아래로 내려갑니다.",
-  "每次重复都比上一次高这么多个半音。设为负数则向下走。")
+  "每次重复都比上一次高这么多个半音。设为负数则向下走。",
+  "يبدأ كل تكرار أعلى من سابقه بهذا العدد من أنصاف التون. القيمة السالبة تتجه للأسفل.")
 T("After this many repetitions the transposing turns around, so the exercise climbs and then comes back down. 0 never turns.",
   "Nach so vielen Wiederholungen kehrt sich das Transponieren um, sodass die Übung erst steigt und dann wieder fällt. 0 kehrt nie um.",
   "Tras estas repeticiones la transposición se invierte, de modo que el ejercicio sube y luego vuelve a bajar. 0 no invierte nunca.",
@@ -616,7 +658,8 @@ T("After this many repetitions the transposing turns around, so the exercise cli
   "Efter så här många repetitioner vänder transponeringen, så att övningen stiger och sedan går ner igen. 0 vänder aldrig.",
   "この回数の繰り返しの後で移調の向きが反転し、上がってから下がるようになります。0 なら反転しません。",
   "이만큼 반복한 뒤 이조 방향이 바뀌어, 올라갔다가 다시 내려옵니다. 0이면 바뀌지 않습니다.",
-  "在这么多次重复之后转调方向反转，练习先上行再下行。设为 0 则不反转。")
+  "在这么多次重复之后转调方向反转，练习先上行再下行。设为 0 则不反转。",
+  "بعد هذا العدد من التكرارات ينعكس اتجاه التحويل، فيصعد التمرين ثم يعود للأسفل. القيمة 0 لا تعكسه أبدًا.")
 T("Each repetition is played this many BPM faster than the one before it. A negative value slows it down.",
   "Jede Wiederholung wird um so viele BPM schneller gespielt als die vorige. Ein negativer Wert verlangsamt sie.",
   "Cada repetición se toca estos BPM más rápido que la anterior. Un valor negativo la ralentiza.",
@@ -630,7 +673,8 @@ T("Each repetition is played this many BPM faster than the one before it. A nega
   "Varje repetition spelas så här många BPM snabbare än den föregående. Ett negativt värde saktar ner.",
   "各繰り返しが、前の繰り返しよりこの BPM だけ速く再生されます。マイナスにすると遅くなります。",
   "각 반복이 앞 반복보다 이만큼의 BPM 빠르게 재생됩니다. 음수로 하면 느려집니다.",
-  "每次重复都比上一次快这么多 BPM。设为负数则变慢。")
+  "每次重复都比上一次快这么多 BPM。设为负数则变慢。",
+  "يُشغَّل كل تكرار أسرع من سابقه بهذا العدد من النبضات في الدقيقة. القيمة السالبة تبطئه.")
 T("Silent beats left between one repetition and the next, to breathe in.",
   "Stille Schläge zwischen einer Wiederholung und der nächsten, um Luft zu holen.",
   "Pulsos en silencio entre una repetición y la siguiente, para tomar aire.",
@@ -644,7 +688,8 @@ T("Silent beats left between one repetition and the next, to breathe in.",
   "Tysta slag mellan en repetition och nästa, för att hinna andas.",
   "繰り返しの間に入れる無音の拍です。息を吸うために使えます。",
   "반복 사이에 두는 무음 박자입니다. 숨을 들이쉴 시간이 됩니다.",
-  "两次重复之间留出的静音拍，用来换气。")
+  "两次重复之间留出的静音拍，用来换气。",
+  "نبضات صامتة بين تكرار وآخر، لأخذ نفس.")
 T("Deletes this exercise, its notes and its scores. This cannot be undone.",
   "Löscht diese Übung, ihre Noten und ihre Ergebnisse. Das lässt sich nicht rückgängig machen.",
   "Borra este ejercicio, sus notas y sus puntuaciones. No se puede deshacer.",
@@ -658,7 +703,8 @@ T("Deletes this exercise, its notes and its scores. This cannot be undone.",
   "Raderar den här övningen, dess toner och dess poäng. Det går inte att ångra.",
   "このエクササイズと、その音符およびスコアを削除します。取り消せません。",
   "이 연습과 그 음, 점수를 삭제합니다. 되돌릴 수 없습니다.",
-  "删除这个练习及其音符和成绩。此操作无法撤销。")
+  "删除这个练习及其音符和成绩。此操作无法撤销。",
+  "يحذف هذا التمرين ونغماته ونتائجه. لا يمكن التراجع عن ذلك.")
 
 # --- Exercises tab ---
 T("Swaps the drag handles for delete buttons. Deleting a category keeps its exercises and moves them to “No Category”.",
@@ -674,7 +720,8 @@ T("Swaps the drag handles for delete buttons. Deleting a category keeps its exer
   "Byter draghandtagen mot raderaknappar. Att radera en kategori behåller dess övningar och flyttar dem till ”Ingen kategori”.",
   "ドラッグ用のハンドルを削除ボタンに切り替えます。カテゴリを削除しても、そのエクササイズは残り「カテゴリなし」に移ります。",
   "드래그 손잡이를 삭제 버튼으로 바꿉니다. 분류를 지워도 그 안의 연습은 남아 “분류 없음”으로 옮겨집니다.",
-  "把拖动手柄换成删除按钮。删除分类不会删掉其中的练习，它们会移到“未分类”。")
+  "把拖动手柄换成删除按钮。删除分类不会删掉其中的练习，它们会移到“未分类”。",
+  "يستبدل مقابض السحب بأزرار حذف. حذف فئة يُبقي تمارينها وينقلها إلى «بدون فئة».")
 T("Adds another category and hands it the keyboard, ready to be named.",
   "Legt eine weitere Kategorie an und gibt ihr die Tastatur, damit du sie gleich benennen kannst.",
   "Añade otra categoría y le pasa el teclado para que la nombres enseguida.",
@@ -688,7 +735,8 @@ T("Adds another category and hands it the keyboard, ready to be named.",
   "Lägger till ännu en kategori och ger den tangentbordet, redo att namnges.",
   "カテゴリをもう 1 つ追加し、すぐ名前を付けられるようキーボードを表示します。",
   "분류를 하나 더 추가하고 바로 이름을 쓸 수 있도록 키보드를 띄웁니다.",
-  "新增一个分类并把键盘交给它，可以直接命名。")
+  "新增一个分类并把键盘交给它，可以直接命名。",
+  "يضيف فئة أخرى ويفتح لوحة المفاتيح لتسميتها.")
 T("Tap the name to rename the category, and drag by the handle on the right to reorder it. The number is how many exercises it holds.",
   "Tippe den Namen an, um die Kategorie umzubenennen, und ziehe sie am Griff rechts, um sie umzusortieren. Die Zahl sagt, wie viele Übungen sie enthält.",
   "Toca el nombre para renombrar la categoría y arrástrala por el asa de la derecha para reordenarla. El número indica cuántos ejercicios contiene.",
@@ -702,7 +750,8 @@ T("Tap the name to rename the category, and drag by the handle on the right to r
   "Tryck på namnet för att byta namn på kategorin, och dra i handtaget till höger för att flytta den. Siffran är hur många övningar den innehåller.",
   "名前をタップするとカテゴリ名を変更でき、右のハンドルをドラッグすると並べ替えられます。数字は含まれるエクササイズの数です。",
   "이름을 탭하면 분류 이름을 바꾸고, 오른쪽 손잡이를 끌면 순서를 바꿉니다. 숫자는 들어 있는 연습 수입니다.",
-  "点按名称可重命名分类，拖动右侧手柄可调整顺序。数字是其中的练习数量。")
+  "点按名称可重命名分类，拖动右侧手柄可调整顺序。数字是其中的练习数量。",
+  "اضغط على الاسم لإعادة تسمية الفئة، واسحب من المقبض على اليمين لإعادة ترتيبها. الرقم هو عدد التمارين فيها.")
 T("Makes an empty exercise and opens its settings, or adds a category to sort your exercises into.",
   "Legt eine leere Übung an und öffnet ihre Einstellungen, oder fügt eine Kategorie hinzu, in die du deine Übungen einsortierst.",
   "Crea un ejercicio vacío y abre sus ajustes, o añade una categoría para ordenar tus ejercicios.",
@@ -716,7 +765,8 @@ T("Makes an empty exercise and opens its settings, or adds a category to sort yo
   "Skapar en tom övning och öppnar dess inställningar, eller lägger till en kategori att sortera övningarna i.",
   "空のエクササイズを作って設定画面を開くか、エクササイズを整理するためのカテゴリを追加します。",
   "빈 연습을 만들어 설정을 열거나, 연습을 정리할 분류를 추가합니다.",
-  "新建一个空练习并打开其设置，或添加一个用于归类练习的分类。")
+  "新建一个空练习并打开其设置，或添加一个用于归类练习的分类。",
+  "ينشئ تمرينًا فارغًا ويفتح إعداداته، أو يضيف فئة لتصنيف تمارينك فيها.")
 T("Narrows the list to where the exercises came from, to the ones you have shared, or to your favourites. The button is filled in while a filter is on.",
   "Schränkt die Liste darauf ein, woher die Übungen stammen, auf die von dir geteilten oder auf deine Favoriten. Der Knopf ist ausgefüllt, solange ein Filter aktiv ist.",
   "Limita la lista según de dónde vienen los ejercicios, a los que has compartido o a tus favoritos. El botón se rellena mientras hay un filtro activo.",
@@ -730,7 +780,8 @@ T("Narrows the list to where the exercises came from, to the ones you have share
   "Begränsar listan efter var övningarna kommer ifrån, till dem du delat eller till dina favoriter. Knappen är ifylld så länge ett filter är på.",
   "エクササイズの入手元、自分が公開したもの、またはお気に入りだけに絞り込みます。フィルタが有効な間、ボタンは塗りつぶされます。",
   "연습의 출처별로, 내가 공유한 것만, 또는 즐겨찾기만 보이도록 좁힙니다. 필터가 켜져 있는 동안 버튼이 채워집니다.",
-  "按练习的来源筛选，或只显示你分享过的或收藏的。筛选开启时按钮为实心。")
+  "按练习的来源筛选，或只显示你分享过的或收藏的。筛选开启时按钮为实心。",
+  "يقصر القائمة على مصدر التمارين، أو على التي شاركتها، أو على المفضلة. يكون الزر ممتلئًا أثناء تفعيل عامل تصفية.")
 T("Sets the order the exercises come in, within each category or in one list with “Ignore Categories”. Only “Own Sorting” lets you drag exercises into place, and keeps favourites at the top.",
   "Legt fest, in welcher Reihenfolge die Übungen stehen, innerhalb jeder Kategorie oder mit „Kategorien ignorieren“ in einer einzigen Liste. Nur bei „Eigene Sortierung“ lassen sich Übungen an ihren Platz ziehen, und nur dort stehen Favoriten oben.",
   "Define el orden en que aparecen los ejercicios, dentro de cada categoría o en una sola lista con «Ignorar categorías». Solo «Orden propio» te deja arrastrar los ejercicios a su sitio y mantiene los favoritos arriba.",
@@ -744,7 +795,8 @@ T("Sets the order the exercises come in, within each category or in one list wit
   "Bestämmer ordningen övningarna visas i, inom varje kategori eller i en enda lista med ”Ignorera kategorier”. Bara ”Egen ordning” låter dig dra övningarna på plats och håller favoriterna överst.",
   "エクササイズの並び順を、カテゴリごと、または「カテゴリを無視」で1つのリストとして決めます。ドラッグで並べ替えられ、お気に入りが上に来るのは「自分の並び順」のときだけです。",
   "연습이 나열되는 순서를 분류마다, 또는 “분류 무시”로 하나의 목록에서 정합니다. 끌어서 순서를 바꾸고 즐겨찾기를 맨 위에 두는 것은 “내 순서”에서만 됩니다.",
-  "设置练习的排列顺序，可在每个分类内排列，也可用“忽略分类”排成一个列表。只有“自定义排序”能拖动练习调整位置，并让收藏保持在最上面。")
+  "设置练习的排列顺序，可在每个分类内排列，也可用“忽略分类”排成一个列表。只有“自定义排序”能拖动练习调整位置，并让收藏保持在最上面。",
+  "يحدد ترتيب ظهور التمارين، داخل كل فئة أو في قائمة واحدة مع «تجاهل الفئات». «ترتيبي الخاص» وحده يتيح لك سحب التمارين إلى أماكنها، ويُبقي المفضلة في الأعلى.")
 T("Press and hold any category name to rearrange your categories, rename them, or add new ones.",
   "Halte einen Kategorienamen gedrückt, um deine Kategorien umzusortieren, umzubenennen oder neue hinzuzufügen.",
   "Mantén pulsado el nombre de cualquier categoría para reordenar tus categorías, renombrarlas o añadir nuevas.",
@@ -758,7 +810,8 @@ T("Press and hold any category name to rearrange your categories, rename them, o
   "Håll in ett kategorinamn för att ordna om dina kategorier, byta namn på dem eller lägga till nya.",
   "カテゴリ名を長押しすると、カテゴリの並べ替えや名前の変更、追加ができます。",
   "분류 이름을 길게 누르면 분류의 순서를 바꾸거나 이름을 바꾸고, 새 분류를 추가할 수 있습니다.",
-  "长按任意分类名称即可调整分类顺序、重命名分类或添加新分类。")
+  "长按任意分类名称即可调整分类顺序、重命名分类或添加新分类。",
+  "اضغط مطولًا على اسم أي فئة لإعادة ترتيب فئاتك أو إعادة تسميتها أو إضافة فئات جديدة.")
 
 # --- Home tab ---
 T("Which categories the Home tab shows and the order they come in. The same screen opens by pressing and holding a category name on the Home tab.",
@@ -774,7 +827,8 @@ T("Which categories the Home tab shows and the order they come in. The same scre
   "Vilka kategorier fliken Hem visar och i vilken ordning. Samma skärm öppnas om du håller in ett kategorinamn på fliken Hem.",
   "ホームタブがどのカテゴリをどの順で表示するか。同じ画面は、ホームタブでカテゴリ名を長押ししても開きます。",
   "홈 탭이 어떤 분류를 어떤 순서로 보여주는지 정합니다. 홈 탭에서 분류 이름을 길게 누르면 같은 화면이 열립니다.",
-  "“首页”标签显示哪些分类以及它们的顺序。在“首页”标签中长按分类名称也会打开同一界面。")
+  "“首页”标签显示哪些分类以及它们的顺序。在“首页”标签中长按分类名称也会打开同一界面。",
+  "الفئات التي يعرضها تبويب الرئيسية وترتيبها. تُفتح الشاشة نفسها بالضغط مطولًا على اسم فئة في تبويب الرئيسية.")
 T("Drag by the handle on the right to set the order these categories come in on the Home tab. The eye takes one off the tab, or puts it back; the last one left cannot be hidden.",
   "Ziehe am Griff rechts, um festzulegen, in welcher Reihenfolge diese Kategorien im Start-Tab stehen. Das Auge nimmt eine vom Tab weg oder holt sie zurück; die letzte verbliebene lässt sich nicht ausblenden.",
   "Arrastra por el asa de la derecha para fijar el orden de estas categorías en la pestaña Inicio. El ojo quita una de la pestaña o la devuelve; la última que quede no se puede ocultar.",
@@ -788,7 +842,8 @@ T("Drag by the handle on the right to set the order these categories come in on 
   "Dra i handtaget till höger för att bestämma ordningen på kategorierna i Start-fliken. Ögat tar bort en från fliken eller sätter tillbaka den; den sista som är kvar går inte att dölja.",
   "右のハンドルをドラッグすると、ホームタブでのカテゴリの並び順を決められます。目のアイコンはカテゴリをタブから外したり戻したりします。最後の 1 つは隠せません。",
   "오른쪽 손잡이를 끌어 홈 탭에서 분류가 나오는 순서를 정합니다. 눈 아이콘은 분류를 탭에서 빼거나 되돌립니다. 마지막 하나는 숨길 수 없습니다.",
-  "拖动右侧手柄可设置这些分类在首页标签中的顺序。眼睛图标可把某个分类移出或放回；最后剩下的一个不能隐藏。")
+  "拖动右侧手柄可设置这些分类在首页标签中的顺序。眼睛图标可把某个分类移出或放回；最后剩下的一个不能隐藏。",
+  "اسحب من المقبض على اليمين لتحديد ترتيب ظهور هذه الفئات في تبويب الرئيسية. العين تُخفي فئة من التبويب أو تعيدها؛ ولا يمكن إخفاء آخر فئة متبقية.")
 T("Makes a new routine: your own list of exercises, sung one after the other.",
   "Legt eine neue Routine an: deine eigene Liste von Übungen, die nacheinander gesungen werden.",
   "Crea una nueva rutina: tu propia lista de ejercicios, cantados uno tras otro.",
@@ -802,7 +857,8 @@ T("Makes a new routine: your own list of exercises, sung one after the other.",
   "Skapar en ny rutin: din egen lista med övningar som sjungs efter varandra.",
   "新しいルーティンを作ります。自分で決めたエクササイズを続けて歌うリストです。",
   "새 루틴을 만듭니다. 차례로 부를 연습을 직접 모은 목록입니다.",
-  "新建一个训练组：由你自己挑选、依次演唱的练习列表。")
+  "新建一个训练组：由你自己挑选、依次演唱的练习列表。",
+  "ينشئ روتينًا جديدًا: قائمتك الخاصة من التمارين، تُغنّى واحدًا تلو الآخر.")
 T("Opens the settings these suggestions are made under: how long you practise a day, and which exercises may be picked.",
   "Öffnet die Einstellungen, unter denen diese Vorschläge entstehen: wie lange du täglich übst und welche Übungen ausgewählt werden dürfen.",
   "Abre los ajustes con los que se hacen estas sugerencias: cuánto practicas al día y qué ejercicios pueden elegirse.",
@@ -816,7 +872,8 @@ T("Opens the settings these suggestions are made under: how long you practise a 
   "Öppnar inställningarna förslagen görs efter: hur länge du övar per dag och vilka övningar som får väljas.",
   "このおすすめが作られる元の設定を開きます。1 日の練習時間と、選ばれてよいエクササイズです。",
   "이 추천이 만들어지는 설정을 엽니다. 하루 연습 시간과, 뽑힐 수 있는 연습 목록입니다.",
-  "打开这些推荐所依据的设置：你每天练习多久，以及哪些练习可以被选中。")
+  "打开这些推荐所依据的设置：你每天练习多久，以及哪些练习可以被选中。",
+  "يفتح الإعدادات التي تُبنى عليها هذه الاقتراحات: المدة التي تتمرّن فيها يوميًا، والتمارين التي يمكن اختيارها.")
 
 # --- Playback, score screen and review ---
 T("Turns the number in the field from plus to minus and back, since the number pad has no minus key.",
@@ -832,7 +889,8 @@ T("Turns the number in the field from plus to minus and back, since the number p
   "Växlar talet i fältet mellan plus och minus, eftersom sifferknappsatsen saknar minustecken.",
   "テンキーにはマイナスキーがないため、入力欄の数値をプラスとマイナスで切り替えます。",
   "숫자 키패드에는 마이너스 키가 없어서, 입력란의 숫자를 플러스와 마이너스로 바꿉니다.",
-  "把输入框里的数字在正负之间切换，因为数字键盘没有减号键。")
+  "把输入框里的数字在正负之间切换，因为数字键盘没有减号键。",
+  "يحوّل الرقم في الحقل من موجب إلى سالب والعكس، لأن لوحة الأرقام لا تحتوي على مفتاح الطرح.")
 T("Pauses the exercise. Tap again to carry on from where you stopped.",
   "Hält die Übung an. Tippe noch einmal, um dort weiterzumachen, wo du aufgehört hast.",
   "Pausa el ejercicio. Toca otra vez para seguir donde lo dejaste.",
@@ -846,7 +904,8 @@ T("Pauses the exercise. Tap again to carry on from where you stopped.",
   "Pausar övningen. Tryck igen för att fortsätta där du slutade.",
   "エクササイズを一時停止します。もう一度タップすると、止めたところから続きます。",
   "연습을 일시정지합니다. 다시 탭하면 멈춘 곳부터 이어집니다.",
-  "暂停练习。再次点按可从停下的地方继续。")
+  "暂停练习。再次点按可从停下的地方继续。",
+  "يوقف التمرين مؤقتًا. اضغط مرة أخرى للمتابعة من حيث توقفت.")
 T("How much of the run you sang on pitch. Red is low, green is high.",
   "Wie viel von dem Durchgang du tonrein gesungen hast. Rot ist niedrig, grün ist hoch.",
   "Cuánto de la ejecución cantaste afinado. Rojo es bajo, verde es alto.",
@@ -860,7 +919,8 @@ T("How much of the run you sang on pitch. Red is low, green is high.",
   "Hur mycket av omgången du sjöng rent. Rött är lågt, grönt är högt.",
   "この 1 回でどれだけ音程が合っていたかです。赤が低く、緑が高い評価です。",
   "이번 회차에서 음정을 얼마나 맞췄는지입니다. 빨강은 낮고 초록은 높습니다.",
-  "本次演唱中音准正确的比例。红色为低，绿色为高。")
+  "本次演唱中音准正确的比例。红色为低，绿色为高。",
+  "مقدار ما غنيته على الدرجة الصحيحة في هذه المحاولة. الأحمر منخفض والأخضر مرتفع.")
 T("Your highest score on this exercise so far. This run beat your previous best.",
   "Deine bisher höchste Punktzahl in dieser Übung. Dieser Durchgang hat deinen bisherigen Bestwert übertroffen.",
   "Tu puntuación más alta hasta ahora en este ejercicio. Esta ejecución superó tu mejor marca anterior.",
@@ -874,7 +934,8 @@ T("Your highest score on this exercise so far. This run beat your previous best.
   "Din högsta poäng hittills i den här övningen. Den här omgången slog ditt tidigare rekord.",
   "このエクササイズでのこれまでの最高スコアです。今回が自己ベストを更新しました。",
   "이 연습에서 지금까지 가장 높은 점수입니다. 이번 회차가 이전 최고 기록을 넘었습니다.",
-  "你在这个练习中迄今的最高得分。本次超过了你之前的最好成绩。")
+  "你在这个练习中迄今的最高得分。本次超过了你之前的最好成绩。",
+  "أعلى نتيجة لك في هذا التمرين حتى الآن. تفوقت هذه المحاولة على أفضل نتيجة سابقة لك.")
 T("Opens the run you just sang as a still picture: your pitch drawn over the notes, so you can see where it went.",
   "Öffnet den eben gesungenen Durchgang als Standbild: deine Tonhöhe über die Noten gezeichnet, damit du siehst, wo sie verlief.",
   "Abre la ejecución que acabas de cantar como una imagen fija: tu tono dibujado sobre las notas, para ver por dónde fue.",
@@ -888,7 +949,8 @@ T("Opens the run you just sang as a still picture: your pitch drawn over the not
   "Öppnar omgången du just sjöng som en stillbild: din tonhöjd ritad ovanpå tonerna, så att du ser var den gick.",
   "いま歌った回を静止画で開きます。音符の上に自分の音程が描かれ、どこを通ったか確認できます。",
   "방금 부른 회차를 정지 화면으로 엽니다. 음 위에 내 음정이 그려져 어디를 지났는지 볼 수 있습니다.",
-  "以静态图打开你刚才唱的这一次：你的音高画在音符上，可以看清走向。")
+  "以静态图打开你刚才唱的这一次：你的音高画在音符上，可以看清走向。",
+  "يفتح المحاولة التي غنيتها للتو كصورة ثابتة: درجة صوتك مرسومة فوق النغمات، لترى أين ذهبت.")
 T("Sings this exercise again from the beginning.",
   "Singt diese Übung noch einmal von vorn.",
   "Canta este ejercicio otra vez desde el principio.",
@@ -902,7 +964,8 @@ T("Sings this exercise again from the beginning.",
   "Sjunger den här övningen igen från början.",
   "このエクササイズをもう一度、最初から歌います。",
   "이 연습을 처음부터 다시 부릅니다.",
-  "从头再唱一遍这个练习。")
+  "从头再唱一遍这个练习。",
+  "يبدأ هذا التمرين مرة أخرى من البداية.")
 T("Opens the exercise listed after this one.",
   "Öffnet die Übung, die nach dieser in der Liste steht.",
   "Abre el ejercicio que va después de este en la lista.",
@@ -916,7 +979,8 @@ T("Opens the exercise listed after this one.",
   "Öppnar övningen som står efter den här i listan.",
   "リストでこの次にあるエクササイズを開きます。",
   "목록에서 이 다음에 오는 연습을 엽니다.",
-  "打开列表中排在这个之后的练习。")
+  "打开列表中排在这个之后的练习。",
+  "يفتح التمرين المدرج بعد هذا التمرين.")
 T("Finishes with this exercise. Flicking right across the screen does the same.",
   "Beendet diese Übung. Ein Wischen nach rechts über den Bildschirm tut dasselbe.",
   "Termina con este ejercicio. Deslizar hacia la derecha por la pantalla hace lo mismo.",
@@ -930,7 +994,8 @@ T("Finishes with this exercise. Flicking right across the screen does the same."
   "Avslutar den här övningen. Att svepa åt höger över skärmen gör samma sak.",
   "このエクササイズを終えます。画面を右にはらっても同じです。",
   "이 연습을 마칩니다. 화면을 오른쪽으로 밀어도 같습니다.",
-  "结束这个练习。在屏幕上向右滑动效果相同。")
+  "结束这个练习。在屏幕上向右滑动效果相同。",
+  "يُنهي هذا التمرين. التمرير لليمين عبر الشاشة يفعل الشيء نفسه.")
 T("How long your microphone takes to hear you. Your scores are worked out with this taken off, and you can change it in Settings under Audio.",
   "Wie lange dein Mikrofon braucht, um dich zu hören. Deine Bewertungen werden abzüglich dieses Werts berechnet, und du kannst ihn in den Einstellungen unter Audio ändern.",
   "Cuánto tarda tu micrófono en oírte. Tus puntuaciones se calculan restando este valor, y puedes cambiarlo en Ajustes, en Audio.",
@@ -944,7 +1009,8 @@ T("How long your microphone takes to hear you. Your scores are worked out with t
   "Hur lång tid din mikrofon behöver för att höra dig. Dina poäng räknas ut med det här avdraget, och du kan ändra det i Inställningar under Ljud.",
   "マイクがあなたの声を捉えるまでの時間です。スコアはこの分を差し引いて計算され、設定のオーディオで変更できます。",
   "마이크가 당신의 소리를 듣기까지 걸리는 시간입니다. 점수는 이 값을 뺀 뒤 계산되며, 설정의 오디오에서 바꿀 수 있습니다.",
-  "麦克风听到你的声音所需的时间。评分会扣掉这段延迟，你可以在“设置”的音频里修改。")
+  "麦克风听到你的声音所需的时间。评分会扣掉这段延迟，你可以在“设置”的音频里修改。",
+  "الوقت الذي يستغرقه الميكروفون لسماعك. تُحسب نتائجك بعد خصم هذا الوقت، ويمكنك تغييره في الإعدادات ضمن «الصوتيات».")
 T("The whole exercise with the pitch you sang drawn over it. Drag to move around, pinch to zoom.",
   "Die ganze Übung mit der von dir gesungenen Tonhöhe darüber gezeichnet. Ziehen zum Verschieben, Zusammenziehen zum Zoomen.",
   "El ejercicio entero con el tono que cantaste dibujado encima. Arrastra para moverte, pellizca para acercar.",
@@ -958,7 +1024,8 @@ T("The whole exercise with the pitch you sang drawn over it. Drag to move around
   "Hela övningen med tonhöjden du sjöng ritad ovanpå. Dra för att flytta dig, nyp för att zooma.",
   "エクササイズ全体に、あなたが歌った音程が重ねて描かれています。ドラッグで移動、ピンチで拡大縮小できます。",
   "연습 전체 위에 당신이 부른 음정이 겹쳐 그려집니다. 드래그로 이동하고 손가락을 모아 확대합니다.",
-  "整个练习，上面叠加着你演唱的音高。拖动可平移，捏合可缩放。")
+  "整个练习，上面叠加着你演唱的音高。拖动可平移，捏合可缩放。",
+  "التمرين كاملًا مع درجة الصوت التي غنيتها مرسومة فوقه. اسحب للتنقل، وقرّب أو بعّد بإصبعين للتكبير.")
 T("Goes back to where you came from, leaving the exercise as it is.",
   "Geht dorthin zurück, wo du herkamst, und lässt die Übung, wie sie ist.",
   "Vuelve a donde venías, dejando el ejercicio como está.",
@@ -972,7 +1039,8 @@ T("Goes back to where you came from, leaving the exercise as it is.",
   "Går tillbaka dit du kom ifrån och lämnar övningen som den är.",
   "元の画面に戻ります。エクササイズはそのままです。",
   "왔던 곳으로 돌아갑니다. 연습은 그대로 둡니다.",
-  "返回你来的地方，练习保持原样。")
+  "返回你来的地方，练习保持原样。",
+  "يعود إلى حيث أتيت، ويترك التمرين كما هو.")
 T("Saves the offset below as your microphone delay and closes the test.",
   "Sichert den Versatz unten als deine Mikrofonverzögerung und schließt den Test.",
   "Guarda el desfase de abajo como tu retardo de micrófono y cierra la prueba.",
@@ -986,7 +1054,8 @@ T("Saves the offset below as your microphone delay and closes the test.",
   "Sparar förskjutningen nedan som din mikrofonfördröjning och stänger testet.",
   "下のずれをマイク遅延として保存し、テストを終了します。",
   "아래의 어긋난 양을 마이크 지연으로 저장하고 테스트를 닫습니다.",
-  "把下面的偏移保存为你的麦克风延迟并关闭测试。")
+  "把下面的偏移保存为你的麦克风延迟并关闭测试。",
+  "يحفظ الإزاحة أدناه كتأخير للميكروفون ويغلق الاختبار.")
 T("How far your singing is being moved to line it up. The arrows shift it: the double ones in big steps, the single ones a millisecond at a time.",
   "Wie weit dein Gesang verschoben wird, um ihn auszurichten. Die Pfeile verschieben ihn: die doppelten in großen Schritten, die einfachen Millisekunde für Millisekunde.",
   "Cuánto se desplaza tu canto para alinearlo. Las flechas lo mueven: las dobles a grandes pasos, las simples de milisegundo en milisegundo.",
@@ -1000,7 +1069,8 @@ T("How far your singing is being moved to line it up. The arrows shift it: the d
   "Hur långt din sång flyttas för att ligga i linje. Pilarna flyttar den: de dubbla i stora steg, de enkla en millisekund i taget.",
   "音符に合わせるために歌をどれだけずらしているかです。矢印で移動でき、二重矢印は大きく、単矢印は 1 ミリ秒ずつ動かします。",
   "노래를 음에 맞추기 위해 얼마나 옮겼는지입니다. 화살표로 움직이며, 이중 화살표는 크게, 단일 화살표는 1밀리초씩 옮깁니다.",
-  "为了对齐，你的演唱被移动了多少。箭头可以移动它：双箭头是大步，单箭头每次一毫秒。")
+  "为了对齐，你的演唱被移动了多少。箭头可以移动它：双箭头是大步，单箭头每次一毫秒。",
+  "مقدار إزاحة غنائك لمطابقته. الأسهم تحرّكه: المزدوجة بخطوات كبيرة، والمفردة مللي ثانية واحدة في كل مرة.")
 
 # --- Profile ---
 T("Your username, picture and description, as other users see them on the Community tab.",
@@ -1016,7 +1086,8 @@ T("Your username, picture and description, as other users see them on the Commun
   "Ditt användarnamn, din bild och din beskrivning, så som andra ser dem i Community-fliken.",
   "あなたのユーザー名、写真、説明です。コミュニティタブで他のユーザーに見える内容です。",
   "당신의 사용자 이름, 사진, 설명입니다. 커뮤니티 탭에서 다른 사용자에게 보이는 내용입니다.",
-  "你的用户名、头像和简介，也就是别人在社区标签中看到的内容。")
+  "你的用户名、头像和简介，也就是别人在社区标签中看到的内容。",
+  "اسم المستخدم والصورة والوصف، كما يراها المستخدمون الآخرون في تبويب المجتمع.")
 T("Picks a picture from your photos to show on your public profile.",
   "Wählt ein Bild aus deinen Fotos, das in deinem öffentlichen Profil gezeigt wird.",
   "Elige una foto de tu fototeca para mostrarla en tu perfil público.",
@@ -1030,7 +1101,8 @@ T("Picks a picture from your photos to show on your public profile.",
   "Väljer en bild ur dina foton att visa på din offentliga profil.",
   "写真ライブラリから、公開プロフィールに表示する画像を選びます。",
   "사진 보관함에서 공개 프로필에 보여줄 사진을 고릅니다.",
-  "从你的照片中挑选一张，显示在你的公开资料上。")
+  "从你的照片中挑选一张，显示在你的公开资料上。",
+  "يختار صورة من صورك لعرضها في ملفك الشخصي العام.")
 T("Takes your picture off your profile. The photo stays in your photo library.",
   "Nimmt dein Bild aus deinem Profil. Das Foto bleibt in deiner Fotomediathek.",
   "Quita tu foto del perfil. La foto sigue en tu fototeca.",
@@ -1044,7 +1116,8 @@ T("Takes your picture off your profile. The photo stays in your photo library.",
   "Tar bort din bild från profilen. Fotot ligger kvar i ditt bildbibliotek.",
   "プロフィールから画像を外します。写真自体は写真ライブラリに残ります。",
   "프로필에서 사진을 내립니다. 사진 자체는 사진 보관함에 남습니다.",
-  "把头像从你的资料中移除。照片仍保留在你的图库里。")
+  "把头像从你的资料中移除。照片仍保留在你的图库里。",
+  "يزيل صورتك من ملفك الشخصي. تبقى الصورة في مكتبة الصور.")
 T("How your picture looks to everyone else. Tap it to move and zoom it.",
   "So sieht dein Bild für alle anderen aus. Tippe darauf, um es zu verschieben und zu zoomen.",
   "Así se ve tu foto para los demás. Tócala para moverla y ampliarla.",
@@ -1058,7 +1131,8 @@ T("How your picture looks to everyone else. Tap it to move and zoom it.",
   "Så här ser din bild ut för alla andra. Tryck på den för att flytta och zooma.",
   "他のユーザーから見えるあなたの画像です。タップすると位置と拡大率を調整できます。",
   "다른 사람에게 보이는 당신의 사진입니다. 탭하면 위치와 확대를 조정할 수 있습니다.",
-  "别人看到的头像效果。点按可移动和缩放。")
+  "别人看到的头像效果。点按可移动和缩放。",
+  "كيف تبدو صورتك للآخرين. اضغط عليها لتحريكها وتكبيرها.")
 T("The name shown beside the exercises you share. No two users can have the same one.",
   "Der Name, der neben den Übungen steht, die du teilst. Zwei Nutzer können nicht denselben haben.",
   "El nombre que aparece junto a los ejercicios que compartes. No puede haber dos usuarios con el mismo.",
@@ -1072,7 +1146,8 @@ T("The name shown beside the exercises you share. No two users can have the same
   "Namnet som visas bredvid övningarna du delar. Två användare kan inte ha samma.",
   "あなたが公開したエクササイズの横に表示される名前です。同じ名前を 2 人が使うことはできません。",
   "당신이 공유한 연습 옆에 표시되는 이름입니다. 두 사용자가 같은 이름을 쓸 수는 없습니다.",
-  "显示在你分享的练习旁边的名字。两个用户不能重名。")
+  "显示在你分享的练习旁边的名字。两个用户不能重名。",
+  "الاسم المعروض بجانب التمارين التي تشاركها. لا يمكن لمستخدمَين أن يحملا الاسم نفسه.")
 T("A few words about yourself, shown at the top of your profile in the Community tab.",
   "Ein paar Worte über dich, die oben in deinem Profil im Community-Tab stehen.",
   "Unas palabras sobre ti, que aparecen arriba en tu perfil de la pestaña Comunidad.",
@@ -1086,7 +1161,8 @@ T("A few words about yourself, shown at the top of your profile in the Community
   "Några ord om dig själv, som visas överst på din profil i Community-fliken.",
   "自分についての短い紹介です。コミュニティタブのプロフィール上部に表示されます。",
   "자신에 대한 짧은 소개입니다. 커뮤니티 탭 프로필 맨 위에 표시됩니다.",
-  "关于你自己的简短介绍，显示在社区标签中你的资料顶部。")
+  "关于你自己的简短介绍，显示在社区标签中你的资料顶部。",
+  "بضع كلمات عن نفسك، تُعرض أعلى ملفك الشخصي في تبويب المجتمع.")
 T("Shows other users how long you have had the app, under your profile description.",
   "Zeigt anderen Nutzern unter deiner Profilbeschreibung, seit wann du die App hast.",
   "Muestra a los demás desde cuándo tienes la app, bajo la descripción de tu perfil.",
@@ -1100,7 +1176,8 @@ T("Shows other users how long you have had the app, under your profile descripti
   "Visar andra användare hur länge du haft appen, under din profilbeskrivning.",
   "アプリを使い始めてどれくらいかを、プロフィール説明の下に他のユーザーへ表示します。",
   "앱을 쓴 지 얼마나 됐는지 프로필 설명 아래에 다른 사용자에게 보여줍니다.",
-  "在你的资料简介下方向其他用户显示你使用这款应用多久了。")
+  "在你的资料简介下方向其他用户显示你使用这款应用多久了。",
+  "يُظهر للمستخدمين الآخرين منذ متى لديك التطبيق، أسفل وصف ملفك الشخصي.")
 
 # --- Routines and favourites ---
 T("What this routine is called on the Home tab.",
@@ -1116,7 +1193,8 @@ T("What this routine is called on the Home tab.",
   "Vad den här rutinen heter i Start-fliken.",
   "このルーティンがホームタブでどう表示されるかです。",
   "이 루틴이 홈 탭에 표시되는 이름입니다.",
-  "这个训练组在首页标签中显示的名称。")
+  "这个训练组在首页标签中显示的名称。",
+  "اسم هذا الروتين في تبويب الرئيسية.")
 T("Your note on this routine, shown on the screen before it starts.",
   "Deine Notiz zu dieser Routine, die vor ihrem Start angezeigt wird.",
   "Tu nota sobre esta rutina, que aparece en la pantalla antes de empezar.",
@@ -1130,7 +1208,8 @@ T("Your note on this routine, shown on the screen before it starts.",
   "Din anteckning om den här rutinen, som visas på skärmen innan den börjar.",
   "このルーティンについてのメモです。始まる前の画面に表示されます。",
   "이 루틴에 대한 메모입니다. 시작 전 화면에 표시됩니다.",
-  "你为这个训练组写的说明，会在开始前的页面上显示。")
+  "你为这个训练组写的说明，会在开始前的页面上显示。",
+  "ملاحظتك على هذا الروتين، وتُعرض على الشاشة قبل بدئه.")
 T("The exercises this routine plays, in order. Drag by the handle on the right to rearrange them.",
   "Die Übungen, die diese Routine spielt, der Reihe nach. Ziehe sie am Griff rechts, um sie umzusortieren.",
   "Los ejercicios que toca esta rutina, en orden. Arrástralos por el asa de la derecha para reordenarlos.",
@@ -1144,7 +1223,8 @@ T("The exercises this routine plays, in order. Drag by the handle on the right t
   "Övningarna den här rutinen spelar, i ordning. Dra i handtaget till höger för att ordna om dem.",
   "このルーティンが順に再生するエクササイズです。右のハンドルをドラッグすると並べ替えられます。",
   "이 루틴이 차례로 재생하는 연습입니다. 오른쪽 손잡이를 끌면 순서를 바꿉니다.",
-  "这个训练组会依次播放的练习。拖动右侧手柄可重新排序。")
+  "这个训练组会依次播放的练习。拖动右侧手柄可重新排序。",
+  "التمارين التي يشغّلها هذا الروتين، بالترتيب. اسحب من المقبض على اليمين لإعادة ترتيبها.")
 T("Swaps the drag handles for delete buttons, to take exercises off this list. They stay in your library.",
   "Tauscht die Ziehgriffe gegen Löschknöpfe, um Übungen aus dieser Liste zu nehmen. In deiner Bibliothek bleiben sie erhalten.",
   "Cambia las asas de arrastre por botones de borrar, para sacar ejercicios de esta lista. Siguen en tu biblioteca.",
@@ -1158,7 +1238,8 @@ T("Swaps the drag handles for delete buttons, to take exercises off this list. T
   "Byter draghandtagen mot raderaknappar, för att ta bort övningar från den här listan. De blir kvar i ditt bibliotek.",
   "ドラッグ用のハンドルを削除ボタンに切り替え、このリストからエクササイズを外せるようにします。ライブラリには残ります。",
   "드래그 손잡이를 삭제 버튼으로 바꿔 이 목록에서 연습을 뺄 수 있게 합니다. 라이브러리에는 그대로 남습니다.",
-  "把拖动手柄换成删除按钮，用来把练习移出这个列表。它们仍留在你的库中。")
+  "把拖动手柄换成删除按钮，用来把练习移出这个列表。它们仍留在你的库中。",
+  "يستبدل مقابض السحب بأزرار حذف، لإزالة تمارين من هذه القائمة. تبقى في مكتبتك.")
 T("Opens your library, where you tick the exercises this list is made of.",
   "Öffnet deine Bibliothek, in der du ankreuzt, aus welchen Übungen diese Liste besteht.",
   "Abre tu biblioteca, donde marcas los ejercicios que forman esta lista.",
@@ -1172,7 +1253,8 @@ T("Opens your library, where you tick the exercises this list is made of.",
   "Öppnar ditt bibliotek, där du bockar för vilka övningar listan består av.",
   "ライブラリを開きます。このリストに入れるエクササイズをそこでチェックします。",
   "라이브러리를 엽니다. 이 목록에 넣을 연습을 거기서 체크합니다.",
-  "打开你的库，在其中勾选组成这个列表的练习。")
+  "打开你的库，在其中勾选组成这个列表的练习。",
+  "يفتح مكتبتك، حيث تحدد التمارين التي تتكون منها هذه القائمة.")
 T("The name and description of this routine, as written on its edit screen.",
   "Name und Beschreibung dieser Routine, so wie sie auf ihrem Bearbeitungsbildschirm stehen.",
   "El nombre y la descripción de esta rutina, tal como se escriben en su pantalla de edición.",
@@ -1186,7 +1268,8 @@ T("The name and description of this routine, as written on its edit screen.",
   "Namnet och beskrivningen för den här rutinen, som de skrivits på dess redigeringsskärm.",
   "このルーティンの名前と説明です。編集画面で書いた内容が表示されます。",
   "이 루틴의 이름과 설명입니다. 편집 화면에서 쓴 내용이 표시됩니다.",
-  "这个训练组的名称和说明，来自它的编辑页面。")
+  "这个训练组的名称和说明，来自它的编辑页面。",
+  "اسم هذا الروتين ووصفه، كما كُتبا في شاشة تعديله.")
 T("Tap to start here instead of at the top. Drag to reorder, or swipe left to leave it out. This is for this run only, and the list itself is left as it is.",
   "Tippe darauf, um hier statt ganz oben zu beginnen. Ziehen sortiert um, Wischen nach links lässt die Übung aus. Das gilt nur für diesen Durchgang; die Liste selbst bleibt, wie sie ist.",
   "Toca para empezar aquí en vez de arriba. Arrastra para reordenar o desliza a la izquierda para saltártelo. Esto vale solo para esta vez; la lista se queda como está.",
@@ -1200,7 +1283,8 @@ T("Tap to start here instead of at the top. Drag to reorder, or swipe left to le
   "Tryck för att börja här i stället för överst. Dra för att ordna om, eller svep åt vänster för att hoppa över. Det här gäller bara den här omgången; själva listan lämnas som den är.",
   "タップすると先頭ではなくここから始まります。ドラッグで並べ替え、左スワイプで除外できます。これは今回だけの変更で、リスト自体はそのままです。",
   "탭하면 맨 위가 아니라 여기서 시작합니다. 드래그로 순서를 바꾸고, 왼쪽으로 밀면 제외됩니다. 이번 회차에만 적용되며 목록 자체는 그대로입니다.",
-  "点按可从这里而不是从最上面开始。拖动可排序，向左滑动可跳过。这只对本次有效，列表本身不变。")
+  "点按可从这里而不是从最上面开始。拖动可排序，向左滑动可跳过。这只对本次有效，列表本身不变。",
+  "اضغط للبدء من هنا بدلًا من الأعلى. اسحب لإعادة الترتيب، أو اسحب لليسار لاستبعاده. هذا لهذه المحاولة فقط، وتبقى القائمة نفسها كما هي.")
 T("Puts the exercises below in a random order for this run only.",
   "Bringt die Übungen unten in eine zufällige Reihenfolge, nur für diesen Durchgang.",
   "Pone los ejercicios de abajo en orden aleatorio solo para esta vez.",
@@ -1214,7 +1298,8 @@ T("Puts the exercises below in a random order for this run only.",
   "Blandar övningarna nedan slumpmässigt, bara för den här omgången.",
   "下のエクササイズを、今回だけランダムな順に並べ替えます。",
   "아래 연습들을 이번 회차에만 무작위 순서로 섞습니다.",
-  "把下面的练习随机排序，仅对本次有效。")
+  "把下面的练习随机排序，仅对本次有效。",
+  "يرتب التمارين أدناه ترتيبًا عشوائيًا لهذه المحاولة فقط.")
 T("Sings the exercises above one after the other, from the top.",
   "Singt die Übungen oben nacheinander, von oben nach unten.",
   "Canta los ejercicios de arriba uno tras otro, desde el principio.",
@@ -1228,7 +1313,8 @@ T("Sings the exercises above one after the other, from the top.",
   "Sjunger övningarna ovan efter varandra, uppifrån.",
   "上のエクササイズを、先頭から順に続けて歌います。",
   "위의 연습들을 맨 위부터 차례로 부릅니다.",
-  "从最上面开始，依次演唱上面的练习。")
+  "从最上面开始，依次演唱上面的练习。",
+  "يبدأ التمارين أعلاه واحدًا تلو الآخر، من الأعلى.")
 T("Opens this routine's own screen, where its name, description and exercises are kept.",
   "Öffnet den eigenen Bildschirm dieser Routine, auf dem Name, Beschreibung und Übungen stehen.",
   "Abre la pantalla propia de esta rutina, donde están su nombre, su descripción y sus ejercicios.",
@@ -1242,7 +1328,8 @@ T("Opens this routine's own screen, where its name, description and exercises ar
   "Öppnar rutinens egen skärm, där dess namn, beskrivning och övningar finns.",
   "このルーティン専用の画面を開きます。名前、説明、エクササイズがそこにあります。",
   "이 루틴 전용 화면을 엽니다. 이름, 설명, 연습이 거기 있습니다.",
-  "打开这个训练组自己的页面，其中保存着名称、说明和练习。")
+  "打开这个训练组自己的页面，其中保存着名称、说明和练习。",
+  "يفتح شاشة هذا الروتين، حيث يُحفظ اسمه ووصفه وتمارينه.")
 # --- Score chart ---
 T("How far back the chart looks, from the last day to everything you have sung.",
   "Wie weit das Diagramm zurückblickt, vom letzten Tag bis zu allem, was du gesungen hast.",
@@ -1257,7 +1344,8 @@ T("How far back the chart looks, from the last day to everything you have sung."
   "Hur långt bakåt diagrammet tittar, från senaste dagen till allt du sjungit.",
   "グラフがどこまでさかのぼるかです。直近 1 日から、これまで歌ったすべてまで選べます。",
   "그래프가 얼마나 과거까지 보는지입니다. 최근 하루부터 지금까지 부른 전부까지 고를 수 있습니다.",
-  "图表回溯的时间范围，从最近一天到你唱过的全部记录。")
+  "图表回溯的时间范围，从最近一天到你唱过的全部记录。",
+  "المدة التي يعود إليها الرسم البياني، من آخر يوم إلى كل ما غنيته.")
 T("Your scores for this exercise over time. Nothing was sung in the period picked above.",
   "Deine Ergebnisse für diese Übung im Zeitverlauf. Im oben gewählten Zeitraum wurde nichts gesungen.",
   "Tus puntuaciones de este ejercicio a lo largo del tiempo. En el periodo elegido arriba no se cantó nada.",
@@ -1271,7 +1359,8 @@ T("Your scores for this exercise over time. Nothing was sung in the period picke
   "Dina poäng för den här övningen över tid. Inget sjöngs under perioden du valt ovan.",
   "このエクササイズのスコアの推移です。上で選んだ期間には歌った記録がありません。",
   "이 연습의 점수 변화입니다. 위에서 고른 기간에는 부른 기록이 없습니다.",
-  "你在这个练习上的成绩变化。上面所选的时间段内没有演唱记录。")
+  "你在这个练习上的成绩变化。上面所选的时间段内没有演唱记录。",
+  "نتائجك في هذا التمرين بمرور الوقت. لم يُغنَّ شيء في الفترة المختارة أعلاه.")
 T("Your scores for this exercise over time, oldest on the left. Tap a point to see its score and date.",
   "Deine Ergebnisse für diese Übung im Zeitverlauf, das älteste links. Tippe einen Punkt an, um Ergebnis und Datum zu sehen.",
   "Tus puntuaciones de este ejercicio a lo largo del tiempo, la más antigua a la izquierda. Toca un punto para ver su puntuación y su fecha.",
@@ -1285,7 +1374,8 @@ T("Your scores for this exercise over time, oldest on the left. Tap a point to s
   "Dina poäng för den här övningen över tid, äldst till vänster. Tryck på en punkt för att se dess poäng och datum.",
   "このエクササイズのスコアの推移です。左が古いものです。点をタップするとスコアと日付が見られます。",
   "이 연습의 점수 변화입니다. 왼쪽이 오래된 기록입니다. 점을 탭하면 점수와 날짜를 볼 수 있습니다.",
-  "你在这个练习上的成绩变化，越靠左越早。点按某个点可查看它的分数和日期。")
+  "你在这个练习上的成绩变化，越靠左越早。点按某个点可查看它的分数和日期。",
+  "نتائجك في هذا التمرين بمرور الوقت، الأقدم على اليسار. اضغط على نقطة لرؤية نتيجتها وتاريخها.")
 
 # --- Feedback form ---
 T("What you would like to say. The more exactly you describe it, the more can be done about it.",
@@ -1301,7 +1391,8 @@ T("What you would like to say. The more exactly you describe it, the more can be
   "Vad du vill säga. Ju mer exakt du beskriver det, desto mer går att göra åt det.",
   "伝えたい内容です。詳しく書くほど、対応しやすくなります。",
   "하고 싶은 말입니다. 자세히 적을수록 더 많은 조치를 취할 수 있습니다.",
-  "你想说的内容。描述得越具体，越有可能得到处理。")
+  "你想说的内容。描述得越具体，越有可能得到处理。",
+  "ما تريد قوله. كلما وصفته بدقة أكبر، أمكن فعل المزيد بشأنه.")
 T("Only needed if you'd like an answer, and required for a question, which can't be answered without it.",
   "Nur nötig, wenn du eine Antwort möchtest, und Pflicht bei einer Frage, die ohne Adresse unbeantwortet bleibt.",
   "Solo hace falta si quieres respuesta, y es obligatorio para una pregunta, que sin dirección se queda sin contestar.",
@@ -1315,7 +1406,8 @@ T("Only needed if you'd like an answer, and required for a question, which can't
   "Behövs bara om du vill ha svar, och krävs för en fråga, som utan adress blir obesvarad.",
   "返信が必要な場合だけ入力してください。質問の場合は必須で、アドレスがないと答えられません。",
   "답장을 원할 때만 필요하며, 질문일 때는 필수입니다. 주소가 없으면 답할 수 없습니다.",
-  "只有希望收到回复时才需要填写；提问时必填，否则无法回答。")
+  "只有希望收到回复时才需要填写；提问时必填，否则无法回答。",
+  "لا يلزم إلا إذا كنت تريد ردًا، وهو مطلوب للأسئلة، إذ لا يمكن الرد عليها بدونه.")
 T("Sends your message straight to the developer. It stays greyed out until the type and the message are filled in, and for a question until there's an address to answer.",
   "Schickt deine Nachricht direkt an den Entwickler. Der Knopf bleibt grau, bis Art und Nachricht ausgefüllt sind, und bei einer Frage, bis eine Adresse für die Antwort dasteht.",
   "Envía tu mensaje directamente al desarrollador. Sigue en gris hasta que rellenes el tipo y el mensaje, y en el caso de una pregunta, hasta que haya una dirección a la que responder.",
@@ -1329,7 +1421,8 @@ T("Sends your message straight to the developer. It stays greyed out until the t
   "Skickar ditt meddelande direkt till utvecklaren. Knappen är nedtonad tills typ och meddelande är ifyllda, och vid en fråga tills det finns en adress att svara till.",
   "メッセージを開発者に直接送ります。種類と本文が入力されるまで、質問の場合は返信先のアドレスが入力されるまで、ボタンは灰色のままです。",
   "메시지를 개발자에게 바로 보냅니다. 유형과 내용을 채우기 전까지, 질문일 때는 답장할 주소를 입력하기 전까지 흐리게 표시됩니다.",
-  "把你的消息直接发给开发者。在填好类型和内容之前按钮保持灰色；如果是提问，还需要先填写回复地址。")
+  "把你的消息直接发给开发者。在填好类型和内容之前按钮保持灰色；如果是提问，还需要先填写回复地址。",
+  "يرسل رسالتك مباشرة إلى المطوّر. يبقى باهتًا حتى يُملأ النوع والرسالة، وفي حالة السؤال حتى يوجد عنوان للرد عليه.")
 
 # --- Playback visuals ---
 T("A live sample of the playback screen. Everything you change below shows up here straight away.",
@@ -1345,7 +1438,8 @@ T("A live sample of the playback screen. Everything you change below shows up he
   "Ett levande smakprov på uppspelningsskärmen. Allt du ändrar nedan syns här direkt.",
   "再生画面のライブサンプルです。下で変更した内容がすぐここに反映されます。",
   "재생 화면의 실시간 미리보기입니다. 아래에서 바꾼 내용이 바로 여기에 반영됩니다.",
-  "播放页面的实时样例。你在下面所做的更改会立刻显示在这里。")
+  "播放页面的实时样例。你在下面所做的更改会立刻显示在这里。",
+  "عيّنة حية من شاشة التشغيل. كل ما تغيّره أدناه يظهر هنا فورًا.")
 T("The colour the notes to sing are drawn in.",
   "Die Farbe, in der die zu singenden Noten gezeichnet werden.",
   "El color con el que se dibujan las notas que hay que cantar.",
@@ -1359,7 +1453,8 @@ T("The colour the notes to sing are drawn in.",
   "Färgen som tonerna du ska sjunga ritas i.",
   "歌う音符を描く色です。",
   "부를 음을 그리는 색입니다.",
-  "要演唱的音符所用的颜色。")
+  "要演唱的音符所用的颜色。",
+  "اللون الذي تُرسم به النغمات المراد غناؤها.")
 T("The colour a note takes on while it is the one being sung.",
   "Die Farbe, die eine Note annimmt, solange sie gerade gesungen wird.",
   "El color que toma una nota mientras es la que se está cantando.",
@@ -1373,7 +1468,8 @@ T("The colour a note takes on while it is the one being sung.",
   "Färgen en ton får medan det är den som sjungs.",
   "そのとき歌っている音符が取る色です。",
   "지금 부르고 있는 음이 띠는 색입니다.",
-  "正在演唱的那个音符所呈现的颜色。")
+  "正在演唱的那个音符所呈现的颜色。",
+  "اللون الذي تأخذه النغمة أثناء غنائها.")
 T("How rounded the ends of the notes are, from square to fully rounded.",
   "Wie rund die Enden der Noten sind, von eckig bis ganz rund.",
   "Cómo de redondeados están los extremos de las notas, de cuadrados a completamente redondos.",
@@ -1387,7 +1483,8 @@ T("How rounded the ends of the notes are, from square to fully rounded.",
   "Hur rundade tonernas ändar är, från raka till helt rundade.",
   "音符の端の丸みです。角ばった形から完全な丸まで選べます。",
   "음의 양 끝이 얼마나 둥근지입니다. 각진 모양부터 완전히 둥근 모양까지 있습니다.",
-  "音符两端的圆角程度，从方角到完全圆角。")
+  "音符两端的圆角程度，从方角到完全圆角。",
+  "مدى استدارة أطراف النغمات، من مربعة إلى مستديرة تمامًا.")
 T("How tall a pitch is. Turn it up to spread the notes apart, down to fit more of your range on screen.",
   "Wie hoch eine Tonstufe ist. Höher zieht die Noten auseinander, niedriger bringt mehr von deinem Stimmumfang auf den Bildschirm.",
   "La altura de cada tono. Súbelo para separar las notas, bájalo para que quepa más de tu tesitura en pantalla.",
@@ -1401,7 +1498,8 @@ T("How tall a pitch is. Turn it up to spread the notes apart, down to fit more o
   "Hur hög en tonhöjd är. Höj för att sprida isär tonerna, sänk för att få plats med mer av ditt omfång på skärmen.",
   "1 音あたりの高さです。上げると音符の間隔が広がり、下げると自分の音域をより広く画面に収められます。",
   "한 음의 높이입니다. 올리면 음 사이가 벌어지고, 내리면 음역을 더 넓게 화면에 담습니다.",
-  "每个音高占的高度。调高会拉开音符间距，调低则能在屏幕上容纳更宽的音域。")
+  "每个音高占的高度。调高会拉开音符间距，调低则能在屏幕上容纳更宽的音域。",
+  "ارتفاع كل درجة صوت. زِده لتباعد النغمات، وقلّله لتتسع الشاشة لمزيد من مداك.")
 T("How wide a beat is. Turn it down to see more of what is coming.",
   "Wie breit ein Schlag ist. Niedriger zeigt mehr von dem, was noch kommt.",
   "Lo ancho que es un pulso. Bájalo para ver más de lo que viene.",
@@ -1415,7 +1513,8 @@ T("How wide a beat is. Turn it down to see more of what is coming.",
   "Hur brett ett slag är. Sänk för att se mer av det som kommer.",
   "1 拍あたりの幅です。下げると、この先の内容をより多く見渡せます。",
   "한 박자의 너비입니다. 줄이면 앞으로 올 부분을 더 많이 볼 수 있습니다.",
-  "每一拍占的宽度。调低可以看到更多后面的内容。")
+  "每一拍占的宽度。调低可以看到更多后面的内容。",
+  "عرض كل نبضة. قلّله لترى المزيد مما هو قادم.")
 T("Scrolls the screen up and down so the notes being sung stay in the middle. Off, the whole exercise is shown at once.",
   "Scrollt den Bildschirm auf und ab, damit die gesungenen Noten in der Mitte bleiben. Aus wird die ganze Übung auf einmal gezeigt.",
   "Desplaza la pantalla arriba y abajo para que las notas que se cantan queden en el centro. Desactivado, se muestra el ejercicio entero de una vez.",
@@ -1429,7 +1528,8 @@ T("Scrolls the screen up and down so the notes being sung stay in the middle. Of
   "Rullar skärmen upp och ner så att tonerna som sjungs hålls i mitten. Av visas hela övningen på en gång.",
   "歌っている音符が中央に来るように画面を上下にスクロールします。オフにすると、エクササイズ全体が一度に表示されます。",
   "부르고 있는 음이 가운데에 오도록 화면을 위아래로 스크롤합니다. 끄면 연습 전체가 한 번에 표시됩니다.",
-  "上下滚动画面，让正在演唱的音符保持在中间。关闭时会一次显示整个练习。")
+  "上下滚动画面，让正在演唱的音符保持在中间。关闭时会一次显示整个练习。",
+  "يمرّر الشاشة للأعلى وللأسفل لتبقى النغمات التي تُغنّى في المنتصف. عند إيقافه يُعرض التمرين كله دفعة واحدة.")
 T("Draws a striped lane for every pitch behind the notes, like piano keys laid on their side.",
   "Zeichnet hinter den Noten für jede Tonstufe eine gestreifte Bahn, wie seitlich hingelegte Klaviertasten.",
   "Dibuja detrás de las notas una franja para cada tono, como teclas de piano tumbadas.",
@@ -1443,7 +1543,8 @@ T("Draws a striped lane for every pitch behind the notes, like piano keys laid o
   "Ritar en randig bana för varje tonhöjd bakom tonerna, som pianotangenter lagda på sidan.",
   "音符の背後に、音の高さごとの帯を描きます。ピアノの鍵盤を横に寝かせたような表示です。",
   "음 뒤에 음높이마다 줄무늬 띠를 그립니다. 피아노 건반을 옆으로 눕힌 모양입니다.",
-  "在音符后面为每个音高画一条条纹带，就像把钢琴键横放一样。")
+  "在音符后面为每个音高画一条条纹带，就像把钢琴键横放一样。",
+  "يرسم مسارًا مخططًا لكل درجة صوت خلف النغمات، مثل مفاتيح البيانو الموضوعة على جانبها.")
 T("The colour behind the notes while the lanes are switched off.",
   "Die Farbe hinter den Noten, solange die Bahnen ausgeschaltet sind.",
   "El color detrás de las notas cuando las franjas están desactivadas.",
@@ -1457,7 +1558,8 @@ T("The colour behind the notes while the lanes are switched off.",
   "Färgen bakom tonerna när banorna är avstängda.",
   "帯をオフにしているときの、音符の背景色です。",
   "띠를 껐을 때 음 뒤에 깔리는 색입니다.",
-  "关闭条纹带时音符后面的背景色。")
+  "关闭条纹带时音符后面的背景色。",
+  "اللون خلف النغمات عندما تكون المسارات متوقفة.")
 T("Draws a piano keyboard down the left-hand side, so you can see which key each note sits on.",
   "Zeichnet links eine Klaviertastatur, damit du siehst, auf welcher Taste jede Note liegt.",
   "Dibuja un teclado de piano en el lado izquierdo, para que veas en qué tecla cae cada nota.",
@@ -1471,7 +1573,8 @@ T("Draws a piano keyboard down the left-hand side, so you can see which key each
   "Ritar ett pianoklaviatur längs vänsterkanten, så att du ser vilken tangent varje ton ligger på.",
   "画面の左側にピアノ鍵盤を描き、各音符がどの鍵に当たるか分かるようにします。",
   "왼쪽에 피아노 건반을 그려, 각 음이 어느 건반에 놓이는지 보여줍니다.",
-  "在左侧画一个钢琴键盘，方便看出每个音符落在哪个键上。")
+  "在左侧画一个钢琴键盘，方便看出每个音符落在哪个键上。",
+  "يرسم لوحة مفاتيح بيانو على الجانب الأيسر، لترى على أي مفتاح تقع كل نغمة.")
 T("Writes the note names (C4, A3 …) down the left-hand side.",
   "Schreibt die Notennamen (C4, A3 …) am linken Rand entlang.",
   "Escribe los nombres de las notas (C4, A3 …) en el lado izquierdo.",
@@ -1485,7 +1588,8 @@ T("Writes the note names (C4, A3 …) down the left-hand side.",
   "Skriver tonnamnen (C4, A3 …) längs vänsterkanten.",
   "画面の左側に音名（C4、A3 …）を表示します。",
   "왼쪽에 음 이름(C4, A3 …)을 적습니다.",
-  "在左侧写出音名（C4、A3 …）。")
+  "在左侧写出音名（C4、A3 …）。",
+  "يكتب أسماء النغمات (C4، A3 …) على الجانب الأيسر.")
 T("The colour of the labels written over the notes in the note editor.",
   "Die Farbe der Beschriftungen, die im Noteneditor über die Noten geschrieben werden.",
   "El color de las etiquetas escritas sobre las notas en el editor de notas.",
@@ -1499,7 +1603,8 @@ T("The colour of the labels written over the notes in the note editor.",
   "Färgen på etiketterna som skrivits över tonerna i toneditorn.",
   "ノートエディタで音符の上に書いたラベルの色です。",
   "음 편집기에서 음 위에 쓴 라벨의 색입니다.",
-  "音符编辑器中写在音符上的标签的颜色。")
+  "音符编辑器中写在音符上的标签的颜色。",
+  "لون التسميات المكتوبة فوق النغمات في محرر النغمات.")
 T("The typeface those labels are written in.",
   "Die Schrift, in der diese Beschriftungen geschrieben sind.",
   "La tipografía con la que se escriben esas etiquetas.",
@@ -1513,7 +1618,8 @@ T("The typeface those labels are written in.",
   "Teckensnittet etiketterna skrivs i.",
   "そのラベルに使う書体です。",
   "그 라벨에 쓰는 서체입니다.",
-  "这些标签所用的字体。")
+  "这些标签所用的字体。",
+  "الخط الذي تُكتب به تلك التسميات.")
 T("How big the dot that follows your voice is.",
   "Wie groß der Punkt ist, der deiner Stimme folgt.",
   "El tamaño del punto que sigue a tu voz.",
@@ -1527,7 +1633,8 @@ T("How big the dot that follows your voice is.",
   "Hur stor pricken som följer din röst är.",
   "あなたの声を追いかける点の大きさです。",
   "당신의 목소리를 따라다니는 점의 크기입니다.",
-  "跟随你声音的那个圆点的大小。")
+  "跟随你声音的那个圆点的大小。",
+  "حجم النقطة التي تتبع صوتك.")
 T("The fill of the dot that follows your voice.",
   "Die Füllung des Punkts, der deiner Stimme folgt.",
   "El relleno del punto que sigue a tu voz.",
@@ -1541,7 +1648,8 @@ T("The fill of the dot that follows your voice.",
   "Fyllningen i pricken som följer din röst.",
   "あなたの声を追いかける点の塗りの色です。",
   "당신의 목소리를 따라다니는 점의 안쪽 색입니다.",
-  "跟随你声音的那个圆点的填充色。")
+  "跟随你声音的那个圆点的填充色。",
+  "لون تعبئة النقطة التي تتبع صوتك.")
 T("The ring around that dot.",
   "Der Ring um diesen Punkt.",
   "El anillo alrededor de ese punto.",
@@ -1555,7 +1663,8 @@ T("The ring around that dot.",
   "Ringen runt den pricken.",
   "その点を囲む輪の色です。",
   "그 점을 둘러싼 테두리입니다.",
-  "那个圆点周围的圆环。")
+  "那个圆点周围的圆环。",
+  "الحلقة حول تلك النقطة.")
 T("The trail the dot leaves behind it, showing the pitch you have just sung.",
   "Die Spur, die der Punkt hinter sich lässt und die zeigt, welche Tonhöhe du gerade gesungen hast.",
   "La estela que deja el punto tras de sí, que muestra el tono que acabas de cantar.",
@@ -1569,7 +1678,8 @@ T("The trail the dot leaves behind it, showing the pitch you have just sung.",
   "Spåret pricken lämnar efter sig, som visar tonhöjden du just sjöng.",
   "点が後ろに残す軌跡で、直前に歌った音程を示します。",
   "점이 뒤에 남기는 자취로, 방금 부른 음정을 보여줍니다.",
-  "圆点身后留下的轨迹，显示你刚唱过的音高。")
+  "圆点身后留下的轨迹，显示你刚唱过的音高。",
+  "الأثر الذي تتركه النقطة خلفها، ويُظهر درجة الصوت التي غنيتها للتو.")
 T("Tap a template to switch to it, or tap the selected one to deselect it. Swipe left to delete it.",
   "Tippe eine Vorlage an, um zu ihr zu wechseln, oder tippe die ausgewählte an, um die Auswahl aufzuheben. Wische nach links, um sie zu löschen.",
   "Toca una plantilla para cambiar a ella, o toca la seleccionada para deseleccionarla. Desliza a la izquierda para borrarla.",
@@ -1583,7 +1693,8 @@ T("Tap a template to switch to it, or tap the selected one to deselect it. Swipe
   "Tryck på en mall för att byta till den, eller på den valda för att avmarkera den. Svep åt vänster för att radera den.",
   "テンプレートをタップすると切り替わり、選択中のものをタップすると選択が解除されます。左にスワイプすると削除できます。",
   "템플릿을 탭하면 그것으로 바뀌고, 선택된 것을 탭하면 선택이 해제됩니다. 왼쪽으로 밀면 삭제됩니다.",
-  "点按某个模板即可切换到它，点按已选中的则取消选择。向左滑动可删除。")
+  "点按某个模板即可切换到它，点按已选中的则取消选择。向左滑动可删除。",
+  "اضغط على قالب للتبديل إليه، أو اضغط على القالب المحدد لإلغاء تحديده. اسحب لليسار لحذفه.")
 
 # --- Vocal range test ---
 T("Starts listening. Sing the note asked for and hold it until the ring has gone all the way round.",
@@ -1599,7 +1710,8 @@ T("Starts listening. Sing the note asked for and hold it until the ring has gone
   "Börjar lyssna. Sjung tonen som efterfrågas och håll den tills ringen gått hela varvet runt.",
   "聞き取りを始めます。求められた音を歌い、リングが一周するまで伸ばしてください。",
   "듣기를 시작합니다. 요청된 음을 부르고 링이 한 바퀴 돌 때까지 유지하세요.",
-  "开始聆听。唱出要求的音并保持，直到圆环转满一圈。")
+  "开始聆听。唱出要求的音并保持，直到圆环转满一圈。",
+  "يبدأ الاستماع. غنِّ النغمة المطلوبة وحافظ عليها حتى تكتمل الحلقة دورة كاملة.")
 T("The note the app hears you singing. The ring fills as you hold it, and moves on once it is full.",
   "Der Ton, den die App dich singen hört. Der Ring füllt sich, solange du hältst, und geht weiter, sobald er voll ist.",
   "La nota que la app te oye cantar. El anillo se llena mientras la mantienes y sigue adelante cuando se completa.",
@@ -1613,7 +1725,8 @@ T("The note the app hears you singing. The ring fills as you hold it, and moves 
   "Tonen appen hör dig sjunga. Ringen fylls medan du håller den och går vidare när den är full.",
   "アプリが聞き取っているあなたの音です。伸ばしている間にリングが埋まり、いっぱいになると次へ進みます。",
   "앱이 듣고 있는 당신의 음입니다. 소리를 유지하면 링이 차오르고, 다 차면 다음으로 넘어갑니다.",
-  "应用听到你唱的音。保持发声时圆环会填满，满了就进入下一步。")
+  "应用听到你唱的音。保持发声时圆环会填满，满了就进入下一步。",
+  "النغمة التي يسمعك التطبيق تغنيها. تمتلئ الحلقة أثناء محافظتك عليها، وينتقل إلى الخطوة التالية عندما تمتلئ.")
 T("The lowest and the highest note you managed. Exercises are moved up or down to fit between them.",
   "Der tiefste und der höchste Ton, den du geschafft hast. Übungen werden nach oben oder unten verschoben, damit sie dazwischen passen.",
   "La nota más grave y la más aguda que lograste. Los ejercicios se suben o se bajan para caber entre ellas.",
@@ -1627,7 +1740,8 @@ T("The lowest and the highest note you managed. Exercises are moved up or down t
   "Den lägsta och den högsta tonen du klarade. Övningar flyttas upp eller ner för att rymmas mellan dem.",
   "あなたが出せた最低音と最高音です。エクササイズはこの範囲に収まるよう上下に移調されます。",
   "당신이 낼 수 있었던 가장 낮은 음과 높은 음입니다. 연습은 그 사이에 들어가도록 위아래로 옮겨집니다.",
-  "你唱到的最低音和最高音。练习会上下移调，以落在这两者之间。")
+  "你唱到的最低音和最高音。练习会上下移调，以落在这两者之间。",
+  "أخفض وأعلى نغمة وصلت إليهما. تُنقل التمارين للأعلى أو للأسفل لتقع بينهما.")
 T("Keeps this range as your own, under “Custom” in the Voice settings.",
   "Behält diesen Umfang als deinen eigenen, unter „Eigene“ in den Stimm-Einstellungen.",
   "Guarda este rango como el tuyo, en «Personalizado» dentro de los ajustes de Voz.",
@@ -1641,7 +1755,8 @@ T("Keeps this range as your own, under “Custom” in the Voice settings.",
   "Behåller det här omfånget som ditt eget, under ”Egna” i Röst-inställningarna.",
   "この音域をあなた自身の音域として、声の設定の「カスタム」に保存します。",
   "이 음역을 당신의 것으로 저장합니다. 음성 설정의 “사용자 지정”에 들어갑니다.",
-  "把这个音域保存为你自己的，位于“嗓音”设置里的“自定义”下。")
+  "把这个音域保存为你自己的，位于“嗓音”设置里的“自定义”下。",
+  "يحتفظ بهذا المدى كمداك الخاص، ضمن «مخصص» في إعدادات «الصوت».")
 T("Throws this result away and runs the test again from the start.",
   "Verwirft dieses Ergebnis und führt den Test von vorn durch.",
   "Descarta este resultado y repite la prueba desde el principio.",
@@ -1655,4 +1770,5 @@ T("Throws this result away and runs the test again from the start.",
   "Kastar det här resultatet och kör testet igen från början.",
   "この結果を破棄して、テストを最初からやり直します。",
   "이 결과를 버리고 테스트를 처음부터 다시 합니다.",
-  "放弃这个结果，从头重新测试。")
+  "放弃这个结果，从头重新测试。",
+  "يتجاهل هذه النتيجة ويعيد الاختبار من البداية.")

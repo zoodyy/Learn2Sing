@@ -2,7 +2,7 @@
 from trbase import T
 
 # --- Settings hub ---
-T("Reset", "Zurücksetzen", "Restablecer", "Réinitialiser", "Ripristina", "Redefinir", "Herstellen", "Сброс", "Resetuj", "Sıfırla", "Återställ", "リセット", "초기화", "重置")
+T("Reset", "Zurücksetzen", "Restablecer", "Réinitialiser", "Ripristina", "Redefinir", "Herstellen", "Сброс", "Resetuj", "Sıfırla", "Återställ", "リセット", "초기화", "重置", "إعادة التعيين")
 T("Delete your scores, exercises and Home tab lists, or put your settings back to how the app started out.",
   "Lösche deine Punktzahlen, Übungen und Listen im Start-Tab oder setze deine Einstellungen auf den Anfangszustand der App zurück.",
   "Elimina tus puntuaciones, ejercicios y listas de la pestaña Inicio, o restablece tus ajustes a como empezó la app.",
@@ -16,10 +16,11 @@ T("Delete your scores, exercises and Home tab lists, or put your settings back t
   "Radera dina poäng, övningar och listor på fliken Hem, eller återställ dina inställningar till hur appen började.",
   "スコア、エクササイズ、ホームタブのリストを削除するか、設定をアプリの初期状態に戻します。",
   "점수, 연습, 홈 탭 목록을 삭제하거나 설정을 앱의 초기 상태로 되돌립니다.",
-  "删除你的得分、练习和“首页”标签的列表，或将设置恢复到应用最初的状态。")
+  "删除你的得分、练习和“首页”标签的列表，或将设置恢复到应用最初的状态。",
+  "احذف نتائجك وتمارينك وقوائم تبويب الرئيسية، أو أعِد إعداداتك إلى حالتها الأصلية في التطبيق.")
 
 # --- Reset hub ---
-T("Scores", "Punktzahlen", "Puntuaciones", "Notes", "Punteggi", "Pontuações", "Scores", "Оценки", "Wyniki", "Puanlar", "Poäng", "スコア", "점수", "得分")
+T("Scores", "Punktzahlen", "Puntuaciones", "Notes", "Punteggi", "Pontuações", "Scores", "Оценки", "Wyniki", "Puanlar", "Poäng", "スコア", "점수", "得分", "النتائج")
 T("Delete the scores recorded for a single exercise, or wipe them all.",
   "Lösche die Punktzahlen einer einzelnen Übung oder alle auf einmal.",
   "Elimina las puntuaciones de un solo ejercicio, o bórralas todas.",
@@ -33,7 +34,8 @@ T("Delete the scores recorded for a single exercise, or wipe them all.",
   "Radera poängen för en enskild övning, eller rensa alla.",
   "個々のエクササイズのスコアを削除するか、すべてを消去します。",
   "개별 연습의 점수를 삭제하거나 전체를 지웁니다.",
-  "删除单个练习的得分，或清除全部得分。")
+  "删除单个练习的得分，或清除全部得分。",
+  "احذف النتائج المسجلة لتمرين واحد، أو امسحها كلها.")
 T("Put a single settings category — or every one of them — back to how the app started out.",
   "Setze eine einzelne Einstellungskategorie – oder alle – auf den Anfangszustand der App zurück.",
   "Restablece una sola categoría de ajustes —o todas— a como empezó la app.",
@@ -47,7 +49,8 @@ T("Put a single settings category — or every one of them — back to how the a
   "Återställ en enskild inställningskategori – eller alla – till hur appen började.",
   "設定カテゴリを個別に、またはすべてまとめてアプリの初期状態に戻します。",
   "설정 카테고리를 하나씩, 또는 전부 한 번에 앱의 초기 상태로 되돌립니다.",
-  "将单个设置类别（或全部类别）恢复到应用最初的状态。")
+  "将单个设置类别（或全部类别）恢复到应用最初的状态。",
+  "أعِد فئة إعدادات واحدة، أو جميع الفئات، إلى حالتها الأصلية في التطبيق.")
 T("Delete the exercises you made or downloaded, and undo your changes to the ones that came with the app.",
   "Lösche die Übungen, die du erstellt oder heruntergeladen hast, und mache deine Änderungen an den mitgelieferten rückgängig.",
   "Elimina los ejercicios que creaste o descargaste, y deshaz tus cambios en los que vienen con la app.",
@@ -61,7 +64,8 @@ T("Delete the exercises you made or downloaded, and undo your changes to the one
   "Radera övningarna du skapat eller laddat ner, och ångra dina ändringar i dem som följde med appen.",
   "自分で作成またはダウンロードしたエクササイズを削除し、アプリに付属するエクササイズへの変更を元に戻します。",
   "직접 만들거나 내려받은 연습을 삭제하고, 앱에 포함된 연습에 가한 변경을 되돌립니다.",
-  "删除你创建或下载的练习，并撤销你对应用自带练习所做的更改。")
+  "删除你创建或下载的练习，并撤销你对应用自带练习所做的更改。",
+  "احذف التمارين التي أنشأتها أو نزّلتها، وتراجع عن تغييراتك على التمارين المرفقة مع التطبيق.")
 T("Clear the Home tab's favourites, routines and recently played list.",
   "Leere die Favoriten, Routinen und die Liste der zuletzt gespielten Übungen im Start-Tab.",
   "Vacía los favoritos, las rutinas y la lista de recientes de la pestaña Inicio.",
@@ -75,8 +79,9 @@ T("Clear the Home tab's favourites, routines and recently played list.",
   "Rensa favoriter, rutiner och listan över senast spelade på fliken Hem.",
   "ホームタブのお気に入り、ルーティン、最近再生したリストを消去します。",
   "홈 탭의 즐겨찾기, 루틴, 최근 재생 목록을 지웁니다.",
-  "清空“首页”标签的收藏、训练组和最近播放列表。")
-T("Delete Everything", "Alles löschen", "Eliminar todo", "Tout supprimer", "Elimina tutto", "Excluir tudo", "Alles verwijderen", "Удалить всё", "Usuń wszystko", "Her şeyi sil", "Radera allt", "すべて削除", "전체 삭제", "删除全部")
+  "清空“首页”标签的收藏、训练组和最近播放列表。",
+  "امسح المفضلة والروتينات وقائمة ما شُغّل مؤخرًا في تبويب الرئيسية.")
+T("Delete Everything", "Alles löschen", "Eliminar todo", "Tout supprimer", "Elimina tutto", "Excluir tudo", "Alles verwijderen", "Удалить всё", "Usuń wszystko", "Her şeyi sil", "Radera allt", "すべて削除", "전체 삭제", "删除全部", "حذف كل شيء")
 T("Does what all four screens above do at once, and deletes what you have on the server too: the backup a new install would bring your library back from, your public profile, the exercises you shared and every like, download and score you sent. The only thing left is the ID your device was given, which lives outside the app.",
   "Macht auf einmal, was die vier Bereiche oben machen, und löscht dazu, was du auf dem Server hast: die Sicherung, aus der eine Neuinstallation deine Übungen zurückholen würde, dein öffentliches Profil, die Übungen, die du geteilt hast, und jedes Like, jeden Download und jede Punktzahl, die du gesendet hast. Übrig bleibt nur die ID, die dein Gerät bekommen hat und die außerhalb der App liegt.",
   "Hace de una vez lo que hacen las cuatro pantallas de arriba, y además elimina lo que tienes en el servidor: la copia de seguridad desde la que una instalación nueva recuperaría tu biblioteca, tu perfil público, los ejercicios que compartiste y cada me gusta, descarga y puntuación que enviaste. Lo único que queda es el ID que recibió tu dispositivo, que vive fuera de la app.",
@@ -90,7 +95,8 @@ T("Does what all four screens above do at once, and deletes what you have on the
   "Gör på en gång det som de fyra skärmarna ovan gör, och raderar dessutom det du har på servern: säkerhetskopian som en ny installation skulle hämta tillbaka ditt bibliotek från, din offentliga profil, övningarna du delade och varje gilla-markering, nedladdning och poäng du skickade. Kvar blir bara det ID din enhet fick, som lever utanför appen.",
   "上の4つの画面がすることを一度に行い、サーバー上にあるものも削除します。再インストール時にライブラリを取り戻すバックアップ、公開プロフィール、共有したエクササイズ、送信したいいね・ダウンロード・スコアのすべてです。残るのはアプリの外にあるデバイスのIDだけです。",
   "위 네 화면이 하는 일을 한 번에 하고, 서버에 있는 것도 삭제합니다. 새로 설치할 때 라이브러리를 되돌려 줄 백업, 공개 프로필, 공유한 연습, 보낸 모든 좋아요와 다운로드와 점수입니다. 남는 것은 앱 밖에 있는 기기의 ID뿐입니다.",
-  "一次完成上面四个页面所做的事，并且删除你在服务器上的内容：新安装会用来找回练习库的备份、你的公开资料、你分享的练习，以及你发送的每个赞、下载和得分。只剩下你的设备获得的 ID，它存放在应用之外。")
+  "一次完成上面四个页面所做的事，并且删除你在服务器上的内容：新安装会用来找回练习库的备份、你的公开资料、你分享的练习，以及你发送的每个赞、下载和得分。只剩下你的设备获得的 ID，它存放在应用之外。",
+  "يفعل ما تفعله الشاشات الأربع أعلاه دفعة واحدة، ويحذف أيضًا ما لديك على الخادم: النسخة الاحتياطية التي يستعيد منها أي تثبيت جديد مكتبتك، وملفك الشخصي العام، والتمارين التي شاركتها، وكل إعجاب وتنزيل ونتيجة أرسلتها. الشيء الوحيد المتبقي هو المعرّف الذي أُعطي لجهازك، وهو موجود خارج التطبيق.")
 T("Everything the four screens above delete, and everything you have on the server with it: your backup, your public profile, the exercises you shared and every like, download and score you sent.",
   "Alles, was die vier Bereiche oben löschen, und dazu alles, was du auf dem Server hast: deine Sicherung, dein öffentliches Profil, die Übungen, die du geteilt hast, und jedes Like, jeden Download und jede Punktzahl, die du gesendet hast.",
   "Todo lo que eliminan las cuatro pantallas de arriba, y con ello todo lo que tienes en el servidor: tu copia de seguridad, tu perfil público, los ejercicios que compartiste y cada me gusta, descarga y puntuación que enviaste.",
@@ -104,15 +110,16 @@ T("Everything the four screens above delete, and everything you have on the serv
   "Allt som de fyra skärmarna ovan raderar, och med det allt du har på servern: din säkerhetskopia, din offentliga profil, övningarna du delade och varje gilla-markering, nedladdning och poäng du skickade.",
   "上の4つの画面が削除するものすべてと、サーバー上にあるものすべてです。バックアップ、公開プロフィール、共有したエクササイズ、送信したいいね・ダウンロード・スコアのすべてが対象です。",
   "위 네 화면이 삭제하는 모든 것과 함께 서버에 있는 모든 것입니다. 백업, 공개 프로필, 공유한 연습, 그리고 보낸 모든 좋아요와 다운로드와 점수입니다.",
-  "上面四个页面删除的所有内容，以及你在服务器上的一切：你的备份、你的公开资料、你分享的练习，以及你发送的每个赞、下载和得分。")
+  "上面四个页面删除的所有内容，以及你在服务器上的一切：你的备份、你的公开资料、你分享的练习，以及你发送的每个赞、下载和得分。",
+  "كل ما تحذفه الشاشات الأربع أعلاه، ومعه كل ما لديك على الخادم: نسختك الاحتياطية، وملفك الشخصي العام، والتمارين التي شاركتها، وكل إعجاب وتنزيل ونتيجة أرسلتها.")
 
 # --- Confirmation ---
-T("Revert", "Zurücksetzen", "Restaurar", "Rétablir", "Ripristina", "Restaurar", "Herstellen", "Восстановить", "Przywróć", "Geri yükle", "Återställ", "元に戻す", "되돌리기", "还原")
-T("This can't be undone.", "Das lässt sich nicht rückgängig machen.", "Esto no se puede deshacer.", "Cette action est irréversible.", "L’operazione non può essere annullata.", "Isso não pode ser desfeito.", "Dit kan niet ongedaan worden gemaakt.", "Это действие нельзя отменить.", "Tej operacji nie można cofnąć.", "Bu işlem geri alınamaz.", "Det går inte att ångra.", "この操作は取り消せません。", "이 작업은 되돌릴 수 없습니다.", "此操作无法撤销。")
+T("Revert", "Zurücksetzen", "Restaurar", "Rétablir", "Ripristina", "Restaurar", "Herstellen", "Восстановить", "Przywróć", "Geri yükle", "Återställ", "元に戻す", "되돌리기", "还原", "استعادة")
+T("This can't be undone.", "Das lässt sich nicht rückgängig machen.", "Esto no se puede deshacer.", "Cette action est irréversible.", "L’operazione non può essere annullata.", "Isso não pode ser desfeito.", "Dit kan niet ongedaan worden gemaakt.", "Это действие нельзя отменить.", "Tej operacji nie można cofnąć.", "Bu işlem geri alınamaz.", "Det går inte att ångra.", "この操作は取り消せません。", "이 작업은 되돌릴 수 없습니다.", "此操作无法撤销。", "لا يمكن التراجع عن ذلك.")
 
 # --- Reset ▸ Scores ---
-T("Recorded scores", "Aufgezeichnete Punktzahlen", "Puntuaciones registradas", "Notes enregistrées", "Punteggi registrati", "Pontuações registradas", "Vastgelegde scores", "Записанные оценки", "Zapisane wyniki", "Kaydedilen puanlar", "Sparade poäng", "記録されたスコア", "기록된 점수", "已记录的得分")
-T("No scores have been recorded yet.", "Es wurden noch keine Punktzahlen aufgezeichnet.", "Todavía no se ha registrado ninguna puntuación.", "Aucune note n’a encore été enregistrée.", "Non è stato ancora registrato alcun punteggio.", "Nenhuma pontuação foi registrada ainda.", "Er zijn nog geen scores vastgelegd.", "Оценки ещё не записывались.", "Nie zapisano jeszcze żadnych wyników.", "Henüz hiç puan kaydedilmedi.", "Inga poäng har sparats än.", "まだスコアは記録されていません。", "아직 기록된 점수가 없습니다.", "尚未记录任何得分。")
+T("Recorded scores", "Aufgezeichnete Punktzahlen", "Puntuaciones registradas", "Notes enregistrées", "Punteggi registrati", "Pontuações registradas", "Vastgelegde scores", "Записанные оценки", "Zapisane wyniki", "Kaydedilen puanlar", "Sparade poäng", "記録されたスコア", "기록된 점수", "已记录的得分", "النتائج المسجلة")
+T("No scores have been recorded yet.", "Es wurden noch keine Punktzahlen aufgezeichnet.", "Todavía no se ha registrado ninguna puntuación.", "Aucune note n’a encore été enregistrée.", "Non è stato ancora registrato alcun punteggio.", "Nenhuma pontuação foi registrada ainda.", "Er zijn nog geen scores vastgelegd.", "Оценки ещё не записывались.", "Nie zapisano jeszcze żadnych wyników.", "Henüz hiç puan kaydedilmedi.", "Inga poäng har sparats än.", "まだスコアは記録されていません。", "아직 기록된 점수가 없습니다.", "尚未记录任何得分。", "لم تُسجَّل أي نتائج بعد.")
 T("Deletes the scores recorded for this exercise. The exercise itself is kept.",
   "Löscht die aufgezeichneten Punktzahlen dieser Übung. Die Übung selbst bleibt erhalten.",
   "Elimina las puntuaciones registradas de este ejercicio. El ejercicio se conserva.",
@@ -126,8 +133,9 @@ T("Deletes the scores recorded for this exercise. The exercise itself is kept.",
   "Raderar de sparade poängen för den här övningen. Själva övningen behålls.",
   "このエクササイズの記録されたスコアを削除します。エクササイズ自体は残ります。",
   "이 연습에 기록된 점수를 삭제합니다. 연습 자체는 유지됩니다.",
-  "删除该练习记录的得分。练习本身会保留。")
-T("Delete All Scores", "Alle Punktzahlen löschen", "Eliminar todas las puntuaciones", "Supprimer toutes les notes", "Elimina tutti i punteggi", "Excluir todas as pontuações", "Alle scores verwijderen", "Удалить все оценки", "Usuń wszystkie wyniki", "Tüm puanları sil", "Radera alla poäng", "すべてのスコアを削除", "모든 점수 삭제", "删除所有得分")
+  "删除该练习记录的得分。练习本身会保留。",
+  "يحذف النتائج المسجلة لهذا التمرين. يبقى التمرين نفسه.")
+T("Delete All Scores", "Alle Punktzahlen löschen", "Eliminar todas las puntuaciones", "Supprimer toutes les notes", "Elimina tutti i punteggi", "Excluir todas as pontuações", "Alle scores verwijderen", "Удалить все оценки", "Usuń wszystkie wyniki", "Tüm puanları sil", "Radera alla poäng", "すべてのスコアを削除", "모든 점수 삭제", "删除所有得分", "حذف كل النتائج")
 T("Deletes the scores of every exercise, including any left behind by exercises you have since deleted. The exercises themselves are kept.",
   "Löscht die Punktzahlen aller Übungen, auch die von inzwischen gelöschten Übungen. Die Übungen selbst bleiben erhalten.",
   "Elimina las puntuaciones de todos los ejercicios, incluidas las que dejaron ejercicios que ya borraste. Los ejercicios se conservan.",
@@ -141,7 +149,8 @@ T("Deletes the scores of every exercise, including any left behind by exercises 
   "Raderar poängen för alla övningar, även sådana som lämnats kvar av övningar du sedan raderat. Själva övningarna behålls.",
   "すべてのエクササイズのスコアを、すでに削除したエクササイズの分も含めて削除します。エクササイズ自体は残ります。",
   "이미 삭제한 연습이 남긴 것까지 포함해 모든 연습의 점수를 삭제합니다. 연습 자체는 유지됩니다.",
-  "删除所有练习的得分，包括你此前删除的练习遗留的记录。练习本身会保留。")
+  "删除所有练习的得分，包括你此前删除的练习遗留的记录。练习本身会保留。",
+  "يحذف نتائج كل التمارين، بما في ذلك أي نتائج متبقية من تمارين حذفتها منذ ذلك الحين. تبقى التمارين نفسها.")
 T("The scores recorded for “%@” will be deleted.",
   "Die aufgezeichneten Punktzahlen von „%@“ werden gelöscht.",
   "Se eliminarán las puntuaciones registradas de «%@».",
@@ -155,7 +164,8 @@ T("The scores recorded for “%@” will be deleted.",
   "De sparade poängen för ”%@” raderas.",
   "「%@」の記録されたスコアが削除されます。",
   "“%@”에 기록된 점수가 삭제됩니다.",
-  "将删除“%@”记录的得分。")
+  "将删除“%@”记录的得分。",
+  "ستُحذف النتائج المسجلة لـ «%@».")
 T("The scores recorded for every exercise will be deleted.",
   "Die aufgezeichneten Punktzahlen aller Übungen werden gelöscht.",
   "Se eliminarán las puntuaciones registradas de todos los ejercicios.",
@@ -169,11 +179,12 @@ T("The scores recorded for every exercise will be deleted.",
   "De sparade poängen för alla övningar raderas.",
   "すべてのエクササイズの記録されたスコアが削除されます。",
   "모든 연습에 기록된 점수가 삭제됩니다.",
-  "将删除所有练习记录的得分。")
+  "将删除所有练习记录的得分。",
+  "ستُحذف النتائج المسجلة لكل التمارين.")
 
 # --- Reset ▸ Settings ---
-T("Categories", "Kategorien", "Categorías", "Catégories", "Categorie", "Categorias", "Categorieën", "Категории", "Kategorie", "Kategoriler", "Kategorier", "カテゴリ", "카테고리", "类别")
-T("Reset All Settings", "Alle Einstellungen zurücksetzen", "Restablecer todos los ajustes", "Réinitialiser tous les réglages", "Ripristina tutte le impostazioni", "Redefinir todas as configurações", "Alle instellingen herstellen", "Сбросить все настройки", "Zresetuj wszystkie ustawienia", "Tüm ayarları sıfırla", "Återställ alla inställningar", "すべての設定をリセット", "모든 설정 초기화", "重置所有设置")
+T("Categories", "Kategorien", "Categorías", "Catégories", "Categorie", "Categorias", "Categorieën", "Категории", "Kategorie", "Kategoriler", "Kategorier", "カテゴリ", "카테고리", "类别", "الفئات")
+T("Reset All Settings", "Alle Einstellungen zurücksetzen", "Restablecer todos los ajustes", "Réinitialiser tous les réglages", "Ripristina tutte le impostazioni", "Redefinir todas as configurações", "Alle instellingen herstellen", "Сбросить все настройки", "Zresetuj wszystkie ustawienia", "Tüm ayarları sıfırla", "Återställ alla inställningar", "すべての設定をリセット", "모든 설정 초기화", "重置所有设置", "إعادة تعيين كل الإعدادات")
 T("Puts every category above back at once. Your exercises, scores and routines are untouched.",
   "Setzt alle Kategorien oben auf einmal zurück. Deine Übungen, Punktzahlen und Routinen bleiben unberührt.",
   "Restablece de una vez todas las categorías de arriba. Tus ejercicios, puntuaciones y rutinas no se tocan.",
@@ -187,7 +198,8 @@ T("Puts every category above back at once. Your exercises, scores and routines a
   "Återställer alla kategorier ovan på en gång. Dina övningar, poäng och rutiner rörs inte.",
   "上のすべてのカテゴリを一度にリセットします。エクササイズ、スコア、ルーティンはそのままです。",
   "위의 모든 카테고리를 한 번에 초기화합니다. 연습, 점수, 루틴은 그대로 유지됩니다.",
-  "一次性重置上面的所有类别。你的练习、得分和训练组不受影响。")
+  "一次性重置上面的所有类别。你的练习、得分和训练组不受影响。",
+  "يعيد كل الفئات أعلاه دفعة واحدة. لا تُمس تمارينك ونتائجك وروتيناتك.")
 T("The settings under “%@” go back to how the app started out.",
   "Die Einstellungen unter „%@“ werden auf den Anfangszustand der App zurückgesetzt.",
   "Los ajustes de «%@» volverán a como empezó la app.",
@@ -201,7 +213,8 @@ T("The settings under “%@” go back to how the app started out.",
   "Inställningarna under ”%@” återgår till hur appen började.",
   "「%@」の設定がアプリの初期状態に戻ります。",
   "“%@”의 설정이 앱의 초기 상태로 돌아갑니다.",
-  "“%@”下的设置将恢复到应用最初的状态。")
+  "“%@”下的设置将恢复到应用最初的状态。",
+  "تعود الإعدادات ضمن «%@» إلى حالتها الأصلية في التطبيق.")
 T("Every setting in the app goes back to how it started out.",
   "Alle Einstellungen der App werden auf den Anfangszustand zurückgesetzt.",
   "Todos los ajustes de la app volverán a como empezaron.",
@@ -215,7 +228,8 @@ T("Every setting in the app goes back to how it started out.",
   "Alla inställningar i appen återgår till hur de började.",
   "アプリのすべての設定が初期状態に戻ります。",
   "앱의 모든 설정이 초기 상태로 돌아갑니다.",
-  "应用的所有设置将恢复到最初的状态。")
+  "应用的所有设置将恢复到最初的状态。",
+  "يعود كل إعداد في التطبيق إلى حالته الأصلية.")
 T("Clears the username you chose and deletes your public profile, so the name is free for someone else to take. Your device ID and your exercises are kept.",
   "Löscht den von dir gewählten Benutzernamen und dein öffentliches Profil, sodass der Name für jemand anderen frei wird. Deine Geräte-ID und deine Übungen bleiben erhalten.",
   "Borra el nombre de usuario que elegiste y elimina tu perfil público, de modo que el nombre queda libre para otra persona. Tu ID del dispositivo y tus ejercicios se conservan.",
@@ -229,7 +243,8 @@ T("Clears the username you chose and deletes your public profile, so the name is
   "Rensar användarnamnet du valde och raderar din offentliga profil, så att namnet blir ledigt för någon annan. Ditt enhets-ID och dina övningar behålls.",
   "設定したユーザー名を消去し、公開プロフィールを削除します。その名前は他の人が使えるようになります。デバイスIDとエクササイズは残ります。",
   "직접 정한 사용자 이름을 지우고 공개 프로필을 삭제하여 그 이름을 다른 사람이 쓸 수 있게 합니다. 기기 ID와 연습은 유지됩니다.",
-  "清除你设置的用户名并删除你的公开资料，这个名字随之空出来供其他人使用。设备 ID 和练习会保留。")
+  "清除你设置的用户名并删除你的公开资料，这个名字随之空出来供其他人使用。设备 ID 和练习会保留。",
+  "يمسح اسم المستخدم الذي اخترته ويحذف ملفك الشخصي العام، ليصبح الاسم متاحًا لغيرك. يبقى معرّف جهازك وتمارينك.")
 T("Puts the instrument, the playback and recording devices and the microphone delay back to their starting values. Instruments you uploaded are kept.",
   "Setzt das Instrument, die Wiedergabe- und Aufnahmegeräte und die Mikrofonverzögerung auf die Anfangswerte zurück. Von dir hochgeladene Instrumente bleiben erhalten.",
   "Restablece el instrumento, los dispositivos de reproducción y grabación y el retardo del micrófono a sus valores iniciales. Los instrumentos que subiste se conservan.",
@@ -243,7 +258,8 @@ T("Puts the instrument, the playback and recording devices and the microphone de
   "Återställer instrumentet, uppspelnings- och inspelningsenheterna och mikrofonfördröjningen till sina ursprungsvärden. Instrument du laddat upp behålls.",
   "楽器、再生・録音デバイス、マイク遅延を初期値に戻します。アップロードした楽器は残ります。",
   "악기, 재생 및 녹음 기기, 마이크 지연을 초기값으로 되돌립니다. 직접 업로드한 악기는 유지됩니다.",
-  "将乐器、播放和录音设备以及麦克风延迟恢复为初始值。你上传的乐器会保留。")
+  "将乐器、播放和录音设备以及麦克风延迟恢复为初始值。你上传的乐器会保留。",
+  "يعيد الآلة الموسيقية وأجهزة التشغيل والتسجيل وتأخير الميكروفون إلى قيمها الأولية. تبقى الآلات التي رفعتها.")
 T("Puts the theme, the orientation lock and the look of the menus and the playback screen back to how they started out. Templates you saved are deleted, and the app's own two come back as they started out.",
   "Setzt das Erscheinungsbild, die Ausrichtungssperre und das Aussehen der Menüs und des Wiedergabebildschirms auf den Anfangszustand zurück. Von dir gespeicherte Vorlagen werden gelöscht, und die beiden der App kommen so zurück, wie sie am Anfang waren.",
   "Restablece el tema, el bloqueo de orientación y el aspecto de los menús y de la pantalla de reproducción a como empezaron. Las plantillas que guardaste se eliminan, y las dos de la app vuelven a como empezaron.",
@@ -257,7 +273,8 @@ T("Puts the theme, the orientation lock and the look of the menus and the playba
   "Återställer temat, orienteringslåset och utseendet på menyerna och uppspelningsskärmen till hur de började. Mallar du sparat tas bort, och appens två egna kommer tillbaka som de började.",
   "テーマ、画面の向きのロック、メニューと再生画面の見た目を初期状態に戻します。保存したテンプレートは削除され、アプリの 2 つのテンプレートは初期状態で戻ります。",
   "테마, 화면 방향 잠금, 메뉴와 재생 화면의 모양을 초기 상태로 되돌립니다. 저장한 템플릿은 삭제되고, 앱의 템플릿 두 개는 초기 상태로 돌아옵니다.",
-  "将主题、方向锁定以及菜单和播放界面的外观恢复到最初的状态。你保存的模板会被删除，应用自带的两个模板会恢复到最初的状态。")
+  "将主题、方向锁定以及菜单和播放界面的外观恢复到最初的状态。你保存的模板会被删除，应用自带的两个模板会恢复到最初的状态。",
+  "يعيد السمة وقفل الاتجاه ومظهر القوائم وشاشة التشغيل إلى حالتها الأصلية. تُحذف القوالب التي حفظتها، ويعود قالبا التطبيق كما كانا في الأصل.")
 T("Clears your vocal range, including the custom lowest and highest notes, and puts the target window back to the whole note.",
   "Löscht deinen Stimmumfang samt den eigenen tiefsten und höchsten Noten und setzt das Zielfenster wieder auf die ganze Note.",
   "Borra tu tesitura, incluidas las notas más grave y más aguda personalizadas, y devuelve la ventana objetivo a la nota entera.",
@@ -271,7 +288,8 @@ T("Clears your vocal range, including the custom lowest and highest notes, and p
   "Rensar ditt röstomfång, inklusive de egna lägsta och högsta tonerna, och återställer målfönstret till hela noten.",
   "声域を、カスタムの最低音と最高音を含めて消去し、ターゲット範囲を音符全体に戻します。",
   "직접 지정한 최저음과 최고음을 포함해 음역대를 지우고, 목표 범위를 음표 전체로 되돌립니다.",
-  "清除你的音域，包括自定的最低音和最高音，并将目标范围恢复为整个音符。")
+  "清除你的音域，包括自定的最低音和最高音，并将目标范围恢复为整个音符。",
+  "يمسح مداك الصوتي، بما في ذلك أخفض وأعلى نغمة مخصصتين، ويعيد النافذة المستهدفة إلى النغمة كاملة.")
 T("Puts the number of recommended exercises back, and returns the whitelist to every exercise in your library, dropping the ones you ticked or unticked yourself. The categories the tab shows and the order they come in are left as you arranged them.",
   "Setzt die Anzahl der empfohlenen Übungen zurück und lässt wieder alle Übungen deiner Bibliothek zu; selbst an- oder abgewählte Übungen werden dabei verworfen. Welche Kategorien der Tab zeigt und in welcher Reihenfolge, bleibt so, wie du es eingerichtet hast.",
   "Restablece el número de ejercicios recomendados y vuelve a permitir todos los ejercicios de tu biblioteca, descartando los que marcaste o desmarcaste tú. Las categorías que muestra la pestaña y su orden se quedan como las dejaste.",
@@ -285,7 +303,8 @@ T("Puts the number of recommended exercises back, and returns the whitelist to e
   "Återställer antalet rekommenderade övningar och tillåter åter alla övningar i ditt bibliotek, och släpper dem du själv kryssat i eller ur. Vilka kategorier fliken visar och i vilken ordning lämnas som du ordnat dem.",
   "おすすめエクササイズの数を元に戻し、ライブラリのすべてのエクササイズを再び対象にします。自分で付け外ししたチェックは破棄されます。タブに表示するカテゴリとその並び順は、あなたが並べたままです。",
   "추천 연습 개수를 되돌리고, 라이브러리의 모든 연습을 다시 허용하며 직접 선택하거나 해제한 항목은 사라집니다. 탭에 보이는 분류와 그 순서는 정해 둔 그대로 남습니다.",
-  "恢复推荐练习的数量，并将练习库中的全部练习重新列入，同时放弃你自己勾选或取消的项。标签显示哪些分类以及它们的顺序会保持你安排的样子。")
+  "恢复推荐练习的数量，并将练习库中的全部练习重新列入，同时放弃你自己勾选或取消的项。标签显示哪些分类以及它们的顺序会保持你安排的样子。",
+  "يعيد عدد التمارين المقترحة، ويعيد قائمة المسموح بها إلى كل تمارين مكتبتك، متجاهلًا ما حددته أو ألغيت تحديده بنفسك. تبقى الفئات التي يعرضها التبويب وترتيبها كما رتّبتها.")
 T("Puts the app's language back to English.",
   "Setzt die Sprache der App wieder auf Englisch.",
   "Devuelve el idioma de la app al inglés.",
@@ -299,11 +318,12 @@ T("Puts the app's language back to English.",
   "Ställer tillbaka appens språk till engelska.",
   "アプリの言語を英語に戻します。",
   "앱의 언어를 영어로 되돌립니다.",
-  "将应用语言恢复为英语。")
+  "将应用语言恢复为英语。",
+  "يعيد لغة التطبيق إلى الإنجليزية.")
 
 # --- Reset ▸ Exercises ---
-T("Your exercises", "Deine Übungen", "Tus ejercicios", "Vos exercices", "I tuoi esercizi", "Seus exercícios", "Jouw oefeningen", "Ваши упражнения", "Twoje ćwiczenia", "Egzersizleriniz", "Dina övningar", "自分のエクササイズ", "내 연습", "你的练习")
-T("Delete Own Exercises", "Eigene Übungen löschen", "Eliminar ejercicios propios", "Supprimer mes exercices", "Elimina esercizi personali", "Excluir meus exercícios", "Eigen oefeningen verwijderen", "Удалить свои упражнения", "Usuń własne ćwiczenia", "Kendi egzersizlerimi sil", "Radera egna övningar", "自分のエクササイズを削除", "내 연습 삭제", "删除自己的练习")
+T("Your exercises", "Deine Übungen", "Tus ejercicios", "Vos exercices", "I tuoi esercizi", "Seus exercícios", "Jouw oefeningen", "Ваши упражнения", "Twoje ćwiczenia", "Egzersizleriniz", "Dina övningar", "自分のエクササイズ", "내 연습", "你的练习", "تمارينك")
+T("Delete Own Exercises", "Eigene Übungen löschen", "Eliminar ejercicios propios", "Supprimer mes exercices", "Elimina esercizi personali", "Excluir meus exercícios", "Eigen oefeningen verwijderen", "Удалить свои упражнения", "Usuń własne ćwiczenia", "Kendi egzersizlerimi sil", "Radera egna övningar", "自分のエクササイズを削除", "내 연습 삭제", "删除自己的练习", "حذف تماريني")
 T("Deletes every exercise you created yourself, with its MIDI pattern and scores. Exercises that came with the app or from the Community tab are kept.",
   "Löscht jede Übung, die du selbst erstellt hast, samt ihrem MIDI-Muster und ihren Punktzahlen. Mitgelieferte Übungen und die aus dem Community-Tab bleiben erhalten.",
   "Elimina todos los ejercicios que creaste tú, con su patrón MIDI y sus puntuaciones. Se conservan los que vienen con la app y los de la pestaña Comunidad.",
@@ -317,8 +337,9 @@ T("Deletes every exercise you created yourself, with its MIDI pattern and scores
   "Raderar varje övning du själv skapat, med dess MIDI-mönster och poäng. Övningar som följde med appen och de från fliken Community behålls.",
   "自分で作成したエクササイズを、MIDIパターンとスコアも含めてすべて削除します。アプリに付属するものとコミュニティタブのものは残ります。",
   "직접 만든 모든 연습을 MIDI 패턴과 점수까지 함께 삭제합니다. 앱에 포함된 연습과 커뮤니티 탭에서 받은 연습은 유지됩니다.",
-  "删除你自己创建的每个练习，连同其 MIDI 音型和得分。应用自带的练习和来自“社区”标签的练习会保留。")
-T("Delete Downloaded Exercises", "Heruntergeladene Übungen löschen", "Eliminar ejercicios descargados", "Supprimer les exercices téléchargés", "Elimina gli esercizi scaricati", "Excluir exercícios baixados", "Gedownloade oefeningen verwijderen", "Удалить скачанные упражнения", "Usuń pobrane ćwiczenia", "İndirilen egzersizleri sil", "Radera nedladdade övningar", "ダウンロードしたエクササイズを削除", "내려받은 연습 삭제", "删除已下载的练习")
+  "删除你自己创建的每个练习，连同其 MIDI 音型和得分。应用自带的练习和来自“社区”标签的练习会保留。",
+  "يحذف كل تمرين أنشأته بنفسك، مع نمط MIDI ونتائجه. تبقى التمارين المرفقة مع التطبيق أو القادمة من تبويب المجتمع.")
+T("Delete Downloaded Exercises", "Heruntergeladene Übungen löschen", "Eliminar ejercicios descargados", "Supprimer les exercices téléchargés", "Elimina gli esercizi scaricati", "Excluir exercícios baixados", "Gedownloade oefeningen verwijderen", "Удалить скачанные упражнения", "Usuń pobrane ćwiczenia", "İndirilen egzersizleri sil", "Radera nedladdade övningar", "ダウンロードしたエクササイズを削除", "내려받은 연습 삭제", "删除已下载的练习", "حذف التمارين المنزّلة")
 T("Deletes every exercise you downloaded from the Community tab, with its MIDI pattern and scores. Your own exercises and the ones that came with the app are kept.",
   "Löscht jede Übung, die du aus dem Community-Tab heruntergeladen hast, samt ihrem MIDI-Muster und ihren Punktzahlen. Deine eigenen und die mitgelieferten Übungen bleiben erhalten.",
   "Elimina todos los ejercicios que descargaste de la pestaña Comunidad, con su patrón MIDI y sus puntuaciones. Tus propios ejercicios y los que vienen con la app se conservan.",
@@ -332,7 +353,8 @@ T("Deletes every exercise you downloaded from the Community tab, with its MIDI p
   "Raderar varje övning du laddat ner från fliken Community, med dess MIDI-mönster och poäng. Dina egna övningar och de som följde med appen behålls.",
   "コミュニティタブからダウンロードしたエクササイズを、MIDIパターンとスコアも含めてすべて削除します。自作のものとアプリに付属するものは残ります。",
   "커뮤니티 탭에서 내려받은 모든 연습을 MIDI 패턴과 점수까지 함께 삭제합니다. 직접 만든 연습과 앱에 포함된 연습은 유지됩니다.",
-  "删除你从“社区”标签下载的每个练习，连同其 MIDI 音型和得分。你自己的练习和应用自带的练习会保留。")
+  "删除你从“社区”标签下载的每个练习，连同其 MIDI 音型和得分。你自己的练习和应用自带的练习会保留。",
+  "يحذف كل تمرين نزّلته من تبويب المجتمع، مع نمط MIDI ونتائجه. تبقى تمارينك والتمارين المرفقة مع التطبيق.")
 T("You haven't changed any of the exercises that came with the app.",
   "Du hast keine der mitgelieferten Übungen geändert.",
   "No has cambiado ninguno de los ejercicios que vienen con la app.",
@@ -346,8 +368,9 @@ T("You haven't changed any of the exercises that came with the app.",
   "Du har inte ändrat någon av övningarna som följde med appen.",
   "アプリに付属するエクササイズはまだ変更されていません。",
   "앱에 포함된 연습을 아직 변경하지 않았습니다.",
-  "你尚未更改任何应用自带的练习。")
-T("Deleted", "Gelöscht", "Eliminado", "Supprimé", "Eliminato", "Excluído", "Verwijderd", "Удалено", "Usunięte", "Silindi", "Raderad", "削除済み", "삭제됨", "已删除")
+  "你尚未更改任何应用自带的练习。",
+  "لم تغيّر أيًا من التمارين المرفقة مع التطبيق.")
+T("Deleted", "Gelöscht", "Eliminado", "Supprimé", "Eliminato", "Excluído", "Verwijderd", "Удалено", "Usunięte", "Silindi", "Raderad", "削除済み", "삭제됨", "已删除", "محذوف")
 T("Puts this exercise back to how it came with the app, undoing your edits to its settings and its MIDI pattern.",
   "Setzt diese Übung auf den mitgelieferten Zustand zurück und macht deine Änderungen an ihren Einstellungen und ihrem MIDI-Muster rückgängig.",
   "Devuelve este ejercicio a como venía con la app y deshace tus cambios en sus ajustes y en su patrón MIDI.",
@@ -361,7 +384,8 @@ T("Puts this exercise back to how it came with the app, undoing your edits to it
   "Återställer den här övningen till hur den följde med appen och ångrar dina ändringar av dess inställningar och MIDI-mönster.",
   "このエクササイズをアプリ付属の状態に戻し、設定とMIDIパターンへの変更を取り消します。",
   "이 연습을 앱에 포함되었던 상태로 되돌리고, 설정과 MIDI 패턴에 가한 편집을 취소합니다.",
-  "将该练习恢复为应用自带时的状态，撤销你对其设置和 MIDI 音型的修改。")
+  "将该练习恢复为应用自带时的状态，撤销你对其设置和 MIDI 音型的修改。",
+  "يعيد هذا التمرين إلى حالته الأصلية في التطبيق، متراجعًا عن تعديلاتك على إعداداته ونمط MIDI الخاص به.")
 T("Revert All Bundled Exercises",
   "Alle mitgelieferten Übungen zurücksetzen",
   "Restaurar todos los ejercicios incluidos",
@@ -375,7 +399,8 @@ T("Revert All Bundled Exercises",
   "Återställ alla medföljande övningar",
   "付属のエクササイズをすべて元に戻す",
   "기본 제공 연습 모두 되돌리기",
-  "还原所有自带练习")
+  "还原所有自带练习",
+  "استعادة كل التمارين المرفقة")
 T("Puts every exercise that came with the app back to how it shipped, bringing back any you deleted.",
   "Setzt alle mitgelieferten Übungen auf den Auslieferungszustand zurück und holt gelöschte wieder zurück.",
   "Devuelve todos los ejercicios que vienen con la app a su estado original y recupera los que hayas borrado.",
@@ -389,7 +414,8 @@ T("Puts every exercise that came with the app back to how it shipped, bringing b
   "Återställer alla övningar som följde med appen till sitt ursprungliga skick och tar tillbaka dem du raderat.",
   "アプリに付属するすべてのエクササイズを出荷時の状態に戻し、削除したものも復元します。",
   "앱에 포함된 모든 연습을 원래 상태로 되돌리고, 삭제한 연습도 복원합니다.",
-  "将应用自带的所有练习恢复为出厂状态，并找回你删除的练习。")
+  "将应用自带的所有练习恢复为出厂状态，并找回你删除的练习。",
+  "يعيد كل تمرين مرفق مع التطبيق إلى حالته الأصلية، ويعيد أي تمرين حذفته.")
 T("Every exercise you created yourself will be deleted, along with its MIDI pattern and scores.",
   "Jede Übung, die du selbst erstellt hast, wird samt ihrem MIDI-Muster und ihren Punktzahlen gelöscht.",
   "Se eliminarán todos los ejercicios que creaste tú, junto con su patrón MIDI y sus puntuaciones.",
@@ -403,7 +429,8 @@ T("Every exercise you created yourself will be deleted, along with its MIDI patt
   "Varje övning du själv skapat raderas, tillsammans med dess MIDI-mönster och poäng.",
   "自分で作成したすべてのエクササイズが、MIDIパターンとスコアとともに削除されます。",
   "직접 만든 모든 연습이 MIDI 패턴 및 점수와 함께 삭제됩니다.",
-  "你自己创建的每个练习都将被删除，连同其 MIDI 音型和得分。")
+  "你自己创建的每个练习都将被删除，连同其 MIDI 音型和得分。",
+  "سيُحذف كل تمرين أنشأته بنفسك، مع نمط MIDI ونتائجه.")
 T("Every exercise you downloaded from the Community tab will be deleted, along with its MIDI pattern and scores.",
   "Jede Übung, die du aus dem Community-Tab heruntergeladen hast, wird samt ihrem MIDI-Muster und ihren Punktzahlen gelöscht.",
   "Se eliminarán todos los ejercicios que descargaste de la pestaña Comunidad, junto con su patrón MIDI y sus puntuaciones.",
@@ -417,7 +444,8 @@ T("Every exercise you downloaded from the Community tab will be deleted, along w
   "Varje övning du laddat ner från fliken Community raderas, tillsammans med dess MIDI-mönster och poäng.",
   "コミュニティタブからダウンロードしたすべてのエクササイズが、MIDIパターンとスコアとともに削除されます。",
   "커뮤니티 탭에서 내려받은 모든 연습이 MIDI 패턴 및 점수와 함께 삭제됩니다.",
-  "你从“社区”标签下载的每个练习都将被删除，连同其 MIDI 音型和得分。")
+  "你从“社区”标签下载的每个练习都将被删除，连同其 MIDI 音型和得分。",
+  "سيُحذف كل تمرين نزّلته من تبويب المجتمع، مع نمط MIDI ونتائجه.")
 T("“%@” goes back to how it came with the app.",
   "„%@“ wird auf den mitgelieferten Zustand zurückgesetzt.",
   "«%@» volverá a como venía con la app.",
@@ -431,7 +459,8 @@ T("“%@” goes back to how it came with the app.",
   "”%@” återgår till hur den följde med appen.",
   "「%@」がアプリ付属の状態に戻ります。",
   "“%@”이(가) 앱에 포함되었던 상태로 돌아갑니다.",
-  "“%@”将恢复为应用自带时的状态。")
+  "“%@”将恢复为应用自带时的状态。",
+  "يعود «%@» إلى حالته الأصلية في التطبيق.")
 T("Every exercise that came with the app goes back to how it shipped, and any you deleted come back.",
   "Alle mitgelieferten Übungen werden auf den Auslieferungszustand zurückgesetzt, und gelöschte kommen zurück.",
   "Todos los ejercicios que vienen con la app volverán a su estado original, y los que borraste reaparecerán.",
@@ -445,10 +474,11 @@ T("Every exercise that came with the app goes back to how it shipped, and any yo
   "Alla övningar som följde med appen återgår till sitt ursprungliga skick, och de du raderat kommer tillbaka.",
   "アプリに付属するすべてのエクササイズが出荷時の状態に戻り、削除したものも復元されます。",
   "앱에 포함된 모든 연습이 원래 상태로 돌아가고, 삭제한 연습도 다시 나타납니다.",
-  "应用自带的所有练习将恢复为出厂状态，你删除的练习也会回来。")
+  "应用自带的所有练习将恢复为出厂状态，你删除的练习也会回来。",
+  "يعود كل تمرين مرفق مع التطبيق إلى حالته الأصلية، وتعود أي تمارين حذفتها.")
 
 # --- Reset ▸ Home ---
-T("Clear Favourites", "Favoriten leeren", "Vaciar favoritos", "Vider les favoris", "Svuota i preferiti", "Limpar favoritos", "Favorieten leegmaken", "Очистить избранное", "Wyczyść ulubione", "Favorileri temizle", "Rensa favoriter", "お気に入りを空にする", "즐겨찾기 비우기", "清空收藏")
+T("Clear Favourites", "Favoriten leeren", "Vaciar favoritos", "Vider les favoris", "Svuota i preferiti", "Limpar favoritos", "Favorieten leegmaken", "Очистить избранное", "Wyczyść ulubione", "Favorileri temizle", "Rensa favoriter", "お気に入りを空にする", "즐겨찾기 비우기", "清空收藏", "مسح المفضلة")
 T("Empties the Home tab's “Favourites” list. The exercises in it are kept.",
   "Leert die Liste „Favoriten“ im Start-Tab. Die darin enthaltenen Übungen bleiben erhalten.",
   "Vacía la lista «Favoritos» de la pestaña Inicio. Los ejercicios que contiene se conservan.",
@@ -462,8 +492,9 @@ T("Empties the Home tab's “Favourites” list. The exercises in it are kept.",
   "Tömmer listan ”Favoriter” på fliken Hem. Övningarna i den behålls.",
   "ホームタブの「お気に入り」リストを空にします。その中のエクササイズは残ります。",
   "홈 탭의 “즐겨찾기” 목록을 비웁니다. 목록에 있던 연습은 유지됩니다.",
-  "清空“首页”标签的“收藏”列表。其中的练习会保留。")
-T("Delete Routines", "Routinen löschen", "Eliminar rutinas", "Supprimer les routines", "Elimina le routine", "Excluir rotinas", "Routines verwijderen", "Удалить программы", "Usuń rutyny", "Rutinleri sil", "Radera rutiner", "ルーティンを削除", "루틴 삭제", "删除训练组")
+  "清空“首页”标签的“收藏”列表。其中的练习会保留。",
+  "يُفرغ قائمة «المفضلة» في تبويب الرئيسية. تبقى التمارين الموجودة فيها.")
+T("Delete Routines", "Routinen löschen", "Eliminar rutinas", "Supprimer les routines", "Elimina le routine", "Excluir rotinas", "Routines verwijderen", "Удалить программы", "Usuń rutyny", "Rutinleri sil", "Radera rutiner", "ルーティンを削除", "루틴 삭제", "删除训练组", "حذف الروتينات")
 T("Deletes every routine you assembled. The exercises they were made of are kept.",
   "Löscht alle Routinen, die du zusammengestellt hast. Die enthaltenen Übungen bleiben erhalten.",
   "Elimina todas las rutinas que armaste. Los ejercicios que las componían se conservan.",
@@ -477,9 +508,10 @@ T("Deletes every routine you assembled. The exercises they were made of are kept
   "Raderar alla rutiner du satt ihop. Övningarna de bestod av behålls.",
   "作成したすべてのルーティンを削除します。含まれていたエクササイズは残ります。",
   "직접 구성한 모든 루틴을 삭제합니다. 루틴에 담겼던 연습은 유지됩니다.",
-  "删除你编排的所有训练组。其中的练习会保留。")
-T("Clear Practice Time", "Übungszeit löschen", "Borrar tiempo de práctica", "Effacer le temps de pratique", "Cancella il tempo di esercizio", "Limpar tempo de prática", "Oefentijd wissen", "Очистить время занятий", "Wyczyść czas ćwiczeń", "Çalışma süresini temizle", "Rensa övningstid", "練習時間を消去", "연습 시간 지우기", "清除练习时长")
-T("Clear Recently Played", "Zuletzt gespielt leeren", "Vaciar reproducidos recientemente", "Vider les exercices récents", "Svuota i recenti", "Limpar reproduzidos recentemente", "Recent gespeeld wissen", "Очистить недавние", "Wyczyść ostatnio odtwarzane", "Son kullanılanları temizle", "Rensa senast spelade", "最近再生した履歴を消去", "최근 재생 기록 지우기", "清除最近播放")
+  "删除你编排的所有训练组。其中的练习会保留。",
+  "يحذف كل روتين جمعته. تبقى التمارين التي كان يتكون منها.")
+T("Clear Practice Time", "Übungszeit löschen", "Borrar tiempo de práctica", "Effacer le temps de pratique", "Cancella il tempo di esercizio", "Limpar tempo de prática", "Oefentijd wissen", "Очистить время занятий", "Wyczyść czas ćwiczeń", "Çalışma süresini temizle", "Rensa övningstid", "練習時間を消去", "연습 시간 지우기", "清除练习时长", "مسح وقت التمرّن")
+T("Clear Recently Played", "Zuletzt gespielt leeren", "Vaciar reproducidos recientemente", "Vider les exercices récents", "Svuota i recenti", "Limpar reproduzidos recentemente", "Recent gespeeld wissen", "Очистить недавние", "Wyczyść ostatnio odtwarzane", "Son kullanılanları temizle", "Rensa senast spelade", "最近再生した履歴を消去", "최근 재생 기록 지우기", "清除最近播放", "مسح ما شُغّل مؤخرًا")
 T("Forgets what you played and when, emptying the Home tab's “Recent” list and the order “Recommended” picks by.",
   "Vergisst, was du wann gespielt hast: Die Liste „Zuletzt“ im Start-Tab wird geleert, ebenso die Reihenfolge, nach der „Empfohlen“ auswählt.",
   "Olvida qué tocaste y cuándo: vacía la lista «Recientes» de la pestaña Inicio y el orden por el que elige «Recomendado».",
@@ -493,7 +525,8 @@ T("Forgets what you played and when, emptying the Home tab's “Recent” list a
   "Glömmer vad du spelat och när: tömmer listan ”Senaste” på fliken Hem och ordningen som ”Rekommenderat” väljer efter.",
   "何をいつ再生したかを忘れます。ホームタブの「最近」リストと、「おすすめ」が選ぶ順序が空になります。",
   "무엇을 언제 재생했는지 잊습니다. 홈 탭의 “최근” 목록과 “추천”이 고르는 순서가 비워집니다.",
-  "忘记你练过什么、何时练的：清空“首页”标签的“最近”列表，以及“推荐”的排序依据。")
+  "忘记你练过什么、何时练的：清空“首页”标签的“最近”列表，以及“推荐”的排序依据。",
+  "ينسى ما شغّلته ومتى، فيُفرغ قائمة «الأخيرة» في تبويب الرئيسية والترتيب الذي تختار به «المقترحة».")
 T("The Home tab's “Favourites” list will be emptied. The exercises in it are kept.",
   "Die Liste „Favoriten“ im Start-Tab wird geleert. Die darin enthaltenen Übungen bleiben erhalten.",
   "Se vaciará la lista «Favoritos» de la pestaña Inicio. Los ejercicios que contiene se conservan.",
@@ -507,7 +540,8 @@ T("The Home tab's “Favourites” list will be emptied. The exercises in it are
   "Listan ”Favoriter” på fliken Hem töms. Övningarna i den behålls.",
   "ホームタブの「お気に入り」リストが空になります。その中のエクササイズは残ります。",
   "홈 탭의 “즐겨찾기” 목록이 비워집니다. 목록에 있던 연습은 유지됩니다.",
-  "将清空“首页”标签的“收藏”列表。其中的练习会保留。")
+  "将清空“首页”标签的“收藏”列表。其中的练习会保留。",
+  "ستُفرغ قائمة «المفضلة» في تبويب الرئيسية. تبقى التمارين الموجودة فيها.")
 T("Every routine will be deleted. The exercises they were made of are kept.",
   "Alle Routinen werden gelöscht. Die enthaltenen Übungen bleiben erhalten.",
   "Se eliminarán todas las rutinas. Los ejercicios que las componían se conservan.",
@@ -521,7 +555,8 @@ T("Every routine will be deleted. The exercises they were made of are kept.",
   "Alla rutiner raderas. Övningarna de bestod av behålls.",
   "すべてのルーティンが削除されます。含まれていたエクササイズは残ります。",
   "모든 루틴이 삭제됩니다. 루틴에 담겼던 연습은 유지됩니다.",
-  "将删除所有训练组。其中的练习会保留。")
+  "将删除所有训练组。其中的练习会保留。",
+  "سيُحذف كل روتين. تبقى التمارين التي كان يتكون منها.")
 T("Your play history will be forgotten, emptying the Home tab's “Recent” list.",
   "Dein Wiedergabeverlauf wird vergessen und die Liste „Zuletzt“ im Start-Tab geleert.",
   "Se olvidará tu historial de reproducción y se vaciará la lista «Recientes» de la pestaña Inicio.",
@@ -535,7 +570,8 @@ T("Your play history will be forgotten, emptying the Home tab's “Recent” lis
   "Din uppspelningshistorik glöms och listan ”Senaste” på fliken Hem töms.",
   "再生履歴が消去され、ホームタブの「最近」リストが空になります。",
   "재생 기록이 지워지고 홈 탭의 “최근” 목록이 비워집니다.",
-  "将忘记你的播放历史，并清空“首页”标签的“最近”列表。")
+  "将忘记你的播放历史，并清空“首页”标签的“最近”列表。",
+  "سيُنسى سجل تشغيلك، وتُفرغ قائمة «الأخيرة» في تبويب الرئيسية.")
 T("Forgets how long you practised on each day, emptying the Home tab's “Time Spent Singing”.",
   "Vergisst, wie lange du an welchem Tag geübt hast: Die „Gesungene Zeit“ im Start-Tab wird geleert.",
   "Olvida cuánto practicaste cada día: vacía el «Tiempo cantado» de la pestaña Inicio.",
@@ -549,7 +585,8 @@ T("Forgets how long you practised on each day, emptying the Home tab's “Time S
   "Glömmer hur länge du övat varje dag: tömmer ”Sångtid” på fliken Hem.",
   "どの日にどれだけ練習したかを忘れます。ホームタブの「歌った時間」が空になります。",
   "어느 날 얼마나 연습했는지 잊습니다. 홈 탭의 “노래한 시간”이 비워집니다.",
-  "忘记你每天练了多久：清空“首页”标签的“歌唱时长”。")
+  "忘记你每天练了多久：清空“首页”标签的“歌唱时长”。",
+  "ينسى المدة التي تمرّنت فيها كل يوم، فيُفرغ «وقت الغناء» في تبويب الرئيسية.")
 T("Your practice time will be forgotten, emptying the Home tab's “Time Spent Singing”.",
   "Deine Übungszeit wird vergessen und die „Gesungene Zeit“ im Start-Tab geleert.",
   "Se olvidará tu tiempo de práctica y se vaciará el «Tiempo cantado» de la pestaña Inicio.",
@@ -563,4 +600,5 @@ T("Your practice time will be forgotten, emptying the Home tab's “Time Spent S
   "Din övningstid glöms och ”Sångtid” på fliken Hem töms.",
   "練習時間が忘れられ、ホームタブの「歌った時間」が空になります。",
   "연습 시간이 잊히고 홈 탭의 “노래한 시간”이 비워집니다.",
-  "将忘记你的练习时长，并清空“首页”标签的“歌唱时长”。")
+  "将忘记你的练习时长，并清空“首页”标签的“歌唱时长”。",
+  "سيُنسى وقت تمرّنك، ويُفرغ «وقت الغناء» في تبويب الرئيسية.")

@@ -5,52 +5,52 @@
 # around them are translated.
 from trbase import T
 
-T("Major Ascending", "Dur aufsteigend", "Mayor ascendente", "Majeur ascendant", "Maggiore ascendente", "Maior ascendente", "Majeur stijgend", "Мажор вверх", "Durowa w górę", "Majör çıkıcı", "Dur uppåt", "長調 上行", "장조 상행", "大调上行")
-T("Major Descending", "Dur absteigend", "Mayor descendente", "Majeur descendant", "Maggiore discendente", "Maior descendente", "Majeur dalend", "Мажор вниз", "Durowa w dół", "Majör inici", "Dur nedåt", "長調 下行", "장조 하행", "大调下行")
-T("Minor Ascending", "Moll aufsteigend", "Menor ascendente", "Mineur ascendant", "Minore ascendente", "Menor ascendente", "Mineur stijgend", "Минор вверх", "Molowa w górę", "Minör çıkıcı", "Moll uppåt", "短調 上行", "단조 상행", "小调上行")
-T("Minor Descending", "Moll absteigend", "Menor descendente", "Mineur descendant", "Minore discendente", "Menor descendente", "Mineur dalend", "Минор вниз", "Molowa w dół", "Minör inici", "Moll nedåt", "短調 下行", "단조 하행", "小调下行")
-T("Harmonic Minor Ascending", "Harmonisches Moll aufsteigend", "Menor armónica ascendente", "Mineur harmonique ascendant", "Minore armonica ascendente", "Menor harmônica ascendente", "Harmonisch mineur stijgend", "Гармонический минор вверх", "Molowa harmoniczna w górę", "Armonik minör çıkıcı", "Harmonisk moll uppåt", "和声的短音階 上行", "화성단음계 상행", "和声小调上行")
-T("Harmonic Minor Descending", "Harmonisches Moll absteigend", "Menor armónica descendente", "Mineur harmonique descendant", "Minore armonica discendente", "Menor harmônica descendente", "Harmonisch mineur dalend", "Гармонический минор вниз", "Molowa harmoniczna w dół", "Armonik minör inici", "Harmonisk moll nedåt", "和声的短音階 下行", "화성단음계 하행", "和声小调下行")
-T("Melodic Minor Ascending", "Melodisches Moll aufsteigend", "Menor melódica ascendente", "Mineur mélodique ascendant", "Minore melodica ascendente", "Menor melódica ascendente", "Melodisch mineur stijgend", "Мелодический минор вверх", "Molowa melodyczna w górę", "Melodik minör çıkıcı", "Melodisk moll uppåt", "旋律的短音階 上行", "가락단음계 상행", "旋律小调上行")
-T("Melodic Minor Descending", "Melodisches Moll absteigend", "Menor melódica descendente", "Mineur mélodique descendant", "Minore melodica discendente", "Menor melódica descendente", "Melodisch mineur dalend", "Мелодический минор вниз", "Molowa melodyczna w dół", "Melodik minör inici", "Melodisk moll nedåt", "旋律的短音階 下行", "가락단음계 하행", "旋律小调下行")
-T("Dorian Ascending", "Dorisch aufsteigend", "Dórico ascendente", "Dorien ascendant", "Dorico ascendente", "Dórico ascendente", "Dorisch stijgend", "Дорийский лад вверх", "Dorycka w górę", "Dor çıkıcı", "Dorisk uppåt", "ドリア旋法 上行", "도리안 상행", "多利亚调式上行")
-T("Dorian Descending", "Dorisch absteigend", "Dórico descendente", "Dorien descendant", "Dorico discendente", "Dórico descendente", "Dorisch dalend", "Дорийский лад вниз", "Dorycka w dół", "Dor inici", "Dorisk nedåt", "ドリア旋法 下行", "도리안 하행", "多利亚调式下行")
-T("Phrygian Ascending", "Phrygisch aufsteigend", "Frigio ascendente", "Phrygien ascendant", "Frigio ascendente", "Frígio ascendente", "Frygisch stijgend", "Фригийский лад вверх", "Frygijska w górę", "Frigyen çıkıcı", "Frygisk uppåt", "フリギア旋法 上行", "프리지안 상행", "弗里几亚调式上行")
-T("Phrygian Descending", "Phrygisch absteigend", "Frigio descendente", "Phrygien descendant", "Frigio discendente", "Frígio descendente", "Frygisch dalend", "Фригийский лад вниз", "Frygijska w dół", "Frigyen inici", "Frygisk nedåt", "フリギア旋法 下行", "프리지안 하행", "弗里几亚调式下行")
-T("Lydian Ascending", "Lydisch aufsteigend", "Lidio ascendente", "Lydien ascendant", "Lidio ascendente", "Lídio ascendente", "Lydisch stijgend", "Лидийский лад вверх", "Lidyjska w górę", "Lidyen çıkıcı", "Lydisk uppåt", "リディア旋法 上行", "리디안 상행", "利底亚调式上行")
-T("Lydian Descending", "Lydisch absteigend", "Lidio descendente", "Lydien descendant", "Lidio discendente", "Lídio descendente", "Lydisch dalend", "Лидийский лад вниз", "Lidyjska w dół", "Lidyen inici", "Lydisk nedåt", "リディア旋法 下行", "리디안 하행", "利底亚调式下行")
-T("Mixolydian Ascending", "Mixolydisch aufsteigend", "Mixolidio ascendente", "Mixolydien ascendant", "Misolidio ascendente", "Mixolídio ascendente", "Mixolydisch stijgend", "Миксолидийский лад вверх", "Miksolidyjska w górę", "Miksolidyen çıkıcı", "Mixolydisk uppåt", "ミクソリディア旋法 上行", "믹솔리디안 상행", "混合利底亚调式上行")
-T("Mixolydian Descending", "Mixolydisch absteigend", "Mixolidio descendente", "Mixolydien descendant", "Misolidio discendente", "Mixolídio descendente", "Mixolydisch dalend", "Миксолидийский лад вниз", "Miksolidyjska w dół", "Miksolidyen inici", "Mixolydisk nedåt", "ミクソリディア旋法 下行", "믹솔리디안 하행", "混合利底亚调式下行")
-T("Locrian Ascending", "Lokrisch aufsteigend", "Locrio ascendente", "Locrien ascendant", "Locrio ascendente", "Lócrio ascendente", "Locrisch stijgend", "Локрийский лад вверх", "Lokrycka w górę", "Lokriyen çıkıcı", "Lokrisk uppåt", "ロクリア旋法 上行", "로크리안 상행", "洛克里亚调式上行")
-T("Locrian Descending", "Lokrisch absteigend", "Locrio descendente", "Locrien descendant", "Locrio discendente", "Lócrio descendente", "Locrisch dalend", "Локрийский лад вниз", "Lokrycka w dół", "Lokriyen inici", "Lokrisk nedåt", "ロクリア旋法 下行", "로크리안 하행", "洛克里亚调式下行")
-T("Major Pentatonic Ascending", "Dur-Pentatonik aufsteigend", "Pentatónica mayor ascendente", "Pentatonique majeure ascendante", "Pentatonica maggiore ascendente", "Pentatônica maior ascendente", "Majeur pentatonisch stijgend", "Мажорная пентатоника вверх", "Pentatonika durowa w górę", "Majör pentatonik çıkıcı", "Durpentatonik uppåt", "メジャー・ペンタトニック 上行", "메이저 펜타토닉 상행", "大调五声音阶上行")
-T("Major Pentatonic Descending", "Dur-Pentatonik absteigend", "Pentatónica mayor descendente", "Pentatonique majeure descendante", "Pentatonica maggiore discendente", "Pentatônica maior descendente", "Majeur pentatonisch dalend", "Мажорная пентатоника вниз", "Pentatonika durowa w dół", "Majör pentatonik inici", "Durpentatonik nedåt", "メジャー・ペンタトニック 下行", "메이저 펜타토닉 하행", "大调五声音阶下行")
-T("Minor Pentatonic Ascending", "Moll-Pentatonik aufsteigend", "Pentatónica menor ascendente", "Pentatonique mineure ascendante", "Pentatonica minore ascendente", "Pentatônica menor ascendente", "Mineur pentatonisch stijgend", "Минорная пентатоника вверх", "Pentatonika molowa w górę", "Minör pentatonik çıkıcı", "Mollpentatonik uppåt", "マイナー・ペンタトニック 上行", "마이너 펜타토닉 상행", "小调五声音阶上行")
-T("Minor Pentatonic Descending", "Moll-Pentatonik absteigend", "Pentatónica menor descendente", "Pentatonique mineure descendante", "Pentatonica minore discendente", "Pentatônica menor descendente", "Mineur pentatonisch dalend", "Минорная пентатоника вниз", "Pentatonika molowa w dół", "Minör pentatonik inici", "Mollpentatonik nedåt", "マイナー・ペンタトニック 下行", "마이너 펜타토닉 하행", "小调五声音阶下行")
-T("Whole Tone Ascending", "Ganztonleiter aufsteigend", "Tonos enteros ascendente", "Gamme par tons ascendante", "Esatonale ascendente", "Tons inteiros ascendente", "Heletoonsladder stijgend", "Целотонная гамма вверх", "Całotonowa w górę", "Tam ton çıkıcı", "Heltonsskala uppåt", "全音音階 上行", "온음음계 상행", "全音音阶上行")
-T("Whole Tone Descending", "Ganztonleiter absteigend", "Tonos enteros descendente", "Gamme par tons descendante", "Esatonale discendente", "Tons inteiros descendente", "Heletoonsladder dalend", "Целотонная гамма вниз", "Całotonowa w dół", "Tam ton inici", "Heltonsskala nedåt", "全音音階 下行", "온음음계 하행", "全音音阶下行")
-T("Harmonic Major Ascending", "Harmonisches Dur aufsteigend", "Mayor armónica ascendente", "Majeur harmonique ascendant", "Maggiore armonica ascendente", "Maior harmônica ascendente", "Harmonisch majeur stijgend", "Гармонический мажор вверх", "Durowa harmoniczna w górę", "Armonik majör çıkıcı", "Harmonisk dur uppåt", "和声的長音階 上行", "화성장음계 상행", "和声大调上行")
-T("Harmonic Major Descending", "Harmonisches Dur absteigend", "Mayor armónica descendente", "Majeur harmonique descendant", "Maggiore armonica discendente", "Maior harmônica descendente", "Harmonisch majeur dalend", "Гармонический мажор вниз", "Durowa harmoniczna w dół", "Armonik majör inici", "Harmonisk dur nedåt", "和声的長音階 下行", "화성장음계 하행", "和声大调下行")
-T("Phrygian Dominant Ascending", "Phrygisch-Dominant aufsteigend", "Frigio dominante ascendente", "Phrygien dominant ascendant", "Frigio dominante ascendente", "Frígio dominante ascendente", "Frygisch dominant stijgend", "Фригийский доминантовый вверх", "Frygijska dominantowa w górę", "Frigyen dominant çıkıcı", "Frygisk dominant uppåt", "フリジアン・ドミナント 上行", "프리지안 도미넌트 상행", "弗里几亚属调式上行")
-T("Phrygian Dominant Descending", "Phrygisch-Dominant absteigend", "Frigio dominante descendente", "Phrygien dominant descendant", "Frigio dominante discendente", "Frígio dominante descendente", "Frygisch dominant dalend", "Фригийский доминантовый вниз", "Frygijska dominantowa w dół", "Frigyen dominant inici", "Frygisk dominant nedåt", "フリジアン・ドミナント 下行", "프리지안 도미넌트 하행", "弗里几亚属调式下行")
-T("Double Harmonic Ascending", "Doppelt harmonisch aufsteigend", "Doble armónica ascendente", "Double harmonique ascendante", "Doppia armonica ascendente", "Dupla harmônica ascendente", "Dubbel harmonisch stijgend", "Двойной гармонический вверх", "Podwójnie harmoniczna w górę", "Çift armonik çıkıcı", "Dubbelharmonisk uppåt", "ダブル・ハーモニック 上行", "더블 하모닉 상행", "双和声音阶上行")
-T("Double Harmonic Descending", "Doppelt harmonisch absteigend", "Doble armónica descendente", "Double harmonique descendante", "Doppia armonica discendente", "Dupla harmônica descendente", "Dubbel harmonisch dalend", "Двойной гармонический вниз", "Podwójnie harmoniczna w dół", "Çift armonik inici", "Dubbelharmonisk nedåt", "ダブル・ハーモニック 下行", "더블 하모닉 하행", "双和声音阶下行")
-T("Hungarian Minor Ascending", "Ungarisch Moll aufsteigend", "Menor húngara ascendente", "Mineur hongrois ascendant", "Minore ungherese ascendente", "Menor húngara ascendente", "Hongaars mineur stijgend", "Венгерский минор вверх", "Węgierska molowa w górę", "Macar minör çıkıcı", "Ungersk moll uppåt", "ハンガリー短音階 上行", "헝가리안 마이너 상행", "匈牙利小调上行")
-T("Hungarian Minor Descending", "Ungarisch Moll absteigend", "Menor húngara descendente", "Mineur hongrois descendant", "Minore ungherese discendente", "Menor húngara descendente", "Hongaars mineur dalend", "Венгерский минор вниз", "Węgierska molowa w dół", "Macar minör inici", "Ungersk moll nedåt", "ハンガリー短音階 下行", "헝가리안 마이너 하행", "匈牙利小调下行")
-T("Lydian Dominant Ascending", "Lydisch-Dominant aufsteigend", "Lidio dominante ascendente", "Lydien dominant ascendant", "Lidio dominante ascendente", "Lídio dominante ascendente", "Lydisch dominant stijgend", "Лидийский доминантовый вверх", "Lidyjska dominantowa w górę", "Lidyen dominant çıkıcı", "Lydisk dominant uppåt", "リディアン・ドミナント 上行", "리디안 도미넌트 상행", "利底亚属调式上行")
-T("Lydian Dominant Descending", "Lydisch-Dominant absteigend", "Lidio dominante descendente", "Lydien dominant descendant", "Lidio dominante discendente", "Lídio dominante descendente", "Lydisch dominant dalend", "Лидийский доминантовый вниз", "Lidyjska dominantowa w dół", "Lidyen dominant inici", "Lydisk dominant nedåt", "リディアン・ドミナント 下行", "리디안 도미넌트 하행", "利底亚属调式下行")
-T("Altered Ascending", "Alteriert aufsteigend", "Alterada ascendente", "Altérée ascendante", "Alterata ascendente", "Alterada ascendente", "Gealtereerd stijgend", "Альтерированный лад вверх", "Alterowana w górę", "Altere çıkıcı", "Altererad uppåt", "オルタード 上行", "얼터드 상행", "变化音阶上行")
-T("Altered Descending", "Alteriert absteigend", "Alterada descendente", "Altérée descendante", "Alterata discendente", "Alterada descendente", "Gealtereerd dalend", "Альтерированный лад вниз", "Alterowana w dół", "Altere inici", "Altererad nedåt", "オルタード 下行", "얼터드 하행", "变化音阶下行")
-T("Neapolitan Major Ascending", "Neapolitanisch Dur aufsteigend", "Napolitana mayor ascendente", "Majeur napolitain ascendant", "Napoletana maggiore ascendente", "Napolitana maior ascendente", "Napolitaans majeur stijgend", "Неаполитанский мажор вверх", "Neapolitańska durowa w górę", "Napoliten majör çıkıcı", "Neapolitansk dur uppåt", "ナポリ長音階 上行", "나폴리 장음계 상행", "那不勒斯大调上行")
-T("Neapolitan Major Descending", "Neapolitanisch Dur absteigend", "Napolitana mayor descendente", "Majeur napolitain descendant", "Napoletana maggiore discendente", "Napolitana maior descendente", "Napolitaans majeur dalend", "Неаполитанский мажор вниз", "Neapolitańska durowa w dół", "Napoliten majör inici", "Neapolitansk dur nedåt", "ナポリ長音階 下行", "나폴리 장음계 하행", "那不勒斯大调下行")
-T("Neapolitan Minor Ascending", "Neapolitanisch Moll aufsteigend", "Napolitana menor ascendente", "Mineur napolitain ascendant", "Napoletana minore ascendente", "Napolitana menor ascendente", "Napolitaans mineur stijgend", "Неаполитанский минор вверх", "Neapolitańska molowa w górę", "Napoliten minör çıkıcı", "Neapolitansk moll uppåt", "ナポリ短音階 上行", "나폴리 단음계 상행", "那不勒斯小调上行")
-T("Neapolitan Minor Descending", "Neapolitanisch Moll absteigend", "Napolitana menor descendente", "Mineur napolitain descendant", "Napoletana minore discendente", "Napolitana menor descendente", "Napolitaans mineur dalend", "Неаполитанский минор вниз", "Neapolitańska molowa w dół", "Napoliten minör inici", "Neapolitansk moll nedåt", "ナポリ短音階 下行", "나폴리 단음계 하행", "那不勒斯小调下行")
-T("Hirajoshi Ascending", "Hirajoshi aufsteigend", "Hirajoshi ascendente", "Hirajoshi ascendant", "Hirajoshi ascendente", "Hirajoshi ascendente", "Hirajoshi stijgend", "Хирадзёси вверх", "Hirajoshi w górę", "Hirajoshi çıkıcı", "Hirajoshi uppåt", "平調子 上行", "히라조시 상행", "平调子上行")
-T("Hirajoshi Descending", "Hirajoshi absteigend", "Hirajoshi descendente", "Hirajoshi descendant", "Hirajoshi discendente", "Hirajoshi descendente", "Hirajoshi dalend", "Хирадзёси вниз", "Hirajoshi w dół", "Hirajoshi inici", "Hirajoshi nedåt", "平調子 下行", "히라조시 하행", "平调子下行")
-T("Ukrainian Dorian Ascending", "Ukrainisch Dorisch aufsteigend", "Dórico ucraniano ascendente", "Dorien ukrainien ascendant", "Dorico ucraino ascendente", "Dórico ucraniano ascendente", "Oekraïens Dorisch stijgend", "Украинский дорийский вверх", "Ukraińska dorycka w górę", "Ukrayna Dor çıkıcı", "Ukrainsk dorisk uppåt", "ウクライナ・ドリア旋法 上行", "우크라이나 도리안 상행", "乌克兰多利亚调式上行")
-T("Ukrainian Dorian Descending", "Ukrainisch Dorisch absteigend", "Dórico ucraniano descendente", "Dorien ukrainien descendant", "Dorico ucraino discendente", "Dórico ucraniano descendente", "Oekraïens Dorisch dalend", "Украинский дорийский вниз", "Ukraińska dorycka w dół", "Ukrayna Dor inici", "Ukrainsk dorisk nedåt", "ウクライナ・ドリア旋法 下行", "우크라이나 도리안 하행", "乌克兰多利亚调式下行")
-T("Test", "Test", "Prueba", "Test", "Test", "Teste", "Test", "Тест", "Test", "Test", "Test", "テスト", "테스트", "测试")
-T("Test 2", "Test 2", "Prueba 2", "Test 2", "Test 2", "Teste 2", "Test 2", "Тест 2", "Test 2", "Test 2", "Test 2", "テスト 2", "테스트 2", "测试 2")
+T("Major Ascending", "Dur aufsteigend", "Mayor ascendente", "Majeur ascendant", "Maggiore ascendente", "Maior ascendente", "Majeur stijgend", "Мажор вверх", "Durowa w górę", "Majör çıkıcı", "Dur uppåt", "長調 上行", "장조 상행", "大调上行", "سلم كبير صاعد")
+T("Major Descending", "Dur absteigend", "Mayor descendente", "Majeur descendant", "Maggiore discendente", "Maior descendente", "Majeur dalend", "Мажор вниз", "Durowa w dół", "Majör inici", "Dur nedåt", "長調 下行", "장조 하행", "大调下行", "سلم كبير هابط")
+T("Minor Ascending", "Moll aufsteigend", "Menor ascendente", "Mineur ascendant", "Minore ascendente", "Menor ascendente", "Mineur stijgend", "Минор вверх", "Molowa w górę", "Minör çıkıcı", "Moll uppåt", "短調 上行", "단조 상행", "小调上行", "سلم صغير صاعد")
+T("Minor Descending", "Moll absteigend", "Menor descendente", "Mineur descendant", "Minore discendente", "Menor descendente", "Mineur dalend", "Минор вниз", "Molowa w dół", "Minör inici", "Moll nedåt", "短調 下行", "단조 하행", "小调下行", "سلم صغير هابط")
+T("Harmonic Minor Ascending", "Harmonisches Moll aufsteigend", "Menor armónica ascendente", "Mineur harmonique ascendant", "Minore armonica ascendente", "Menor harmônica ascendente", "Harmonisch mineur stijgend", "Гармонический минор вверх", "Molowa harmoniczna w górę", "Armonik minör çıkıcı", "Harmonisk moll uppåt", "和声的短音階 上行", "화성단음계 상행", "和声小调上行", "سلم صغير هارموني صاعد")
+T("Harmonic Minor Descending", "Harmonisches Moll absteigend", "Menor armónica descendente", "Mineur harmonique descendant", "Minore armonica discendente", "Menor harmônica descendente", "Harmonisch mineur dalend", "Гармонический минор вниз", "Molowa harmoniczna w dół", "Armonik minör inici", "Harmonisk moll nedåt", "和声的短音階 下行", "화성단음계 하행", "和声小调下行", "سلم صغير هارموني هابط")
+T("Melodic Minor Ascending", "Melodisches Moll aufsteigend", "Menor melódica ascendente", "Mineur mélodique ascendant", "Minore melodica ascendente", "Menor melódica ascendente", "Melodisch mineur stijgend", "Мелодический минор вверх", "Molowa melodyczna w górę", "Melodik minör çıkıcı", "Melodisk moll uppåt", "旋律的短音階 上行", "가락단음계 상행", "旋律小调上行", "سلم صغير لحني صاعد")
+T("Melodic Minor Descending", "Melodisches Moll absteigend", "Menor melódica descendente", "Mineur mélodique descendant", "Minore melodica discendente", "Menor melódica descendente", "Melodisch mineur dalend", "Мелодический минор вниз", "Molowa melodyczna w dół", "Melodik minör inici", "Melodisk moll nedåt", "旋律的短音階 下行", "가락단음계 하행", "旋律小调下行", "سلم صغير لحني هابط")
+T("Dorian Ascending", "Dorisch aufsteigend", "Dórico ascendente", "Dorien ascendant", "Dorico ascendente", "Dórico ascendente", "Dorisch stijgend", "Дорийский лад вверх", "Dorycka w górę", "Dor çıkıcı", "Dorisk uppåt", "ドリア旋法 上行", "도리안 상행", "多利亚调式上行", "سلم دوري صاعد")
+T("Dorian Descending", "Dorisch absteigend", "Dórico descendente", "Dorien descendant", "Dorico discendente", "Dórico descendente", "Dorisch dalend", "Дорийский лад вниз", "Dorycka w dół", "Dor inici", "Dorisk nedåt", "ドリア旋法 下行", "도리안 하행", "多利亚调式下行", "سلم دوري هابط")
+T("Phrygian Ascending", "Phrygisch aufsteigend", "Frigio ascendente", "Phrygien ascendant", "Frigio ascendente", "Frígio ascendente", "Frygisch stijgend", "Фригийский лад вверх", "Frygijska w górę", "Frigyen çıkıcı", "Frygisk uppåt", "フリギア旋法 上行", "프리지안 상행", "弗里几亚调式上行", "سلم فريجي صاعد")
+T("Phrygian Descending", "Phrygisch absteigend", "Frigio descendente", "Phrygien descendant", "Frigio discendente", "Frígio descendente", "Frygisch dalend", "Фригийский лад вниз", "Frygijska w dół", "Frigyen inici", "Frygisk nedåt", "フリギア旋法 下行", "프리지안 하행", "弗里几亚调式下行", "سلم فريجي هابط")
+T("Lydian Ascending", "Lydisch aufsteigend", "Lidio ascendente", "Lydien ascendant", "Lidio ascendente", "Lídio ascendente", "Lydisch stijgend", "Лидийский лад вверх", "Lidyjska w górę", "Lidyen çıkıcı", "Lydisk uppåt", "リディア旋法 上行", "리디안 상행", "利底亚调式上行", "سلم ليدي صاعد")
+T("Lydian Descending", "Lydisch absteigend", "Lidio descendente", "Lydien descendant", "Lidio discendente", "Lídio descendente", "Lydisch dalend", "Лидийский лад вниз", "Lidyjska w dół", "Lidyen inici", "Lydisk nedåt", "リディア旋法 下行", "리디안 하행", "利底亚调式下行", "سلم ليدي هابط")
+T("Mixolydian Ascending", "Mixolydisch aufsteigend", "Mixolidio ascendente", "Mixolydien ascendant", "Misolidio ascendente", "Mixolídio ascendente", "Mixolydisch stijgend", "Миксолидийский лад вверх", "Miksolidyjska w górę", "Miksolidyen çıkıcı", "Mixolydisk uppåt", "ミクソリディア旋法 上行", "믹솔리디안 상행", "混合利底亚调式上行", "سلم ميكسوليدي صاعد")
+T("Mixolydian Descending", "Mixolydisch absteigend", "Mixolidio descendente", "Mixolydien descendant", "Misolidio discendente", "Mixolídio descendente", "Mixolydisch dalend", "Миксолидийский лад вниз", "Miksolidyjska w dół", "Miksolidyen inici", "Mixolydisk nedåt", "ミクソリディア旋法 下行", "믹솔리디안 하행", "混合利底亚调式下行", "سلم ميكسوليدي هابط")
+T("Locrian Ascending", "Lokrisch aufsteigend", "Locrio ascendente", "Locrien ascendant", "Locrio ascendente", "Lócrio ascendente", "Locrisch stijgend", "Локрийский лад вверх", "Lokrycka w górę", "Lokriyen çıkıcı", "Lokrisk uppåt", "ロクリア旋法 上行", "로크리안 상행", "洛克里亚调式上行", "سلم لوكري صاعد")
+T("Locrian Descending", "Lokrisch absteigend", "Locrio descendente", "Locrien descendant", "Locrio discendente", "Lócrio descendente", "Locrisch dalend", "Локрийский лад вниз", "Lokrycka w dół", "Lokriyen inici", "Lokrisk nedåt", "ロクリア旋法 下行", "로크리안 하행", "洛克里亚调式下行", "سلم لوكري هابط")
+T("Major Pentatonic Ascending", "Dur-Pentatonik aufsteigend", "Pentatónica mayor ascendente", "Pentatonique majeure ascendante", "Pentatonica maggiore ascendente", "Pentatônica maior ascendente", "Majeur pentatonisch stijgend", "Мажорная пентатоника вверх", "Pentatonika durowa w górę", "Majör pentatonik çıkıcı", "Durpentatonik uppåt", "メジャー・ペンタトニック 上行", "메이저 펜타토닉 상행", "大调五声音阶上行", "سلم خماسي كبير صاعد")
+T("Major Pentatonic Descending", "Dur-Pentatonik absteigend", "Pentatónica mayor descendente", "Pentatonique majeure descendante", "Pentatonica maggiore discendente", "Pentatônica maior descendente", "Majeur pentatonisch dalend", "Мажорная пентатоника вниз", "Pentatonika durowa w dół", "Majör pentatonik inici", "Durpentatonik nedåt", "メジャー・ペンタトニック 下行", "메이저 펜타토닉 하행", "大调五声音阶下行", "سلم خماسي كبير هابط")
+T("Minor Pentatonic Ascending", "Moll-Pentatonik aufsteigend", "Pentatónica menor ascendente", "Pentatonique mineure ascendante", "Pentatonica minore ascendente", "Pentatônica menor ascendente", "Mineur pentatonisch stijgend", "Минорная пентатоника вверх", "Pentatonika molowa w górę", "Minör pentatonik çıkıcı", "Mollpentatonik uppåt", "マイナー・ペンタトニック 上行", "마이너 펜타토닉 상행", "小调五声音阶上行", "سلم خماسي صغير صاعد")
+T("Minor Pentatonic Descending", "Moll-Pentatonik absteigend", "Pentatónica menor descendente", "Pentatonique mineure descendante", "Pentatonica minore discendente", "Pentatônica menor descendente", "Mineur pentatonisch dalend", "Минорная пентатоника вниз", "Pentatonika molowa w dół", "Minör pentatonik inici", "Mollpentatonik nedåt", "マイナー・ペンタトニック 下行", "마이너 펜타토닉 하행", "小调五声音阶下行", "سلم خماسي صغير هابط")
+T("Whole Tone Ascending", "Ganztonleiter aufsteigend", "Tonos enteros ascendente", "Gamme par tons ascendante", "Esatonale ascendente", "Tons inteiros ascendente", "Heletoonsladder stijgend", "Целотонная гамма вверх", "Całotonowa w górę", "Tam ton çıkıcı", "Heltonsskala uppåt", "全音音階 上行", "온음음계 상행", "全音音阶上行", "سلم الأبعاد الكاملة صاعد")
+T("Whole Tone Descending", "Ganztonleiter absteigend", "Tonos enteros descendente", "Gamme par tons descendante", "Esatonale discendente", "Tons inteiros descendente", "Heletoonsladder dalend", "Целотонная гамма вниз", "Całotonowa w dół", "Tam ton inici", "Heltonsskala nedåt", "全音音階 下行", "온음음계 하행", "全音音阶下行", "سلم الأبعاد الكاملة هابط")
+T("Harmonic Major Ascending", "Harmonisches Dur aufsteigend", "Mayor armónica ascendente", "Majeur harmonique ascendant", "Maggiore armonica ascendente", "Maior harmônica ascendente", "Harmonisch majeur stijgend", "Гармонический мажор вверх", "Durowa harmoniczna w górę", "Armonik majör çıkıcı", "Harmonisk dur uppåt", "和声的長音階 上行", "화성장음계 상행", "和声大调上行", "سلم كبير هارموني صاعد")
+T("Harmonic Major Descending", "Harmonisches Dur absteigend", "Mayor armónica descendente", "Majeur harmonique descendant", "Maggiore armonica discendente", "Maior harmônica descendente", "Harmonisch majeur dalend", "Гармонический мажор вниз", "Durowa harmoniczna w dół", "Armonik majör inici", "Harmonisk dur nedåt", "和声的長音階 下行", "화성장음계 하행", "和声大调下行", "سلم كبير هارموني هابط")
+T("Phrygian Dominant Ascending", "Phrygisch-Dominant aufsteigend", "Frigio dominante ascendente", "Phrygien dominant ascendant", "Frigio dominante ascendente", "Frígio dominante ascendente", "Frygisch dominant stijgend", "Фригийский доминантовый вверх", "Frygijska dominantowa w górę", "Frigyen dominant çıkıcı", "Frygisk dominant uppåt", "フリジアン・ドミナント 上行", "프리지안 도미넌트 상행", "弗里几亚属调式上行", "سلم فريجي مسيطر صاعد")
+T("Phrygian Dominant Descending", "Phrygisch-Dominant absteigend", "Frigio dominante descendente", "Phrygien dominant descendant", "Frigio dominante discendente", "Frígio dominante descendente", "Frygisch dominant dalend", "Фригийский доминантовый вниз", "Frygijska dominantowa w dół", "Frigyen dominant inici", "Frygisk dominant nedåt", "フリジアン・ドミナント 下行", "프리지안 도미넌트 하행", "弗里几亚属调式下行", "سلم فريجي مسيطر هابط")
+T("Double Harmonic Ascending", "Doppelt harmonisch aufsteigend", "Doble armónica ascendente", "Double harmonique ascendante", "Doppia armonica ascendente", "Dupla harmônica ascendente", "Dubbel harmonisch stijgend", "Двойной гармонический вверх", "Podwójnie harmoniczna w górę", "Çift armonik çıkıcı", "Dubbelharmonisk uppåt", "ダブル・ハーモニック 上行", "더블 하모닉 상행", "双和声音阶上行", "سلم هارموني مزدوج صاعد")
+T("Double Harmonic Descending", "Doppelt harmonisch absteigend", "Doble armónica descendente", "Double harmonique descendante", "Doppia armonica discendente", "Dupla harmônica descendente", "Dubbel harmonisch dalend", "Двойной гармонический вниз", "Podwójnie harmoniczna w dół", "Çift armonik inici", "Dubbelharmonisk nedåt", "ダブル・ハーモニック 下行", "더블 하모닉 하행", "双和声音阶下行", "سلم هارموني مزدوج هابط")
+T("Hungarian Minor Ascending", "Ungarisch Moll aufsteigend", "Menor húngara ascendente", "Mineur hongrois ascendant", "Minore ungherese ascendente", "Menor húngara ascendente", "Hongaars mineur stijgend", "Венгерский минор вверх", "Węgierska molowa w górę", "Macar minör çıkıcı", "Ungersk moll uppåt", "ハンガリー短音階 上行", "헝가리안 마이너 상행", "匈牙利小调上行", "سلم صغير مجري صاعد")
+T("Hungarian Minor Descending", "Ungarisch Moll absteigend", "Menor húngara descendente", "Mineur hongrois descendant", "Minore ungherese discendente", "Menor húngara descendente", "Hongaars mineur dalend", "Венгерский минор вниз", "Węgierska molowa w dół", "Macar minör inici", "Ungersk moll nedåt", "ハンガリー短音階 下行", "헝가리안 마이너 하행", "匈牙利小调下行", "سلم صغير مجري هابط")
+T("Lydian Dominant Ascending", "Lydisch-Dominant aufsteigend", "Lidio dominante ascendente", "Lydien dominant ascendant", "Lidio dominante ascendente", "Lídio dominante ascendente", "Lydisch dominant stijgend", "Лидийский доминантовый вверх", "Lidyjska dominantowa w górę", "Lidyen dominant çıkıcı", "Lydisk dominant uppåt", "リディアン・ドミナント 上行", "리디안 도미넌트 상행", "利底亚属调式上行", "سلم ليدي مسيطر صاعد")
+T("Lydian Dominant Descending", "Lydisch-Dominant absteigend", "Lidio dominante descendente", "Lydien dominant descendant", "Lidio dominante discendente", "Lídio dominante descendente", "Lydisch dominant dalend", "Лидийский доминантовый вниз", "Lidyjska dominantowa w dół", "Lidyen dominant inici", "Lydisk dominant nedåt", "リディアン・ドミナント 下行", "리디안 도미넌트 하행", "利底亚属调式下行", "سلم ليدي مسيطر هابط")
+T("Altered Ascending", "Alteriert aufsteigend", "Alterada ascendente", "Altérée ascendante", "Alterata ascendente", "Alterada ascendente", "Gealtereerd stijgend", "Альтерированный лад вверх", "Alterowana w górę", "Altere çıkıcı", "Altererad uppåt", "オルタード 上行", "얼터드 상행", "变化音阶上行", "سلم محوَّر صاعد")
+T("Altered Descending", "Alteriert absteigend", "Alterada descendente", "Altérée descendante", "Alterata discendente", "Alterada descendente", "Gealtereerd dalend", "Альтерированный лад вниз", "Alterowana w dół", "Altere inici", "Altererad nedåt", "オルタード 下行", "얼터드 하행", "变化音阶下行", "سلم محوَّر هابط")
+T("Neapolitan Major Ascending", "Neapolitanisch Dur aufsteigend", "Napolitana mayor ascendente", "Majeur napolitain ascendant", "Napoletana maggiore ascendente", "Napolitana maior ascendente", "Napolitaans majeur stijgend", "Неаполитанский мажор вверх", "Neapolitańska durowa w górę", "Napoliten majör çıkıcı", "Neapolitansk dur uppåt", "ナポリ長音階 上行", "나폴리 장음계 상행", "那不勒斯大调上行", "سلم نابولي كبير صاعد")
+T("Neapolitan Major Descending", "Neapolitanisch Dur absteigend", "Napolitana mayor descendente", "Majeur napolitain descendant", "Napoletana maggiore discendente", "Napolitana maior descendente", "Napolitaans majeur dalend", "Неаполитанский мажор вниз", "Neapolitańska durowa w dół", "Napoliten majör inici", "Neapolitansk dur nedåt", "ナポリ長音階 下行", "나폴리 장음계 하행", "那不勒斯大调下行", "سلم نابولي كبير هابط")
+T("Neapolitan Minor Ascending", "Neapolitanisch Moll aufsteigend", "Napolitana menor ascendente", "Mineur napolitain ascendant", "Napoletana minore ascendente", "Napolitana menor ascendente", "Napolitaans mineur stijgend", "Неаполитанский минор вверх", "Neapolitańska molowa w górę", "Napoliten minör çıkıcı", "Neapolitansk moll uppåt", "ナポリ短音階 上行", "나폴리 단음계 상행", "那不勒斯小调上行", "سلم نابولي صغير صاعد")
+T("Neapolitan Minor Descending", "Neapolitanisch Moll absteigend", "Napolitana menor descendente", "Mineur napolitain descendant", "Napoletana minore discendente", "Napolitana menor descendente", "Napolitaans mineur dalend", "Неаполитанский минор вниз", "Neapolitańska molowa w dół", "Napoliten minör inici", "Neapolitansk moll nedåt", "ナポリ短音階 下行", "나폴리 단음계 하행", "那不勒斯小调下行", "سلم نابولي صغير هابط")
+T("Hirajoshi Ascending", "Hirajoshi aufsteigend", "Hirajoshi ascendente", "Hirajoshi ascendant", "Hirajoshi ascendente", "Hirajoshi ascendente", "Hirajoshi stijgend", "Хирадзёси вверх", "Hirajoshi w górę", "Hirajoshi çıkıcı", "Hirajoshi uppåt", "平調子 上行", "히라조시 상행", "平调子上行", "سلم هيراجوشي صاعد")
+T("Hirajoshi Descending", "Hirajoshi absteigend", "Hirajoshi descendente", "Hirajoshi descendant", "Hirajoshi discendente", "Hirajoshi descendente", "Hirajoshi dalend", "Хирадзёси вниз", "Hirajoshi w dół", "Hirajoshi inici", "Hirajoshi nedåt", "平調子 下行", "히라조시 하행", "平调子下行", "سلم هيراجوشي هابط")
+T("Ukrainian Dorian Ascending", "Ukrainisch Dorisch aufsteigend", "Dórico ucraniano ascendente", "Dorien ukrainien ascendant", "Dorico ucraino ascendente", "Dórico ucraniano ascendente", "Oekraïens Dorisch stijgend", "Украинский дорийский вверх", "Ukraińska dorycka w górę", "Ukrayna Dor çıkıcı", "Ukrainsk dorisk uppåt", "ウクライナ・ドリア旋法 上行", "우크라이나 도리안 상행", "乌克兰多利亚调式上行", "سلم دوري أوكراني صاعد")
+T("Ukrainian Dorian Descending", "Ukrainisch Dorisch absteigend", "Dórico ucraniano descendente", "Dorien ukrainien descendant", "Dorico ucraino discendente", "Dórico ucraniano descendente", "Oekraïens Dorisch dalend", "Украинский дорийский вниз", "Ukraińska dorycka w dół", "Ukrayna Dor inici", "Ukrainsk dorisk nedåt", "ウクライナ・ドリア旋法 下行", "우크라이나 도리안 하행", "乌克兰多利亚调式下行", "سلم دوري أوكراني هابط")
+T("Test", "Test", "Prueba", "Test", "Test", "Teste", "Test", "Тест", "Test", "Test", "Test", "テスト", "테스트", "测试", "اختبار")
+T("Test 2", "Test 2", "Prueba 2", "Test 2", "Test 2", "Teste 2", "Test 2", "Тест 2", "Test 2", "Test 2", "Test 2", "テスト 2", "테스트 2", "测试 2", "اختبار 2")
 
 T("Widen your nasal cavities and envision the sound projecting into the nose and forehead.",
   "Weite die Nasenhöhlen und stell dir vor, wie der Klang in Nase und Stirn strömt.",
@@ -65,7 +65,8 @@ T("Widen your nasal cavities and envision the sound projecting into the nose and
   "Vidga näshålorna och föreställ dig att ljudet projiceras upp mot näsa och panna.",
   "鼻腔を広げ、音が鼻と額へ向かって響いていくのをイメージします。",
   "비강을 넓히고 소리가 코와 이마 쪽으로 퍼져 나가는 것을 상상하세요.",
-  "扩张鼻腔，并想象声音投射到鼻子和额头。")
+  "扩张鼻腔，并想象声音投射到鼻子和额头。",
+  "وسّع تجاويف أنفك وتخيّل الصوت يندفع نحو الأنف والجبهة.")
 T("Maintain a steady airflow and consistent mouth placement.",
   "Halte einen gleichmäßigen Luftstrom und eine gleichbleibende Mundstellung.",
   "Mantén un flujo de aire constante y una posición de la boca estable.",
@@ -79,7 +80,8 @@ T("Maintain a steady airflow and consistent mouth placement.",
   "Håll ett jämnt luftflöde och en konsekvent munställning.",
   "息の流れを一定に保ち、口の形も変えないようにします。",
   "일정한 호흡 흐름과 변함없는 입 모양을 유지하세요.",
-  "保持稳定的气流和一致的口型位置。")
+  "保持稳定的气流和一致的口型位置。",
+  "حافظ على تدفق هواء ثابت ووضعية فم ثابتة.")
 T("Sing each repetition on a different vowel. Maintain a steady airflow and consistent mouth placement.",
   "Singe jede Wiederholung auf einem anderen Vokal. Halte einen gleichmäßigen Luftstrom und eine gleichbleibende Mundstellung.",
   "Canta cada repetición con una vocal distinta. Mantén un flujo de aire constante y una posición de la boca estable.",
@@ -93,47 +95,48 @@ T("Sing each repetition on a different vowel. Maintain a steady airflow and cons
   "Sjung varje repetition på en ny vokal. Håll ett jämnt luftflöde och en konsekvent munställning.",
   "繰り返しごとに母音を変えて歌います。息の流れを一定に保ち、口の形も変えないようにします。",
   "반복할 때마다 다른 모음으로 부르세요. 일정한 호흡 흐름과 변함없는 입 모양을 유지하세요.",
-  "每次重复都用不同的元音演唱。保持稳定的气流和一致的口型位置。")
+  "每次重复都用不同的元音演唱。保持稳定的气流和一致的口型位置。",
+  "غنِّ كل تكرار على حرف علة مختلف. حافظ على تدفق هواء ثابت ووضعية فم ثابتة.")
 
 # The sixty exercises added on 2026-09-11. The ones named after the syllables
 # they are sung on are in generate.py's NOT_TRANSLATED instead.
-T("Three-Note Scale", "Dreitonleiter", "Escala de tres notas", "Gamme de trois notes", "Scala di tre note", "Escala de três notas", "Toonladder van drie noten", "Гамма из трёх нот", "Gama trzech dźwięków", "Üç notalı dizi", "Tretonsskala", "3音の音階", "3음 음계", "三音音阶")
-T("Descending Five-Note Scale", "Fünftonleiter abwärts", "Escala de cinco notas descendente", "Gamme de cinq notes descendante", "Scala di cinque note discendente", "Escala de cinco notas descendente", "Dalende toonladder van vijf noten", "Гамма из пяти нот вниз", "Gama pięciu dźwięków w dół", "İnici beş notalı dizi", "Femtonsskala nedåt", "5音の音階 下行", "5음 음계 하행", "五音音阶下行")
-T("Five-Note Scale", "Fünftonleiter", "Escala de cinco notas", "Gamme de cinq notes", "Scala di cinque note", "Escala de cinco notas", "Toonladder van vijf noten", "Гамма из пяти нот", "Gama pięciu dźwięków", "Beş notalı dizi", "Femtonsskala", "5音の音階", "5음 음계", "五音音阶")
-T("Minor Five-Note Scale", "Fünftonleiter in Moll", "Escala menor de cinco notas", "Gamme mineure de cinq notes", "Scala minore di cinque note", "Escala menor de cinco notas", "Mineur toonladder van vijf noten", "Минорная гамма из пяти нот", "Molowa gama pięciu dźwięków", "Beş notalı minör dizi", "Femtonsskala i moll", "短調の5音音階", "단조 5음 음계", "小调五音音阶")
-T("Major Triad", "Durdreiklang", "Tríada mayor", "Accord parfait majeur", "Triade maggiore", "Tríade maior", "Majeur drieklank", "Мажорное трезвучие", "Trójdźwięk durowy", "Majör üçlü", "Durtreklang", "長三和音", "장3화음", "大三和弦")
-T("Minor Triad", "Molldreiklang", "Tríada menor", "Accord parfait mineur", "Triade minore", "Tríade menor", "Mineur drieklank", "Минорное трезвучие", "Trójdźwięk molowy", "Minör üçlü", "Molltreklang", "短三和音", "단3화음", "小三和弦")
-T("Chromatic Steps", "Chromatische Schritte", "Pasos cromáticos", "Pas chromatiques", "Passi cromatici", "Passos cromáticos", "Chromatische stappen", "Хроматические шаги", "Kroki chromatyczne", "Kromatik adımlar", "Kromatiska steg", "半音階のステップ", "반음계 스텝", "半音阶级进")
-T("Broken Thirds", "Gebrochene Terzen", "Terceras quebradas", "Tierces brisées", "Terze spezzate", "Terças quebradas", "Gebroken tertsen", "Ломаные терции", "Łamane tercje", "Kırık üçlüler", "Brutna terser", "分散三度", "분산 3도", "分解三度")
-T("Pentatonic Scale", "Pentatonische Tonleiter", "Escala pentatónica", "Gamme pentatonique", "Scala pentatonica", "Escala pentatônica", "Pentatonische toonladder", "Пентатоническая гамма", "Gama pentatoniczna", "Pentatonik dizi", "Pentatonisk skala", "ペンタトニック・スケール", "펜타토닉 음계", "五声音阶")
-T("Major Scale Up and Down", "Durtonleiter auf und ab", "Escala mayor arriba y abajo", "Gamme majeure montante et descendante", "Scala maggiore su e giù", "Escala maior subindo e descendo", "Majeur toonladder op en neer", "Мажорная гамма вверх и вниз", "Gama durowa w górę i w dół", "Majör dizi çıkış ve iniş", "Durskala upp och ner", "長音階 上行と下行", "장음계 상행 하행", "大调音阶上下行")
-T("Harmonic Minor Scale", "Harmonische Molltonleiter", "Escala menor armónica", "Gamme mineure harmonique", "Scala minore armonica", "Escala menor harmônica", "Harmonische mineurtoonladder", "Гармоническая минорная гамма", "Gama molowa harmoniczna", "Armonik minör dizi", "Harmonisk mollskala", "和声的短音階", "화성단음계", "和声小调音阶")
-T("Ninth Scale", "Tonleiter bis zur None", "Escala hasta la novena", "Gamme jusqu’à la neuvième", "Scala fino alla nona", "Escala até a nona", "Toonladder tot de none", "Гамма до ноны", "Gama do nony", "Dokuzluya kadar dizi", "Skala upp till nonan", "9度までの音階", "9도까지의 음계", "九度音阶")
-T("Fifth Leap Nay", "Quintsprung Nay", "Salto de quinta Nay", "Saut de quinte Nay", "Salto di quinta Nay", "Salto de quinta Nay", "Kwintsprong Nay", "Скачок на квинту Nay", "Skok o kwintę Nay", "Beşli sıçrama Nay", "Kvintsprång Nay", "5度跳躍 Nay", "5도 도약 Nay", "五度跳进 Nay")
-T("Octave Siren Oo", "Oktavsirene Oo", "Sirena de octava Oo", "Sirène d’octave Oo", "Sirena d’ottava Oo", "Sirene de oitava Oo", "Octaafsirene Oo", "Сирена на октаву Oo", "Syrena oktawowa Oo", "Oktav sireni Oo", "Oktavsiren Oo", "オクターブ・サイレン Oo", "옥타브 사이렌 Oo", "八度滑音 Oo")
-T("Octave Arpeggio Yah", "Oktavarpeggio Yah", "Arpegio de octava Yah", "Arpège d’octave Yah", "Arpeggio d’ottava Yah", "Arpejo de oitava Yah", "Octaafarpeggio Yah", "Арпеджио на октаву Yah", "Arpeggio oktawowe Yah", "Oktav arpeji Yah", "Oktavarpeggio Yah", "オクターブ・アルペジオ Yah", "옥타브 아르페지오 Yah", "八度琶音 Yah")
-T("Minor Arpeggio Nah", "Mollarpeggio Nah", "Arpegio menor Nah", "Arpège mineur Nah", "Arpeggio minore Nah", "Arpejo menor Nah", "Mineur arpeggio Nah", "Минорное арпеджио Nah", "Arpeggio molowe Nah", "Minör arpej Nah", "Mollarpeggio Nah", "短調アルペジオ Nah", "단조 아르페지오 Nah", "小调琶音 Nah")
-T("Octave Leap and Scale", "Oktavsprung mit Tonleiter", "Salto de octava y escala", "Saut d’octave et gamme", "Salto d’ottava e scala", "Salto de oitava e escala", "Octaafsprong en toonladder", "Скачок на октаву и гамма", "Skok o oktawę i gama", "Oktav sıçraması ve dizi", "Oktavsprång och skala", "オクターブ跳躍と音階", "옥타브 도약과 음계", "八度跳进与音阶")
-T("Sixth Leap Ee", "Sextsprung Ee", "Salto de sexta Ee", "Saut de sixte Ee", "Salto di sesta Ee", "Salto de sexta Ee", "Sextsprong Ee", "Скачок на сексту Ee", "Skok o sekstę Ee", "Altılı sıçrama Ee", "Sextsprång Ee", "6度跳躍 Ee", "6도 도약 Ee", "六度跳进 Ee")
-T("Octave Jumps Ha", "Oktavsprünge Ha", "Saltos de octava Ha", "Sauts d’octave Ha", "Salti d’ottava Ha", "Saltos de oitava Ha", "Octaafsprongen Ha", "Скачки на октаву Ha", "Skoki o oktawę Ha", "Oktav sıçramaları Ha", "Oktavhopp Ha", "オクターブ・ジャンプ Ha", "옥타브 점프 Ha", "八度跳跃 Ha")
-T("Tenth Arpeggio", "Dezimenarpeggio", "Arpegio de décima", "Arpège de dixième", "Arpeggio di decima", "Arpejo de décima", "Decime-arpeggio", "Арпеджио на дециму", "Arpeggio decymowe", "Onlu arpej", "Decimaarpeggio", "10度のアルペジオ", "10도 아르페지오", "十度琶音")
-T("Octave and a Half Arpeggio", "Arpeggio über anderthalb Oktaven", "Arpegio de octava y media", "Arpège d’une octave et demie", "Arpeggio di un’ottava e mezza", "Arpejo de oitava e meia", "Arpeggio van anderhalf octaaf", "Арпеджио на полторы октавы", "Arpeggio półtoraoktawowe", "Bir buçuk oktav arpej", "Arpeggio över en och en halv oktav", "1オクターブ半のアルペジオ", "한 옥타브 반 아르페지오", "一个半八度琶音")
-T("Top-Down Arpeggio", "Arpeggio von oben", "Arpegio desde arriba", "Arpège depuis le haut", "Arpeggio dall’alto", "Arpejo de cima para baixo", "Arpeggio van boven", "Арпеджио сверху", "Arpeggio od góry", "Yukarıdan arpej", "Arpeggio uppifrån", "上からのアルペジオ", "위에서 시작하는 아르페지오", "自上而下琶音")
-T("Octave Lip Trill", "Lippenflattern über die Oktave", "Vibración de labios de octava", "Trille des lèvres sur l’octave", "Trillo labiale d’ottava", "Vibração de lábios na oitava", "Lippentril over het octaaf", "Губная трель на октаву", "Trel wargowy na oktawę", "Oktav dudak titreşimi", "Läppdrill över oktaven", "オクターブのリップロール", "옥타브 립 트릴", "八度唇颤音")
-T("Scale Up, Arpeggio Down", "Tonleiter hoch, Arpeggio runter", "Escala arriba, arpegio abajo", "Gamme en montant, arpège en descendant", "Scala in su, arpeggio in giù", "Escala para cima, arpejo para baixo", "Toonladder omhoog, arpeggio omlaag", "Гамма вверх, арпеджио вниз", "Gama w górę, arpeggio w dół", "Dizi yukarı, arpej aşağı", "Skala upp, arpeggio ner", "音階で上がり、アルペジオで下りる", "음계로 올라가고 아르페지오로 내려오기", "音阶上行，琶音下行")
-T("Half-Step Trill", "Halbtontriller", "Trino de semitono", "Trille au demi-ton", "Trillo di semitono", "Trinado de semitom", "Halvetoontriller", "Трель на полутон", "Tryl półtonowy", "Yarım ses trili", "Halvtonsdrill", "半音のトリル", "반음 트릴", "半音颤音")
-T("Five-Note Run", "Fünfton-Lauf", "Carrerilla de cinco notas", "Trait de cinq notes", "Volata di cinque note", "Corrida de cinco notas", "Loopje van vijf noten", "Пробежка из пяти нот", "Przebieg pięciu dźwięków", "Beş notalı geçiş", "Femtonsslinga", "5音のラン", "5음 런", "五音跑动")
-T("Accelerating Trill", "Schneller werdender Triller", "Trino que acelera", "Trille qui accélère", "Trillo in accelerando", "Trinado acelerando", "Versnellende triller", "Ускоряющаяся трель", "Przyspieszający tryl", "Hızlanan tril", "Accelererande drill", "加速するトリル", "빨라지는 트릴", "渐快颤音")
-T("Turns", "Doppelschläge", "Grupetos", "Grupettos", "Gruppetti", "Grupetos", "Dubbelslagen", "Группетто", "Obiegniki", "Grupetolar", "Dubbelslag", "ターン", "턴", "回音")
-T("Descending Octave Run", "Oktavlauf abwärts", "Carrerilla de octava descendente", "Trait d’octave descendant", "Volata d’ottava discendente", "Corrida de oitava descendente", "Dalend octaafloopje", "Нисходящая пробежка на октаву", "Przebieg oktawowy w dół", "İnici oktav geçişi", "Fallande oktavslinga", "オクターブ下行のラン", "옥타브 하행 런", "八度下行跑动")
-T("Octave Run", "Oktavlauf", "Carrerilla de octava", "Trait d’octave", "Volata d’ottava", "Corrida de oitava", "Octaafloopje", "Пробежка на октаву", "Przebieg oktawowy", "Oktav geçişi", "Oktavslinga", "オクターブのラン", "옥타브 런", "八度跑动")
-T("Nine-Note Run", "Neunton-Lauf", "Carrerilla de nueve notas", "Trait de neuf notes", "Volata di nove note", "Corrida de nove notas", "Loopje van negen noten", "Пробежка из девяти нот", "Przebieg dziewięciu dźwięków", "Dokuz notalı geçiş", "Niotonsslinga", "9音のラン", "9음 런", "九音跑动")
-T("Arpeggio Run", "Arpeggio-Lauf", "Carrerilla en arpegio", "Trait en arpège", "Volata in arpeggio", "Corrida em arpejo", "Arpeggioloopje", "Пробежка по арпеджио", "Przebieg arpeggiowy", "Arpej geçişi", "Arpeggioslinga", "アルペジオのラン", "아르페지오 런", "琶音跑动")
-T("Pentatonic Riff", "Pentatonik-Riff", "Riff pentatónico", "Riff pentatonique", "Riff pentatonico", "Riff pentatônico", "Pentatonische riff", "Пентатонический рифф", "Riff pentatoniczny", "Pentatonik riff", "Pentatoniskt riff", "ペンタトニック・リフ", "펜타토닉 리프", "五声音阶乐句")
-T("Rolling Triplets", "Rollende Triolen", "Tresillos encadenados", "Triolets en cascade", "Terzine a catena", "Tercinas encadeadas", "Rollende triolen", "Катящиеся триоли", "Toczące się triole", "Yuvarlanan üçlemeler", "Rullande trioler", "転がる3連符", "굴러가는 셋잇단음", "滚动三连音")
-T("Staccato Scale", "Staccato-Tonleiter", "Escala en staccato", "Gamme staccato", "Scala staccata", "Escala em staccato", "Staccato-toonladder", "Гамма стаккато", "Gama staccato", "Staccato dizi", "Staccatoskala", "スタッカートの音階", "스타카토 음계", "断音音阶")
-T("Scale Sequence", "Tonleitersequenz", "Secuencia de escala", "Marche de gamme", "Progressione di scala", "Sequência de escala", "Toonladdersequens", "Секвенция по гамме", "Sekwencja gamy", "Dizi sekansı", "Skalsekvens", "音階のゼクエンツ", "음계 시퀀스", "音阶模进")
-T("Tongue Trill", "Zungentriller", "Vibración de lengua", "Trille de la langue", "Trillo di lingua", "Vibração de língua", "Tongtril", "Язычная трель", "Trel językowy", "Dil titreşimi", "Tungdrill", "タングトリル", "혀 트릴", "舌颤音")
+T("Three-Note Scale", "Dreitonleiter", "Escala de tres notas", "Gamme de trois notes", "Scala di tre note", "Escala de três notas", "Toonladder van drie noten", "Гамма из трёх нот", "Gama trzech dźwięków", "Üç notalı dizi", "Tretonsskala", "3音の音階", "3음 음계", "三音音阶", "سلم من ثلاث نغمات")
+T("Descending Five-Note Scale", "Fünftonleiter abwärts", "Escala de cinco notas descendente", "Gamme de cinq notes descendante", "Scala di cinque note discendente", "Escala de cinco notas descendente", "Dalende toonladder van vijf noten", "Гамма из пяти нот вниз", "Gama pięciu dźwięków w dół", "İnici beş notalı dizi", "Femtonsskala nedåt", "5音の音階 下行", "5음 음계 하행", "五音音阶下行", "سلم هابط من خمس نغمات")
+T("Five-Note Scale", "Fünftonleiter", "Escala de cinco notas", "Gamme de cinq notes", "Scala di cinque note", "Escala de cinco notas", "Toonladder van vijf noten", "Гамма из пяти нот", "Gama pięciu dźwięków", "Beş notalı dizi", "Femtonsskala", "5音の音階", "5음 음계", "五音音阶", "سلم من خمس نغمات")
+T("Minor Five-Note Scale", "Fünftonleiter in Moll", "Escala menor de cinco notas", "Gamme mineure de cinq notes", "Scala minore di cinque note", "Escala menor de cinco notas", "Mineur toonladder van vijf noten", "Минорная гамма из пяти нот", "Molowa gama pięciu dźwięków", "Beş notalı minör dizi", "Femtonsskala i moll", "短調の5音音階", "단조 5음 음계", "小调五音音阶", "سلم صغير من خمس نغمات")
+T("Major Triad", "Durdreiklang", "Tríada mayor", "Accord parfait majeur", "Triade maggiore", "Tríade maior", "Majeur drieklank", "Мажорное трезвучие", "Trójdźwięk durowy", "Majör üçlü", "Durtreklang", "長三和音", "장3화음", "大三和弦", "تآلف ثلاثي كبير")
+T("Minor Triad", "Molldreiklang", "Tríada menor", "Accord parfait mineur", "Triade minore", "Tríade menor", "Mineur drieklank", "Минорное трезвучие", "Trójdźwięk molowy", "Minör üçlü", "Molltreklang", "短三和音", "단3화음", "小三和弦", "تآلف ثلاثي صغير")
+T("Chromatic Steps", "Chromatische Schritte", "Pasos cromáticos", "Pas chromatiques", "Passi cromatici", "Passos cromáticos", "Chromatische stappen", "Хроматические шаги", "Kroki chromatyczne", "Kromatik adımlar", "Kromatiska steg", "半音階のステップ", "반음계 스텝", "半音阶级进", "خطوات كروماتية")
+T("Broken Thirds", "Gebrochene Terzen", "Terceras quebradas", "Tierces brisées", "Terze spezzate", "Terças quebradas", "Gebroken tertsen", "Ломаные терции", "Łamane tercje", "Kırık üçlüler", "Brutna terser", "分散三度", "분산 3도", "分解三度", "ثالثات مجزأة")
+T("Pentatonic Scale", "Pentatonische Tonleiter", "Escala pentatónica", "Gamme pentatonique", "Scala pentatonica", "Escala pentatônica", "Pentatonische toonladder", "Пентатоническая гамма", "Gama pentatoniczna", "Pentatonik dizi", "Pentatonisk skala", "ペンタトニック・スケール", "펜타토닉 음계", "五声音阶", "سلم خماسي")
+T("Major Scale Up and Down", "Durtonleiter auf und ab", "Escala mayor arriba y abajo", "Gamme majeure montante et descendante", "Scala maggiore su e giù", "Escala maior subindo e descendo", "Majeur toonladder op en neer", "Мажорная гамма вверх и вниз", "Gama durowa w górę i w dół", "Majör dizi çıkış ve iniş", "Durskala upp och ner", "長音階 上行と下行", "장음계 상행 하행", "大调音阶上下行", "سلم كبير صعودًا وهبوطًا")
+T("Harmonic Minor Scale", "Harmonische Molltonleiter", "Escala menor armónica", "Gamme mineure harmonique", "Scala minore armonica", "Escala menor harmônica", "Harmonische mineurtoonladder", "Гармоническая минорная гамма", "Gama molowa harmoniczna", "Armonik minör dizi", "Harmonisk mollskala", "和声的短音階", "화성단음계", "和声小调音阶", "سلم صغير هارموني")
+T("Ninth Scale", "Tonleiter bis zur None", "Escala hasta la novena", "Gamme jusqu’à la neuvième", "Scala fino alla nona", "Escala até a nona", "Toonladder tot de none", "Гамма до ноны", "Gama do nony", "Dokuzluya kadar dizi", "Skala upp till nonan", "9度までの音階", "9도까지의 음계", "九度音阶", "سلم حتى التاسعة")
+T("Fifth Leap Nay", "Quintsprung Nay", "Salto de quinta Nay", "Saut de quinte Nay", "Salto di quinta Nay", "Salto de quinta Nay", "Kwintsprong Nay", "Скачок на квинту Nay", "Skok o kwintę Nay", "Beşli sıçrama Nay", "Kvintsprång Nay", "5度跳躍 Nay", "5도 도약 Nay", "五度跳进 Nay", "قفزة خامسة Nay")
+T("Octave Siren Oo", "Oktavsirene Oo", "Sirena de octava Oo", "Sirène d’octave Oo", "Sirena d’ottava Oo", "Sirene de oitava Oo", "Octaafsirene Oo", "Сирена на октаву Oo", "Syrena oktawowa Oo", "Oktav sireni Oo", "Oktavsiren Oo", "オクターブ・サイレン Oo", "옥타브 사이렌 Oo", "八度滑音 Oo", "صفارة أوكتاف Oo")
+T("Octave Arpeggio Yah", "Oktavarpeggio Yah", "Arpegio de octava Yah", "Arpège d’octave Yah", "Arpeggio d’ottava Yah", "Arpejo de oitava Yah", "Octaafarpeggio Yah", "Арпеджио на октаву Yah", "Arpeggio oktawowe Yah", "Oktav arpeji Yah", "Oktavarpeggio Yah", "オクターブ・アルペジオ Yah", "옥타브 아르페지오 Yah", "八度琶音 Yah", "أربيجيو أوكتاف Yah")
+T("Minor Arpeggio Nah", "Mollarpeggio Nah", "Arpegio menor Nah", "Arpège mineur Nah", "Arpeggio minore Nah", "Arpejo menor Nah", "Mineur arpeggio Nah", "Минорное арпеджио Nah", "Arpeggio molowe Nah", "Minör arpej Nah", "Mollarpeggio Nah", "短調アルペジオ Nah", "단조 아르페지오 Nah", "小调琶音 Nah", "أربيجيو صغير Nah")
+T("Octave Leap and Scale", "Oktavsprung mit Tonleiter", "Salto de octava y escala", "Saut d’octave et gamme", "Salto d’ottava e scala", "Salto de oitava e escala", "Octaafsprong en toonladder", "Скачок на октаву и гамма", "Skok o oktawę i gama", "Oktav sıçraması ve dizi", "Oktavsprång och skala", "オクターブ跳躍と音階", "옥타브 도약과 음계", "八度跳进与音阶", "قفزة أوكتاف وسلم")
+T("Sixth Leap Ee", "Sextsprung Ee", "Salto de sexta Ee", "Saut de sixte Ee", "Salto di sesta Ee", "Salto de sexta Ee", "Sextsprong Ee", "Скачок на сексту Ee", "Skok o sekstę Ee", "Altılı sıçrama Ee", "Sextsprång Ee", "6度跳躍 Ee", "6도 도약 Ee", "六度跳进 Ee", "قفزة سادسة Ee")
+T("Octave Jumps Ha", "Oktavsprünge Ha", "Saltos de octava Ha", "Sauts d’octave Ha", "Salti d’ottava Ha", "Saltos de oitava Ha", "Octaafsprongen Ha", "Скачки на октаву Ha", "Skoki o oktawę Ha", "Oktav sıçramaları Ha", "Oktavhopp Ha", "オクターブ・ジャンプ Ha", "옥타브 점프 Ha", "八度跳跃 Ha", "قفزات أوكتاف Ha")
+T("Tenth Arpeggio", "Dezimenarpeggio", "Arpegio de décima", "Arpège de dixième", "Arpeggio di decima", "Arpejo de décima", "Decime-arpeggio", "Арпеджио на дециму", "Arpeggio decymowe", "Onlu arpej", "Decimaarpeggio", "10度のアルペジオ", "10도 아르페지오", "十度琶音", "أربيجيو حتى العاشرة")
+T("Octave and a Half Arpeggio", "Arpeggio über anderthalb Oktaven", "Arpegio de octava y media", "Arpège d’une octave et demie", "Arpeggio di un’ottava e mezza", "Arpejo de oitava e meia", "Arpeggio van anderhalf octaaf", "Арпеджио на полторы октавы", "Arpeggio półtoraoktawowe", "Bir buçuk oktav arpej", "Arpeggio över en och en halv oktav", "1オクターブ半のアルペジオ", "한 옥타브 반 아르페지오", "一个半八度琶音", "أربيجيو أوكتاف ونصف")
+T("Top-Down Arpeggio", "Arpeggio von oben", "Arpegio desde arriba", "Arpège depuis le haut", "Arpeggio dall’alto", "Arpejo de cima para baixo", "Arpeggio van boven", "Арпеджио сверху", "Arpeggio od góry", "Yukarıdan arpej", "Arpeggio uppifrån", "上からのアルペジオ", "위에서 시작하는 아르페지오", "自上而下琶音", "أربيجيو من الأعلى")
+T("Octave Lip Trill", "Lippenflattern über die Oktave", "Vibración de labios de octava", "Trille des lèvres sur l’octave", "Trillo labiale d’ottava", "Vibração de lábios na oitava", "Lippentril over het octaaf", "Губная трель на октаву", "Trel wargowy na oktawę", "Oktav dudak titreşimi", "Läppdrill över oktaven", "オクターブのリップロール", "옥타브 립 트릴", "八度唇颤音", "رفرفة الشفاه عبر الأوكتاف")
+T("Scale Up, Arpeggio Down", "Tonleiter hoch, Arpeggio runter", "Escala arriba, arpegio abajo", "Gamme en montant, arpège en descendant", "Scala in su, arpeggio in giù", "Escala para cima, arpejo para baixo", "Toonladder omhoog, arpeggio omlaag", "Гамма вверх, арпеджио вниз", "Gama w górę, arpeggio w dół", "Dizi yukarı, arpej aşağı", "Skala upp, arpeggio ner", "音階で上がり、アルペジオで下りる", "음계로 올라가고 아르페지오로 내려오기", "音阶上行，琶音下行", "سلم صعودًا، أربيجيو هبوطًا")
+T("Half-Step Trill", "Halbtontriller", "Trino de semitono", "Trille au demi-ton", "Trillo di semitono", "Trinado de semitom", "Halvetoontriller", "Трель на полутон", "Tryl półtonowy", "Yarım ses trili", "Halvtonsdrill", "半音のトリル", "반음 트릴", "半音颤音", "تريل نصف تون")
+T("Five-Note Run", "Fünfton-Lauf", "Carrerilla de cinco notas", "Trait de cinq notes", "Volata di cinque note", "Corrida de cinco notas", "Loopje van vijf noten", "Пробежка из пяти нот", "Przebieg pięciu dźwięków", "Beş notalı geçiş", "Femtonsslinga", "5音のラン", "5음 런", "五音跑动", "تتابع من خمس نغمات")
+T("Accelerating Trill", "Schneller werdender Triller", "Trino que acelera", "Trille qui accélère", "Trillo in accelerando", "Trinado acelerando", "Versnellende triller", "Ускоряющаяся трель", "Przyspieszający tryl", "Hızlanan tril", "Accelererande drill", "加速するトリル", "빨라지는 트릴", "渐快颤音", "تريل متسارع")
+T("Turns", "Doppelschläge", "Grupetos", "Grupettos", "Gruppetti", "Grupetos", "Dubbelslagen", "Группетто", "Obiegniki", "Grupetolar", "Dubbelslag", "ターン", "턴", "回音", "زخارف الدوران")
+T("Descending Octave Run", "Oktavlauf abwärts", "Carrerilla de octava descendente", "Trait d’octave descendant", "Volata d’ottava discendente", "Corrida de oitava descendente", "Dalend octaafloopje", "Нисходящая пробежка на октаву", "Przebieg oktawowy w dół", "İnici oktav geçişi", "Fallande oktavslinga", "オクターブ下行のラン", "옥타브 하행 런", "八度下行跑动", "تتابع أوكتاف هابط")
+T("Octave Run", "Oktavlauf", "Carrerilla de octava", "Trait d’octave", "Volata d’ottava", "Corrida de oitava", "Octaafloopje", "Пробежка на октаву", "Przebieg oktawowy", "Oktav geçişi", "Oktavslinga", "オクターブのラン", "옥타브 런", "八度跑动", "تتابع أوكتاف")
+T("Nine-Note Run", "Neunton-Lauf", "Carrerilla de nueve notas", "Trait de neuf notes", "Volata di nove note", "Corrida de nove notas", "Loopje van negen noten", "Пробежка из девяти нот", "Przebieg dziewięciu dźwięków", "Dokuz notalı geçiş", "Niotonsslinga", "9音のラン", "9음 런", "九音跑动", "تتابع من تسع نغمات")
+T("Arpeggio Run", "Arpeggio-Lauf", "Carrerilla en arpegio", "Trait en arpège", "Volata in arpeggio", "Corrida em arpejo", "Arpeggioloopje", "Пробежка по арпеджио", "Przebieg arpeggiowy", "Arpej geçişi", "Arpeggioslinga", "アルペジオのラン", "아르페지오 런", "琶音跑动", "تتابع أربيجيو")
+T("Pentatonic Riff", "Pentatonik-Riff", "Riff pentatónico", "Riff pentatonique", "Riff pentatonico", "Riff pentatônico", "Pentatonische riff", "Пентатонический рифф", "Riff pentatoniczny", "Pentatonik riff", "Pentatoniskt riff", "ペンタトニック・リフ", "펜타토닉 리프", "五声音阶乐句", "ريف خماسي")
+T("Rolling Triplets", "Rollende Triolen", "Tresillos encadenados", "Triolets en cascade", "Terzine a catena", "Tercinas encadeadas", "Rollende triolen", "Катящиеся триоли", "Toczące się triole", "Yuvarlanan üçlemeler", "Rullande trioler", "転がる3連符", "굴러가는 셋잇단음", "滚动三连音", "ثلاثيات متدحرجة")
+T("Staccato Scale", "Staccato-Tonleiter", "Escala en staccato", "Gamme staccato", "Scala staccata", "Escala em staccato", "Staccato-toonladder", "Гамма стаккато", "Gama staccato", "Staccato dizi", "Staccatoskala", "スタッカートの音階", "스타카토 음계", "断音音阶", "سلم ستاكاتو")
+T("Scale Sequence", "Tonleitersequenz", "Secuencia de escala", "Marche de gamme", "Progressione di scala", "Sequência de escala", "Toonladdersequens", "Секвенция по гамме", "Sekwencja gamy", "Dizi sekansı", "Skalsekvens", "音階のゼクエンツ", "음계 시퀀스", "音阶模进", "متتالية سلمية")
+T("Tongue Trill", "Zungentriller", "Vibración de lengua", "Trille de la langue", "Trillo di lingua", "Vibração de língua", "Tongtril", "Язычная трель", "Trel językowy", "Dil titreşimi", "Tungdrill", "タングトリル", "혀 트릴", "舌颤音", "رفرفة اللسان")
 
 # Their descriptions: Tone.
 T("Hum on \"ng\" with your lips apart and your jaw loose. You should feel a buzz behind your nose.",
@@ -149,7 +152,8 @@ T("Hum on \"ng\" with your lips apart and your jaw loose. You should feel a buzz
   "Nynna på ”ng” med läpparna isär och käken lös. Du ska känna ett surr bakom näsan.",
   "唇を少し開き、あごの力を抜いて「ng」でハミングします。鼻の奥に響きを感じるはずです。",
   "입술을 살짝 벌리고 턱을 느슨하게 한 채 “ng”로 허밍하세요. 코 뒤쪽에서 울림이 느껴져야 합니다.",
-  "双唇微张、下颌放松，用“ng”哼鸣。你应该能感觉到鼻子后方有嗡嗡的振动。")
+  "双唇微张、下颌放松，用“ng”哼鸣。你应该能感觉到鼻子后方有嗡嗡的振动。",
+  "دندن على «ng» مع إبقاء شفتيك منفصلتين وفكك مرتخيًا. يجب أن تشعر بطنين خلف أنفك.")
 T("Keep the \"M\" buzzing in your lips and change only the vowel. Your jaw should stay loose and still.",
   "Lass das „M“ in den Lippen summen und wechsle nur den Vokal. Dein Kiefer bleibt locker und ruhig.",
   "Mantén la «M» vibrando en los labios y cambia solo la vocal. La mandíbula debe quedarse suelta y quieta.",
@@ -163,7 +167,8 @@ T("Keep the \"M\" buzzing in your lips and change only the vowel. Your jaw shoul
   "Låt ”M” surra i läpparna och byt bara vokal. Käken ska vara lös och stilla.",
   "「M」の響きを唇に保ったまま、母音だけを変えます。あごはゆるめて動かさないようにします。",
   "“M”의 울림을 입술에 유지한 채 모음만 바꾸세요. 턱은 느슨하게, 움직이지 않게 두세요.",
-  "让“M”在嘴唇上保持振动，只改变元音。下颌保持放松、不动。")
+  "让“M”在嘴唇上保持振动，只改变元音。下颌保持放松、不动。",
+  "أبقِ طنين «M» في شفتيك وغيّر حرف العلة فقط. يجب أن يبقى فكك مرتخيًا وثابتًا.")
 T("Start with a soft, breathy \"H\" and let the \"Oo\" float down. Keep it light, like a gentle owl call.",
   "Beginne mit einem weichen, hauchigen „H“ und lass das „Oo“ nach unten schweben. Bleib leicht, wie ein sanfter Eulenruf.",
   "Empieza con una «H» suave y aireada y deja que la «Oo» flote hacia abajo. Mantenlo ligero, como el suave ulular de un búho.",
@@ -177,7 +182,8 @@ T("Start with a soft, breathy \"H\" and let the \"Oo\" float down. Keep it light
   "Börja med ett mjukt, luftigt ”H” och låt ”Oo” sväva nedåt. Håll det lätt, som ett stilla ugglerop.",
   "息まじりのやわらかい「H」で始め、「Oo」をふわりと下ろしていきます。フクロウの静かな鳴き声のように軽く歌います。",
   "부드럽고 숨이 섞인 “H”로 시작해 “Oo”가 아래로 떠내려가게 하세요. 부드러운 부엉이 소리처럼 가볍게 유지하세요.",
-  "以轻柔、带气息的“H”开始，让“Oo”缓缓向下飘落。保持轻盈，就像猫头鹰轻柔的叫声。")
+  "以轻柔、带气息的“H”开始，让“Oo”缓缓向下飘落。保持轻盈，就像猫头鹰轻柔的叫声。",
+  "ابدأ بـ «H» ناعمة مليئة بالنفَس ودع «Oo» تنساب للأسفل. اجعلها خفيفة، مثل نداء بومة لطيف.")
 T("Round your lips into a small \"Oo\" and restart every note with a gentle \"M\". Don't push for volume.",
   "Runde die Lippen zu einem kleinen „Oo“ und setze jeden Ton mit einem sanften „M“ neu an. Drück nicht auf Lautstärke.",
   "Redondea los labios en una «Oo» pequeña y empieza cada nota con una «M» suave. No fuerces el volumen.",
@@ -191,7 +197,8 @@ T("Round your lips into a small \"Oo\" and restart every note with a gentle \"M\
   "Runda läpparna till ett litet ”Oo” och börja varje ton med ett mjukt ”M”. Pressa inte fram volym.",
   "唇を小さな「Oo」の形に丸め、どの音もやさしい「M」から始め直します。音量を無理に出さないようにします。",
   "입술을 작은 “Oo” 모양으로 둥글게 하고 음마다 부드러운 “M”으로 다시 시작하세요. 음량을 억지로 키우지 마세요.",
-  "把嘴唇收圆成一个小小的“Oo”，每个音都用轻柔的“M”重新起音。不要用力追求音量。")
+  "把嘴唇收圆成一个小小的“Oo”，每个音都用轻柔的“M”重新起音。不要用力追求音量。",
+  "دوّر شفتيك على شكل «Oo» صغيرة وابدأ كل نغمة من جديد بـ «M» لطيفة. لا تضغط لرفع الصوت.")
 T("Hum the way up with your lips closed, then open into \"Mah\" at the top. Keep the same buzzing resonance as your mouth opens.",
   "Summe mit geschlossenen Lippen nach oben und öffne oben zu „Mah“. Behalte dieselbe summende Resonanz, wenn sich der Mund öffnet.",
   "Tararea la subida con los labios cerrados y abre en «Mah» al llegar arriba. Mantén la misma resonancia vibrante al abrir la boca.",
@@ -205,7 +212,8 @@ T("Hum the way up with your lips closed, then open into \"Mah\" at the top. Keep
   "Nynna uppåt med stängda läppar och öppna till ”Mah” högst upp. Behåll samma surrande resonans när munnen öppnas.",
   "唇を閉じたままハミングで上がり、いちばん上で「Mah」に開きます。口を開いても同じ響きを保ちます。",
   "입술을 다문 채 허밍으로 올라가다가 맨 위에서 “Mah”로 여세요. 입이 열려도 같은 울림을 유지하세요.",
-  "闭着嘴唇哼鸣向上，到最高处打开成“Mah”。张开嘴时保持同样的振动共鸣。")
+  "闭着嘴唇哼鸣向上，到最高处打开成“Mah”。张开嘴时保持同样的振动共鸣。",
+  "دندن في الصعود وشفتاك مغلقتان، ثم افتحهما على «Mah» في الأعلى. حافظ على الرنين الطنّان نفسه عندما يُفتح فمك.")
 T("Keep the sound forward in your face as the vowel opens from \"Nee\" to \"Nah\". Don't let the \"Nah\" fall back into your throat.",
   "Halte den Klang vorne im Gesicht, während sich der Vokal von „Nee“ zu „Nah“ öffnet. Lass das „Nah“ nicht in den Hals zurückfallen.",
   "Mantén el sonido adelante en la cara mientras la vocal se abre de «Nee» a «Nah». No dejes que la «Nah» caiga hacia la garganta.",
@@ -219,7 +227,8 @@ T("Keep the sound forward in your face as the vowel opens from \"Nee\" to \"Nah\
   "Håll klangen framme i ansiktet medan vokalen öppnas från ”Nee” till ”Nah”. Låt inte ”Nah” falla tillbaka ner i halsen.",
   "母音が「Nee」から「Nah」へ開いても、響きを顔の前方に保ちます。「Nah」がのどの奥に落ちないようにします。",
   "모음이 “Nee”에서 “Nah”로 열리는 동안 소리를 얼굴 앞쪽에 유지하세요. “Nah”가 목 안으로 떨어지지 않게 하세요.",
-  "元音从“Nee”打开到“Nah”时，让声音保持在面部前方。不要让“Nah”落回喉咙里。")
+  "元音从“Nee”打开到“Nah”时，让声音保持在面部前方。不要让“Nah”落回喉咙里。",
+  "أبقِ الصوت في مقدمة وجهك بينما ينفتح حرف العلة من «Nee» إلى «Nah». لا تدع «Nah» تتراجع إلى حلقك.")
 T("Rest your top teeth lightly on your lower lip and keep the air buzzing. The steady \"V\" helps you keep your airflow even.",
   "Leg die oberen Zähne leicht auf die Unterlippe und lass die Luft summen. Das gleichmäßige „V“ hilft dir, den Luftstrom gleichmäßig zu halten.",
   "Apoya ligeramente los dientes superiores sobre el labio inferior y mantén el aire vibrando. La «V» constante te ayuda a mantener un flujo de aire uniforme.",
@@ -233,7 +242,8 @@ T("Rest your top teeth lightly on your lower lip and keep the air buzzing. The s
   "Låt övertänderna vila lätt mot underläppen och håll luften surrande. Det jämna ”V” hjälper dig att hålla luftflödet jämnt.",
   "上の歯を下唇に軽くのせ、息で響きを保ちます。一定の「V」が、息の流れを均一に保つ助けになります。",
   "윗니를 아랫입술에 가볍게 대고 공기가 계속 울리게 하세요. 일정한 “V”가 호흡 흐름을 고르게 유지하도록 도와줍니다.",
-  "上齿轻轻搭在下唇上，让气流持续振动。稳定的“V”能帮助你保持均匀的气流。")
+  "上齿轻轻搭在下唇上，让气流持续振动。稳定的“V”能帮助你保持均匀的气流。",
+  "ضع أسنانك العلوية برفق على شفتك السفلى وأبقِ الهواء يطنّ. يساعدك «V» الثابت على إبقاء تدفق الهواء متساويًا.")
 T("Make a bright, bratty \"Nyah\", like a teasing child. You should feel the sound buzzing in your nose and cheekbones.",
   "Erzeuge ein helles, freches „Nyah“, wie ein neckendes Kind. Du solltest den Klang in Nase und Wangenknochen summen spüren.",
   "Haz un «Nyah» brillante y descarado, como un niño que se burla. Deberías notar el sonido vibrando en la nariz y los pómulos.",
@@ -247,7 +257,8 @@ T("Make a bright, bratty \"Nyah\", like a teasing child. You should feel the sou
   "Gör ett ljust, näsvist ”Nyah”, som ett retsamt barn. Du ska känna klangen surra i näsan och kindbenen.",
   "からかう子どものように、明るく生意気な「Nyah」を出します。鼻と頬骨に響きを感じるはずです。",
   "놀리는 아이처럼 밝고 짓궂은 “Nyah” 소리를 내세요. 코와 광대뼈에서 소리가 울리는 것이 느껴져야 합니다.",
-  "像逗人的小孩一样，发出明亮、略带调皮的“Nyah”。你应该能感觉到声音在鼻子和颧骨处振动。")
+  "像逗人的小孩一样，发出明亮、略带调皮的“Nyah”。你应该能感觉到声音在鼻子和颧骨处振动。",
+  "أخرج «Nyah» مشرقة ومشاكسة، مثل طفل يمازح. يجب أن تشعر بالصوت يطنّ في أنفك وعظام وجنتيك.")
 T("Make \"Wee\" bright and \"Woo\" round and dark. Keep the change between them smooth, like a gentle siren.",
   "Mach das „Wee“ hell und das „Woo“ rund und dunkel. Halte den Wechsel zwischen ihnen weich, wie eine sanfte Sirene.",
   "Haz la «Wee» brillante y la «Woo» redonda y oscura. Mantén suave el cambio entre ellas, como una sirena tranquila.",
@@ -261,7 +272,8 @@ T("Make \"Wee\" bright and \"Woo\" round and dark. Keep the change between them 
   "Gör ”Wee” ljust och ”Woo” runt och mörkt. Håll växlingen mellan dem mjuk, som en stilla siren.",
   "「Wee」は明るく、「Woo」は丸く暗めに。やさしいサイレンのように、切り替えをなめらかに保ちます。",
   "“Wee”는 밝게, “Woo”는 둥글고 어둡게 내세요. 부드러운 사이렌처럼 둘 사이를 매끄럽게 넘어가세요.",
-  "让“Wee”明亮，让“Woo”圆润而偏暗。两者之间的转换要平顺，就像轻柔的警笛声。")
+  "让“Wee”明亮，让“Woo”圆润而偏暗。两者之间的转换要平顺，就像轻柔的警笛声。",
+  "اجعل «Wee» مشرقة و«Woo» مستديرة وداكنة. أبقِ الانتقال بينهما سلسًا، مثل صفارة إنذار هادئة.")
 T("Sing a short, bright \"Ming\" on every note and let the \"ng\" ring. Keep your throat open and your tongue relaxed.",
   "Singe auf jedem Ton ein kurzes, helles „Ming“ und lass das „ng“ nachklingen. Halte den Hals offen und die Zunge locker.",
   "Canta un «Ming» corto y brillante en cada nota y deja resonar la «ng». Mantén la garganta abierta y la lengua relajada.",
@@ -275,7 +287,8 @@ T("Sing a short, bright \"Ming\" on every note and let the \"ng\" ring. Keep you
   "Sjung ett kort, ljust ”Ming” på varje ton och låt ”ng” klinga. Håll halsen öppen och tungan avslappnad.",
   "どの音も短く明るい「Ming」で歌い、「ng」を響かせます。のどを開き、舌をリラックスさせます。",
   "음마다 짧고 밝은 “Ming”을 부르고 “ng”가 울리게 하세요. 목은 열고 혀는 편안하게 두세요.",
-  "每个音都唱一个短促、明亮的“Ming”，让“ng”共鸣出来。保持喉咙打开、舌头放松。")
+  "每个音都唱一个短促、明亮的“Ming”，让“ng”共鸣出来。保持喉咙打开、舌头放松。",
+  "غنِّ «Ming» قصيرة ومشرقة على كل نغمة ودع «ng» ترنّ. أبقِ حلقك مفتوحًا ولسانك مرتخيًا.")
 T("Keep the back of your tongue loose on each \"G\" and let your jaw drop on the \"Ah\". The \"G\" helps your vocal folds close cleanly.",
   "Halte den hinteren Teil der Zunge bei jedem „G“ locker und lass den Kiefer beim „Ah“ fallen. Das „G“ hilft deinen Stimmlippen, sauber zu schließen.",
   "Mantén suelta la parte posterior de la lengua en cada «G» y deja caer la mandíbula en la «Ah». La «G» ayuda a que las cuerdas vocales se cierren limpiamente.",
@@ -289,7 +302,8 @@ T("Keep the back of your tongue loose on each \"G\" and let your jaw drop on the
   "Håll bakre delen av tungan lös på varje ”G” och låt käken sjunka på ”Ah”. ”G” hjälper stämläpparna att sluta rent.",
   "どの「G」でも舌の奥をゆるめ、「Ah」ではあごを下ろします。「G」は声帯をきれいに閉じる助けになります。",
   "“G”마다 혀 뒤쪽을 느슨하게 하고 “Ah”에서 턱을 떨어뜨리세요. “G”는 성대가 깔끔하게 닫히도록 도와줍니다.",
-  "每个“G”都保持舌根放松，在“Ah”上让下颌自然落下。“G”能帮助声带干净地闭合。")
+  "每个“G”都保持舌根放松，在“Ah”上让下颌自然落下。“G”能帮助声带干净地闭合。",
+  "أبقِ مؤخرة لسانك مرتخية مع كل «G» ودع فكك ينخفض على «Ah». يساعد «G» حبالك الصوتية على الانغلاق بشكل نظيف.")
 T("Use a dopey, speech-like \"Nuh\" to keep your larynx from rising. Stay relaxed and don't push for volume.",
   "Nutze ein etwas dümmliches, sprechnahes „Nuh“, damit der Kehlkopf nicht steigt. Bleib entspannt und drück nicht auf Lautstärke.",
   "Usa un «Nuh» bobalicón y hablado para que la laringe no suba. Mantente relajado y no fuerces el volumen.",
@@ -303,7 +317,8 @@ T("Use a dopey, speech-like \"Nuh\" to keep your larynx from rising. Stay relaxe
   "Använd ett fånigt, talliknande ”Nuh” så att struphuvudet inte stiger. Håll dig avslappnad och pressa inte fram volym.",
   "少しまぬけな、話し声に近い「Nuh」で、喉頭が上がらないようにします。リラックスして、音量を無理に出さないようにします。",
   "약간 멍한, 말하듯한 “Nuh”로 후두가 올라가지 않게 하세요. 편안하게 유지하고 음량을 억지로 키우지 마세요.",
-  "用一种略显憨傻、像说话一样的“Nuh”，防止喉头上抬。保持放松，不要用力追求音量。")
+  "用一种略显憨傻、像说话一样的“Nuh”，防止喉头上抬。保持放松，不要用力追求音量。",
+  "استخدم «Nuh» بليدة تشبه الكلام لتمنع حنجرتك من الارتفاع. ابقَ مسترخيًا ولا تضغط لرفع الصوت.")
 
 # Scales.
 T("Hear each note in your head before you sing it and match it exactly. Keep your tone even from bottom to top.",
@@ -319,7 +334,8 @@ T("Hear each note in your head before you sing it and match it exactly. Keep you
   "Hör varje ton inom dig innan du sjunger den och träffa den exakt. Håll klangen jämn från botten till toppen.",
   "歌う前に各音を頭の中で聴き、正確に合わせます。低い音から高い音まで音色をそろえます。",
   "부르기 전에 각 음을 머릿속으로 듣고 정확히 맞추세요. 아래에서 위까지 음색을 고르게 유지하세요.",
-  "唱之前先在脑中听到每个音，并准确唱准。从低到高保持音色均匀。")
+  "唱之前先在脑中听到每个音，并准确唱准。从低到高保持音色均匀。",
+  "اسمع كل نغمة في رأسك قبل أن تغنيها وطابقها تمامًا. حافظ على نبرة متساوية من الأسفل إلى الأعلى.")
 T("Start the top note lightly and keep that lightness as you go down. Don't let your voice get heavier on the low notes.",
   "Setze den obersten Ton leicht an und behalte diese Leichtigkeit auf dem Weg nach unten. Lass deine Stimme bei den tiefen Tönen nicht schwerer werden.",
   "Empieza la nota más alta con ligereza y mantén esa ligereza al bajar. No dejes que la voz se vuelva más pesada en las notas graves.",
@@ -333,7 +349,8 @@ T("Start the top note lightly and keep that lightness as you go down. Don't let 
   "Ta den översta tonen lätt och behåll lättheten på vägen ner. Låt inte rösten bli tyngre på de låga tonerna.",
   "いちばん上の音を軽く始め、その軽さを保ったまま下りていきます。低い音で声が重くならないようにします。",
   "맨 위 음을 가볍게 시작하고 내려가는 동안 그 가벼움을 유지하세요. 낮은 음에서 목소리가 무거워지지 않게 하세요.",
-  "轻轻地起最高的音，下行时保持这份轻盈。不要让声音在低音上变得沉重。")
+  "轻轻地起最高的音，下行时保持这份轻盈。不要让声音在低音上变得沉重。",
+  "ابدأ النغمة العليا بخفة وحافظ على هذه الخفة أثناء النزول. لا تدع صوتك يثقل على النغمات المنخفضة.")
 T("Keep every step even and your tone the same from the bottom note to the top.",
   "Halte jeden Schritt gleichmäßig und deinen Klang vom tiefsten bis zum höchsten Ton gleich.",
   "Mantén cada paso uniforme y el mismo tono desde la nota más grave hasta la más aguda.",
@@ -347,7 +364,8 @@ T("Keep every step even and your tone the same from the bottom note to the top."
   "Håll varje steg jämnt och klangen densamma från den lägsta tonen till den högsta.",
   "一歩一歩を均等にし、いちばん下の音から上の音まで同じ音色を保ちます。",
   "모든 음정 간격을 고르게 하고 맨 아래 음부터 맨 위 음까지 같은 음색을 유지하세요.",
-  "每一步都保持均匀，从最低音到最高音保持同样的音色。")
+  "每一步都保持均匀，从最低音到最高音保持同样的音色。",
+  "حافظ على تساوي كل خطوة وعلى نبرتك نفسها من النغمة السفلى إلى العليا.")
 T("The third note sits lower than in the major scale. Listen closely and tune it carefully on the way up and down.",
   "Der dritte Ton liegt tiefer als in der Durtonleiter. Hör genau hin und intoniere ihn auf dem Weg nach oben und unten sorgfältig.",
   "La tercera nota está más baja que en la escala mayor. Escucha con atención y afínala con cuidado al subir y al bajar.",
@@ -361,7 +379,8 @@ T("The third note sits lower than in the major scale. Listen closely and tune it
   "Den tredje tonen ligger lägre än i durskalan. Lyssna noga och intonera den omsorgsfullt på vägen upp och ner.",
   "3番目の音は長音階より低くなります。よく聴いて、上がるときも下がるときも丁寧に音程を合わせます。",
   "세 번째 음은 장음계보다 낮습니다. 잘 듣고 올라갈 때와 내려갈 때 모두 음정을 신중하게 맞추세요.",
-  "第三个音比大调音阶中的低。仔细聆听，上行和下行时都要认真唱准它。")
+  "第三个音比大调音阶中的低。仔细聆听，上行和下行时都要认真唱准它。",
+  "النغمة الثالثة أخفض منها في السلم الكبير. استمع جيدًا واضبطها بعناية في الصعود والنزول.")
 T("Aim for the centre of each note instead of sliding into it. Hear the next note in your head before you sing it.",
   "Triff die Mitte jedes Tons, statt in ihn hineinzurutschen. Hör den nächsten Ton innerlich, bevor du ihn singst.",
   "Apunta al centro de cada nota en lugar de deslizarte hacia ella. Escucha la siguiente nota en tu cabeza antes de cantarla.",
@@ -375,7 +394,8 @@ T("Aim for the centre of each note instead of sliding into it. Hear the next not
   "Sikta på mitten av varje ton i stället för att glida in i den. Hör nästa ton inom dig innan du sjunger den.",
   "音にずり上げて入るのではなく、各音の中心をねらいます。次の音を歌う前に頭の中で聴きます。",
   "음으로 미끄러져 들어가지 말고 각 음의 중심을 겨냥하세요. 다음 음을 부르기 전에 머릿속으로 먼저 들으세요.",
-  "瞄准每个音的中心，而不是滑进去。唱下一个音之前先在脑中听到它。")
+  "瞄准每个音的中心，而不是滑进去。唱下一个音之前先在脑中听到它。",
+  "استهدف مركز كل نغمة بدلًا من الانزلاق إليها. اسمع النغمة التالية في رأسك قبل أن تغنيها.")
 T("The minor third is a little narrower than the major one. Hear it in your head before you sing it.",
   "Die kleine Terz ist etwas enger als die große. Hör sie innerlich, bevor du sie singst.",
   "La tercera menor es un poco más estrecha que la mayor. Escúchala en tu cabeza antes de cantarla.",
@@ -389,7 +409,8 @@ T("The minor third is a little narrower than the major one. Hear it in your head
   "Den lilla tersen är lite smalare än den stora. Hör den inom dig innan du sjunger den.",
   "短3度は長3度より少し狭い音程です。歌う前に頭の中で聴きます。",
   "단3도는 장3도보다 조금 좁습니다. 부르기 전에 머릿속으로 먼저 들으세요.",
-  "小三度比大三度稍窄一点。唱之前先在脑中听到它。")
+  "小三度比大三度稍窄一点。唱之前先在脑中听到它。",
+  "الثالثة الصغيرة أضيق قليلًا من الكبيرة. اسمعها في رأسك قبل أن تغنيها.")
 T("Every step is a semitone, the smallest step in the scale. Keep the steps small and even without sliding between notes.",
   "Jeder Schritt ist ein Halbton, der kleinste Schritt der Tonleiter. Halte die Schritte klein und gleichmäßig, ohne zwischen den Tönen zu rutschen.",
   "Cada paso es un semitono, el paso más pequeño de la escala. Mantén los pasos pequeños y uniformes sin deslizarte entre las notas.",
@@ -403,7 +424,8 @@ T("Every step is a semitone, the smallest step in the scale. Keep the steps smal
   "Varje steg är ett halvtonssteg, det minsta steget i skalan. Håll stegen små och jämna utan att glida mellan tonerna.",
   "どのステップも半音で、音階の中でいちばん小さな音程です。音と音の間をずり上げずに、小さく均等に進みます。",
   "모든 간격이 음계에서 가장 작은 간격인 반음입니다. 음 사이를 미끄러지지 말고 작고 고르게 이동하세요.",
-  "每一步都是半音，也就是音阶中最小的一步。保持步子小而均匀，不要在音与音之间滑动。")
+  "每一步都是半音，也就是音阶中最小的一步。保持步子小而均匀，不要在音与音之间滑动。",
+  "كل خطوة نصف تون، وهي أصغر خطوة في السلم. أبقِ الخطوات صغيرة ومتساوية دون الانزلاق بين النغمات.")
 T("Think of the scale underneath the skips, so every note lands in tune.",
   "Denk an die Tonleiter unter den Sprüngen, damit jeder Ton sauber sitzt.",
   "Piensa en la escala que hay debajo de los saltos para que cada nota quede afinada.",
@@ -417,7 +439,8 @@ T("Think of the scale underneath the skips, so every note lands in tune.",
   "Tänk på skalan under hoppen, så att varje ton landar rent.",
   "跳躍の下にある音階を意識すると、どの音も正しい音程に収まります。",
   "도약 아래에 깔린 음계를 떠올리면 모든 음이 정확한 음정에 자리 잡습니다.",
-  "想着跳进背后的音阶，让每个音都落在准确的音高上。")
+  "想着跳进背后的音阶，让每个音都落在准确的音高上。",
+  "فكّر في السلم الكامن تحت القفزات، حتى تستقر كل نغمة على درجتها الصحيحة.")
 T("This five-note scale has no semitones and is heard in folk and pop music around the world. Keep the skips in tune.",
   "Diese Fünftonleiter hat keine Halbtöne und ist in Volks- und Popmusik auf der ganzen Welt zu hören. Triff die Sprünge sauber.",
   "Esta escala de cinco notas no tiene semitonos y se oye en música folk y pop de todo el mundo. Afina bien los saltos.",
@@ -431,7 +454,8 @@ T("This five-note scale has no semitones and is heard in folk and pop music arou
   "Den här femtonsskalan saknar halvtonssteg och hörs i folk- och popmusik över hela världen. Håll hoppen rena.",
   "この5音の音階には半音がなく、世界中のフォークやポップスで使われています。跳躍の音程を正確に保ちます。",
   "이 5음 음계에는 반음이 없으며 전 세계 민속 음악과 팝에서 들을 수 있습니다. 도약하는 음정을 정확히 맞추세요.",
-  "这个五声音阶没有半音，在世界各地的民间音乐和流行音乐中都能听到。注意唱准跳进的音。")
+  "这个五声音阶没有半音，在世界各地的民间音乐和流行音乐中都能听到。注意唱准跳进的音。",
+  "هذا السلم الخماسي لا يحتوي على أنصاف تون ويُسمع في الموسيقى الشعبية وموسيقى البوب حول العالم. أبقِ القفزات مضبوطة.")
 T("Take a full breath before each repetition and pace your air across the whole scale.",
   "Atme vor jeder Wiederholung tief ein und teile dir die Luft über die ganze Tonleiter ein.",
   "Respira a fondo antes de cada repetición y dosifica el aire a lo largo de toda la escala.",
@@ -445,7 +469,8 @@ T("Take a full breath before each repetition and pace your air across the whole 
   "Ta ett djupt andetag före varje repetition och fördela luften över hela skalan.",
   "繰り返しの前にしっかり息を吸い、音階全体に息を配分します。",
   "반복하기 전에 숨을 충분히 들이마시고 음계 전체에 호흡을 고르게 나누세요.",
-  "每次重复前深吸一口气，把气息分配到整个音阶。")
+  "每次重复前深吸一口气，把气息分配到整个音阶。",
+  "خذ نفسًا كاملًا قبل كل تكرار ووزّع هواءك على السلم كله.")
 T("Listen for the wide step between the sixth and seventh notes, which gives this scale its distinctive sound.",
   "Achte auf den großen Schritt zwischen dem sechsten und siebten Ton, der dieser Tonleiter ihren besonderen Klang gibt.",
   "Fíjate en el paso amplio entre la sexta y la séptima nota, que le da a esta escala su sonido característico.",
@@ -459,7 +484,8 @@ T("Listen for the wide step between the sixth and seventh notes, which gives thi
   "Lyssna efter det stora steget mellan den sjätte och sjunde tonen, som ger skalan dess särpräglade klang.",
   "6番目と7番目の音の間の広い音程に耳を傾けます。これがこの音階の独特な響きを生みます。",
   "여섯 번째와 일곱 번째 음 사이의 넓은 간격에 귀를 기울이세요. 이 간격이 이 음계만의 독특한 소리를 만듭니다.",
-  "留意第六和第七个音之间的宽音程，正是它赋予了这个音阶独特的声音。")
+  "留意第六和第七个音之间的宽音程，正是它赋予了这个音阶独特的声音。",
+  "استمع إلى الخطوة الواسعة بين النغمتين السادسة والسابعة، التي تمنح هذا السلم صوته المميز.")
 T("Stay light as you pass the octave and don't reach up for the top note.",
   "Bleib leicht, wenn du die Oktave überschreitest, und greif nicht nach dem obersten Ton.",
   "Mantén la ligereza al pasar la octava y no te estires para alcanzar la nota más alta.",
@@ -473,7 +499,8 @@ T("Stay light as you pass the octave and don't reach up for the top note.",
   "Håll dig lätt när du passerar oktaven och sträck dig inte efter den översta tonen.",
   "オクターブを越えるときも軽さを保ち、いちばん上の音を取りにいかないようにします。",
   "옥타브를 넘어갈 때도 가볍게 유지하고 맨 위 음을 억지로 잡으려 하지 마세요.",
-  "越过八度时保持轻盈，不要伸着去够最高的音。")
+  "越过八度时保持轻盈，不要伸着去够最高的音。",
+  "ابقَ خفيفًا عند تجاوز الأوكتاف ولا تمدّ صوتك نحو النغمة العليا.")
 
 # Articulation.
 T("Flick the tip of your tongue for each \"L\" and keep your jaw still. Only your tongue should move.",
@@ -489,7 +516,8 @@ T("Flick the tip of your tongue for each \"L\" and keep your jaw still. Only you
   "Snärta med tungspetsen på varje ”L” och håll käken stilla. Bara tungan ska röra sig.",
   "「L」のたびに舌先を軽くはじき、あごは動かさないようにします。動くのは舌だけです。",
   "“L”마다 혀끝을 가볍게 튕기고 턱은 가만히 두세요. 혀만 움직여야 합니다.",
-  "每个“L”都用舌尖轻弹一下，下颌保持不动。只有舌头在动。")
+  "每个“L”都用舌尖轻弹一下，下颌保持不动。只有舌头在动。",
+  "حرّك طرف لسانك بخفة مع كل «L» وأبقِ فكك ثابتًا. لسانك وحده يجب أن يتحرك.")
 T("Alternate the tip and the back of your tongue, like double tonguing on a flute. Keep the notes crisp and the air steady.",
   "Wechsle zwischen Zungenspitze und Zungenrücken, wie beim Doppelzungenschlag auf der Flöte. Halte die Töne knackig und die Luft gleichmäßig.",
   "Alterna la punta y la parte posterior de la lengua, como el doble picado en la flauta. Mantén las notas nítidas y el aire constante.",
@@ -503,7 +531,8 @@ T("Alternate the tip and the back of your tongue, like double tonguing on a flut
   "Växla mellan tungspetsen och bakre delen av tungan, som dubbelstöt på flöjt. Håll tonerna tydliga och luften jämn.",
   "フルートのダブルタンギングのように、舌先と舌の奥を交互に使います。音は歯切れよく、息は一定に保ちます。",
   "플루트의 더블 텅잉처럼 혀끝과 혀 뒤쪽을 번갈아 쓰세요. 음은 또렷하게, 호흡은 일정하게 유지하세요.",
-  "像长笛的双吐一样，交替使用舌尖和舌根。音要清脆，气息要稳定。")
+  "像长笛的双吐一样，交替使用舌尖和舌根。音要清脆，气息要稳定。",
+  "بدّل بين طرف لسانك ومؤخرته، مثل اللسان المزدوج في العزف على الفلوت. أبقِ النغمات حادة والهواء ثابتًا.")
 T("Keep your lips springy and your throat relaxed. Let the air carry you through the consonants without stopping.",
   "Halte die Lippen federnd und den Hals entspannt. Lass dich von der Luft ohne Unterbrechung durch die Konsonanten tragen.",
   "Mantén los labios elásticos y la garganta relajada. Deja que el aire te lleve a través de las consonantes sin detenerte.",
@@ -517,7 +546,8 @@ T("Keep your lips springy and your throat relaxed. Let the air carry you through
   "Håll läpparna spänstiga och halsen avslappnad. Låt luften bära dig genom konsonanterna utan att stanna.",
   "唇は弾むように、のどはリラックスさせます。息の流れに乗って、止まらずに子音を通り抜けます。",
   "입술은 탄력 있게, 목은 편안하게 유지하세요. 멈추지 말고 호흡이 자음을 지나 이어지게 하세요.",
-  "嘴唇保持弹性，喉咙保持放松。让气流带着你连续地通过辅音，不要停顿。")
+  "嘴唇保持弹性，喉咙保持放松。让气流带着你连续地通过辅音，不要停顿。",
+  "أبقِ شفتيك مرنتين وحلقك مسترخيًا. دع الهواء يحملك عبر الحروف الساكنة دون توقف.")
 T("Roll your tongue on a steady stream of air, like a purring cat. If you can't roll your R yet, use a lip trill instead.",
   "Rolle die Zunge auf einem gleichmäßigen Luftstrom, wie eine schnurrende Katze. Wenn du das R noch nicht rollen kannst, nimm stattdessen ein Lippenflattern.",
   "Haz vibrar la lengua con un flujo de aire constante, como un gato que ronronea. Si todavía no sabes hacer la erre, usa una vibración de labios.",
@@ -531,7 +561,8 @@ T("Roll your tongue on a steady stream of air, like a purring cat. If you can't 
   "Rulla tungan på en jämn luftström, som en spinnande katt. Om du inte kan rulla på R ännu kan du göra en läppdrill i stället.",
   "のどを鳴らす猫のように、一定の息で舌を震わせます。巻き舌がまだできない場合は、代わりにリップロールをします。",
   "가르랑거리는 고양이처럼 일정한 호흡으로 혀를 떨어 주세요. 아직 R을 굴리지 못한다면 대신 립 트릴을 하세요.",
-  "像打呼噜的猫一样，用稳定的气流让舌头颤动。如果还不会打嘟噜，就改用唇颤音。")
+  "像打呼噜的猫一样，用稳定的气流让舌头颤动。如果还不会打嘟噜，就改用唇颤音。",
+  "دحرج لسانك على تيار هواء ثابت، مثل قطة تخرخر. إن لم تستطع لفظ الراء المدحرجة بعد، فاستخدم رفرفة الشفاه بدلًا منها.")
 T("Push each \"Hup\" out with a small kick from your belly, like a short laugh. Your throat should stay relaxed.",
   "Stoß jedes „Hup“ mit einem kleinen Impuls aus dem Bauch heraus, wie ein kurzes Lachen. Dein Hals bleibt dabei entspannt.",
   "Empuja cada «Hup» con un pequeño impulso desde el abdomen, como una risa corta. La garganta debe quedarse relajada.",
@@ -545,7 +576,8 @@ T("Push each \"Hup\" out with a small kick from your belly, like a short laugh. 
   "Stöt ut varje ”Hup” med en liten spark från magen, som ett kort skratt. Halsen ska vara avslappnad.",
   "短い笑い声のように、お腹からの小さな押しでそれぞれの「Hup」を出します。のどはリラックスしたままにします。",
   "짧게 웃듯이 배에서 나오는 작은 힘으로 “Hup”을 하나씩 내보내세요. 목은 편안하게 유지해야 합니다.",
-  "像短促的笑声一样，用腹部的小小推力送出每个“Hup”。喉咙要保持放松。")
+  "像短促的笑声一样，用腹部的小小推力送出每个“Hup”。喉咙要保持放松。",
+  "ادفع كل «Hup» للخارج بدفعة صغيرة من بطنك، مثل ضحكة قصيرة. يجب أن يبقى حلقك مسترخيًا.")
 T("Keep your tongue light and quick and make the two vowels clearly different.",
   "Halte die Zunge leicht und schnell und lass die beiden Vokale deutlich unterschiedlich klingen.",
   "Mantén la lengua ligera y rápida y haz que las dos vocales suenen claramente distintas.",
@@ -559,7 +591,8 @@ T("Keep your tongue light and quick and make the two vowels clearly different.",
   "Håll tungan lätt och snabb och gör de två vokalerna tydligt olika.",
   "舌を軽く素早く動かし、2つの母音をはっきり区別します。",
   "혀를 가볍고 빠르게 움직이고 두 모음을 분명하게 구분하세요.",
-  "舌头保持轻快，两个元音要清楚地区分开。")
+  "舌头保持轻快，两个元音要清楚地区分开。",
+  "أبقِ لسانك خفيفًا وسريعًا واجعل حرفي العلة مختلفين بوضوح.")
 T("Use light, quick \"K\" and \"G\" sounds from the back of your tongue. Keep the vowel open behind them.",
   "Bilde leichte, schnelle „K“- und „G“-Laute mit dem Zungenrücken. Halte den Vokal dahinter offen.",
   "Usa sonidos «K» y «G» ligeros y rápidos con la parte posterior de la lengua. Mantén la vocal abierta detrás de ellos.",
@@ -573,7 +606,8 @@ T("Use light, quick \"K\" and \"G\" sounds from the back of your tongue. Keep th
   "Gör lätta, snabba ”K”- och ”G”-ljud med bakre delen av tungan. Håll vokalen öppen efter dem.",
   "舌の奥で軽く素早い「K」と「G」を発音します。その後の母音は開いたまま保ちます。",
   "혀 뒤쪽으로 가볍고 빠른 “K”와 “G” 소리를 내세요. 그 뒤의 모음은 열린 상태로 유지하세요.",
-  "用舌根发出轻快的“K”和“G”。后面的元音要保持打开。")
+  "用舌根发出轻快的“K”和“G”。后面的元音要保持打开。",
+  "استخدم أصوات «K» و«G» خفيفة وسريعة من مؤخرة لسانك. أبقِ حرف العلة خلفها مفتوحًا.")
 T("Tip, back, tip: keep the three syllables even and crisp, and let the air flow through them.",
   "Spitze, Rücken, Spitze: Halte die drei Silben gleichmäßig und knackig und lass die Luft durch sie hindurchfließen.",
   "Punta, parte posterior, punta: mantén las tres sílabas uniformes y nítidas, y deja que el aire fluya a través de ellas.",
@@ -587,7 +621,8 @@ T("Tip, back, tip: keep the three syllables even and crisp, and let the air flow
   "Spets, bak, spets: håll de tre stavelserna jämna och tydliga och låt luften flöda genom dem.",
   "舌先、奥、舌先。3つの音節を均等に歯切れよく保ち、息を流し続けます。",
   "혀끝, 뒤쪽, 혀끝: 세 음절을 고르고 또렷하게 유지하고 호흡이 그 사이로 흐르게 하세요.",
-  "舌尖、舌根、舌尖：三个音节要均匀清脆，让气流持续贯穿其中。")
+  "舌尖、舌根、舌尖：三个音节要均匀清脆，让气流持续贯穿其中。",
+  "الطرف، المؤخرة، الطرف: أبقِ المقاطع الثلاثة متساوية وحادة، ودع الهواء يتدفق عبرها.")
 T("Switch between the bright \"Ning\" and the darker \"Nong\" while keeping the \"ng\" buzzing in the same place.",
   "Wechsle zwischen dem hellen „Ning“ und dem dunkleren „Nong“ und lass das „ng“ dabei immer an derselben Stelle summen.",
   "Alterna entre el «Ning» brillante y el «Nong» más oscuro mientras mantienes la «ng» vibrando en el mismo lugar.",
@@ -601,7 +636,8 @@ T("Switch between the bright \"Ning\" and the darker \"Nong\" while keeping the 
   "Växla mellan det ljusa ”Ning” och det mörkare ”Nong” och låt ”ng” surra på samma ställe hela tiden.",
   "明るい「Ning」と暗めの「Nong」を行き来しながら、「ng」の響きを同じ場所に保ちます。",
   "밝은 “Ning”과 좀 더 어두운 “Nong”을 오가면서 “ng”의 울림은 같은 자리에 유지하세요.",
-  "在明亮的“Ning”和较暗的“Nong”之间切换，同时让“ng”的振动始终保持在同一位置。")
+  "在明亮的“Ning”和较暗的“Nong”之间切换，同时让“ng”的振动始终保持在同一位置。",
+  "بدّل بين «Ning» المشرقة و«Nong» الأدكن مع إبقاء طنين «ng» في المكان نفسه.")
 T("Four tongue shapes in a row. Keep them quick and light and don't let your jaw join in.",
   "Vier Zungenstellungen hintereinander. Halte sie schnell und leicht und lass den Kiefer nicht mitmachen.",
   "Cuatro posiciones de la lengua seguidas. Hazlas rápidas y ligeras y no dejes que la mandíbula participe.",
@@ -615,7 +651,8 @@ T("Four tongue shapes in a row. Keep them quick and light and don't let your jaw
   "Fyra tunglägen i rad. Håll dem snabba och lätta och låt inte käken hänga med.",
   "4つの舌の形を続けて行います。素早く軽く動かし、あごは参加させないようにします。",
   "네 가지 혀 모양을 연달아 만듭니다. 빠르고 가볍게 하고 턱이 끼어들지 않게 하세요.",
-  "连续四种舌位。动作要快而轻，不要让下颌参与。")
+  "连续四种舌位。动作要快而轻，不要让下颌参与。",
+  "أربعة أشكال للسان على التوالي. اجعلها سريعة وخفيفة ولا تدع فكك يشارك.")
 T("Voiced consonants from the lips, the tip and the back of the tongue. Keep your voice going through each consonant so the notes stay connected.",
   "Stimmhafte Konsonanten mit den Lippen, der Zungenspitze und dem Zungenrücken. Lass die Stimme durch jeden Konsonanten weiterklingen, damit die Töne verbunden bleiben.",
   "Consonantes sonoras con los labios, la punta y la parte posterior de la lengua. Mantén la voz sonando en cada consonante para que las notas sigan unidas.",
@@ -629,7 +666,8 @@ T("Voiced consonants from the lips, the tip and the back of the tongue. Keep you
   "Tonande konsonanter med läpparna, tungspetsen och bakre delen av tungan. Låt rösten klinga genom varje konsonant så att tonerna hänger ihop.",
   "唇、舌先、舌の奥で作る有声子音です。音がつながったままになるよう、子音の間も声を出し続けます。",
   "입술, 혀끝, 혀 뒤쪽으로 내는 유성 자음입니다. 음이 끊기지 않도록 자음에서도 목소리를 계속 유지하세요.",
-  "分别用嘴唇、舌尖和舌根发出的浊辅音。在每个辅音上都保持发声，让音与音连贯。")
+  "分别用嘴唇、舌尖和舌根发出的浊辅音。在每个辅音上都保持发声，让音与音连贯。",
+  "حروف ساكنة مجهورة من الشفتين، ومن طرف اللسان ومؤخرته. أبقِ صوتك مستمرًا عبر كل حرف ساكن حتى تبقى النغمات متصلة.")
 T("Keep \"Pa Ta Ka\" crisp and quick, like a patter song. Let the air keep flowing so the notes don't get choppy.",
   "Halte „Pa Ta Ka“ knackig und schnell, wie in einem Patter-Song. Lass die Luft weiterfließen, damit die Töne nicht abgehackt klingen.",
   "Mantén «Pa Ta Ka» nítido y rápido, como en una canción trabalenguas. Deja que el aire siga fluyendo para que las notas no suenen entrecortadas.",
@@ -643,7 +681,8 @@ T("Keep \"Pa Ta Ka\" crisp and quick, like a patter song. Let the air keep flowi
   "Håll ”Pa Ta Ka” tydligt och snabbt, som i en rabbelsång. Låt luften fortsätta flöda så att tonerna inte blir hackiga.",
   "早口歌のように「Pa Ta Ka」を歯切れよく素早く。音が途切れ途切れにならないよう、息を流し続けます。",
   "빠른 말놀이 노래처럼 “Pa Ta Ka”를 또렷하고 빠르게 하세요. 음이 뚝뚝 끊기지 않도록 호흡을 계속 흘려보내세요.",
-  "像绕口令式的歌曲一样，把“Pa Ta Ka”唱得清脆而快速。让气流持续，避免音变得断断续续。")
+  "像绕口令式的歌曲一样，把“Pa Ta Ka”唱得清脆而快速。让气流持续，避免音变得断断续续。",
+  "اجعل «Pa Ta Ka» حادة وسريعة، مثل أغنية سريعة الكلمات. دع الهواء يتدفق حتى لا تصبح النغمات متقطعة.")
 
 # Agility. "Five-Note Run" and "Octave Run" reuse descriptions from above.
 T("The two notes are only a semitone apart. Keep them clearly separate without letting them blur together.",
@@ -659,7 +698,8 @@ T("The two notes are only a semitone apart. Keep them clearly separate without l
   "De två tonerna ligger bara ett halvtonssteg isär. Håll dem tydligt åtskilda utan att de flyter ihop.",
   "2つの音は半音しか離れていません。混ざり合わないよう、はっきり分けて歌います。",
   "두 음은 반음밖에 차이 나지 않습니다. 서로 섞이지 않도록 분명하게 구분하세요.",
-  "两个音只相差一个半音。要把它们清楚地分开，不要让它们混在一起。")
+  "两个音只相差一个半音。要把它们清楚地分开，不要让它们混在一起。",
+  "النغمتان لا يفصل بينهما سوى نصف تون. أبقِهما منفصلتين بوضوح دون أن تمتزجا.")
 T("Each repetition is a little faster. Keep the two notes even and relaxed as the tempo rises.",
   "Jede Wiederholung ist etwas schneller. Halte die beiden Töne gleichmäßig und entspannt, während das Tempo steigt.",
   "Cada repetición es un poco más rápida. Mantén las dos notas uniformes y relajadas mientras sube el tempo.",
@@ -673,7 +713,8 @@ T("Each repetition is a little faster. Keep the two notes even and relaxed as th
   "Varje repetition är lite snabbare. Håll de två tonerna jämna och avslappnade medan tempot ökar.",
   "繰り返すたびに少しずつ速くなります。テンポが上がっても、2つの音を均等に、リラックスして保ちます。",
   "반복할 때마다 조금씩 빨라집니다. 템포가 올라가도 두 음을 고르고 편안하게 유지하세요.",
-  "每次重复都会稍快一些。随着速度加快，两个音要保持均匀、放松。")
+  "每次重复都会稍快一些。随着速度加快，两个音要保持均匀、放松。",
+  "كل تكرار أسرع قليلًا. أبقِ النغمتين متساويتين ومسترخيتين مع ارتفاع السرعة.")
 T("Sing the little turns around each main note cleanly and lightly, without smudging them.",
   "Singe die kleinen Verzierungen um jeden Hauptton sauber und leicht, ohne sie zu verwischen.",
   "Canta los pequeños giros alrededor de cada nota principal con limpieza y ligereza, sin emborronarlos.",
@@ -687,7 +728,8 @@ T("Sing the little turns around each main note cleanly and lightly, without smud
   "Sjung de små vändningarna runt varje huvudton rent och lätt, utan att smeta ihop dem.",
   "各主音のまわりの小さなターンを、にじませずに、きれいに軽く歌います。",
   "각 주요 음을 감싸는 작은 턴을 뭉개지 말고 깔끔하고 가볍게 부르세요.",
-  "把每个主音周围的小回音唱得干净、轻巧，不要含糊。")
+  "把每个主音周围的小回音唱得干净、轻巧，不要含糊。",
+  "غنِّ الزخارف الصغيرة حول كل نغمة رئيسية بنظافة وخفة، دون أن تطمسها.")
 T("Start the top note light and let the run fall evenly, without rushing at the bottom.",
   "Beginne den obersten Ton leicht und lass den Lauf gleichmäßig fallen, ohne unten zu eilen.",
   "Empieza ligera la nota más alta y deja que la carrerilla caiga de forma uniforme, sin precipitarte al final.",
@@ -701,7 +743,8 @@ T("Start the top note light and let the run fall evenly, without rushing at the 
   "Börja den översta tonen lätt och låt slingan falla jämnt, utan att skynda längst ner.",
   "いちばん上の音を軽く始め、下で急がずに均等に下りていきます。",
   "맨 위 음을 가볍게 시작하고, 아래에서 서두르지 말고 고르게 내려오세요.",
-  "轻轻地起最高音，让跑动均匀下行，到低处时不要赶。")
+  "轻轻地起最高音，让跑动均匀下行，到低处时不要赶。",
+  "ابدأ النغمة العليا بخفة ودع التتابع ينزل بالتساوي، دون استعجال في الأسفل.")
 T("Sing the whole run on one breath and keep the notes even. Take a quick, low breath between repetitions.",
   "Singe den ganzen Lauf auf einem Atem und halte die Töne gleichmäßig. Atme zwischen den Wiederholungen schnell und tief ein.",
   "Canta toda la carrerilla en una sola respiración y mantén las notas uniformes. Toma una respiración rápida y baja entre repeticiones.",
@@ -715,7 +758,8 @@ T("Sing the whole run on one breath and keep the notes even. Take a quick, low b
   "Sjung hela slingan på ett andetag och håll tonerna jämna. Ta ett snabbt, lågt andetag mellan repetitionerna.",
   "ラン全体をひと息で歌い、音を均等に保ちます。繰り返しの間に、素早く深い息を吸います。",
   "런 전체를 한 호흡으로 부르고 음을 고르게 유지하세요. 반복 사이에는 빠르고 깊게 숨을 들이마시세요.",
-  "一口气唱完整个跑动，保持音符均匀。每次重复之间快速地深吸一口气。")
+  "一口气唱完整个跑动，保持音符均匀。每次重复之间快速地深吸一口气。",
+  "غنِّ التتابع كله بنفَس واحد وأبقِ النغمات متساوية. خذ نفسًا سريعًا إلى البطن بين التكرارات.")
 T("Keep every note of the arpeggio clear and connected. Aim for the centre of each note instead of sliding.",
   "Halte jeden Ton des Arpeggios klar und verbunden. Triff die Mitte jedes Tons, statt zu rutschen.",
   "Mantén cada nota del arpegio clara y unida. Apunta al centro de cada nota en lugar de deslizarte.",
@@ -729,7 +773,8 @@ T("Keep every note of the arpeggio clear and connected. Aim for the centre of ea
   "Håll varje ton i arpeggiot tydlig och sammanbunden. Sikta på mitten av varje ton i stället för att glida.",
   "アルペジオのどの音も、はっきりとつなげて歌います。ずり上げずに各音の中心をねらいます。",
   "아르페지오의 모든 음을 또렷하고 이어지게 부르세요. 미끄러지지 말고 각 음의 중심을 겨냥하세요.",
-  "琶音中的每个音都要清晰而连贯。瞄准每个音的中心，不要滑音。")
+  "琶音中的每个音都要清晰而连贯。瞄准每个音的中心，不要滑音。",
+  "أبقِ كل نغمة في الأربيجيو واضحة ومتصلة. استهدف مركز كل نغمة بدلًا من الانزلاق.")
 T("A short riff in the style of pop and soul singing. Keep it light and loose and let each note speak clearly.",
   "Ein kurzes Riff im Stil von Pop- und Soulgesang. Halte es leicht und locker und lass jeden Ton klar erklingen.",
   "Un riff corto al estilo del canto pop y soul. Mantenlo ligero y suelto y deja que cada nota suene clara.",
@@ -743,7 +788,8 @@ T("A short riff in the style of pop and soul singing. Keep it light and loose an
   "Ett kort riff i stil med pop- och soulsång. Håll det lätt och löst och låt varje ton höras tydligt.",
   "ポップスやソウルの歌い方の短いリフです。軽く力を抜いて、一音一音をはっきり響かせます。",
   "팝과 소울 창법 스타일의 짧은 리프입니다. 가볍고 자연스럽게, 각 음이 또렷하게 들리도록 하세요.",
-  "一段流行和灵魂乐风格的短乐句。唱得轻松自如，让每个音都清楚地发出来。")
+  "一段流行和灵魂乐风格的短乐句。唱得轻松自如，让每个音都清楚地发出来。",
+  "ريف قصير بأسلوب غناء البوب والسول. اجعله خفيفًا ومرنًا ودع كل نغمة تُسمع بوضوح.")
 T("Feel the notes in groups of three, with a slight lean on the first note of each group.",
   "Spüre die Töne in Dreiergruppen, mit einer leichten Betonung auf dem ersten Ton jeder Gruppe.",
   "Siente las notas en grupos de tres, con un ligero apoyo en la primera nota de cada grupo.",
@@ -757,7 +803,8 @@ T("Feel the notes in groups of three, with a slight lean on the first note of ea
   "Känn tonerna i grupper om tre, med en lätt betoning på den första tonen i varje grupp.",
   "音を3つずつのまとまりで感じ、各グループの最初の音に少し重みを置きます。",
   "음을 세 개씩 묶어 느끼고, 각 묶음의 첫 음에 살짝 무게를 두세요.",
-  "把音符按三个一组来感受，每组的第一个音稍加强调。")
+  "把音符按三个一组来感受，每组的第一个音稍加强调。",
+  "اشعر بالنغمات في مجموعات من ثلاث، مع تشديد خفيف على النغمة الأولى في كل مجموعة.")
 T("Make every \"Ha\" short and crisp, with a small pulse from your belly. Keep your throat relaxed between the notes.",
   "Mach jedes „Ha“ kurz und knackig, mit einem kleinen Impuls aus dem Bauch. Halte den Hals zwischen den Tönen entspannt.",
   "Haz cada «Ha» corto y nítido, con un pequeño impulso desde el abdomen. Mantén la garganta relajada entre las notas.",
@@ -771,7 +818,8 @@ T("Make every \"Ha\" short and crisp, with a small pulse from your belly. Keep y
   "Gör varje ”Ha” kort och tydligt, med en liten puls från magen. Håll halsen avslappnad mellan tonerna.",
   "お腹からの小さな押しで、どの「Ha」も短く歯切れよく出します。音と音の間はのどをリラックスさせます。",
   "배에서 나오는 작은 힘으로 “Ha”를 모두 짧고 또렷하게 내세요. 음 사이에는 목을 편안하게 유지하세요.",
-  "借助腹部的小小推力，让每个“Ha”都短促清脆。音与音之间保持喉咙放松。")
+  "借助腹部的小小推力，让每个“Ha”都短促清脆。音与音之间保持喉咙放松。",
+  "اجعل كل «Ha» قصيرة وحادة، مع نبضة صغيرة من بطنك. أبقِ حلقك مسترخيًا بين النغمات.")
 T("The same four-note figure moves up one step at a time. Keep each group even and in tune.",
   "Dieselbe Viertonfigur wandert Schritt für Schritt nach oben. Halte jede Gruppe gleichmäßig und sauber.",
   "La misma figura de cuatro notas sube paso a paso. Mantén cada grupo uniforme y afinado.",
@@ -785,7 +833,8 @@ T("The same four-note figure moves up one step at a time. Keep each group even a
   "Samma fyrtonsfigur flyttar upp ett steg i taget. Håll varje grupp jämn och ren.",
   "同じ4音の型が1段ずつ上がっていきます。どのグループも均等に、正しい音程で歌います。",
   "같은 네 음 음형이 한 음씩 올라갑니다. 각 묶음을 고르고 정확한 음정으로 유지하세요.",
-  "同一个四音音型每次上移一级。每一组都要均匀、音准。")
+  "同一个四音音型每次上移一级。每一组都要均匀、音准。",
+  "الشكل نفسه المكوّن من أربع نغمات يصعد درجة واحدة في كل مرة. أبقِ كل مجموعة متساوية ومضبوطة.")
 
 # Range.
 T("Leap to the top note without reaching or pushing, then let the scale carry you back down.",
@@ -801,7 +850,8 @@ T("Leap to the top note without reaching or pushing, then let the scale carry yo
   "Hoppa till den översta tonen utan att sträcka dig eller pressa, och låt sedan skalan bära dig ner igen.",
   "背伸びしたり押したりせずにいちばん上の音へ跳び、そこから音階に乗って下りてきます。",
   "애써 뻗거나 밀어붙이지 말고 맨 위 음으로 도약한 뒤, 음계를 따라 다시 내려오세요.",
-  "不要够也不要挤，直接跳到最高音，然后顺着音阶回到下面。")
+  "不要够也不要挤，直接跳到最高音，然后顺着音阶回到下面。",
+  "اقفز إلى النغمة العليا دون مدّ الصوت أو الضغط، ثم دع السلم يعيدك إلى الأسفل.")
 T("Glide between the notes like a siren, without a break in the sound. Let your voice get lighter as it rises.",
   "Gleite wie eine Sirene zwischen den Tönen, ohne dass der Klang abbricht. Lass die Stimme beim Aufsteigen leichter werden.",
   "Deslízate entre las notas como una sirena, sin cortes en el sonido. Deja que la voz se aligere al subir.",
@@ -815,7 +865,8 @@ T("Glide between the notes like a siren, without a break in the sound. Let your 
   "Glid mellan tonerna som en siren, utan avbrott i ljudet. Låt rösten bli lättare när den stiger.",
   "音が途切れないように、サイレンのように音と音の間をなめらかに移ります。上がるにつれて声を軽くします。",
   "소리가 끊기지 않게 사이렌처럼 음 사이를 미끄러지듯 이어 가세요. 올라갈수록 목소리를 가볍게 하세요.",
-  "像警笛一样在音与音之间滑动，声音不要中断。随着音高上升，让声音变得更轻。")
+  "像警笛一样在音与音之间滑动，声音不要中断。随着音高上升，让声音变得更轻。",
+  "انزلق بين النغمات مثل صفارة الإنذار، دون انقطاع في الصوت. دع صوتك يصبح أخف كلما ارتفع.")
 T("Keep your mouth shape the same all the way up and let the top note be lighter, not louder.",
   "Behalte die Mundform bis ganz nach oben bei und lass den obersten Ton leichter werden, nicht lauter.",
   "Mantén la misma forma de la boca durante toda la subida y deja que la nota más alta sea más ligera, no más fuerte.",
@@ -829,7 +880,8 @@ T("Keep your mouth shape the same all the way up and let the top note be lighter
   "Behåll samma munform hela vägen upp och låt den översta tonen bli lättare, inte starkare.",
   "いちばん上まで口の形を変えず、最高音は大きくではなく軽く出します。",
   "맨 위까지 입 모양을 똑같이 유지하고, 가장 높은 음은 크게가 아니라 가볍게 내세요.",
-  "一直到最高处都保持同样的口型，让最高音更轻，而不是更响。")
+  "一直到最高处都保持同样的口型，让最高音更轻，而不是更响。",
+  "حافظ على شكل فمك نفسه طوال الصعود ودع النغمة العليا تكون أخف، لا أعلى صوتًا.")
 T("Keep the \"Nah\" bright and forward all the way up, so the top note doesn't feel like a reach.",
   "Halte das „Nah“ bis ganz nach oben hell und vorne, damit sich der oberste Ton nicht wie ein Strecken anfühlt.",
   "Mantén la «Nah» brillante y adelante durante toda la subida, para que la nota más alta no se sienta como un esfuerzo.",
@@ -843,7 +895,8 @@ T("Keep the \"Nah\" bright and forward all the way up, so the top note doesn't f
   "Håll ”Nah” ljust och framåt hela vägen upp, så att den översta tonen inte känns som en sträckning.",
   "いちばん上まで「Nah」を明るく前に保てば、最高音も背伸びせずに出せます。",
   "맨 위까지 “Nah”를 밝고 앞쪽에 유지해서 가장 높은 음이 무리하게 느껴지지 않게 하세요.",
-  "一直到最高处都让“Nah”保持明亮、靠前，这样最高音就不会显得吃力。")
+  "一直到最高处都让“Nah”保持明亮、靠前，这样最高音就不会显得吃力。",
+  "أبقِ «Nah» مشرقة ومتقدمة طوال الصعود، حتى لا تبدو النغمة العليا بعيدة المنال.")
 T("Jump straight to the top note without scooping, then keep your voice light as the scale comes down.",
   "Spring direkt zum obersten Ton, ohne von unten anzuschleifen, und halte die Stimme leicht, während die Tonleiter herunterkommt.",
   "Salta directamente a la nota más alta sin arrastrar desde abajo y mantén la voz ligera mientras la escala baja.",
@@ -857,7 +910,8 @@ T("Jump straight to the top note without scooping, then keep your voice light as
   "Hoppa direkt till den översta tonen utan att glida upp till den, och håll rösten lätt när skalan går ner.",
   "下からずり上げずに最高音へまっすぐ跳び、音階が下りる間も声を軽く保ちます。",
   "아래에서 끌어올리지 말고 맨 위 음으로 곧장 뛰어오른 뒤, 음계가 내려오는 동안 목소리를 가볍게 유지하세요.",
-  "不要从下往上滑，直接跳到最高音，然后在音阶下行时保持声音轻盈。")
+  "不要从下往上滑，直接跳到最高音，然后在音阶下行时保持声音轻盈。",
+  "اقفز مباشرة إلى النغمة العليا دون انزلاق إليها، ثم أبقِ صوتك خفيفًا أثناء نزول السلم.")
 T("Keep the \"Ee\" narrow and bright on the leap and don't let your jaw drop to reach the top.",
   "Halte das „Ee“ beim Sprung schmal und hell und lass den Kiefer nicht fallen, um nach oben zu kommen.",
   "Mantén la «Ee» estrecha y brillante en el salto y no dejes caer la mandíbula para alcanzar la nota alta.",
@@ -871,7 +925,8 @@ T("Keep the \"Ee\" narrow and bright on the leap and don't let your jaw drop to 
   "Håll ”Ee” smalt och ljust i hoppet och låt inte käken sjunka för att nå toppen.",
   "跳躍では「Ee」を細く明るく保ち、高い音を取ろうとしてあごを下げないようにします。",
   "도약할 때 “Ee”를 좁고 밝게 유지하고, 높은 음에 닿으려고 턱을 떨어뜨리지 마세요.",
-  "跳进时让“Ee”保持窄而明亮，不要为了够到高音而让下颌掉下来。")
+  "跳进时让“Ee”保持窄而明亮，不要为了够到高音而让下颌掉下来。",
+  "أبقِ «Ee» ضيقة ومشرقة في القفزة ولا تدع فكك ينخفض للوصول إلى الأعلى.")
 T("Use short, bouncy \"Ha\" sounds powered by your belly, not your throat. Stay relaxed on the jumps.",
   "Nutze kurze, federnde „Ha“-Laute, angetrieben vom Bauch, nicht vom Hals. Bleib bei den Sprüngen entspannt.",
   "Usa sonidos «Ha» cortos y saltarines impulsados por el abdomen, no por la garganta. Mantente relajado en los saltos.",
@@ -885,7 +940,8 @@ T("Use short, bouncy \"Ha\" sounds powered by your belly, not your throat. Stay 
   "Använd korta, studsiga ”Ha”-ljud som drivs från magen, inte från halsen. Håll dig avslappnad i hoppen.",
   "のどではなくお腹の力で、短く弾む「Ha」を出します。跳躍でもリラックスを保ちます。",
   "목이 아니라 배의 힘으로 짧고 통통 튀는 “Ha” 소리를 내세요. 도약할 때도 편안하게 유지하세요.",
-  "用腹部而不是喉咙发出短促、有弹性的“Ha”。跳进时保持放松。")
+  "用腹部而不是喉咙发出短促、有弹性的“Ha”。跳进时保持放松。",
+  "استخدم أصوات «Ha» قصيرة ونطّاطة تنبع من بطنك لا من حلقك. ابقَ مسترخيًا في القفزات.")
 T("Keep your breath flowing through the top of the arpeggio and don't grab the high note.",
   "Lass den Atem über den Gipfel des Arpeggios weiterfließen und pack den hohen Ton nicht.",
   "Mantén el aire fluyendo en la parte alta del arpegio y no agarres la nota aguda.",
@@ -899,7 +955,8 @@ T("Keep your breath flowing through the top of the arpeggio and don't grab the h
   "Låt andningen flöda genom arpeggiots topp och grip inte tag i den höga tonen.",
   "アルペジオの頂点でも息を流し続け、高い音をつかみにいかないようにします。",
   "아르페지오의 꼭대기에서도 호흡이 계속 흐르게 하고, 높은 음을 움켜잡지 마세요.",
-  "在琶音的最高处保持气息流动，不要去抓高音。")
+  "在琶音的最高处保持气息流动，不要去抓高音。",
+  "أبقِ نفَسك متدفقًا عبر قمة الأربيجيو ولا تنتزع النغمة العالية.")
 T("Let the top notes thin out and get lighter. If you feel strain, stop and rest before trying again.",
   "Lass die obersten Töne schlanker und leichter werden. Wenn du Anstrengung spürst, hör auf und ruh dich aus, bevor du es erneut versuchst.",
   "Deja que las notas más altas se afinen y se aligeren. Si notas tensión, para y descansa antes de volver a intentarlo.",
@@ -913,7 +970,8 @@ T("Let the top notes thin out and get lighter. If you feel strain, stop and rest
   "Låt de översta tonerna bli tunnare och lättare. Om du känner ansträngning, sluta och vila innan du försöker igen.",
   "高い音ほど細く軽くしていきます。負担を感じたら中断し、休んでからもう一度挑戦します。",
   "가장 높은 음들은 얇고 가볍게 하세요. 무리가 느껴지면 멈추고 쉰 다음 다시 시도하세요.",
-  "让最高的几个音变细、变轻。如果感到吃力，就停下来休息，然后再试。")
+  "让最高的几个音变细、变轻。如果感到吃力，就停下来休息，然后再试。",
+  "دع النغمات العليا ترقّ وتصبح أخف. إذا شعرت بإجهاد، فتوقف واسترح قبل المحاولة مرة أخرى.")
 T("Start on the top note in a light voice and carry that lightness down to the bottom and back up again.",
   "Beginne mit leichter Stimme auf dem obersten Ton und trage diese Leichtigkeit nach unten und wieder hinauf.",
   "Empieza en la nota más alta con voz ligera y lleva esa ligereza hasta abajo y de vuelta arriba.",
@@ -927,7 +985,8 @@ T("Start on the top note in a light voice and carry that lightness down to the b
   "Börja på den översta tonen med lätt röst och bär lättheten ända ner och upp igen.",
   "いちばん上の音から軽い声で始め、その軽さのまま下まで下り、また上がります。",
   "맨 위 음에서 가벼운 목소리로 시작해 그 가벼움을 맨 아래까지, 그리고 다시 위로 가져가세요.",
-  "用轻盈的声音从最高音开始，把这份轻盈一直带到最低处，再带回上面。")
+  "用轻盈的声音从最高音开始，把这份轻盈一直带到最低处，再带回上面。",
+  "ابدأ من النغمة العليا بصوت خفيف واحمل هذه الخفة إلى الأسفل ثم عُد إلى الأعلى مرة أخرى.")
 T("Let your lips flutter on steady air through the whole octave. If the trill stops, loosen your lips and use a little more air.",
   "Lass die Lippen auf gleichmäßiger Luft über die ganze Oktave flattern. Wenn das Flattern abreißt, lockere die Lippen und nimm etwas mehr Luft.",
   "Deja que los labios vibren con un aire constante durante toda la octava. Si la vibración se detiene, afloja los labios y usa un poco más de aire.",
@@ -941,7 +1000,8 @@ T("Let your lips flutter on steady air through the whole octave. If the trill st
   "Låt läpparna fladdra på jämn luft genom hela oktaven. Om drillen stannar, slappna av i läpparna och använd lite mer luft.",
   "一定の息で、オクターブ全体を通して唇を震わせます。震えが止まったら、唇をゆるめて息を少し増やします。",
   "일정한 호흡으로 옥타브 전체에서 입술을 떨게 하세요. 트릴이 멈추면 입술을 풀고 공기를 조금 더 쓰세요.",
-  "用稳定的气流让嘴唇在整个八度中持续颤动。如果颤音停了，就放松嘴唇，多用一点气。")
+  "用稳定的气流让嘴唇在整个八度中持续颤动。如果颤音停了，就放松嘴唇，多用一点气。",
+  "دع شفتيك ترفرفان على هواء ثابت عبر الأوكتاف كله. إذا توقفت الرفرفة، فأرخِ شفتيك واستخدم هواءً أكثر قليلًا.")
 T("Climb the scale step by step and come back down in bigger skips. Keep the top note as easy as the bottom one.",
   "Steig die Tonleiter Schritt für Schritt hinauf und komm in größeren Sprüngen wieder herunter. Halte den obersten Ton so leicht wie den untersten.",
   "Sube la escala paso a paso y vuelve a bajar con saltos más grandes. Haz que la nota más alta sea tan fácil como la más baja.",
@@ -955,4 +1015,5 @@ T("Climb the scale step by step and come back down in bigger skips. Keep the top
   "Klättra uppför skalan steg för steg och kom ner igen i större hopp. Håll den översta tonen lika lätt som den nedersta.",
   "音階を一歩ずつ上がり、大きめの跳躍で下りてきます。最高音も最低音と同じくらい楽に出します。",
   "음계를 한 음씩 올라간 뒤 더 큰 도약으로 내려오세요. 가장 높은 음도 가장 낮은 음만큼 편하게 내세요.",
-  "沿音阶一级一级向上，再用较大的跳进回到下面。最高音要和最低音一样轻松。")
+  "沿音阶一级一级向上，再用较大的跳进回到下面。最高音要和最低音一样轻松。",
+  "اصعد السلم خطوة بخطوة وعُد إلى الأسفل بقفزات أكبر. اجعل النغمة العليا سهلة مثل السفلى.")

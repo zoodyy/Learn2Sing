@@ -16,7 +16,8 @@ T("Request a new Feature/ Report a Bug",
   "Föreslå en funktion / Rapportera ett fel",
   "機能のリクエスト / 不具合の報告",
   "기능 요청 / 버그 신고",
-  "建议新功能 / 报告错误")
+  "建议新功能 / 报告错误",
+  "اطلب ميزة جديدة / أبلغ عن خطأ")
 T("Write to the developer: report something that's broken, ask for a feature, or say what you make of the app.",
   "Schreib dem Entwickler: melde einen Fehler, wünsch dir eine Funktion oder sag, was du von der App hältst.",
   "Escribe al desarrollador: informa de un fallo, pide una función o cuenta qué te parece la app.",
@@ -30,19 +31,20 @@ T("Write to the developer: report something that's broken, ask for a feature, or
   "Skriv till utvecklaren: rapportera något som inte fungerar, önska en funktion eller berätta vad du tycker om appen.",
   "開発者にメッセージを送れます。不具合の報告、機能のリクエスト、アプリの感想などをどうぞ。",
   "개발자에게 메시지를 보내세요. 버그 신고, 기능 요청, 앱에 대한 의견을 남길 수 있습니다.",
-  "给开发者留言：报告问题、提出功能建议，或说说你对这款应用的想法。")
+  "给开发者留言：报告问题、提出功能建议，或说说你对这款应用的想法。",
+  "راسل المطوّر: أبلغ عن شيء لا يعمل، أو اطلب ميزة، أو شاركه رأيك في التطبيق.")
 
 # --- Type ---
-T("Type", "Art", "Tipo", "Type", "Tipo", "Tipo", "Soort", "Тип", "Rodzaj", "Tür", "Typ", "種類", "유형", "类型")
-T("Bug", "Fehler", "Error", "Bug", "Bug", "Erro", "Bug", "Ошибка", "Błąd", "Hata", "Fel", "不具合", "버그", "错误")
+T("Type", "Art", "Tipo", "Type", "Tipo", "Tipo", "Soort", "Тип", "Rodzaj", "Tür", "Typ", "種類", "유형", "类型", "النوع")
+T("Bug", "Fehler", "Error", "Bug", "Bug", "Erro", "Bug", "Ошибка", "Błąd", "Hata", "Fel", "不具合", "버그", "错误", "خطأ")
 T("Feature Request",
   "Funktionswunsch", "Sugerencia de función", "Demande de fonctionnalité", "Richiesta di funzione",
   "Sugestão de recurso", "Functieverzoek", "Запрос функции", "Propozycja funkcji", "Özellik isteği",
-  "Funktionsönskemål", "機能リクエスト", "기능 요청", "功能建议")
+  "Funktionsönskemål", "機能リクエスト", "기능 요청", "功能建议", "طلب ميزة")
 T("Feedback", "Feedback", "Comentarios", "Avis", "Feedback", "Comentários", "Feedback", "Отзыв",
-  "Opinia", "Geri bildirim", "Feedback", "フィードバック", "의견", "反馈")
+  "Opinia", "Geri bildirim", "Feedback", "フィードバック", "의견", "反馈", "ملاحظات")
 T("Question", "Frage", "Pregunta", "Question", "Domanda", "Pergunta", "Vraag", "Вопрос", "Pytanie",
-  "Soru", "Fråga", "質問", "질문", "问题")
+  "Soru", "Fråga", "質問", "질문", "问题", "سؤال")
 T("What the message is: something that's broken, something you'd like added, what you make of the app, or something you'd like to know.",
   "Worum es geht: etwas ist kaputt, du wünschst dir etwas, du sagst deine Meinung oder du willst etwas wissen.",
   "De qué trata el mensaje: algo que falla, algo que te gustaría que se añadiera, tu opinión sobre la app o una duda.",
@@ -56,15 +58,16 @@ T("What the message is: something that's broken, something you'd like added, wha
   "Vad meddelandet gäller: något som är trasigt, något du vill se tillagt, vad du tycker om appen, eller något du undrar över.",
   "メッセージの種類です。不具合、追加してほしい機能、アプリの感想、聞きたいことのいずれかを選んでください。",
   "메시지의 종류입니다. 고장 난 부분, 추가되었으면 하는 기능, 앱에 대한 의견, 궁금한 점 중에서 고르세요.",
-  "这条消息是关于什么的：出问题的地方、希望添加的功能、对应用的看法，或想问的问题。")
+  "这条消息是关于什么的：出问题的地方、希望添加的功能、对应用的看法，或想问的问题。",
+  "موضوع الرسالة: شيء لا يعمل، أو شيء تودّ إضافته، أو رأيك في التطبيق، أو شيء تريد معرفته.")
 
 # --- Where in the app ---
 T("Where in the app",
   "Wo in der App", "Dónde en la app", "Où dans l’appli", "Dove nell’app", "Onde no app",
   "Waar in de app", "Где в приложении", "Gdzie w aplikacji", "Uygulamada nerede", "Var i appen",
-  "アプリ内の場所", "앱에서의 위치", "应用内的位置")
+  "アプリ内の場所", "앱에서의 위치", "应用内的位置", "المكان في التطبيق")
 T("Other", "Sonstiges", "Otro", "Autre", "Altro", "Outro", "Overig", "Другое", "Inne", "Diğer",
-  "Annat", "その他", "기타", "其他")
+  "Annat", "その他", "기타", "其他", "أخرى")
 T("Optional. The tab your message is about, so it's clear where to look.",
   "Optional. Der Tab, um den es geht, damit klar ist, wo zu suchen ist.",
   "Opcional. La pestaña a la que se refiere tu mensaje, para saber dónde mirar.",
@@ -78,23 +81,25 @@ T("Optional. The tab your message is about, so it's clear where to look.",
   "Valfritt. Fliken som ditt meddelande gäller, så att det är tydligt var man ska leta.",
   "任意。メッセージが関係するタブ。どこを見ればよいかがはっきりします。",
   "선택 사항. 메시지와 관련된 탭이며, 어디를 봐야 할지 분명해집니다.",
-  "可选。你的消息涉及的标签页，方便定位。")
+  "可选。你的消息涉及的标签页，方便定位。",
+  "اختياري. التبويب الذي تتعلق به رسالتك، ليتضح أين يجب البحث.")
 
 # --- Message ---
 T("Message", "Nachricht", "Mensaje", "Message", "Messaggio", "Mensagem", "Bericht", "Сообщение",
-  "Wiadomość", "Mesaj", "Meddelande", "メッセージ", "메시지", "消息")
+  "Wiadomość", "Mesaj", "Meddelande", "メッセージ", "메시지", "消息", "الرسالة")
 T("What would you like to say?",
   "Was möchtest du sagen?", "¿Qué quieres contar?", "Que souhaitez-vous dire ?", "Cosa vuoi dire?",
   "O que você quer dizer?", "Wat wil je zeggen?", "Что вы хотите сказать?", "Co chcesz przekazać?",
   "Ne söylemek istersin?", "Vad vill du säga?", "伝えたいことを書いてください", "하고 싶은 말을 적어 주세요",
-  "你想说些什么？")
+  "你想说些什么？",
+  "ماذا تريد أن تقول؟")
 
 # --- E-Mail ---
 T("E-Mail", "E-Mail", "Correo electrónico", "E-mail", "E-mail", "E-mail", "E-mail", "Эл. почта",
-  "E-mail", "E-posta", "E-post", "メールアドレス", "이메일", "电子邮件")
+  "E-mail", "E-posta", "E-post", "メールアドレス", "이메일", "电子邮件", "البريد الإلكتروني")
 T("name@example.com", "name@beispiel.de", "nombre@ejemplo.com", "nom@exemple.fr", "nome@esempio.it",
   "nome@exemplo.com", "naam@voorbeeld.nl", "имя@example.com", "imie@przyklad.pl", "ad@ornek.com",
-  "namn@exempel.se", "name@example.com", "name@example.com", "name@example.com")
+  "namn@exempel.se", "name@example.com", "name@example.com", "name@example.com", "name@example.com")
 T("Optional, and only needed if you'd like an answer. Left blank, your message is still read.",
   "Optional und nur nötig, wenn du eine Antwort möchtest. Ohne Adresse wird deine Nachricht trotzdem gelesen.",
   "Opcional, solo hace falta si quieres respuesta. Si lo dejas en blanco, tu mensaje se lee igualmente.",
@@ -108,7 +113,8 @@ T("Optional, and only needed if you'd like an answer. Left blank, your message i
   "Valfritt, behövs bara om du vill ha svar. Lämnas det tomt läses ditt meddelande ändå.",
   "任意。返信が必要な場合だけ入力してください。空欄でもメッセージは読まれます。",
   "선택 사항으로, 답장을 원할 때만 필요합니다. 비워 두어도 메시지는 읽힙니다.",
-  "可选，只有希望收到回复时才需要填写。留空也一样会读到你的消息。")
+  "可选，只有希望收到回复时才需要填写。留空也一样会读到你的消息。",
+  "اختياري، ولا يلزم إلا إذا كنت تريد ردًا. إذا تركته فارغًا فستُقرأ رسالتك مع ذلك.")
 T("Required for a question, since there's no way to answer you without it.",
   "Bei einer Frage nötig, denn ohne Adresse kann dir niemand antworten.",
   "Obligatorio para una pregunta, porque sin dirección no hay forma de responderte.",
@@ -122,7 +128,8 @@ T("Required for a question, since there's no way to answer you without it.",
   "Krävs för en fråga, för utan adress går det inte att svara dig.",
   "質問の場合は必須です。アドレスがないと返信できません。",
   "질문일 때는 필수입니다. 주소가 없으면 답장할 수 없습니다.",
-  "提问时必填，否则无法回复你。")
+  "提问时必填，否则无法回复你。",
+  "مطلوب للأسئلة، إذ لا توجد طريقة للرد عليك بدونه.")
 T("That doesn't look like an e-mail address.",
   "Das sieht nicht nach einer E-Mail-Adresse aus.",
   "Eso no parece una dirección de correo.",
@@ -136,21 +143,23 @@ T("That doesn't look like an e-mail address.",
   "Det ser inte ut som en e-postadress.",
   "メールアドレスの形式になっていません。",
   "이메일 주소 형식이 아닙니다.",
-  "这看起来不像电子邮件地址。")
+  "这看起来不像电子邮件地址。",
+  "لا يبدو هذا عنوان بريد إلكتروني.")
 
 # --- Sending ---
 T("Send", "Senden", "Enviar", "Envoyer", "Invia", "Enviar", "Verstuur", "Отправить", "Wyślij",
-  "Gönder", "Skicka", "送信", "보내기", "发送")
+  "Gönder", "Skicka", "送信", "보내기", "发送", "إرسال")
 T("*Required Fields",
   "*Pflichtfelder", "*Campos obligatorios", "*Champs obligatoires", "*Campi obbligatori",
   "*Campos obrigatórios", "*Verplichte velden", "*Обязательные поля", "*Pola wymagane",
-  "*Zorunlu alanlar", "*Obligatoriska fält", "*必須項目", "*필수 항목", "*必填项")
+  "*Zorunlu alanlar", "*Obligatoriska fält", "*必須項目", "*필수 항목", "*必填项", "*حقول مطلوبة")
 T("Choose a type before sending.",
   "Wähle vor dem Senden eine Art.", "Elige un tipo antes de enviar.", "Choisissez un type avant d’envoyer.",
   "Scegli un tipo prima di inviare.", "Escolha um tipo antes de enviar.", "Kies een soort voordat je verstuurt.",
   "Перед отправкой выберите тип.", "Przed wysłaniem wybierz rodzaj.", "Göndermeden önce bir tür seç.",
   "Välj en typ innan du skickar.", "送信する前に種類を選んでください。", "보내기 전에 유형을 선택하세요.",
-  "发送前请先选择类型。")
+  "发送前请先选择类型。",
+  "اختر نوعًا قبل الإرسال.")
 T("Write a message before sending.",
   "Schreib vor dem Senden eine Nachricht.", "Escribe un mensaje antes de enviar.",
   "Écrivez un message avant d’envoyer.", "Scrivi un messaggio prima di inviare.",
@@ -158,7 +167,8 @@ T("Write a message before sending.",
   "Перед отправкой напишите сообщение.", "Przed wysłaniem napisz wiadomość.",
   "Göndermeden önce bir mesaj yaz.", "Skriv ett meddelande innan du skickar.",
   "送信する前にメッセージを書いてください。", "보내기 전에 메시지를 작성하세요.",
-  "发送前请先写下消息。")
+  "发送前请先写下消息。",
+  "اكتب رسالة قبل الإرسال.")
 T("Add your e-mail address before sending.",
   "Gib vor dem Senden deine E-Mail-Adresse an.",
   "Añade tu correo electrónico antes de enviar.",
@@ -172,15 +182,17 @@ T("Add your e-mail address before sending.",
   "Ange din e-postadress innan du skickar.",
   "送信する前にメールアドレスを入力してください。",
   "보내기 전에 이메일 주소를 입력하세요.",
-  "发送前请先填写电子邮件地址。")
+  "发送前请先填写电子邮件地址。",
+  "أضف عنوان بريدك الإلكتروني قبل الإرسال.")
 T("Message Sent!", "Nachricht gesendet!", "¡Mensaje enviado!", "Message envoyé !", "Messaggio inviato!",
   "Mensagem enviada!", "Bericht verstuurd!", "Сообщение отправлено!", "Wysłano wiadomość!",
   "Mesaj gönderildi!", "Meddelandet skickat!", "メッセージを送信しました！", "메시지를 보냈습니다!",
-  "已发送消息！")
+  "已发送消息！",
+  "تم إرسال الرسالة!")
 T("Message Not Sent", "Nachricht nicht gesendet", "Mensaje no enviado", "Message non envoyé",
   "Messaggio non inviato", "Mensagem não enviada", "Bericht niet verstuurd", "Сообщение не отправлено",
   "Nie wysłano wiadomości", "Mesaj gönderilmedi", "Meddelandet skickades inte",
-  "メッセージを送信できませんでした", "메시지를 보내지 못했습니다", "消息未发送")
+  "メッセージを送信できませんでした", "메시지를 보내지 못했습니다", "消息未发送", "لم تُرسَل الرسالة")
 T("Your message couldn't be sent. Check your connection and try again.",
   "Deine Nachricht konnte nicht gesendet werden. Prüfe deine Verbindung und versuch es noch einmal.",
   "No se ha podido enviar tu mensaje. Comprueba tu conexión e inténtalo de nuevo.",
@@ -194,4 +206,5 @@ T("Your message couldn't be sent. Check your connection and try again.",
   "Ditt meddelande kunde inte skickas. Kontrollera din anslutning och försök igen.",
   "メッセージを送信できませんでした。接続を確認してもう一度お試しください。",
   "메시지를 보내지 못했습니다. 연결을 확인한 후 다시 시도하세요.",
-  "无法发送你的消息。请检查网络连接后重试。")
+  "无法发送你的消息。请检查网络连接后重试。",
+  "تعذّر إرسال رسالتك. تحقق من اتصالك وحاول مرة أخرى.")

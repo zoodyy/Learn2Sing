@@ -16,7 +16,8 @@ T("Skip",
   "Hoppa över",
   "スキップ",
   "건너뛰기",
-  "跳过")
+  "跳过",
+  "تخطي")
 T("Continue",
   "Weiter",
   "Continuar",
@@ -30,7 +31,8 @@ T("Continue",
   "Fortsätt",
   "続ける",
   "계속",
-  "继续")
+  "继续",
+  "متابعة")
 
 # --- Leaving it, and finding it again ---
 T("Tutorial",
@@ -46,7 +48,8 @@ T("Tutorial",
   "Introduktion",
   "チュートリアル",
   "튜토리얼",
-  "使用教程")
+  "使用教程",
+  "الجولة التعريفية")
 T("You can watch it again in Settings.",
   "Du kannst sie jederzeit in den Einstellungen erneut ansehen.",
   "Puedes volver a verlo en Ajustes.",
@@ -60,7 +63,8 @@ T("You can watch it again in Settings.",
   "Du kan se den igen under Inställningar.",
   "「設定」からいつでも見直せます。",
   "설정에서 다시 볼 수 있습니다.",
-  "你可以在“设置”中再次观看。")
+  "你可以在“设置”中再次观看。",
+  "يمكنك مشاهدتها مرة أخرى في الإعدادات.")
 T("Play the introduction the app opens with on its first launch again.",
   "Spielt die Einführung erneut ab, mit der die App beim ersten Start beginnt.",
   "Vuelve a reproducir la introducción con la que la app se abre la primera vez.",
@@ -74,7 +78,8 @@ T("Play the introduction the app opens with on its first launch again.",
   "Spelar upp introduktionen som appen börjar med vid första starten igen.",
   "初回起動時に表示される紹介をもう一度再生します。",
   "앱을 처음 열 때 나오는 소개를 다시 재생합니다.",
-  "重新播放应用首次启动时显示的介绍。")
+  "重新播放应用首次启动时显示的介绍。",
+  "يعيد تشغيل المقدمة التي يُفتح بها التطبيق عند تشغيله لأول مرة.")
 
 # --- Slide: how long a day to practise ---
 # The title is "Daily practice goal", shared with the Settings row it sets — see
@@ -92,7 +97,8 @@ T("How long do you want to sing?",
   "Hur länge vill du sjunga?",
   "どれくらい歌いますか？",
   "얼마나 노래하고 싶으세요?",
-  "你想唱多久？")
+  "你想唱多久？",
+  "كم من الوقت تريد أن تغني؟")
 
 # --- Slide: light or dark ---
 T("Pick a look.",
@@ -108,7 +114,8 @@ T("Pick a look.",
   "Välj ett utseende.",
   "見た目を選んでください。",
   "원하는 모양을 고르세요.",
-  "选择一种外观。")
+  "选择一种外观。",
+  "اختر مظهرًا.")
 
 # --- Slide: where exercises come from ---
 T("Three ways to fill your library.",
@@ -124,7 +131,8 @@ T("Three ways to fill your library.",
   "Tre sätt att fylla ditt bibliotek.",
   "ライブラリを充実させる3つの方法。",
   "라이브러리를 채우는 세 가지 방법.",
-  "填充练习库的三种方式。")
+  "填充练习库的三种方式。",
+  "ثلاث طرق لملء مكتبتك.")
 T("Sing the exercises the app comes with.",
   "Sing die Übungen, die die App mitbringt.",
   "Canta los ejercicios que incluye la app.",
@@ -138,7 +146,8 @@ T("Sing the exercises the app comes with.",
   "Sjung övningarna som följer med appen.",
   "アプリに入っているエクササイズを歌う。",
   "앱에 들어 있는 연습을 불러 보세요.",
-  "唱应用自带的练习。")
+  "唱应用自带的练习。",
+  "غنِّ التمارين المرفقة مع التطبيق.")
 T("Download more from the Community tab.",
   "Lade weitere im Community-Tab herunter.",
   "Descarga más en la pestaña Comunidad.",
@@ -152,7 +161,8 @@ T("Download more from the Community tab.",
   "Ladda ner fler på fliken Community.",
   "コミュニティタブでもっとダウンロード。",
   "커뮤니티 탭에서 더 내려받으세요.",
-  "在“社区”标签下载更多。")
+  "在“社区”标签下载更多。",
+  "نزّل المزيد من تبويب المجتمع.")
 T("Write your own, and publish them.",
   "Schreib eigene Übungen und veröffentliche sie.",
   "Crea los tuyos y publícalos.",
@@ -166,7 +176,8 @@ T("Write your own, and publish them.",
   "Skriv egna och publicera dem.",
   "自分で作って公開する。",
   "직접 만들어 공개해 보세요.",
-  "自己创作，并发布出去。")
+  "自己创作，并发布出去。",
+  "اكتب تمارينك الخاصة وانشرها.")
 
 # --- Slide: what can be rearranged ---
 T("Make it yours",
@@ -182,7 +193,8 @@ T("Make it yours",
   "Helt som du vill",
   "自分好みに",
   "내 마음대로",
-  "随你定制")
+  "随你定制",
+  "اجعله على ذوقك")
 T("Change what your Home tab, playback screen and more show, how they look and how they are arranged.",
   "Ändere, was dein Start-Tab, der Wiedergabebildschirm und mehr zeigen, wie sie aussehen und wie sie angeordnet sind.",
   "Cambia qué muestran tu pestaña Inicio, la pantalla de reproducción y más, cómo se ven y cómo se organizan.",
@@ -196,7 +208,8 @@ T("Change what your Home tab, playback screen and more show, how they look and h
   "Ändra vad fliken Hem, uppspelningsskärmen och mer visar, hur de ser ut och hur de är ordnade.",
   "ホームタブや再生画面などの表示内容、見た目、並び順を変えられます。",
   "홈 탭과 재생 화면 등에서 무엇을 보여줄지, 어떻게 보일지, 어떻게 배치할지 바꿀 수 있습니다.",
-  "更改首页、播放界面等显示的内容、外观和排列方式。")
+  "更改首页、播放界面等显示的内容、外观和排列方式。",
+  "غيّر ما يُعرض في تبويب الرئيسية وشاشة التشغيل وغيرهما، وكيف يبدو وكيف يُرتَّب.")
 
 # --- Slide: the press-and-hold help ---
 T("Stuck?",
@@ -212,7 +225,8 @@ T("Stuck?",
   "Osäker?",
   "わからない？",
   "궁금한가요?",
-  "有疑问？")
+  "有疑问？",
+  "محتار؟")
 T("Press and hold anything to see what it does.",
   "Halte etwas gedrückt, um zu sehen, was es macht.",
   "Mantén pulsado cualquier cosa para ver qué hace.",
@@ -226,4 +240,5 @@ T("Press and hold anything to see what it does.",
   "Håll in vad som helst för att se vad det gör.",
   "長押しすると、それが何をするか分かります。",
   "무엇이든 길게 누르면 설명이 나옵니다.",
-  "长按任意项目即可查看它的作用。")
+  "长按任意项目即可查看它的作用。",
+  "اضغط مطولًا على أي عنصر لترى ما يفعله.")
