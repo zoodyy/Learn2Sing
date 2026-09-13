@@ -84,6 +84,9 @@ struct VocalRangeTestView: View {
         .navigationTitle(L("Vocal Range Test"))
         .navigationBarTitleDisplayMode(.inline)
         .onReceive(tick) { _ in collectSample() }
+        // Nothing here runs away while it is read: a hold only starts counting once
+        // there is a voice to hear.
+        .microphoneNotice(isDenied: pitchDetector.isMicrophoneDenied)
         .onDisappear { teardown() }
         .onChange(of: scenePhase) { _, newPhase in
             // Only once the microphone has been asked for: until "Start" this

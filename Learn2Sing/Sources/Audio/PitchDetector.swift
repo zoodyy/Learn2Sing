@@ -30,6 +30,12 @@ final class PitchDetector: ObservableObject {
     private var shouldRun = false
     private var configObserver: NSObjectProtocol?
 
+    /// Set once the system has answered that the microphone may not be used, whether
+    /// the singer just tapped "Don't Allow" or turned it off in Settings long ago.
+    /// Published, unlike the pitch: it changes at most once per detector, and the
+    /// screens that listen put up `microphoneNotice` when it does.
+    @Published private(set) var isMicrophoneDenied = false
+
     /// DEBUG RECORDING — remove together with DebugRecording.swift.
     /// Set while a run is being recorded for debugging: every microphone hop is
     /// handed to it as it arrives, so the raw input can be written to disk.
@@ -176,13 +182,19 @@ final class PitchDetector: ObservableObject {
         // is called, so we must not reconfigure it here — doing so would switch the
         // route out from under the already-running playback engine.
         AVAudioSession.sharedInstance().requestRecordPermission { [weak self] granted in
-            guard granted else { return }
             DispatchQueue.main.async {
+                guard let self else { return }
+                guard granted else {
+                    // Nothing to listen to, but whatever asked carries on without
+                    // it; telling the singer is up to the screen (`microphoneNotice`).
+                    self.isMicrophoneDenied = true
+                    return
+                }
                 // A `stop()` that came in while the answer was on its way — a pause
                 // tapped straight after resuming, the app going to the background —
                 // found no tap to remove yet. Starting one now would leave the
                 // microphone listening behind a run that has stopped asking for it.
-                guard let self, self.shouldRun else { return }
+                guard self.shouldRun else { return }
                 self.beginTap()
             }
         }

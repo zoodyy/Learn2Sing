@@ -12691,6 +12691,95 @@
         }
       }
     },
+    "Don’t Show Again" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "عدم الإظهار مرة أخرى"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nicht mehr anzeigen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No volver a mostrar"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ne plus afficher"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Non mostrare più"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "今後表示しない"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "다시 표시 안 함"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Niet meer tonen"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nie pokazuj ponownie"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Não mostrar novamente"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Больше не показывать"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Visa inte igen"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bir daha gösterme"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "不再显示"
+          }
+        }
+      }
+    },
     "Done" : {
       "localizations" : {
         "ar" : {
@@ -15347,6 +15436,95 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "输入要放在网格上的文本"
+          }
+        }
+      }
+    },
+    "Every exercise still plays, but Learn2Sing can’t hear you sing. Without the microphone, no line follows your voice, runs aren’t scored, and the vocal range and microphone delay tests can’t measure anything. You can allow access in Settings at any time." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "تستمر جميع التمارين في التشغيل، لكن Learn2Sing لا يستطيع سماع غنائك. بدون الميكروفون لن يتبع أي خط صوتك، ولن تُحتسب نتيجة للمحاولات، ولن يتمكن اختبار المدى الصوتي واختبارات تأخير الميكروفون من قياس أي شيء. يمكنك السماح بالوصول من الإعدادات في أي وقت."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alle Übungen lassen sich weiterhin abspielen, aber Learn2Sing kann dich nicht singen hören. Ohne Mikrofon folgt keine Linie deiner Stimme, Durchgänge werden nicht bewertet, und der Stimmumfangstest und die Mikrofonverzögerungstests können nichts messen. Du kannst den Zugriff jederzeit in den Einstellungen erlauben."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Todos los ejercicios se siguen reproduciendo, pero Learn2Sing no puede oírte cantar. Sin el micrófono, ninguna línea sigue tu voz, las ejecuciones no se puntúan y las pruebas de tesitura y de retardo del micrófono no pueden medir nada. Puedes permitir el acceso en Ajustes en cualquier momento."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tous les exercices restent jouables, mais Learn2Sing ne peut pas vous entendre chanter. Sans le micro, aucune ligne ne suit votre voix, les sessions ne sont pas notées, et les tests de tessiture et de retard du micro ne peuvent rien mesurer. Vous pouvez autoriser l’accès dans Réglages à tout moment."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tutti gli esercizi si possono ancora riprodurre, ma Learn2Sing non può sentirti cantare. Senza il microfono nessuna linea segue la tua voce, le esecuzioni non ricevono un punteggio e i test dell’estensione vocale e del ritardo del microfono non possono misurare nulla. Puoi consentire l’accesso in Impostazioni in qualsiasi momento."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "すべてのエクササイズはそのまま再生できますが、Learn2Singには歌声が聞こえません。マイクがないと、声に合わせて線が動かず、各回は採点されず、声域テストとマイク遅延テストでは何も測定できません。アクセスは「設定」でいつでも許可できます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "모든 연습은 그대로 재생되지만 Learn2Sing이 노래하는 목소리를 들을 수 없습니다. 마이크가 없으면 목소리를 따라가는 선이 표시되지 않고, 회차가 채점되지 않으며, 음역대 테스트와 마이크 지연 테스트로 아무것도 측정할 수 없습니다. 설정에서 언제든지 접근을 허용할 수 있습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elke oefening speelt nog steeds af, maar Learn2Sing kan je niet horen zingen. Zonder microfoon volgt geen lijn je stem, krijgen rondes geen score en kunnen de stembereiktest en de microfoonvertragingstests niets meten. Je kunt de toegang altijd toestaan in Instellingen."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Każde ćwiczenie nadal się odtwarza, ale Learn2Sing nie słyszy, jak śpiewasz. Bez mikrofonu żadna linia nie podąża za twoim głosem, przebiegi nie są oceniane, a testy skali głosu i opóźnienia mikrofonu niczego nie zmierzą. Dostęp możesz w każdej chwili włączyć w Ustawieniach."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Todos os exercícios continuam tocando, mas o Learn2Sing não consegue ouvir você cantar. Sem o microfone, nenhuma linha acompanha sua voz, as execuções não recebem pontuação e os testes de extensão vocal e de atraso do microfone não conseguem medir nada. Você pode permitir o acesso nos Ajustes a qualquer momento."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Все упражнения по-прежнему воспроизводятся, но Learn2Sing не слышит, как вы поёте. Без микрофона линия не следует за вашим голосом, проходы не оцениваются, а тесты диапазона голоса и задержки микрофона ничего не могут измерить. Разрешить доступ можно в любой момент в Настройках."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alla övningar spelas fortfarande upp, men Learn2Sing kan inte höra dig sjunga. Utan mikrofonen följer ingen linje din röst, omgångar poängsätts inte och röstomfångstestet och mikrofonfördröjningstesterna kan inte mäta något. Du kan när som helst tillåta åtkomst i Inställningar."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tüm egzersizler çalmaya devam eder, ancak Learn2Sing şarkı söylediğinizi duyamaz. Mikrofon olmadan sesinizi izleyen bir çizgi olmaz, turlar puanlanmaz ve ses aralığı ile mikrofon gecikmesi testleri hiçbir şey ölçemez. Erişime istediğiniz zaman Ayarlar’dan izin verebilirsiniz."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "所有练习仍然可以播放，但 Learn2Sing 听不到你唱歌。没有麦克风，就不会有跟随你声音的线条，每一次练唱也不会评分，音域测试和麦克风延迟测试都无法测量。你可以随时在“设置”中允许访问。"
           }
         }
       }
@@ -29822,6 +30000,94 @@
         }
       }
     },
+    "Microphone Access Is Off" : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "الوصول إلى الميكروفون متوقف"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mikrofonzugriff ist aus"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El acceso al micrófono está desactivado"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "L’accès au micro est désactivé"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "L’accesso al microfono è disattivato"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "マイクへのアクセスがオフです"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "마이크 접근이 꺼져 있습니다"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Microfoontoegang staat uit"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dostęp do mikrofonu jest wyłączony"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O acesso ao microfone está desativado"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Доступ к микрофону выключен"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mikrofonåtkomst är avstängd"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mikrofon erişimi kapalı"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "麦克风访问已关闭"
+          }
+        }
+      }
+    },
     "Microphone delay" : {
       "localizations" : {
         "ar" : {
@@ -35670,6 +35936,95 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "只有希望收到回复时才需要填写；提问时必填，否则无法回答。"
+          }
+        }
+      }
+    },
+    "Open Settings" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "فتح الإعدادات"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Einstellungen öffnen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Abrir Ajustes"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ouvrir Réglages"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apri Impostazioni"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "設定を開く"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "설정 열기"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open Instellingen"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Otwórz Ustawienia"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Abrir Ajustes"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Открыть настройки"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Öppna Inställningar"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ayarları Aç"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "打开设置"
           }
         }
       }

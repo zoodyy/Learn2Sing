@@ -976,6 +976,9 @@ struct PlaybackView: View {
     /// Set while the user has playback paused via the toolbar button. Freezes the
     /// TimelineView (so the canvas holds its last frame) alongside the audio.
     @State private var isPaused = false
+    /// Set while the run is paused because the microphone notice came up, so
+    /// dismissing it carries on only a pause the notice made itself.
+    @State private var isPausedForMicrophoneNotice = false
     /// Screen y of the pause button's frame, measured in the toolbar so the playhead
     /// line can stop level with the bar's buttons instead of at the screen edge.
     @State private var pauseButtonBottom: CGFloat? = nil
@@ -1101,6 +1104,11 @@ struct PlaybackView: View {
         // toolbar modifier that stays put across them, rather than one appearing
         // as another goes and the bar animating on whichever wins.
         .toolbar(visuals.hideTabBar && showsRunCanvas ? .hidden : .automatic, for: .tabBar)
+        // Out here too, so a notice still being read when the clap test (which can't
+        // pause) plays out stays up over its result rather than vanishing with the run.
+        .microphoneNotice(isDenied: pitchDetector.isMicrophoneDenied,
+                          onShow: pauseForMicrophoneNotice,
+                          onDismiss: resumeAfterMicrophoneNotice)
     }
 
     private var playback: some View {
@@ -1495,6 +1503,24 @@ struct PlaybackView: View {
         player.pauseForBackground()
         pitchDetector.stop()
         isPaused = true
+    }
+
+    /// Holds the run still while the microphone notice is read, the way the pause
+    /// button would. The clap test has no pause to borrow (see the toolbar), so it
+    /// plays on underneath.
+    private func pauseForMicrophoneNotice() {
+        guard playsExercise, finalScore == nil, delayResultMs == nil, !isCalibrating, !isPaused else { return }
+        togglePause()
+        isPausedForMicrophoneNotice = true
+    }
+
+    /// Carries on a run the notice paused, once it is dismissed with OK or "Don't
+    /// Show Again". "Open Settings" never calls this, so the singer comes back from
+    /// Settings to the run still paused and picks it up with the play button.
+    private func resumeAfterMicrophoneNotice() {
+        guard isPausedForMicrophoneNotice else { return }
+        isPausedForMicrophoneNotice = false
+        if isPaused { togglePause() }
     }
 
     private func teardownAudio() {
