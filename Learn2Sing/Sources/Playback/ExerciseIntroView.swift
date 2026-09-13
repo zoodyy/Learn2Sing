@@ -358,7 +358,7 @@ struct ExerciseIntroView: View {
     /// rather than the server, so there is no count beside it and no round trip
     /// behind it: the star fills in the app's accent colour, the Exercises tab
     /// lists the exercise at the top of its category, and the Home tab's
-    /// "Favourites" picks it up.
+    /// "Favorites" picks it up.
     private var favouriteButton: some View {
         let isFavourite = store.favourites.contains(exercise.id)
         return Button {
@@ -373,8 +373,8 @@ struct ExerciseIntroView: View {
                 .background(.fill.tertiary, in: Capsule())
         }
         .buttonStyle(.plain)
-        .accessibilityLabel(isFavourite ? L("Remove Favourite") : L("Favourite"))
-        .explain(L("Tap the star to make this exercise a favourite. Favourites come first in their category on the Exercises tab and fill the Home tab's “Favourites”."))
+        .accessibilityLabel(isFavourite ? L("Remove Favorite") : L("Favorite"))
+        .explain(L("Tap the star to make this exercise a favorite. Favorites come first in their category on the Exercises tab and fill the Home tab's “Favorites”."))
     }
 
     /// How often this exercise has been downloaded — the same number the

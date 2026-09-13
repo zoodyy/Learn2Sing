@@ -104,16 +104,16 @@ T("Automatic", "Automatisch", "Automático", "Automatique", "Automatico", "Autom
 T("iPhone Speaker", "iPhone-Lautsprecher", "Altavoz del iPhone", "Haut-parleur de l’iPhone", "Altoparlante dell’iPhone", "Alto-falante do iPhone", "iPhone-luidspreker", "Динамик iPhone", "Głośnik iPhone’a", "iPhone Hoparlörü", "iPhone-högtalare", "iPhoneのスピーカー", "iPhone 스피커", "iPhone 扬声器", "مكبر صوت iPhone")
 T("iPhone Microphone", "iPhone-Mikrofon", "Micrófono del iPhone", "Micro de l’iPhone", "Microfono dell’iPhone", "Microfone do iPhone", "iPhone-microfoon", "Микрофон iPhone", "Mikrofon iPhone’a", "iPhone Mikrofonu", "iPhone-mikrofon", "iPhoneのマイク", "iPhone 마이크", "iPhone 麦克风", "ميكروفون iPhone")
 T("Scoring", "Bewertung", "Puntuación", "Notation", "Punteggio", "Pontuação", "Score", "Оценка", "Ocena", "Puanlama", "Poäng", "採点", "점수", "评分", "احتساب النتيجة")
-T("Automatically Recognise Microphone Delay", "Mikrofonverzögerung automatisch erkennen", "Detectar automáticamente el retardo del micrófono", "Détecter automatiquement le retard du micro", "Rileva automaticamente il ritardo del microfono", "Detectar automaticamente o atraso do microfone", "Microfoonvertraging automatisch herkennen", "Автоматически определять задержку микрофона", "Automatycznie rozpoznawaj opóźnienie mikrofonu", "Mikrofon gecikmesini otomatik algıla", "Känn av mikrofonfördröjningen automatiskt", "マイク遅延を自動で認識", "마이크 지연 자동 인식", "自动识别麦克风延迟", "التعرف على تأخير الميكروفون تلقائيًا")
+T("Automatically recognize microphone delay", "Mikrofonverzögerung automatisch erkennen", "Detectar automáticamente el retardo del micrófono", "Détecter automatiquement le retard du micro", "Rileva automaticamente il ritardo del microfono", "Detectar automaticamente o atraso do microfone", "Microfoonvertraging automatisch herkennen", "Автоматически определять задержку микрофона", "Automatycznie rozpoznawaj opóźnienie mikrofonu", "Mikrofon gecikmesini otomatik algıla", "Känn av mikrofonfördröjningen automatiskt", "マイク遅延を自動で認識", "마이크 지연 자동 인식", "自动识别麦克风延迟", "التعرف على تأخير الميكروفون تلقائيًا")
 T("Microphone delay", "Mikrofonverzögerung", "Retardo del micrófono", "Retard du micro", "Ritardo del microfono", "Atraso do microfone", "Microfoonvertraging", "Задержка микрофона", "Opóźnienie mikrofonu", "Mikrofon gecikmesi", "Mikrofonfördröjning", "マイク遅延", "마이크 지연", "麦克风延迟", "تأخير الميكروفون")
 T("ms", "ms", "ms", "ms", "ms", "ms", "ms", "мс", "ms", "ms", "ms", "ミリ秒", "밀리초", "毫秒", "مللي ث")
-T("Test for delay", "Verzögerung messen", "Medir el retardo", "Mesurer le retard", "Misura il ritardo", "Medir o atraso", "Vertraging meten", "Измерить задержку", "Zmierz opóźnienie", "Gecikmeyi ölç", "Mät fördröjning", "遅延を測定", "지연 측정", "测量延迟", "اختبار التأخير")
+T("Test for Delay", "Verzögerung messen", "Medir el retardo", "Mesurer le retard", "Misura il ritardo", "Medir o atraso", "Vertraging meten", "Измерить задержку", "Zmierz opóźnienie", "Gecikmeyi ölç", "Mät fördröjning", "遅延を測定", "지연 측정", "测量延迟", "اختبار التأخير")
 
 # --- Microphone access notice: exercise runs and the vocal range test ---
 T("Microphone Access Is Off", "Mikrofonzugriff ist aus", "El acceso al micrófono está desactivado", "L’accès au micro est désactivé", "L’accesso al microfono è disattivato", "O acesso ao microfone está desativado", "Microfoontoegang staat uit", "Доступ к микрофону выключен", "Dostęp do mikrofonu jest wyłączony", "Mikrofon erişimi kapalı", "Mikrofonåtkomst är avstängd", "マイクへのアクセスがオフです", "마이크 접근이 꺼져 있습니다", "麦克风访问已关闭", "الوصول إلى الميكروفون متوقف")
 T("Open Settings", "Einstellungen öffnen", "Abrir Ajustes", "Ouvrir Réglages", "Apri Impostazioni", "Abrir Ajustes", "Open Instellingen", "Открыть настройки", "Otwórz Ustawienia", "Ayarları Aç", "Öppna Inställningar", "設定を開く", "설정 열기", "打开设置", "فتح الإعدادات")
-T("Don’t Show Again", "Nicht mehr anzeigen", "No volver a mostrar", "Ne plus afficher", "Non mostrare più", "Não mostrar novamente", "Niet meer tonen", "Больше не показывать", "Nie pokazuj ponownie", "Bir daha gösterme", "Visa inte igen", "今後表示しない", "다시 표시 안 함", "不再显示", "عدم الإظهار مرة أخرى")
-T("Every exercise still plays, but Learn2Sing can’t hear you sing. Without the microphone, no line follows your voice, runs aren’t scored, and the vocal range and microphone delay tests can’t measure anything. You can allow access in Settings at any time.",
+T("Don't Show Again", "Nicht mehr anzeigen", "No volver a mostrar", "Ne plus afficher", "Non mostrare più", "Não mostrar novamente", "Niet meer tonen", "Больше не показывать", "Nie pokazuj ponownie", "Bir daha gösterme", "Visa inte igen", "今後表示しない", "다시 표시 안 함", "不再显示", "عدم الإظهار مرة أخرى")
+T("Every exercise still plays, but Learn2Sing can't hear you sing. Without the microphone, no line follows your voice, runs aren't scored, and the vocal range and microphone delay tests can't measure anything. You can allow access in Settings at any time.",
   "Alle Übungen lassen sich weiterhin abspielen, aber Learn2Sing kann dich nicht singen hören. Ohne Mikrofon folgt keine Linie deiner Stimme, Durchgänge werden nicht bewertet, und der Stimmumfangstest und die Mikrofonverzögerungstests können nichts messen. Du kannst den Zugriff jederzeit in den Einstellungen erlauben.",
   "Todos los ejercicios se siguen reproduciendo, pero Learn2Sing no puede oírte cantar. Sin el micrófono, ninguna línea sigue tu voz, las ejecuciones no se puntúan y las pruebas de tesitura y de retardo del micrófono no pueden medir nada. Puedes permitir el acceso en Ajustes en cualquier momento.",
   "Tous les exercices restent jouables, mais Learn2Sing ne peut pas vous entendre chanter. Sans le micro, aucune ligne ne suit votre voix, les sessions ne sont pas notées, et les tests de tessiture et de retard du micro ne peuvent rien mesurer. Vous pouvez autoriser l’accès dans Réglages à tout moment.",
@@ -262,7 +262,7 @@ T("Compensates for the lag between singing and pitch detection. Only the score i
 # --- Instruments screen ---
 T("Built-in", "Integriert", "Integrados", "Intégrés", "Integrati", "Integrados", "Ingebouwd", "Встроенные", "Wbudowane", "Yerleşik", "Inbyggda", "内蔵", "기본 제공", "内置", "مدمجة")
 T("Custom", "Eigene", "Personalizado", "Personnalisé", "Personalizzato", "Personalizado", "Aangepast", "Свои", "Własne", "Özel", "Egna", "カスタム", "사용자 지정", "自定义", "مخصص")
-T("Play sample", "Beispiel abspielen", "Reproducir muestra", "Écouter un exemple", "Riproduci esempio", "Reproduzir amostra", "Voorbeeld afspelen", "Прослушать пример", "Odtwórz próbkę", "Örneği çal", "Spela upp exempel", "サンプルを再生", "샘플 재생", "播放示例", "تشغيل عيّنة")
+T("Play Sample", "Beispiel abspielen", "Reproducir muestra", "Écouter un exemple", "Riproduci esempio", "Reproduzir amostra", "Voorbeeld afspelen", "Прослушать пример", "Odtwórz próbkę", "Örneği çal", "Spela upp exempel", "サンプルを再生", "샘플 재생", "播放示例", "تشغيل عيّنة")
 T("Upload an MP3 or WAV file containing a single sound. Playback shifts it up and down from its pitch to reach every note. After uploading, set the pitch the recording actually has.",
   "Lade eine MP3- oder WAV-Datei mit einem einzelnen Klang hoch. Die Wiedergabe verschiebt ihn von seiner Tonhöhe aus nach oben und unten, um alle Noten zu erreichen. Stelle nach dem Hochladen die tatsächliche Tonhöhe der Aufnahme ein.",
   "Sube un archivo MP3 o WAV con un solo sonido. La reproducción lo desplaza hacia arriba y abajo desde su tono para alcanzar todas las notas. Después de subirlo, indica el tono real de la grabación.",
@@ -300,7 +300,7 @@ T("Not recognized", "Nicht erkannt", "No reconocido", "Non reconnu", "Non ricono
 T("Use for Playback", "Für Wiedergabe verwenden", "Usar para la reproducción", "Utiliser pour la lecture", "Usa per la riproduzione", "Usar na reprodução", "Gebruiken voor afspelen", "Использовать для воспроизведения", "Użyj do odtwarzania", "Çalma için kullan", "Använd vid uppspelning", "再生に使用", "재생에 사용", "用于播放", "استخدام للتشغيل")
 T("Delete Instrument", "Instrument löschen", "Eliminar instrumento", "Supprimer l’instrument", "Elimina strumento", "Excluir instrumento", "Instrument verwijderen", "Удалить инструмент", "Usuń instrument", "Enstrümanı sil", "Radera instrument", "楽器を削除", "악기 삭제", "删除乐器", "حذف الآلة")
 T("Delete Instrument?", "Instrument löschen?", "¿Eliminar el instrumento?", "Supprimer l’instrument ?", "Eliminare lo strumento?", "Excluir instrumento?", "Instrument verwijderen?", "Удалить инструмент?", "Usunąć instrument?", "Enstrüman silinsin mi?", "Radera instrumentet?", "楽器を削除しますか？", "악기를 삭제할까요?", "要删除该乐器吗？", "حذف الآلة؟")
-T("\"%@\" and its audio file will be deleted. This cannot be undone.",
+T("“%@” and its audio file will be deleted. This cannot be undone.",
   "„%@“ und die zugehörige Audiodatei werden gelöscht. Das lässt sich nicht rückgängig machen.",
   "Se eliminarán «%@» y su archivo de audio. Esta acción no se puede deshacer.",
   "« %@ » et son fichier audio seront supprimés. Cette action est irréversible.",
@@ -372,7 +372,7 @@ T("Sing your lowest and highest notes and the app sets them as your custom vocal
 # --- Voice: score calculation ---
 T("Score Calculation", "Punkteberechnung", "Cálculo de la puntuación", "Calcul de la note", "Calcolo del punteggio", "Cálculo da pontuação", "Scoreberekening", "Подсчёт оценки", "Obliczanie wyniku", "Puan hesaplama", "Poängberäkning", "採点方法", "점수 계산", "评分计算", "حساب النتيجة")
 T("Target window size", "Größe des Zielfensters", "Tamaño de la ventana objetivo", "Taille de la fenêtre cible", "Dimensione della finestra target", "Tamanho da janela alvo", "Grootte van het doelvenster", "Размер целевого окна", "Rozmiar okna docelowego", "Hedef pencere boyutu", "Målfönstrets storlek", "ターゲット範囲の大きさ", "목표 범위 크기", "目标范围大小", "حجم النافذة المستهدفة")
-T("How much of a note counts as hit when your score is worked out. At 100% the whole note counts, as it always has; lower, and only that share of the note's middle does, so you have to sing nearer the centre of the pitch for it to count.",
+T("How much of a note counts as hit when your score is worked out. At 100% the whole note counts, as it always has; lower, and only that share of the note's middle does, so you have to sing nearer the center of the pitch for it to count.",
   "Wie viel einer Note als getroffen zählt, wenn deine Punktzahl berechnet wird. Bei 100 % zählt die ganze Note, wie bisher; darunter zählt nur dieser Anteil ihrer Mitte, du musst also näher an der Mitte der Tonhöhe singen, damit sie zählt.",
   "Qué parte de una nota cuenta como acertada al calcular tu puntuación. Al 100 % cuenta la nota entera, como hasta ahora; por debajo solo cuenta esa proporción de su centro, así que tienes que cantar más cerca del centro del tono para que cuente.",
   "Quelle part d’une note compte comme atteinte lors du calcul de votre note. À 100 %, toute la note compte, comme jusqu’ici ; en dessous, seule cette part de son centre compte, vous devez donc chanter plus près du centre de la hauteur pour qu’elle compte.",
@@ -407,7 +407,7 @@ T("The part of the note you have to hit for it to count",
 T("Show recommendations as list", "Empfehlungen als Liste zeigen", "Mostrar recomendaciones como lista", "Afficher les recommandations en liste", "Mostra i consigliati come elenco", "Mostrar recomendações como lista", "Aanbevelingen als lijst tonen", "Показывать рекомендации списком", "Pokazuj polecane jako listę", "Önerileri liste olarak göster", "Visa rekommendationer som lista", "おすすめをリストで表示", "추천을 목록으로 표시", "以列表显示推荐", "عرض الاقتراحات كقائمة")
 T("Recommendations", "Empfehlungen", "Recomendaciones", "Recommandations", "Raccomandazioni", "Recomendações", "Aanbevelingen", "Рекомендации", "Rekomendacje", "Öneriler", "Rekommendationer", "おすすめ", "추천", "推荐", "الاقتراحات")
 T("Daily practice goal", "Tägliches Übungsziel", "Objetivo diario de práctica", "Objectif de pratique quotidien", "Obiettivo di pratica giornaliero", "Meta diária de prática", "Dagelijks oefendoel", "Ежедневная цель занятий", "Dzienny cel ćwiczeń", "Günlük çalışma hedefi", "Dagligt övningsmål", "1日の練習目標", "하루 연습 목표", "每天的练习目标", "هدف التمرّن اليومي")
-T("Customise your Home Screen", "Start-Tab anpassen", "Personalizar la pestaña Inicio", "Personnaliser l’onglet Accueil", "Personalizza la scheda Home", "Personalizar a aba Início", "Tabblad Start aanpassen", "Настроить вкладку «Главная»", "Dostosuj kartę Start", "Ana Sayfa sekmesini özelleştir", "Anpassa fliken Hem", "ホームタブをカスタマイズ", "홈 탭 맞춤 설정", "自定义首页标签", "خصّص شاشتك الرئيسية")
+T("Customize your Home tab", "Start-Tab anpassen", "Personalizar la pestaña Inicio", "Personnaliser l’onglet Accueil", "Personalizza la scheda Home", "Personalizar a aba Início", "Tabblad Start aanpassen", "Настроить вкладку «Главная»", "Dostosuj kartę Start", "Ana Sayfa sekmesini özelleştir", "Anpassa fliken Hem", "ホームタブをカスタマイズ", "홈 탭 맞춤 설정", "自定义首页标签", "خصّص شاشتك الرئيسية")
 T("Whitelisted exercises", "Zugelassene Übungen", "Ejercicios permitidos", "Exercices autorisés", "Esercizi ammessi", "Exercícios permitidos", "Toegestane oefeningen", "Разрешённые упражнения", "Dozwolone ćwiczenia", "İzin verilen egzersizler", "Tillåtna övningar", "対象のエクササイズ", "허용된 연습", "已列入的练习", "التمارين المسموح بها")
 T("Automatically whitelisted exercises", "Automatisch zugelassene Übungen", "Ejercicios permitidos automáticamente", "Exercices autorisés automatiquement", "Esercizi ammessi automaticamente", "Exercícios permitidos automaticamente", "Automatisch toegestane oefeningen", "Автоматически разрешённые упражнения", "Automatycznie dozwolone ćwiczenia", "Otomatik izin verilen egzersizler", "Automatiskt tillåtna övningar", "自動で対象にするエクササイズ", "자동으로 허용되는 연습", "自动列入的练习", "التمارين المسموح بها تلقائيًا")
 T("Whitelisted Exercises", "Zugelassene Übungen", "Ejercicios permitidos", "Exercices autorisés", "Esercizi ammessi", "Exercícios permitidos", "Toegestane oefeningen", "Разрешённые упражнения", "Dozwolone ćwiczenia", "İzin verilen egzersizler", "Tillåtna övningar", "対象のエクササイズ", "허용된 연습", "已列入的练习", "التمارين المسموح بها")
@@ -426,7 +426,7 @@ T("Lists the recommended exercises in the Home tab's “Recommended” category,
   "홈 탭의 “추천” 카테고리에서 추천 연습을 한 줄씩 목록으로 보여 줍니다. 끄면 카테고리가 대신 카드 하나를 보여 주며, 이를 누르면 전체를 하나의 대기열로 재생합니다.",
   "在“首页”标签的“推荐”类别中逐行列出推荐练习。关闭时，该类别改为显示一张卡片，点按可将它们作为一个队列依次播放。",
   "يعرض التمارين المقترحة في فئة «المقترحة» في تبويب الرئيسية، كل تمرين في صف. عند إيقافه تعرض الفئة بطاقة واحدة بدلًا من ذلك، تشغّلها كلها كقائمة انتظار واحدة.")
-T("How long you mean to practise a day. The Home tab's “Recommended” category suggests exercises adding up to at least this long, pitched at your skill level and steering clear of the ones you've sung lately, above all the ones you've sung over and over. A day of the Home tab's “Time Spent Singing” is filled in and ticked once you have practised this much.",
+T("How long you mean to practice a day. The Home tab's “Recommended” category suggests exercises adding up to at least this long, pitched at your skill level and steering clear of the ones you've sung lately, above all the ones you've sung over and over. A day of the Home tab's “Time Spent Singing” is filled in and checked off once you have practiced this much.",
   "Wie lange du am Tag üben möchtest. Die Kategorie „Empfohlen“ im Start-Tab schlägt Übungen vor, die zusammen mindestens so lange dauern, abgestimmt auf dein Niveau. Dabei meidet sie Übungen, die du kürzlich gesungen hast, und ganz besonders solche, die du immer wieder gesungen hast. Ein Tag in „Gesungene Zeit“ im Start-Tab wird ausgefüllt und bekommt einen Haken, sobald du so lange geübt hast.",
   "Cuánto tiempo quieres practicar al día. La categoría «Recomendado» de la pestaña Inicio sugiere ejercicios que sumen al menos ese tiempo, ajustados a tu nivel y evitando los que has cantado hace poco, sobre todo los que has cantado una y otra vez. Un día de «Tiempo cantado» de la pestaña Inicio se rellena y recibe una marca en cuanto has practicado ese tiempo.",
   "Combien de temps vous comptez travailler par jour. La catégorie « Recommandé » de l’onglet Accueil propose des exercices dont la durée totale atteint au moins ce temps, adaptés à votre niveau, en évitant ceux que vous avez chantés récemment, et surtout ceux que vous avez chantés encore et encore. Un jour de « Temps de chant » de l’onglet Accueil se remplit et reçoit une coche dès que vous avez travaillé aussi longtemps.",
@@ -441,7 +441,7 @@ T("How long you mean to practise a day. The Home tab's “Recommended” categor
   "하루에 얼마나 연습할지입니다. 홈 탭의 “추천” 카테고리는 합쳐서 최소 이만큼 걸리는 연습을 나의 레벨에 맞춰 제안합니다. 최근에 부른 연습, 특히 여러 번 반복해서 부른 연습은 피해서 고릅니다. 홈 탭 “노래한 시간”의 하루는 이만큼 연습하면 색이 채워지고 체크 표시가 붙습니다.",
   "你打算每天练习多长时间。“首页”标签中的“推荐”类别会按你的水平，建议加起来至少这么长的练习，并避开你最近唱过的练习，尤其是反复唱过很多次的。“首页”标签的“歌唱时长”中，某一天练满这么久后就会被填满并打上对勾。",
   "المدة التي تنوي التمرّن فيها يوميًا. تقترح فئة «المقترحة» في تبويب الرئيسية تمارين لا يقل مجموعها عن هذه المدة، تناسب مستوى مهارتك وتتجنب ما غنيته مؤخرًا، وخصوصًا ما غنيته مرارًا وتكرارًا. يُملأ اليوم في «وقت الغناء» في تبويب الرئيسية وتوضع عليه علامة بمجرد أن تتمرّن هذه المدة.")
-T("Which exercises are whitelisted for you: switching a group on whitelists everything in it, including what was already in your library, and switching it off takes them out again. Exercises you tick or untick yourself below are left as you left them.",
+T("Which exercises are whitelisted for you: switching a group on whitelists everything in it, including what was already in your library, and switching it off takes them out again. Exercises you check or uncheck yourself below are left as you left them.",
   "Welche Übungen automatisch zugelassen werden: Schaltest du eine Gruppe ein, wird alles darin zugelassen — auch was schon in deiner Bibliothek war —, schaltest du sie aus, wird es wieder entfernt. Übungen, die du unten selbst an- oder abwählst, bleiben so, wie du sie gelassen hast.",
   "Qué ejercicios se permiten automáticamente: al activar un grupo se permiten todos los suyos, incluidos los que ya estaban en tu biblioteca, y al desactivarlo se vuelven a quitar. Los ejercicios que marcas o desmarcas tú abajo se quedan como los dejaste.",
   "Quels exercices sont autorisés automatiquement : activer un groupe autorise tout ce qu’il contient, y compris ce qui était déjà dans votre bibliothèque, et le désactiver les retire à nouveau. Les exercices que vous cochez ou décochez vous-même ci-dessous restent comme vous les avez laissés.",
@@ -456,7 +456,7 @@ T("Which exercises are whitelisted for you: switching a group on whitelists ever
   "어떤 연습을 자동으로 허용할지 정합니다. 그룹을 켜면 이미 라이브러리에 있던 것까지 그 안의 모든 연습이 허용되고, 끄면 다시 제외됩니다. 아래에서 직접 선택하거나 해제한 연습은 그대로 유지됩니다.",
   "哪些练习会被自动列入：打开某一组会列入其中的全部练习，包括你库中已有的；关闭则会重新移除。你在下面自己勾选或取消的练习会保持原样。",
   "أي التمارين مسموح بها لك: تشغيل مجموعة يسمح بكل ما فيها، بما في ذلك ما كان في مكتبتك من قبل، وإيقافها يُخرجها مرة أخرى. التمارين التي تحددها أو تلغي تحديدها بنفسك أدناه تبقى كما تركتها.")
-T("The exercises recommendations are picked from. The groups picked above are ticked for you; tap an exercise to add or remove it yourself, which the groups then leave alone.",
+T("The exercises recommendations are picked from. The groups picked above are checked for you; tap an exercise to add or remove it yourself, which the groups then leave alone.",
   "Die Übungen, aus denen Empfehlungen ausgewählt werden. Die oben gewählten Gruppen werden automatisch angehakt; tippe auf eine Übung, um sie selbst hinzuzufügen oder zu entfernen — die Gruppen lassen sie dann in Ruhe.",
   "Los ejercicios entre los que se eligen las recomendaciones. Los grupos elegidos arriba se marcan por ti; toca un ejercicio para añadirlo o quitarlo tú mismo, y los grupos ya no lo tocarán.",
   "Les exercices parmi lesquels les recommandations sont choisies. Les groupes choisis ci-dessus sont cochés pour vous ; touchez un exercice pour l’ajouter ou le retirer vous-même, et les groupes le laisseront alors tranquille.",
@@ -535,7 +535,7 @@ T("%1$d of %2$d selected",
   "%2$d개 중 %1$d개 선택됨",
   "已选择 %2$d 项中的 %1$d 项",
   "تم تحديد %1$d من %2$d")
-T("Ticks every exercise at once, or clears them all.",
+T("Checks every exercise at once, or clears them all.",
   "Wählt alle Übungen auf einmal aus oder hebt die Auswahl komplett auf.",
   "Marca todos los ejercicios de una vez, o los desmarca todos.",
   "Coche tous les exercices d’un coup, ou les décoche tous.",
@@ -550,7 +550,7 @@ T("Ticks every exercise at once, or clears them all.",
   "모든 연습을 한 번에 선택하거나 모두 해제합니다.",
   "一次勾选所有练习，或全部取消勾选。",
   "يحدد كل التمارين دفعة واحدة، أو يلغي تحديدها كلها.")
-T("Writes the ticked exercises to a file and opens the share sheet, where you can send it, copy it, or save it to Files.",
+T("Writes the checked exercises to a file and opens the share sheet, where you can send it, copy it, or save it to Files.",
   "Schreibt die ausgewählten Übungen in eine Datei und öffnet das Teilen-Menü, wo du sie versenden, kopieren oder in „Dateien“ sichern kannst.",
   "Guarda los ejercicios marcados en un archivo y abre el menú de compartir, desde donde puedes enviarlo, copiarlo o guardarlo en Archivos.",
   "Écrit les exercices cochés dans un fichier et ouvre la feuille de partage, d’où vous pouvez l’envoyer, le copier ou l’enregistrer dans Fichiers.",
@@ -565,7 +565,7 @@ T("Writes the ticked exercises to a file and opens the share sheet, where you ca
   "선택한 연습을 파일로 저장하고 공유 시트를 엽니다. 거기서 파일을 보내거나 복사하거나 ‘파일’ 앱에 저장할 수 있습니다.",
   "将勾选的练习写入文件并打开共享菜单，你可以从那里发送、拷贝或存储到“文件”。",
   "يكتب التمارين المحددة في ملف ويفتح ورقة المشاركة، حيث يمكنك إرساله أو نسخه أو حفظه في «الملفات».")
-T("Ticked exercises you already have are replaced by the version in this file.",
+T("Checked exercises you already have are replaced by the version in this file.",
   "Ausgewählte Übungen, die du schon hast, werden durch die Fassung aus dieser Datei ersetzt.",
   "Los ejercicios marcados que ya tienes se sustituyen por la versión de este archivo.",
   "Les exercices cochés que vous avez déjà sont remplacés par la version de ce fichier.",
@@ -580,7 +580,7 @@ T("Ticked exercises you already have are replaced by the version in this file.",
   "선택한 연습 중 이미 가지고 있는 것은 이 파일의 버전으로 대체됩니다.",
   "勾选的、你已拥有的练习将被此文件中的版本替换。",
   "التمارين المحددة الموجودة لديك بالفعل تُستبدل بالنسخة الموجودة في هذا الملف.")
-T("Adds the ticked new exercises to your library and updates the ticked ones it already has. Everything left unticked is ignored.",
+T("Adds the checked new exercises to your library and updates the checked ones it already has. Everything left unchecked is ignored.",
   "Fügt die ausgewählten neuen Übungen deiner Bibliothek hinzu und aktualisiert die ausgewählten, die schon darin sind. Alles nicht Ausgewählte wird übergangen.",
   "Añade a tu biblioteca los ejercicios nuevos marcados y actualiza los marcados que ya están en ella. Todo lo que quede sin marcar se ignora.",
   "Ajoute à votre bibliothèque les nouveaux exercices cochés et met à jour ceux qui y sont déjà. Tout ce qui n’est pas coché est ignoré.",

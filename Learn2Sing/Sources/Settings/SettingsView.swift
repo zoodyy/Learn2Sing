@@ -63,7 +63,7 @@ struct SettingsView: View {
                     .foregroundStyle(.primary)
                     .setting(.tutorial)
 
-                    hubLink(L("Request a new Feature/ Report a Bug"),
+                    hubLink(L("Request a New Feature / Report a Bug"),
                             systemImage: "exclamationmark.bubble", route: .feedback)
                         .setting(.feedback)
                 } footer: {
@@ -313,7 +313,7 @@ struct SettingsView: View {
         This test measures how long it takes your microphone to pick up sound, so \
         the app can line your singing up with the notes when scoring.
 
-        A steady metronome will tick along with short markers labelled “clap”. \
+        A steady metronome will tick along with short markers labeled “clap”. \
         Clap your hands once on every tick. The first four ticks are just to help \
         you settle into the beat and aren't counted — keep clapping through the \
         rest, sixteen in all.
@@ -592,7 +592,7 @@ struct HomeTabSettingsView: View {
             Section {
                 Button(action: openCategories) {
                     HStack {
-                        Text("Customise your Home Screen")
+                        Text("Customize your Home tab")
                         Spacer()
                         Image(systemName: "chevron.forward")
                             .font(.footnote.weight(.semibold))

@@ -402,7 +402,7 @@ struct EditingView: View {
                     toolButton(.text,  system: "textformat",
                                help: L("Write a label on the grid, for the syllable to sing. Tap a label to change it, or drag it somewhere else."))
                     toolButton(.erase, system: "eraser",
-                               help: L("Rub out notes and labels by dragging across them."))
+                               help: L("Erase notes and labels by dragging across them."))
                     toolButton(.hand,  system: "hand.point.up.left",
                                help: L("Scroll the grid around without changing anything."))
                 }
@@ -413,7 +413,7 @@ struct EditingView: View {
             Button("OK") { commitText() }
             Button("Cancel", role: .cancel) { cancelText() }
         } message: {
-            Text("Enter text to place on the grid")
+            Text("Enter text to place on the grid.")
         }
         .alert("Overlapping Notes", isPresented: $showOverlapWarning) {
             Button("Stay in Editor", role: .cancel) { }
@@ -548,7 +548,7 @@ struct EditingView: View {
     }
 
     /// Put the pattern back the way it was when the editor opened, then pop. The
-    /// pop's "Midi Saved!" toast is swallowed — nothing was saved.
+    /// pop's "MIDI Saved!" toast is swallowed — nothing was saved.
     private func leaveDiscardingChanges() {
         notes = savedNotes
         texts = savedTexts

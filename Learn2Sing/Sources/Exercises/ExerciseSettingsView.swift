@@ -163,7 +163,7 @@ struct ExerciseSettingsView: View {
             }
             Button("Cancel", role: .cancel) {}
         } message: {
-            Text(L("\"%@\" and its MIDI pattern will be deleted. This cannot be undone.", exercise.name))
+            Text(L("“%@” and its MIDI pattern will be deleted. This cannot be undone.", exercise.name))
         }
         // Publishing stamps the current profile username as the uploader shown
         // next to the exercise on the Community tab — unless the exercise is too
@@ -202,7 +202,7 @@ struct ExerciseSettingsView: View {
         .alert("Name Already Public", isPresented: $isWarningDuplicateName) {
             Button("OK", role: .cancel) {}
         } message: {
-            Text(L("You already have a public exercise named \"%@\". Each of your public exercises needs a unique name, so this one stays private.", exercise.name))
+            Text(L("You already have a public exercise named “%@”. Each of your public exercises needs a unique name, so this one stays private.", exercise.name))
         }
         .alert("Too Short to Publish", isPresented: $isWarningTooShortToPublish) {
             Button("OK", role: .cancel) {}
@@ -325,7 +325,7 @@ struct ExerciseSettingsView: View {
                     }
                     .contentShape(Rectangle())
                     .onTapGesture { focusedField = .transpose }
-                    .settingHelp(L("Each repetition starts this many semitones above the one before it. A negative value works downwards."))
+                    .settingHelp(L("Each repetition starts this many semitones above the one before it. A negative value works downward."))
 
                     if exercise.repeatCount > 2 && exercise.transposePerRepeat != 0 {
                         HStack {

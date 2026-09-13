@@ -36,8 +36,8 @@ extracted_by_xcode = set(extraction["extractedByXcode"])
 INDIRECT = [
     # VocalRange
     "Bass", "Baritone", "Tenor", "Alto", "Mezzo", "Soprano", "Custom",
-    # Instrument
-    "Piano", "Sin Wave", "Guitar", "Voice",
+    # Instrument ("Sine Wave" is a literal in `Instrument.title`: its raw value is misspelt)
+    "Piano", "Guitar", "Voice",
     # AppTheme / OrientationLock
     "System", "Light", "Dark", "Don't lock", "Portrait", "Landscape",
     # PlaybackFont / PlayheadStyle / RepetitionCounterPosition
@@ -51,12 +51,13 @@ INDIRECT = [
     "Automatic", "iPhone Speaker", "iPhone Microphone",
     # Categories: bundled + Home tab built-ins
     "Tone", "Scales", "Articulation", "Agility", "Range", "No Category",
-    "Recent", "Routines", "Favourites", "Recommended", "Time Spent Singing", "New for You",
+    "Recent", "Routines", "Favorites", "Recommended", "Time Spent Singing", "New for You",
     # Bundled visual templates
     "Simplest - dark", "Simplest - light",
     # FeedbackType / FeedbackLocation (the tab names are extracted from the
-    # ContentView tabs they name, so only "Other" is listed here)
-    "Bug", "Feature Request", "Feedback", "Question", "Other",
+    # ContentView tabs they name, so only "Other" is listed here, and
+    # "Feature request" is a literal in `FeedbackType.title`)
+    "Bug", "Feedback", "Question", "Other",
 ]
 
 bundle = json.loads((APP / "Bundled" / "BundledExercises.json").read_text())

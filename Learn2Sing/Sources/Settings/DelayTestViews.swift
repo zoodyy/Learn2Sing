@@ -3,14 +3,14 @@
 //  Learn2Sing
 //
 //  The two ways of measuring the microphone delay, reached from Settings ▸ Audio ▸
-//  "Test for delay": the clap test, which times claps against a metronome and works
+//  "Test for Delay": the clap test, which times claps against a metronome and works
 //  the value out itself, and the sung test, which plays one of the user's own
 //  exercises and lets them line their recorded singing up with the notes by hand.
 //
 
 import SwiftUI
 
-/// The screen "Test for delay" opens: which of the two tests to run. The tests
+/// The screen "Test for Delay" opens: which of the two tests to run. The tests
 /// measure the same thing in opposite ways — one automatic and quick, one by eye
 /// over a real exercise — so neither is presented as the default.
 struct DelayTestChoiceView: View {
@@ -36,7 +36,7 @@ struct DelayTestChoiceView: View {
                 Text("Choose a Test").settingSection(.delayChooseTest)
             }
         }
-        .navigationTitle(L("Test for delay"))
+        .navigationTitle(L("Test for Delay"))
         .navigationBarTitleDisplayMode(.inline)
         .settingsSearchable(.delayChoice)
     }

@@ -2,7 +2,7 @@
 //  FeedbackView.swift
 //  Learn2Sing
 //
-//  The "Request a new Feature/ Report a Bug" category in Settings: a short form
+//  The "Request a New Feature / Report a Bug" category in Settings: a short form
 //  the user writes one message in, posted to the same backend the profile and
 //  the community exercises live on, where the developer reads it.
 //
@@ -11,7 +11,7 @@ import SwiftUI
 
 /// What a message is about. The raw values are what the server is told — they
 /// travel as the message's `severity` — so they stay English whatever language
-/// the app is in; the picker shows them through `L(_:)`. Because they never
+/// the app is in; the picker shows them through `title`. Because they never
 /// appear as a literal at a call site, the keys are listed in the localization
 /// tooling's `INDIRECT` table (see Tools/Localization/generate.py).
 enum FeedbackType: String, CaseIterable, Identifiable {
@@ -21,6 +21,13 @@ enum FeedbackType: String, CaseIterable, Identifiable {
     case question = "Question"
 
     var id: String { rawValue }
+
+    /// The option as the picker shows it. Picker options are written in sentence
+    /// case, like the "Not set" beside them, while the server keeps being sent the
+    /// raw value it has always had.
+    var title: String {
+        self == .featureRequest ? L("Feature request") : L(rawValue)
+    }
 }
 
 /// The part of the app a message is about, sent as its `subject`, and localized
@@ -107,7 +114,7 @@ enum FeedbackSender {
     }
 }
 
-/// The "Request a new Feature/ Report a Bug" category reached from Settings.
+/// The "Request a New Feature / Report a Bug" category reached from Settings.
 /// Four fields — two of them optional — and a Send button that posts them as one
 /// message. Nothing is stored on the device: a sent message is gone from here,
 /// and a failed one stays on screen to be sent again.
@@ -172,7 +179,7 @@ struct FeedbackView: View {
                 Picker(selection: $typeRaw) {
                     Text("Not set").tag("")
                     ForEach(FeedbackType.allCases) { type in
-                        Text(L(type.rawValue)).tag(type.rawValue)
+                        Text(type.title).tag(type.rawValue)
                     }
                 } label: {
                     Text("Type") + Text(verbatim: " *")
@@ -216,9 +223,9 @@ struct FeedbackView: View {
                 // a question is being asked, so the marker and the note below
                 // the field always say the same thing.
                 if isEmailRequired {
-                    Text("E-Mail") + Text(verbatim: " *")
+                    Text("Email") + Text(verbatim: " *")
                 } else {
-                    Text("E-Mail")
+                    Text("Email")
                 }
             } footer: {
                 // The one field whose explanation stays on screen rather than
@@ -234,7 +241,7 @@ struct FeedbackView: View {
                         Text("Optional, and only needed if you'd like an answer. Left blank, your message is still read.")
                     }
                     if isEmailMalformed {
-                        Text("That doesn't look like an e-mail address.")
+                        Text("That doesn't look like an email address.")
                             .foregroundStyle(.red)
                     }
                 }
@@ -267,18 +274,18 @@ struct FeedbackView: View {
                 // parsed as markdown, where a leading `*` is emphasis waiting
                 // for its closing pair.
                 VStack(alignment: .leading, spacing: 4) {
-                    Text(L("*Required Fields"))
+                    Text(L("*Required fields"))
                     if type == nil {
                         Text("Choose a type before sending.")
                     } else if trimmedMessage.isEmpty {
                         Text("Write a message before sending.")
                     } else if isEmailMissing {
-                        Text("Add your e-mail address before sending.")
+                        Text("Add your email address before sending.")
                     }
                 }
             }
         }
-        .navigationTitle(L("Request a new Feature/ Report a Bug"))
+        .navigationTitle(L("Request a New Feature / Report a Bug"))
         .navigationBarTitleDisplayMode(.inline)
         .settingsSearchable(.feedback)
         .stableTopEdgeFade()

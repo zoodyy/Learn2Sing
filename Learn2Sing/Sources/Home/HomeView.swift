@@ -13,7 +13,7 @@ import SwiftUI
 enum HomeCategories {
     static let recent = "Recent"
     static let routines = "Routines"
-    static let favourites = "Favourites"
+    static let favourites = "Favorites"
     static let recommended = "Recommended"
     static let calendar = "Time Spent Singing"
     static let newForYou = "New for You"
@@ -29,7 +29,7 @@ enum HomeCategories {
     /// what UserDefaults and the profile JSON carry — so a rename has to be
     /// translated on the way in, or a user who had rearranged or hidden the
     /// category would find it back at the end of the tab and visible again.
-    static let renamed = ["Calendar": calendar]
+    static let renamed = ["Calendar": calendar, "Favourites": favourites]
 
     /// Identifies the single row the "Time Spent Singing" category is made of.
     /// It isn't an exercise, but the list is built around rows that are, so the
@@ -161,7 +161,7 @@ struct RecommendationCard: View {
 /// The Home tab's edit-categories screen: the built-in categories as draggable
 /// rows, each with an eye button that hides it from the tab. There is nothing to
 /// add, delete or rename here — the categories are fixed. Opened by long-pressing
-/// a category header, or from Settings ▸ Home Tab ▸ "Customise your Home Screen".
+/// a category header, or from Settings ▸ Home Tab ▸ "Customize your Home tab".
 ///
 /// Pushed onto the tab's navigation stack rather than swapped in behind the same
 /// title, so it is left the way every other screen is: the back button, or the
@@ -250,7 +250,7 @@ struct HomeCategoryEditView: View {
 /// last five exercises that played through to the end), "Routines" (the
 /// user's own ordered exercise lists, created via the + button; swipe right on
 /// one to edit it, swipe left to delete it after a confirmation),
-/// "Favourites" (every exercise starred on its own intro screen, in the order
+/// "Favorites" (every exercise starred on its own intro screen, in the order
 /// they were starred), "Recommended" (whitelisted exercises drawn away from the
 /// ones sung lately and towards the singer's level, as many as
 /// Settings ▸ Home Tab asks for — as one card that plays them all in a row, or
@@ -421,7 +421,7 @@ struct HomeView: View {
     /// The community exercises "New for You" lists: the hottest ones pitched at
     /// this singer's level, out of the two pages of the hot list NewForYouFeed
     /// fetched. Empty until that fetch lands, which leaves the category as empty
-    /// as an unfilled "Favourites".
+    /// as an unfilled "Favorites".
     private var newForYouExercises: [Exercise] {
         newForYou.exercises(atLevel: skill.level)
     }
@@ -429,7 +429,7 @@ struct HomeView: View {
     /// What the category shows: its exercises, or — while it has none — what is
     /// keeping it from having any. Alone among the Home categories its rows come
     /// off the server, so an empty one here isn't the plain "nothing to show"
-    /// an unfilled "Favourites" is: it is a fetch still running, or one that
+    /// an unfilled "Favorites" is: it is a fetch still running, or one that
     /// never arrived. Both say so in a row of their own, the second offering the
     /// reload button that asks again.
     ///
@@ -458,7 +458,7 @@ struct HomeView: View {
             return [placeholderRow(HomeCategories.newForYouLoadingRowID, content: .loading)]
         }
         if newForYou.didFail {
-            let help = L("These exercises come from the community and didn’t load. Tap to try again.")
+            let help = L("These exercises come from the community and didn't load. Tap to try again.")
             return [placeholderRow(HomeCategories.newForYouRetryRowID, content: .retry(help: help))]
         }
         return []
@@ -856,7 +856,7 @@ struct HomeView: View {
                 }
                 Button("Cancel", role: .cancel) {}
             } message: { routine in
-                Text(L("\"%@\" will be deleted. Its exercises stay in your library. This cannot be undone.", routine.name))
+                Text(L("“%@” will be deleted. Its exercises stay in your library. This cannot be undone.", routine.name))
             }
             // "New for You" is fetched the first time this tab appears and after
             // a fetch that failed; a visit to one already showing it leaves the
@@ -1010,7 +1010,7 @@ struct HomeView: View {
                     } label: {
                         Label("Settings", systemImage: "slider.horizontal.3")
                     }
-                    .explain(L("Opens the settings these suggestions are made under: how long you practise a day, and which exercises may be picked."))
+                    .explain(L("Opens the settings these suggestions are made under: how long you practice a day, and which exercises may be picked."))
                 }
             }
         case .homeTabSettings:

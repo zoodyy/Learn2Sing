@@ -291,6 +291,6 @@ struct InstrumentSampleButton: View {
         }
         // Without this the row's own button swallows the tap and the sample never plays.
         .buttonStyle(.borderless)
-        .accessibilityLabel(L("Play sample"))
+        .accessibilityLabel(L("Play Sample"))
     }
 }

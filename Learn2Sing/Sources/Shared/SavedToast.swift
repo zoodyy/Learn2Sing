@@ -54,7 +54,7 @@ final class ToastCenter: ObservableObject {
                 show(L("Exercise Saved!"))
                 return
             case .edit:
-                show(L("Midi Saved!"))
+                show(L("MIDI Saved!"))
                 return
             default:
                 continue

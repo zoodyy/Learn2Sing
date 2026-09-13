@@ -64,7 +64,7 @@ T("Sets the order the exercises come in. “Reverse Order” turns whichever ord
   "设置练习的排列顺序。“倒序”会把所选顺序反过来。",
   "يحدد ترتيب ظهور التمارين. «عكس الترتيب» يقلب الترتيب المختار أيًا كان.")
 
-T("The community list didn’t load. Tap to try again.",
+T("The community list didn't load. Tap to try again.",
   "Die Community-Liste konnte nicht geladen werden. Tippe, um es erneut zu versuchen.",
   "La lista de la comunidad no se cargó. Toca para volver a intentarlo.",
   "La liste de la communauté n’a pas pu être chargée. Touchez pour réessayer.",
@@ -218,7 +218,7 @@ T("Write a label on the grid, for the syllable to sing. Tap a label to change it
   "부를 음절 등을 격자에 라벨로 씁니다. 라벨을 탭하면 고칠 수 있고, 드래그하면 옮겨집니다.",
   "在网格上写标签，比如要唱的音节。点按标签可修改，拖动可移动。",
   "اكتب تسمية على الشبكة، للمقطع الذي يُغنّى. اضغط على تسمية لتغييرها، أو اسحبها إلى مكان آخر.")
-T("Rub out notes and labels by dragging across them.",
+T("Erase notes and labels by dragging across them.",
   "Löscht Noten und Beschriftungen, indem du über sie hinwegziehst.",
   "Borra notas y etiquetas arrastrando por encima de ellas.",
   "Efface les notes et les libellés en faisant glisser le doigt dessus.",
@@ -310,7 +310,7 @@ T("The exercise's tempo, which is set on its settings screen.",
   "سرعة التمرين، وتُضبط في شاشة إعداداته.")
 
 # --- Home tab cards ---
-T("One square per day, oldest first. The more you practised, the fuller the colour, and a day that reached your daily practice time gets a tick. Tap a square to see that day.",
+T("One square per day, oldest first. The more you practiced, the fuller the color, and a day that reached your daily practice time gets a check mark. Tap a square to see that day.",
   "Ein Quadrat je Tag, das älteste zuerst. Je länger du geübt hast, desto kräftiger die Farbe, und ein Tag, der deine tägliche Übungszeit erreicht hat, bekommt einen Haken. Tippe ein Quadrat an, um den Tag zu sehen.",
   "Un cuadrado por día, el más antiguo primero. Cuanto más practicaste, más intenso es el color, y un día que alcanzó tu tiempo diario de práctica lleva una marca. Toca un cuadrado para ver ese día.",
   "Un carré par jour, du plus ancien au plus récent. Plus vous avez travaillé, plus la couleur est vive, et un jour qui a atteint votre temps de pratique quotidien reçoit une coche. Touchez un carré pour voir ce jour.",
@@ -341,7 +341,7 @@ T("Tap to sing everything the app suggests for you today, one exercise after ano
   "点按即可依次唱完应用今天为你推荐的全部练习。星星表示你自己的水平，推荐正是按它来挑选的。",
   "اضغط لغناء كل ما يقترحه التطبيق لك اليوم، تمرينًا تلو الآخر. النجوم تمثل مستواك، والاقتراحات مصممة له.")
 
-T("These exercises come from the community and didn’t load. Tap to try again.",
+T("These exercises come from the community and didn't load. Tap to try again.",
   "Diese Übungen kommen aus der Community und konnten nicht geladen werden. Tippe, um es erneut zu versuchen.",
   "Estos ejercicios vienen de la comunidad y no se cargaron. Toca para volver a intentarlo.",
   "Ces exercices viennent de la communauté et n’ont pas pu être chargés. Touchez pour réessayer.",
@@ -493,7 +493,7 @@ T("Tap the heart to like this exercise. The number is how many users have.",
   "하트를 탭하면 이 연습에 좋아요를 남깁니다. 숫자는 좋아요를 누른 사용자 수입니다.",
   "点按爱心即可给这个练习点赞。数字是点赞的用户数。",
   "اضغط على القلب لتسجيل إعجابك بهذا التمرين. الرقم هو عدد المستخدمين الذين أُعجبوا به.")
-T("Tap the star to make this exercise a favourite. Favourites come first in their category on the Exercises tab and fill the Home tab's “Favourites”.",
+T("Tap the star to make this exercise a favorite. Favorites come first in their category on the Exercises tab and fill the Home tab's “Favorites”.",
   "Tippe auf den Stern, um diese Übung zu einem Favoriten zu machen. Favoriten stehen im Übungen-Tab ganz oben in ihrer Kategorie und füllen im Start-Tab die Kategorie „Favoriten“.",
   "Toca la estrella para marcar este ejercicio como favorito. Los favoritos aparecen primero en su categoría en la pestaña Ejercicios y llenan la categoría «Favoritos» de la pestaña Inicio.",
   "Touchez l’étoile pour ajouter cet exercice aux favoris. Les favoris passent en premier dans leur catégorie dans l’onglet Exercices et remplissent la catégorie « Favoris » de l’onglet Accueil.",
@@ -630,7 +630,7 @@ T("How many times the pattern is played in a row.",
   "패턴을 연달아 몇 번 재생할지 정합니다.",
   "音型连续播放的次数。",
   "عدد مرات تشغيل النمط على التوالي.")
-T("Each repetition starts this many semitones above the one before it. A negative value works downwards.",
+T("Each repetition starts this many semitones above the one before it. A negative value works downward.",
   "Jede Wiederholung beginnt so viele Halbtöne über der vorigen. Ein negativer Wert geht abwärts.",
   "Cada repetición empieza estos semitonos por encima de la anterior. Un valor negativo va hacia abajo.",
   "Chaque répétition commence ce nombre de demi-tons au-dessus de la précédente. Une valeur négative descend.",
@@ -767,7 +767,7 @@ T("Makes an empty exercise and opens its settings, or adds a category to sort yo
   "빈 연습을 만들어 설정을 열거나, 연습을 정리할 분류를 추가합니다.",
   "新建一个空练习并打开其设置，或添加一个用于归类练习的分类。",
   "ينشئ تمرينًا فارغًا ويفتح إعداداته، أو يضيف فئة لتصنيف تمارينك فيها.")
-T("Narrows the list to where the exercises came from, to the ones you have shared, or to your favourites. The button is filled in while a filter is on.",
+T("Narrows the list to where the exercises came from, to the ones you have shared, or to your favorites. The button is filled in while a filter is on.",
   "Schränkt die Liste darauf ein, woher die Übungen stammen, auf die von dir geteilten oder auf deine Favoriten. Der Knopf ist ausgefüllt, solange ein Filter aktiv ist.",
   "Limita la lista según de dónde vienen los ejercicios, a los que has compartido o a tus favoritos. El botón se rellena mientras hay un filtro activo.",
   "Limite la liste selon la provenance des exercices, à ceux que vous avez partagés ou à vos favoris. Le bouton est rempli tant qu’un filtre est actif.",
@@ -782,7 +782,7 @@ T("Narrows the list to where the exercises came from, to the ones you have share
   "연습의 출처별로, 내가 공유한 것만, 또는 즐겨찾기만 보이도록 좁힙니다. 필터가 켜져 있는 동안 버튼이 채워집니다.",
   "按练习的来源筛选，或只显示你分享过的或收藏的。筛选开启时按钮为实心。",
   "يقصر القائمة على مصدر التمارين، أو على التي شاركتها، أو على المفضلة. يكون الزر ممتلئًا أثناء تفعيل عامل تصفية.")
-T("Sets the order the exercises come in, within each category or in one list with “Ignore Categories”. Only “Own Sorting” lets you drag exercises into place, and keeps favourites at the top.",
+T("Sets the order the exercises come in, within each category or in one list with “Ignore Categories”. Only “Own Sorting” lets you drag exercises into place, and keeps favorites at the top.",
   "Legt fest, in welcher Reihenfolge die Übungen stehen, innerhalb jeder Kategorie oder mit „Kategorien ignorieren“ in einer einzigen Liste. Nur bei „Eigene Sortierung“ lassen sich Übungen an ihren Platz ziehen, und nur dort stehen Favoriten oben.",
   "Define el orden en que aparecen los ejercicios, dentro de cada categoría o en una sola lista con «Ignorar categorías». Solo «Orden propio» te deja arrastrar los ejercicios a su sitio y mantiene los favoritos arriba.",
   "Définit l’ordre des exercices, dans chaque catégorie ou en une seule liste avec « Ignorer les catégories ». Seul « Ordre personnel » permet de glisser les exercices à leur place et garde les favoris en haut.",
@@ -859,7 +859,7 @@ T("Makes a new routine: your own list of exercises, sung one after the other.",
   "새 루틴을 만듭니다. 차례로 부를 연습을 직접 모은 목록입니다.",
   "新建一个训练组：由你自己挑选、依次演唱的练习列表。",
   "ينشئ روتينًا جديدًا: قائمتك الخاصة من التمارين، تُغنّى واحدًا تلو الآخر.")
-T("Opens the settings these suggestions are made under: how long you practise a day, and which exercises may be picked.",
+T("Opens the settings these suggestions are made under: how long you practice a day, and which exercises may be picked.",
   "Öffnet die Einstellungen, unter denen diese Vorschläge entstehen: wie lange du täglich übst und welche Übungen ausgewählt werden dürfen.",
   "Abre los ajustes con los que se hacen estas sugerencias: cuánto practicas al día y qué ejercicios pueden elegirse.",
   "Ouvre les réglages selon lesquels ces suggestions sont faites : la durée de pratique quotidienne et les exercices pouvant être choisis.",
@@ -1240,7 +1240,7 @@ T("Swaps the drag handles for delete buttons, to take exercises off this list. T
   "드래그 손잡이를 삭제 버튼으로 바꿔 이 목록에서 연습을 뺄 수 있게 합니다. 라이브러리에는 그대로 남습니다.",
   "把拖动手柄换成删除按钮，用来把练习移出这个列表。它们仍留在你的库中。",
   "يستبدل مقابض السحب بأزرار حذف، لإزالة تمارين من هذه القائمة. تبقى في مكتبتك.")
-T("Opens your library, where you tick the exercises this list is made of.",
+T("Opens your library, where you check the exercises this list is made of.",
   "Öffnet deine Bibliothek, in der du ankreuzt, aus welchen Übungen diese Liste besteht.",
   "Abre tu biblioteca, donde marcas los ejercicios que forman esta lista.",
   "Ouvre votre bibliothèque, où vous cochez les exercices qui composent cette liste.",
@@ -1408,7 +1408,7 @@ T("Only needed if you'd like an answer, and required for a question, which can't
   "답장을 원할 때만 필요하며, 질문일 때는 필수입니다. 주소가 없으면 답할 수 없습니다.",
   "只有希望收到回复时才需要填写；提问时必填，否则无法回答。",
   "لا يلزم إلا إذا كنت تريد ردًا، وهو مطلوب للأسئلة، إذ لا يمكن الرد عليها بدونه.")
-T("Sends your message straight to the developer. It stays greyed out until the type and the message are filled in, and for a question until there's an address to answer.",
+T("Sends your message straight to the developer. It stays grayed out until the type and the message are filled in, and for a question until there's an address to answer.",
   "Schickt deine Nachricht direkt an den Entwickler. Der Knopf bleibt grau, bis Art und Nachricht ausgefüllt sind, und bei einer Frage, bis eine Adresse für die Antwort dasteht.",
   "Envía tu mensaje directamente al desarrollador. Sigue en gris hasta que rellenes el tipo y el mensaje, y en el caso de una pregunta, hasta que haya una dirección a la que responder.",
   "Envoie votre message directement au développeur. Le bouton reste grisé tant que le type et le message ne sont pas remplis et, pour une question, tant qu’il n’y a pas d’adresse à laquelle répondre.",
@@ -1425,7 +1425,7 @@ T("Sends your message straight to the developer. It stays greyed out until the t
   "يرسل رسالتك مباشرة إلى المطوّر. يبقى باهتًا حتى يُملأ النوع والرسالة، وفي حالة السؤال حتى يوجد عنوان للرد عليه.")
 
 # --- Playback visuals ---
-T("A live sample of the playback screen. Everything you change below shows up here straight away.",
+T("A live sample of the playback screen. Everything you change below shows up here right away.",
   "Eine lebende Kostprobe des Abspielbildschirms. Alles, was du unten änderst, ist hier sofort zu sehen.",
   "Una muestra en vivo de la pantalla de reproducción. Todo lo que cambies abajo se ve aquí al instante.",
   "Un aperçu animé de l’écran de lecture. Tout ce que vous modifiez ci-dessous apparaît ici aussitôt.",
@@ -1440,7 +1440,7 @@ T("A live sample of the playback screen. Everything you change below shows up he
   "재생 화면의 실시간 미리보기입니다. 아래에서 바꾼 내용이 바로 여기에 반영됩니다.",
   "播放页面的实时样例。你在下面所做的更改会立刻显示在这里。",
   "عيّنة حية من شاشة التشغيل. كل ما تغيّره أدناه يظهر هنا فورًا.")
-T("The colour the notes to sing are drawn in.",
+T("The color the notes to sing are drawn in.",
   "Die Farbe, in der die zu singenden Noten gezeichnet werden.",
   "El color con el que se dibujan las notas que hay que cantar.",
   "La couleur des notes à chanter.",
@@ -1455,7 +1455,7 @@ T("The colour the notes to sing are drawn in.",
   "부를 음을 그리는 색입니다.",
   "要演唱的音符所用的颜色。",
   "اللون الذي تُرسم به النغمات المراد غناؤها.")
-T("The colour a note takes on while it is the one being sung.",
+T("The color a note takes on while it is the one being sung.",
   "Die Farbe, die eine Note annimmt, solange sie gerade gesungen wird.",
   "El color que toma una nota mientras es la que se está cantando.",
   "La couleur que prend une note pendant qu’elle est chantée.",
@@ -1545,7 +1545,7 @@ T("Draws a striped lane for every pitch behind the notes, like piano keys laid o
   "음 뒤에 음높이마다 줄무늬 띠를 그립니다. 피아노 건반을 옆으로 눕힌 모양입니다.",
   "在音符后面为每个音高画一条条纹带，就像把钢琴键横放一样。",
   "يرسم مسارًا مخططًا لكل درجة صوت خلف النغمات، مثل مفاتيح البيانو الموضوعة على جانبها.")
-T("The colour behind the notes while the lanes are switched off.",
+T("The color behind the notes while the lanes are switched off.",
   "Die Farbe hinter den Noten, solange die Bahnen ausgeschaltet sind.",
   "El color detrás de las notas cuando las franjas están desactivadas.",
   "La couleur derrière les notes lorsque les bandes sont désactivées.",
@@ -1590,7 +1590,7 @@ T("Writes the note names (C4, A3 …) down the left-hand side.",
   "왼쪽에 음 이름(C4, A3 …)을 적습니다.",
   "在左侧写出音名（C4、A3 …）。",
   "يكتب أسماء النغمات (C4، A3 …) على الجانب الأيسر.")
-T("The colour of the labels written over the notes in the note editor.",
+T("The color of the labels written over the notes in the note editor.",
   "Die Farbe der Beschriftungen, die im Noteneditor über die Noten geschrieben werden.",
   "El color de las etiquetas escritas sobre las notas en el editor de notas.",
   "La couleur des libellés écrits par-dessus les notes dans l’éditeur de notes.",

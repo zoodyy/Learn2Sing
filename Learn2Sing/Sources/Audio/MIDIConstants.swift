@@ -306,6 +306,13 @@ enum Instrument: String, CaseIterable, Identifiable {
 
     var id: String { rawValue }
 
+    /// The name shown for it. The raw value is what UserDefaults and the synced
+    /// profile hold, so the sine's misspelt one stays put and only the screen
+    /// gets the right word.
+    var title: String {
+        self == .sine ? L("Sine Wave") : L(rawValue)
+    }
+
     static let storageKey = "selectedInstrument"
 
     /// The instrument currently chosen in Settings (defaults to piano).

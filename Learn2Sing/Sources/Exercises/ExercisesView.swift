@@ -862,7 +862,7 @@ struct ExercisesView: View {
                               : "line.3.horizontal.decrease.circle.fill")
                     }
                     .accessibilityLabel("Filter")
-                    .explain(L("Narrows the list to where the exercises came from, to the ones you have shared, or to your favourites. The button is filled in while a filter is on."))
+                    .explain(L("Narrows the list to where the exercises came from, to the ones you have shared, or to your favorites. The button is filled in while a filter is on."))
                 }
                 // After the filter, where the Community tab has its own.
                 ToolbarItem(placement: .topBarTrailing) {
@@ -993,6 +993,6 @@ private struct ExerciseSortMenu: View {
             Image(systemName: "arrow.up.arrow.down.circle")
         }
         .accessibilityLabel("Sort")
-        .explain(L("Sets the order the exercises come in, within each category or in one list with “Ignore Categories”. Only “Own Sorting” lets you drag exercises into place, and keeps favourites at the top."))
+        .explain(L("Sets the order the exercises come in, within each category or in one list with “Ignore Categories”. Only “Own Sorting” lets you drag exercises into place, and keeps favorites at the top."))
     }
 }

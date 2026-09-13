@@ -43,7 +43,7 @@ struct UserProfile: Codable {
     /// The Home tab's "Routines" category: the user's routines in display order.
     /// Optional so profiles written before routines were synced still decode.
     var routines: [Routine]? = nil
-    /// The Home tab's "Favourites" category: the favourited exercise ids in
+    /// The Home tab's "Favorites" category: the favourited exercise ids in
     /// display order. Optional so profiles written before favourites were synced
     /// still decode.
     var favourites: [UUID]? = nil
@@ -280,7 +280,7 @@ struct ProfileView: View {
                 Text("Username")
             } footer: {
                 if let refused = refusedUsername, refused.typed == typedUsername {
-                    Text(L("Username \"%@\" is not available", refused.reported))
+                    Text(L("Username “%@” is not available", refused.reported))
                         .foregroundStyle(.red)
                 }
             }

@@ -1,9 +1,9 @@
-# Batch 8: the "Request a new Feature/ Report a Bug" screen — the message form
+# Batch 8: the "Request a New Feature / Report a Bug" screen — the message form
 # in Settings and the answers it can end in.
 from trbase import T
 
 # --- Settings hub row ---
-T("Request a new Feature/ Report a Bug",
+T("Request a New Feature / Report a Bug",
   "Funktion vorschlagen / Fehler melden",
   "Sugerir una función / Informar de un error",
   "Proposer une fonctionnalité / Signaler un bug",
@@ -37,7 +37,7 @@ T("Write to the developer: report something that's broken, ask for a feature, or
 # --- Type ---
 T("Type", "Art", "Tipo", "Type", "Tipo", "Tipo", "Soort", "Тип", "Rodzaj", "Tür", "Typ", "種類", "유형", "类型", "النوع")
 T("Bug", "Fehler", "Error", "Bug", "Bug", "Erro", "Bug", "Ошибка", "Błąd", "Hata", "Fel", "不具合", "버그", "错误", "خطأ")
-T("Feature Request",
+T("Feature request",
   "Funktionswunsch", "Sugerencia de función", "Demande de fonctionnalité", "Richiesta di funzione",
   "Sugestão de recurso", "Functieverzoek", "Запрос функции", "Propozycja funkcji", "Özellik isteği",
   "Funktionsönskemål", "機能リクエスト", "기능 요청", "功能建议", "طلب ميزة")
@@ -95,7 +95,7 @@ T("What would you like to say?",
   "ماذا تريد أن تقول؟")
 
 # --- E-Mail ---
-T("E-Mail", "E-Mail", "Correo electrónico", "E-mail", "E-mail", "E-mail", "E-mail", "Эл. почта",
+T("Email", "Email", "Correo electrónico", "E-mail", "E-mail", "E-mail", "E-mail", "Эл. почта",
   "E-mail", "E-posta", "E-post", "メールアドレス", "이메일", "电子邮件", "البريد الإلكتروني")
 T("name@example.com", "name@beispiel.de", "nombre@ejemplo.com", "nom@exemple.fr", "nome@esempio.it",
   "nome@exemplo.com", "naam@voorbeeld.nl", "имя@example.com", "imie@przyklad.pl", "ad@ornek.com",
@@ -130,7 +130,7 @@ T("Required for a question, since there's no way to answer you without it.",
   "질문일 때는 필수입니다. 주소가 없으면 답장할 수 없습니다.",
   "提问时必填，否则无法回复你。",
   "مطلوب للأسئلة، إذ لا توجد طريقة للرد عليك بدونه.")
-T("That doesn't look like an e-mail address.",
+T("That doesn't look like an email address.",
   "Das sieht nicht nach einer E-Mail-Adresse aus.",
   "Eso no parece una dirección de correo.",
   "Cela ne ressemble pas à une adresse e-mail.",
@@ -149,7 +149,7 @@ T("That doesn't look like an e-mail address.",
 # --- Sending ---
 T("Send", "Senden", "Enviar", "Envoyer", "Invia", "Enviar", "Verstuur", "Отправить", "Wyślij",
   "Gönder", "Skicka", "送信", "보내기", "发送", "إرسال")
-T("*Required Fields",
+T("*Required fields",
   "*Pflichtfelder", "*Campos obligatorios", "*Champs obligatoires", "*Campi obbligatori",
   "*Campos obrigatórios", "*Verplichte velden", "*Обязательные поля", "*Pola wymagane",
   "*Zorunlu alanlar", "*Obligatoriska fält", "*必須項目", "*필수 항목", "*必填项", "*حقول مطلوبة")
@@ -169,7 +169,7 @@ T("Write a message before sending.",
   "送信する前にメッセージを書いてください。", "보내기 전에 메시지를 작성하세요.",
   "发送前请先写下消息。",
   "اكتب رسالة قبل الإرسال.")
-T("Add your e-mail address before sending.",
+T("Add your email address before sending.",
   "Gib vor dem Senden deine E-Mail-Adresse an.",
   "Añade tu correo electrónico antes de enviar.",
   "Indiquez votre adresse e-mail avant d’envoyer.",

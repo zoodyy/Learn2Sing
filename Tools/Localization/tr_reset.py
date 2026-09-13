@@ -66,7 +66,7 @@ T("Delete the exercises you made or downloaded, and undo your changes to the one
   "직접 만들거나 내려받은 연습을 삭제하고, 앱에 포함된 연습에 가한 변경을 되돌립니다.",
   "删除你创建或下载的练习，并撤销你对应用自带练习所做的更改。",
   "احذف التمارين التي أنشأتها أو نزّلتها، وتراجع عن تغييراتك على التمارين المرفقة مع التطبيق.")
-T("Clear the Home tab's favourites, routines and recently played list.",
+T("Clear the Home tab's favorites, routines and recently played list.",
   "Leere die Favoriten, Routinen und die Liste der zuletzt gespielten Übungen im Start-Tab.",
   "Vacía los favoritos, las rutinas y la lista de recientes de la pestaña Inicio.",
   "Videz les favoris, les routines et la liste des exercices récents de l’onglet Accueil.",
@@ -115,10 +115,10 @@ T("Everything the four screens above delete, and everything you have on the serv
 
 # --- Confirmation ---
 T("Revert", "Zurücksetzen", "Restaurar", "Rétablir", "Ripristina", "Restaurar", "Herstellen", "Восстановить", "Przywróć", "Geri yükle", "Återställ", "元に戻す", "되돌리기", "还原", "استعادة")
-T("This can't be undone.", "Das lässt sich nicht rückgängig machen.", "Esto no se puede deshacer.", "Cette action est irréversible.", "L’operazione non può essere annullata.", "Isso não pode ser desfeito.", "Dit kan niet ongedaan worden gemaakt.", "Это действие нельзя отменить.", "Tej operacji nie można cofnąć.", "Bu işlem geri alınamaz.", "Det går inte att ångra.", "この操作は取り消せません。", "이 작업은 되돌릴 수 없습니다.", "此操作无法撤销。", "لا يمكن التراجع عن ذلك.")
+T("This cannot be undone.", "Das lässt sich nicht rückgängig machen.", "Esto no se puede deshacer.", "Cette action est irréversible.", "L’operazione non può essere annullata.", "Isso não pode ser desfeito.", "Dit kan niet ongedaan worden gemaakt.", "Это действие нельзя отменить.", "Tej operacji nie można cofnąć.", "Bu işlem geri alınamaz.", "Det går inte att ångra.", "この操作は取り消せません。", "이 작업은 되돌릴 수 없습니다.", "此操作无法撤销。", "لا يمكن التراجع عن ذلك.")
 
 # --- Reset ▸ Scores ---
-T("Recorded scores", "Aufgezeichnete Punktzahlen", "Puntuaciones registradas", "Notes enregistrées", "Punteggi registrati", "Pontuações registradas", "Vastgelegde scores", "Записанные оценки", "Zapisane wyniki", "Kaydedilen puanlar", "Sparade poäng", "記録されたスコア", "기록된 점수", "已记录的得分", "النتائج المسجلة")
+T("Recorded Scores", "Aufgezeichnete Punktzahlen", "Puntuaciones registradas", "Notes enregistrées", "Punteggi registrati", "Pontuações registradas", "Vastgelegde scores", "Записанные оценки", "Zapisane wyniki", "Kaydedilen puanlar", "Sparade poäng", "記録されたスコア", "기록된 점수", "已记录的得分", "النتائج المسجلة")
 T("No scores have been recorded yet.", "Es wurden noch keine Punktzahlen aufgezeichnet.", "Todavía no se ha registrado ninguna puntuación.", "Aucune note n’a encore été enregistrée.", "Non è stato ancora registrato alcun punteggio.", "Nenhuma pontuação foi registrada ainda.", "Er zijn nog geen scores vastgelegd.", "Оценки ещё не записывались.", "Nie zapisano jeszcze żadnych wyników.", "Henüz hiç puan kaydedilmedi.", "Inga poäng har sparats än.", "まだスコアは記録されていません。", "아직 기록된 점수가 없습니다.", "尚未记录任何得分。", "لم تُسجَّل أي نتائج بعد.")
 T("Deletes the scores recorded for this exercise. The exercise itself is kept.",
   "Löscht die aufgezeichneten Punktzahlen dieser Übung. Die Übung selbst bleibt erhalten.",
@@ -290,7 +290,7 @@ T("Clears your vocal range, including the custom lowest and highest notes, and p
   "직접 지정한 최저음과 최고음을 포함해 음역대를 지우고, 목표 범위를 음표 전체로 되돌립니다.",
   "清除你的音域，包括自定的最低音和最高音，并将目标范围恢复为整个音符。",
   "يمسح مداك الصوتي، بما في ذلك أخفض وأعلى نغمة مخصصتين، ويعيد النافذة المستهدفة إلى النغمة كاملة.")
-T("Puts the number of recommended exercises back, and returns the whitelist to every exercise in your library, dropping the ones you ticked or unticked yourself. The categories the tab shows and the order they come in are left as you arranged them.",
+T("Puts the number of recommended exercises back, and returns the whitelist to every exercise in your library, dropping the ones you checked or unchecked yourself. The categories the tab shows and the order they come in are left as you arranged them.",
   "Setzt die Anzahl der empfohlenen Übungen zurück und lässt wieder alle Übungen deiner Bibliothek zu; selbst an- oder abgewählte Übungen werden dabei verworfen. Welche Kategorien der Tab zeigt und in welcher Reihenfolge, bleibt so, wie du es eingerichtet hast.",
   "Restablece el número de ejercicios recomendados y vuelve a permitir todos los ejercicios de tu biblioteca, descartando los que marcaste o desmarcaste tú. Las categorías que muestra la pestaña y su orden se quedan como las dejaste.",
   "Rétablit le nombre d’exercices recommandés et autorise de nouveau tous les exercices de votre bibliothèque, en abandonnant ceux que vous aviez cochés ou décochés vous-même. Les catégories affichées par l’onglet et leur ordre restent comme vous les avez réglés.",
@@ -322,7 +322,7 @@ T("Puts the app's language back to English.",
   "يعيد لغة التطبيق إلى الإنجليزية.")
 
 # --- Reset ▸ Exercises ---
-T("Your exercises", "Deine Übungen", "Tus ejercicios", "Vos exercices", "I tuoi esercizi", "Seus exercícios", "Jouw oefeningen", "Ваши упражнения", "Twoje ćwiczenia", "Egzersizleriniz", "Dina övningar", "自分のエクササイズ", "내 연습", "你的练习", "تمارينك")
+T("Your Exercises", "Deine Übungen", "Tus ejercicios", "Vos exercices", "I tuoi esercizi", "Seus exercícios", "Jouw oefeningen", "Ваши упражнения", "Twoje ćwiczenia", "Egzersizleriniz", "Dina övningar", "自分のエクササイズ", "내 연습", "你的练习", "تمارينك")
 T("Delete Own Exercises", "Eigene Übungen löschen", "Eliminar ejercicios propios", "Supprimer mes exercices", "Elimina esercizi personali", "Excluir meus exercícios", "Eigen oefeningen verwijderen", "Удалить свои упражнения", "Usuń własne ćwiczenia", "Kendi egzersizlerimi sil", "Radera egna övningar", "自分のエクササイズを削除", "내 연습 삭제", "删除自己的练习", "حذف تماريني")
 T("Deletes every exercise you created yourself, with its MIDI pattern and scores. Exercises that came with the app or from the Community tab are kept.",
   "Löscht jede Übung, die du selbst erstellt hast, samt ihrem MIDI-Muster und ihren Punktzahlen. Mitgelieferte Übungen und die aus dem Community-Tab bleiben erhalten.",
@@ -478,8 +478,8 @@ T("Every exercise that came with the app goes back to how it shipped, and any yo
   "يعود كل تمرين مرفق مع التطبيق إلى حالته الأصلية، وتعود أي تمارين حذفتها.")
 
 # --- Reset ▸ Home ---
-T("Clear Favourites", "Favoriten leeren", "Vaciar favoritos", "Vider les favoris", "Svuota i preferiti", "Limpar favoritos", "Favorieten leegmaken", "Очистить избранное", "Wyczyść ulubione", "Favorileri temizle", "Rensa favoriter", "お気に入りを空にする", "즐겨찾기 비우기", "清空收藏", "مسح المفضلة")
-T("Empties the Home tab's “Favourites” list. The exercises in it are kept.",
+T("Clear Favorites", "Favoriten leeren", "Vaciar favoritos", "Vider les favoris", "Svuota i preferiti", "Limpar favoritos", "Favorieten leegmaken", "Очистить избранное", "Wyczyść ulubione", "Favorileri temizle", "Rensa favoriter", "お気に入りを空にする", "즐겨찾기 비우기", "清空收藏", "مسح المفضلة")
+T("Empties the Home tab's “Favorites” list. The exercises in it are kept.",
   "Leert die Liste „Favoriten“ im Start-Tab. Die darin enthaltenen Übungen bleiben erhalten.",
   "Vacía la lista «Favoritos» de la pestaña Inicio. Los ejercicios que contiene se conservan.",
   "Vide la liste « Favoris » de l’onglet Accueil. Les exercices qu’elle contient sont conservés.",
@@ -527,7 +527,7 @@ T("Forgets what you played and when, emptying the Home tab's “Recent” list a
   "무엇을 언제 재생했는지 잊습니다. 홈 탭의 “최근” 목록과 “추천”이 고르는 순서가 비워집니다.",
   "忘记你练过什么、何时练的：清空“首页”标签的“最近”列表，以及“推荐”的排序依据。",
   "ينسى ما شغّلته ومتى، فيُفرغ قائمة «الأخيرة» في تبويب الرئيسية والترتيب الذي تختار به «المقترحة».")
-T("The Home tab's “Favourites” list will be emptied. The exercises in it are kept.",
+T("The Home tab's “Favorites” list will be emptied. The exercises in it are kept.",
   "Die Liste „Favoriten“ im Start-Tab wird geleert. Die darin enthaltenen Übungen bleiben erhalten.",
   "Se vaciará la lista «Favoritos» de la pestaña Inicio. Los ejercicios que contiene se conservan.",
   "La liste « Favoris » de l’onglet Accueil sera vidée. Les exercices qu’elle contient sont conservés.",
@@ -572,7 +572,7 @@ T("Your play history will be forgotten, emptying the Home tab's “Recent” lis
   "재생 기록이 지워지고 홈 탭의 “최근” 목록이 비워집니다.",
   "将忘记你的播放历史，并清空“首页”标签的“最近”列表。",
   "سيُنسى سجل تشغيلك، وتُفرغ قائمة «الأخيرة» في تبويب الرئيسية.")
-T("Forgets how long you practised on each day, emptying the Home tab's “Time Spent Singing”.",
+T("Forgets how long you practiced on each day, emptying the Home tab's “Time Spent Singing”.",
   "Vergisst, wie lange du an welchem Tag geübt hast: Die „Gesungene Zeit“ im Start-Tab wird geleert.",
   "Olvida cuánto practicaste cada día: vacía el «Tiempo cantado» de la pestaña Inicio.",
   "Oublie combien de temps vous avez pratiqué chaque jour : vide le « Temps de chant » de l’onglet Accueil.",

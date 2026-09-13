@@ -52,7 +52,7 @@ struct VocalRangeTestView: View {
             case .lowIntro:
                 intro(
                     title: L("Lowest Note"),
-                    instruction: L("When you’re ready, sing the lowest note you can and hold it steadily for 2 seconds."),
+                    instruction: L("When you're ready, sing the lowest note you can and hold it steadily for 2 seconds."),
                     icon: "arrow.down.circle.fill"
                 ) {
                     startListening()

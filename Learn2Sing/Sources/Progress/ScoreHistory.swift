@@ -250,7 +250,7 @@ struct ScoreHistoryChart: View {
             .explain(L("How far back the chart looks, from the last day to everything you have sung."))
 
             if points.isEmpty {
-                Text("No scores in this period")
+                Text("No scores in this period.")
                     .font(.subheadline)
                     .foregroundStyle(ink.opacity(0.5))
                     .frame(maxWidth: .infinity, maxHeight: .infinity)

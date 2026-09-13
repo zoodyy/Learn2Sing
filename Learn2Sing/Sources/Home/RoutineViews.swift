@@ -192,7 +192,7 @@ struct RoutineEditView: View {
                 } label: {
                     Image(systemName: "plus")
                 }
-                .explain(L("Opens your library, where you tick the exercises this list is made of."))
+                .explain(L("Opens your library, where you check the exercises this list is made of."))
             }
         }
     }
@@ -293,7 +293,7 @@ struct ExerciseQueueIntroView: View {
                 Image(systemName: "shuffle")
             }
             .buttonStyle(.borderless)
-            .accessibilityLabel("Shuffle exercises")
+            .accessibilityLabel("Shuffle Exercises")
             .explain(L("Puts the exercises below in a random order for this run only."))
         }
         .textCase(nil)

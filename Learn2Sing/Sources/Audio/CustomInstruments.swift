@@ -203,7 +203,7 @@ struct InstrumentsView: View {
                             instrumentRaw = instrument.rawValue
                         } label: {
                             HStack {
-                                Text(L(instrument.rawValue))
+                                Text(instrument.title)
                                 Spacer()
                                 if instrumentRaw == instrument.rawValue {
                                     Image(systemName: "checkmark")
@@ -406,7 +406,7 @@ struct CustomInstrumentDetailView: View {
             }
             Button("Cancel", role: .cancel) {}
         } message: {
-            Text(L("\"%@\" and its audio file will be deleted. This cannot be undone.", instrument.name))
+            Text(L("“%@” and its audio file will be deleted. This cannot be undone.", instrument.name))
         }
     }
 }

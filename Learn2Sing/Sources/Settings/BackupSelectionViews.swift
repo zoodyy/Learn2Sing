@@ -89,7 +89,7 @@ private struct BackupSelectionScreen: View {
                         onSelectAll(!isEverythingSelected)
                     }
                     .font(.footnote.weight(.semibold))
-                    .explain(L("Ticks every exercise at once, or clears them all."))
+                    .explain(L("Checks every exercise at once, or clears them all."))
                 }
             }
             Button(action: onAction) {
@@ -180,7 +180,7 @@ struct ExerciseExportSelectionView: View {
             totalCount: store.exercises.count,
             actionTitle: L("Export"),
             actionImage: "square.and.arrow.up",
-            actionHelp: L("Writes the ticked exercises to a file and opens the share sheet, where you can send it, copy it, or save it to Files."),
+            actionHelp: L("Writes the checked exercises to a file and opens the share sheet, where you can send it, copy it, or save it to Files."),
             onAction: share,
             onToggle: { id in
                 if excluded.contains(id) { excluded.remove(id) } else { excluded.insert(id) }
@@ -316,10 +316,10 @@ struct ExerciseImportSelectionView: View {
             // Only worth saying when the file actually overlaps the library.
             note: knownExercises.isEmpty
                 ? nil
-                : L("Ticked exercises you already have are replaced by the version in this file."),
+                : L("Checked exercises you already have are replaced by the version in this file."),
             actionTitle: L("Import"),
             actionImage: "square.and.arrow.down",
-            actionHelp: L("Adds the ticked new exercises to your library and updates the ticked ones it already has. Everything left unticked is ignored."),
+            actionHelp: L("Adds the checked new exercises to your library and updates the checked ones it already has. Everything left unchecked is ignored."),
             onAction: runImport,
             onToggle: { id in
                 if excluded.contains(id) { excluded.remove(id) } else { excluded.insert(id) }

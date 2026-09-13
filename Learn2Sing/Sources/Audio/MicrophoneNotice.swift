@@ -58,13 +58,13 @@ private struct MicrophoneNoticeModifier: ViewModifier {
                         UIApplication.shared.open(url)
                     }
                 }
-                Button(L("Don’t Show Again")) {
+                Button(L("Don't Show Again")) {
                     isDismissedForGood = true
                     onDismiss()
                 }
                 Button(L("OK"), role: .cancel) { onDismiss() }
             } message: {
-                Text(L("Every exercise still plays, but Learn2Sing can’t hear you sing. Without the microphone, no line follows your voice, runs aren’t scored, and the vocal range and microphone delay tests can’t measure anything. You can allow access in Settings at any time."))
+                Text(L("Every exercise still plays, but Learn2Sing can't hear you sing. Without the microphone, no line follows your voice, runs aren't scored, and the vocal range and microphone delay tests can't measure anything. You can allow access in Settings at any time."))
             }
     }
 }

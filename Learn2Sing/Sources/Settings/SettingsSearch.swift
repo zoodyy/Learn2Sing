@@ -70,7 +70,7 @@ enum SettingsScreen: String, CaseIterable, Hashable {
         case .profile:        L("Profile")
         case .audio:          L("Audio")
         case .instruments:    L("Instruments")
-        case .delayChoice:    L("Test for delay")
+        case .delayChoice:    L("Test for Delay")
         case .visuals:        L("Visuals")
         case .menus:          L("Menus")
         case .playback:       L("Playback")
@@ -83,7 +83,7 @@ enum SettingsScreen: String, CaseIterable, Hashable {
         case .resetExercises: L("Exercises")
         case .resetHome:      L("Home")
         case .language:       L("Language")
-        case .feedback:       L("Request a new Feature/ Report a Bug")
+        case .feedback:       L("Request a New Feature / Report a Bug")
         }
     }
 
@@ -153,7 +153,7 @@ extension SettingKey {
 
     // Section headings. Only the ones that say something the rows under them
     // don't: a heading that repeats the title of its own row (Profile's
-    // "Username", the message form's "E-Mail") would only turn up twice.
+    // "Username", the message form's "Email") would only turn up twice.
     static let audioDevices          = SettingKey("section.audio.devices")
     static let audioScoring          = SettingKey("section.audio.scoring")
     static let instrumentsBuiltIn    = SettingKey("section.instruments.builtIn")
@@ -297,7 +297,7 @@ struct SettingsSearchEntry: Identifiable {
     /// The screen the row is on.
     let screen: SettingsScreen
     /// The section it sits in, where the screen has more than one — shown after
-    /// the screen in a result's trail, since several titles ("Size", "Colour")
+    /// the screen in a result's trail, since several titles ("Size", "Color")
     /// only mean something under their heading. nil on a heading, which *is* a
     /// section.
     let section: String?
@@ -435,7 +435,7 @@ enum SettingsCatalog {
             help: L("The language the app is displayed in. Kept on this device only."))
         add(.tutorial, .root, title: L("Tutorial"),
             help: L("Play the introduction the app opens with on its first launch again."))
-        add(.feedback, .root, title: L("Request a new Feature/ Report a Bug"),
+        add(.feedback, .root, title: L("Request a New Feature / Report a Bug"),
             help: L("Write to the developer: report something that's broken, ask for a feature, or say what you make of the app."))
 
         // MARK: Profile
@@ -458,11 +458,11 @@ enum SettingsCatalog {
         add(.microphone, .audio, section: L("Devices"), title: L("Microphone"), help: routeHelp)
         heading(.audioScoring, .audio, L("Scoring"))
         add(.autoMicDelay, .audio, section: L("Scoring"),
-            title: L("Automatically Recognise Microphone Delay"),
+            title: L("Automatically recognize microphone delay"),
             help: L("Sets the delay below for you: every exercise you play to the end is scored at every delay it could have been sung at, and the one that scores highest is kept. Turn it off to measure the delay yourself and type it in."))
         add(.microphoneDelay, .audio, section: L("Scoring"), title: L("Microphone delay"),
             help: L("Compensates for the lag between singing and pitch detection. Only the score is affected, playback and visuals are unchanged. While the setting above is on it is worked out for you and can't be edited here."))
-        add(.delayTest, .audio, section: L("Scoring"), title: L("Test for delay"),
+        add(.delayTest, .audio, section: L("Scoring"), title: L("Test for Delay"),
             help: L("Compensates for the lag between singing and pitch detection. Only the score is affected — playback and visuals are unchanged. Run the test to measure it automatically."),
             available: { setsDelayByHand })
 
@@ -473,7 +473,7 @@ enum SettingsCatalog {
                 help: L("Upload an MP3 or WAV file containing a single sound. Playback shifts it up and down from its pitch to reach every note. After uploading, set the pitch the recording actually has."))
         for instrument in Instrument.allCases {
             add(.instrument(instrument), .instruments, section: L("Built-in"),
-                title: L(instrument.rawValue), help: builtInHelp)
+                title: instrument.title, help: builtInHelp)
         }
 
         // MARK: Delay test
@@ -492,76 +492,76 @@ enum SettingsCatalog {
         add(.orientationLock, .visuals, section: L("Orientation"), title: L("Lock orientation"),
             help: L("Keeps the app in the chosen orientation. “Don't lock” lets it rotate with your device."))
         add(.menus, .visuals, title: L("Menus"),
-            help: L("Customise how the app's own screens and lists look."))
+            help: L("Customize how the app's own screens and lists look."))
         add(.playbackVisuals, .visuals, title: L("Playback"),
-            help: L("Customise how the note-scrolling playback screen looks."))
+            help: L("Customize how the note-scrolling playback screen looks."))
 
         // MARK: Menus
-        heading(.menusExerciseLists, .menus, L("Exercise lists"))
-        add(.exercisePreviewColor, .menus, section: L("Exercise lists"),
-            title: L("Exercise preview colour"),
-            help: L("Sets the colour of the small note pattern drawn beside each exercise in the lists."))
+        heading(.menusExerciseLists, .menus, L("Exercise Lists"))
+        add(.exercisePreviewColor, .menus, section: L("Exercise Lists"),
+            title: L("Exercise preview color"),
+            help: L("Sets the color of the small note pattern drawn beside each exercise in the lists."))
 
         // MARK: Playback visuals
         let repetitionHelp = L("Shows which repetition you're on out of the total, e.g. “2/5”. Hidden for exercises that don't repeat.")
         let templateFileHelp = L("Export saves the current visual settings as a template file you can share. Import loads a template file and applies it.")
 
         heading(.playbackNotes, .playback, L("Notes"))
-        add(.noteColor, .playback, section: L("Notes"), title: L("Note colour"),
-            help: L("The colour the notes to sing are drawn in."))
-        add(.playingNoteColor, .playback, section: L("Notes"), title: L("Playing note colour"),
-            help: L("The colour a note takes on while it is the one being sung."))
+        add(.noteColor, .playback, section: L("Notes"), title: L("Note color"),
+            help: L("The color the notes to sing are drawn in."))
+        add(.playingNoteColor, .playback, section: L("Notes"), title: L("Playing note color"),
+            help: L("The color a note takes on while it is the one being sung."))
         add(.noteRoundness, .playback, section: L("Notes"), title: L("Note roundness"),
             help: L("How rounded the ends of the notes are, from square to fully rounded."))
 
-        heading(.playbackZoom, .playback, L("Zoom & position"))
-        add(.verticalZoom, .playback, section: L("Zoom & position"), title: L("Vertical zoom"),
+        heading(.playbackZoom, .playback, L("Zoom & Position"))
+        add(.verticalZoom, .playback, section: L("Zoom & Position"), title: L("Vertical zoom"),
             help: L("How tall a pitch is. Turn it up to spread the notes apart, down to fit more of your range on screen."))
-        add(.horizontalZoom, .playback, section: L("Zoom & position"), title: L("Horizontal zoom"),
+        add(.horizontalZoom, .playback, section: L("Zoom & Position"), title: L("Horizontal zoom"),
             help: L("How wide a beat is. Turn it down to see more of what is coming."))
-        add(.followVertical, .playback, section: L("Zoom & position"), title: L("Follow notes vertically"),
+        add(.followVertical, .playback, section: L("Zoom & Position"), title: L("Follow notes vertically"),
             help: L("Scrolls the screen up and down so the notes being sung stay in the middle. Off, the whole exercise is shown at once."))
 
         heading(.playbackBackground, .playback, L("Background"))
         add(.showLines, .playback, section: L("Background"), title: L("Show horizontal lines"),
             help: L("Draws a striped lane for every pitch behind the notes, like piano keys laid on their side."))
-        add(.backgroundColor, .playback, section: L("Background"), title: L("Background colour"),
-            help: L("The colour behind the notes while the lanes are switched off."),
+        add(.backgroundColor, .playback, section: L("Background"), title: L("Background color"),
+            help: L("The color behind the notes while the lanes are switched off."),
             available: { !showsLines })
         add(.showKeyboard, .playback, section: L("Background"), title: L("Show keyboard"),
             help: L("Draws a piano keyboard down the left-hand side, so you can see which key each note sits on."))
         add(.showPitches, .playback, section: L("Background"), title: L("Show pitches"),
             help: L("Writes the note names (C4, A3 …) down the left-hand side."))
         add(.autoPitchNameColor, .playback, section: L("Background"),
-            title: L("Automatic pitch name colour"),
-            help: L("Draws each pitch name in a colour that stands out where it sits: dark on the white keys, light on the black ones, and light over the background while the keyboard is hidden. Turn it off to pick the colour yourself."),
+            title: L("Automatic pitch name color"),
+            help: L("Draws each pitch name in a color that stands out where it sits: dark on the white keys, light on the black ones, and light over the background while the keyboard is hidden. Turn it off to pick the color yourself."),
             available: { showsPitches })
-        add(.pitchNameColor, .playback, section: L("Background"), title: L("Pitch name colour"),
-            help: L("Sets the colour of the pitch names (C4, A3 …) down the left-hand side of the playback screen."),
+        add(.pitchNameColor, .playback, section: L("Background"), title: L("Pitch name color"),
+            help: L("Sets the color of the pitch names (C4, A3 …) down the left-hand side of the playback screen."),
             available: { picksPitchNameColor })
 
         heading(.playbackText, .playback, L("Text"))
-        add(.textColor, .playback, section: L("Text"), title: L("Text colour"),
-            help: L("The colour of the labels written over the notes in the note editor."))
+        add(.textColor, .playback, section: L("Text"), title: L("Text color"),
+            help: L("The color of the labels written over the notes in the note editor."))
         add(.textFont, .playback, section: L("Text"), title: L("Text font"),
             help: L("The typeface those labels are written in."))
 
-        heading(.playbackSinger, .playback, L("Singing indicator"))
-        add(.singerSize, .playback, section: L("Singing indicator"), title: L("Size"),
+        heading(.playbackSinger, .playback, L("Singing Indicator"))
+        add(.singerSize, .playback, section: L("Singing Indicator"), title: L("Size"),
             help: L("How big the dot that follows your voice is."))
-        add(.singerInnerColor, .playback, section: L("Singing indicator"), title: L("Inner colour"),
+        add(.singerInnerColor, .playback, section: L("Singing Indicator"), title: L("Inner color"),
             help: L("The fill of the dot that follows your voice."))
-        add(.singerOuterColor, .playback, section: L("Singing indicator"), title: L("Outer colour"),
+        add(.singerOuterColor, .playback, section: L("Singing Indicator"), title: L("Outer color"),
             help: L("The ring around that dot."))
-        add(.singerLineColor, .playback, section: L("Singing indicator"), title: L("Line colour"),
+        add(.singerLineColor, .playback, section: L("Singing Indicator"), title: L("Line color"),
             help: L("The trail the dot leaves behind it, showing the pitch you have just sung."))
 
-        heading(.playbackVerticalLine, .playback, L("Vertical line"))
-        add(.playheadColor, .playback, section: L("Vertical line"), title: L("Colour"),
-            help: L("Sets the colour of the vertical line the singing indicator runs along."))
-        add(.playheadStyle, .playback, section: L("Vertical line"), title: L("Style"),
+        heading(.playbackVerticalLine, .playback, L("Vertical Line"))
+        add(.playheadColor, .playback, section: L("Vertical Line"), title: L("Color"),
+            help: L("Sets the color of the vertical line the singing indicator runs along."))
+        add(.playheadStyle, .playback, section: L("Vertical Line"), title: L("Style"),
             help: L("“Line” draws one continuous line. “Dots” replaces it with a dot in the middle of every pitch."))
-        add(.hideUnusedDots, .playback, section: L("Vertical line"),
+        add(.hideUnusedDots, .playback, section: L("Vertical Line"),
             title: L("Hide dots in unused pitches"),
             help: L("Leaves a dot only on the pitches the repetition you're singing uses. The dots change to the next repetition's pitches as soon as its last note has finished."),
             available: { playheadIsDots })
@@ -577,10 +577,10 @@ enum SettingsCatalog {
             help: L("Hides the Home, Exercises, Community and Settings tabs at the bottom of the screen while an exercise plays."))
 
         heading(.playbackTemplates, .playback, L("Templates"))
-        add(.saveTemplate, .playback, section: L("Templates"), title: L("Save current as template"),
+        add(.saveTemplate, .playback, section: L("Templates"), title: L("Save Current as Template"),
             help: L("Tap a template to switch to it, or tap the selected one to deselect it. While a template is selected, the settings on this screen are saved into it as you change them."))
-        add(.exportTemplate, .playback, title: L("Export template"), help: templateFileHelp)
-        add(.importTemplate, .playback, title: L("Import template"), help: templateFileHelp)
+        add(.exportTemplate, .playback, title: L("Export Template"), help: templateFileHelp)
+        add(.importTemplate, .playback, title: L("Import Template"), help: templateFileHelp)
 
         // MARK: Voice
         let customNotesHelp = L("The lowest and highest notes you can comfortably sing. Exercises are transposed to fit between them.")
@@ -595,10 +595,10 @@ enum SettingsCatalog {
             help: L("Sing your lowest and highest notes and the app sets them as your custom vocal range above."))
         heading(.voiceScoreCalculation, .voice, L("Score Calculation"))
         add(.targetWindow, .voice, section: L("Score Calculation"), title: L("Target window size"),
-            help: L("How much of a note counts as hit when your score is worked out. At 100% the whole note counts, as it always has; lower, and only that share of the note's middle does, so you have to sing nearer the centre of the pitch for it to count."))
+            help: L("How much of a note counts as hit when your score is worked out. At 100% the whole note counts, as it always has; lower, and only that share of the note's middle does, so you have to sing nearer the center of the pitch for it to count."))
 
         // MARK: Home tab
-        add(.customiseHome, .homeTab, title: L("Customise your Home Screen"),
+        add(.customiseHome, .homeTab, title: L("Customize your Home tab"),
             help: L("Which categories the Home tab shows and the order they come in. The same screen opens by pressing and holding a category name on the Home tab."))
         heading(.homeTabRecommendations, .homeTab, L("Recommendations"))
         add(.recommendationsAsList, .homeTab, section: L("Recommendations"),
@@ -606,12 +606,12 @@ enum SettingsCatalog {
             help: L("Lists the recommended exercises in the Home tab's “Recommended” category, one row each. Off, the category shows a single card instead, which plays them all as one queue."))
         add(.dailyPracticeGoal, .homeTab, section: L("Recommendations"),
             title: L("Daily practice goal"),
-            help: L("How long you mean to practise a day. The Home tab's “Recommended” category suggests exercises adding up to at least this long, pitched at your skill level and steering clear of the ones you've sung lately, above all the ones you've sung over and over. A day of the Home tab's “Time Spent Singing” is filled in and ticked once you have practised this much."))
+            help: L("How long you mean to practice a day. The Home tab's “Recommended” category suggests exercises adding up to at least this long, pitched at your skill level and steering clear of the ones you've sung lately, above all the ones you've sung over and over. A day of the Home tab's “Time Spent Singing” is filled in and checked off once you have practiced this much."))
         add(.autoWhitelist, .homeTab, section: L("Recommendations"),
             title: L("Automatically whitelisted exercises"),
-            help: L("Which exercises are whitelisted for you: switching a group on whitelists everything in it, including what was already in your library, and switching it off takes them out again. Exercises you tick or untick yourself below are left as you left them."))
+            help: L("Which exercises are whitelisted for you: switching a group on whitelists everything in it, including what was already in your library, and switching it off takes them out again. Exercises you check or uncheck yourself below are left as you left them."))
         add(.whitelist, .homeTab, section: L("Recommendations"), title: L("Whitelisted exercises"),
-            help: L("The exercises recommendations are picked from. The groups picked above are ticked for you; tap an exercise to add or remove it yourself, which the groups then leave alone."))
+            help: L("The exercises recommendations are picked from. The groups picked above are checked for you; tap an exercise to add or remove it yourself, which the groups then leave alone."))
 
         // MARK: Backup
         heading(.backupExercises, .backup, L("Exercises"))
@@ -628,11 +628,11 @@ enum SettingsCatalog {
         add(.resetExercisesRow, .reset, title: L("Exercises"),
             help: L("Delete the exercises you made or downloaded, and undo your changes to the ones that came with the app."))
         add(.resetHomeRow, .reset, title: L("Home"),
-            help: L("Clear the Home tab's favourites, routines and recently played list."))
+            help: L("Clear the Home tab's favorites, routines and recently played list."))
         add(.deleteEverything, .reset, title: L("Delete Everything"),
             help: L("Does what all four screens above do at once, and deletes what you have on the server too: the backup a new install would bring your library back from, your public profile, the exercises you shared and every like, download and score you sent. The only thing left is the ID your device was given, which lives outside the app."))
 
-        heading(.resetRecordedScores, .resetScores, L("Recorded scores"))
+        heading(.resetRecordedScores, .resetScores, L("Recorded Scores"))
         add(.deleteAllScores, .resetScores, title: L("Delete All Scores"),
             help: L("Deletes the scores of every exercise, including any left behind by exercises you have since deleted. The exercises themselves are kept."))
 
@@ -644,11 +644,11 @@ enum SettingsCatalog {
         add(.resetAllSettings, .resetSettings, title: L("Reset All Settings"),
             help: L("Puts every category above back at once. Your exercises, scores and routines are untouched."))
 
-        heading(.resetYourExercises, .resetExercises, L("Your exercises"))
-        add(.deleteOwnExercises, .resetExercises, section: L("Your exercises"),
+        heading(.resetYourExercises, .resetExercises, L("Your Exercises"))
+        add(.deleteOwnExercises, .resetExercises, section: L("Your Exercises"),
             title: L("Delete Own Exercises"),
             help: L("Deletes every exercise you created yourself, with its MIDI pattern and scores. Exercises that came with the app or from the Community tab are kept."))
-        add(.deleteDownloadedExercises, .resetExercises, section: L("Your exercises"),
+        add(.deleteDownloadedExercises, .resetExercises, section: L("Your Exercises"),
             title: L("Delete Downloaded Exercises"),
             help: L("Deletes every exercise you downloaded from the Community tab, with its MIDI pattern and scores. Your own exercises and the ones that came with the app are kept."))
         heading(.resetBundledExercises, .resetExercises, L("Bundled Exercises"))
@@ -656,14 +656,14 @@ enum SettingsCatalog {
             title: L("Revert All Bundled Exercises"),
             help: L("Puts every exercise that came with the app back to how it shipped, bringing back any you deleted."))
 
-        add(.clearFavourites, .resetHome, title: L("Clear Favourites"),
-            help: L("Empties the Home tab's “Favourites” list. The exercises in it are kept."))
+        add(.clearFavourites, .resetHome, title: L("Clear Favorites"),
+            help: L("Empties the Home tab's “Favorites” list. The exercises in it are kept."))
         add(.deleteRoutines, .resetHome, title: L("Delete Routines"),
             help: L("Deletes every routine you assembled. The exercises they were made of are kept."))
         add(.clearRecentlyPlayed, .resetHome, title: L("Clear Recently Played"),
             help: L("Forgets what you played and when, emptying the Home tab's “Recent” list and the order “Recommended” picks by."))
         add(.clearPracticeTime, .resetHome, title: L("Clear Practice Time"),
-            help: L("Forgets how long you practised on each day, emptying the Home tab's “Time Spent Singing”."))
+            help: L("Forgets how long you practiced on each day, emptying the Home tab's “Time Spent Singing”."))
 
         // MARK: Language
         // Both names are searched, so the list answers to "German" as readily as
@@ -681,10 +681,10 @@ enum SettingsCatalog {
             help: L("Optional. The tab your message is about, so it's clear where to look."))
         add(.feedbackMessage, .feedback, title: L("Message"),
             help: L("What you would like to say. The more exactly you describe it, the more can be done about it."))
-        add(.feedbackEmail, .feedback, title: L("E-Mail"),
+        add(.feedbackEmail, .feedback, title: L("Email"),
             help: L("Only needed if you'd like an answer, and required for a question, which can't be answered without it."))
         add(.feedbackSend, .feedback, title: L("Send"),
-            help: L("Sends your message straight to the developer. It stays greyed out until the type and the message are filled in, and for a question until there's an address to answer."))
+            help: L("Sends your message straight to the developer. It stays grayed out until the type and the message are filled in, and for a question until there's an address to answer."))
 
         return entries
     }

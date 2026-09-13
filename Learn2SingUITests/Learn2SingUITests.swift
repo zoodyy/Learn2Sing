@@ -378,7 +378,7 @@ final class Learn2SingUITests: XCTestCase {
                       "Stop should return the transport to Play")
     }
 
-    /// Leaving the MIDI editor shows a "Midi Saved!" toast and leaving the
+    /// Leaving the MIDI editor shows a "MIDI Saved!" toast and leaving the
     /// settings screen shows "Exercise Saved!" — but pushing deeper (settings →
     /// editor) shows nothing.
     func testSavedToasts() throws {
@@ -427,10 +427,10 @@ final class Learn2SingUITests: XCTestCase {
         let back = app.buttons["BackButton"].firstMatch
         XCTAssertTrue(back.waitForExistence(timeout: 3), "no Back button found")
         back.tap()
-        XCTAssertTrue(app.staticTexts["Midi Saved!"].waitForExistence(timeout: 3),
+        XCTAssertTrue(app.staticTexts["MIDI Saved!"].waitForExistence(timeout: 3),
                       "leaving the MIDI editor should confirm the save")
         saveScreenshot("toast-midi-saved")
-        XCTAssertTrue(app.staticTexts["Midi Saved!"].waitForNonExistence(timeout: 8),
+        XCTAssertTrue(app.staticTexts["MIDI Saved!"].waitForNonExistence(timeout: 8),
                       "the toast should auto-hide")
 
         // Pop back to the list: the exercise toast appears.
@@ -1625,7 +1625,7 @@ final class Learn2SingUITests: XCTestCase {
     /// The Exercises tab's filter menu. Picks within a group are OR'd and groups
     /// are AND'd, so "Bundled" alone lists exercises while "Bundled" + "Public"
     /// can't match anything — bundled exercises are always private. The
-    /// "Favourites" pick is a group of its own, and follows the star on an
+    /// "Favorites" pick is a group of its own, and follows the star on an
     /// exercise's intro screen.
     ///
     /// Checked by the counts the closed categories show rather than by the rows
@@ -1712,9 +1712,9 @@ final class Learn2SingUITests: XCTestCase {
         XCTAssertEqual(snapshotList(app).headers, categories,
                        "clearing the filters should restore the full list")
 
-        // "Favourites" is a group of its own: starring one more exercise puts
+        // "Favorites" is a group of its own: starring one more exercise puts
         // exactly one more into it.
-        pick("Favourites")
+        pick("Favorites")
         let starredBefore = snapshotList(app).counts
         saveScreenshot("filter-favourites")
         clearFilters()
@@ -1725,7 +1725,7 @@ final class Learn2SingUITests: XCTestCase {
         header(app, named: starredCategory).tap()   // and closed again, for the count
         sleep(1)
 
-        pick("Favourites")
+        pick("Favorites")
         let starredNow = snapshotList(app).counts
         XCTAssertEqual(starredNow[starredCategory] ?? 0, (starredBefore[starredCategory] ?? 0) + 1,
                        "starring \(target) should have added one to the favourites in "
@@ -1847,11 +1847,11 @@ final class Learn2SingUITests: XCTestCase {
         cell(app, named: name).tap()
         XCTAssertTrue(app.navigationBars[name].waitForExistence(timeout: 3),
                       "tapping \(name) should open its intro screen")
-        let star = app.buttons[wanted ? "Favourite" : "Remove Favourite"]
+        let star = app.buttons[wanted ? "Favorite" : "Remove Favorite"]
         XCTAssertTrue(star.waitForExistence(timeout: 3),
                       "\(name) should offer to be \(wanted ? "starred" : "un-starred")")
         star.tap()
-        XCTAssertTrue(app.buttons[wanted ? "Remove Favourite" : "Favourite"]
+        XCTAssertTrue(app.buttons[wanted ? "Remove Favorite" : "Favorite"]
                         .waitForExistence(timeout: 3),
                       "the star should have changed for \(name)")
         app.buttons["BackButton"].firstMatch.tap()
@@ -1919,7 +1919,7 @@ final class Learn2SingUITests: XCTestCase {
 
         // Whichever category is visible: hidden ones persist across launches, so
         // an earlier run decides which that is.
-        let categories = ["Recent", "Routines", "Favourites", "Recommended"]
+        let categories = ["Recent", "Routines", "Favorites", "Recommended"]
         let anyVisible = app.staticTexts.matching(
             NSPredicate(format: "label IN %@", categories)).firstMatch
         XCTAssertTrue(anyVisible.waitForExistence(timeout: 5), "Home list has no categories")
@@ -2255,7 +2255,7 @@ final class Learn2SingUITests: XCTestCase {
 
         // Shuffle reorders the listed exercises (retried: a shuffle can land on
         // the order it started from).
-        let shuffle = app.buttons["Shuffle exercises"].firstMatch
+        let shuffle = app.buttons["Shuffle Exercises"].firstMatch
         XCTAssertTrue(shuffle.exists, "the Exercises header should show a shuffle button")
         var shuffled = picks
         for _ in 0..<6 where shuffled == picks {
@@ -2427,7 +2427,7 @@ final class Learn2SingUITests: XCTestCase {
 
     /// Favourites are made with the star on an exercise's intro screen, where the
     /// Community tab's like button sits. A starred exercise rises to the top of
-    /// its category on the Exercises tab and fills the Home tab's "Favourites",
+    /// its category on the Exercises tab and fills the Home tab's "Favorites",
     /// which has no + button of its own any more. Favourites persist between
     /// runs, so the exercise picked is one that isn't starred yet and is
     /// un-starred again at the end.
@@ -2450,15 +2450,15 @@ final class Learn2SingUITests: XCTestCase {
                       "tapping an exercise should open its intro screen")
         // Already starred (a rerun that didn't get to its cleanup): clear it, so
         // the move this test is about has somewhere to happen.
-        if app.buttons["Remove Favourite"].exists {
-            app.buttons["Remove Favourite"].tap()
+        if app.buttons["Remove Favorite"].exists {
+            app.buttons["Remove Favorite"].tap()
             usleep(500_000)
         }
-        let star = app.buttons["Favourite"]
+        let star = app.buttons["Favorite"]
         XCTAssertTrue(star.waitForExistence(timeout: 3),
                       "the intro screen should offer the favourite star")
         star.tap()
-        XCTAssertTrue(app.buttons["Remove Favourite"].waitForExistence(timeout: 3),
+        XCTAssertTrue(app.buttons["Remove Favorite"].waitForExistence(timeout: 3),
                       "tapping the star should fill it in")
         saveScreenshot("exercise-intro-favourited")
 
@@ -2478,9 +2478,9 @@ final class Learn2SingUITests: XCTestCase {
         app.buttons["Home"].tap()
         XCTAssertTrue(app.navigationBars["Home"].waitForExistence(timeout: 3))
         sleep(2)
-        XCTAssertTrue((snapshotList(app).items["Favourites"] ?? []).contains(target),
+        XCTAssertTrue((snapshotList(app).items["Favorites"] ?? []).contains(target),
                       "\(target) should be listed under Favourites on Home")
-        let favouritesHeader = header(app, named: "Favourites")
+        let favouritesHeader = header(app, named: "Favorites")
         XCTAssertTrue(favouritesHeader.exists, "Home should show the Favourites category header")
         let addButtons = app.collectionViews.buttons.matching(identifier: "Add")
             .allElementsBoundByIndex.filter { $0.isHittable }
@@ -2494,7 +2494,7 @@ final class Learn2SingUITests: XCTestCase {
         app.launch()
         XCTAssertTrue(app.navigationBars["Home"].waitForExistence(timeout: 5))
         sleep(2)
-        XCTAssertTrue((snapshotList(app).items["Favourites"] ?? []).contains(target),
+        XCTAssertTrue((snapshotList(app).items["Favorites"] ?? []).contains(target),
                       "the favourite should survive a relaunch")
 
         // Clean up: un-star it again, so reruns start from the same state.
@@ -2503,17 +2503,17 @@ final class Learn2SingUITests: XCTestCase {
         sleep(1)
         cell(app, named: target).tap()
         XCTAssertTrue(app.navigationBars[target].waitForExistence(timeout: 3))
-        let starred = app.buttons["Remove Favourite"]
+        let starred = app.buttons["Remove Favorite"]
         XCTAssertTrue(starred.waitForExistence(timeout: 3),
                       "the star should still be filled in for \(target)")
         starred.tap()
-        XCTAssertTrue(app.buttons["Favourite"].waitForExistence(timeout: 3),
+        XCTAssertTrue(app.buttons["Favorite"].waitForExistence(timeout: 3),
                       "tapping it again should clear the star")
         app.buttons["BackButton"].firstMatch.tap()
         XCTAssertTrue(app.navigationBars["Exercises"].waitForExistence(timeout: 3))
         app.buttons["Home"].tap()
         sleep(2)
-        XCTAssertFalse((snapshotList(app).items["Favourites"] ?? []).contains(target),
+        XCTAssertFalse((snapshotList(app).items["Favorites"] ?? []).contains(target),
                        "\(target) should be off the Favourites list again")
     }
 
@@ -2661,7 +2661,7 @@ final class Learn2SingUITests: XCTestCase {
     private let playheadStyleKey = "vis_playheadStyle"
     private let playheadColorKey = "vis_playheadColor"
 
-    /// Visuals → Playback offers a "Vertical line" section with a colour picker and
+    /// Visuals → Playback offers a "Vertical Line" section with a colour picker and
     /// a Line/Dots style picker, and switching to Dots is reflected in the preview.
     func testPlayheadStyleSetting() throws {
         let app = XCUIApplication()
@@ -2682,10 +2682,10 @@ final class Learn2SingUITests: XCTestCase {
         }
         XCTAssertTrue(stylePicker.waitForExistence(timeout: 5),
                       "Visuals → Playback should offer the vertical line's Style picker")
-        XCTAssertTrue(app.staticTexts["Vertical line"].exists,
+        XCTAssertTrue(app.staticTexts["Vertical Line"].exists,
                       "the vertical line settings should sit in their own section")
         XCTAssertTrue(app.buttons.matching(
-            NSPredicate(format: "label BEGINSWITH %@", "Colour")).firstMatch.exists,
+            NSPredicate(format: "label BEGINSWITH %@", "Color")).firstMatch.exists,
             "the vertical line section should offer a colour picker")
         sleep(1)
         saveScreenshot("visuals-playhead-line")
@@ -2762,7 +2762,7 @@ final class Learn2SingUITests: XCTestCase {
             "Speaker picker not on the Audio screen")
         XCTAssertTrue(app.staticTexts["Microphone delay"].exists,
                       "Microphone delay row not on the Audio screen")
-        XCTAssertTrue(app.buttons["Test for delay"].exists,
+        XCTAssertTrue(app.buttons["Test for Delay"].exists,
                       "delay test button not on the Audio screen")
         saveScreenshot("settings-audio")
 
@@ -2835,7 +2835,7 @@ final class Learn2SingUITests: XCTestCase {
         tab.tap()
         XCTAssertTrue(app.navigationBars["Home"].waitForExistence(timeout: 5))
 
-        let categories = ["Recent", "Routines", "Favourites", "Recommended"]
+        let categories = ["Recent", "Routines", "Favorites", "Recommended"]
 
         // Long-press any visible header to reach the edit-categories screen. Hidden
         // categories persist across launches, so the first visible one is whatever
@@ -2922,7 +2922,7 @@ final class Learn2SingUITests: XCTestCase {
         tab.tap()
         XCTAssertTrue(app.navigationBars["Home"].waitForExistence(timeout: 5))
 
-        let categories = ["Recent", "Routines", "Favourites", "Recommended"]
+        let categories = ["Recent", "Routines", "Favorites", "Recommended"]
 
         /// The category headers on the Home list, top to bottom.
         func homeOrder() -> [String] {
@@ -3033,7 +3033,7 @@ final class Learn2SingUITests: XCTestCase {
 
         // Saving the current look adds a third template and moves the selection to
         // it — one checkmark, not two.
-        app.buttons["Save current as template"].tap()
+        app.buttons["Save Current as Template"].tap()
         let nameField = app.textFields.firstMatch
         XCTAssertTrue(nameField.waitForExistence(timeout: 3))
         nameField.typeText("Copy")

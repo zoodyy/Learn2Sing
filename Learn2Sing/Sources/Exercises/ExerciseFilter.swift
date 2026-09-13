@@ -38,7 +38,7 @@ enum ExerciseFilter: String, CaseIterable, Identifiable {
         case .own: L("Own Exercises")
         case .public: L("Public Exercises")
         case .private: L("Private Exercises")
-        case .favourite: L("Favourites")
+        case .favourite: L("Favorites")
         }
     }
 

@@ -381,7 +381,7 @@ T("The third note sits lower than in the major scale. Listen closely and tune it
   "세 번째 음은 장음계보다 낮습니다. 잘 듣고 올라갈 때와 내려갈 때 모두 음정을 신중하게 맞추세요.",
   "第三个音比大调音阶中的低。仔细聆听，上行和下行时都要认真唱准它。",
   "النغمة الثالثة أخفض منها في السلم الكبير. استمع جيدًا واضبطها بعناية في الصعود والنزول.")
-T("Aim for the centre of each note instead of sliding into it. Hear the next note in your head before you sing it.",
+T("Aim for the center of each note instead of sliding into it. Hear the next note in your head before you sing it.",
   "Triff die Mitte jedes Tons, statt in ihn hineinzurutschen. Hör den nächsten Ton innerlich, bevor du ihn singst.",
   "Apunta al centro de cada nota en lugar de deslizarte hacia ella. Escucha la siguiente nota en tu cabeza antes de cantarla.",
   "Visez le centre de chaque note au lieu d’y glisser. Entendez la note suivante dans votre tête avant de la chanter.",
@@ -760,7 +760,7 @@ T("Sing the whole run on one breath and keep the notes even. Take a quick, low b
   "런 전체를 한 호흡으로 부르고 음을 고르게 유지하세요. 반복 사이에는 빠르고 깊게 숨을 들이마시세요.",
   "一口气唱完整个跑动，保持音符均匀。每次重复之间快速地深吸一口气。",
   "غنِّ التتابع كله بنفَس واحد وأبقِ النغمات متساوية. خذ نفسًا سريعًا إلى البطن بين التكرارات.")
-T("Keep every note of the arpeggio clear and connected. Aim for the centre of each note instead of sliding.",
+T("Keep every note of the arpeggio clear and connected. Aim for the center of each note instead of sliding.",
   "Halte jeden Ton des Arpeggios klar und verbunden. Triff die Mitte jedes Tons, statt zu rutschen.",
   "Mantén cada nota del arpegio clara y unida. Apunta al centro de cada nota en lugar de deslizarte.",
   "Gardez chaque note de l’arpège claire et liée. Visez le centre de chaque note au lieu de glisser.",

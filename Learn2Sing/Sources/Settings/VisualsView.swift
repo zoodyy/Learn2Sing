@@ -147,7 +147,7 @@ struct VisualsHubView: View {
         .navigationTitle(L("Visuals"))
         .navigationBarTitleDisplayMode(.inline)
         .settingsSearchable(.visuals)
-        .alert("Playback screen", isPresented: Binding(
+        .alert("Playback Screen", isPresented: Binding(
             get: { pendingSwitch != nil },
             set: { if !$0 { pendingSwitch = nil } }
         ), presenting: pendingSwitch) { pending in
@@ -155,7 +155,7 @@ struct VisualsHubView: View {
                 templates.applyStandard(for: pending.scheme)
                 pendingSwitch = nil
             }
-            Button("Keep current", role: .cancel) {
+            Button("Keep Current", role: .cancel) {
                 pendingSwitch = nil
             }
         } message: { pending in
@@ -174,12 +174,12 @@ struct VisualsHubView: View {
     private func message(for pending: PendingPlaybackSwitch) -> String {
         if let name = pending.selectedName.map(VisualTemplateName.localized) {
             return pending.scheme == .dark
-                ? L("Do you also want to switch the playback screen to the standard dark look? “%@” keeps your customisations either way — select it again any time to come back to them.", name)
-                : L("Do you also want to switch the playback screen to the standard light look? “%@” keeps your customisations either way — select it again any time to come back to them.", name)
+                ? L("Do you also want to switch the playback screen to the standard dark look? “%@” keeps your customizations either way — select it again any time to come back to them.", name)
+                : L("Do you also want to switch the playback screen to the standard light look? “%@” keeps your customizations either way — select it again any time to come back to them.", name)
         }
         return pending.scheme == .dark
-            ? L("Do you also want to switch the playback screen to the standard dark look? Your customisations will be replaced.")
-            : L("Do you also want to switch the playback screen to the standard light look? Your customisations will be replaced.")
+            ? L("Do you also want to switch the playback screen to the standard dark look? Your customizations will be replaced.")
+            : L("Do you also want to switch the playback screen to the standard light look? Your customizations will be replaced.")
     }
 
     /// When the theme change actually changes the appearance the app is in: put the new
@@ -215,13 +215,13 @@ struct MenusVisualsView: View {
     var body: some View {
         Form {
             Section {
-                ColorPicker("Exercise preview colour",
+                ColorPicker("Exercise preview color",
                             selection: Binding(get: { Color(hex: exercisePreviewColor) },
                                                set: { exercisePreviewColor = $0.hexString }),
                             supportsOpacity: false)
                 .setting(.exercisePreviewColor)
             } header: {
-                Text("Exercise lists").settingSection(.menusExerciseLists)
+                Text("Exercise Lists").settingSection(.menusExerciseLists)
             }
         }
         .navigationTitle(L("Menus"))
@@ -267,7 +267,7 @@ struct PlaybackVisualsView: View {
     /// injected, so the bundled default is seeded before any playback.
     @EnvironmentObject private var templates: VisualTemplateStore
 
-    /// Naming alert for "Save current as template".
+    /// Naming alert for "Save Current as Template".
     @State private var isNamingTemplate = false
     @State private var newTemplateName = ""
 
@@ -276,7 +276,7 @@ struct PlaybackVisualsView: View {
     /// once the user confirms (or after they've saved the current look first).
     @State private var templateToSelect: VisualTemplate?
 
-    /// Set when the user answered that warning with "Save current as template": the
+    /// Set when the user answered that warning with "Save Current as Template": the
     /// template to select once the new one has been named and saved.
     @State private var selectAfterSaving: VisualTemplate?
 
@@ -373,7 +373,7 @@ struct PlaybackVisualsView: View {
                 }
                 .overlay(alignment: .top) {
                     collapsiblePreview(width: previewWidth, fullHeight: previewWidth)
-                        .explain(L("A live sample of the playback screen. Everything you change below shows up here straight away."))
+                        .explain(L("A live sample of the playback screen. Everything you change below shows up here right away."))
                 }
         }
         .navigationTitle(L("Playback"))
@@ -391,21 +391,21 @@ struct PlaybackVisualsView: View {
         } message: {
             Text("Save the current visual settings as a template.")
         }
-        .alert("Replace current settings?", isPresented: Binding(
+        .alert("Replace Current Settings?", isPresented: Binding(
             get: { templateToSelect != nil },
             set: { if !$0 { templateToSelect = nil } }
         ), presenting: templateToSelect) { template in
-            Button("Save current as template") {
+            Button("Save Current as Template") {
                 selectAfterSaving = template
                 newTemplateName = ""
                 // Next runloop turn, so this alert is gone before the naming one is
                 // asked for — SwiftUI drops a second alert presented in the same one.
                 DispatchQueue.main.async { isNamingTemplate = true }
             }
-            Button("Select anyway", role: .destructive) { templates.select(template) }
+            Button("Select Anyway", role: .destructive) { templates.select(template) }
             Button("Cancel", role: .cancel) { }
         } message: { _ in
-            Text("Your current visual settings aren’t saved in any template. Selecting this one replaces them.")
+            Text("Your current visual settings aren't saved in any template. Selecting this one replaces them.")
         }
         .fileExporter(
             isPresented: $isExportingTemplate,
@@ -427,7 +427,7 @@ struct PlaybackVisualsView: View {
                 defer { if accessed { url.stopAccessingSecurityScopedResource() } }
                 guard let data = try? Data(contentsOf: url),
                       let template = VisualTemplate.decode(from: data) else {
-                    templateAlert = L("That file isn’t a valid visual template.")
+                    templateAlert = L("That file isn't a valid visual template.")
                     return
                 }
                 templates.select(templates.add(imported: template))
@@ -448,9 +448,9 @@ struct PlaybackVisualsView: View {
     private var settingsForm: some View {
         Form {
             Section {
-                ColorPicker("Note colour", selection: colorBinding($noteColor), supportsOpacity: false)
+                ColorPicker("Note color", selection: colorBinding($noteColor), supportsOpacity: false)
                     .setting(.noteColor)
-                ColorPicker("Playing note colour", selection: colorBinding($playingNoteColor), supportsOpacity: false)
+                ColorPicker("Playing note color", selection: colorBinding($playingNoteColor), supportsOpacity: false)
                     .setting(.playingNoteColor)
                 sliderRow(L("Note roundness"), value: $noteRoundness, range: 0...1)
                     .setting(.noteRoundness)
@@ -466,14 +466,14 @@ struct PlaybackVisualsView: View {
                 Toggle("Follow notes vertically", isOn: $followVertical)
                     .setting(.followVertical)
             } header: {
-                Text("Zoom & position").settingSection(.playbackZoom)
+                Text("Zoom & Position").settingSection(.playbackZoom)
             }
 
             Section {
                 Toggle("Show horizontal lines", isOn: $showLines)
                     .setting(.showLines)
                 if !showLines {
-                    ColorPicker("Background colour", selection: colorBinding($background), supportsOpacity: false)
+                    ColorPicker("Background color", selection: colorBinding($background), supportsOpacity: false)
                         .setting(.backgroundColor)
                 }
                 Toggle("Show keyboard", isOn: $showKeyboard)
@@ -481,10 +481,10 @@ struct PlaybackVisualsView: View {
                 Toggle("Show pitches", isOn: $showPitches)
                     .setting(.showPitches)
                 if showPitches {
-                    Toggle("Automatic pitch name colour", isOn: $autoPitchNameColor)
+                    Toggle("Automatic pitch name color", isOn: $autoPitchNameColor)
                         .setting(.autoPitchNameColor)
                     if !autoPitchNameColor {
-                        ColorPicker("Pitch name colour",
+                        ColorPicker("Pitch name color",
                                     selection: opacityColorBinding($pitchNameColor),
                                     supportsOpacity: true)
                         .setting(.pitchNameColor)
@@ -495,7 +495,7 @@ struct PlaybackVisualsView: View {
             }
 
             Section {
-                ColorPicker("Text colour", selection: colorBinding($textColor), supportsOpacity: false)
+                ColorPicker("Text color", selection: colorBinding($textColor), supportsOpacity: false)
                     .setting(.textColor)
                 Picker("Text font", selection: $textFont) {
                     ForEach(PlaybackFont.allCases) { font in
@@ -510,18 +510,18 @@ struct PlaybackVisualsView: View {
             Section {
                 sliderRow(L("Size"), value: $singerSize, range: 0.5...3)
                     .setting(.singerSize)
-                ColorPicker("Inner colour", selection: opacityColorBinding($singerInnerColor), supportsOpacity: true)
+                ColorPicker("Inner color", selection: opacityColorBinding($singerInnerColor), supportsOpacity: true)
                     .setting(.singerInnerColor)
-                ColorPicker("Outer colour", selection: opacityColorBinding($singerOuterColor), supportsOpacity: true)
+                ColorPicker("Outer color", selection: opacityColorBinding($singerOuterColor), supportsOpacity: true)
                     .setting(.singerOuterColor)
-                ColorPicker("Line colour", selection: opacityColorBinding($singerLineColor), supportsOpacity: true)
+                ColorPicker("Line color", selection: opacityColorBinding($singerLineColor), supportsOpacity: true)
                     .setting(.singerLineColor)
             } header: {
-                Text("Singing indicator").settingSection(.playbackSinger)
+                Text("Singing Indicator").settingSection(.playbackSinger)
             }
 
             Section {
-                ColorPicker("Colour", selection: opacityColorBinding($playheadColor), supportsOpacity: true)
+                ColorPicker("Color", selection: opacityColorBinding($playheadColor), supportsOpacity: true)
                     .setting(.playheadColor)
                 Picker("Style", selection: $playheadStyle) {
                     ForEach(PlayheadStyle.allCases) { style in
@@ -534,7 +534,7 @@ struct PlaybackVisualsView: View {
                         .setting(.hideUnusedDots)
                 }
             } header: {
-                Text("Vertical line").settingSection(.playbackVerticalLine)
+                Text("Vertical Line").settingSection(.playbackVerticalLine)
             }
 
             Section {
@@ -565,14 +565,14 @@ struct PlaybackVisualsView: View {
                 Button {
                     exportCurrentTemplate()
                 } label: {
-                    Label("Export template", systemImage: "square.and.arrow.up")
+                    Label("Export Template", systemImage: "square.and.arrow.up")
                 }
                 .setting(.exportTemplate)
 
                 Button {
                     isImportingTemplate = true
                 } label: {
-                    Label("Import template", systemImage: "square.and.arrow.down")
+                    Label("Import Template", systemImage: "square.and.arrow.down")
                 }
                 .setting(.importTemplate)
             }
@@ -611,7 +611,7 @@ struct PlaybackVisualsView: View {
                 newTemplateName = ""
                 isNamingTemplate = true
             } label: {
-                Label("Save current as template", systemImage: "plus")
+                Label("Save Current as Template", systemImage: "plus")
             }
             .setting(.saveTemplate)
         } header: {

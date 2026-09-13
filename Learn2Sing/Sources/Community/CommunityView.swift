@@ -721,7 +721,7 @@ private struct CommunityEmptyState<Empty: View>: View {
                         // same thing; this is what says the list is waiting on
                         // something rather than genuinely empty.
                         Button { Task { await list.refresh() } } label: {
-                            FeedRetryIcon(help: L("The community list didn’t load. Tap to try again."))
+                            FeedRetryIcon(help: L("The community list didn't load. Tap to try again."))
                         }
                     } else if list.activeFilter != nil {
                         // The fetch asked the server for the filtered list and it

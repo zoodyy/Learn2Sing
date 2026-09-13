@@ -59,7 +59,7 @@ struct AudioSettingsView: View {
             }
 
             Section {
-                Toggle("Automatically Recognise Microphone Delay", isOn: $autoMicDelay)
+                Toggle("Automatically recognize microphone delay", isOn: $autoMicDelay)
                     .setting(.autoMicDelay)
 
                 // Still shown while it is recognised automatically, because it is the
@@ -85,7 +85,7 @@ struct AudioSettingsView: View {
                 // that would be replaced.
                 if !autoMicDelay {
                     Button(action: openDelayTest) {
-                        Label("Test for delay", systemImage: "metronome")
+                        Label("Test for Delay", systemImage: "metronome")
                     }
                     .setting(.delayTest)
                 }

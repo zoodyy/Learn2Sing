@@ -1,7 +1,7 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
-    "\"%@\" and its audio file will be deleted. This cannot be undone." : {
+    "“%@” and its audio file will be deleted. This cannot be undone." : {
       "extractionState" : "stale",
       "localizations" : {
         "ar" : {
@@ -90,7 +90,7 @@
         }
       }
     },
-    "\"%@\" and its MIDI pattern will be deleted. This cannot be undone." : {
+    "“%@” and its MIDI pattern will be deleted. This cannot be undone." : {
       "extractionState" : "stale",
       "localizations" : {
         "ar" : {
@@ -268,7 +268,7 @@
         }
       }
     },
-    "\"%@\" will be deleted. Its exercises stay in your library. This cannot be undone." : {
+    "“%@” will be deleted. Its exercises stay in your library. This cannot be undone." : {
       "extractionState" : "stale",
       "localizations" : {
         "ar" : {
@@ -624,7 +624,7 @@
         }
       }
     },
-    "*Required Fields" : {
+    "*Required fields" : {
       "extractionState" : "stale",
       "localizations" : {
         "ar" : {
@@ -1876,7 +1876,7 @@
         }
       }
     },
-    "A live sample of the playback screen. Everything you change below shows up here straight away." : {
+    "A live sample of the playback screen. Everything you change below shows up here right away." : {
       "extractionState" : "stale",
       "localizations" : {
         "ar" : {
@@ -2499,7 +2499,7 @@
         }
       }
     },
-    "Add your e-mail address before sending." : {
+    "Add your email address before sending." : {
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -2765,7 +2765,7 @@
         }
       }
     },
-    "Adds the ticked new exercises to your library and updates the ticked ones it already has. Everything left unticked is ignored." : {
+    "Adds the checked new exercises to your library and updates the checked ones it already has. Everything left unchecked is ignored." : {
       "extractionState" : "stale",
       "localizations" : {
         "ar" : {
@@ -3120,7 +3120,7 @@
         }
       }
     },
-    "Aim for the centre of each note instead of sliding into it. Hear the next note in your head before you sing it." : {
+    "Aim for the center of each note instead of sliding into it. Hear the next note in your head before you sing it." : {
       "extractionState" : "stale",
       "localizations" : {
         "ar" : {
@@ -4364,7 +4364,7 @@
         }
       }
     },
-    "Automatic pitch name colour" : {
+    "Automatic pitch name color" : {
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -4452,7 +4452,7 @@
         }
       }
     },
-    "Automatically Recognise Microphone Delay" : {
+    "Automatically recognize microphone delay" : {
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -4804,7 +4804,7 @@
         }
       }
     },
-    "Background colour" : {
+    "Background color" : {
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -6397,6 +6397,184 @@
         }
       }
     },
+    "Checked exercises you already have are replaced by the version in this file." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "التمارين المحددة الموجودة لديك بالفعل تُستبدل بالنسخة الموجودة في هذا الملف."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ausgewählte Übungen, die du schon hast, werden durch die Fassung aus dieser Datei ersetzt."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Los ejercicios marcados que ya tienes se sustituyen por la versión de este archivo."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Les exercices cochés que vous avez déjà sont remplacés par la version de ce fichier."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gli esercizi selezionati che hai già vengono sostituiti dalla versione di questo file."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "選択した既存のエクササイズは、このファイルの内容で置き換えられます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "선택한 연습 중 이미 가지고 있는 것은 이 파일의 버전으로 대체됩니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aangevinkte oefeningen die je al hebt, worden vervangen door de versie in dit bestand."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zaznaczone ćwiczenia, które już masz, zostaną zastąpione wersją z tego pliku."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Os exercícios marcados que você já tem são substituídos pela versão deste arquivo."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Отмеченные упражнения, которые у вас уже есть, будут заменены версией из этого файла."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Markerade övningar du redan har ersätts av versionen i den här filen."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "İşaretlediğin ve zaten sahip olduğun egzersizler, bu dosyadaki sürümle değiştirilir."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "勾选的、你已拥有的练习将被此文件中的版本替换。"
+          }
+        }
+      }
+    },
+    "Checks every exercise at once, or clears them all." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "يحدد كل التمارين دفعة واحدة، أو يلغي تحديدها كلها."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wählt alle Übungen auf einmal aus oder hebt die Auswahl komplett auf."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Marca todos los ejercicios de una vez, o los desmarca todos."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Coche tous les exercices d’un coup, ou les décoche tous."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Seleziona tutti gli esercizi in una volta, o li deseleziona tutti."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "すべてのエクササイズを一度に選択、または選択をすべて解除します。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "모든 연습을 한 번에 선택하거나 모두 해제합니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vinkt alle oefeningen in één keer aan, of haalt ze allemaal weg."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zaznacza wszystkie ćwiczenia naraz albo odznacza je wszystkie."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Marca todos os exercícios de uma vez, ou desmarca todos."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Отмечает все упражнения сразу или снимает все отметки."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Markerar alla övningar på en gång, eller avmarkerar allihop."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tüm egzersizleri tek seferde işaretler ya da işaretlerini kaldırır."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "一次勾选所有练习，或全部取消勾选。"
+          }
+        }
+      }
+    },
     "Choose a file, then pick which of its exercises to add to your library or update." : {
       "extractionState" : "stale",
       "localizations" : {
@@ -7284,7 +7462,7 @@
         }
       }
     },
-    "Clear Favourites" : {
+    "Clear Favorites" : {
       "extractionState" : "stale",
       "localizations" : {
         "ar" : {
@@ -7639,7 +7817,7 @@
         }
       }
     },
-    "Clear the Home tab's favourites, routines and recently played list." : {
+    "Clear the Home tab's favorites, routines and recently played list." : {
       "extractionState" : "stale",
       "localizations" : {
         "ar" : {
@@ -8083,7 +8261,7 @@
         }
       }
     },
-    "Colour" : {
+    "Color" : {
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -9145,7 +9323,7 @@
         }
       }
     },
-    "Customise how the app's own screens and lists look." : {
+    "Customize how the app's own screens and lists look." : {
       "extractionState" : "stale",
       "localizations" : {
         "ar" : {
@@ -9234,7 +9412,7 @@
         }
       }
     },
-    "Customise how the note-scrolling playback screen looks." : {
+    "Customize how the note-scrolling playback screen looks." : {
       "extractionState" : "stale",
       "localizations" : {
         "ar" : {
@@ -9323,7 +9501,7 @@
         }
       }
     },
-    "Customise your Home Screen" : {
+    "Customize your Home tab" : {
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -12157,7 +12335,7 @@
         }
       }
     },
-    "Do you also want to switch the playback screen to the standard dark look? “%@” keeps your customisations either way — select it again any time to come back to them." : {
+    "Do you also want to switch the playback screen to the standard dark look? “%@” keeps your customizations either way — select it again any time to come back to them." : {
       "extractionState" : "stale",
       "localizations" : {
         "ar" : {
@@ -12246,7 +12424,7 @@
         }
       }
     },
-    "Do you also want to switch the playback screen to the standard dark look? Your customisations will be replaced." : {
+    "Do you also want to switch the playback screen to the standard dark look? Your customizations will be replaced." : {
       "extractionState" : "stale",
       "localizations" : {
         "ar" : {
@@ -12335,7 +12513,7 @@
         }
       }
     },
-    "Do you also want to switch the playback screen to the standard light look? “%@” keeps your customisations either way — select it again any time to come back to them." : {
+    "Do you also want to switch the playback screen to the standard light look? “%@” keeps your customizations either way — select it again any time to come back to them." : {
       "extractionState" : "stale",
       "localizations" : {
         "ar" : {
@@ -12424,7 +12602,7 @@
         }
       }
     },
-    "Do you also want to switch the playback screen to the standard light look? Your customisations will be replaced." : {
+    "Do you also want to switch the playback screen to the standard light look? Your customizations will be replaced." : {
       "extractionState" : "stale",
       "localizations" : {
         "ar" : {
@@ -12691,7 +12869,7 @@
         }
       }
     },
-    "Don’t Show Again" : {
+    "Don't Show Again" : {
       "extractionState" : "stale",
       "localizations" : {
         "ar" : {
@@ -14111,7 +14289,7 @@
         }
       }
     },
-    "Draws each pitch name in a colour that stands out where it sits: dark on the white keys, light on the black ones, and light over the background while the keyboard is hidden. Turn it off to pick the colour yourself." : {
+    "Draws each pitch name in a color that stands out where it sits: dark on the white keys, light on the black ones, and light over the background while the keyboard is hidden. Turn it off to pick the color yourself." : {
       "extractionState" : "stale",
       "localizations" : {
         "ar" : {
@@ -14196,94 +14374,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "以在所处位置最醒目的颜色绘制每个音名：白键上为深色，黑键上为浅色，隐藏键盘时在背景上为浅色。关闭后可自行选择颜色。"
-          }
-        }
-      }
-    },
-    "E-Mail" : {
-      "localizations" : {
-        "ar" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "البريد الإلكتروني"
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "E-Mail"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Correo electrónico"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "E-mail"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "E-mail"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "メールアドレス"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "이메일"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "E-mail"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "E-mail"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "E-mail"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Эл. почта"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "E-post"
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "E-posta"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "电子邮件"
           }
         }
       }
@@ -14554,7 +14644,7 @@
         }
       }
     },
-    "Each repetition starts this many semitones above the one before it. A negative value works downwards." : {
+    "Each repetition starts this many semitones above the one before it. A negative value works downward." : {
       "extractionState" : "stale",
       "localizations" : {
         "ar" : {
@@ -15175,7 +15265,95 @@
         }
       }
     },
-    "Empties the Home tab's “Favourites” list. The exercises in it are kept." : {
+    "Email" : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "البريد الإلكتروني"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Email"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Correo electrónico"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "E-mail"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "E-mail"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "メールアドレス"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이메일"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "E-mail"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "E-mail"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "E-mail"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Эл. почта"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "E-post"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "E-posta"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "电子邮件"
+          }
+        }
+      }
+    },
+    "Empties the Home tab's “Favorites” list. The exercises in it are kept." : {
       "extractionState" : "stale",
       "localizations" : {
         "ar" : {
@@ -15352,7 +15530,7 @@
         }
       }
     },
-    "Enter text to place on the grid" : {
+    "Enter text to place on the grid." : {
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -15440,7 +15618,96 @@
         }
       }
     },
-    "Every exercise still plays, but Learn2Sing can’t hear you sing. Without the microphone, no line follows your voice, runs aren’t scored, and the vocal range and microphone delay tests can’t measure anything. You can allow access in Settings at any time." : {
+    "Erase notes and labels by dragging across them." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "امسح النغمات والتسميات بالسحب فوقها."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Löscht Noten und Beschriftungen, indem du über sie hinwegziehst."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Borra notas y etiquetas arrastrando por encima de ellas."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Efface les notes et les libellés en faisant glisser le doigt dessus."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cancella note ed etichette trascinando sopra di esse."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "音符やラベルの上をドラッグして消します。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "음과 라벨 위를 드래그해 지웁니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wist noten en labels door er met je vinger overheen te slepen."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wymazuje nuty i etykiety: przeciągnij po nich palcem."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apaga notas e rótulos arrastando por cima deles."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Стирает ноты и подписи: проведите по ним пальцем."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Suddar toner och etiketter när du drar över dem."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Üzerlerinden sürükleyerek notaları ve etiketleri siler."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在音符和标签上拖动即可擦除。"
+          }
+        }
+      }
+    },
+    "Every exercise still plays, but Learn2Sing can't hear you sing. Without the microphone, no line follows your voice, runs aren't scored, and the vocal range and microphone delay tests can't measure anything. You can allow access in Settings at any time." : {
       "extractionState" : "stale",
       "localizations" : {
         "ar" : {
@@ -16152,7 +16419,7 @@
         }
       }
     },
-    "Exercise lists" : {
+    "Exercise Lists" : {
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -16240,7 +16507,7 @@
         }
       }
     },
-    "Exercise preview colour" : {
+    "Exercise preview color" : {
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -17215,7 +17482,7 @@
         }
       }
     },
-    "Export template" : {
+    "Export Template" : {
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -17392,7 +17659,7 @@
         }
       }
     },
-    "Favourite" : {
+    "Favorite" : {
       "extractionState" : "stale",
       "localizations" : {
         "ar" : {
@@ -17481,7 +17748,7 @@
         }
       }
     },
-    "Favourites" : {
+    "Favorites" : {
       "extractionState" : "stale",
       "localizations" : {
         "ar" : {
@@ -17570,7 +17837,7 @@
         }
       }
     },
-    "Feature Request" : {
+    "Feature request" : {
       "extractionState" : "stale",
       "localizations" : {
         "ar" : {
@@ -18458,7 +18725,7 @@
         }
       }
     },
-    "Forgets how long you practised on each day, emptying the Home tab's “Time Spent Singing”." : {
+    "Forgets how long you practiced on each day, emptying the Home tab's “Time Spent Singing”." : {
       "extractionState" : "stale",
       "localizations" : {
         "ar" : {
@@ -21478,7 +21745,7 @@
         }
       }
     },
-    "How long you mean to practise a day. The Home tab's “Recommended” category suggests exercises adding up to at least this long, pitched at your skill level and steering clear of the ones you've sung lately, above all the ones you've sung over and over. A day of the Home tab's “Time Spent Singing” is filled in and ticked once you have practised this much." : {
+    "How long you mean to practice a day. The Home tab's “Recommended” category suggests exercises adding up to at least this long, pitched at your skill level and steering clear of the ones you've sung lately, above all the ones you've sung over and over. A day of the Home tab's “Time Spent Singing” is filled in and checked off once you have practiced this much." : {
       "extractionState" : "stale",
       "localizations" : {
         "ar" : {
@@ -21834,7 +22101,7 @@
         }
       }
     },
-    "How much of a note counts as hit when your score is worked out. At 100% the whole note counts, as it always has; lower, and only that share of the note's middle does, so you have to sing nearer the centre of the pitch for it to count." : {
+    "How much of a note counts as hit when your score is worked out. At 100% the whole note counts, as it always has; lower, and only that share of the note's middle does, so you have to sing nearer the center of the pitch for it to count." : {
       "extractionState" : "stale",
       "localizations" : {
         "ar" : {
@@ -23167,7 +23434,7 @@
         }
       }
     },
-    "Import template" : {
+    "Import Template" : {
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -23255,7 +23522,7 @@
         }
       }
     },
-    "Inner colour" : {
+    "Inner color" : {
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -24053,7 +24320,7 @@
         }
       }
     },
-    "Keep current" : {
+    "Keep Current" : {
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -24141,7 +24408,7 @@
         }
       }
     },
-    "Keep every note of the arpeggio clear and connected. Aim for the centre of each note instead of sliding." : {
+    "Keep every note of the arpeggio clear and connected. Aim for the center of each note instead of sliding." : {
       "extractionState" : "stale",
       "localizations" : {
         "ar" : {
@@ -26629,7 +26896,7 @@
         }
       }
     },
-    "Line colour" : {
+    "Line color" : {
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -30353,7 +30620,7 @@
         }
       }
     },
-    "Midi Saved!" : {
+    "MIDI Saved!" : {
       "extractionState" : "stale",
       "localizations" : {
         "ar" : {
@@ -32219,7 +32486,7 @@
         }
       }
     },
-    "Narrows the list to where the exercises came from, to the ones you have shared, or to your favourites. The button is filled in while a filter is on." : {
+    "Narrows the list to where the exercises came from, to the ones you have shared, or to your favorites. The button is filled in while a filter is on." : {
       "extractionState" : "stale",
       "localizations" : {
         "ar" : {
@@ -34255,7 +34522,7 @@
         }
       }
     },
-    "No scores in this period" : {
+    "No scores in this period." : {
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -34608,7 +34875,7 @@
         }
       }
     },
-    "Note colour" : {
+    "Note color" : {
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -35762,7 +36029,7 @@
         }
       }
     },
-    "One square per day, oldest first. The more you practised, the fuller the colour, and a day that reached your daily practice time gets a tick. Tap a square to see that day." : {
+    "One square per day, oldest first. The more you practiced, the fuller the color, and a day that reached your daily practice time gets a check mark. Tap a square to see that day." : {
       "extractionState" : "stale",
       "localizations" : {
         "ar" : {
@@ -36296,7 +36563,7 @@
         }
       }
     },
-    "Opens the settings these suggestions are made under: how long you practise a day, and which exercises may be picked." : {
+    "Opens the settings these suggestions are made under: how long you practice a day, and which exercises may be picked." : {
       "extractionState" : "stale",
       "localizations" : {
         "ar" : {
@@ -36563,7 +36830,7 @@
         }
       }
     },
-    "Opens your library, where you tick the exercises this list is made of." : {
+    "Opens your library, where you check the exercises this list is made of." : {
       "extractionState" : "stale",
       "localizations" : {
         "ar" : {
@@ -37006,7 +37273,7 @@
         }
       }
     },
-    "Outer colour" : {
+    "Outer color" : {
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -38514,7 +38781,7 @@
         }
       }
     },
-    "Pitch name colour" : {
+    "Pitch name color" : {
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -38957,7 +39224,7 @@
         }
       }
     },
-    "Play sample" : {
+    "Play Sample" : {
       "extractionState" : "stale",
       "localizations" : {
         "ar" : {
@@ -39223,7 +39490,7 @@
         }
       }
     },
-    "Playback screen" : {
+    "Playback Screen" : {
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -39311,7 +39578,7 @@
         }
       }
     },
-    "Playing note colour" : {
+    "Playing note color" : {
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -41263,7 +41530,7 @@
         }
       }
     },
-    "Puts the number of recommended exercises back, and returns the whitelist to every exercise in your library, dropping the ones you ticked or unticked yourself. The categories the tab shows and the order they come in are left as you arranged them." : {
+    "Puts the number of recommended exercises back, and returns the whitelist to every exercise in your library, dropping the ones you checked or unchecked yourself. The categories the tab shows and the order they come in are left as you arranged them." : {
       "extractionState" : "stale",
       "localizations" : {
         "ar" : {
@@ -42151,7 +42418,7 @@
         }
       }
     },
-    "Recorded scores" : {
+    "Recorded Scores" : {
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -42327,7 +42594,7 @@
         }
       }
     },
-    "Remove Favourite" : {
+    "Remove Favorite" : {
       "extractionState" : "stale",
       "localizations" : {
         "ar" : {
@@ -42857,7 +43124,7 @@
         }
       }
     },
-    "Replace current settings?" : {
+    "Replace Current Settings?" : {
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -42945,7 +43212,7 @@
         }
       }
     },
-    "Request a new Feature/ Report a Bug" : {
+    "Request a New Feature / Report a Bug" : {
       "extractionState" : "stale",
       "localizations" : {
         "ar" : {
@@ -44186,95 +44453,6 @@
         }
       }
     },
-    "Rub out notes and labels by dragging across them." : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "ar" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "امسح النغمات والتسميات بالسحب فوقها."
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Löscht Noten und Beschriftungen, indem du über sie hinwegziehst."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Borra notas y etiquetas arrastrando por encima de ellas."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Efface les notes et les libellés en faisant glisser le doigt dessus."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Cancella note ed etichette trascinando sopra di esse."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "音符やラベルの上をドラッグして消します。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "음과 라벨 위를 드래그해 지웁니다."
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Wist noten en labels door er met je vinger overheen te slepen."
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Wymazuje nuty i etykiety: przeciągnij po nich palcem."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Apaga notas e rótulos arrastando por cima deles."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Стирает ноты и подписи: проведите по ним пальцем."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Suddar toner och etiketter när du drar över dem."
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Üzerlerinden sürükleyerek notaları ve etiketleri siler."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "在音符和标签上拖动即可擦除。"
-          }
-        }
-      }
-    },
     "Save" : {
       "localizations" : {
         "ar" : {
@@ -44363,7 +44541,7 @@
         }
       }
     },
-    "Save current as template" : {
+    "Save Current as Template" : {
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -45869,7 +46047,7 @@
         }
       }
     },
-    "Select anyway" : {
+    "Select Anyway" : {
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -46311,7 +46489,7 @@
         }
       }
     },
-    "Sends your message straight to the developer. It stays greyed out until the type and the message are filled in, and for a question until there's an address to answer." : {
+    "Sends your message straight to the developer. It stays grayed out until the type and the message are filled in, and for a question until there's an address to answer." : {
       "extractionState" : "stale",
       "localizations" : {
         "ar" : {
@@ -46578,7 +46756,7 @@
         }
       }
     },
-    "Sets the colour of the pitch names (C4, A3 …) down the left-hand side of the playback screen." : {
+    "Sets the color of the pitch names (C4, A3 …) down the left-hand side of the playback screen." : {
       "extractionState" : "stale",
       "localizations" : {
         "ar" : {
@@ -46667,7 +46845,7 @@
         }
       }
     },
-    "Sets the colour of the small note pattern drawn beside each exercise in the lists." : {
+    "Sets the color of the small note pattern drawn beside each exercise in the lists." : {
       "extractionState" : "stale",
       "localizations" : {
         "ar" : {
@@ -46756,7 +46934,7 @@
         }
       }
     },
-    "Sets the colour of the vertical line the singing indicator runs along." : {
+    "Sets the color of the vertical line the singing indicator runs along." : {
       "extractionState" : "stale",
       "localizations" : {
         "ar" : {
@@ -46934,7 +47112,7 @@
         }
       }
     },
-    "Sets the order the exercises come in, within each category or in one list with “Ignore Categories”. Only “Own Sorting” lets you drag exercises into place, and keeps favourites at the top." : {
+    "Sets the order the exercises come in, within each category or in one list with “Ignore Categories”. Only “Own Sorting” lets you drag exercises into place, and keeps favorites at the top." : {
       "extractionState" : "stale",
       "localizations" : {
         "ar" : {
@@ -48172,7 +48350,7 @@
         }
       }
     },
-    "Shuffle exercises" : {
+    "Shuffle Exercises" : {
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -48527,7 +48705,7 @@
         }
       }
     },
-    "Sin Wave" : {
+    "Sine Wave" : {
       "extractionState" : "stale",
       "localizations" : {
         "ar" : {
@@ -49505,7 +49683,7 @@
         }
       }
     },
-    "Singing indicator" : {
+    "Singing Indicator" : {
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -53052,7 +53230,7 @@
         }
       }
     },
-    "Tap the star to make this exercise a favourite. Favourites come first in their category on the Exercises tab and fill the Home tab's “Favourites”." : {
+    "Tap the star to make this exercise a favorite. Favorites come first in their category on the Exercises tab and fill the Home tab's “Favorites”." : {
       "extractionState" : "stale",
       "localizations" : {
         "ar" : {
@@ -53761,7 +53939,7 @@
         }
       }
     },
-    "Test for delay" : {
+    "Test for Delay" : {
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -54025,7 +54203,7 @@
         }
       }
     },
-    "Text colour" : {
+    "Text color" : {
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -54201,7 +54379,7 @@
         }
       }
     },
-    "That doesn't look like an e-mail address." : {
+    "That doesn't look like an email address." : {
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -54556,7 +54734,7 @@
         }
       }
     },
-    "That file isn’t a valid visual template." : {
+    "That file isn't a valid visual template." : {
       "extractionState" : "stale",
       "localizations" : {
         "ar" : {
@@ -54733,7 +54911,7 @@
         }
       }
     },
-    "The colour a note takes on while it is the one being sung." : {
+    "The color a note takes on while it is the one being sung." : {
       "extractionState" : "stale",
       "localizations" : {
         "ar" : {
@@ -54822,7 +55000,7 @@
         }
       }
     },
-    "The colour behind the notes while the lanes are switched off." : {
+    "The color behind the notes while the lanes are switched off." : {
       "extractionState" : "stale",
       "localizations" : {
         "ar" : {
@@ -54911,7 +55089,7 @@
         }
       }
     },
-    "The colour of the labels written over the notes in the note editor." : {
+    "The color of the labels written over the notes in the note editor." : {
       "extractionState" : "stale",
       "localizations" : {
         "ar" : {
@@ -55000,7 +55178,7 @@
         }
       }
     },
-    "The colour the notes to sing are drawn in." : {
+    "The color the notes to sing are drawn in." : {
       "extractionState" : "stale",
       "localizations" : {
         "ar" : {
@@ -55089,7 +55267,7 @@
         }
       }
     },
-    "The community list didn’t load. Tap to try again." : {
+    "The community list didn't load. Tap to try again." : {
       "extractionState" : "stale",
       "localizations" : {
         "ar" : {
@@ -55267,7 +55445,7 @@
         }
       }
     },
-    "The exercises recommendations are picked from. The groups picked above are ticked for you; tap an exercise to add or remove it yourself, which the groups then leave alone." : {
+    "The exercises recommendations are picked from. The groups picked above are checked for you; tap an exercise to add or remove it yourself, which the groups then leave alone." : {
       "extractionState" : "stale",
       "localizations" : {
         "ar" : {
@@ -55534,7 +55712,7 @@
         }
       }
     },
-    "The Home tab's “Favourites” list will be emptied. The exercises in it are kept." : {
+    "The Home tab's “Favorites” list will be emptied. The exercises in it are kept." : {
       "extractionState" : "stale",
       "localizations" : {
         "ar" : {
@@ -57668,7 +57846,7 @@
         }
       }
     },
-    "These exercises come from the community and didn’t load. Tap to try again." : {
+    "These exercises come from the community and didn't load. Tap to try again." : {
       "extractionState" : "stale",
       "localizations" : {
         "ar" : {
@@ -57846,7 +58024,7 @@
         }
       }
     },
-    "This can't be undone." : {
+    "This cannot be undone." : {
       "extractionState" : "stale",
       "localizations" : {
         "ar" : {
@@ -58202,7 +58380,7 @@
         }
       }
     },
-    "This test measures how long it takes your microphone to pick up sound, so the app can line your singing up with the notes when scoring.\n\nA steady metronome will tick along with short markers labelled “clap”. Clap your hands once on every tick. The first four ticks are just to help you settle into the beat and aren't counted — keep clapping through the rest, sixteen in all.\n\nWhen it finishes, the delay between your claps and the ticks is measured and your microphone delay setting is updated automatically.\n\nFor the most accurate result, use headphones so the metronome isn't picked up by the microphone, and clap firmly." : {
+    "This test measures how long it takes your microphone to pick up sound, so the app can line your singing up with the notes when scoring.\n\nA steady metronome will tick along with short markers labeled “clap”. Clap your hands once on every tick. The first four ticks are just to help you settle into the beat and aren't counted — keep clapping through the rest, sixteen in all.\n\nWhen it finishes, the delay between your claps and the ticks is measured and your microphone delay setting is updated automatically.\n\nFor the most accurate result, use headphones so the metronome isn't picked up by the microphone, and clap firmly." : {
       "extractionState" : "stale",
       "localizations" : {
         "ar" : {
@@ -58642,184 +58820,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "放弃这个结果，从头重新测试。"
-          }
-        }
-      }
-    },
-    "Ticked exercises you already have are replaced by the version in this file." : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "ar" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "التمارين المحددة الموجودة لديك بالفعل تُستبدل بالنسخة الموجودة في هذا الملف."
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ausgewählte Übungen, die du schon hast, werden durch die Fassung aus dieser Datei ersetzt."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Los ejercicios marcados que ya tienes se sustituyen por la versión de este archivo."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Les exercices cochés que vous avez déjà sont remplacés par la version de ce fichier."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Gli esercizi selezionati che hai già vengono sostituiti dalla versione di questo file."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "選択した既存のエクササイズは、このファイルの内容で置き換えられます。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "선택한 연습 중 이미 가지고 있는 것은 이 파일의 버전으로 대체됩니다."
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Aangevinkte oefeningen die je al hebt, worden vervangen door de versie in dit bestand."
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Zaznaczone ćwiczenia, które już masz, zostaną zastąpione wersją z tego pliku."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Os exercícios marcados que você já tem são substituídos pela versão deste arquivo."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Отмеченные упражнения, которые у вас уже есть, будут заменены версией из этого файла."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Markerade övningar du redan har ersätts av versionen i den här filen."
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "İşaretlediğin ve zaten sahip olduğun egzersizler, bu dosyadaki sürümle değiştirilir."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "勾选的、你已拥有的练习将被此文件中的版本替换。"
-          }
-        }
-      }
-    },
-    "Ticks every exercise at once, or clears them all." : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "ar" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "يحدد كل التمارين دفعة واحدة، أو يلغي تحديدها كلها."
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Wählt alle Übungen auf einmal aus oder hebt die Auswahl komplett auf."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Marca todos los ejercicios de una vez, o los desmarca todos."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Coche tous les exercices d’un coup, ou les décoche tous."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Seleziona tutti gli esercizi in una volta, o li deseleziona tutti."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "すべてのエクササイズを一度に選択、または選択をすべて解除します。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "모든 연습을 한 번에 선택하거나 모두 해제합니다."
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Vinkt alle oefeningen in één keer aan, of haalt ze allemaal weg."
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Zaznacza wszystkie ćwiczenia naraz albo odznacza je wszystkie."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Marca todos os exercícios de uma vez, ou desmarca todos."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Отмечает все упражнения сразу или снимает все отметки."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Markerar alla övningar på en gång, eller avmarkerar allihop."
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tüm egzersizleri tek seferde işaretler ya da işaretlerini kaldırır."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "一次勾选所有练习，或全部取消勾选。"
           }
         }
       }
@@ -61308,7 +61308,7 @@
         }
       }
     },
-    "Username \"%@\" is not available" : {
+    "Username “%@” is not available" : {
       "extractionState" : "stale",
       "localizations" : {
         "ar" : {
@@ -61575,7 +61575,7 @@
         }
       }
     },
-    "Vertical line" : {
+    "Vertical Line" : {
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -63172,7 +63172,7 @@
         }
       }
     },
-    "When you’re ready, sing the lowest note you can and hold it steadily for 2 seconds." : {
+    "When you're ready, sing the lowest note you can and hold it steadily for 2 seconds." : {
       "extractionState" : "stale",
       "localizations" : {
         "ar" : {
@@ -63527,7 +63527,7 @@
         }
       }
     },
-    "Which exercises are whitelisted for you: switching a group on whitelists everything in it, including what was already in your library, and switching it off takes them out again. Exercises you tick or untick yourself below are left as you left them." : {
+    "Which exercises are whitelisted for you: switching a group on whitelists everything in it, including what was already in your library, and switching it off takes them out again. Exercises you check or uncheck yourself below are left as you left them." : {
       "extractionState" : "stale",
       "localizations" : {
         "ar" : {
@@ -64502,6 +64502,95 @@
         }
       }
     },
+    "Writes the checked exercises to a file and opens the share sheet, where you can send it, copy it, or save it to Files." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "يكتب التمارين المحددة في ملف ويفتح ورقة المشاركة، حيث يمكنك إرساله أو نسخه أو حفظه في «الملفات»."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Schreibt die ausgewählten Übungen in eine Datei und öffnet das Teilen-Menü, wo du sie versenden, kopieren oder in „Dateien“ sichern kannst."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Guarda los ejercicios marcados en un archivo y abre el menú de compartir, desde donde puedes enviarlo, copiarlo o guardarlo en Archivos."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Écrit les exercices cochés dans un fichier et ouvre la feuille de partage, d’où vous pouvez l’envoyer, le copier ou l’enregistrer dans Fichiers."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scrive gli esercizi selezionati in un file e apre il pannello di condivisione, da cui puoi inviarlo, copiarlo o salvarlo in File."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "選択したエクササイズをファイルに書き出し、共有メニューを開きます。そこから送信・コピー・「ファイル」への保存ができます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "선택한 연습을 파일로 저장하고 공유 시트를 엽니다. 거기서 파일을 보내거나 복사하거나 ‘파일’ 앱에 저장할 수 있습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Schrijft de aangevinkte oefeningen naar een bestand en opent het deelmenu, waar je het kunt versturen, kopiëren of in Bestanden bewaren."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zapisuje zaznaczone ćwiczenia do pliku i otwiera menu udostępniania, z którego możesz go wysłać, skopiować lub zapisać w Plikach."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Grava os exercícios marcados em um arquivo e abre o menu de compartilhamento, de onde você pode enviá-lo, copiá-lo ou salvá-lo em Arquivos."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Записывает отмеченные упражнения в файл и открывает меню «Поделиться», откуда его можно отправить, скопировать или сохранить в «Файлы»."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Skriver de markerade övningarna till en fil och öppnar delningsmenyn, där du kan skicka den, kopiera den eller spara den i Filer."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "İşaretli egzersizleri bir dosyaya yazar ve paylaşım menüsünü açar; oradan dosyayı gönderebilir, kopyalayabilir veya Dosyalar’a kaydedebilirsin."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "将勾选的练习写入文件并打开共享菜单，你可以从那里发送、拷贝或存储到“文件”。"
+          }
+        }
+      }
+    },
     "Writes the note names (C4, A3 …) down the left-hand side." : {
       "extractionState" : "stale",
       "localizations" : {
@@ -64591,96 +64680,7 @@
         }
       }
     },
-    "Writes the ticked exercises to a file and opens the share sheet, where you can send it, copy it, or save it to Files." : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "ar" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "يكتب التمارين المحددة في ملف ويفتح ورقة المشاركة، حيث يمكنك إرساله أو نسخه أو حفظه في «الملفات»."
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Schreibt die ausgewählten Übungen in eine Datei und öffnet das Teilen-Menü, wo du sie versenden, kopieren oder in „Dateien“ sichern kannst."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Guarda los ejercicios marcados en un archivo y abre el menú de compartir, desde donde puedes enviarlo, copiarlo o guardarlo en Archivos."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Écrit les exercices cochés dans un fichier et ouvre la feuille de partage, d’où vous pouvez l’envoyer, le copier ou l’enregistrer dans Fichiers."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Scrive gli esercizi selezionati in un file e apre il pannello di condivisione, da cui puoi inviarlo, copiarlo o salvarlo in File."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "選択したエクササイズをファイルに書き出し、共有メニューを開きます。そこから送信・コピー・「ファイル」への保存ができます。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "선택한 연습을 파일로 저장하고 공유 시트를 엽니다. 거기서 파일을 보내거나 복사하거나 ‘파일’ 앱에 저장할 수 있습니다."
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Schrijft de aangevinkte oefeningen naar een bestand en opent het deelmenu, waar je het kunt versturen, kopiëren of in Bestanden bewaren."
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Zapisuje zaznaczone ćwiczenia do pliku i otwiera menu udostępniania, z którego możesz go wysłać, skopiować lub zapisać w Plikach."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Grava os exercícios marcados em um arquivo e abre o menu de compartilhamento, de onde você pode enviá-lo, copiá-lo ou salvá-lo em Arquivos."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Записывает отмеченные упражнения в файл и открывает меню «Поделиться», откуда его можно отправить, скопировать или сохранить в «Файлы»."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Skriver de markerade övningarna till en fil och öppnar delningsmenyn, där du kan skicka den, kopiera den eller spara den i Filer."
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "İşaretli egzersizleri bir dosyaya yazar ve paylaşım menüsünü açar; oradan dosyayı gönderebilir, kopyalayabilir veya Dosyalar’a kaydedebilirsin."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "将勾选的练习写入文件并打开共享菜单，你可以从那里发送、拷贝或存储到“文件”。"
-          }
-        }
-      }
-    },
-    "You already have a public exercise named \"%@\". Each of your public exercises needs a unique name, so this one stays private." : {
+    "You already have a public exercise named “%@”. Each of your public exercises needs a unique name, so this one stays private." : {
       "extractionState" : "stale",
       "localizations" : {
         "ar" : {
@@ -64946,7 +64946,7 @@
         }
       }
     },
-    "Your current visual settings aren’t saved in any template. Selecting this one replaces them." : {
+    "Your current visual settings aren't saved in any template. Selecting this one replaces them." : {
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -65034,7 +65034,7 @@
         }
       }
     },
-    "Your exercises" : {
+    "Your Exercises" : {
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -66276,7 +66276,7 @@
         }
       }
     },
-    "Zoom & position" : {
+    "Zoom & Position" : {
       "localizations" : {
         "ar" : {
           "stringUnit" : {

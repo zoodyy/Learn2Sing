@@ -55,7 +55,7 @@ struct ExerciseListRow: Equatable {
     var isSelected: Bool? = nil
     /// true draws a star in the app's accent colour just before the name, for a
     /// favourite exercise (Exercises tab, where the favourites also sort to the
-    /// top of their category). Not set on the Home tab's "Favourites", where a
+    /// top of their category). Not set on the Home tab's "Favorites", where a
     /// star on every row of a starred category says nothing.
     var isFavourite = false
     /// Title and symbol of the leading "Settings" swipe action, so rows that
@@ -95,7 +95,7 @@ struct ExerciseListSection: Equatable {
     /// label a group and can't be collapsed (the Community search results).
     var showsChevron = true
     /// A symbol drawn in the app's accent colour just before the header's name,
-    /// or nil for a plain one. The Home tab's "Favourites" wears the same star
+    /// or nil for a plain one. The Home tab's "Favorites" wears the same star
     /// its exercises wear on the Exercises tab.
     var nameSymbol: String? = nil
     /// What the header reads, when it isn't the category name itself. `category`
@@ -607,7 +607,7 @@ final class ExerciseListController: UIViewController {
                     self?.onCalendarSelect?(selection)
                 }
                 .environment(\.locale, locale)
-                .explain(L("One square per day, oldest first. The more you practised, the fuller the colour, and a day that reached your daily practice time gets a tick. Tap a square to see that day."))
+                .explain(L("One square per day, oldest first. The more you practiced, the fuller the color, and a day that reached your daily practice time gets a check mark. Tap a square to see that day."))
             }
             cell.accessories = []
         }
@@ -1803,7 +1803,7 @@ final class ExerciseSectionHeaderView: UICollectionReusableView {
     private let addButton = UIButton(type: .system)
     private let chevron = UIImageView()
     /// The accent-coloured symbol some categories wear in front of their name
-    /// (the Home tab's "Favourites"); hidden for the rest.
+    /// (the Home tab's "Favorites"); hidden for the rest.
     private let symbolView = UIImageView()
     private var isCollapsed = false
 

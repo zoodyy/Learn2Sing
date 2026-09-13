@@ -33,7 +33,7 @@ T("Text", "Text", "Texto", "Texte", "Testo", "Texto", "Tekst", "Текст", "Te
 T("Label", "Beschriftung", "Etiqueta", "Libellé", "Etichetta", "Rótulo", "Label", "Подпись", "Etykieta", "Etiket", "Etikett", "ラベル", "레이블", "标签", "التسمية")
 T("Description", "Beschreibung", "Descripción", "Description", "Descrizione", "Descrição", "Beschrijving", "Описание", "Opis", "Açıklama", "Beskrivning", "説明", "설명", "说明", "الوصف")
 T("Username", "Benutzername", "Nombre de usuario", "Nom d’utilisateur", "Nome utente", "Nome de usuário", "Gebruikersnaam", "Имя пользователя", "Nazwa użytkownika", "Kullanıcı adı", "Användarnamn", "ユーザー名", "사용자 이름", "用户名", "اسم المستخدم")
-T("Username \"%@\" is not available",
+T("Username “%@” is not available",
   "Der Benutzername „%@“ ist nicht verfügbar",
   "El nombre de usuario «%@» no está disponible",
   "Le nom d’utilisateur « %@ » n’est pas disponible",

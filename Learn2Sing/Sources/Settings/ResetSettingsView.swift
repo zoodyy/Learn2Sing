@@ -145,7 +145,7 @@ struct ScoresResetView: View {
                     }
                 }
             } header: {
-                Text("Recorded scores").settingSection(.resetRecordedScores)
+                Text("Recorded Scores").settingSection(.resetRecordedScores)
             }
 
             Section {
@@ -233,7 +233,7 @@ enum ResettableSettings: String, CaseIterable, Identifiable {
         case .voice:
             L("Clears your vocal range, including the custom lowest and highest notes, and puts the target window back to the whole note.")
         case .homeTab:
-            L("Puts the number of recommended exercises back, and returns the whitelist to every exercise in your library, dropping the ones you ticked or unticked yourself. The categories the tab shows and the order they come in are left as you arranged them.")
+            L("Puts the number of recommended exercises back, and returns the whitelist to every exercise in your library, dropping the ones you checked or unchecked yourself. The categories the tab shows and the order they come in are left as you arranged them.")
         case .language:
             L("Puts the app's language back to English.")
         }
@@ -433,7 +433,7 @@ struct ExercisesResetView: View {
                     store.deleteDownloadedExercises()
                 }
             } header: {
-                Text("Your exercises").settingSection(.resetYourExercises)
+                Text("Your Exercises").settingSection(.resetYourExercises)
             }
 
             Section {
@@ -537,7 +537,7 @@ struct HomeResetView: View {
     var body: some View {
         Form {
             Section {
-                countedButton(L("Clear Favourites"), systemImage: "star",
+                countedButton(L("Clear Favorites"), systemImage: "star",
                               count: store.favourites.count) {
                     pending = .favourites
                 }
@@ -545,7 +545,7 @@ struct HomeResetView: View {
                 .resetConfirmation(
                     $pending, for: .favourites,
                     confirmLabel: L("Delete"),
-                    message: L("The Home tab's “Favourites” list will be emptied. The exercises in it are kept.")
+                    message: L("The Home tab's “Favorites” list will be emptied. The exercises in it are kept.")
                 ) {
                     store.clearFavourites()
                 }
@@ -639,7 +639,7 @@ private extension View {
         perform: @escaping () -> Void
     ) -> some View {
         confirmationDialog(
-            Text(L("This can't be undone.")),
+            Text(L("This cannot be undone.")),
             isPresented: Binding(
                 get: { pending.wrappedValue == action },
                 // Only this row's dialog closing clears the state; a row that

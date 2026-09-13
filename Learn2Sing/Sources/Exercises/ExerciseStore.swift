@@ -48,7 +48,7 @@ final class ExerciseStore: ObservableObject {
     /// category.
     @Published var routines: [Routine] = []
     /// The user's favourite exercises in display order. Shown in the Home tab's
-    /// "Favourites" category. Never contains duplicates.
+    /// "Favorites" category. Never contains duplicates.
     @Published var favourites: [UUID] = []
     /// The exercises the Home tab's "Recommended" category may draw from. Worked
     /// out rather than stored: an exercise is in it when
@@ -1072,7 +1072,7 @@ final class ExerciseStore: ObservableObject {
         bundledBundle?.texts?[id.uuidString] ?? []
     }
 
-    /// Empty the Home tab's "Favourites" list. The exercises themselves stay.
+    /// Empty the Home tab's "Favorites" list. The exercises themselves stay.
     func clearFavourites() {
         guard !favourites.isEmpty else { return }
         favourites = []
