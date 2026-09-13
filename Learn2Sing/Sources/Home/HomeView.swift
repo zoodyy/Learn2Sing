@@ -251,8 +251,8 @@ struct HomeCategoryEditView: View {
 /// user's own ordered exercise lists, created via the + button; swipe right on
 /// one to edit it, swipe left to delete it after a confirmation),
 /// "Favourites" (every exercise starred on its own intro screen, in the order
-/// they were starred), "Recommended" (whitelisted exercises drawn on how long
-/// ago each was last sung and how close it is to the singer's level, as many as
+/// they were starred), "Recommended" (whitelisted exercises drawn away from the
+/// ones sung lately and towards the singer's level, as many as
 /// Settings ▸ Home Tab asks for — as one card that plays them all in a row, or
 /// as a list of them if that same screen says so),
 /// "Time Spent Singing" (the last 30 days of practice as coloured squares — see
@@ -393,8 +393,8 @@ struct HomeView: View {
     }
 
     /// The exercises to suggest, easiest first: enough of them to fill the daily
-    /// practice time, drawn from the whitelist on how long ago each was last sung
-    /// and how close it is to the singer's level — see `recommendedExercises`.
+    /// practice time, drawn from the whitelist away from what was sung lately and
+    /// towards the singer's level — see `recommendedExercises`.
     private var recommendedExercises: [Exercise] {
         store.recommendedExercises(minutes: practiceMinutes,
                                    skill: skill.level, hardness: skill.hardness)

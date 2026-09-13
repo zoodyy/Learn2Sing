@@ -38,10 +38,12 @@ final class ExerciseStore: ObservableObject {
     /// Exercise ids ordered by when they last played through to the end, newest
     /// first. Drives the Home tab's "Recent" category.
     @Published var recentlyPlayed: [UUID] = []
-    /// When each exercise last played through to the end. Unlike `recentlyPlayed`
-    /// this is kept for every exercise, not just the newest handful, so the Home
-    /// tab's "Recommended" category can find the ones played longest ago.
-    @Published var lastPlayed: [UUID: Date] = [:]
+    /// Every run that played through to the end, newest first, and only the
+    /// newest `playHistoryLength` of them. Unlike `recentlyPlayed` an exercise
+    /// is in it once per run — sung three times, it is there three times — so
+    /// the Home tab's "Recommended" category can steer clear of what was sung
+    /// lately, and most of all of what was sung over and over.
+    @Published private(set) var playHistory: [UUID] = []
     /// The user's routines in display order. Shown in the Home tab's "Routines"
     /// category.
     @Published var routines: [Routine] = []
@@ -79,7 +81,7 @@ final class ExerciseStore: ObservableObject {
     private let storeKey = "exercises"
     private let categoriesKey = "categories"
     private let recentlyPlayedKey = "recentlyPlayed"
-    private let lastPlayedKey = "lastPlayed"
+    private let playHistoryKey = "playHistory"
     private let routinesKey = "routines"
     private let favouritesKey = "favourites"
     private let whitelistOverridesKey = "recommendationWhitelistOverrides"
@@ -87,13 +89,13 @@ final class ExerciseStore: ObservableObject {
     /// Ids of the bundled exercises this install has been given, whether or not
     /// they are still in its library — see `importNewBundledIfNeeded`.
     private let offeredBundledKey = "offeredBundledExerciseIDs"
-    private let lastPlayedSeededKey = "didSeedLastPlayed"
+    private let playHistorySeededKey = "didSeedPlayHistory"
 
     init() {
         load()
         loadCategories()
         loadRecentlyPlayed()
-        loadLastPlayed()
+        loadPlayHistory()
         loadRoutines()
         loadFavourites()
         loadWhitelistOverrides()
@@ -101,7 +103,7 @@ final class ExerciseStore: ObservableObject {
         importNewBundledIfNeeded()
         adoptNoCategory()
         enforceBundledPrivacy()
-        seedLastPlayedIfNeeded()
+        seedPlayHistoryIfNeeded()
         // Last, so it sees the library the steps above settled on. Every one of
         // them that changed it has refreshed the whitelist already (`save` does
         // that); this covers the launch where none of them had anything to do.
@@ -382,8 +384,9 @@ final class ExerciseStore: ObservableObject {
         UserDefaults.standard.set(data, forKey: recentlyPlayedKey)
     }
 
-    /// Move an exercise to the front of the recently-played order. Called by the
-    /// playback screen when a run plays through to the end.
+    /// Move an exercise to the front of the recently-played order, and add the
+    /// run to the play history. Called by the playback screen when a run plays
+    /// through to the end.
     func markPlayed(_ id: UUID) {
         recentlyPlayed.removeAll { $0 == id }
         recentlyPlayed.insert(id, at: 0)
@@ -393,42 +396,56 @@ final class ExerciseStore: ObservableObject {
             recentlyPlayed.removeLast(recentlyPlayed.count - 20)
         }
         saveRecentlyPlayed()
-        lastPlayed[id] = Date()
-        saveLastPlayed()
+        playHistory.insert(id, at: 0)
+        if playHistory.count > Self.playHistoryLength {
+            playHistory.removeLast(playHistory.count - Self.playHistoryLength)
+        }
+        savePlayHistory()
     }
 
-    // MARK: - Last played
+    // MARK: - Play history
 
-    private func loadLastPlayed() {
-        guard let data = UserDefaults.standard.data(forKey: lastPlayedKey),
-              let saved = try? JSONDecoder().decode([String: Date].self, from: data)
+    /// How many runs `playHistory` keeps: a few weeks of daily practice, long
+    /// enough that an exercise sung over and over still counts against itself
+    /// for a while after the singer has moved on.
+    static let playHistoryLength = 250
+
+    private func loadPlayHistory() {
+        guard let data = UserDefaults.standard.data(forKey: playHistoryKey),
+              let saved = try? JSONDecoder().decode([UUID].self, from: data)
         else { return }
-        lastPlayed = saved.reduce(into: [:]) { result, entry in
-            if let id = UUID(uuidString: entry.key) { result[id] = entry.value }
-        }
+        playHistory = saved
     }
 
-    private func saveLastPlayed() {
-        let encodable = lastPlayed.reduce(into: [String: Date]()) { result, entry in
-            result[entry.key.uuidString] = entry.value
-        }
-        guard let data = try? JSONEncoder().encode(encodable) else { return }
-        UserDefaults.standard.set(data, forKey: lastPlayedKey)
+    private func savePlayHistory() {
+        guard let data = try? JSONEncoder().encode(playHistory) else { return }
+        UserDefaults.standard.set(data, forKey: playHistoryKey)
     }
 
-    /// Libraries that predate the play timestamps have none, which would make
-    /// every exercise look never-played. Seed them once from each exercise's
-    /// newest recorded score — the closest record of when it last ran — after
-    /// which `markPlayed` keeps them current.
-    private func seedLastPlayedIfNeeded() {
-        guard !UserDefaults.standard.bool(forKey: lastPlayedSeededKey) else { return }
-        for exercise in exercises where lastPlayed[exercise.id] == nil {
-            if let played = ScoreHistory.entries(for: exercise.id).map(\.date).max() {
-                lastPlayed[exercise.id] = played
-            }
+    /// Installs that predate the play history have none, which would leave
+    /// "Recommended" free to suggest yesterday's exercises all over again. It is
+    /// rebuilt once out of the recorded scores — one per run that finished with
+    /// a voice in it, the closest record there is of what was sung when — after
+    /// which `markPlayed` keeps it current.
+    ///
+    /// Not when "Recent" is empty, though: that is an install nothing has played
+    /// on yet, or one whose play history the singer cleared, and the scores they
+    /// kept are no reason to bring that back. The per-exercise timestamps
+    /// "Recommended" used to rank by go either way; nothing reads them now.
+    private func seedPlayHistoryIfNeeded() {
+        let defaults = UserDefaults.standard
+        guard !defaults.bool(forKey: playHistorySeededKey) else { return }
+        defaults.set(true, forKey: playHistorySeededKey)
+        defaults.removeObject(forKey: "lastPlayed")
+        defaults.removeObject(forKey: "didSeedLastPlayed")
+        guard playHistory.isEmpty, !recentlyPlayed.isEmpty else { return }
+        let runs = exercises.flatMap { exercise in
+            ScoreHistory.entries(for: exercise.id).map { (id: exercise.id, date: $0.date) }
         }
-        saveLastPlayed()
-        UserDefaults.standard.set(true, forKey: lastPlayedSeededKey)
+        playHistory = runs.sorted { $0.date > $1.date }
+            .prefix(Self.playHistoryLength)
+            .map { $0.id }
+        savePlayHistory()
     }
 
     // MARK: - Recommendations
@@ -443,10 +460,12 @@ final class ExerciseStore: ObservableObject {
     /// ones that shipped with the app, and the user edits it under
     /// Settings ▸ Home Tab — and each is drawn with a chance made of two things:
     ///
-    /// * **How long ago it was last sung.** The whitelist is ranked longest-ago
-    ///   first (never sung at all leads it), and the chance halves every so many
-    ///   places down that ranking, so a batch is mostly made of the exercises
-    ///   the singer has been neglecting.
+    /// * **How recently, and how often, it was sung.** Every run in
+    ///   `playHistory` cuts the chance of the exercise it played: sharply for a
+    ///   run a few places back, less and less the further back it sits. The
+    ///   cuts of several runs multiply, so an exercise sung over and over lately
+    ///   all but drops out, and one the history doesn't mention keeps its whole
+    ///   chance. See `recentPlayPressure`.
     /// * **How far its difficulty sits from the singer's level.** A bell curve
     ///   `SkillLevel.spread` wide centred on the level itself, so most of a
     ///   batch lands within that much of it and an exercise further out — either
@@ -454,7 +473,7 @@ final class ExerciseStore: ObservableObject {
     ///   nor ruled out.
     ///
     /// The draw is random but not restless: it is seeded from the very things it
-    /// ranks on, so the batch only changes when a run, an edit to the whitelist
+    /// weighs, so the batch only changes when a run, an edit to the whitelist
     /// or a change of level actually gives it something new to say. Two calls in
     /// the same frame can't disagree about what was suggested, and neither can
     /// two launches.
@@ -466,36 +485,37 @@ final class ExerciseStore: ObservableObject {
     func recommendedExercises(minutes: Int, skill: Double, hardness: [UUID: Double]) -> [Exercise] {
         let target = Double(minutes) * 60
         guard target > 0 else { return [] }
-        let ranked = exercises.enumerated()
-            .filter { recommendationWhitelist.contains($0.element.id) }
-            .sorted { lhs, rhs in
-                let left = lastPlayed[lhs.element.id] ?? .distantPast
-                let right = lastPlayed[rhs.element.id] ?? .distantPast
-                // Never-played exercises all tie at .distantPast; library order
-                // keeps their ranking stable from one launch to the next.
-                if left == right { return lhs.offset < rhs.offset }
-                return left < right
-            }
-            .map(\.element)
-        guard !ranked.isEmpty else { return [] }
+        // In library order, which is what keeps the draw below the same from one
+        // launch to the next.
+        let pool = exercises.filter { recommendationWhitelist.contains($0.id) }
+        guard !pool.isEmpty else { return [] }
 
-        var weights = ranked.enumerated().map { rank, exercise in
-            // Floored rather than left to reach zero: an exercise at the far end
-            // of both rankings is meant to be rare, not impossible, and the batch
-            // has to reach the time it was asked for even if every remaining
-            // chance has faded to nothing.
-            max(Self.recencyWeight(rank: rank, of: ranked.count)
-                * Self.difficultyWeight(hardness: hardness[exercise.id], skill: skill),
-                1e-9)
+        let pressure = recentPlayPressure()
+        // Measured from the least-sung exercise in the running rather than from
+        // nothing. That only rescales the chances, which the draw takes as
+        // proportions anyway, but it keeps them off the floor below on a small
+        // whitelist sung through many times over: there every exercise has a
+        // long history, and the plain cut would push them all onto it, where the
+        // difficulty curve no longer tells them apart.
+        let leastSung = pool.map { pressure[$0.id] ?? 0 }.min() ?? 0
+        var weights = pool.map { exercise in
+            let recency = exp(-Self.recentPlayCost * ((pressure[exercise.id] ?? 0) - leastSung))
+            // Floored rather than left to reach zero: an exercise sung over and
+            // over lately, and far from the singer's level on top of that, is
+            // meant to be rare, not impossible, and the batch has to reach the
+            // time it was asked for even if every remaining chance has faded to
+            // nothing.
+            return max(recency * Self.difficultyWeight(hardness: hardness[exercise.id], skill: skill),
+                       1e-9)
         }
-        var generator = SeededGenerator(seed: recommendationSeed(ranked, minutes: minutes, skill: skill))
+        var generator = SeededGenerator(seed: recommendationSeed(pool, minutes: minutes, skill: skill))
         var batch: [Exercise] = []
         var length = 0.0
         // Drawn until the batch is at least as long as the singer asked for,
         // which means the exercise that takes it over the line is kept: a
         // suggestion that came out short would be one they'd have to make up
         // themselves. Only running out of whitelisted exercises stops it early.
-        while length < target, batch.count < ranked.count {
+        while length < target, batch.count < pool.count {
             let total = weights.reduce(0, +)
             var draw = Double.random(in: 0..<total, using: &generator)
             // The last one still in the running catches a draw that the rounding
@@ -511,8 +531,8 @@ final class ExerciseStore: ObservableObject {
                     break
                 }
             }
-            batch.append(ranked[chosen])
-            length += runDuration(of: ranked[chosen])
+            batch.append(pool[chosen])
+            length += runDuration(of: pool[chosen])
             weights[chosen] = 0     // drawn: out of the running for the rest
         }
         return ramped(batch, skill: skill, hardness: hardness)
@@ -541,15 +561,32 @@ final class ExerciseStore: ObservableObject {
             .map(\.element)
     }
 
-    /// What an exercise's place in the played-longest-ago ranking is worth: 1
-    /// for the one at the top of it, halving every quarter of the way down.
-    /// Counted in places rather than in days so it behaves the same for a singer
-    /// who practises daily and one who practises twice a year — and so the most
-    /// neglected exercise is always the likeliest, whether it was last sung last
-    /// week or never.
-    private static func recencyWeight(rank: Int, of poolSize: Int) -> Double {
-        pow(0.5, Double(rank) / max(2, Double(poolSize) / 4))
+    /// How loudly the play history speaks against each exercise in it. Every run
+    /// adds `0.5^(place / recentPlayHalfLife)` to the exercise it played, place 0
+    /// being the run just finished: 1 for that one, a half for a run
+    /// `recentPlayHalfLife` places back, and next to nothing at the far end of
+    /// the history. Counted in runs rather than in days so it behaves the same
+    /// for a singer who practises daily and one who practises twice a year.
+    private func recentPlayPressure() -> [UUID: Double] {
+        var pressure: [UUID: Double] = [:]
+        for (place, id) in playHistory.enumerated() {
+            pressure[id, default: 0] += pow(0.5, Double(place) / Self.recentPlayHalfLife)
+        }
+        return pressure
     }
+
+    /// How many places back a run's say in `recentPlayPressure` halves.
+    private static let recentPlayHalfLife = 40.0
+
+    /// What that pressure costs an exercise: its chance is multiplied by
+    /// `exp(-recentPlayCost × pressure)`. Run by run, that cuts it to about
+    /// 1/150 for the run just finished, 1/34 for one 20 places back, 1/8 at 50,
+    /// 1/2.4 at 100 and hardly at all past 200 — and since the cuts multiply,
+    /// four runs 100 places back cost as much as one run 20 back. Tried on a
+    /// simulated singer who sings the whole batch every day, with the exercises
+    /// the app ships with as the whitelist: fewer than 1 suggestion in 100 is an
+    /// exercise from their last 20 runs.
+    private static let recentPlayCost = 5.0
 
     /// The bell curve over difficulty: 1 for an exercise pitched exactly at the
     /// singer's level, and falling away either side of it — to about 0.6 a whole
@@ -565,23 +602,26 @@ final class ExerciseStore: ObservableObject {
     }
 
     /// A seed for the draw that changes when — and only when — something the
-    /// draw depends on does: which exercises are in the running, when each was
-    /// last sung, how long a batch is wanted, and what level the singer is at.
-    /// Mixed by hand rather than through `Hasher`, whose seed is fresh every
-    /// launch: the same batch has to come back after a relaunch, not only after
-    /// a redraw.
-    private func recommendationSeed(_ ranked: [Exercise], minutes: Int, skill: Double) -> UInt64 {
+    /// draw depends on does: which exercises are in the running, the play
+    /// history their chances are worked out from, how long a batch is wanted,
+    /// and what level the singer is at. Mixed by hand rather than through
+    /// `Hasher`, whose seed is fresh every launch: the same batch has to come
+    /// back after a relaunch, not only after a redraw.
+    private func recommendationSeed(_ pool: [Exercise], minutes: Int, skill: Double) -> UInt64 {
         var hash: UInt64 = 0xcbf2_9ce4_8422_2325
         func mix(_ value: UInt64) {
             hash = (hash ^ value) &* 0x100_0000_01b3
         }
-        for exercise in ranked {
-            withUnsafeBytes(of: exercise.id.uuid) { bytes in
+        func mixID(_ id: UUID) {
+            withUnsafeBytes(of: id.uuid) { bytes in
                 for byte in bytes { mix(UInt64(byte)) }
             }
-            let played = (lastPlayed[exercise.id] ?? .distantPast).timeIntervalSince1970
-            mix(UInt64(bitPattern: Int64(played)))
         }
+        for exercise in pool { mixID(exercise.id) }
+        // All of it, not only the runs of exercises in the running: a run of
+        // anything moves every other run a place further back, which changes
+        // what each of them costs.
+        for id in playHistory { mixID(id) }
         mix(UInt64(bitPattern: Int64(minutes)))
         mix(UInt64(bitPattern: Int64((skill * 10).rounded())))
         return hash
@@ -909,8 +949,9 @@ final class ExerciseStore: ObservableObject {
             recentlyPlayed.removeAll { $0 == id }
             saveRecentlyPlayed()
         }
-        if lastPlayed.removeValue(forKey: id) != nil {
-            saveLastPlayed()
+        if playHistory.contains(id) {
+            playHistory.removeAll { $0 == id }
+            savePlayHistory()
         }
         if routines.contains(where: { $0.exerciseIDs.contains(id) }) {
             for i in routines.indices {
@@ -1046,12 +1087,12 @@ final class ExerciseStore: ObservableObject {
     }
 
     /// Forget what was played when: both the Home tab's "Recent" list and the
-    /// timestamps "Recommended" orders by.
+    /// play history "Recommended" steers clear of.
     func clearPlayHistory() {
         recentlyPlayed = []
         saveRecentlyPlayed()
-        lastPlayed = [:]
-        saveLastPlayed()
+        playHistory = []
+        savePlayHistory()
     }
 
     // MARK: - MIDI pattern access

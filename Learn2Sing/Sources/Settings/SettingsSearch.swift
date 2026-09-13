@@ -606,7 +606,7 @@ enum SettingsCatalog {
             help: L("Lists the recommended exercises in the Home tab's “Recommended” category, one row each. Off, the category shows a single card instead, which plays them all as one queue."))
         add(.dailyPracticeGoal, .homeTab, section: L("Recommendations"),
             title: L("Daily practice goal"),
-            help: L("How long you mean to practise a day. The Home tab's “Recommended” category suggests exercises adding up to at least this long — favouring the whitelisted ones you haven't practised in the longest, pitched at your skill level — and a day of the Home tab's “Time Spent Singing” is filled in and ticked once you have practised this much."))
+            help: L("How long you mean to practise a day. The Home tab's “Recommended” category suggests exercises adding up to at least this long, pitched at your skill level and steering clear of the ones you've sung lately, above all the ones you've sung over and over. A day of the Home tab's “Time Spent Singing” is filled in and ticked once you have practised this much."))
         add(.autoWhitelist, .homeTab, section: L("Recommendations"),
             title: L("Automatically whitelisted exercises"),
             help: L("Which exercises are whitelisted for you: switching a group on whitelists everything in it, including what was already in your library, and switching it off takes them out again. Exercises you tick or untick yourself below are left as you left them."))
