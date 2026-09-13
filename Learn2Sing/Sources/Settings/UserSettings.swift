@@ -10,17 +10,18 @@ import Foundation
 
 /// Every setting that rides along in the profile ProfileSync uploads: the Audio,
 /// Visuals, Voice and Exercises categories of the Settings tab, plus the
-/// preferences kept outside it — the categories hidden from the Home tab and the
-/// Exercises and Community tabs' sort orders. Each one is read from, and written
-/// back to, the very UserDefaults key its settings screen binds to with
-/// @AppStorage, so a restored setting is indistinguishable from one picked on the
-/// device.
+/// preferences kept outside it — the Exercises and Community tabs' sort orders.
+/// Each one is read from, and written back to, the very UserDefaults key its
+/// settings screen binds to with @AppStorage, so a restored setting is
+/// indistinguishable from one picked on the device.
 ///
-/// Three things are deliberately absent. The app's language belongs to the device
+/// Four things are deliberately absent. The app's language belongs to the device
 /// it was chosen on (Settings says as much on its row), so it is never carried.
-/// The instruments the user uploaded are audio files in the documents directory
-/// rather than settings, and a selection pointing at one is skipped on restore for
-/// the same reason. And the visual templates' *contents* do come along, but the
+/// The Home tab's hidden categories stay behind too, so a reinstall shows every
+/// category again, in the default order (see `HomeCategories`). The instruments
+/// the user uploaded are audio files in the documents directory rather than
+/// settings, and a selection pointing at one is skipped on restore for the same
+/// reason. And the visual templates' *contents* do come along, but the
 /// scores, exercises and Home lists stay where they are — `UserProfile` carries
 /// those itself.
 ///
@@ -93,12 +94,6 @@ struct UserSettings: Codable {
     /// restoring device works those picks back out from.
     var recommendationWhitelist: [UUID]?
 
-    // MARK: Home
-
-    /// The Home tab's hidden categories. Its category *order* is carried by
-    /// `UserProfile.homeCategoryOrder`, which predates this type.
-    var hiddenHomeCategories: [String]?
-
     // MARK: Community
 
     /// The Community tab's sort order and its reverse switch.
@@ -152,7 +147,6 @@ struct UserSettings: Codable {
             // each is a set, which has no order to preserve.
             recommendationAutoWhitelist: store.autoWhitelistOrigins.map(\.rawValue).sorted(),
             recommendationWhitelist: store.recommendationWhitelist.sorted { $0.uuidString < $1.uuidString },
-            hiddenHomeCategories: HomeCategories.hidden.sorted(),
             communitySort: d.string(forKey: CommunityFeed.sortKey) ?? CommunitySort.hot.rawValue,
             communitySortReversed: d.bool(forKey: CommunityFeed.reversedKey),
             exercisesSort: d.string(forKey: ExerciseSort.storageKey) ?? ExerciseSort.own.rawValue,
@@ -226,8 +220,6 @@ struct UserSettings: Codable {
         if let recommendationWhitelist {
             store.restoreRecommendationWhitelist(Set(recommendationWhitelist))
         }
-
-        if let hiddenHomeCategories { HomeCategories.hidden = Set(hiddenHomeCategories) }
 
         if let communitySort { d.set(communitySort, forKey: CommunityFeed.sortKey) }
         if let communitySortReversed { d.set(communitySortReversed, forKey: CommunityFeed.reversedKey) }

@@ -8,8 +8,10 @@
 import SwiftUI
 
 /// The Home tab's built-in categories and the user's display order for them.
-/// The order lives in UserDefaults (so it survives app restarts) and rides along
-/// in the profile JSON ProfileSync uploads (so it survives reinstalls too).
+/// The order and the hidden set live in UserDefaults, so they survive app
+/// restarts, and are deliberately left out of the profile ProfileSync uploads:
+/// a reinstall starts the tab over in the default order with every category
+/// showing, which is the way back for someone who lost track of what they changed.
 enum HomeCategories {
     static let recent = "Recent"
     static let routines = "Routines"
@@ -20,13 +22,14 @@ enum HomeCategories {
 
     /// Every built-in category, in the order a user who never rearranged them sees.
     /// New categories go on the end: `parse` appends the ones a stored order
-    /// predates, so anywhere else would put them somewhere different for a user
-    /// who has rearranged their categories than for one who hasn't.
-    static let all = [recent, routines, favourites, recommended, calendar, newForYou]
+    /// predates, in this order, so anywhere else would put them somewhere
+    /// different for a user who has rearranged their categories than for one who
+    /// hasn't.
+    static let all = [recommended, newForYou, calendar, routines, favourites, recent]
 
     /// Categories that have been renamed since a stored order or hidden set was
     /// written, old name to new. The English name *is* the identity here — it is
-    /// what UserDefaults and the profile JSON carry — so a rename has to be
+    /// what UserDefaults carries — so a rename has to be
     /// translated on the way in, or a user who had rearranged or hidden the
     /// category would find it back at the end of the tab and visible again.
     static let renamed = ["Calendar": calendar, "Favourites": favourites]
@@ -53,8 +56,7 @@ enum HomeCategories {
         ?? UUID()
 
     static let orderKey = "homeCategoryOrder"
-    /// The categories hidden from the tab, stored newline-joined like the order and
-    /// likewise carried in the profile JSON (see `UserSettings`).
+    /// The categories hidden from the tab, stored newline-joined like the order.
     static let hiddenKey = "homeHiddenCategories"
 
     /// A stored order as a category list: unknown names are dropped and any
@@ -71,24 +73,9 @@ enum HomeCategories {
         order.joined(separator: "\n")
     }
 
-    /// The user's order as stored — read when building the profile JSON, written
-    /// when restoring one.
-    static var stored: [String] {
-        get { parse(UserDefaults.standard.string(forKey: orderKey) ?? "") }
-        set { UserDefaults.standard.set(raw(newValue), forKey: orderKey) }
-    }
-
-    /// The user's hidden categories as stored, read and written the same way and at
-    /// the same points as `stored`. Sorted on the way out so the stored string only
-    /// changes when the set does.
-    static var hidden: Set<String> {
-        get { parseHidden(UserDefaults.standard.string(forKey: hiddenKey) ?? "") }
-        set { UserDefaults.standard.set(newValue.sorted().joined(separator: "\n"), forKey: hiddenKey) }
-    }
-
     /// A stored hidden set as names, renames applied like `parse` does — the two
-    /// screens that read the raw string out of `@AppStorage` themselves go
-    /// through here, so a category hidden under an old name stays hidden.
+    /// screens that read the raw string out of `@AppStorage` go through here, so
+    /// a category hidden under an old name stays hidden.
     static func parseHidden(_ raw: String) -> Set<String> {
         Set(raw.split(separator: "\n").map { renamed[String($0)] ?? String($0) })
     }
@@ -235,8 +222,6 @@ struct HomeCategoryEditView: View {
                 var reordered = categories
                 reordered.move(fromOffsets: source, toOffset: destination)
                 categoryOrderRaw = HomeCategories.raw(reordered)
-                // The new order belongs in the profile document too.
-                ProfileSync.shared.scheduleUpload()
             }
         }
         .environment(\.editMode, $editMode)
@@ -246,19 +231,18 @@ struct HomeCategoryEditView: View {
     }
 }
 
-/// The Home tab: built-in categories over the user's library — "Recent" (the
-/// last five exercises that played through to the end), "Routines" (the
-/// user's own ordered exercise lists, created via the + button; swipe right on
-/// one to edit it, swipe left to delete it after a confirmation),
-/// "Favorites" (every exercise starred on its own intro screen, in the order
-/// they were starred), "Recommended" (whitelisted exercises drawn away from the
-/// ones sung lately and towards the singer's level, as many as
-/// Settings ▸ Home Tab asks for — as one card that plays them all in a row, or
-/// as a list of them if that same screen says so),
+/// The Home tab: built-in categories over the user's library — "Recommended"
+/// (whitelisted exercises drawn away from the ones sung lately and towards the
+/// singer's level, as many as Settings ▸ Home Tab asks for — as one card that
+/// plays them all in a row, or as a list of them if that same screen says so),
+/// "New for You" (five of other people's exercises off the community's hot
+/// list, the ones pitched at the singer's own level — see NewForYouFeed),
 /// "Time Spent Singing" (the last 30 days of practice as coloured squares — see
-/// PracticeCalendarView), and "New for You" (five of other people's exercises
-/// off the community's hot list, the ones pitched at the singer's own level —
-/// see NewForYouFeed).
+/// PracticeCalendarView), "Routines" (the user's own ordered exercise lists,
+/// created via the + button; swipe right on one to edit it, swipe left to
+/// delete it after a confirmation), "Favorites" (every exercise starred on its
+/// own intro screen, in the order they were starred), and "Recent" (the last
+/// five exercises that played through to the end).
 /// Routines and favourites are rearranged in place by long-pressing a row and
 /// dragging it, each within its own category — the computed categories can't
 /// be, and neither can the calendar. The categories look and behave like the

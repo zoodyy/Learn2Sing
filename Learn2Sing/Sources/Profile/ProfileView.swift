@@ -28,9 +28,6 @@ struct UserProfile: Codable {
     /// Snapshot of the Exercises tab (exercises, categories, MIDI patterns,
     /// text labels). Optional so profiles written before sync existed decode.
     var exercises: ExerciseBundle? = nil
-    /// The Home tab's category display order. Optional so profiles written
-    /// before the order was synced still decode.
-    var homeCategoryOrder: [String]? = nil
     /// Public ids (lowercase UUID strings) of the Community exercises this user
     /// has liked, so the hearts stay filled across launches and reinstalls.
     /// Owned by CommunitySync; optional so older profiles still decode.
@@ -77,26 +74,24 @@ struct UserProfile: Codable {
     }
 
     /// Loads the stored profile (or a fresh one) and stamps in the device ID,
-    /// a UUID kept in the Keychain so it survives reinstalls, plus the live
-    /// Home category order, which lives in UserDefaults.
+    /// a UUID kept in the Keychain so it survives reinstalls.
     static func load() -> UserProfile {
         var profile = (try? Data(contentsOf: fileURL))
             .flatMap { try? JSONDecoder().decode(UserProfile.self, from: $0) }
             ?? UserProfile()
         profile.deviceID = DeviceIdentifier.uuidString
-        profile.homeCategoryOrder = HomeCategories.stored
         return profile
     }
 
     /// Fills in the parts of the profile that live outside the profile file: the
-    /// exercise library, the Home tab's category order, routines and favourites,
-    /// every exercise's score history, the practice calendar, the settings, the
-    /// singer's skill level, and when each exercise was added and last edited.
-    /// Used for both the copy ProfileSync uploads and the file the profile screen
-    /// shares.
+    /// exercise library, the Home tab's routines and favourites, every exercise's
+    /// score history, the practice calendar, the settings, the singer's skill
+    /// level, and when each exercise was added and last edited. Not the Home
+    /// tab's category order or hidden categories: those stay on the device (see
+    /// `HomeCategories`). Used for both the copy ProfileSync uploads and the file
+    /// the profile screen shares.
     mutating func snapshot(_ store: ExerciseStore) {
         exercises = store.exportBundle()
-        homeCategoryOrder = HomeCategories.stored
         routines = store.routines
         favourites = store.favourites
         let histories = ScoreHistory.all().mapValues(ScoreHistoryDoc.init)

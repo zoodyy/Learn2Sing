@@ -288,11 +288,9 @@ final class ProfileSync {
     }
 
     private func apply(_ remote: UserProfile, to store: ExerciseStore) {
-        // Restore the Home category order first: it lives in UserDefaults (wiped
-        // on reinstall), and `load()` reads it back out from there.
-        if let order = remote.homeCategoryOrder {
-            HomeCategories.stored = order
-        }
+        // The Home tab's category order and hidden categories are never brought
+        // back, even from a profile written by a version that still carried
+        // them: a reinstall starts the tab over (see HomeCategories).
         var profile = UserProfile.load()
         if profile.username.isEmpty {
             profile.username = remote.username
