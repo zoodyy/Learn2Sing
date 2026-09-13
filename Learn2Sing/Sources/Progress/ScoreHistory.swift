@@ -258,6 +258,11 @@ struct ScoreHistoryChart: View {
                     .explain(L("Your scores for this exercise over time. Nothing was sung in the period picked above."))
             } else {
                 chart
+                    // Time runs left to right here in every language, as it does
+                    // across the notes. The point marker and its bubble are placed
+                    // with `.position`, which a mirrored app would measure from the
+                    // right, away from the point the chart reports.
+                    .environment(\.layoutDirection, .leftToRight)
                     .explain(L("Your scores for this exercise over time, oldest on the left. Tap a point to see its score and date."))
             }
         }

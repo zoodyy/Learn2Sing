@@ -373,8 +373,14 @@ struct EditingView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            rulerRow
-            rollScroller
+            // Time runs left to right across the grid in every language, with the
+            // keys on its left, so a mirrored app lays the ruler and the roll out as
+            // they are. The transport bar underneath is ordinary chrome and mirrors.
+            Group {
+                rulerRow
+                rollScroller
+            }
+            .environment(\.layoutDirection, .leftToRight)
             transportBar
         }
         .background(Color.black)

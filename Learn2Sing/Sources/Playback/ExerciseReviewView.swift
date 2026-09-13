@@ -195,6 +195,9 @@ struct ExerciseReviewView: View {
                 NudgeButton(ms: -coarseStepMs, symbol: "chevron.right.2",
                             repeatEvery: coarseRepeat, onStep: nudge)
             }
+            // The arrows point the way the line moves across the drawing, which runs
+            // left to right in every language, so a mirrored app mustn't swap them.
+            .environment(\.layoutDirection, .leftToRight)
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 12)

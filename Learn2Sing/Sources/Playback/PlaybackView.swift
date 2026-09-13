@@ -1626,6 +1626,8 @@ private struct ScoreView: View {
     let onExit: () -> Void
 
     @Environment(\.verticalSizeClass) private var verticalSizeClass
+    /// Which way the exit swipe goes: see `exitSwipe`.
+    @Environment(\.layoutDirection) private var layoutDirection
     @Environment(\.colorScheme) private var colorScheme
 
     /// Flips after a download so the button confirms instead of copying again.
@@ -1755,8 +1757,9 @@ private struct ScoreView: View {
     /// How far a sideways drag has to travel before it counts as the exit swipe.
     private let exitSwipeDistance: CGFloat = 60
 
-    /// A rightward flick on this screen leaves it, exactly as the Exit button does
-    /// — so in a routine, where that button reads "Next", the swipe carries on to
+    /// A flick back across this screen (rightwards, or leftwards in a mirrored app:
+    /// the way the system's back swipe goes) leaves it, exactly as the Exit button
+    /// does — so in a routine, where that button reads "Next", the swipe carries on to
     /// the following exercise rather than dropping out of the run. It stands in for
     /// the system's back gesture, which this screen turns off along with the back
     /// button so that leaving goes where Exit goes rather than popping the run.
@@ -1769,8 +1772,10 @@ private struct ScoreView: View {
         DragGesture(minimumDistance: 20, coordinateSpace: .named(swipeSpace))
             .onEnded { drag in
                 guard !chartFrame.contains(drag.startLocation) else { return }
-                let right = drag.translation.width
-                guard right >= exitSwipeDistance, abs(drag.translation.height) < right else { return }
+                // The drag is measured left to right however the app is laid out.
+                let sideways = drag.translation.width
+                let back = layoutDirection == .rightToLeft ? -sideways : sideways
+                guard back >= exitSwipeDistance, abs(drag.translation.height) < back else { return }
                 onExit()
             }
     }

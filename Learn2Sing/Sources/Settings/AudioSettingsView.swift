@@ -32,7 +32,7 @@ struct AudioSettingsView: View {
                     HStack {
                         Label("Instruments", systemImage: "pianokeys")
                         Spacer()
-                        Image(systemName: "chevron.right")
+                        Image(systemName: "chevron.forward")
                             .font(.footnote.weight(.semibold))
                             .foregroundStyle(.tertiary)
                     }

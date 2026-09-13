@@ -1780,7 +1780,7 @@ final class ListLoadMoreFooterView: UICollectionReusableView {
 // MARK: - Section header
 
 /// Replica of the SwiftUI section header: category name, exercise count while
-/// collapsed, and a chevron that points right (collapsed) or down (expanded).
+/// collapsed, and a chevron that points forwards (collapsed) or down (expanded).
 /// Tap toggles collapse; a long press enters category-reorder mode. Sections
 /// with an add handler show a + button right after the name (Routines on Home).
 final class ExerciseSectionHeaderView: UICollectionReusableView {
@@ -1819,7 +1819,8 @@ final class ExerciseSectionHeaderView: UICollectionReusableView {
         countLabel.font = headerDefaults.textProperties.font
         countLabel.textColor = .tertiaryLabel
         countLabel.adjustsFontForContentSizeCategory = true
-        chevron.image = UIImage(systemName: "chevron.right")
+        // Forward rather than right, so it points left in a mirrored list.
+        chevron.image = UIImage(systemName: "chevron.forward")
         chevron.preferredSymbolConfiguration = UIImage.SymbolConfiguration(font: headerDefaults.textProperties.font)
         chevron.tintColor = .tertiaryLabel
         chevron.setContentHuggingPriority(.required, for: .horizontal)
@@ -1879,6 +1880,12 @@ final class ExerciseSectionHeaderView: UICollectionReusableView {
         // reorder mode (taps on controls already take precedence on their own).
         longPress.delegate = self
         addGestureRecognizer(longPress)
+
+        // Picking a language that reads the other way turns an expanded chevron
+        // the other way too.
+        registerForTraitChanges([UITraitLayoutDirection.self]) { (header: Self, _) in
+            header.chevron.transform = header.chevronTransform
+        }
     }
 
     @available(*, unavailable)
@@ -1893,12 +1900,21 @@ final class ExerciseSectionHeaderView: UICollectionReusableView {
         countLabel.isHidden = !showsCount || (!isCollapsed && count > 0)
         chevron.isHidden = !showsChevron
         self.isCollapsed = isCollapsed
-        let transform = isCollapsed ? .identity : CGAffineTransform(rotationAngle: .pi / 2)
+        let transform = chevronTransform
         if animated {
             UIView.animate(withDuration: 0.3) { self.chevron.transform = transform }
         } else {
             chevron.transform = transform
         }
+    }
+
+    /// A quarter turn from pointing forwards to pointing down: clockwise while
+    /// forwards is right, anticlockwise in a mirrored list, where it is left.
+    private var chevronTransform: CGAffineTransform {
+        guard !isCollapsed else { return .identity }
+        let quarterTurn = CGFloat.pi / 2
+        return CGAffineTransform(rotationAngle: effectiveUserInterfaceLayoutDirection == .rightToLeft
+                                 ? -quarterTurn : quarterTurn)
     }
 
     @objc private func tapped() { onTap?() }

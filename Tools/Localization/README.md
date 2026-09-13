@@ -59,6 +59,16 @@ in `NOT_TRANSLATED` in `generate.py` so they don't show up as missing.
 3. Add the code to `knownRegions` in `project.pbxproj`.
 4. Run `generate.py`.
 
+A language written right to left (Arabic) mirrors the whole app, which follows
+from the language itself (`AppLanguage.layoutDirection`) with nothing to switch on.
+Its translations are read on that mirrored screen, so a string that names a side
+has to name the mirrored one: drag handles sit on the **left**, swiping **right**
+deletes a row, and flicking **left** leaves the score screen. What is drawn along
+time is the exception: playback, the previews, the review screen, the MIDI editor
+and the score chart run left to right in every language, so the note names stay
+"down the left-hand side", the oldest score stays on the left and the repetition
+badge's corners keep their names.
+
 ## Note on the catalog format
 
 Xcode writes this file too: every build extracts the `Text("…")`-style strings

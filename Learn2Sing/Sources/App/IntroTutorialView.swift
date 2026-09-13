@@ -61,6 +61,9 @@ struct IntroTutorialView: View {
     /// strings are resolved when the body runs, so SwiftUI needs telling.
     @ObservedObject private var appLanguage = LanguageManager.shared
 
+    /// Which edge the slides leave towards, for the swipe that turns them.
+    @Environment(\.layoutDirection) private var layoutDirection
+
     /// The playback screen has a standard look per appearance: the theme slide draws
     /// both of them, and switches to the one that is tapped.
     @EnvironmentObject private var templates: VisualTemplateStore
@@ -214,13 +217,18 @@ struct IntroTutorialView: View {
     /// only ever go one way. Simultaneous so a slide too tall for the screen still
     /// scrolls, and only a clearly sideways drag counts, so scrolling one down
     /// can't turn the page under the finger.
+    ///
+    /// Forwards is towards the leading edge, the way the slides leave. The drag
+    /// is measured left to right whichever way the app is laid out, so in a
+    /// mirrored app it is turned round first.
     private var pageSwipe: some Gesture {
         DragGesture(minimumDistance: 20)
             .onEnded { drag in
                 let sideways = drag.translation.width
                 guard abs(sideways) >= Self.swipeDistance,
                       abs(drag.translation.height) < abs(sideways) else { return }
-                if sideways < 0 { swipeForward() } else { goBack() }
+                let towardsTrailing = layoutDirection == .rightToLeft ? -sideways : sideways
+                if towardsTrailing < 0 { swipeForward() } else { goBack() }
             }
     }
 

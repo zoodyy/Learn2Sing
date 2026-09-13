@@ -343,7 +343,7 @@ struct SettingsHubRow: View {
             HStack {
                 Label(title, systemImage: systemImage)
                 Spacer()
-                Image(systemName: "chevron.right")
+                Image(systemName: "chevron.forward")
                     .font(.footnote.weight(.semibold))
                     .foregroundStyle(.tertiary)
             }
@@ -594,7 +594,7 @@ struct HomeTabSettingsView: View {
                     HStack {
                         Text("Customise your Home Screen")
                         Spacer()
-                        Image(systemName: "chevron.right")
+                        Image(systemName: "chevron.forward")
                             .font(.footnote.weight(.semibold))
                             .foregroundStyle(.tertiary)
                     }
@@ -646,7 +646,7 @@ struct HomeTabSettingsView: View {
                         Spacer()
                         Text(verbatim: "\(store.recommendationWhitelist.count)")
                             .foregroundStyle(.secondary)
-                        Image(systemName: "chevron.right")
+                        Image(systemName: "chevron.forward")
                             .font(.footnote.weight(.semibold))
                             .foregroundStyle(.tertiary)
                     }

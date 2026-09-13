@@ -253,7 +253,7 @@ struct InstrumentsView: View {
                             preview.play(instrument)
                         }
 
-                        Image(systemName: "chevron.right")
+                        Image(systemName: "chevron.forward")
                             .font(.footnote.weight(.semibold))
                             .foregroundStyle(.tertiary)
                     }

@@ -18,31 +18,43 @@ struct ContentView: View {
     /// that replays it opens it from the other side of the tab view — so it is
     /// presented here, over every tab, rather than from any one of them.
     @ObservedObject private var tutorial = IntroTutorial.shared
+    /// The tab on screen, held out here so it outlasts the tab view being rebuilt
+    /// when the layout direction changes (see below).
+    @State private var selectedTab = 0
 
     var body: some View {
-        TabView {
-            Tab("Home", systemImage: "house") {
+        TabView(selection: $selectedTab) {
+            Tab("Home", systemImage: "house", value: 0) {
                 HomeView()
             }
 
-            Tab("Exercises", systemImage: "music.mic") {
+            Tab("Exercises", systemImage: "music.mic", value: 1) {
                 ExercisesView()
             }
 
-            Tab("Community", systemImage: "person.3") {
+            Tab("Community", systemImage: "person.3", value: 2) {
                 CommunityView()
             }
 
-            Tab("Settings", systemImage: "gearshape") {
+            Tab("Settings", systemImage: "gearshape", value: 3) {
                 SettingsView()
             }
         }
+        // Built again from scratch when the language changes to one read the other
+        // way. Forms and lists that already exist don't survive a live change of
+        // direction: going back from Arabic to English, every row's text was drawn
+        // mirror-image. Only that switch pays for it, with the navigation inside the
+        // tabs going back to their first screens; the selected tab stays.
+        .id(languages.language.layoutDirection)
         .environmentObject(toasts)
         .environmentObject(languages)
         // Every `Text("…")` in the app resolves its key against this locale, so
         // changing it re-renders the screens that are already on screen — unlike
         // re-identifying the root, which would throw away navigation state.
         .environment(\.locale, languages.language.locale)
+        // No `\.layoutDirection` here, although a right-to-left language mirrors the
+        // app: that comes from the window scene's trait, which SwiftUI reads too.
+        // See `LanguageManager.applyLayoutDirection`.
         .overlay { ToastOverlay(toasts: toasts) }
         // nil for "System" lets the device's light/dark setting through.
         .preferredColorScheme((AppTheme(rawValue: themeRaw) ?? .system).colorScheme)

@@ -178,6 +178,12 @@ struct ProfilePictureEditor: View {
                         .scaleEffect(alignment.scale)
                         .offset(x: alignment.offsetX * side,
                                 y: alignment.offsetY * side)
+                        // Left to right in every language: the drag that sets the
+                        // offset and the rendering that crops the picture to it both
+                        // measure x from the left, where a mirrored app's `.offset`
+                        // would count it from the right and move the picture away
+                        // from the finger.
+                        .environment(\.layoutDirection, .leftToRight)
                         .frame(width: side, height: side)
                         .clipShape(.circle)
                         .overlay {

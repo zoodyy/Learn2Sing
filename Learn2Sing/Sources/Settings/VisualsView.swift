@@ -123,7 +123,7 @@ struct VisualsHubView: View {
                     HStack {
                         Label("Menus", systemImage: "list.bullet.rectangle")
                         Spacer()
-                        Image(systemName: "chevron.right")
+                        Image(systemName: "chevron.forward")
                             .font(.footnote.weight(.semibold))
                             .foregroundStyle(.tertiary)
                     }
@@ -135,7 +135,7 @@ struct VisualsHubView: View {
                     HStack {
                         Label("Playback", systemImage: "play.rectangle")
                         Spacer()
-                        Image(systemName: "chevron.right")
+                        Image(systemName: "chevron.forward")
                             .font(.footnote.weight(.semibold))
                             .foregroundStyle(.tertiary)
                     }

@@ -190,6 +190,10 @@ struct PracticeCalendarView: View {
     /// squares' accessibility labels are written in it.
     @Environment(\.locale) private var locale
 
+    /// Mirrored for a right-to-left language, which starts the days at the top
+    /// right — and changes what a tap's location means (see `selection`).
+    @Environment(\.layoutDirection) private var layoutDirection
+
     private var rows: Int { max(1, (days.count + Self.columns - 1) / Self.columns) }
 
     /// The goal as the log counts practice, in seconds. Floored at a minute so a
@@ -277,17 +281,24 @@ struct PracticeCalendarView: View {
     /// The square a tap landed on, in global coordinates, or nil for a tap
     /// outside the grid. A tap in the gap between two squares counts for the
     /// one before it, so the small squares don't have to be hit dead-on.
+    ///
+    /// In a mirrored app `.position` counts the squares' x from the right-hand
+    /// edge, while a tap's location is still measured from the left, so the tap
+    /// is turned round to the squares' side before it is looked up.
     private func selection(at location: CGPoint, side: CGFloat, step: CGFloat,
                            grid: CGRect) -> PracticeCalendarSelection? {
-        guard location.x >= 0, location.y >= 0, step > 0 else { return nil }
-        let column = Int(location.x / step), row = Int(location.y / step)
+        let mirrored = layoutDirection == .rightToLeft
+        let x = mirrored ? grid.width - location.x : location.x
+        guard x >= 0, location.y >= 0, step > 0 else { return nil }
+        let column = Int(x / step), row = Int(location.y / step)
         guard column < Self.columns else { return nil }
         let index = row * Self.columns + column
         guard days.indices.contains(index) else { return nil }
         let middle = centre(of: index, side: side, step: step)
+        let midX = mirrored ? grid.maxX - middle.x : grid.minX + middle.x
         return PracticeCalendarSelection(
             day: days[index],
-            square: CGRect(x: grid.minX + middle.x - side / 2,
+            square: CGRect(x: midX - side / 2,
                            y: grid.minY + middle.y - side / 2,
                            width: side, height: side),
             grid: grid
@@ -371,6 +382,8 @@ struct PracticeCalendarBubble: View {
 
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.locale) private var locale
+    /// A mirrored app counts `.position`'s x from the right-hand edge.
+    @Environment(\.layoutDirection) private var layoutDirection
 
     /// Measured size, needed to place the bubble against the square. Zero until
     /// the first layout pass, which is why it stays hidden that long.
@@ -418,7 +431,11 @@ struct PracticeCalendarBubble: View {
         // Hidden until measured, otherwise the first frame flashes in the
         // wrong place.
         .opacity(size == .zero ? 0 : 1)
-        .position(x: centreX - container.minX, y: top + size.height / 2 - container.minY)
+        // `centreX` is on screen, measured from the left, where a mirrored app
+        // measures `.position` from the container's right-hand edge.
+        .position(x: layoutDirection == .rightToLeft ? container.maxX - centreX
+                                                     : centreX - container.minX,
+                  y: top + size.height / 2 - container.minY)
         // Taps belong to the list underneath, which puts the bubble away.
         .allowsHitTesting(false)
     }

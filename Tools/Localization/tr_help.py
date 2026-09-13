@@ -110,7 +110,7 @@ T("A sound you uploaded yourself. Tap the name to open it, the speaker to hear i
   "自分でアップロードした音です。名前をタップして開き、スピーカーで試聴し、左にスワイプすると削除できます。",
   "직접 올린 소리입니다. 이름을 탭하면 열리고, 스피커로 들어보며, 왼쪽으로 밀면 삭제됩니다.",
   "你自己上传的音色。点按名称可打开，点喇叭可试听，向左滑动可删除。",
-  "صوت رفعته بنفسك. اضغط على الاسم لفتحه، وعلى مكبر الصوت لسماعه، واسحب لليسار لحذفه.")
+  "صوت رفعته بنفسك. اضغط على الاسم لفتحه، وعلى مكبر الصوت لسماعه، واسحب لليمين لحذفه.")
 T("Uploads an MP3 or WAV file holding one single sound, to play the notes with.",
   "Lädt eine MP3- oder WAV-Datei mit einem einzelnen Klang hoch, mit dem die Noten gespielt werden.",
   "Sube un archivo MP3 o WAV con un solo sonido para reproducir las notas.",
@@ -751,7 +751,7 @@ T("Tap the name to rename the category, and drag by the handle on the right to r
   "名前をタップするとカテゴリ名を変更でき、右のハンドルをドラッグすると並べ替えられます。数字は含まれるエクササイズの数です。",
   "이름을 탭하면 분류 이름을 바꾸고, 오른쪽 손잡이를 끌면 순서를 바꿉니다. 숫자는 들어 있는 연습 수입니다.",
   "点按名称可重命名分类，拖动右侧手柄可调整顺序。数字是其中的练习数量。",
-  "اضغط على الاسم لإعادة تسمية الفئة، واسحب من المقبض على اليمين لإعادة ترتيبها. الرقم هو عدد التمارين فيها.")
+  "اضغط على الاسم لإعادة تسمية الفئة، واسحب من المقبض على اليسار لإعادة ترتيبها. الرقم هو عدد التمارين فيها.")
 T("Makes an empty exercise and opens its settings, or adds a category to sort your exercises into.",
   "Legt eine leere Übung an und öffnet ihre Einstellungen, oder fügt eine Kategorie hinzu, in die du deine Übungen einsortierst.",
   "Crea un ejercicio vacío y abre sus ajustes, o añade una categoría para ordenar tus ejercicios.",
@@ -843,7 +843,7 @@ T("Drag by the handle on the right to set the order these categories come in on 
   "右のハンドルをドラッグすると、ホームタブでのカテゴリの並び順を決められます。目のアイコンはカテゴリをタブから外したり戻したりします。最後の 1 つは隠せません。",
   "오른쪽 손잡이를 끌어 홈 탭에서 분류가 나오는 순서를 정합니다. 눈 아이콘은 분류를 탭에서 빼거나 되돌립니다. 마지막 하나는 숨길 수 없습니다.",
   "拖动右侧手柄可设置这些分类在首页标签中的顺序。眼睛图标可把某个分类移出或放回；最后剩下的一个不能隐藏。",
-  "اسحب من المقبض على اليمين لتحديد ترتيب ظهور هذه الفئات في تبويب الرئيسية. العين تُخفي فئة من التبويب أو تعيدها؛ ولا يمكن إخفاء آخر فئة متبقية.")
+  "اسحب من المقبض على اليسار لتحديد ترتيب ظهور هذه الفئات في تبويب الرئيسية. العين تُخفي فئة من التبويب أو تعيدها؛ ولا يمكن إخفاء آخر فئة متبقية.")
 T("Makes a new routine: your own list of exercises, sung one after the other.",
   "Legt eine neue Routine an: deine eigene Liste von Übungen, die nacheinander gesungen werden.",
   "Crea una nueva rutina: tu propia lista de ejercicios, cantados uno tras otro.",
@@ -995,7 +995,7 @@ T("Finishes with this exercise. Flicking right across the screen does the same."
   "このエクササイズを終えます。画面を右にはらっても同じです。",
   "이 연습을 마칩니다. 화면을 오른쪽으로 밀어도 같습니다.",
   "结束这个练习。在屏幕上向右滑动效果相同。",
-  "يُنهي هذا التمرين. التمرير لليمين عبر الشاشة يفعل الشيء نفسه.")
+  "يُنهي هذا التمرين. التمرير لليسار عبر الشاشة يفعل الشيء نفسه.")
 T("How long your microphone takes to hear you. Your scores are worked out with this taken off, and you can change it in Settings under Audio.",
   "Wie lange dein Mikrofon braucht, um dich zu hören. Deine Bewertungen werden abzüglich dieses Werts berechnet, und du kannst ihn in den Einstellungen unter Audio ändern.",
   "Cuánto tarda tu micrófono en oírte. Tus puntuaciones se calculan restando este valor, y puedes cambiarlo en Ajustes, en Audio.",
@@ -1224,7 +1224,7 @@ T("The exercises this routine plays, in order. Drag by the handle on the right t
   "このルーティンが順に再生するエクササイズです。右のハンドルをドラッグすると並べ替えられます。",
   "이 루틴이 차례로 재생하는 연습입니다. 오른쪽 손잡이를 끌면 순서를 바꿉니다.",
   "这个训练组会依次播放的练习。拖动右侧手柄可重新排序。",
-  "التمارين التي يشغّلها هذا الروتين، بالترتيب. اسحب من المقبض على اليمين لإعادة ترتيبها.")
+  "التمارين التي يشغّلها هذا الروتين، بالترتيب. اسحب من المقبض على اليسار لإعادة ترتيبها.")
 T("Swaps the drag handles for delete buttons, to take exercises off this list. They stay in your library.",
   "Tauscht die Ziehgriffe gegen Löschknöpfe, um Übungen aus dieser Liste zu nehmen. In deiner Bibliothek bleiben sie erhalten.",
   "Cambia las asas de arrastre por botones de borrar, para sacar ejercicios de esta lista. Siguen en tu biblioteca.",
@@ -1284,7 +1284,7 @@ T("Tap to start here instead of at the top. Drag to reorder, or swipe left to le
   "タップすると先頭ではなくここから始まります。ドラッグで並べ替え、左スワイプで除外できます。これは今回だけの変更で、リスト自体はそのままです。",
   "탭하면 맨 위가 아니라 여기서 시작합니다. 드래그로 순서를 바꾸고, 왼쪽으로 밀면 제외됩니다. 이번 회차에만 적용되며 목록 자체는 그대로입니다.",
   "点按可从这里而不是从最上面开始。拖动可排序，向左滑动可跳过。这只对本次有效，列表本身不变。",
-  "اضغط للبدء من هنا بدلًا من الأعلى. اسحب لإعادة الترتيب، أو اسحب لليسار لاستبعاده. هذا لهذه المحاولة فقط، وتبقى القائمة نفسها كما هي.")
+  "اضغط للبدء من هنا بدلًا من الأعلى. اسحب لإعادة الترتيب، أو اسحب لليمين لاستبعاده. هذا لهذه المحاولة فقط، وتبقى القائمة نفسها كما هي.")
 T("Puts the exercises below in a random order for this run only.",
   "Bringt die Übungen unten in eine zufällige Reihenfolge, nur für diesen Durchgang.",
   "Pone los ejercicios de abajo en orden aleatorio solo para esta vez.",
@@ -1694,7 +1694,7 @@ T("Tap a template to switch to it, or tap the selected one to deselect it. Swipe
   "テンプレートをタップすると切り替わり、選択中のものをタップすると選択が解除されます。左にスワイプすると削除できます。",
   "템플릿을 탭하면 그것으로 바뀌고, 선택된 것을 탭하면 선택이 해제됩니다. 왼쪽으로 밀면 삭제됩니다.",
   "点按某个模板即可切换到它，点按已选中的则取消选择。向左滑动可删除。",
-  "اضغط على قالب للتبديل إليه، أو اضغط على القالب المحدد لإلغاء تحديده. اسحب لليسار لحذفه.")
+  "اضغط على قالب للتبديل إليه، أو اضغط على القالب المحدد لإلغاء تحديده. اسحب لليمين لحذفه.")
 
 # --- Vocal range test ---
 T("Starts listening. Sing the note asked for and hold it until the ring has gone all the way round.",

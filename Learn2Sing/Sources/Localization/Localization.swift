@@ -10,6 +10,7 @@
 
 import Foundation
 import SwiftUI
+import UIKit
 import Combine
 import ObjectiveC.runtime
 
@@ -84,6 +85,14 @@ enum AppLanguage: String, CaseIterable, Identifiable, Hashable {
     /// screens that are already on screen.
     var locale: Locale { Locale(identifier: rawValue) }
 
+    /// Which way the app is laid out while this language is chosen: mirrored for a
+    /// script read from right to left. Asked of the language rather than listed, so
+    /// a right-to-left language added later mirrors the app without being told to.
+    var layoutDirection: LayoutDirection {
+        Locale.Language(identifier: rawValue).characterDirection == .rightToLeft
+            ? .rightToLeft : .leftToRight
+    }
+
     /// The `.lproj` the strings are read from. English is resolved explicitly
     /// rather than left to the main bundle's own lookup, which would follow the
     /// device's preferred languages — the app is English until the user picks
@@ -110,7 +119,28 @@ final class LanguageManager: ObservableObject {
             guard language != oldValue else { return }
             UserDefaults.standard.set(language.rawValue, forKey: Self.storageKey)
             Self.current = language
+            applyLayoutDirection()
         }
+    }
+
+    /// Mirrors the whole app for a right-to-left language. The window scene's trait
+    /// is the one place that is said: UIKit reads it (the navigation and tab bars,
+    /// the back swipe, the exercise lists' collection views, everything presented
+    /// over the tab view) and SwiftUI takes its `\.layoutDirection` from it, so the
+    /// app never sets that environment value for the language (only the drawings
+    /// that run left to right in every language pin it). Views that already exist don't
+    /// all follow a live change, which is why ContentView rebuilds the tab view when
+    /// the direction flips. Stated for the left-to-right languages too, or the
+    /// device's language would decide for them.
+    func applyLayoutDirection() {
+        for case let scene as UIWindowScene in UIApplication.shared.connectedScenes {
+            applyLayoutDirection(to: scene)
+        }
+    }
+
+    private func applyLayoutDirection(to scene: UIWindowScene) {
+        scene.traitOverrides.layoutDirection =
+            language.layoutDirection == .rightToLeft ? .rightToLeft : .leftToRight
     }
 
     /// Read by `L(_:)` off the main actor without touching the published property.
@@ -123,6 +153,15 @@ final class LanguageManager: ObservableObject {
         language = initial
         Self.current = initial
         Bundle.installLanguageOverride()
+        // A scene is turned the right way round as it connects, before any of its
+        // views exist, so nothing is built one way and then flipped. The app
+        // delegate creates this manager at launch so the observer is in place.
+        _ = NotificationCenter.default.addObserver(
+            forName: UIScene.willConnectNotification, object: nil, queue: .main
+        ) { note in
+            guard let scene = note.object as? UIWindowScene else { return }
+            MainActor.assumeIsolated { LanguageManager.shared.applyLayoutDirection(to: scene) }
+        }
     }
 }
 

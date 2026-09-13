@@ -47,6 +47,15 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
                      supportedInterfaceOrientationsFor window: UIWindow?) -> UIInterfaceOrientationMask {
         Self.orientationMask
     }
+
+    /// Creates the language manager before the first scene connects, so it can lay
+    /// that scene out the right way round for the chosen language from its first
+    /// frame (see `LanguageManager.applyLayoutDirection`).
+    func application(_ application: UIApplication,
+                     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil) -> Bool {
+        _ = LanguageManager.shared
+        return true
+    }
 }
 
 enum OrientationLockManager {
