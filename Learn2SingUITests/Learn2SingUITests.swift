@@ -10,16 +10,48 @@ final class Learn2SingUITests: XCTestCase {
         continueAfterFailure = false
     }
 
-    /// Launch the app and open the Exercises tab.
+    /// Launch the app and open the Exercises tab. Collapsed categories stay
+    /// collapsed across launches, so unless told otherwise the ones in view are
+    /// opened first: the tests that read rows expect to find some, and a run that
+    /// closed every category and then failed would otherwise leave none.
     @discardableResult
-    private func openExercises() -> XCUIApplication {
+    private func openExercises(expandingCategories: Bool = true) -> XCUIApplication {
         let app = XCUIApplication()
         app.launch()
         let tab = app.buttons["Exercises"]
         XCTAssertTrue(tab.waitForExistence(timeout: 5), "Exercises tab not found")
         tab.tap()
         XCTAssertTrue(app.navigationBars["Exercises"].waitForExistence(timeout: 5))
+        if expandingCategories { expandCollapsedCategories(app) }
         return app
+    }
+
+    /// Wait until the number of texts on screen stops changing, so a reading of the
+    /// list isn't taken while it is still filling in. The Home tab's "New for You"
+    /// arrives off the network, and a text that goes away halfway through
+    /// `snapshotList` fails the test outright rather than reading as a miss.
+    private func waitForScreenToSettle(_ app: XCUIApplication) {
+        var last = -1
+        for _ in 0..<10 {
+            let now = app.staticTexts.count
+            if now == last { return }
+            last = now
+            sleep(1)
+        }
+    }
+
+    /// Open every closed category in view. A closed category with exercises in it
+    /// is the only kind of header showing a count above zero, so those are the
+    /// ones tapped: bottom-up, so each header stays put while the ones below it move.
+    private func expandCollapsedCategories(_ app: XCUIApplication) {
+        guard app.collectionViews.firstMatch.waitForExistence(timeout: 5),
+              app.staticTexts.matching(NSPredicate(format: "label BEGINSWITH '('")).firstMatch.exists
+        else { return }
+        let seen = snapshotList(app)
+        for category in seen.headers.reversed() where (seen.counts[category] ?? 0) > 0 {
+            header(app, named: category).tap()
+            usleep(300_000)
+        }
     }
 
     /// Saves a full-screen PNG to $SCREENSHOT_DIR (pass as TEST_RUNNER_SCREENSHOT_DIR
@@ -391,6 +423,7 @@ final class Learn2SingUITests: XCTestCase {
         XCTAssertTrue(tab.waitForExistence(timeout: 5), "Exercises tab not found")
         tab.tap()
         XCTAssertTrue(app.navigationBars["Exercises"].waitForExistence(timeout: 5))
+        expandCollapsedCategories(app)
         sleep(2)
         let snap = snapshotList(app)
         guard let category = snap.headers.first(where: { !(snap.items[$0] ?? []).isEmpty }),
@@ -478,6 +511,7 @@ final class Learn2SingUITests: XCTestCase {
         XCTAssertTrue(tab.waitForExistence(timeout: 5), "Exercises tab not found")
         tab.tap()
         XCTAssertTrue(app.navigationBars["Exercises"].waitForExistence(timeout: 5))
+        expandCollapsedCategories(app)
         sleep(2)
         let snap = snapshotList(app)
         guard let category = snap.headers.first(where: { !(snap.items[$0] ?? []).isEmpty }),
@@ -1596,6 +1630,59 @@ final class Learn2SingUITests: XCTestCase {
         confirm.buttons["Delete"].tap()
         XCTAssertTrue(app.navigationBars["Exercises"].waitForExistence(timeout: 5),
                       "deleting the copy should pop back to the list")
+    }
+
+    /// A collapsed category is still collapsed after the app is quit and reopened,
+    /// on the Exercises tab and on the Home tab alike. (A reinstall opens them all
+    /// again — the state is kept out of the synced profile — but checking that
+    /// means wiping the simulator's app data, which a test mustn't do.)
+    func testCategoryCollapseSurvivesRelaunch() throws {
+        var app = openExercises()
+        sleep(2)
+        let before = snapshotList(app)
+        guard let category = before.headers.first(where: { !(before.items[$0] ?? []).isEmpty }) else {
+            XCTFail("no expanded category"); return
+        }
+        header(app, named: category).tap()
+        sleep(1)
+        XCTAssertNotNil(snapshotList(app).counts[category], "tap should collapse \(category)")
+
+        app.terminate()
+        app = openExercises(expandingCategories: false)
+        sleep(2)
+        let reopened = snapshotList(app)
+        XCTAssertEqual(reopened.items[category] ?? [], [],
+                       "\(category) was open again after a relaunch")
+        XCTAssertNotNil(reopened.counts[category],
+                        "\(category) should still show its count after a relaunch")
+        saveScreenshot("collapse-after-relaunch-exercises")
+        header(app, named: category).tap()   // leave it open for the next test
+        sleep(1)
+
+        // The Home tab's headers show no count, so there collapsed means no rows.
+        app.buttons["Home"].tap()
+        XCTAssertTrue(app.navigationBars["Home"].waitForExistence(timeout: 5))
+        waitForScreenToSettle(app)
+        let home = snapshotList(app)
+        guard let homeCategory = home.headers.first(where: { !(home.items[$0] ?? []).isEmpty }) else {
+            XCTFail("no Home category with rows"); return
+        }
+        header(app, named: homeCategory).tap()
+        waitForScreenToSettle(app)
+        XCTAssertEqual(snapshotList(app).items[homeCategory] ?? [], [],
+                       "tap should collapse \(homeCategory)")
+
+        app.terminate()
+        app.launch()
+        app.buttons["Home"].tap()
+        XCTAssertTrue(app.navigationBars["Home"].waitForExistence(timeout: 5))
+        XCTAssertTrue(header(app, named: homeCategory).waitForExistence(timeout: 5))
+        waitForScreenToSettle(app)
+        XCTAssertEqual(snapshotList(app).items[homeCategory] ?? [], [],
+                       "\(homeCategory) was open again after a relaunch")
+        saveScreenshot("collapse-after-relaunch-home")
+        header(app, named: homeCategory).tap()
+        sleep(1)
     }
 
     /// Tap-to-collapse and long-press-to-reorder-mode on headers still work.

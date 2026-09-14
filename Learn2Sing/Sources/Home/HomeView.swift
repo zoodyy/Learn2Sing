@@ -8,10 +8,11 @@
 import SwiftUI
 
 /// The Home tab's built-in categories and the user's display order for them.
-/// The order and the hidden set live in UserDefaults, so they survive app
-/// restarts, and are deliberately left out of the profile ProfileSync uploads:
-/// a reinstall starts the tab over in the default order with every category
-/// showing, which is the way back for someone who lost track of what they changed.
+/// The order, the hidden set and the collapsed set live in UserDefaults, so they
+/// survive app restarts, and are deliberately left out of the profile ProfileSync
+/// uploads: a reinstall starts the tab over in the default order with every
+/// category showing and open, which is the way back for someone who lost track of
+/// what they changed.
 enum HomeCategories {
     static let recent = "Recent"
     static let routines = "Routines"
@@ -58,6 +59,8 @@ enum HomeCategories {
     static let orderKey = "homeCategoryOrder"
     /// The categories hidden from the tab, stored newline-joined like the order.
     static let hiddenKey = "homeHiddenCategories"
+    /// The categories collapsed on the tab, stored the same way.
+    static let collapsedKey = "homeCollapsedCategories"
 
     /// A stored order as a category list: unknown names are dropped and any
     /// category the stored order predates is appended, so a list saved by an
@@ -73,10 +76,11 @@ enum HomeCategories {
         order.joined(separator: "\n")
     }
 
-    /// A stored hidden set as names, renames applied like `parse` does — the two
-    /// screens that read the raw string out of `@AppStorage` go through here, so
-    /// a category hidden under an old name stays hidden.
-    static func parseHidden(_ raw: String) -> Set<String> {
+    /// A stored hidden or collapsed set as names, renames applied like `parse`
+    /// does — every screen that reads one of those raw strings out of
+    /// `@AppStorage` goes through here, so a category hidden or collapsed under
+    /// an old name stays that way.
+    static func parseSet(_ raw: String) -> Set<String> {
         Set(raw.split(separator: "\n").map { renamed[String($0)] ?? String($0) })
     }
 }
@@ -170,7 +174,7 @@ struct HomeCategoryEditView: View {
     private var categories: [String] { HomeCategories.parse(categoryOrderRaw) }
 
     private var hiddenCategories: Set<String> {
-        HomeCategories.parseHidden(hiddenCategoriesRaw)
+        HomeCategories.parseSet(hiddenCategoriesRaw)
     }
 
     /// Hiding is blocked for the last visible category, so the list can never be
@@ -331,8 +335,16 @@ struct HomeView: View {
     @State private var calendarSelection: PracticeCalendarSelection?
 
     /// Categories the user has collapsed. Their exercises are hidden; unlike the
-    /// Exercises tab, no count appears in the header.
-    @State private var collapsedCategories: Set<String> = []
+    /// Exercises tab, no count appears in the header. Stored like the hidden set
+    /// below, so a category closed before the app was quit is still closed when it
+    /// is reopened — and, like it, kept out of the profile, so a reinstall opens
+    /// them all again.
+    @AppStorage(HomeCategories.collapsedKey) private var collapsedCategoriesRaw = ""
+
+    private var collapsedCategories: Set<String> {
+        get { HomeCategories.parseSet(collapsedCategoriesRaw) }
+        nonmutating set { collapsedCategoriesRaw = newValue.sorted().joined(separator: "\n") }
+    }
 
     /// True while a favourite or routine is actually held in a drag, which the
     /// title says.
@@ -345,7 +357,7 @@ struct HomeView: View {
     @AppStorage(HomeCategories.hiddenKey) private var hiddenCategoriesRaw = ""
 
     private var hiddenCategories: Set<String> {
-        HomeCategories.parseHidden(hiddenCategoriesRaw)
+        HomeCategories.parseSet(hiddenCategoriesRaw)
     }
 
     /// The categories still shown on the Home list, in the user's order.

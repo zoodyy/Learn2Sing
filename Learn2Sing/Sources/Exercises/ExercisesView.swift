@@ -432,8 +432,17 @@ struct ExercisesView: View {
     @State private var playQueue: [UUID] = []
 
     /// Categories the user has collapsed. Their exercises are hidden and the
-    /// header shows the exercise count in parentheses instead.
-    @State private var collapsedCategories: Set<String> = []
+    /// header shows the exercise count in parentheses instead. Stored newline-
+    /// joined, so a category closed before the app was quit is still closed when
+    /// it is reopened, and kept out of the profile ProfileSync uploads (like the
+    /// Home tab's), so a reinstall opens every category again.
+    @AppStorage(ExercisesView.collapsedCategoriesKey) private var collapsedCategoriesRaw = ""
+    private static let collapsedCategoriesKey = "exercisesCollapsedCategories"
+
+    private var collapsedCategories: Set<String> {
+        get { Set(collapsedCategoriesRaw.split(separator: "\n").map(String.init)) }
+        nonmutating set { collapsedCategoriesRaw = newValue.sorted().joined(separator: "\n") }
+    }
 
     /// True while an exercise is actually held in a drag, which the title says.
     @State private var isDraggingExercise = false
@@ -910,6 +919,13 @@ struct ExercisesView: View {
                     }
                     navigationPath.removeLast()
                 }
+            }
+            // A deleted category's collapse state goes with it, so one made later
+            // under the same name (the + button reuses "New Category") starts out
+            // open. A rename carries its state over in `renameCategory` instead.
+            .onChange(of: store.categories) { _, categories in
+                let kept = collapsedCategories.intersection(categories)
+                if kept != collapsedCategories { collapsedCategories = kept }
             }
             .navigationDestination(for: ExerciseRoute.self) { route in
                 switch route {
