@@ -40,17 +40,27 @@ import Foundation
 ///
 /// Three things about that run decide it:
 ///
-/// * **Pace** — how quickly the notes change, in onsets per second.
-/// * **Leaps** — how far the voice has to move to reach the next note, as the
-///   mean interval between neighbours. The step from one note to the next, not
-///   the spread of the pattern around it, which is the term below.
+/// * **Pace** — how quickly the notes change: the time each step from one
+///   onset to the next gets.
+/// * **Leaps** — how far the voice has to move to reach the next note. The
+///   step from one note to the next, not the spread of the pattern around it,
+///   which is the term below.
 /// * **Span** — how much pitch the exercise covers, mostly as the range the
 ///   voice works over at any one moment and partly as the range it covers in
 ///   total.
 ///
-/// The three multiply rather than add, because they compound: a wide pattern
-/// taken slowly in small steps is a warm-up, and the same span jumped around at
-/// speed is not — where a weighted sum would have to call them equally hard.
+/// Pace and leaps are taken together, one step at a time: each step costs its
+/// interval divided by the time it gets, and the run's *motion* is the mean of
+/// those costs. So a big jump taken quickly is what costs the most, rather than
+/// a run's quick steps and its slow jumps being averaged separately and then
+/// multiplied into a quick jump nobody has to sing.
+///
+/// Motion and span multiply rather than add, because they compound: a wide
+/// pattern taken slowly in small steps is a warm-up, and the same span jumped
+/// around at speed is not — where a weighted sum would have to call them
+/// equally hard. But span is much the lesser of the two. Covering an octave
+/// slowly and stepwise is what a plain scale does, and that is an early
+/// exercise; moving far and fast is what singers find hard.
 ///
 /// What it leaves out is the fit to the singer: `timeline` is asked for the
 /// pitches the exercise was written at rather than the ones this voice will get
@@ -59,32 +69,37 @@ import Foundation
 /// three terms measure distances between notes, so `pitchShift` moves the run
 /// without moving the rating.
 enum ExerciseDifficulty {
-    /// The exponents each term is raised to, and the constant that puts the
-    /// result on the 0-100 scale.
+    /// The constant that puts the result on the 0-100 scale, and the exponent
+    /// the span is raised to.
     ///
-    /// Fitted to three bundled exercises placed by hand — "Mum" at 35,
-    /// "Ascending Run" and "Octave Alternate Ee" at 80 apiece — which between
-    /// them pin all three terms: the two 80s are nothing alike (one is fast and
-    /// stepwise, the other slow and leapy) and Mum sits at half their span. The
-    /// fit lands them on 35, 80 and 80.
-    private static let scale = 0.421
-    private static let paceExponent = 0.6
-    private static let leapExponent = 0.7
-    private static let spanExponent = 1.366
+    /// Fitted to 22 bundled exercises placed by hand: the slow stepwise
+    /// warm-ups ("Moo", "Three-Note Scale") at 12, the plain scales at 30, the
+    /// fast "Five-Note Run" at 48, and "Octave Jumps Ha" and "Arpeggio Run" at
+    /// 88 and 90. The fit lands within about 5 points of them. The span was
+    /// raised to 1.366 before that, which let a scale's octave outweigh its
+    /// tempo and its steps: a major scale at 125 bpm rated 58, above a
+    /// five-note run at 220 (42) and a half-step trill at 184 (16).
+    private static let scale = 1.185
+    private static let spanExponent = 0.6
 
-    /// Added to the leap and the span before they are raised, so a pattern with
-    /// neither — one pitch repeated over and over — comes out very easy rather
-    /// than exactly zero however fast it goes. They are also what keeps the
-    /// terms away from the part of a fractional power curve that is nearly
-    /// vertical, where a semitone either way would swing the whole rating.
-    private static let leapFloor = 0.75
+    /// Added to every step's interval, in semitones, before it is divided by
+    /// the step's time. Changing note costs something whatever the interval —
+    /// the voice has to start moving and settle again, which is most of what
+    /// `PitchTravel` measures — so a quick trill counts for more than its
+    /// small intervals alone would say, and one pitch repeated over and over
+    /// comes out very easy rather than exactly zero however fast it goes.
+    private static let leapFloor = 1.0
+
+    /// Added to the span before it is raised, which keeps the term away from
+    /// the part of a fractional power curve that is nearly vertical, where a
+    /// semitone either way would swing the whole rating.
     private static let spanFloor = 2.0
 
     /// Where the scale stops being linear and starts bending towards 100.
     ///
     /// The fit is calibrated on ordinary exercises, and an extreme one runs well
     /// past 100 — two octaves of wide leaps at speed is several times the raw
-    /// value of "Ascending Run". Cutting those off at 100 would make every
+    /// value of "Five-Note Run". Cutting those off at 100 would make every
     /// unreasonable exercise exactly as hard as every other; above this they are
     /// squeezed into the last few points instead, smoothly enough that the curve
     /// doesn't kink where it starts (see `soften`). Nothing at or below this
@@ -93,8 +108,8 @@ enum ExerciseDifficulty {
 
     /// The quickest two onsets are allowed to read as, in seconds apart. Two
     /// notes a hair apart are a slur or a grid rounding rather than a step sung
-    /// at fifty a second, and without a floor one of them would carry the pace
-    /// of the whole exercise.
+    /// at fifty a second, and without a floor that one step would carry the
+    /// motion of the whole exercise.
     private static let shortestStep = 0.1
 
     /// How much of the run the span looks at around each note, in seconds.
@@ -165,20 +180,19 @@ enum ExerciseDifficulty {
         closeChord()
         guard onsets.count > 1 else { return nil }
 
-        // Pace averages the rate of each step rather than dividing the notes by
+        // Motion averages what each step costs rather than dividing the notes by
         // the time they take, which is the difference between reading the
         // silence between repetitions as a rest and reading it as slowness: a
-        // long gap contributes nearly nothing to a mean of rates, so a quick
-        // pattern with a bar's breath after it stays a quick pattern.
-        var rate = 0.0
-        var semitones = 0.0
+        // long gap is a cheap step, so a quick pattern with a bar's breath after
+        // it stays a quick pattern. The same breath is what makes the jump to
+        // the next repetition's first note cheap — the voice has the whole rest
+        // to get there.
+        var motion = 0.0
         for (from, to) in zip(onsets, onsets.dropFirst()) {
-            rate += 1 / max(to.time - from.time, shortestStep)
-            semitones += abs(to.pitch - from.pitch)
+            let interval = abs(to.pitch - from.pitch)
+            motion += (interval + leapFloor) / max(to.time - from.time, shortestStep)
         }
-        let steps = Double(onsets.count - 1)
-        let pace = rate / steps
-        let leap = semitones / steps
+        motion /= Double(onsets.count - 1)
 
         // The span term: what the voice covers moment to moment, pulled a little
         // way towards the distance the run travels from end to end.
@@ -187,10 +201,7 @@ enum ExerciseDifficulty {
         let travelled = (pitches.max() ?? 0) - (pitches.min() ?? 0)
         let span = reach + driftWeight * (travelled - reach)
 
-        let raw = scale
-            * pow(pace, paceExponent)
-            * pow(leap + leapFloor, leapExponent)
-            * pow(span + spanFloor, spanExponent)
+        let raw = scale * motion * pow(span + spanFloor, spanExponent)
         return Int(soften(raw).rounded())
     }
 
