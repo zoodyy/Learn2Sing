@@ -478,11 +478,11 @@ enum SettingsCatalog {
 
         // MARK: Delay test
         heading(.delayChooseTest, .delayChoice, L("Choose a Test"), available: { setsDelayByHand })
-        add(.clapTest, .delayChoice, section: L("Choose a Test"), title: L("Clap Test"),
-            help: L("Clap along with a metronome and the app works the delay out for you. Quick, but it needs headphones and firm claps to be accurate."),
-            available: { setsDelayByHand })
-        add(.sungTest, .delayChoice, section: L("Choose a Test"), title: L("Sing an Exercise"),
+        add(.sungTest, .delayChoice, section: L("Choose a Test"), title: L("Sing an Exercise (Recommended)"),
             help: L("Sing one of your own exercises, then slide your recorded singing until it lines up with the notes. Takes longer, but you see exactly what you're setting."),
+            available: { setsDelayByHand })
+        add(.clapTest, .delayChoice, section: L("Choose a Test"), title: L("Clap Test (Inaccurate)"),
+            help: L("Clap along with a metronome and the app works the delay out for you. Quick, but it needs headphones and firm claps to be accurate."),
             available: { setsDelayByHand })
 
         // MARK: Visuals

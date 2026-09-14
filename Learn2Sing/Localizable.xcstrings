@@ -7373,91 +7373,91 @@
         }
       }
     },
-    "Clap Test" : {
+    "Clap Test (Inaccurate)" : {
       "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "اختبار التصفيق"
+            "value" : "اختبار التصفيق (غير دقيق)"
           }
         },
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Klatschtest"
+            "value" : "Klatschtest (ungenau)"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Prueba de palmadas"
+            "value" : "Prueba de palmadas (imprecisa)"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Test de claps"
+            "value" : "Test de claps (imprécis)"
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Test dei battiti"
+            "value" : "Test dei battiti (impreciso)"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "手拍子テスト"
+            "value" : "手拍子テスト（不正確）"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "박수 테스트"
+            "value" : "박수 테스트 (부정확)"
           }
         },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Klaptest"
+            "value" : "Klaptest (onnauwkeurig)"
           }
         },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Test z klaśnięciami"
+            "value" : "Test z klaśnięciami (niedokładny)"
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Teste de palmas"
+            "value" : "Teste de palmas (impreciso)"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Тест с хлопками"
+            "value" : "Тест с хлопками (неточный)"
           }
         },
         "sv" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Klapptest"
+            "value" : "Klapptest (inexakt)"
           }
         },
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Alkış testi"
+            "value" : "Alkış testi (hassas değil)"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "拍手测试"
+            "value" : "拍手测试（不准确）"
           }
         }
       }
@@ -48883,91 +48883,91 @@
         }
       }
     },
-    "Sing an Exercise" : {
+    "Sing an Exercise (Recommended)" : {
       "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "غنِّ تمرينًا"
+            "value" : "غنِّ تمرينًا (موصى به)"
           }
         },
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Übung singen"
+            "value" : "Übung singen (empfohlen)"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Cantar un ejercicio"
+            "value" : "Cantar un ejercicio (recomendado)"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Chanter un exercice"
+            "value" : "Chanter un exercice (recommandé)"
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Canta un esercizio"
+            "value" : "Canta un esercizio (consigliato)"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "エクササイズを歌う"
+            "value" : "エクササイズを歌う（おすすめ）"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "연습 부르기"
+            "value" : "연습 부르기 (추천)"
           }
         },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Oefening zingen"
+            "value" : "Oefening zingen (aanbevolen)"
           }
         },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Zaśpiewaj ćwiczenie"
+            "value" : "Zaśpiewaj ćwiczenie (zalecane)"
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Cantar um exercício"
+            "value" : "Cantar um exercício (recomendado)"
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Спеть упражнение"
+            "value" : "Спеть упражнение (рекомендуется)"
           }
         },
         "sv" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sjung en övning"
+            "value" : "Sjung en övning (rekommenderas)"
           }
         },
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Bir egzersiz söyle"
+            "value" : "Bir egzersiz söyle (önerilen)"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "唱一个练习"
+            "value" : "唱一个练习（推荐）"
           }
         }
       }

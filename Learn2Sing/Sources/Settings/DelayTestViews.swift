@@ -11,8 +11,9 @@
 import SwiftUI
 
 /// The screen "Test for Delay" opens: which of the two tests to run. The tests
-/// measure the same thing in opposite ways — one automatic and quick, one by eye
-/// over a real exercise — so neither is presented as the default.
+/// measure the same thing in opposite ways — one by eye over a real exercise, one
+/// automatic and quick — and the sung one comes first as the recommended one,
+/// since the clap test is easily thrown off.
 struct DelayTestChoiceView: View {
     /// Re-renders this screen when the language is changed in Settings; the
     /// strings are resolved when the body runs, so SwiftUI needs telling.
@@ -25,13 +26,13 @@ struct DelayTestChoiceView: View {
     var body: some View {
         Form {
             Section {
-                SettingsHubRow(title: L("Clap Test"), systemImage: "metronome",
-                               action: openClapTest)
-                    .setting(.clapTest)
-
-                SettingsHubRow(title: L("Sing an Exercise"), systemImage: "music.mic",
+                SettingsHubRow(title: L("Sing an Exercise (Recommended)"), systemImage: "music.mic",
                                action: openSungTest)
                     .setting(.sungTest)
+
+                SettingsHubRow(title: L("Clap Test (Inaccurate)"), systemImage: "metronome",
+                               action: openClapTest)
+                    .setting(.clapTest)
             } header: {
                 Text("Choose a Test").settingSection(.delayChooseTest)
             }
