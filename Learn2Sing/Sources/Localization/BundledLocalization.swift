@@ -45,9 +45,12 @@ enum ExerciseCategoryName {
 
 enum VisualTemplateName {
     /// The visual templates seeded from the app bundle — the standard playback look
-    /// for each appearance. Templates the user saves or imports keep the name they
-    /// were given.
-    static let appProvided: Set<String> = ["Simplest - dark", "Simplest - light"]
+    /// for each appearance, and the other looks shipped beside them. Templates the user
+    /// saves or imports keep the name they were given.
+    static let appProvided: Set<String> = [
+        "Simplest - dark", "Simplest - light",
+        "Piano Roll - dark", "Sunset - dark", "Terminal - dark", "Paper - light",
+    ]
 
     static func localized(_ name: String) -> String {
         appProvided.contains(name) ? L(name) : name

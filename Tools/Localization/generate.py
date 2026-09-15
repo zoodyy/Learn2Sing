@@ -54,6 +54,7 @@ INDIRECT = [
     "Recent", "Routines", "Favorites", "Recommended", "Time Spent Singing", "New for You",
     # Bundled visual templates
     "Simplest - dark", "Simplest - light",
+    "Piano Roll - dark", "Sunset - dark", "Terminal - dark", "Paper - light",
     # FeedbackType / FeedbackLocation (the tab names are extracted from the
     # ContentView tabs they name, so only "Other" is listed here, and
     # "Feature request" is a literal in `FeedbackType.title`)

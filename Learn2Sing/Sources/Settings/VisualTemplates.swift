@@ -398,12 +398,29 @@ final class VisualTemplateStore: ObservableObject {
             : UUID(uuidString: "7C8FE5CA-4357-4229-96BF-943DBB39CCAE")!
     }
 
-    /// True for the id of one of the two looks the app ships. Ids they went out under
-    /// before are folded into these at launch (`migrateLegacyBundledIDs()`), so the
-    /// current pair is the whole list.
+    /// True for the id of one of the two standard looks, the ones the playback screen
+    /// changes over with the appearance. Ids they went out under before are folded into
+    /// these at launch (`migrateLegacyBundledIDs()`), so the current pair is the whole
+    /// list. The other looks the app ships (`additionalBundled`) are not among them: a
+    /// theme change steps away from one of those exactly as it does from a template of
+    /// the user's own, since going back to the appearance brings back its standard look
+    /// rather than the one they had picked.
     static func isBundled(_ id: UUID) -> Bool {
         id == bundledID(for: .dark) || id == bundledID(for: .light)
     }
+
+    /// The looks the app ships beside the standard pair, for the singer to pick from the
+    /// templates list, each loaded from the bundled file of the same name. Their ids are
+    /// pinned for the same reason `bundledID(for:)` pins those two: the id is the row's
+    /// identity on every device that has been given the look, so re-exporting a file to
+    /// change what it ships must not hand those devices a second copy. Listed after the
+    /// standard pair, in this order.
+    private static let additionalBundled: [(name: String, id: UUID)] = [
+        ("Piano Roll - dark", UUID(uuidString: "DEBEB055-DDA4-4BB1-B795-1705C138140F")!),
+        ("Sunset - dark",     UUID(uuidString: "385CFD8B-1EC5-4A31-B178-E3DBDA742E18")!),
+        ("Terminal - dark",   UUID(uuidString: "4E54CB54-28B2-46D1-A78F-F87789B74C6F")!),
+        ("Paper - light",     UUID(uuidString: "8934687D-2982-42BC-A9DE-08D01AA51ABD")!),
+    ]
 
     /// The ids these two looks went out under before the ids were pinned, oldest first.
     /// A list holding one of them holds an earlier copy of a template the app ships, so
@@ -421,19 +438,26 @@ final class VisualTemplateStore: ObservableObject {
     /// Reset puts the visuals back to, and what changing the app's theme offers to
     /// switch the playback screen over to.
     static func bundledTemplate(for scheme: ColorScheme) -> VisualTemplate? {
-        let name = scheme == .dark ? "Simplest - dark" : "Simplest - light"
+        bundledTemplate(named: scheme == .dark ? "Simplest - dark" : "Simplest - light",
+                        id: bundledID(for: scheme))
+    }
+
+    /// The template in the bundled file `name`.json, under the id pinned for it in code
+    /// rather than the one the file carries.
+    private static func bundledTemplate(named name: String, id: UUID) -> VisualTemplate? {
         guard let url = Bundle.main.url(forResource: name, withExtension: "json"),
               let data = try? Data(contentsOf: url),
               var template = VisualTemplate.decode(from: data)
         else { return nil }
-        template.id = bundledID(for: scheme)
+        template.id = id
         return template
     }
 
-    /// Both shipped looks, dark first — the order they're listed in on the visuals
-    /// screen once seeded.
+    /// Every look the app ships: the standard pair, dark first, then the additional
+    /// ones — the order they're listed in on the visuals screen once seeded.
     static var bundledTemplates: [VisualTemplate] {
         [ColorScheme.dark, .light].compactMap { bundledTemplate(for: $0) }
+            + additionalBundled.compactMap { bundledTemplate(named: $0.name, id: $0.id) }
     }
 
     /// Adds the bundled templates this device hasn't been given yet, and on a fresh
@@ -687,9 +711,9 @@ final class VisualTemplateStore: ObservableObject {
     }
 
     /// Settings ▸ Reset ▸ Visuals: the templates list as a fresh install finds it —
-    /// the two the app ships, exactly as it ships them, and nothing else.
+    /// the looks the app ships, exactly as it ships them, and nothing else.
     ///
-    /// So the templates the user saved or imported go, the app's own two come back with
+    /// So the templates the user saved or imported go, the app's own come back with
     /// the values they are shipped with however the user had since edited them, and one
     /// they had deleted is there again. Then the standard look for the appearance the
     /// app is in is applied — and, as everywhere the app applies one of its own looks,
@@ -698,8 +722,8 @@ final class VisualTemplateStore: ObservableObject {
     func resetToBundled() {
         templates = Self.bundledTemplates
         persist()
-        // Both are in the list, so both count as handed over — otherwise the next launch
-        // would seed a second copy of either.
+        // All of them are in the list, so all count as handed over — otherwise the next
+        // launch would seed a second copy of any of them.
         UserDefaults.standard.set(templates.map(\.id.uuidString).sorted(), forKey: Self.seededIDsKey)
         applyStandard(for: AppTheme.currentScheme)
     }
