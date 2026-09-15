@@ -205,6 +205,11 @@ enum ExerciseRoute: Hashable {
     // `playback` resolve their exercise in the library and these aren't in it.
     case communityPlay(UUID)     // intro screen, with the heart and the download button
     case communityPlayback(UUID) // playback of it
+    // The Home tab's book lessons: the screen its card opens, and a lesson. A
+    // lesson carries the ids its skip button walks along and its place in them,
+    // rather than a pushed screen looking them up in state set on the same tap.
+    case bookLessons               // the recommended lesson, the topic tabs and their lessons
+    case bookLesson([String], Int) // the lesson at #index of those ids
 }
 
 /// The inline-editable category name on the edit-categories screen. Edits are
@@ -1004,10 +1009,10 @@ struct ExercisesView: View {
                 case .user, .routine, .routineIntro, .routinePicker, .routinePlay, .routinePlayback,
                      .recommendationIntro, .recommendationPlay, .recommendationPlayback,
                      .homeTabSettings, .recommendationWhitelist,
-                     .communityPlay, .communityPlayback:
+                     .communityPlay, .communityPlayback, .bookLessons, .bookLesson:
                     // Never appended from this tab; usernames only show in
-                    // Community, and routines, recommendations and the community
-                    // suggestions live on the Home tab.
+                    // Community, and routines, recommendations, the community
+                    // suggestions and the book lessons live on the Home tab.
                     EmptyView()
                 }
             }

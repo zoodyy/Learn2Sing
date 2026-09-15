@@ -287,6 +287,7 @@ extension SettingKey {
     static let deleteRoutines      = SettingKey("reset.home.routines")
     static let clearRecentlyPlayed = SettingKey("reset.home.recent")
     static let clearPracticeTime   = SettingKey("reset.home.practice")
+    static let clearFinishedLessons = SettingKey("reset.home.lessons")
 
     /// One language on the Language screen.
     static func appLanguage(_ language: AppLanguage) -> SettingKey {
@@ -696,6 +697,8 @@ enum SettingsCatalog {
             help: L("Forgets what you played and when, emptying the Home tab's “Recent” list and the order “Recommended” picks by."))
         add(.clearPracticeTime, .resetHome, title: L("Clear Practice Time"),
             help: L("Forgets how long you practiced on each day, emptying the Home tab's “Time Spent Singing”."))
+        add(.clearFinishedLessons, .resetHome, title: L("Clear Finished Lessons"),
+            help: L("Marks every book lesson as unfinished again, so the Home tab's “Book Lessons” recommends from the first lesson."))
 
         // MARK: Language
         // Both names are searched, so the list answers to "German" as readily as

@@ -328,6 +328,9 @@ final class ProfileSync {
         if let favourites = remote.favourites {
             store.mergeFavourites(favourites)
         }
+        if let finishedLessons = remote.finishedLessons {
+            BookLessonProgress.shared.merge(finishedLessons)
+        }
         if let scores = remote.scores {
             ScoreHistory.merge(scores.mapValues(\.entries))
         }

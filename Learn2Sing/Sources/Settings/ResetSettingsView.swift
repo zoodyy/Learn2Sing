@@ -533,7 +533,12 @@ struct HomeResetView: View {
         case routines
         case history
         case practice
+        case lessons
     }
+
+    /// The finished book lessons, whose count their row shows. Published, unlike
+    /// the practice time below, so clearing them refreshes the row by itself.
+    @ObservedObject private var lessons = BookLessonProgress.shared
 
     @State private var pending: Reset?
 
@@ -596,6 +601,19 @@ struct HomeResetView: View {
                 ) {
                     PracticeLog.deleteAll()
                     practiceDays = 0
+                }
+
+                countedButton(L("Clear Finished Lessons"), systemImage: "book",
+                              count: lessons.finishedCount) {
+                    pending = .lessons
+                }
+                .setting(.clearFinishedLessons)
+                .resetConfirmation(
+                    $pending, for: .lessons,
+                    confirmLabel: L("Delete"),
+                    message: L("Every book lesson will be marked as unfinished again, and the Home tab's “Book Lessons” will recommend from the first lesson.")
+                ) {
+                    lessons.clear()
                 }
             }
         }

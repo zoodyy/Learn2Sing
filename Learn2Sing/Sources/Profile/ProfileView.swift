@@ -67,6 +67,10 @@ struct UserProfile: Codable {
     /// "Recently Updated" sort by. Optional so profiles written before the dates
     /// were recorded still decode.
     var exerciseDates: [String: ExerciseTimestamps]? = nil
+    /// The ids of the Home tab's book lessons marked as finished this round —
+    /// what decides which lesson is recommended next (see BookLessonProgress).
+    /// Optional so profiles written before the lessons existed still decode.
+    var finishedLessons: [String]? = nil
 
     static var fileURL: URL {
         FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
@@ -86,10 +90,10 @@ struct UserProfile: Codable {
     /// Fills in the parts of the profile that live outside the profile file: the
     /// exercise library, the Home tab's routines and favourites, every exercise's
     /// score history, the practice calendar, the settings, the singer's skill
-    /// level, and when each exercise was added and last edited. Not the Home
-    /// tab's category order or hidden categories: those stay on the device (see
-    /// `HomeCategories`). Used for both the copy ProfileSync uploads and the file
-    /// the profile screen shares.
+    /// level, when each exercise was added and last edited, and the book lessons
+    /// finished this round. Not the Home tab's category order or hidden
+    /// categories: those stay on the device (see `HomeCategories`). Used for both
+    /// the copy ProfileSync uploads and the file the profile screen shares.
     mutating func snapshot(_ store: ExerciseStore) {
         exercises = store.exportBundle()
         routines = store.routines
@@ -99,6 +103,8 @@ struct UserProfile: Codable {
         practice = PracticeLog.doc()
         settings = UserSettings.capturingCurrent(store: store)
         skillLevel = SkillLevelStore.shared.level
+        let finished = BookLessonProgress.shared.finished
+        finishedLessons = finished.isEmpty ? nil : finished
         // Only the library's own, so dates a restore brought for exercises that
         // aren't here don't travel on.
         let libraryIDs = Set(store.exercises.map(\.id.uuidString))

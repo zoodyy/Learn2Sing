@@ -20,13 +20,21 @@ enum HomeCategories {
     static let recommended = "Recommended"
     static let calendar = "Time Spent Singing"
     static let newForYou = "New for You"
+    static let bookLessons = "Book Lessons"
 
     /// Every built-in category, in the order a user who never rearranged them sees.
     /// New categories go on the end: `parse` appends the ones a stored order
     /// predates, in this order, so anywhere else would put them somewhere
     /// different for a user who has rearranged their categories than for one who
-    /// hasn't.
-    static let all = [recommended, newForYou, calendar, routines, favourites, recent]
+    /// hasn't. The exception is a category `placedAfter` gives a neighbour.
+    static let all = [recommended, newForYou, calendar, bookLessons, routines, favourites, recent]
+
+    /// Categories that belong right after another one rather than on the end,
+    /// keyed by the category, valued by the one it follows. A stored order that
+    /// predates one of these gets it inserted after that neighbour, wherever the
+    /// user has moved the neighbour to — so it lands in the same place for a user
+    /// who rearranged the tab as for one who didn't.
+    static let placedAfter = [bookLessons: calendar]
 
     /// Categories that have been renamed since a stored order or hidden set was
     /// written, old name to new. The English name *is* the identity here — it is
@@ -56,6 +64,11 @@ enum HomeCategories {
     static let newForYouRetryRowID = UUID(uuidString: "5E713D00-0000-4000-8000-000000000004")
         ?? UUID()
 
+    /// Identifies the single row "Book Lessons" is made of: its card, a
+    /// placeholder like the recommendation card's, told from other taps by this.
+    static let bookLessonsRowID = UUID(uuidString: "B00C1E55-0000-4000-8000-000000000005")
+        ?? UUID()
+
     static let orderKey = "homeCategoryOrder"
     /// The categories hidden from the tab, stored newline-joined like the order.
     static let hiddenKey = "homeHiddenCategories"
@@ -63,13 +76,20 @@ enum HomeCategories {
     static let collapsedKey = "homeCollapsedCategories"
 
     /// A stored order as a category list: unknown names are dropped and any
-    /// category the stored order predates is appended, so a list saved by an
-    /// older version still shows every category.
+    /// category the stored order predates is appended, or put after its
+    /// neighbour if `placedAfter` names one, so a list saved by an older version
+    /// still shows every category.
     static func parse(_ raw: String) -> [String] {
         let stored = raw.split(separator: "\n")
             .map { renamed[String($0)] ?? String($0) }
             .filter(all.contains)
-        return stored + all.filter { !stored.contains($0) }
+        var order = stored + all.filter { !stored.contains($0) }
+        for (category, neighbour) in placedAfter where !stored.contains(category) {
+            guard let from = order.firstIndex(of: category) else { continue }
+            order.remove(at: from)
+            order.insert(category, at: order.firstIndex(of: neighbour).map { $0 + 1 } ?? from)
+        }
+        return order
     }
 
     static func raw(_ order: [String]) -> String {
@@ -273,6 +293,9 @@ struct HomeView: View {
     /// the "Hot" order — and is not the tab's to reorder or page. See
     /// NewForYouFeed.
     @ObservedObject private var newForYou = NewForYouFeed.shared
+    /// Which book lessons are finished, which decides the lesson the "Book
+    /// Lessons" card names and the progress it draws. See BookLessonProgress.
+    @ObservedObject private var lessons = BookLessonProgress.shared
     // Typed (not NavigationPath) so pops can be inspected for the saved toasts.
     @State private var navigationPath: [ExerciseRoute] = []
 
@@ -508,9 +531,22 @@ struct HomeView: View {
             [calendarRow]
         case HomeCategories.newForYou:
             newForYouRows
+        case HomeCategories.bookLessons:
+            bookLessonsCardRow.map { [$0] } ?? []
         default:
             []
         }
+    }
+
+    /// The one row "Book Lessons" holds: its card, naming the lesson recommended
+    /// next. nil when the app has no lessons to recommend, which leaves the
+    /// category as empty as a recommendation card with nothing to suggest does.
+    private var bookLessonsCardRow: ExerciseListRow? {
+        guard let lesson = lessons.recommended else { return nil }
+        return placeholderRow(HomeCategories.bookLessonsRowID,
+                              content: .bookLessons(title: lesson.title,
+                                                    finished: lessons.finishedCount,
+                                                    total: BookLessonLibrary.shared.lessons.count))
     }
 
     /// The one row "Time Spent Singing" holds: the practice calendar itself, drawn across
@@ -702,6 +738,14 @@ struct HomeView: View {
         navigationPath.append(ExerciseRoute.recommendationPlay(index + 1))
     }
 
+    /// The skip button on a book lesson: the next lesson of the list it was
+    /// opened from, in place of this one, the way `skipRoutine` replaces an
+    /// exercise's intro screen, so going back still lands on the lessons screen.
+    private func skipLesson(_ lessonIDs: [String], at index: Int) {
+        navigationPath.removeLast()
+        navigationPath.append(ExerciseRoute.bookLesson(lessonIDs, index + 1))
+    }
+
     /// Route a row tap or swipe: routine rows play (tap) or edit (swipe) the
     /// routine, exercise rows go to the given exercise route.
     private func open(_ id: UUID, asExercise route: ExerciseRoute) {
@@ -763,6 +807,10 @@ struct HomeView: View {
             onSelect: { id, category in
                 guard id != HomeCategories.recommendationRowID else {
                     openRecommendations()
+                    return
+                }
+                guard id != HomeCategories.bookLessonsRowID else {
+                    navigationPath.append(ExerciseRoute.bookLessons)
                     return
                 }
                 // The reload button "New for You" puts up when its fetch didn't
@@ -1106,6 +1154,29 @@ struct HomeView: View {
                              },
                              onScoreDownload: { downloadCommunity(ex) },
                              communityID: ex.id)
+            }
+        case .bookLessons:
+            BookLessonsView { lessonIDs, index in
+                navigationPath.append(ExerciseRoute.bookLesson(lessonIDs, index))
+            }
+        case .bookLesson(let lessonIDs, let index):
+            if index < lessonIDs.count, let lesson = BookLessonLibrary.shared.lesson(lessonIDs[index]) {
+                BookLessonView(
+                    lesson: lesson,
+                    onSkip: index + 1 < lessonIDs.count
+                        ? { skipLesson(lessonIDs, at: index) } : nil
+                ) {
+                    // Back to the lessons screen, which by then recommends the
+                    // next lesson. A skipped lesson's screen was replaced rather
+                    // than pushed on, so one pop is always the way back there.
+                    lessons.markFinished(lesson.id)
+                    navigationPath.removeLast()
+                }
+                // A skip swaps this route for the next one at the same place in
+                // the stack, which SwiftUI takes for the same screen and would
+                // open scrolled to wherever the last lesson was left. Each lesson
+                // is its own screen, starting at its title.
+                .id(lesson.id)
             }
         case .editCategories:
             HomeCategoryEditView()

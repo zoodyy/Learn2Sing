@@ -1,0 +1,283 @@
+{
+  "topics": [
+    { "id": "voice", "name": "The Voice" },
+    { "id": "breath", "name": "Posture and Breathing" },
+    { "id": "warmup", "name": "Warming Up" },
+    { "id": "health", "name": "Vocal Health" },
+    { "id": "ear", "name": "Ear Training" }
+  ],
+  "recommendedOrder": [
+    "voice-sound",
+    "breath-alignment",
+    "breath-breathing",
+    "warmup-why",
+    "warmup-routine",
+    "health-hydration",
+    "breath-tension",
+    "voice-registers",
+    "health-wisely",
+    "health-doctor",
+    "ear-relative",
+    "voice-range",
+    "voice-resonance",
+    "warmup-vocalises",
+    "health-habits",
+    "ear-training",
+    "voice-vibrato"
+  ],
+  "lessons": [
+    {
+      "id": "voice-sound",
+      "topic": "voice",
+      "title": "How Your Voice Makes Sound",
+      "paragraphs": [
+        "Your voice starts in your larynx, also called the voice box. It sits between the base of your tongue and the top of your windpipe, the passage that leads down to your lungs. Inside it are your vocal folds: two small bands of muscle and tissue that lie opposite each other.",
+        "When you just breathe, the vocal folds stay open so air can pass freely. When you speak or sing, they come together while air from your lungs flows past them, and that makes them vibrate.",
+        "The vibrations create sound waves that travel through your throat, mouth and nose. These spaces shape the sound on its way out. The size and shape of your vocal folds and of these spaces are a big part of why no two voices sound alike.",
+        "How high or low you sing depends on how your vocal folds are adjusted. For higher notes they are stretched longer, their tension increases and they become thinner, so they vibrate faster. When they relax, your voice sounds deeper."
+      ],
+      "sources": [
+        { "kind": "nidcd", "title": "Taking Care of Your Voice", "url": "https://www.nidcd.nih.gov/health/taking-care-your-voice" },
+        { "kind": "nidcd", "title": "Hoarseness", "url": "https://www.nidcd.nih.gov/health/hoarseness" },
+        { "kind": "wikipedia", "title": "Vocal register", "url": "https://en.wikipedia.org/wiki/Vocal_register" }
+      ]
+    },
+    {
+      "id": "voice-registers",
+      "topic": "voice",
+      "title": "Vocal Registers",
+      "paragraphs": [
+        "As you sing from your lowest notes to your highest, your voice changes character along the way. A vocal register is a range of notes that your voice produces with the same pattern of vocal fold vibration, and which share a characteristic sound.",
+        "Voice scientists describe four registers. From lowest to highest: vocal fry, a low, rattling sound; modal voice, the register you speak in and use for most singing; falsetto, a lighter, flute-like sound; and the whistle register, the highest of all. Their ranges overlap, and not everyone can produce all four.",
+        "Singing teachers often use other names, such as chest voice and head voice, and they don't agree on how many registers there are. Many of them point out that every register is produced in the larynx: “chest” and “head” describe where you feel the vibrations, not where the sound is made.",
+        "The place where your voice moves from one register into the next is called the passaggio. Your voice may crack there or suddenly change its tone. With practice, singers learn to move through it smoothly, so the change becomes hard to hear. Adjusting the vowel you sing on can also help."
+      ],
+      "sources": [
+        { "kind": "wikipedia", "title": "Vocal register", "url": "https://en.wikipedia.org/wiki/Vocal_register" }
+      ]
+    },
+    {
+      "id": "voice-resonance",
+      "topic": "voice",
+      "title": "Resonance",
+      "paragraphs": [
+        "The sound your vocal folds make is only the beginning. On its way out, it passes through air-filled spaces that change its color and strength. This is called vocal resonance, and it has a big effect on how your voice sounds.",
+        "The spaces that matter most are the larynx itself, the pharynx (your throat above the larynx) and your mouth. The space from just above your vocal folds to your lips is called the vocal tract. Your nose mainly comes into play on nasal sounds, such as “m”, “n” and “ng”.",
+        "You shape these spaces as you sing. The position of your tongue, how far your jaw opens and the shape of your lips all change your mouth as a resonator, and with it the color of your sound. The pharynx is the most important resonator because of its position, its size and how much it can be adjusted.",
+        "Many singers feel buzzing in their chest or face and call it “chest resonance” or “head resonance”. The sensations are real, but the chest and the sinuses add little or nothing to the sound listeners hear. What you feel is a result of your voice working efficiently rather than its cause, though it can still be useful feedback while you practice."
+      ],
+      "sources": [
+        { "kind": "wikipedia", "title": "Vocal resonation", "url": "https://en.wikipedia.org/wiki/Vocal_resonation" },
+        { "kind": "wikipedia", "title": "Vocal pedagogy", "url": "https://en.wikipedia.org/wiki/Vocal_pedagogy" }
+      ]
+    },
+    {
+      "id": "voice-range",
+      "topic": "voice",
+      "title": "Range and Tessitura",
+      "paragraphs": [
+        "Your vocal range is the span from the lowest to the highest note you can sing. Singing teachers usually count only the notes that are musically useful, meaning the ones you can sing with a usable sound, rather than every sound your voice can produce.",
+        "Your tessitura is the part of your range where your voice is most comfortable and sounds its best. A song has a tessitura too: the stretch of notes it uses most, which isn't decided by its single highest or lowest note. That is why two songs with the same top note can feel very different to sing.",
+        "Range alone doesn't decide your voice type. Teachers also consider your tessitura and the characteristic sound of your voice. Classical music commonly sorts women's voices into soprano, mezzo-soprano and contralto, and men's voices into countertenor, tenor, baritone and bass.",
+        "Many teachers advise against deciding your voice type too early. Build good habits in the comfortable middle of your voice first, then carefully explore higher and lower. As your technique develops, your voice type often becomes clear on its own."
+      ],
+      "sources": [
+        { "kind": "wikipedia", "title": "Vocal range", "url": "https://en.wikipedia.org/wiki/Vocal_range" },
+        { "kind": "wikipedia", "title": "Tessitura", "url": "https://en.wikipedia.org/wiki/Tessitura" },
+        { "kind": "wikipedia", "title": "Vocal pedagogy", "url": "https://en.wikipedia.org/wiki/Vocal_pedagogy" }
+      ]
+    },
+    {
+      "id": "voice-vibrato",
+      "topic": "voice",
+      "title": "Vibrato",
+      "paragraphs": [
+        "Vibrato is a regular, pulsing change of pitch that adds expression to a note. It is described by two things: its extent, meaning how far the pitch moves, and its rate, meaning how fast it moves.",
+        "In singing, vibrato can appear on its own through variations in the larynx. All human voices can produce vibrato, and both its width and its speed can be changed through training.",
+        "Even though the pitch moves up and down, listeners tend to hear the average pitch as the note. Solo singers usually move less than a semitone to either side of the note, while choir singers typically use a much narrower vibrato.",
+        "Styles differ in how they use it. In opera, vibrato usually starts at the beginning of a note and continues to its end, with slight changes in width along the way."
+      ],
+      "sources": [
+        { "kind": "wikipedia", "title": "Vibrato", "url": "https://en.wikipedia.org/wiki/Vibrato" }
+      ]
+    },
+    {
+      "id": "breath-alignment",
+      "topic": "breath",
+      "title": "Body Alignment",
+      "paragraphs": [
+        "Singing works best when your body is well aligned. A sunken chest limits how much air your lungs can take in, and a tense belly gets in the way of your diaphragm moving down as you breathe in. Good alignment lets you breathe efficiently and prevents unnecessary tension.",
+        "You can sing in almost any position, but the basics are easiest to learn from a neutral posture: standing tall and relaxed, without hunching, leaning, tensing or over-arching your back. Placing your feet about shoulder-width apart gives you a stable base.",
+        "Keep your knees soft instead of locking them. Locked knees can create tension in your pelvis, and choir singers are often warned that standing still with locked knees for a long time can make them faint.",
+        "Try this: stand comfortably and imagine your spine lengthening, as if your body were hanging from the top of your head instead of being held up from below. Don't force your posture; just notice where you feel uneven or tense. The goal is to become aware of what your body is doing, not to stand rigidly still."
+      ],
+      "sources": [
+        { "kind": "wikipedia", "title": "Vocal pedagogy", "url": "https://en.wikipedia.org/wiki/Vocal_pedagogy" },
+        { "kind": "wikibooks", "title": "Singing/Proper posture", "url": "https://en.wikibooks.org/wiki/Singing/Proper_posture" }
+      ]
+    },
+    {
+      "id": "breath-breathing",
+      "topic": "breath",
+      "title": "Breathing for Singing",
+      "paragraphs": [
+        "All singing begins with breath: every sound you sing is made by air from your lungs setting your vocal folds vibrating. In everyday life breathing happens by itself, but as a singer you need to take control of how you breathe in and out.",
+        "Everyday breathing has three stages: breathing in, breathing out and a short rest. Breathing for singing has four: breathing in, a brief moment of setting up before the sound starts, a controlled breath out while you sing, and a recovery before the next breath.",
+        "When you breathe in, let your belly and lower ribs expand instead of lifting your shoulders. At first all of this takes conscious attention. Voice teachers warn against letting that attention go before it has become a habit, since that can lead to lasting vocal problems.",
+        "Support your voice with your breath rather than relying on your throat alone. Singing or talking from the throat without that support puts a great strain on your voice."
+      ],
+      "sources": [
+        { "kind": "wikipedia", "title": "Vocal pedagogy", "url": "https://en.wikipedia.org/wiki/Vocal_pedagogy" },
+        { "kind": "wikibooks", "title": "Singing/Breathing", "url": "https://en.wikibooks.org/wiki/Singing/Breathing" },
+        { "kind": "wikibooks", "title": "Singing/Proper posture", "url": "https://en.wikibooks.org/wiki/Singing/Proper_posture" },
+        { "kind": "nidcd", "title": "Taking Care of Your Voice", "url": "https://www.nidcd.nih.gov/health/taking-care-your-voice" }
+      ]
+    },
+    {
+      "id": "breath-tension",
+      "topic": "breath",
+      "title": "Releasing Tension",
+      "paragraphs": [
+        "Tension in your body can show up in your voice. Tight muscles in your belly, back, neck and shoulders can squeeze your larynx or your breathing muscles and change how you sound. That's why many warm-ups start with gentle stretches of these areas.",
+        "Your jaw is a common trouble spot. Many people try to form words with their jaw, which creates unnecessary tension in the face and tongue. Clear words come mostly from your lips, your teeth and the tip of your tongue, so let your jaw stay loose and free to open and close.",
+        "Let your tongue rest gently forward, touching the back of your lower front teeth, instead of pulling it back. A tongue that is pulled back or pressing down puts extra pressure on the larynx and can keep your vocal folds from working freely.",
+        "While you practice, check in with your body now and then. If you notice your shoulders creeping up, your jaw clenching or your neck straining, pause, let that area relax and start the phrase again."
+      ],
+      "sources": [
+        { "kind": "wikipedia", "title": "Vocal warm-up", "url": "https://en.wikipedia.org/wiki/Vocal_warm-up" },
+        { "kind": "wikibooks", "title": "Singing/Proper posture", "url": "https://en.wikibooks.org/wiki/Singing/Proper_posture" }
+      ]
+    },
+    {
+      "id": "warmup-why",
+      "topic": "warmup",
+      "title": "Why Warm Up",
+      "paragraphs": [
+        "A vocal warm-up is a series of exercises that prepares your voice for singing. Warming up helps your voice perform at its best and can make singing feel like less effort.",
+        "A good warm-up does five things: it warms up your whole body, prepares your breath, gets your lips, tongue and resonating spaces ready, moves your voice from speaking into singing, and prepares you for the music you are about to sing.",
+        "Moving from speaking into singing is usually the biggest part. Speaking uses a small range of pitch and loudness, while singing uses a much larger range of both, so a warm-up gradually takes your voice through more of its range. The singing exercises used for this are also called vocalises.",
+        "Finally, get ready for what you will actually sing, for example by doing a few exercises in the key of your song or by working on a difficult passage on its own."
+      ],
+      "sources": [
+        { "kind": "wikipedia", "title": "Vocal warm-up", "url": "https://en.wikipedia.org/wiki/Vocal_warm-up" }
+      ]
+    },
+    {
+      "id": "warmup-routine",
+      "topic": "warmup",
+      "title": "A Simple Warm-Up",
+      "paragraphs": [
+        "Start with your body. Gently stretch your belly, back, neck and shoulders to release tension before you make a sound.",
+        "Next, prepare your breath. Breathe in for 4 counts and out for 8 counts. Over time, shorten the breath in and lengthen the breath out, until you can breathe in for 1 count and breathe out for as long as is comfortable.",
+        "Then wake up your lips and tongue while keeping your jaw relaxed. Tongue twisters work well, and so does the classic “me, may, ma, mo, moo”. After that, play with sounds such as whoops, wails and humming to get a feel for the spaces that shape your voice.",
+        "Finally, sing a few easy exercises that move gradually through your range before you start on your actual music. Keep it easy: a warm-up should never hurt, and if a note is too high for you, don't force it."
+      ],
+      "sources": [
+        { "kind": "wikipedia", "title": "Vocal warm-up", "url": "https://en.wikipedia.org/wiki/Vocal_warm-up" },
+        { "kind": "wikibooks", "title": "Singing/Breathing", "url": "https://en.wikibooks.org/wiki/Singing/Breathing" }
+      ]
+    },
+    {
+      "id": "warmup-vocalises",
+      "topic": "warmup",
+      "title": "Vocalises",
+      "paragraphs": [
+        "A vocalise is a vocal exercise without words, sung on one or more vowel sounds. Vocalises train breath control, diction, blending and balance.",
+        "Vocal exercises serve several purposes: warming up your voice, extending your range, and learning techniques such as legato (smoothly connected notes), staccato (short, separated notes), control of loudness, fast runs and singing wide leaps comfortably.",
+        "Vocalises have a long history. A collection from 1755 already used songs without words as exercises in vocal technique, and by the 19th century composers were writing vocalises especially for teaching. Some became concert pieces, such as Rachmaninoff's “Vocalise” from 1912.",
+        "What matters most is how you practice. Voice teachers recommend practicing carefully and systematically, and paying attention the whole time to the sound you are making and to what you feel while you sing."
+      ],
+      "sources": [
+        { "kind": "wikipedia", "title": "Vocal warm-up", "url": "https://en.wikipedia.org/wiki/Vocal_warm-up" },
+        { "kind": "wikipedia", "title": "Vocal pedagogy", "url": "https://en.wikipedia.org/wiki/Vocal_pedagogy" }
+      ]
+    },
+    {
+      "id": "health-hydration",
+      "topic": "health",
+      "title": "Stay Hydrated",
+      "paragraphs": [
+        "Staying hydrated is one of the simplest ways to look after your voice. Drink plenty of water, especially when you exercise. If you drink caffeinated drinks or alcohol, balance them with plenty of water.",
+        "Give your voice “vocal naps”: short breaks to rest it throughout the day.",
+        "Use a humidifier at home, especially in winter or if you live in a dry climate. A humidity of about 30 percent is recommended.",
+        "Some medications, including some common cold and allergy medications, can dry out your vocal folds. If you have voice problems, ask your doctor which medications are safest for you."
+      ],
+      "sources": [
+        { "kind": "nidcd", "title": "Taking Care of Your Voice", "url": "https://www.nidcd.nih.gov/health/taking-care-your-voice" }
+      ]
+    },
+    {
+      "id": "health-wisely",
+      "topic": "health",
+      "title": "Use Your Voice Wisely",
+      "paragraphs": [
+        "Try not to overuse your voice. Avoid speaking or singing when your voice is hoarse or tired, and rest it when you are sick, since illness puts extra stress on your voice.",
+        "Avoid the extremes of your voice, such as screaming or whispering: talking too loudly and talking too softly can both stress it. Try not to talk over loud noise, which strains your voice, and where you often need to speak to a room, a small microphone and speaker can help.",
+        "Instead of clearing your throat again and again, try taking a small sip of water or swallowing. Frequent throat clearing can itself be a sign of a voice problem, so mention it to your doctor if it keeps happening.",
+        "Also watch your habits outside of singing. Holding a phone between your head and shoulder for a long time can cause tension in your neck. And if you rely on your voice a lot, a speech-language pathologist experienced with voice problems can teach you how to use it in a healthy way."
+      ],
+      "sources": [
+        { "kind": "nidcd", "title": "Taking Care of Your Voice", "url": "https://www.nidcd.nih.gov/health/taking-care-your-voice" },
+        { "kind": "wikibooks", "title": "Singing/Caring for your voice", "url": "https://en.wikibooks.org/wiki/Singing/Caring_for_your_voice" }
+      ]
+    },
+    {
+      "id": "health-habits",
+      "topic": "health",
+      "title": "Healthy Habits",
+      "paragraphs": [
+        "Don't smoke, and avoid secondhand smoke. Smoke irritates the vocal folds, and cancer of the vocal folds is seen most often in people who smoke.",
+        "Eat plenty of whole grains, fruits and vegetables. They contain vitamins A, E and C and help keep the mucous membranes that line your throat healthy.",
+        "Stomach acid that rises into your throat can irritate your vocal folds and make you hoarse. If spicy foods give you heartburn, cut back on them, and if you have heartburn often, talk to your doctor about changes to your diet or medications that can help.",
+        "Get enough rest, since physical tiredness has a negative effect on your voice. Exercise regularly: it builds stamina and muscle tone, which help with good posture and breathing. Wash your hands often to avoid colds and flu, and skip mouthwashes and gargles that contain alcohol or irritating chemicals."
+      ],
+      "sources": [
+        { "kind": "nidcd", "title": "Taking Care of Your Voice", "url": "https://www.nidcd.nih.gov/health/taking-care-your-voice" },
+        { "kind": "nidcd", "title": "Hoarseness", "url": "https://www.nidcd.nih.gov/health/hoarseness" }
+      ]
+    },
+    {
+      "id": "health-doctor",
+      "topic": "health",
+      "title": "When to See a Doctor",
+      "paragraphs": [
+        "A hoarse voice sounds breathy, raspy or strained, or is softer or lower than usual, and your throat may feel scratchy. Hoarseness is often a sign of a problem with the vocal folds.",
+        "Other signs that your voice may not be healthy: you have lost the ability to hit some high notes, your voice suddenly sounds deeper, your throat often feels raw, achy or strained, talking has become an effort, or you keep clearing your throat.",
+        "See a doctor if your voice has been hoarse for more than three weeks, especially if you haven't had a cold or the flu. See one as well if you cough up blood, have difficulty swallowing or breathing, feel a lump in your neck, have pain when speaking or swallowing, or lose your voice completely for more than a few days.",
+        "If you suddenly lose your voice while using it strenuously, for example while yelling, a blood vessel on a vocal fold may have burst. This needs complete voice rest and a trip to the doctor right away. Doctors who specialize in the ears, nose and throat diagnose voice problems, and a speech-language pathologist can help you improve how you use your voice."
+      ],
+      "sources": [
+        { "kind": "nidcd", "title": "Hoarseness", "url": "https://www.nidcd.nih.gov/health/hoarseness" },
+        { "kind": "nidcd", "title": "Taking Care of Your Voice", "url": "https://www.nidcd.nih.gov/health/taking-care-your-voice" }
+      ]
+    },
+    {
+      "id": "ear-relative",
+      "topic": "ear",
+      "title": "Relative Pitch",
+      "paragraphs": [
+        "Relative pitch is the ability to identify or sing a note by comparing it to a reference note and recognizing the interval, the distance in pitch, between the two. For example, if you know that one note is Do, you can tell which note follows it without looking.",
+        "It is different from absolute pitch, often called perfect pitch, which lets someone name a note with no reference at all. Relative pitch is common among musicians, and it can be developed through ear training.",
+        "For singers it is an everyday skill: singing a melody in tune means pitching each note by its distance from the note before it. It is also essential for making music together with other people.",
+        "Some ways to train it: link each interval to the first two notes of a song you know well, sing intervals over a drone (a steady, held note), or use solfège syllables such as do, re and mi. Ear training software is another popular tool."
+      ],
+      "sources": [
+        { "kind": "wikipedia", "title": "Relative pitch", "url": "https://en.wikipedia.org/wiki/Relative_pitch" }
+      ]
+    },
+    {
+      "id": "ear-training",
+      "topic": "ear",
+      "title": "Ear Training",
+      "paragraphs": [
+        "Ear training is the practice of learning to recognize the building blocks of music by hearing alone: pitches, intervals, melodies, chords and rhythms. In a way it is the reverse of reading music: instead of turning notes on a page into sound, you work out what you are hearing.",
+        "To work out the notes of a melody, you need to recognize intervals. Linking intervals to songs you know is a common trick, but each song only covers certain intervals in certain places of the scale. Systems like solfège, which give every note of the scale its own syllable, make it easier to hear how intervals sound in different contexts.",
+        "Once a key's home note, the tonic, has been established, you can also learn to hear the role each note plays in relation to it. Movable-do solfège builds on this idea: its syllables name a note's place in the key rather than a fixed pitch.",
+        "Rhythm can be trained too. Break a rhythm into small patterns you can recognize, and practice it with your body: tap it with your hands or feet, or sing it on a syllable such as “ta”. A metronome helps you keep a steady tempo."
+      ],
+      "sources": [
+        { "kind": "wikipedia", "title": "Ear training", "url": "https://en.wikipedia.org/wiki/Ear_training" }
+      ]
+    }
+  ]
+}

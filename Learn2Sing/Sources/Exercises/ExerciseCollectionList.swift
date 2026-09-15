@@ -25,6 +25,11 @@ enum ExerciseListRowContent: Equatable {
     /// the button — so what it retries is the list owner's to decide; the text
     /// riding along is what a press-and-hold on it explains.
     case retry(help: String)
+    /// The book lessons card (Home ▸ "Book Lessons"): the English title of the
+    /// lesson recommended next, and how many of the lessons have been marked as
+    /// finished out of how many there are. All three ride along so that finishing
+    /// a lesson reaches the cell as a changed row.
+    case bookLessons(title: String, finished: Int, total: Int)
 
     /// Whether a tap on the row is the list's to report. The calendar answers
     /// its own taps — a tap on it means the square it landed on — and a spinner
@@ -33,7 +38,7 @@ enum ExerciseListRowContent: Equatable {
     var isSelectable: Bool {
         switch self {
         case .practiceCalendar, .loading: false
-        case .exercise, .recommendation, .retry: true
+        case .exercise, .recommendation, .retry, .bookLessons: true
         }
     }
 }
@@ -637,6 +642,19 @@ final class ExerciseListController: UIViewController {
             }
             cell.accessories = []
         }
+        let bookLessonsRegistration = UICollectionView.CellRegistration<ExerciseListCell, ItemID> {
+            [weak self] cell, _, itemID in
+            guard case .bookLessons(let title, let finished, let total)
+                    = self?.rowsByID[itemID.id]?.content
+            else { return }
+            let locale = (self?.language ?? LanguageManager.shared.language).locale
+            cell.contentConfiguration = UIHostingConfiguration {
+                BookLessonsCard(title: title, finished: finished, total: total)
+                    .environment(\.locale, locale)
+                    .explain(L("Tap to open the book lessons: short reads about singing. The card names the lesson recommended next and shows how many you have finished."))
+            }
+            cell.accessories = []
+        }
         // A category whose rows come off the server, saying so: a spinner while
         // they are on their way, a reload button when they aren't coming. Both
         // fill the row the way the cards do, centred rather than left-aligned —
@@ -675,6 +693,9 @@ final class ExerciseListController: UIViewController {
             case .retry:
                 cell = collectionView.dequeueConfiguredReusableCell(
                     using: retryRegistration, for: indexPath, item: itemID)
+            case .bookLessons:
+                cell = collectionView.dequeueConfiguredReusableCell(
+                    using: bookLessonsRegistration, for: indexPath, item: itemID)
             default:
                 cell = collectionView.dequeueConfiguredReusableCell(
                     using: cellRegistration, for: indexPath, item: itemID)

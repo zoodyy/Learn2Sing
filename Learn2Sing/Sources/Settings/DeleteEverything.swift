@@ -109,6 +109,7 @@ enum DeleteEverything {
         store.clearFavourites()
         store.clearRoutines()
         store.clearPlayHistory()
+        BookLessonProgress.shared.clear()
 
         // Reset ▸ Settings, every category — which includes putting the visual
         // templates back to the two the app ships and clearing the username.

@@ -18,6 +18,8 @@ import trbase
 import xcformat
 import tr_common, tr_settings, tr_visuals, tr_library, tr_community, tr_bundled, tr_reset  # noqa: F401
 import tr_feedback, tr_tutorial, tr_help  # noqa: F401
+import tr_lessons, tr_lessons_voice, tr_lessons_breath, tr_lessons_warmup  # noqa: F401
+import tr_lessons_health, tr_lessons_ear  # noqa: F401
 
 HERE = pathlib.Path(__file__).resolve().parent
 APP = HERE.parents[1] / "Learn2Sing"
@@ -52,6 +54,7 @@ INDIRECT = [
     # Categories: bundled + Home tab built-ins
     "Tone", "Scales", "Articulation", "Agility", "Range", "No Category",
     "Recent", "Routines", "Favorites", "Recommended", "Time Spent Singing", "New for You",
+    "Book Lessons",
     # Bundled visual templates
     "Simplest - dark", "Simplest - light",
     "Piano Roll - dark", "Sunset - dark", "Terminal - dark", "Paper - light",
@@ -66,6 +69,16 @@ for exercise in bundle["exercises"]:
     INDIRECT.append(exercise["name"])
     if exercise.get("details", "").strip():
         INDIRECT.append(exercise["details"])
+
+# The Home tab's book lessons reach L() the same way: their topics, titles and
+# paragraphs are read out of BookLessons.json. The source titles in their
+# credits are page names and stay in English.
+lessons = json.loads((APP / "Bundled" / "BookLessons.json").read_text())
+for topic in lessons["topics"]:
+    INDIRECT.append(topic["name"])
+for lesson in lessons["lessons"]:
+    INDIRECT.append(lesson["title"])
+    INDIRECT.extend(lesson["paragraphs"])
 
 # Names that are the syllable the singer sings, or a product/file name: shown
 # as-is in every language, so they are deliberately left untranslated.

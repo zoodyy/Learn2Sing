@@ -243,26 +243,10 @@ struct ExerciseIntroView: View {
     }
 
     /// Leave this exercise unplayed and go on to the next one in the queue.
-    /// Beside the Start button rather than in the toolbar, since it is the other
-    /// answer to the question that screen asks — play this, or don't. Built from
-    /// the same `.padding()` the Start button uses so the two are the same height
-    /// at every text size, and drawn in the app's quieter button style (the
-    /// Download and Review buttons') so Start stays the obvious one. A symbol
-    /// rather than a word: the skip-track glyph is read everywhere and needs no
-    /// share of a row the Start button should keep.
     private func skipButton(_ action: @escaping () -> Void) -> some View {
-        Button(action: action) {
-            Image(systemName: "forward.end.fill")
-                .font(.headline)
-                .padding()
-                // Square at the default text size, where the glyph is narrower
-                // than the Start button's line is tall.
-                .frame(minWidth: 54)
-                .background(.tint.opacity(0.15), in: RoundedRectangle(cornerRadius: 14))
-                .foregroundStyle(.tint)
-        }
-        .accessibilityLabel(L("Skip Exercise"))
-        .explain(L("Leaves this exercise unsung and moves on to the next one in the queue."))
+        QueueSkipButton(accessibilityLabel: L("Skip Exercise"),
+                        help: L("Leaves this exercise unsung and moves on to the next one in the queue."),
+                        action: action)
     }
 
     /// Who made this community exercise, under the title, as the way to the rest
@@ -507,5 +491,39 @@ struct DifficultyStars: View {
                         }
                     }
             }
+    }
+}
+
+/// The skip button beside a queue screen's main button: leave this one for now
+/// and go on to the next. Beside the main button rather than in the toolbar,
+/// since it is the other answer to the question that screen asks — do this, or
+/// don't. Built from the same `.padding()` the main button uses so the two are
+/// the same height at every text size, and drawn in the app's quieter button
+/// style (the Download and Review buttons') so the main one stays the obvious
+/// one. A symbol rather than a word: the skip-track glyph is read everywhere and
+/// needs no share of a row the main button should keep.
+///
+/// Shared by an exercise's intro screen, beside Start, and a book lesson's,
+/// beside Mark as Finished, so the two are the same button.
+struct QueueSkipButton: View {
+    /// What VoiceOver reads it as, already translated.
+    let accessibilityLabel: String
+    /// What holding it explains, already translated.
+    let help: String
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            Image(systemName: "forward.end.fill")
+                .font(.headline)
+                .padding()
+                // Square at the default text size, where the glyph is narrower
+                // than the main button's line is tall.
+                .frame(minWidth: 54)
+                .background(.tint.opacity(0.15), in: RoundedRectangle(cornerRadius: 14))
+                .foregroundStyle(.tint)
+        }
+        .accessibilityLabel(accessibilityLabel)
+        .explain(help)
     }
 }
