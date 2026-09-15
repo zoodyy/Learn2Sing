@@ -21,9 +21,23 @@
 		AA00000000000000000000A2 /* Learn2SingUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Learn2SingUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		AA00000000000000000000C1 /* Exceptions for "Learn2Sing" folder in "Learn2Sing" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				.claude/settings.local.json,
+				"Debug/Learn2Sing-Doo-Hoo-20260809-103204.zip",
+			);
+			target = 124147F92FEA7AA0003F13EB /* Learn2Sing */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		124147FC2FEA7AA0003F13EB /* Learn2Sing */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				AA00000000000000000000C1 /* Exceptions for "Learn2Sing" folder in "Learn2Sing" target */,
+			);
 			path = Learn2Sing;
 			sourceTree = "<group>";
 		};
