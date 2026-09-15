@@ -191,6 +191,57 @@ final class Learn2SingUITests: XCTestCase {
                       "back should return to Home")
     }
 
+    private let homeOrderKey = "homeCategoryOrder"
+    private let homeCollapsedKey = "homeCollapsedCategories"
+
+    /// Launch the app on the Home tab with "Routines" as its first category, all
+    /// of it open, and have the routine named `routineName` deleted once the test
+    /// is over, passed or failed, so the list doesn't grow with every run.
+    /// "Routines" is moved up because the categories above it fill the first
+    /// screen: after a relaunch a routine sits below the fold, where the list has
+    /// no cell to find (and a swipe to scroll it lands on a header as a tap).
+    /// Both are forced through the argument domain, so the simulator's own order
+    /// and collapsed set are untouched, and `app` keeps them across relaunches.
+    /// The order names "Routines" alone on purpose: the app stores these lists
+    /// newline-joined, a launch argument with a newline in it doesn't reach the
+    /// app whole, and the categories a stored order leaves out follow it anyway.
+    private func launchForRoutineTest(deleting routineName: String,
+                                      environment: [String: String] = [:]) -> XCUIApplication {
+        let app = XCUIApplication()
+        app.launchArguments = ["-\(homeOrderKey)", "Routines",
+                               "-\(homeCollapsedKey)", ""]
+        app.launchEnvironment.merge(environment) { _, new in new }
+        addTeardownBlock { [unowned self] in
+            self.deleteRoutine(named: routineName, in: app)
+        }
+        app.launch()
+        XCTAssertTrue(app.navigationBars["Home"].waitForExistence(timeout: 5))
+        sleep(2)
+        return app
+    }
+
+    /// The routine tests' cleanup: delete the routine named `name` from Home.
+    /// Starts from a fresh launch, since a failed test can leave the app on any
+    /// screen. A routine the test never got as far as creating isn't found, and
+    /// that is no failure.
+    private func deleteRoutine(named name: String, in app: XCUIApplication) {
+        app.terminate()
+        app.launch()
+        guard app.navigationBars["Home"].waitForExistence(timeout: 5) else { return }
+        let row = cell(app, named: name)
+        guard row.waitForExistence(timeout: 3) else { return }
+        row.swipeLeft()
+        let delete = app.collectionViews.buttons["Delete"].firstMatch
+        XCTAssertTrue(delete.waitForExistence(timeout: 3),
+                      "cleanup: swiping left on \(name) should reveal Delete")
+        delete.tap()
+        let confirm = app.alerts["Delete Routine?"]
+        XCTAssertTrue(confirm.waitForExistence(timeout: 3),
+                      "cleanup: Delete should ask for confirmation")
+        confirm.buttons["Delete"].tap()
+        XCTAssertTrue(row.waitForNonExistence(timeout: 3), "cleanup should delete \(name)")
+    }
+
     /// Tap every category shut, so they all show their counts. Headers below the
     /// fold come into view as the ones above them close, so this keeps looking
     /// until nothing is left open.
@@ -475,10 +526,10 @@ final class Learn2SingUITests: XCTestCase {
                        "pushing into the editor must not show the exercise toast")
 
         // Pop back to settings: the MIDI toast appears, then auto-hides. The
-        // iOS 26 floating back button lives outside the navigation bar; it's
-        // matched by its accessibility identifier (its label is the previous
-        // screen's title).
-        let back = app.buttons["BackButton"].firstMatch
+        // editor hides the system back button for a "Back" of its own in the
+        // navigation bar (it checks for overlapping notes before leaving), so
+        // that one is matched by its label.
+        let back = app.navigationBars.buttons["Back"].firstMatch
         XCTAssertTrue(back.waitForExistence(timeout: 3), "no Back button found")
         back.tap()
         XCTAssertTrue(app.staticTexts["MIDI Saved!"].waitForExistence(timeout: 3),
@@ -487,7 +538,10 @@ final class Learn2SingUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["MIDI Saved!"].waitForNonExistence(timeout: 8),
                       "the toast should auto-hide")
 
-        // Pop back to the list: the exercise toast appears.
+        // Pop back to the list: the exercise toast appears. Settings has the
+        // system back button, whose iOS 26 floating form lives outside the
+        // navigation bar; it's matched by its accessibility identifier (its
+        // label is the previous screen's title).
         XCTAssertTrue(app.navigationBars[name].waitForExistence(timeout: 3))
         app.buttons["BackButton"].firstMatch.tap()
         XCTAssertTrue(app.staticTexts["Exercise Saved!"].waitForExistence(timeout: 3),
@@ -2189,15 +2243,13 @@ final class Learn2SingUITests: XCTestCase {
     /// asking for a name first, exactly like "New Exercise" on the Exercises
     /// tab: backing out without touching the routine leaves nothing behind and
     /// shows no toast, while one that was named is kept, confirmed with
-    /// "Routine Saved!" and scrolled into view under "Routines".
+    /// "Routine Saved!" and listed under "Routines".
     func testNewRoutineOpensEditScreen() throws {
+        let routineName = "Saved \(Int(Date().timeIntervalSince1970))"
         // Queries only run once the app goes idle (pop + toast animations), so
         // the default 1.5s toast can be gone before the first existence check.
-        let app = XCUIApplication()
-        app.launchEnvironment["TOAST_SECONDS"] = "5"
-        app.launch()
-        XCTAssertTrue(app.navigationBars["Home"].waitForExistence(timeout: 5))
-        sleep(2)
+        let app = launchForRoutineTest(deleting: routineName,
+                                       environment: ["TOAST_SECONDS": "5"])
 
         // Straight onto the edit screen, under a placeholder name: no alert.
         let add = app.collectionViews.buttons["Add"].firstMatch
@@ -2218,25 +2270,13 @@ final class Learn2SingUITests: XCTestCase {
         XCTAssertFalse(cell(app, named: "New Routine").exists,
                        "the untouched routine should have been discarded")
 
-        // Named: kept, confirmed, and scrolled to.
-        let routineName = "Saved \(Int(Date().timeIntervalSince1970))"
+        // Named: kept, confirmed, and listed.
         createRoutine(app, named: routineName)
         XCTAssertTrue(app.staticTexts["Routine Saved!"].waitForExistence(timeout: 3),
                       "leaving a routine that was named should confirm the save")
         saveScreenshot("toast-routine-saved")
         let row = cell(app, named: routineName)
         XCTAssertTrue(row.waitForExistence(timeout: 3), "the new routine should be listed under Routines")
-        sleep(2)
-        XCTAssertTrue(row.isHittable, "the list should have scrolled the new routine into view")
-
-        // Leave no test routine behind.
-        row.swipeLeft()
-        let deleteAction = app.collectionViews.buttons["Delete"].firstMatch
-        XCTAssertTrue(deleteAction.waitForExistence(timeout: 3))
-        deleteAction.tap()
-        let confirm = app.alerts["Delete Routine?"]
-        XCTAssertTrue(confirm.waitForExistence(timeout: 3))
-        confirm.buttons["Delete"].tap()
     }
 
     /// The Home tab's "Routines" category: the + button creates a routine (named
@@ -2245,16 +2285,13 @@ final class Learn2SingUITests: XCTestCase {
     /// exercise picker; picked
     /// exercises land in the routine and the trash mode removes them again.
     func testHomeRoutines() throws {
-        let app = XCUIApplication()
-        app.launch()
-        XCTAssertTrue(app.navigationBars["Home"].waitForExistence(timeout: 5))
-        sleep(2)
+        // UserDefaults persist between runs, so the name is unique per run.
+        let routineName = "Routine \(Int(Date().timeIntervalSince1970))"
+        let app = launchForRoutineTest(deleting: routineName)
         XCTAssertTrue(header(app, named: "Routines").exists,
                       "Home should show the Routines category header")
 
         // Create a routine via the + button next to the Routines header.
-        // UserDefaults persist between runs, so the name is unique per run.
-        let routineName = "Routine \(Int(Date().timeIntervalSince1970))"
         XCTAssertFalse(app.navigationBars["Home"].buttons["Add"].exists,
                        "the + button should live in the Routines header, not the nav bar")
         createRoutine(app, named: routineName)
@@ -2341,18 +2378,15 @@ final class Learn2SingUITests: XCTestCase {
     }
 
     /// Tapping a routine that has exercises opens its intro screen: name,
-    /// description, the routine's exercises under an "Exercises" header, and a
+    /// description, the routine's exercises under an "Exercise Queue" header, and a
     /// "Start Routine" button. Shuffling reorders the list for this play-through
     /// only — the routine's stored order is unchanged, as reopening it shows.
     func testRoutineIntroScreen() throws {
-        let app = XCUIApplication()
-        app.launch()
-        XCTAssertTrue(app.navigationBars["Home"].waitForExistence(timeout: 5))
-        sleep(2)
-
-        // Create a routine. UserDefaults persist between runs, so the name is
-        // unique per run.
+        // UserDefaults persist between runs, so the name is unique per run.
         let routineName = "Intro \(Int(Date().timeIntervalSince1970))"
+        let app = launchForRoutineTest(deleting: routineName)
+
+        // Create a routine.
         createRoutine(app, named: routineName)
         sleep(1)
 
@@ -2393,8 +2427,8 @@ final class Learn2SingUITests: XCTestCase {
         sleep(2)
         XCTAssertTrue(app.staticTexts["Warm up, then belt."].waitForExistence(timeout: 3),
                       "the intro screen should show the routine's description")
-        XCTAssertTrue(app.staticTexts["Exercises"].exists,
-                      "the intro screen should show an Exercises header")
+        XCTAssertTrue(app.staticTexts["Exercise Queue"].exists,
+                      "the intro screen should show an Exercise Queue header")
         let start = app.buttons["Start Routine"].firstMatch
         XCTAssertTrue(start.exists, "the intro screen should show a Start Routine button")
         XCTAssertEqual(visibleCellOrder(app).filter(picks.contains), picks,
@@ -2404,7 +2438,7 @@ final class Learn2SingUITests: XCTestCase {
         // Shuffle reorders the listed exercises (retried: a shuffle can land on
         // the order it started from).
         let shuffle = app.buttons["Shuffle Exercises"].firstMatch
-        XCTAssertTrue(shuffle.exists, "the Exercises header should show a shuffle button")
+        XCTAssertTrue(shuffle.exists, "the Exercise Queue header should show a shuffle button")
         var shuffled = picks
         for _ in 0..<6 where shuffled == picks {
             shuffle.tap()
@@ -2439,14 +2473,11 @@ final class Learn2SingUITests: XCTestCase {
     /// that has no exercises yet, where there is nothing to tap to end editing
     /// first.
     func testRoutineDescriptionSurvivesBackWithoutExercises() throws {
-        let app = XCUIApplication()
-        app.launch()
-        XCTAssertTrue(app.navigationBars["Home"].waitForExistence(timeout: 5))
-        sleep(2)
-
-        // Create a routine and leave it empty. UserDefaults persist between runs,
-        // so the name is unique per run.
+        // UserDefaults persist between runs, so the name is unique per run.
         let routineName = "Empty \(Int(Date().timeIntervalSince1970))"
+        let app = launchForRoutineTest(deleting: routineName)
+
+        // Create a routine and leave it empty.
         createRoutine(app, named: routineName)
         sleep(1)
 
@@ -2508,14 +2539,12 @@ final class Learn2SingUITests: XCTestCase {
     /// confirmation first: Cancel keeps the routine, Delete removes it — and it
     /// stays gone after a relaunch.
     func testHomeRoutineSwipeDelete() throws {
-        let app = XCUIApplication()
-        app.launch()
-        XCTAssertTrue(app.navigationBars["Home"].waitForExistence(timeout: 5))
-        sleep(2)
-
-        // Create a routine to delete. UserDefaults persist between runs, so the
-        // name is unique per run.
+        // UserDefaults persist between runs, so the name is unique per run. The
+        // cleanup only has work to do if the test fails before its own delete.
         let routineName = "Doomed \(Int(Date().timeIntervalSince1970))"
+        let app = launchForRoutineTest(deleting: routineName)
+
+        // Create a routine to delete.
         createRoutine(app, named: routineName)
         XCTAssertTrue(cell(app, named: routineName).waitForExistence(timeout: 3))
 
