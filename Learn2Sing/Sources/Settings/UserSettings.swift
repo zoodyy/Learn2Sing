@@ -93,6 +93,8 @@ struct UserSettings: Codable {
     /// between them say which exercises the user singled out, which is what the
     /// restoring device works those picks back out from.
     var recommendationWhitelist: [UUID]?
+    /// How many exercises the Home tab's "New for You" lists.
+    var newForYouCount: Int?
 
     // MARK: Community
 
@@ -151,6 +153,7 @@ struct UserSettings: Codable {
             // each is a set, which has no order to preserve.
             recommendationAutoWhitelist: store.autoWhitelistOrigins.map(\.rawValue).sorted(),
             recommendationWhitelist: store.recommendationWhitelist.sorted { $0.uuidString < $1.uuidString },
+            newForYouCount: NewForYouFeed.count,
             communitySort: d.string(forKey: CommunityFeed.sortKey) ?? CommunitySort.hot.rawValue,
             communitySortReversed: d.bool(forKey: CommunityFeed.reversedKey),
             exercisesSort: d.string(forKey: ExerciseSort.storageKey) ?? ExerciseSort.own.rawValue,
@@ -225,6 +228,9 @@ struct UserSettings: Codable {
         }
         if let recommendationWhitelist {
             store.restoreRecommendationWhitelist(Set(recommendationWhitelist))
+        }
+        if let newForYouCount {
+            d.set(NewForYouFeed.clamped(count: newForYouCount), forKey: NewForYouFeed.countKey)
         }
 
         if let communitySort { d.set(communitySort, forKey: CommunityFeed.sortKey) }

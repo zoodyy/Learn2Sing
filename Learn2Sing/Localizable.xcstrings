@@ -4186,6 +4186,95 @@
         }
       }
     },
+    "Asks the community for its hottest exercises again and picks the Home tab's “New for You” from them. Otherwise they are only loaded once each time the app starts." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "يطلب من المجتمع أكثر تمارينه رواجًا من جديد، ويختار منها «جديد لك» في تبويب الرئيسية. وإلا فلا تُحمَّل إلا مرة واحدة في كل تشغيل للتطبيق."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fragt die Community erneut nach ihren angesagtesten Übungen und wählt daraus „Neu für dich“ im Start-Tab aus. Sonst werden sie nur einmal pro App-Start geladen."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vuelve a pedir a la comunidad sus ejercicios más populares y elige de ellos «Nuevo para ti» de la pestaña Inicio. Si no, solo se cargan una vez cada vez que se abre la app."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Redemande à la communauté ses exercices les plus populaires et en tire « Nouveautés pour vous » dans l’onglet Accueil. Sinon, ils ne sont chargés qu’une fois à chaque lancement de l’app."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Richiede alla community i suoi esercizi più popolari e ne sceglie “Novità per te” nella scheda Home. Altrimenti vengono caricati solo una volta a ogni avvio dell’app."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "コミュニティで人気のエクササイズを取得し直し、その中からホームタブの「あなたへの新着」を選び直します。そうしない場合、読み込まれるのはアプリを起動するたびに1回だけです。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "커뮤니티에서 인기 있는 연습을 다시 불러와 그중에서 홈 탭의 “나를 위한 새 연습”을 고릅니다. 그러지 않으면 앱을 실행할 때마다 한 번만 불러옵니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vraagt de community opnieuw om haar populairste oefeningen en kiest daaruit ‘Nieuw voor jou’ op het tabblad Start. Anders worden ze maar één keer per start van de app geladen."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ponownie pobiera od społeczności najpopularniejsze ćwiczenia i wybiera z nich „Nowe dla Ciebie” na karcie Start. W przeciwnym razie ładują się tylko raz przy każdym uruchomieniu aplikacji."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pede de novo à comunidade os exercícios mais populares e escolhe entre eles “Novidades para você” da aba Início. Caso contrário, eles só são carregados uma vez a cada abertura do app."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Заново запрашивает у сообщества самые популярные упражнения и подбирает из них «Новое для вас» на вкладке «Главная». Иначе они загружаются только один раз при каждом запуске приложения."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hämtar communityns hetaste övningar igen och väljer ut ”Nytt för dig” på fliken Hem bland dem. Annars läses de bara in en gång varje gång appen startar."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Topluluğun en popüler egzersizlerini yeniden ister ve Ana Sayfa sekmesindeki “Sizin için yeni” bölümünü bunlardan seçer. Aksi hâlde uygulama her açıldığında yalnızca bir kez yüklenirler."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "重新向社区获取最热门的练习，并从中为“首页”标签挑选“最新推荐”。否则每次打开应用时只会载入一次。"
+          }
+        }
+      }
+    },
     "Audio" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -9055,6 +9144,95 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "无法准备模板文件。"
+          }
+        }
+      }
+    },
+    "Couldn't Reload New for You" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "تعذّرت إعادة تحميل «جديد لك»"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "„Neu für dich“ konnte nicht geladen werden"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se pudo recargar «Nuevo para ti»"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impossible de recharger « Nouveautés pour vous »"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impossibile ricaricare “Novità per te”"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "「あなたへの新着」を再読み込みできませんでした"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“나를 위한 새 연습”을 새로고침하지 못했습니다"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "‘Nieuw voor jou’ kon niet worden geladen"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nie udało się odświeżyć „Nowe dla Ciebie”"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Não foi possível recarregar “Novidades para você”"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не удалось обновить «Новое для вас»"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "”Nytt för dig” kunde inte läsas in"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“Sizin için yeni” yenilenemedi"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "无法重新载入“最新推荐”"
           }
         }
       }
@@ -22188,6 +22366,95 @@
         }
       }
     },
+    "How many exercises the Home tab's “New for You” category lists, up to 25. They are the community's hottest exercises closest to your skill level." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "عدد التمارين التي تعرضها فئة «جديد لك» في تبويب الرئيسية، حتى 25 تمرينًا. وهي أكثر تمارين المجتمع رواجًا والأقرب إلى مستوى مهارتك."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wie viele Übungen die Kategorie „Neu für dich“ im Start-Tab zeigt, höchstens 25. Es sind die angesagtesten Übungen der Community, die deinem Niveau am nächsten liegen."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cuántos ejercicios muestra la categoría «Nuevo para ti» de la pestaña Inicio, hasta 25. Son los ejercicios más populares de la comunidad que más se acercan a tu nivel."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le nombre d’exercices qu’affiche la catégorie « Nouveautés pour vous » de l’onglet Accueil, jusqu’à 25. Ce sont les exercices les plus populaires de la communauté les plus proches de votre niveau."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quanti esercizi mostra la categoria “Novità per te” della scheda Home, fino a 25. Sono gli esercizi più popolari della community più vicini al tuo livello."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ホームタブの「あなたへの新着」カテゴリに表示するエクササイズの数です（最大25）。コミュニティで人気のエクササイズのうち、あなたのレベルに最も近いものが選ばれます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "홈 탭의 “나를 위한 새 연습” 카테고리에 보여 줄 연습 개수로, 최대 25개입니다. 커뮤니티에서 인기 있는 연습 중 나의 레벨에 가장 가까운 것들이 표시됩니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hoeveel oefeningen de categorie ‘Nieuw voor jou’ op het tabblad Start toont, tot 25. Het zijn de populairste oefeningen van de community die het dichtst bij je niveau liggen."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ile ćwiczeń pokazuje kategoria „Nowe dla Ciebie” na karcie Start, maksymalnie 25. To najpopularniejsze ćwiczenia społeczności najbliższe twojemu poziomowi."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quantos exercícios a categoria “Novidades para você” da aba Início mostra, até 25. São os exercícios mais populares da comunidade mais próximos do seu nível."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сколько упражнений показывает категория «Новое для вас» на вкладке «Главная», до 25. Это самые популярные упражнения сообщества, ближе всего подходящие к вашему уровню."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hur många övningar kategorin ”Nytt för dig” på fliken Hem visar, upp till 25. Det är communityns hetaste övningar som ligger närmast din nivå."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ana Sayfa sekmesindeki “Sizin için yeni” kategorisinin kaç egzersiz gösterdiği, en fazla 25. Bunlar topluluğun seviyenize en yakın en popüler egzersizleridir."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“首页”标签的“最新推荐”类别显示的练习数量，最多 25 个。它们是社区中最热门、且最接近你水平的练习。"
+          }
+        }
+      }
+    },
     "How many times the pattern is played in a row." : {
       "extractionState" : "stale",
       "localizations" : {
@@ -33728,7 +33995,6 @@
       }
     },
     "New for You" : {
-      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -33812,6 +34078,95 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "最新推荐"
+          }
+        }
+      }
+    },
+    "New for You Reloaded!" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "تمت إعادة تحميل «جديد لك»!"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "„Neu für dich“ neu geladen!"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¡«Nuevo para ti» recargado!"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "« Nouveautés pour vous » rechargées !"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“Novità per te” ricaricate!"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "「あなたへの新着」を再読み込みしました！"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“나를 위한 새 연습”을 새로고침했습니다!"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "‘Nieuw voor jou’ opnieuw geladen!"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Odświeżono „Nowe dla Ciebie”!"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“Novidades para você” recarregadas!"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "«Новое для вас» обновлено!"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "”Nytt för dig” har lästs in igen!"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“Sizin için yeni” yenilendi!"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已重新载入“最新推荐”！"
           }
         }
       }
@@ -35845,6 +36200,94 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "现在唱出你能发出的最高音，并稳定保持 2 秒。"
+          }
+        }
+      }
+    },
+    "Number of exercises in New for You" : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "عدد التمارين في «جديد لك»"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Anzahl der Übungen in „Neu für dich“"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Número de ejercicios en «Nuevo para ti»"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nombre d’exercices dans « Nouveautés pour vous »"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Numero di esercizi in “Novità per te”"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "「あなたへの新着」のエクササイズ数"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“나를 위한 새 연습” 연습 개수"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aantal oefeningen in ‘Nieuw voor jou’"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Liczba ćwiczeń w „Nowe dla Ciebie”"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Número de exercícios em “Novidades para você”"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Число упражнений в «Новое для вас»"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Antal övningar i ”Nytt för dig”"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“Sizin için yeni” egzersiz sayısı"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“最新推荐”中的练习数量"
           }
         }
       }
@@ -41883,6 +42326,95 @@
         }
       }
     },
+    "Puts the daily practice goal and the number of exercises in “New for You” back, and returns the whitelist to every exercise in your library, dropping the ones you checked or unchecked yourself. The categories the tab shows and the order they come in are left as you arranged them." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "يعيد هدف التمرّن اليومي وعدد التمارين في «جديد لك»، ويعيد قائمة المسموح بها إلى كل تمارين مكتبتك، متجاهلًا ما حددته أو ألغيت تحديده بنفسك. تبقى الفئات التي يعرضها التبويب وترتيبها كما رتّبتها."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Setzt das tägliche Übungsziel und die Anzahl der Übungen in „Neu für dich“ zurück und lässt wieder alle Übungen deiner Bibliothek zu; selbst an- oder abgewählte Übungen werden dabei verworfen. Welche Kategorien der Tab zeigt und in welcher Reihenfolge, bleibt so, wie du es eingerichtet hast."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Restablece el objetivo diario de práctica y el número de ejercicios de «Nuevo para ti», y vuelve a permitir todos los ejercicios de tu biblioteca, descartando los que marcaste o desmarcaste tú. Las categorías que muestra la pestaña y su orden se quedan como las dejaste."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rétablit l’objectif de pratique quotidien et le nombre d’exercices de « Nouveautés pour vous », et autorise de nouveau tous les exercices de votre bibliothèque, en abandonnant ceux que vous aviez cochés ou décochés vous-même. Les catégories affichées par l’onglet et leur ordre restent comme vous les avez réglés."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ripristina l’obiettivo di pratica giornaliero e il numero di esercizi in “Novità per te”, e riammette tutti gli esercizi della tua libreria, scartando quelli che avevi selezionato o deselezionato tu. Le categorie mostrate dalla scheda e il loro ordine restano come li hai sistemati."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1日の練習目標と「あなたへの新着」のエクササイズ数を元に戻し、ライブラリのすべてのエクササイズを再び対象にします。自分で付け外ししたチェックは破棄されます。タブに表示するカテゴリとその並び順は、あなたが並べたままです。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "하루 연습 목표와 “나를 위한 새 연습” 연습 개수를 되돌리고, 라이브러리의 모든 연습을 다시 허용하며 직접 선택하거나 해제한 항목은 사라집니다. 탭에 보이는 분류와 그 순서는 정해 둔 그대로 남습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zet het dagelijkse oefendoel en het aantal oefeningen in ‘Nieuw voor jou’ terug en staat weer alle oefeningen in je bibliotheek toe, waarbij de oefeningen die je zelf aan- of uitvinkte vervallen. Welke categorieën het tabblad toont en in welke volgorde, blijft zoals je het hebt ingericht."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Przywraca dzienny cel ćwiczeń i liczbę ćwiczeń w „Nowe dla Ciebie” oraz ponownie dopuszcza wszystkie ćwiczenia w twojej bibliotece, odrzucając te, które sam zaznaczyłeś lub odznaczyłeś. To, jakie kategorie pokazuje karta i w jakiej kolejności, zostaje tak, jak to ustawiłeś."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Restaura a meta diária de prática e o número de exercícios em “Novidades para você”, e volta a permitir todos os exercícios da sua biblioteca, descartando os que você marcou ou desmarcou. As categorias que a aba mostra e a ordem delas ficam como você organizou."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Возвращает ежедневную цель занятий и число упражнений в «Новое для вас» и снова разрешает все упражнения в вашей библиотеке, отменяя те, что вы отметили или сняли сами. Какие категории показывает вкладка и в каком порядке, остаётся так, как вы настроили."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Återställer det dagliga övningsmålet och antalet övningar i ”Nytt för dig” och tillåter åter alla övningar i ditt bibliotek, och släpper dem du själv kryssat i eller ur. Vilka kategorier fliken visar och i vilken ordning lämnas som du ordnat dem."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Günlük çalışma hedefini ve “Sizin için yeni” egzersiz sayısını geri getirir ve kitaplığındaki tüm egzersizlere yeniden izin verir; kendin işaretlediklerin ya da işaretini kaldırdıkların silinir. Sekmenin hangi kategorileri hangi sırayla gösterdiği, senin düzenlediğin gibi kalır."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "恢复每天的练习目标和“最新推荐”中的练习数量，并将练习库中的全部练习重新列入，同时放弃你自己勾选或取消的项。标签显示哪些分类以及它们的顺序会保持你安排的样子。"
+          }
+        }
+      }
+    },
     "Puts the exercises below in a random order for this run only." : {
       "extractionState" : "stale",
       "localizations" : {
@@ -42057,95 +42589,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "将乐器、播放和录音设备以及麦克风延迟恢复为初始值。你上传的乐器会保留。"
-          }
-        }
-      }
-    },
-    "Puts the number of recommended exercises back, and returns the whitelist to every exercise in your library, dropping the ones you checked or unchecked yourself. The categories the tab shows and the order they come in are left as you arranged them." : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "ar" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "يعيد عدد التمارين المقترحة، ويعيد قائمة المسموح بها إلى كل تمارين مكتبتك، متجاهلًا ما حددته أو ألغيت تحديده بنفسك. تبقى الفئات التي يعرضها التبويب وترتيبها كما رتّبتها."
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Setzt die Anzahl der empfohlenen Übungen zurück und lässt wieder alle Übungen deiner Bibliothek zu; selbst an- oder abgewählte Übungen werden dabei verworfen. Welche Kategorien der Tab zeigt und in welcher Reihenfolge, bleibt so, wie du es eingerichtet hast."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Restablece el número de ejercicios recomendados y vuelve a permitir todos los ejercicios de tu biblioteca, descartando los que marcaste o desmarcaste tú. Las categorías que muestra la pestaña y su orden se quedan como las dejaste."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Rétablit le nombre d’exercices recommandés et autorise de nouveau tous les exercices de votre bibliothèque, en abandonnant ceux que vous aviez cochés ou décochés vous-même. Les catégories affichées par l’onglet et leur ordre restent comme vous les avez réglés."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ripristina il numero di esercizi consigliati e riammette tutti gli esercizi della tua libreria, scartando quelli che avevi selezionato o deselezionato tu. Le categorie mostrate dalla scheda e il loro ordine restano come li hai sistemati."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "おすすめエクササイズの数を元に戻し、ライブラリのすべてのエクササイズを再び対象にします。自分で付け外ししたチェックは破棄されます。タブに表示するカテゴリとその並び順は、あなたが並べたままです。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "추천 연습 개수를 되돌리고, 라이브러리의 모든 연습을 다시 허용하며 직접 선택하거나 해제한 항목은 사라집니다. 탭에 보이는 분류와 그 순서는 정해 둔 그대로 남습니다."
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Zet het aantal aanbevolen oefeningen terug en staat weer alle oefeningen in je bibliotheek toe, waarbij de oefeningen die je zelf aan- of uitvinkte vervallen. Welke categorieën het tabblad toont en in welke volgorde, blijft zoals je het hebt ingericht."
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Przywraca liczbę polecanych ćwiczeń i ponownie dopuszcza wszystkie ćwiczenia w twojej bibliotece, odrzucając te, które sam zaznaczyłeś lub odznaczyłeś. To, jakie kategorie pokazuje karta i w jakiej kolejności, zostaje tak, jak to ustawiłeś."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Restaura o número de exercícios recomendados e volta a permitir todos os exercícios da sua biblioteca, descartando os que você marcou ou desmarcou. As categorias que a aba mostra e a ordem delas ficam como você organizou."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Возвращает количество рекомендуемых упражнений и снова разрешает все упражнения в вашей библиотеке, отменяя те, что вы отметили или сняли сами. Какие категории показывает вкладка и в каком порядке, остаётся так, как вы настроили."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Återställer antalet rekommenderade övningar och tillåter åter alla övningar i ditt bibliotek, och släpper dem du själv kryssat i eller ur. Vilka kategorier fliken visar och i vilken ordning lämnas som du ordnat dem."
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Önerilen egzersiz sayısını geri getirir ve kitaplığındaki tüm egzersizlere yeniden izin verir; kendin işaretlediklerin ya da işaretini kaldırdıkların silinir. Sekmenin hangi kategorileri hangi sırayla gösterdiği, senin düzenlediğin gibi kalır."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "恢复推荐练习的数量，并将练习库中的全部练习重新列入，同时放弃你自己勾选或取消的项。标签显示哪些分类以及它们的顺序会保持你安排的样子。"
           }
         }
       }
@@ -43033,6 +43476,94 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "已记录的得分"
+          }
+        }
+      }
+    },
+    "Reload New for You" : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "إعادة تحميل «جديد لك»"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "„Neu für dich“ neu laden"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Recargar «Nuevo para ti»"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Recharger « Nouveautés pour vous »"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ricarica “Novità per te”"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "「あなたへの新着」を再読み込み"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“나를 위한 새 연습” 새로고침"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "‘Nieuw voor jou’ opnieuw laden"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Odśwież „Nowe dla Ciebie”"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Recarregar “Novidades para você”"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Обновить «Новое для вас»"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Läs in ”Nytt för dig” igen"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“Sizin için yeni” bölümünü yenile"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "重新载入“最新推荐”"
           }
         }
       }

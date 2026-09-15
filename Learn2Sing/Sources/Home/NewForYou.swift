@@ -48,8 +48,24 @@ final class NewForYouFeed: ObservableObject {
     /// many queries it takes to find them (see `fetchCandidates`).
     static let candidateTarget = pageCount * CommunityFeed.pageSize
 
-    /// How many exercises the category lists.
-    static let count = 5
+    /// How many exercises the category lists, from Settings ▸ Home Tab: the
+    /// singer's choice within `countRange`, or `defaultCount` until they make
+    /// one. The top of the range stays well inside `candidateTarget`, so even the
+    /// longest list is still a pick out of a wider net rather than all of it.
+    nonisolated static let countKey = "newForYouCount"
+    nonisolated static let defaultCount = 5
+    nonisolated static let countRange = 1...25
+
+    /// The stored count, for the places that read it outside a view.
+    nonisolated static var count: Int {
+        clamped(count: UserDefaults.standard.object(forKey: countKey) as? Int ?? defaultCount)
+    }
+
+    /// `count` held to `countRange`: a restored profile or a hand-edited
+    /// preference isn't bound by the stepper that normally sets it.
+    nonisolated static func clamped(count: Int) -> Int {
+        min(max(count, countRange.lowerBound), countRange.upperBound)
+    }
 
     /// How long the category goes on saying it is loading once it has started,
     /// however quickly the answer comes back.
@@ -60,7 +76,7 @@ final class NewForYouFeed: ObservableObject {
     /// is made because there is no connection, or one the URL cache answers out
     /// of the last launch — and SwiftUI draws the state a turn leaves behind,
     /// not the ones it passed through. So the category jumps from the reload
-    /// button to five rows (or back to the reload button) with no spinner
+    /// button to its rows (or back to the reload button) with no spinner
     /// between them, and a tap on that button looks like it did nothing at all.
     static let minimumSpinner = Duration.milliseconds(500)
 
@@ -91,9 +107,10 @@ final class NewForYouFeed: ObservableObject {
 
     /// Loads the candidates the first time the Home tab appears, and again after
     /// a fetch that failed. Every later visit leaves them alone: the category
-    /// shows five rows and never grows, so there is nothing to page towards and
-    /// nothing a refetch would add but a list that changed while it was being
-    /// looked at.
+    /// shows a fixed handful of rows and never grows, so there is nothing to page
+    /// towards and nothing a refetch would add but a list that changed while it
+    /// was being looked at. Asking again anyway is the singer's call, made from
+    /// Settings ▸ Home Tab, which goes straight to `refresh()`.
     func refreshIfNeeded() async {
         guard !hasLoaded, !isFetching else { return }
         await refresh()
@@ -248,7 +265,8 @@ final class NewForYouFeed: ObservableObject {
     /// is passed over while there are rated ones to fill the list — and used to
     /// fill it out when there aren't, hottest first, rather than leaving the
     /// category short of what it promises.
-    func exercises(atLevel level: Double) -> [Exercise] {
+    func exercises(atLevel level: Double, count: Int) -> [Exercise] {
+        let count = Self.clamped(count: count)
         let difficulties = CommunitySync.shared.counts.difficulties
         // Both hold positions in `candidates`, so the pick can be put back into
         // the server's order once it has been made.
@@ -264,8 +282,8 @@ final class NewForYouFeed: ObservableObject {
         // Closest first, an equally good match going to whichever the server
         // ranked hotter.
         rated.sort { $0.distance == $1.distance ? $0.rank < $1.rank : $0.distance < $1.distance }
-        var picked = rated.prefix(Self.count).map(\.rank)
-        picked += unrated.prefix(Self.count - picked.count)
+        var picked = rated.prefix(count).map(\.rank)
+        picked += unrated.prefix(count - picked.count)
         return picked.sorted().map { candidates[$0] }
     }
 }

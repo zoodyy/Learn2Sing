@@ -585,19 +585,27 @@ private struct TargetWindowPreview: View {
 
 /// The "Home Tab" hub reached from Settings: how that tab is put together — the
 /// categories it shows and the order they come in, then the shape and size of its
-/// "Recommended" category and which exercises it may draw from. Also reached from
-/// the toolbar of the screen that category's card opens, which is where a
-/// suggestion is looked at.
+/// "Recommended" category and which exercises it may draw from, then how many
+/// exercises "New for You" lists and a way to have it ask the community again.
+/// Also reached from the toolbar of the screen that category's card opens, which
+/// is where a suggestion is looked at.
 struct HomeTabSettingsView: View {
     /// Re-renders this screen when the language is changed in Settings; the
     /// strings are resolved when the body runs, so SwiftUI needs telling.
     @ObservedObject private var appLanguage = LanguageManager.shared
 
     @EnvironmentObject private var store: ExerciseStore
+    @EnvironmentObject private var toasts: ToastCenter
     @AppStorage(RecommendedExercises.minutesKey)
     private var practiceMinutes = RecommendedExercises.defaultMinutes
     @AppStorage(RecommendedExercises.asListKey)
     private var recommendationsAsList = RecommendedExercises.defaultAsList
+    @AppStorage(NewForYouFeed.countKey)
+    private var newForYouCount = NewForYouFeed.defaultCount
+
+    /// The feed "Reload New for You" asks again, observed for the spinner the
+    /// row shows while it does.
+    @ObservedObject private var newForYou = NewForYouFeed.shared
 
     /// Push the Home tab's edit-categories screen onto the navigation stack this
     /// screen is on — the Settings tab's, or the Home tab's own when the screen was
@@ -676,10 +684,54 @@ struct HomeTabSettingsView: View {
             } header: {
                 Text("Recommendations").settingSection(.homeTabRecommendations)
             }
+
+            Section {
+                Button(action: reloadNewForYou) {
+                    HStack {
+                        Text("Reload New for You")
+                        Spacer()
+                        if newForYou.isFetching {
+                            ProgressView()
+                        }
+                    }
+                }
+                .setting(.reloadNewForYou)
+
+                Stepper(value: $newForYouCount, in: NewForYouFeed.countRange) {
+                    HStack {
+                        Text("Number of exercises in New for You")
+                        Spacer()
+                        Text(verbatim: "\(newForYouCount)")
+                            .foregroundStyle(.secondary)
+                    }
+                }
+                .setting(.newForYouCount)
+            } header: {
+                Text("New for You").settingSection(.homeTabNewForYou)
+            }
         }
         .navigationTitle(L("Home Tab"))
         .navigationBarTitleDisplayMode(.inline)
         .settingsSearchable(.homeTab)
+    }
+
+    /// Has "New for You" fetch its candidates again, and says how that went in a
+    /// toast: the category it refills is on another tab, so nothing on this
+    /// screen would show it. A tap while an attempt is already on the wire (this
+    /// row's, or the Home tab's own first one) is ignored rather than the button
+    /// disabled, which would take the row's press-and-hold explanation with it.
+    /// The check sits inside the task so that it and `refresh()` marking the
+    /// fetch as started run in one go, and a quick second tap can't slip between.
+    private func reloadNewForYou() {
+        Task {
+            guard !newForYou.isFetching else { return }
+            await newForYou.refresh()
+            if newForYou.didFail {
+                toasts.show(L("Couldn't Reload New for You"), icon: "exclamationmark.triangle.fill")
+            } else {
+                toasts.show(L("New for You Reloaded!"))
+            }
+        }
     }
 }
 

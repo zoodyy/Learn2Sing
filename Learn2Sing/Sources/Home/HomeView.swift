@@ -239,8 +239,9 @@ struct HomeCategoryEditView: View {
 /// (whitelisted exercises drawn away from the ones sung lately and towards the
 /// singer's level, as many as Settings ▸ Home Tab asks for — as one card that
 /// plays them all in a row, or as a list of them if that same screen says so),
-/// "New for You" (five of other people's exercises off the community's hot
-/// list, the ones pitched at the singer's own level — see NewForYouFeed),
+/// "New for You" (other people's exercises off the community's hot list, the
+/// ones pitched at the singer's own level, as many as Settings ▸ Home Tab asks
+/// for — see NewForYouFeed),
 /// "Time Spent Singing" (the last 30 days of practice as coloured squares — see
 /// PracticeCalendarView), "Routines" (the user's own ordered exercise lists,
 /// created via the + button; swipe right on one to edit it, swipe left to
@@ -291,6 +292,10 @@ struct HomeView: View {
     /// way the same exercises are suggested — this only decides how.
     @AppStorage(RecommendedExercises.asListKey)
     private var recommendationsAsList = RecommendedExercises.defaultAsList
+
+    /// How many exercises "New for You" lists, likewise from Settings ▸ Home Tab.
+    @AppStorage(NewForYouFeed.countKey)
+    private var newForYouCount = NewForYouFeed.defaultCount
 
     /// Drives the "name your new routine" alert opened from the + button.
     @State private var isNamingNewRoutine = false
@@ -419,7 +424,7 @@ struct HomeView: View {
     /// fetched. Empty until that fetch lands, which leaves the category as empty
     /// as an unfilled "Favorites".
     private var newForYouExercises: [Exercise] {
-        newForYou.exercises(atLevel: skill.level)
+        newForYou.exercises(atLevel: skill.level, count: newForYouCount)
     }
 
     /// What the category shows: its exercises, or — while it has none — what is
@@ -439,7 +444,7 @@ struct HomeView: View {
             return exercises.map {
                 // Labelled with the uploader the way the Community tab labels
                 // them, but inert: a profile is a Community screen, and this
-                // category is five rows rather than a way into that tab. And no
+                // category is a handful of rows rather than a way into that tab. And no
                 // settings swipe — these exercises aren't in the library, so
                 // there are none to open until one is downloaded.
                 ExerciseListRow(exercise: $0, pattern: store.notes(for: $0.id),

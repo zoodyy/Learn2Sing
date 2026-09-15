@@ -176,6 +176,7 @@ extension SettingKey {
     static let voiceRange            = SettingKey("section.voice.range")
     static let voiceScoreCalculation = SettingKey("section.voice.score")
     static let homeTabRecommendations = SettingKey("section.homeTab.recommendations")
+    static let homeTabNewForYou      = SettingKey("section.homeTab.newForYou")
     static let backupExercises       = SettingKey("section.backup.exercises")
     static let resetRecordedScores   = SettingKey("section.reset.scores")
     static let resetCategories       = SettingKey("section.reset.categories")
@@ -249,6 +250,8 @@ extension SettingKey {
     static let dailyPracticeGoal     = SettingKey("homeTab.practiceGoal")
     static let autoWhitelist         = SettingKey("homeTab.autoWhitelist")
     static let whitelist             = SettingKey("homeTab.whitelist")
+    static let reloadNewForYou       = SettingKey("homeTab.reloadNewForYou")
+    static let newForYouCount        = SettingKey("homeTab.newForYouCount")
 
     // Exercises tab
     static let customiseExercises     = SettingKey("exercisesTab.customise")
@@ -623,6 +626,12 @@ enum SettingsCatalog {
             help: L("Which exercises are whitelisted for you: switching a group on whitelists everything in it, including what was already in your library, and switching it off takes them out again. Exercises you check or uncheck yourself below are left as you left them."))
         add(.whitelist, .homeTab, section: L("Recommendations"), title: L("Whitelisted exercises"),
             help: L("The exercises recommendations are picked from. The groups picked above are checked for you; tap an exercise to add or remove it yourself, which the groups then leave alone."))
+        heading(.homeTabNewForYou, .homeTab, L("New for You"))
+        add(.reloadNewForYou, .homeTab, section: L("New for You"), title: L("Reload New for You"),
+            help: L("Asks the community for its hottest exercises again and picks the Home tab's “New for You” from them. Otherwise they are only loaded once each time the app starts."))
+        add(.newForYouCount, .homeTab, section: L("New for You"),
+            title: L("Number of exercises in New for You"),
+            help: L("How many exercises the Home tab's “New for You” category lists, up to 25. They are the community's hottest exercises closest to your skill level."))
 
         // MARK: Exercises tab
         add(.customiseExercises, .exercisesTab, title: L("Customize your Exercises tab"),
