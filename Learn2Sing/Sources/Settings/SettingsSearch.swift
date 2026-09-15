@@ -993,6 +993,9 @@ private struct SettingsSearchContainer<Content: View>: View {
     @ViewBuilder let content: () -> Content
 
     @State private var searchText = ""
+    /// Holds the search field in place until the screen has finished coming in.
+    /// See `ScreenDidAppear` for why it can't simply be left to the list.
+    @State private var pinsSearchField = true
 
     /// `searchText` without surrounding whitespace; empty means "not searching".
     private var query: String { searchText.trimmingCharacters(in: .whitespaces) }
@@ -1024,11 +1027,11 @@ private struct SettingsSearchContainer<Content: View>: View {
             }
         }
         .searchable(text: $searchText,
-                    placement: .navigationBarDrawer(displayMode: .automatic),
+                    placement: .navigationBarDrawer(displayMode: pinsSearchField ? .always : .automatic),
                     prompt: L("Search %@", screen.title))
         // Swiping down over the keyboard puts it away, as everywhere else.
         .scrollDismissesKeyboard(.interactively)
-        .background(SearchFieldHider())
+        .background(ScreenDidAppear { pinsSearchField = false })
     }
 }
 
@@ -1095,23 +1098,32 @@ private struct SettingsSearchResults: View {
     }
 }
 
-// MARK: - Hiding the field until the list is pulled down
+// MARK: - Showing the field when a screen opens
 
-/// Scrolls the screen down by the height of its search field once, so the field
-/// starts out of sight and is revealed by pulling the list down — the behaviour
-/// the Exercises tab's list has (see `ExerciseCollectionList.hideSearchBarIfNeeded`,
-/// which does the same thing to its collection view directly).
-private struct SearchFieldHider: UIViewControllerRepresentable {
+/// Calls `action` once the screen it sits on has finished appearing: the end of
+/// the push that brings it in, or of the tab switch to it.
+///
+/// Every settings screen opens with its search field showing. With the field in
+/// the navigation bar's drawer, UIKit brings a pushed screen in with its field
+/// already scrolled out of sight, and does the same to the start page once its
+/// list is long enough to scroll. What the bar does during the transition is
+/// settled before the screen starts to appear, and only a field SwiftUI itself
+/// pins with `.always` is still showing by then; setting the navigation item's
+/// flag from here comes too late, and so does letting go of the pin before the
+/// screen is up. So the field stays pinned until this fires, and from then on
+/// the list tucks it away when scrolled, as usual.
+///
+/// SwiftUI's own `onAppear` runs before the transition, too early for this.
+private struct ScreenDidAppear: UIViewControllerRepresentable {
+    let action: () -> Void
+
     func makeUIViewController(context: Context) -> Controller { Controller() }
-    func updateUIViewController(_ controller: Controller, context: Context) {}
+    func updateUIViewController(_ controller: Controller, context: Context) {
+        controller.action = action
+    }
 
     final class Controller: UIViewController {
-        private var hasHidden = false
-        /// When to give up. SwiftUI installs the search controller and sizes the
-        /// form after this view appears, and how long that takes varies — a
-        /// budget in runloop turns can be spent before either exists, so the
-        /// retries are given a stretch of time instead.
-        private var deadline: Date?
+        var action: () -> Void = {}
 
         override func viewDidLoad() {
             super.viewDidLoad()
@@ -1122,59 +1134,7 @@ private struct SearchFieldHider: UIViewControllerRepresentable {
 
         override func viewDidAppear(_ animated: Bool) {
             super.viewDidAppear(animated)
-            guard deadline == nil else { return }
-            deadline = Date().addingTimeInterval(3)
-            attempt()
-        }
-
-        private func attempt() {
-            guard !hasHidden, let deadline, Date() < deadline else { return }
-            if !hideSearchField() {
-                DispatchQueue.main.asyncAfter(deadline: .now() + 1 / 60) { [weak self] in
-                    self?.attempt()
-                }
-            }
-        }
-
-        /// True once it has actually scrolled, so the retries stop.
-        private func hideSearchField() -> Bool {
-            // The search controller sits on the navigation item of the SwiftUI
-            // hosting controller, one of this controller's ancestors.
-            var searchBar: UISearchBar?
-            var ancestor: UIViewController? = self
-            while let controller = ancestor, searchBar == nil {
-                searchBar = controller.navigationItem.searchController?.searchBar
-                ancestor = controller.parent
-            }
-            guard let searchBar, searchBar.bounds.height > 0,
-                  let scrollView = screenScrollView(),
-                  scrollView.bounds.height > 0, scrollView.contentSize.height > 0
-            else { return false }
-            hasHidden = true
-            // Never past the end: a short screen has nothing to scroll, and the
-            // field simply stays visible (as it would in Mail).
-            let insets = scrollView.adjustedContentInset
-            let maxOffset = max(-insets.top,
-                                scrollView.contentSize.height + insets.bottom - scrollView.bounds.height)
-            scrollView.contentOffset.y = min(scrollView.contentOffset.y + searchBar.bounds.height,
-                                             maxOffset)
-            return true
-        }
-
-        /// The screen's own scrolling list. This controller's view is a
-        /// zero-sized background behind it, so the search starts at the top of
-        /// the screen's view hierarchy and comes back down.
-        private func screenScrollView() -> UIScrollView? {
-            guard let root = parent?.view ?? view.superview else { return nil }
-            var queue = [root]
-            while !queue.isEmpty {
-                let next = queue.removeFirst()
-                if let scrollView = next as? UIScrollView, scrollView.contentSize.height > 0 {
-                    return scrollView
-                }
-                queue.append(contentsOf: next.subviews)
-            }
-            return nil
+            action()
         }
     }
 }
