@@ -53,7 +53,7 @@ final class NewForYouFeed: ObservableObject {
     /// one. The top of the range stays well inside `candidateTarget`, so even the
     /// longest list is still a pick out of a wider net rather than all of it.
     nonisolated static let countKey = "newForYouCount"
-    nonisolated static let defaultCount = 5
+    nonisolated static let defaultCount = 3
     nonisolated static let countRange = 1...25
 
     /// The stored count, for the places that read it outside a view.
