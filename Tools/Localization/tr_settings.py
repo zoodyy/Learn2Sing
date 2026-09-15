@@ -403,6 +403,71 @@ T("The part of the note you have to hit for it to count",
   "需要唱中才会计分的音符部分",
   "الجزء من النغمة الذي يجب أن تصيبه حتى يُحتسب")
 
+# --- Exercises Tab settings ---
+T("How the Exercises tab is put together: its categories, and how your favorites are marked and ordered.",
+  "Wie der Übungen-Tab aufgebaut ist: seine Kategorien und wie deine Favoriten markiert und sortiert werden.",
+  "Cómo se compone la pestaña Ejercicios: sus categorías, y cómo se marcan y ordenan tus favoritos.",
+  "La composition de l’onglet Exercices : ses catégories, et la façon dont vos favoris sont signalés et classés.",
+  "Come è composta la scheda Esercizi: le sue categorie, e come i tuoi preferiti vengono segnati e ordinati.",
+  "Como a aba Exercícios é montada: suas categorias, e como seus favoritos são marcados e ordenados.",
+  "Hoe het tabblad Oefeningen is opgebouwd: de categorieën, en hoe je favorieten worden gemarkeerd en gesorteerd.",
+  "Как устроена вкладка «Упражнения»: её категории и то, как отмечаются и располагаются избранные упражнения.",
+  "Jak zbudowana jest karta Ćwiczenia: jej kategorie oraz to, jak oznaczane i ustawiane są twoje ulubione.",
+  "Egzersizler sekmesinin nasıl oluştuğu: kategorileri ve favorilerinin nasıl işaretlenip sıralandığı.",
+  "Hur fliken Övningar är uppbyggd: dess kategorier, och hur dina favoriter markeras och ordnas.",
+  "エクササイズタブの構成：カテゴリと、お気に入りの目印や並べ方。",
+  "연습 탭의 구성: 분류, 그리고 즐겨찾기를 표시하고 정렬하는 방식.",
+  "“练习”标签的组成：其中的分类，以及收藏的标记和排列方式。",
+  "كيف يُبنى تبويب التمارين: فئاته، وكيف تُميَّز المفضلة وتُرتَّب.")
+T("Customize your Exercises tab", "Übungen-Tab anpassen", "Personalizar la pestaña Ejercicios", "Personnaliser l’onglet Exercices", "Personalizza la scheda Esercizi", "Personalizar a aba Exercícios", "Tabblad Oefeningen aanpassen", "Настроить вкладку «Упражнения»", "Dostosuj kartę Ćwiczenia", "Egzersizler sekmesini özelleştir", "Anpassa fliken Övningar", "エクササイズタブをカスタマイズ", "연습 탭 맞춤 설정", "自定义练习标签", "خصّص تبويب التمارين")
+T("Which categories the Exercises tab has, their names and the order they come in. The same screen opens by pressing and holding a category name on the Exercises tab.",
+  "Welche Kategorien der Übungen-Tab hat, wie sie heißen und in welcher Reihenfolge sie stehen. Dieselbe Ansicht öffnet sich, wenn du im Übungen-Tab einen Kategorienamen gedrückt hältst.",
+  "Qué categorías tiene la pestaña Ejercicios, sus nombres y en qué orden aparecen. La misma pantalla se abre manteniendo pulsado el nombre de una categoría en la pestaña Ejercicios.",
+  "Les catégories de l’onglet Exercices, leurs noms et leur ordre. Le même écran s’ouvre en maintenant le doigt sur le nom d’une catégorie dans l’onglet Exercices.",
+  "Quali categorie ha la scheda Esercizi, i loro nomi e il loro ordine. La stessa schermata si apre tenendo premuto il nome di una categoria nella scheda Esercizi.",
+  "Quais categorias a aba Exercícios tem, os nomes delas e a ordem em que aparecem. A mesma tela abre ao manter pressionado o nome de uma categoria na aba Exercícios.",
+  "Welke categorieën het tabblad Oefeningen heeft, hoe ze heten en in welke volgorde ze staan. Hetzelfde scherm opent door op het tabblad Oefeningen een categorienaam ingedrukt te houden.",
+  "Какие категории есть на вкладке «Упражнения», как они называются и в каком порядке идут. Тот же экран открывается долгим нажатием на название категории на вкладке «Упражнения».",
+  "Jakie kategorie ma karta Ćwiczenia, jak się nazywają i w jakiej kolejności są ułożone. Ten sam ekran otworzysz, przytrzymując nazwę kategorii na karcie Ćwiczenia.",
+  "Egzersizler sekmesinde hangi kategorilerin olduğu, adları ve sıraları. Aynı ekran, Egzersizler sekmesinde bir kategori adına basılı tutunca da açılır.",
+  "Vilka kategorier fliken Övningar har, vad de heter och i vilken ordning de kommer. Samma skärm öppnas om du håller in ett kategorinamn på fliken Övningar.",
+  "エクササイズタブにどのカテゴリがあり、どんな名前で、どの順に並ぶか。同じ画面は、エクササイズタブでカテゴリ名を長押ししても開きます。",
+  "연습 탭에 어떤 분류가 있고, 이름이 무엇이며, 어떤 순서로 나오는지 정합니다. 연습 탭에서 분류 이름을 길게 누르면 같은 화면이 열립니다.",
+  "“练习”标签有哪些分类、它们的名称以及排列顺序。在“练习”标签中长按分类名称也会打开同一界面。",
+  "الفئات الموجودة في تبويب التمارين وأسماؤها وترتيبها. تُفتح الشاشة نفسها بالضغط مطولًا على اسم فئة في تبويب التمارين.")
+T("Mark favorites in Exercises tab", "Favoriten im Übungen-Tab markieren", "Marcar favoritos en la pestaña Ejercicios", "Signaler les favoris dans l’onglet Exercices", "Segna i preferiti nella scheda Esercizi", "Marcar favoritos na aba Exercícios", "Favorieten markeren op tabblad Oefeningen", "Отмечать избранное на вкладке «Упражнения»", "Oznaczaj ulubione na karcie Ćwiczenia", "Egzersizler sekmesinde favorileri işaretle", "Markera favoriter på fliken Övningar", "エクササイズタブでお気に入りに印を付ける", "연습 탭에서 즐겨찾기 표시", "在练习标签中标记收藏", "تمييز المفضلة في تبويب التمارين")
+T("Draws a star in front of the name of each favorite on the Exercises tab. Off, favorites look like any other exercise there.",
+  "Zeichnet im Übungen-Tab einen Stern vor den Namen jedes Favoriten. Aus sehen Favoriten dort aus wie jede andere Übung.",
+  "Dibuja una estrella delante del nombre de cada favorito en la pestaña Ejercicios. Desactivado, los favoritos se ven allí como cualquier otro ejercicio.",
+  "Affiche une étoile devant le nom de chaque favori dans l’onglet Exercices. Désactivé, les favoris y ressemblent à n’importe quel autre exercice.",
+  "Disegna una stella davanti al nome di ogni preferito nella scheda Esercizi. Se disattivato, lì i preferiti sembrano esercizi come gli altri.",
+  "Desenha uma estrela antes do nome de cada favorito na aba Exercícios. Desligado, os favoritos aparecem ali como qualquer outro exercício.",
+  "Tekent op het tabblad Oefeningen een ster voor de naam van elke favoriet. Uit zien favorieten er daar uit als elke andere oefening.",
+  "Ставит звёздочку перед названием каждого избранного упражнения на вкладке «Упражнения». Если выключено, избранные выглядят там как любые другие упражнения.",
+  "Rysuje gwiazdkę przed nazwą każdego ulubionego ćwiczenia na karcie Ćwiczenia. Po wyłączeniu ulubione wyglądają tam jak każde inne ćwiczenie.",
+  "Egzersizler sekmesinde her favorinin adının önüne bir yıldız koyar. Kapalıyken favoriler orada diğer egzersizler gibi görünür.",
+  "Ritar en stjärna framför namnet på varje favorit på fliken Övningar. Av ser favoriterna där ut som vilken övning som helst.",
+  "エクササイズタブで、お気に入りの名前の前に星を表示します。オフにすると、お気に入りも他のエクササイズと同じ見た目になります。",
+  "연습 탭에서 즐겨찾기마다 이름 앞에 별을 표시합니다. 끄면 즐겨찾기도 다른 연습과 똑같이 보입니다.",
+  "在“练习”标签中每个收藏的名称前显示一颗星。关闭后，收藏在那里看起来和其他练习一样。",
+  "يضع نجمة أمام اسم كل تمرين مفضل في تبويب التمارين. عند إيقافه، تبدو المفضلة هناك مثل أي تمرين آخر.")
+T("Show favorite exercises on top", "Favorisierte Übungen oben zeigen", "Mostrar los ejercicios favoritos arriba", "Afficher les exercices favoris en haut", "Mostra gli esercizi preferiti in cima", "Mostrar exercícios favoritos no topo", "Favoriete oefeningen bovenaan tonen", "Показывать избранные упражнения наверху", "Pokazuj ulubione ćwiczenia na górze", "Favori egzersizleri üstte göster", "Visa favoritövningar överst", "お気に入りのエクササイズを上に表示", "즐겨찾기 연습을 맨 위에 표시", "将收藏的练习显示在顶部", "عرض التمارين المفضلة في الأعلى")
+T("While the Exercises tab is in “Own Sorting”, each category lists its favorites above its other exercises. Off, favorites stay wherever you dragged them.",
+  "Solange der Übungen-Tab auf „Eigene Sortierung“ steht, zeigt jede Kategorie ihre Favoriten über ihren anderen Übungen. Aus bleiben Favoriten dort, wo du sie hingezogen hast.",
+  "Mientras la pestaña Ejercicios está en «Orden propio», cada categoría muestra sus favoritos por encima de sus demás ejercicios. Desactivado, los favoritos se quedan donde los arrastraste.",
+  "Tant que l’onglet Exercices est en « Ordre personnel », chaque catégorie affiche ses favoris au-dessus de ses autres exercices. Désactivé, les favoris restent là où vous les avez glissés.",
+  "Finché la scheda Esercizi è su “Ordine personale”, ogni categoria elenca i suoi preferiti sopra gli altri esercizi. Se disattivato, i preferiti restano dove li hai trascinati.",
+  "Enquanto a aba Exercícios estiver em “Ordem própria”, cada categoria lista seus favoritos acima dos outros exercícios. Desligado, os favoritos ficam onde você os arrastou.",
+  "Zolang het tabblad Oefeningen op ‘Eigen volgorde’ staat, toont elke categorie haar favorieten boven haar andere oefeningen. Uit blijven favorieten staan waar je ze naartoe hebt gesleept.",
+  "Пока на вкладке «Упражнения» выбран «Свой порядок», каждая категория показывает избранные упражнения над остальными. Если выключено, избранные остаются там, куда вы их перетащили.",
+  "Gdy karta Ćwiczenia jest ustawiona na „Własna kolejność”, każda kategoria pokazuje ulubione nad pozostałymi ćwiczeniami. Po wyłączeniu ulubione zostają tam, gdzie je przeciągnięto.",
+  "Egzersizler sekmesi “Kendi sıralamam” düzenindeyken her kategori favorilerini diğer egzersizlerinin üstünde listeler. Kapalıyken favoriler, sürüklediğin yerde kalır.",
+  "Så länge fliken Övningar står på ”Egen ordning” visar varje kategori sina favoriter ovanför sina andra övningar. Av stannar favoriterna där du drog dem.",
+  "エクササイズタブが「自分の並び順」のとき、各カテゴリでお気に入りを他のエクササイズより上に並べます。オフにすると、お気に入りはドラッグで置いた場所にとどまります。",
+  "연습 탭이 “내 순서”일 때 각 분류에서 즐겨찾기를 다른 연습보다 위에 나열합니다. 끄면 즐겨찾기는 끌어다 놓은 자리에 그대로 있습니다.",
+  "当“练习”标签使用“自定义排序”时，每个分类会把收藏排在其他练习上面。关闭后，收藏会留在你拖放到的位置。",
+  "ما دام تبويب التمارين على «ترتيبي الخاص»، تعرض كل فئة مفضلتها فوق باقي تمارينها. عند إيقافه، تبقى المفضلة حيث سحبتها.")
+
 # --- Home Tab settings ---
 T("Show recommendations as list", "Empfehlungen als Liste zeigen", "Mostrar recomendaciones como lista", "Afficher les recommandations en liste", "Mostra i consigliati come elenco", "Mostrar recomendações como lista", "Aanbevelingen als lijst tonen", "Показывать рекомендации списком", "Pokazuj polecane jako listę", "Önerileri liste olarak göster", "Visa rekommendationer som lista", "おすすめをリストで表示", "추천을 목록으로 표시", "以列表显示推荐", "عرض الاقتراحات كقائمة")
 T("Recommendations", "Empfehlungen", "Recomendaciones", "Recommandations", "Raccomandazioni", "Recomendações", "Aanbevelingen", "Рекомендации", "Rekomendacje", "Öneriler", "Rekommendationer", "おすすめ", "추천", "推荐", "الاقتراحات")

@@ -10,6 +10,7 @@ T("Audio", "Audio", "Audio", "Audio", "Audio", "Áudio", "Audio", "Аудио", 
 T("Visuals", "Darstellung", "Apariencia", "Apparence", "Aspetto", "Aparência", "Weergave", "Оформление", "Wygląd", "Görünüm", "Utseende", "表示", "화면", "视觉", "المرئيات")
 T("Voice", "Stimme", "Voz", "Voix", "Voce", "Voz", "Stem", "Голос", "Głos", "Ses", "Röst", "声", "음성", "嗓音", "الصوت")
 T("Home Tab", "Start-Tab", "Pestaña Inicio", "Onglet Accueil", "Scheda Home", "Aba Início", "Tabblad Start", "Вкладка «Главная»", "Karta Start", "Ana Sayfa Sekmesi", "Fliken Hem", "ホームタブ", "홈 탭", "首页标签", "تبويب الرئيسية")
+T("Exercises Tab", "Übungen-Tab", "Pestaña Ejercicios", "Onglet Exercices", "Scheda Esercizi", "Aba Exercícios", "Tabblad Oefeningen", "Вкладка «Упражнения»", "Karta Ćwiczenia", "Egzersizler Sekmesi", "Fliken Övningar", "エクササイズタブ", "연습 탭", "练习标签", "تبويب التمارين")
 T("Backup", "Sicherung", "Copia de seguridad", "Sauvegarde", "Backup", "Backup", "Back-up", "Резервная копия", "Kopia zapasowa", "Yedekleme", "Säkerhetskopia", "バックアップ", "백업", "备份", "النسخ الاحتياطي")
 T("Language", "Sprache", "Idioma", "Langue", "Lingua", "Idioma", "Taal", "Язык", "Język", "Dil", "Språk", "言語", "언어", "语言", "اللغة")
 T("App Language", "App-Sprache", "Idioma de la app", "Langue de l’app", "Lingua dell’app", "Idioma do app", "App-taal", "Язык приложения", "Język aplikacji", "Uygulama dili", "Appspråk", "アプリの言語", "앱 언어", "应用语言", "لغة التطبيق")

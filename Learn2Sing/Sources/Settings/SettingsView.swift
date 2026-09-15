@@ -18,6 +18,11 @@ struct SettingsView: View {
 
     @State private var settingsPath: [SettingsRoute] = []
 
+    /// A category the Exercises tab's edit-categories screen just created with its
+    /// + button, waiting there to be handed the keyboard. Kept here, where the
+    /// screen is pushed from, as the Exercises tab keeps its own.
+    @State private var newExerciseCategory: String?
+
     /// Carries a tapped search result from whichever screen found it to the
     /// screen its row is on. Owned here because this is where the stack the
     /// result travels through lives.
@@ -45,6 +50,9 @@ struct SettingsView: View {
 
                     hubLink(L("Home Tab"), systemImage: "house", route: .homeTab)
                         .setting(.homeTab)
+
+                    hubLink(L("Exercises Tab"), systemImage: "music.note.list", route: .exercisesTab)
+                        .setting(.exercisesTab)
 
                     hubLink(L("Reset"), systemImage: "arrow.counterclockwise", route: .reset)
                         .setting(.reset)
@@ -136,6 +144,14 @@ struct SettingsView: View {
                     HomeCategoryEditView()
                 case .recommendationWhitelist:
                     RecommendationWhitelistView()
+                case .exercisesTab:
+                    ExercisesTabSettingsView {
+                        settingsPath.append(SettingsRoute.exerciseCategories)
+                    }
+                case .exerciseCategories:
+                    // The same screen the Exercises tab pushes when a category
+                    // header is held down, reached from here as well.
+                    ExerciseCategoryEditView(newCategory: $newExerciseCategory)
                 case .backup:
                     BackupSettingsView(
                         openExport: { settingsPath.append(SettingsRoute.backupExport) },
@@ -240,9 +256,10 @@ struct SettingsView: View {
     }
 
     /// Screens pushed onto the Settings navigation stack: the category hubs
-    /// (Audio with its instruments screens, Visuals, Voice, Home Tab, Backup,
-    /// Reset with its four screens, Language, Profile, and the message form) and
-    /// the microphone-delay and vocal-range tests they lead to. The delay test
+    /// (Audio with its instruments screens, Visuals, Voice, Home Tab and Exercises
+    /// Tab with their edit-categories screens, Backup, Reset with its four
+    /// screens, Language, Profile, and the message form) and the
+    /// microphone-delay and vocal-range tests they lead to. The delay test
     /// branches in two: the clap test's intro and playback, or the sung test's
     /// exercise picker and the run it starts.
     private enum SettingsRoute: Hashable {
@@ -263,6 +280,8 @@ struct SettingsView: View {
         case homeTab
         case homeCategories
         case recommendationWhitelist
+        case exercisesTab
+        case exerciseCategories
         case backup
         case backupExport
         // The file travels in the route rather than in a `@State` beside it: a
@@ -291,6 +310,7 @@ struct SettingsView: View {
             case .playback:       [.visualsHub, .visualsPlayback]
             case .voice:          [.voice]
             case .homeTab:        [.homeTab]
+            case .exercisesTab:   [.exercisesTab]
             case .backup:         [.backup]
             case .reset:          [.reset]
             case .resetScores:    [.reset, .resetScores]
@@ -660,6 +680,56 @@ struct HomeTabSettingsView: View {
         .navigationTitle(L("Home Tab"))
         .navigationBarTitleDisplayMode(.inline)
         .settingsSearchable(.homeTab)
+    }
+}
+
+/// The "Exercises Tab" hub reached from Settings: how that tab is put together —
+/// its categories, then how the favourites in it are marked and ordered.
+struct ExercisesTabSettingsView: View {
+    /// Re-renders this screen when the language is changed in Settings; the
+    /// strings are resolved when the body runs, so SwiftUI needs telling.
+    @ObservedObject private var appLanguage = LanguageManager.shared
+
+    @AppStorage(FavouriteDisplay.marksKey) private var marksFavourites = FavouriteDisplay.defaultMarks
+    @AppStorage(FavouriteDisplay.onTopKey) private var favouritesOnTop = FavouriteDisplay.defaultOnTop
+
+    /// Push the Exercises tab's edit-categories screen onto the Settings
+    /// navigation stack.
+    let openCategories: () -> Void
+
+    var body: some View {
+        Form {
+            Section {
+                Button(action: openCategories) {
+                    HStack {
+                        Text("Customize your Exercises tab")
+                        Spacer()
+                        Image(systemName: "chevron.forward")
+                            .font(.footnote.weight(.semibold))
+                            .foregroundStyle(.tertiary)
+                    }
+                }
+                .foregroundStyle(.primary)
+                .setting(.customiseExercises)
+            }
+
+            Section {
+                Toggle("Mark favorites in Exercises tab", isOn: $marksFavourites)
+                    .setting(.markFavourites)
+
+                // Only offered while the favourites are marked: lifted to the top
+                // with no star on them, nothing would say why those rows came first.
+                if marksFavourites {
+                    Toggle("Show favorite exercises on top", isOn: $favouritesOnTop)
+                        .setting(.favouritesOnTop)
+                }
+            } header: {
+                Text("Favorites").settingSection(.exercisesTabFavourites)
+            }
+        }
+        .navigationTitle(L("Exercises Tab"))
+        .navigationBarTitleDisplayMode(.inline)
+        .settingsSearchable(.exercisesTab)
     }
 }
 

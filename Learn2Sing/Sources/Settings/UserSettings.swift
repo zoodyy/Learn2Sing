@@ -107,6 +107,10 @@ struct UserSettings: Codable {
     var exercisesSort: String?
     var exercisesSortReversed: Bool?
     var exercisesSortIgnoresCategories: Bool?
+    /// Settings ▸ Exercises Tab: whether the tab's favourites wear a star, and
+    /// whether "Own Sorting" holds them at the top of their categories.
+    var exercisesMarkFavourites: Bool?
+    var exercisesFavouritesOnTop: Bool?
 
     /// The id given to the unnamed template `playbackVisuals` carries the live
     /// settings as. Fixed rather than freshly generated so two captures of an
@@ -151,7 +155,9 @@ struct UserSettings: Codable {
             communitySortReversed: d.bool(forKey: CommunityFeed.reversedKey),
             exercisesSort: d.string(forKey: ExerciseSort.storageKey) ?? ExerciseSort.own.rawValue,
             exercisesSortReversed: d.bool(forKey: ExerciseSort.reversedKey),
-            exercisesSortIgnoresCategories: d.bool(forKey: ExerciseSort.ignoresCategoriesKey))
+            exercisesSortIgnoresCategories: d.bool(forKey: ExerciseSort.ignoresCategoriesKey),
+            exercisesMarkFavourites: FavouriteDisplay.marks,
+            exercisesFavouritesOnTop: FavouriteDisplay.onTop)
     }
 
     /// Puts these settings back on this device: writes each one to the key its
@@ -229,5 +235,7 @@ struct UserSettings: Codable {
         if let exercisesSortIgnoresCategories {
             d.set(exercisesSortIgnoresCategories, forKey: ExerciseSort.ignoresCategoriesKey)
         }
+        if let exercisesMarkFavourites { d.set(exercisesMarkFavourites, forKey: FavouriteDisplay.marksKey) }
+        if let exercisesFavouritesOnTop { d.set(exercisesFavouritesOnTop, forKey: FavouriteDisplay.onTopKey) }
     }
 }

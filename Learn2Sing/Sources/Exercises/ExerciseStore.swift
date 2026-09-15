@@ -308,8 +308,9 @@ final class ExerciseStore: ObservableObject {
     /// Sections in the list are rendered by filtering on `category`, so only the
     /// exercise's own `category` and its order relative to its new siblings matter.
     ///
-    /// With one wrinkle: the Exercises tab draws a category's favourites above
-    /// the rest of it, while starring an exercise leaves it where it is in this
+    /// With one wrinkle while `favouritesFirst` — the Exercises tab drawing a
+    /// category's favourites above the rest of it, as Settings ▸ Exercises Tab
+    /// has it do by default: starring an exercise leaves it where it is in this
     /// array — so the list a row is dropped into isn't this array's order, and
     /// `targetID` is the row the drop landed in front of *there*. A drop aimed
     /// across the line between the two groups — a favourite let go at the last
@@ -317,7 +318,8 @@ final class ExerciseStore: ObservableObject {
     /// exercise — is carried to that line and no further. Filed against the
     /// plain exercise itself it would land wherever that one happens to sit
     /// here, which is usually back above the favourites it was dragged past.
-    func moveExercise(_ id: UUID, toCategory category: String, before targetID: UUID?) {
+    func moveExercise(_ id: UUID, toCategory category: String, before targetID: UUID?,
+                      favouritesFirst: Bool) {
         guard id != targetID,
               let from = exercises.firstIndex(where: { $0.id == id }) else { return }
         var moved = exercises.remove(at: from)
@@ -325,8 +327,9 @@ final class ExerciseStore: ObservableObject {
         let isFavourite = favourites.contains(id)
         if let targetID, let to = exercises.firstIndex(where: { $0.id == targetID }) {
             // The two are shown side by side only when they're in the same
-            // group; otherwise the drop goes to the group's own edge.
-            let sameGroup = favourites.contains(targetID) == isFavourite
+            // group; otherwise the drop goes to the group's own edge. With the
+            // favourites left in among the rest, the category is one group.
+            let sameGroup = !favouritesFirst || favourites.contains(targetID) == isFavourite
             let at = sameGroup ? to : groupEdge(inCategory: category, favourite: isFavourite) ?? to
             exercises.insert(moved, at: at)
         } else if let lastInCategory = exercises.lastIndex(where: { $0.category == category }) {

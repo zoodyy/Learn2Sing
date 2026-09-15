@@ -15,6 +15,11 @@ struct ExerciseIntroView: View {
     /// from. Also what redraws this screen when the star is tapped.
     @EnvironmentObject private var store: ExerciseStore
 
+    /// Settings ▸ Exercises Tab, which decides whether the star's explanation can
+    /// promise a favourite the top of its category.
+    @AppStorage(FavouriteDisplay.marksKey) private var marksFavourites = FavouriteDisplay.defaultMarks
+    @AppStorage(FavouriteDisplay.onTopKey) private var favouritesOnTop = FavouriteDisplay.defaultOnTop
+
     let exercise: Exercise
     /// Whether to ask the server how hard this exercise is and draw the stars.
     /// False for the audio delay test's stand-in, which is a measurement rather
@@ -374,7 +379,9 @@ struct ExerciseIntroView: View {
         }
         .buttonStyle(.plain)
         .accessibilityLabel(isFavourite ? L("Remove Favorite") : L("Favorite"))
-        .explain(L("Tap the star to make this exercise a favorite. Favorites come first in their category on the Exercises tab and fill the Home tab's “Favorites”."))
+        .explain(FavouriteDisplay.holdsOnTop(marks: marksFavourites, onTop: favouritesOnTop)
+                 ? L("Tap the star to make this exercise a favorite. Favorites come first in their category on the Exercises tab and fill the Home tab's “Favorites”.")
+                 : L("Tap the star to make this exercise a favorite. Favorites fill the Home tab's “Favorites”."))
     }
 
     /// How often this exercise has been downloaded — the same number the

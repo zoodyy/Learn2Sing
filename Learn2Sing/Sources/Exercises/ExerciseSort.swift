@@ -11,8 +11,9 @@ import Foundation
 /// business, never the order's.
 enum ExerciseSort: String, CaseIterable, Identifiable {
     /// The user's own arrangement: the library as they dragged it into shape, with
-    /// favourites held at the top of each category. The one order a row can be
-    /// dragged in, since it is the one order a drop means anything to.
+    /// favourites held at the top of each category unless Settings ▸ Exercises Tab
+    /// says otherwise (see `FavouriteDisplay`). The one order a row can be dragged
+    /// in, since it is the one order a drop means anything to.
     case own
     /// Easiest first, by the difficulty an intro screen's stars show.
     case difficulty

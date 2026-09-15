@@ -9501,6 +9501,94 @@
         }
       }
     },
+    "Customize your Exercises tab" : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "خصّص تبويب التمارين"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Übungen-Tab anpassen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Personalizar la pestaña Ejercicios"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Personnaliser l’onglet Exercices"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Personalizza la scheda Esercizi"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "エクササイズタブをカスタマイズ"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "연습 탭 맞춤 설정"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tabblad Oefeningen aanpassen"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dostosuj kartę Ćwiczenia"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Personalizar a aba Exercícios"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Настроить вкладку «Упражнения»"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Anpassa fliken Övningar"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Egzersizler sekmesini özelleştir"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "自定义练习标签"
+          }
+        }
+      }
+    },
     "Customize your Home tab" : {
       "localizations" : {
         "ar" : {
@@ -14200,6 +14288,95 @@
         }
       }
     },
+    "Draws a star in front of the name of each favorite on the Exercises tab. Off, favorites look like any other exercise there." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "يضع نجمة أمام اسم كل تمرين مفضل في تبويب التمارين. عند إيقافه، تبدو المفضلة هناك مثل أي تمرين آخر."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zeichnet im Übungen-Tab einen Stern vor den Namen jedes Favoriten. Aus sehen Favoriten dort aus wie jede andere Übung."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dibuja una estrella delante del nombre de cada favorito en la pestaña Ejercicios. Desactivado, los favoritos se ven allí como cualquier otro ejercicio."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Affiche une étoile devant le nom de chaque favori dans l’onglet Exercices. Désactivé, les favoris y ressemblent à n’importe quel autre exercice."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Disegna una stella davanti al nome di ogni preferito nella scheda Esercizi. Se disattivato, lì i preferiti sembrano esercizi come gli altri."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "エクササイズタブで、お気に入りの名前の前に星を表示します。オフにすると、お気に入りも他のエクササイズと同じ見た目になります。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "연습 탭에서 즐겨찾기마다 이름 앞에 별을 표시합니다. 끄면 즐겨찾기도 다른 연습과 똑같이 보입니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tekent op het tabblad Oefeningen een ster voor de naam van elke favoriet. Uit zien favorieten er daar uit als elke andere oefening."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rysuje gwiazdkę przed nazwą każdego ulubionego ćwiczenia na karcie Ćwiczenia. Po wyłączeniu ulubione wyglądają tam jak każde inne ćwiczenie."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Desenha uma estrela antes do nome de cada favorito na aba Exercícios. Desligado, os favoritos aparecem ali como qualquer outro exercício."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ставит звёздочку перед названием каждого избранного упражнения на вкладке «Упражнения». Если выключено, избранные выглядят там как любые другие упражнения."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ritar en stjärna framför namnet på varje favorit på fliken Övningar. Av ser favoriterna där ut som vilken övning som helst."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Egzersizler sekmesinde her favorinin adının önüne bir yıldız koyar. Kapalıyken favoriler orada diğer egzersizler gibi görünür."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在“练习”标签中每个收藏的名称前显示一颗星。关闭后，收藏在那里看起来和其他练习一样。"
+          }
+        }
+      }
+    },
     "Draws a striped lane for every pitch behind the notes, like piano keys laid on their side." : {
       "extractionState" : "stale",
       "localizations" : {
@@ -16945,6 +17122,95 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "已导入练习！"
+          }
+        }
+      }
+    },
+    "Exercises Tab" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "تبويب التمارين"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Übungen-Tab"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pestaña Ejercicios"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Onglet Exercices"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scheda Esercizi"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "エクササイズタブ"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "연습 탭"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tabblad Oefeningen"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Karta Ćwiczenia"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aba Exercícios"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Вкладка «Упражнения»"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fliken Övningar"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Egzersizler Sekmesi"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "练习标签"
           }
         }
       }
@@ -22453,6 +22719,95 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "每个音高占的高度。调高会拉开音符间距，调低则能在屏幕上容纳更宽的音域。"
+          }
+        }
+      }
+    },
+    "How the Exercises tab is put together: its categories, and how your favorites are marked and ordered." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "كيف يُبنى تبويب التمارين: فئاته، وكيف تُميَّز المفضلة وتُرتَّب."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wie der Übungen-Tab aufgebaut ist: seine Kategorien und wie deine Favoriten markiert und sortiert werden."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cómo se compone la pestaña Ejercicios: sus categorías, y cómo se marcan y ordenan tus favoritos."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La composition de l’onglet Exercices : ses catégories, et la façon dont vos favoris sont signalés et classés."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Come è composta la scheda Esercizi: le sue categorie, e come i tuoi preferiti vengono segnati e ordinati."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "エクササイズタブの構成：カテゴリと、お気に入りの目印や並べ方。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "연습 탭의 구성: 분류, 그리고 즐겨찾기를 표시하고 정렬하는 방식."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hoe het tabblad Oefeningen is opgebouwd: de categorieën, en hoe je favorieten worden gemarkeerd en gesorteerd."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jak zbudowana jest karta Ćwiczenia: jej kategorie oraz to, jak oznaczane i ustawiane są twoje ulubione."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Como a aba Exercícios é montada: suas categorias, e como seus favoritos são marcados e ordenados."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Как устроена вкладка «Упражнения»: её категории и то, как отмечаются и располагаются избранные упражнения."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hur fliken Övningar är uppbyggd: dess kategorier, och hur dina favoriter markeras och ordnas."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Egzersizler sekmesinin nasıl oluştuğu: kategorileri ve favorilerinin nasıl işaretlenip sıralandığı."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“练习”标签的组成：其中的分类，以及收藏的标记和排列方式。"
           }
         }
       }
@@ -29555,6 +29910,183 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "让整个应用中的音符都用这个音色播放。"
+          }
+        }
+      }
+    },
+    "Mark favorites in Exercises tab" : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "تمييز المفضلة في تبويب التمارين"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Favoriten im Übungen-Tab markieren"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Marcar favoritos en la pestaña Ejercicios"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Signaler les favoris dans l’onglet Exercices"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Segna i preferiti nella scheda Esercizi"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "エクササイズタブでお気に入りに印を付ける"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "연습 탭에서 즐겨찾기 표시"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Favorieten markeren op tabblad Oefeningen"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Oznaczaj ulubione na karcie Ćwiczenia"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Marcar favoritos na aba Exercícios"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Отмечать избранное на вкладке «Упражнения»"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Markera favoriter på fliken Övningar"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Egzersizler sekmesinde favorileri işaretle"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在练习标签中标记收藏"
+          }
+        }
+      }
+    },
+    "Marks your favorites on the Exercises tab with a star again and puts them back at the top of their categories. Your categories and the order you sorted the tab in are left as they are." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "يعيد تمييز مفضلتك بنجمة في تبويب التمارين ويعيدها إلى أعلى فئاتها. تبقى فئاتك والترتيب الذي اخترته للتبويب كما هي."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Markiert deine Favoriten im Übungen-Tab wieder mit einem Stern und stellt sie wieder an den Anfang ihrer Kategorien. Deine Kategorien und die Sortierung des Tabs bleiben, wie sie sind."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vuelve a marcar tus favoritos con una estrella en la pestaña Ejercicios y los devuelve a lo alto de sus categorías. Tus categorías y el orden en que ordenaste la pestaña se quedan como están."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Signale de nouveau vos favoris par une étoile dans l’onglet Exercices et les remet en haut de leurs catégories. Vos catégories et l’ordre de tri de l’onglet restent tels quels."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Segna di nuovo i tuoi preferiti con una stella nella scheda Esercizi e li riporta in cima alle loro categorie. Le tue categorie e l’ordinamento della scheda restano come sono."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "エクササイズタブのお気に入りに再び星を付け、カテゴリの先頭に戻します。カテゴリとタブの並び順はそのままです。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "연습 탭의 즐겨찾기에 다시 별을 표시하고, 각 분류의 맨 위로 되돌립니다. 분류와 탭의 정렬 순서는 그대로 남습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Markeert je favorieten op het tabblad Oefeningen weer met een ster en zet ze terug bovenaan hun categorieën. Je categorieën en de sortering van het tabblad blijven zoals ze zijn."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ponownie oznacza ulubione gwiazdką na karcie Ćwiczenia i przywraca je na górę ich kategorii. Twoje kategorie i sposób sortowania karty zostają bez zmian."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Volta a marcar seus favoritos com uma estrela na aba Exercícios e os coloca de novo no topo das categorias. Suas categorias e a ordem em que você classificou a aba ficam como estão."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Снова отмечает избранные упражнения звёздочкой на вкладке «Упражнения» и возвращает их наверх категорий. Ваши категории и выбранный порядок сортировки вкладки остаются как есть."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Markerar dina favoriter på fliken Övningar med en stjärna igen och flyttar tillbaka dem överst i sina kategorier. Dina kategorier och ordningen du sorterat fliken i lämnas som de är."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Egzersizler sekmesindeki favorilerini yeniden yıldızla işaretler ve onları kategorilerinin en üstüne geri koyar. Kategorilerin ve sekmeyi sıraladığın düzen olduğu gibi kalır."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "重新在“练习”标签中用星星标记你的收藏，并把它们放回所属分类的最上面。你的分类和标签的排序方式保持不变。"
           }
         }
       }
@@ -47201,6 +47733,95 @@
         }
       }
     },
+    "Sets the order the exercises come in, within each category or in one list with “Ignore Categories”. Only “Own Sorting” lets you drag exercises into place." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "يحدد ترتيب ظهور التمارين، داخل كل فئة أو في قائمة واحدة مع «تجاهل الفئات». «ترتيبي الخاص» وحده يتيح لك سحب التمارين إلى أماكنها."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Legt fest, in welcher Reihenfolge die Übungen stehen, innerhalb jeder Kategorie oder mit „Kategorien ignorieren“ in einer einzigen Liste. Nur bei „Eigene Sortierung“ lassen sich Übungen an ihren Platz ziehen."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Define el orden en que aparecen los ejercicios, dentro de cada categoría o en una sola lista con «Ignorar categorías». Solo «Orden propio» te deja arrastrar los ejercicios a su sitio."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Définit l’ordre des exercices, dans chaque catégorie ou en une seule liste avec « Ignorer les catégories ». Seul « Ordre personnel » permet de glisser les exercices à leur place."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Imposta l’ordine in cui compaiono gli esercizi, dentro ogni categoria o in un unico elenco con “Ignora categorie”. Solo “Ordine personale” ti permette di trascinare gli esercizi al loro posto."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "エクササイズの並び順を、カテゴリごと、または「カテゴリを無視」で1つのリストとして決めます。ドラッグで並べ替えられるのは「自分の並び順」のときだけです。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "연습이 나열되는 순서를 분류마다, 또는 “분류 무시”로 하나의 목록에서 정합니다. 끌어서 순서를 바꾸는 것은 “내 순서”에서만 됩니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bepaalt de volgorde van de oefeningen, binnen elke categorie of in één lijst met ‘Categorieën negeren’. Alleen bij ‘Eigen volgorde’ kun je oefeningen op hun plek slepen."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ustala kolejność ćwiczeń w każdej kategorii albo na jednej liście z „Ignoruj kategorie”. Tylko „Własna kolejność” pozwala przeciągać ćwiczenia na miejsce."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Define a ordem em que os exercícios aparecem, dentro de cada categoria ou em uma única lista com “Ignorar categorias”. Só “Ordem própria” permite arrastar os exercícios para o lugar."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Задаёт порядок упражнений внутри каждой категории или одним списком с «Без учёта категорий». Только в режиме «Свой порядок» упражнения можно перетаскивать."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bestämmer ordningen övningarna visas i, inom varje kategori eller i en enda lista med ”Ignorera kategorier”. Bara ”Egen ordning” låter dig dra övningarna på plats."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Egzersizlerin sırasını her kategorinin içinde ya da “Kategorileri yok say” ile tek bir listede belirler. Egzersizleri sürükleyip yerleştirmek yalnızca “Kendi sıralamam” ile olur."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "设置练习的排列顺序，可在每个分类内排列，也可用“忽略分类”排成一个列表。只有“自定义排序”能拖动练习调整位置。"
+          }
+        }
+      }
+    },
     "Sets the order the exercises come in. “Reverse Order” turns whichever order is picked around." : {
       "extractionState" : "stale",
       "localizations" : {
@@ -47463,6 +48084,94 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "显示%@"
+          }
+        }
+      }
+    },
+    "Show favorite exercises on top" : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "عرض التمارين المفضلة في الأعلى"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Favorisierte Übungen oben zeigen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mostrar los ejercicios favoritos arriba"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Afficher les exercices favoris en haut"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mostra gli esercizi preferiti in cima"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "お気に入りのエクササイズを上に表示"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "즐겨찾기 연습을 맨 위에 표시"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Favoriete oefeningen bovenaan tonen"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pokazuj ulubione ćwiczenia na górze"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mostrar exercícios favoritos no topo"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Показывать избранные упражнения наверху"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Visa favoritövningar överst"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Favori egzersizleri üstte göster"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "将收藏的练习显示在顶部"
           }
         }
       }
@@ -53315,6 +54024,95 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "点按星星即可把这个练习设为收藏。收藏的练习会排在“练习”标签中所属分类的最前面，并出现在“首页”标签的“收藏”中。"
+          }
+        }
+      }
+    },
+    "Tap the star to make this exercise a favorite. Favorites fill the Home tab's “Favorites”." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "اضغط على النجمة لإضافة هذا التمرين إلى المفضلة. تملأ المفضلة «المفضلة» في تبويب الرئيسية."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tippe auf den Stern, um diese Übung zu einem Favoriten zu machen. Favoriten füllen im Start-Tab die Kategorie „Favoriten“."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Toca la estrella para marcar este ejercicio como favorito. Los favoritos llenan la categoría «Favoritos» de la pestaña Inicio."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Touchez l’étoile pour ajouter cet exercice aux favoris. Les favoris remplissent la catégorie « Favoris » de l’onglet Accueil."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tocca la stella per rendere questo esercizio un preferito. I preferiti riempiono la categoria “Preferiti” della scheda Home."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "星をタップすると、このエクササイズをお気に入りにできます。お気に入りはホームタブの「お気に入り」に入ります。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "별을 탭하면 이 연습을 즐겨찾기에 넣습니다. 즐겨찾기는 홈 탭의 “즐겨찾기”를 채웁니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tik op de ster om deze oefening een favoriet te maken. Favorieten vullen de categorie ‘Favorieten’ op het tabblad Start."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dotknij gwiazdki, aby dodać to ćwiczenie do ulubionych. Ulubione wypełniają kategorię „Ulubione” na karcie Start."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Toque na estrela para tornar este exercício um favorito. Os favoritos preenchem a categoria “Favoritos” da aba Início."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Нажмите на звёздочку, чтобы добавить упражнение в избранное. Избранные попадают в категорию «Избранное» на вкладке «Главная»."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tryck på stjärnan för att göra övningen till en favorit. Favoriter fyller kategorin ”Favoriter” på fliken Hem."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bu egzersizi favori yapmak için yıldıza dokunun. Favoriler, Ana Sayfa sekmesindeki “Favoriler” kategorisini doldurur."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "点按星星即可把这个练习设为收藏。收藏的练习会出现在“首页”标签的“收藏”中。"
           }
         }
       }
@@ -63438,6 +64236,95 @@
         }
       }
     },
+    "Which categories the Exercises tab has, their names and the order they come in. The same screen opens by pressing and holding a category name on the Exercises tab." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "الفئات الموجودة في تبويب التمارين وأسماؤها وترتيبها. تُفتح الشاشة نفسها بالضغط مطولًا على اسم فئة في تبويب التمارين."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Welche Kategorien der Übungen-Tab hat, wie sie heißen und in welcher Reihenfolge sie stehen. Dieselbe Ansicht öffnet sich, wenn du im Übungen-Tab einen Kategorienamen gedrückt hältst."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Qué categorías tiene la pestaña Ejercicios, sus nombres y en qué orden aparecen. La misma pantalla se abre manteniendo pulsado el nombre de una categoría en la pestaña Ejercicios."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Les catégories de l’onglet Exercices, leurs noms et leur ordre. Le même écran s’ouvre en maintenant le doigt sur le nom d’une catégorie dans l’onglet Exercices."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quali categorie ha la scheda Esercizi, i loro nomi e il loro ordine. La stessa schermata si apre tenendo premuto il nome di una categoria nella scheda Esercizi."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "エクササイズタブにどのカテゴリがあり、どんな名前で、どの順に並ぶか。同じ画面は、エクササイズタブでカテゴリ名を長押ししても開きます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "연습 탭에 어떤 분류가 있고, 이름이 무엇이며, 어떤 순서로 나오는지 정합니다. 연습 탭에서 분류 이름을 길게 누르면 같은 화면이 열립니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Welke categorieën het tabblad Oefeningen heeft, hoe ze heten en in welke volgorde ze staan. Hetzelfde scherm opent door op het tabblad Oefeningen een categorienaam ingedrukt te houden."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jakie kategorie ma karta Ćwiczenia, jak się nazywają i w jakiej kolejności są ułożone. Ten sam ekran otworzysz, przytrzymując nazwę kategorii na karcie Ćwiczenia."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quais categorias a aba Exercícios tem, os nomes delas e a ordem em que aparecem. A mesma tela abre ao manter pressionado o nome de uma categoria na aba Exercícios."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Какие категории есть на вкладке «Упражнения», как они называются и в каком порядке идут. Тот же экран открывается долгим нажатием на название категории на вкладке «Упражнения»."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vilka kategorier fliken Övningar har, vad de heter och i vilken ordning de kommer. Samma skärm öppnas om du håller in ett kategorinamn på fliken Övningar."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Egzersizler sekmesinde hangi kategorilerin olduğu, adları ve sıraları. Aynı ekran, Egzersizler sekmesinde bir kategori adına basılı tutunca da açılır."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“练习”标签有哪些分类、它们的名称以及排列顺序。在“练习”标签中长按分类名称也会打开同一界面。"
+          }
+        }
+      }
+    },
     "Which categories the Home tab shows and the order they come in. The same screen opens by pressing and holding a category name on the Home tab." : {
       "extractionState" : "stale",
       "localizations" : {
@@ -63612,6 +64499,95 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "哪些练习会被自动列入：打开某一组会列入其中的全部练习，包括你库中已有的；关闭则会重新移除。你在下面自己勾选或取消的练习会保持原样。"
+          }
+        }
+      }
+    },
+    "While the Exercises tab is in “Own Sorting”, each category lists its favorites above its other exercises. Off, favorites stay wherever you dragged them." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ما دام تبويب التمارين على «ترتيبي الخاص»، تعرض كل فئة مفضلتها فوق باقي تمارينها. عند إيقافه، تبقى المفضلة حيث سحبتها."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Solange der Übungen-Tab auf „Eigene Sortierung“ steht, zeigt jede Kategorie ihre Favoriten über ihren anderen Übungen. Aus bleiben Favoriten dort, wo du sie hingezogen hast."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mientras la pestaña Ejercicios está en «Orden propio», cada categoría muestra sus favoritos por encima de sus demás ejercicios. Desactivado, los favoritos se quedan donde los arrastraste."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tant que l’onglet Exercices est en « Ordre personnel », chaque catégorie affiche ses favoris au-dessus de ses autres exercices. Désactivé, les favoris restent là où vous les avez glissés."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Finché la scheda Esercizi è su “Ordine personale”, ogni categoria elenca i suoi preferiti sopra gli altri esercizi. Se disattivato, i preferiti restano dove li hai trascinati."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "エクササイズタブが「自分の並び順」のとき、各カテゴリでお気に入りを他のエクササイズより上に並べます。オフにすると、お気に入りはドラッグで置いた場所にとどまります。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "연습 탭이 “내 순서”일 때 각 분류에서 즐겨찾기를 다른 연습보다 위에 나열합니다. 끄면 즐겨찾기는 끌어다 놓은 자리에 그대로 있습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zolang het tabblad Oefeningen op ‘Eigen volgorde’ staat, toont elke categorie haar favorieten boven haar andere oefeningen. Uit blijven favorieten staan waar je ze naartoe hebt gesleept."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gdy karta Ćwiczenia jest ustawiona na „Własna kolejność”, każda kategoria pokazuje ulubione nad pozostałymi ćwiczeniami. Po wyłączeniu ulubione zostają tam, gdzie je przeciągnięto."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enquanto a aba Exercícios estiver em “Ordem própria”, cada categoria lista seus favoritos acima dos outros exercícios. Desligado, os favoritos ficam onde você os arrastou."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Пока на вкладке «Упражнения» выбран «Свой порядок», каждая категория показывает избранные упражнения над остальными. Если выключено, избранные остаются там, куда вы их перетащили."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Så länge fliken Övningar står på ”Egen ordning” visar varje kategori sina favoriter ovanför sina andra övningar. Av stannar favoriterna där du drog dem."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Egzersizler sekmesi “Kendi sıralamam” düzenindeyken her kategori favorilerini diğer egzersizlerinin üstünde listeler. Kapalıyken favoriler, sürüklediğin yerde kalır."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "当“练习”标签使用“自定义排序”时，每个分类会把收藏排在其他练习上面。关闭后，收藏会留在你拖放到的位置。"
           }
         }
       }

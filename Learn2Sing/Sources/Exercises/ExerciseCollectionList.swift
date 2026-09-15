@@ -54,9 +54,9 @@ struct ExerciseListRow: Equatable {
     /// the row's leading edge (the routine exercise picker).
     var isSelected: Bool? = nil
     /// true draws a star in the app's accent colour just before the name, for a
-    /// favourite exercise (Exercises tab, where the favourites also sort to the
-    /// top of their category). Not set on the Home tab's "Favorites", where a
-    /// star on every row of a starred category says nothing.
+    /// favourite exercise (Exercises tab, unless Settings ▸ Exercises Tab turns
+    /// the stars off). Not set on the Home tab's "Favorites", where a star on
+    /// every row of a starred category says nothing.
     var isFavourite = false
     /// Title and symbol of the leading "Settings" swipe action, so rows that
     /// aren't exercises (routines on the Home tab) can label it differently.

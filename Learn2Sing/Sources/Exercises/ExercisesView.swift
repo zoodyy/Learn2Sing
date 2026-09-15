@@ -261,18 +261,44 @@ private struct CategoryNameField: View {
     }
 }
 
+/// How the Exercises tab shows the user's favourites, from Settings ▸ Exercises
+/// Tab: a star in front of each one's name, and under "Own Sorting" each
+/// category's favourites above the rest of it. Both on by default, which is how
+/// the tab looked before either could be switched off, and both carried in the
+/// synced settings like the tab's sort order.
+enum FavouriteDisplay {
+    static let marksKey = "exercisesMarkFavourites"
+    static let onTopKey = "exercisesFavouritesOnTop"
+    static let defaultMarks = true
+    static let defaultOnTop = true
+
+    static var marks: Bool {
+        UserDefaults.standard.object(forKey: marksKey) as? Bool ?? defaultMarks
+    }
+
+    static var onTop: Bool {
+        UserDefaults.standard.object(forKey: onTopKey) as? Bool ?? defaultOnTop
+    }
+
+    /// Whether the favourites are actually held at the top: never while they go
+    /// unmarked. The setting is hidden then, and a list lifting rows with nothing
+    /// on them to say why would only look shuffled.
+    static func holdsOnTop(marks: Bool, onTop: Bool) -> Bool { marks && onTop }
+}
+
 /// The edit-categories screen: every category as a draggable row whose name is an
 /// inline text field, with a trash button that swaps the drag handles for delete
 /// buttons and a + that adds another category. Opened by long-pressing a category
-/// header on the Exercises tab, or from its + menu.
+/// header on the Exercises tab, or from its + menu, or from Settings ▸ Exercises
+/// Tab ▸ "Customize your Exercises tab".
 ///
-/// Pushed onto the tab's navigation stack rather than swapped in behind the same
-/// title, so it is left the way every other screen is: the back button, or the
-/// system's swipe in from the leading edge, which slides the screen off the list
-/// it belongs to. Either way the edits stay — every change is written to the
-/// store as it is made, and a name still being typed is committed when the screen
-/// goes (see CategoryNameField).
-private struct CategoryEditView: View {
+/// Pushed onto the navigation stack it is opened from rather than swapped in
+/// behind the same title, so it is left the way every other screen is: the back
+/// button, or the system's swipe in from the leading edge, which slides the
+/// screen off the one it belongs to. Either way the edits stay — every change is
+/// written to the store as it is made, and a name still being typed is committed
+/// when the screen goes (see CategoryNameField).
+struct ExerciseCategoryEditView: View {
     /// Re-renders this screen when the language is changed in Settings; the
     /// strings are resolved when the body runs, so SwiftUI needs telling.
     @ObservedObject private var appLanguage = LanguageManager.shared
@@ -280,13 +306,20 @@ private struct CategoryEditView: View {
     @EnvironmentObject private var store: ExerciseStore
 
     /// A category the + button just created, waiting to be scrolled to and handed
-    /// the keyboard. Cleared once it has focus. Owned by the tab, since its own +
-    /// menu opens this screen with a new category already on it.
+    /// the keyboard. Cleared once it has focus. Owned by whoever pushes the screen,
+    /// since the tab's own + menu opens it with a new category already on it.
     @Binding var newCategory: String?
 
-    /// Renames through the tab, which carries the category's collapse state over
-    /// to the new name. Old name first.
-    let onRename: (String, String) -> Void
+    /// The Exercises tab's collapsed categories, stored the way the tab stores
+    /// them. A rename carries a category's collapse state over to its new name
+    /// from here rather than from the tab, since the screen is opened from
+    /// Settings too, where the tab has no hand in it.
+    @AppStorage(ExercisesView.collapsedCategoriesKey) private var collapsedCategoriesRaw = ""
+
+    private var collapsedCategories: Set<String> {
+        get { Set(collapsedCategoriesRaw.split(separator: "\n").map(String.init)) }
+        nonmutating set { collapsedCategoriesRaw = newValue.sorted().joined(separator: "\n") }
+    }
 
     /// Always active so the rows show drag handles; turned off while deleting.
     @State private var editMode: EditMode = .active
@@ -365,7 +398,7 @@ private struct CategoryEditView: View {
                 CategoryNameField(category: category,
                                   isNew: category == newCategory,
                                   focus: $focusedCategory) { newName in
-                    onRename(category, newName)
+                    rename(category, to: newName)
                 }
             }
             Text(verbatim: "(\(count))")
@@ -383,6 +416,15 @@ private struct CategoryEditView: View {
         // One explanation for the whole row rather than one per control: two
         // press-and-hold targets inside each other would both answer the hold.
         .settingHelp(L("Tap the name to rename the category, and drag by the handle on the right to reorder it. The number is how many exercises it holds."))
+    }
+
+    /// Rename via the store, then carry the collapse state over to the new name so
+    /// the category doesn't spring open on the Exercises tab.
+    private func rename(_ category: String, to newName: String) {
+        guard store.renameCategory(category, to: newName) else { return }
+        if collapsedCategories.remove(category) != nil {
+            collapsedCategories.insert(newName)
+        }
     }
 
     /// Swap the rows' drag handles for delete buttons and back. Edit mode is what
@@ -437,7 +479,7 @@ struct ExercisesView: View {
     /// it is reopened, and kept out of the profile ProfileSync uploads (like the
     /// Home tab's), so a reinstall opens every category again.
     @AppStorage(ExercisesView.collapsedCategoriesKey) private var collapsedCategoriesRaw = ""
-    private static let collapsedCategoriesKey = "exercisesCollapsedCategories"
+    static let collapsedCategoriesKey = "exercisesCollapsedCategories"
 
     private var collapsedCategories: Set<String> {
         get { Set(collapsedCategoriesRaw.split(separator: "\n").map(String.init)) }
@@ -468,6 +510,17 @@ struct ExercisesView: View {
     /// The sort menu's "Ignore Categories" pick, kept the same way as the reverse
     /// switch. See `ignoresCategories` for whether it applies.
     @AppStorage(ExerciseSort.ignoresCategoriesKey) private var isIgnoringCategories = false
+
+    /// Settings ▸ Exercises Tab: whether a favourite wears its star here, and
+    /// whether "Own Sorting" lists the favourites first. See `FavouriteDisplay`.
+    @AppStorage(FavouriteDisplay.marksKey) private var marksFavourites = FavouriteDisplay.defaultMarks
+    @AppStorage(FavouriteDisplay.onTopKey) private var favouritesOnTop = FavouriteDisplay.defaultOnTop
+
+    /// Whether the favourites are held at the top of each category right now:
+    /// only in the user's own order, and only while the settings above ask for it.
+    private var holdsFavouritesOnTop: Bool {
+        sort == .own && FavouriteDisplay.holdsOnTop(marks: marksFavourites, onTop: favouritesOnTop)
+    }
 
     /// Whether the list is one run of every exercise with no category headers:
     /// "Ignore Categories" as it applies to the current order. Never on "Own
@@ -533,21 +586,22 @@ struct ExercisesView: View {
     /// section holding every exercise instead.
     private var listSections: [ExerciseListSection] {
         let favourites = Set(store.favourites)
-        let isOwnSorting = sort == .own
-        // In the user's own order, favourites first, each group in the order the
-        // library holds it, so a starred exercise rises to the top of its
-        // category and the rest of the category keeps the arrangement the user
-        // dragged it into. Any other order is the order itself: a favourite is
-        // placed like every other exercise, still wearing its star. A category
-        // is still a category either way: nothing moves out of one.
+        let favouritesFirst = holdsFavouritesOnTop
+        // In the user's own order, favourites first (unless Settings ▸ Exercises
+        // Tab leaves them in among the rest), each group in the order the library
+        // holds it, so a starred exercise rises to the top of its category and
+        // the rest of the category keeps the arrangement the user dragged it
+        // into. Any other order is the order itself: a favourite is placed like
+        // every other exercise, still wearing its star. A category is still a
+        // category either way: nothing moves out of one.
         func rows(_ exercises: [Exercise]) -> [ExerciseListRow] {
-            let arranged = isOwnSorting
+            let arranged = favouritesFirst
                 ? exercises.filter { favourites.contains($0.id) }
                     + exercises.filter { !favourites.contains($0.id) }
                 : exercises
             return arranged.map {
                 ExerciseListRow(exercise: $0, pattern: store.notes(for: $0.id),
-                                isFavourite: favourites.contains($0.id))
+                                isFavourite: marksFavourites && favourites.contains($0.id))
             }
         }
         // Put in order once, as a whole. Every group below is drawn out of this
@@ -656,15 +710,6 @@ struct ExercisesView: View {
         )
     }
 
-    /// Rename via the store, then carry the collapse state over to the new name so
-    /// the category doesn't spring open when the edit-categories screen is left.
-    private func renameCategory(_ category: String, to newName: String) {
-        guard store.renameCategory(category, to: newName) else { return }
-        if collapsedCategories.remove(category) != nil {
-            collapsedCategories.insert(newName)
-        }
-    }
-
     /// Create the category immediately under a placeholder name and open the
     /// edit-categories screen with its name field ready to type in — like a new
     /// exercise, it's named where it lives rather than in an alert beforehand.
@@ -672,7 +717,7 @@ struct ExercisesView: View {
         // A search the new category doesn't match would hide it the moment the
         // user came back from naming it.
         searchText = ""
-        newCategory = CategoryEditView.addCategory(to: store)
+        newCategory = ExerciseCategoryEditView.addCategory(to: store)
         navigationPath.append(ExerciseRoute.editCategories)
     }
 
@@ -779,7 +824,8 @@ struct ExercisesView: View {
                         // shape: under any other order a dropped row would
                         // spring straight back to where the order puts it.
                         onMove: sort == .own ? { id, category, before in
-                            store.moveExercise(id, toCategory: category, before: before)
+                            store.moveExercise(id, toCategory: category, before: before,
+                                               favouritesFirst: holdsFavouritesOnTop)
                         } : nil,
                         onDragChange: { isDraggingExercise = $0 },
                         hidesSearchBarInitially: true,
@@ -876,7 +922,9 @@ struct ExercisesView: View {
                 // After the filter, where the Community tab has its own.
                 ToolbarItem(placement: .topBarTrailing) {
                     ExerciseSortMenu(sort: $sort, isReversed: $isReversed,
-                                     ignoresCategories: $isIgnoringCategories)
+                                     ignoresCategories: $isIgnoringCategories,
+                                     favouritesOnTop: FavouriteDisplay.holdsOnTop(
+                                        marks: marksFavourites, onTop: favouritesOnTop))
                 }
             }
             // On the list itself rather than on the tab, so the tab being opened
@@ -958,7 +1006,7 @@ struct ExercisesView: View {
                         EditingView(exercise: ex)
                     }
                 case .editCategories:
-                    CategoryEditView(newCategory: $newCategory, onRename: renameCategory)
+                    ExerciseCategoryEditView(newCategory: $newCategory)
                 case .user, .routine, .routineIntro, .routinePicker, .routinePlay, .routinePlayback,
                      .recommendationIntro, .recommendationPlay, .recommendationPlayback,
                      .homeTabSettings, .recommendationWhitelist,
@@ -982,6 +1030,9 @@ private struct ExerciseSortMenu: View {
     @Binding var sort: ExerciseSort
     @Binding var isReversed: Bool
     @Binding var ignoresCategories: Bool
+    /// Whether "Own Sorting" holds the favourites at the top, which the
+    /// explanation only promises while Settings ▸ Exercises Tab has it do so.
+    let favouritesOnTop: Bool
 
     var body: some View {
         Menu {
@@ -1009,6 +1060,8 @@ private struct ExerciseSortMenu: View {
             Image(systemName: "arrow.up.arrow.down.circle")
         }
         .accessibilityLabel("Sort")
-        .explain(L("Sets the order the exercises come in, within each category or in one list with “Ignore Categories”. Only “Own Sorting” lets you drag exercises into place, and keeps favorites at the top."))
+        .explain(favouritesOnTop
+                 ? L("Sets the order the exercises come in, within each category or in one list with “Ignore Categories”. Only “Own Sorting” lets you drag exercises into place, and keeps favorites at the top.")
+                 : L("Sets the order the exercises come in, within each category or in one list with “Ignore Categories”. Only “Own Sorting” lets you drag exercises into place."))
     }
 }

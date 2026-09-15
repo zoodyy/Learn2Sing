@@ -40,6 +40,7 @@ enum SettingsScreen: String, CaseIterable, Hashable {
     case playback
     case voice
     case homeTab
+    case exercisesTab
     case backup
     case reset
     case resetScores
@@ -53,7 +54,7 @@ enum SettingsScreen: String, CaseIterable, Hashable {
     var parent: SettingsScreen? {
         switch self {
         case .root:                                                  nil
-        case .profile, .audio, .visuals, .voice, .homeTab,
+        case .profile, .audio, .visuals, .voice, .homeTab, .exercisesTab,
              .backup, .reset, .language, .feedback:                  .root
         case .instruments, .delayChoice:                             .audio
         case .menus, .playback:                                      .visuals
@@ -76,6 +77,7 @@ enum SettingsScreen: String, CaseIterable, Hashable {
         case .playback:       L("Playback")
         case .voice:          L("Voice")
         case .homeTab:        L("Home Tab")
+        case .exercisesTab:   L("Exercises Tab")
         case .backup:         L("Backup")
         case .reset:          L("Reset")
         case .resetScores:    L("Scores")
@@ -139,6 +141,7 @@ extension SettingKey {
     static let voice          = SettingKey("voice")
     static let visuals        = SettingKey("visuals")
     static let homeTab        = SettingKey("homeTab")
+    static let exercisesTab   = SettingKey("exercisesTab")
     static let reset          = SettingKey("reset")
     static let backup         = SettingKey("backup")
     static let language       = SettingKey("language")
@@ -246,6 +249,12 @@ extension SettingKey {
     static let dailyPracticeGoal     = SettingKey("homeTab.practiceGoal")
     static let autoWhitelist         = SettingKey("homeTab.autoWhitelist")
     static let whitelist             = SettingKey("homeTab.whitelist")
+
+    // Exercises tab
+    static let customiseExercises     = SettingKey("exercisesTab.customise")
+    static let exercisesTabFavourites = SettingKey("section.exercisesTab.favourites")
+    static let markFavourites         = SettingKey("exercisesTab.markFavourites")
+    static let favouritesOnTop        = SettingKey("exercisesTab.favouritesOnTop")
 
     // Backup
     static let exportExercises = SettingKey("backup.export")
@@ -427,6 +436,8 @@ enum SettingsCatalog {
             help: L("Theme, orientation and the look of the playback screen."))
         add(.homeTab, .root, title: L("Home Tab"),
             help: L("How the Home tab is put together: which categories it shows and in what order, and the recommendations it suggests."))
+        add(.exercisesTab, .root, title: L("Exercises Tab"),
+            help: L("How the Exercises tab is put together: its categories, and how your favorites are marked and ordered."))
         add(.reset, .root, title: L("Reset"),
             help: L("Delete your scores, exercises and Home tab lists, or put your settings back to how the app started out."))
         add(.backup, .root, title: L("Backup"),
@@ -612,6 +623,18 @@ enum SettingsCatalog {
             help: L("Which exercises are whitelisted for you: switching a group on whitelists everything in it, including what was already in your library, and switching it off takes them out again. Exercises you check or uncheck yourself below are left as you left them."))
         add(.whitelist, .homeTab, section: L("Recommendations"), title: L("Whitelisted exercises"),
             help: L("The exercises recommendations are picked from. The groups picked above are checked for you; tap an exercise to add or remove it yourself, which the groups then leave alone."))
+
+        // MARK: Exercises tab
+        add(.customiseExercises, .exercisesTab, title: L("Customize your Exercises tab"),
+            help: L("Which categories the Exercises tab has, their names and the order they come in. The same screen opens by pressing and holding a category name on the Exercises tab."))
+        heading(.exercisesTabFavourites, .exercisesTab, L("Favorites"))
+        add(.markFavourites, .exercisesTab, section: L("Favorites"),
+            title: L("Mark favorites in Exercises tab"),
+            help: L("Draws a star in front of the name of each favorite on the Exercises tab. Off, favorites look like any other exercise there."))
+        add(.favouritesOnTop, .exercisesTab, section: L("Favorites"),
+            title: L("Show favorite exercises on top"),
+            help: L("While the Exercises tab is in “Own Sorting”, each category lists its favorites above its other exercises. Off, favorites stay wherever you dragged them."),
+            available: { FavouriteDisplay.marks })
 
         // MARK: Backup
         heading(.backupExercises, .backup, L("Exercises"))
