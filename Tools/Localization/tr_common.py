@@ -20,7 +20,6 @@ T("Cancel", "Abbrechen", "Cancelar", "Annuler", "Annulla", "Cancelar", "Annulere
 T("Delete", "Löschen", "Eliminar", "Supprimer", "Elimina", "Excluir", "Verwijderen", "Удалить", "Usuń", "Sil", "Radera", "削除", "삭제", "删除", "حذف")
 T("Done", "Fertig", "Listo", "Terminé", "Fatto", "Concluído", "Klaar", "Готово", "Gotowe", "Bitti", "Klar", "完了", "완료", "完成", "تم")
 T("Save", "Sichern", "Guardar", "Enregistrer", "Salva", "Salvar", "Bewaren", "Сохранить", "Zapisz", "Kaydet", "Spara", "保存", "저장", "保存", "حفظ")
-T("Create", "Erstellen", "Crear", "Créer", "Crea", "Criar", "Aanmaken", "Создать", "Utwórz", "Oluştur", "Skapa", "作成", "만들기", "创建", "إنشاء")
 T("Edit", "Bearbeiten", "Editar", "Modifier", "Modifica", "Editar", "Bewerken", "Изменить", "Edytuj", "Düzenle", "Redigera", "編集", "편집", "编辑", "تعديل")
 T("Add", "Hinzufügen", "Añadir", "Ajouter", "Aggiungi", "Adicionar", "Toevoegen", "Добавить", "Dodaj", "Ekle", "Lägg till", "追加", "추가", "添加", "إضافة")
 T("Back", "Zurück", "Atrás", "Retour", "Indietro", "Voltar", "Terug", "Назад", "Wstecz", "Geri", "Tillbaka", "戻る", "뒤로", "返回", "رجوع")

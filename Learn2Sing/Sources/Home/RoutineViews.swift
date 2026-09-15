@@ -28,9 +28,12 @@ private struct RoutineExerciseRow: View {
 }
 
 /// The inline-editable routine name at the top of the edit-routine screen.
-/// Commits (via the store) when the user submits, focus moves away, or the
-/// screen goes away — see RoutineDetailsField for why leaving counts. An empty
-/// name is refused and the text reverts.
+/// Written to the store as it is typed, like an exercise's name on its settings
+/// screen, so the routine is already up to date when the screen is popped — the
+/// Home tab looks at it at that very moment to tell a new routine that was never
+/// touched from one that was, and popping the screen doesn't report the lost
+/// focus. An empty name is never written: the store keeps the last one that
+/// wasn't, and the text goes back to it when the user submits or focus moves away.
 private struct RoutineNameField: View {
     @EnvironmentObject private var store: ExerciseStore
     let routineID: UUID
@@ -45,36 +48,32 @@ private struct RoutineNameField: View {
     var body: some View {
         TextField("Name", text: $name)
             .focused($isFocused)
+            .onChange(of: name) { _, newName in
+                store.renameRoutine(routineID, to: newName.trimmingCharacters(in: .whitespaces))
+            }
             .onSubmit(commit)
             .onChange(of: isFocused) { _, focused in
                 if !focused { commit() }
             }
-            .onDisappear(perform: commit)
     }
 
+    /// Show what the store holds: the name trimmed, or — for one emptied out —
+    /// the last name that wasn't empty.
     private func commit() {
-        let trimmed = name.trimmingCharacters(in: .whitespaces)
-        if trimmed.isEmpty {
-            // Revert instead of committing an empty name.
-            name = store.routines.first(where: { $0.id == routineID })?.name ?? name
-        } else {
-            store.renameRoutine(routineID, to: trimmed)
-            name = trimmed
-        }
+        name = store.routines.first(where: { $0.id == routineID })?.name ?? name
     }
 }
 
 /// The inline-editable routine description, sitting under the name field on the
-/// edit-routine screen. Commits (via the store) when focus moves away or the
-/// screen goes away — leaving while still editing is the norm for a routine with
-/// no exercises, where there's nothing else on screen to tap to end editing, and
-/// popping the screen doesn't report the lost focus. Unlike the name, an empty
-/// description is allowed.
+/// edit-routine screen. Written to the store as it is typed, for the same reason
+/// the name is (see RoutineNameField) — which is also what keeps a description
+/// typed into a routine with no exercises, where there's nothing else on screen
+/// to tap to end editing before leaving. Unlike the name, an empty description
+/// is allowed.
 private struct RoutineDetailsField: View {
     @EnvironmentObject private var store: ExerciseStore
     let routineID: UUID
     @State private var details: String
-    @FocusState private var isFocused: Bool
 
     init(routineID: UUID, details: String) {
         self.routineID = routineID
@@ -84,19 +83,15 @@ private struct RoutineDetailsField: View {
     var body: some View {
         TextField("Shown before the routine starts", text: $details, axis: .vertical)
             .lineLimit(3...8)
-            .focused($isFocused)
-            .onChange(of: isFocused) { _, focused in
-                if !focused { commit() }
+            .onChange(of: details) { _, newDetails in
+                store.setRoutineDetails(routineID, to: newDetails)
             }
-            .onDisappear(perform: commit)
-    }
-
-    private func commit() {
-        store.setRoutineDetails(routineID, to: details)
     }
 }
 
-/// Edit screen for one routine, reached by swiping right on it in the Home tab.
+/// Edit screen for one routine, reached by swiping right on it in the Home tab,
+/// from its intro screen's toolbar, or straight from the + button that creates it.
+/// Leaving it confirms with a "Routine Saved!" toast (see ToastCenter).
 /// Deliberately the same layout as the Exercises tab's edit-categories screen —
 /// draggable rows, a trash toggle that swaps the drag handles for delete buttons,
 /// and a + button — minus the per-row counts, with the rows being the routine's

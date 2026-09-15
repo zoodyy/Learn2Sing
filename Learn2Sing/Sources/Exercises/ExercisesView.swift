@@ -762,13 +762,7 @@ struct ExercisesView: View {
         if collapsedCategories.contains(exercise.category) {
             withAnimation { _ = collapsedCategories.remove(exercise.category) }
         }
-        highlightedExerciseID = id
-        // Long enough for the scroll and the flash to have finished, so a later
-        // rebuild of the list (switching tabs and back) doesn't replay them.
-        Task {
-            try? await Task.sleep(for: .seconds(3.5))
-            if highlightedExerciseID == id { highlightedExerciseID = nil }
-        }
+        ExerciseCollectionList.pointOut(id, via: $highlightedExerciseID)
     }
 
     var body: some View {

@@ -181,9 +181,10 @@ struct ExerciseCollectionList: UIViewControllerRepresentable {
     /// `.safeAreaInset` holds for that bar never reaches it, and the last rows
     /// would sit under the bar with no way to scroll them clear.
     var bottomContentInset: CGFloat = 0
-    /// Set to an exercise to scroll it into view and flash it once — how a
-    /// just-created exercise is pointed out when its settings screen is popped
-    /// (Exercises tab). Each id is acted on only once.
+    /// Set to a row to scroll it into view and flash it once — how a just-created
+    /// exercise is pointed out when its settings screen is popped (Exercises tab),
+    /// and a just-created routine when its edit screen is (Home tab). Each id is
+    /// acted on only once. Set it through `pointOut(_:via:)`.
     var highlightedID: UUID? = nil
     /// What the one-off hint pointing at a category name says, or nil for a list
     /// with no hint to give (see CategoryHint). The list picks a category name
@@ -237,6 +238,19 @@ struct ExerciseCollectionList: UIViewControllerRepresentable {
         // loading, which is where a list parked at its end would otherwise sit
         // waiting to be scrolled (see `checkLoadMore`).
         controller.checkLoadMore()
+    }
+
+    /// Point out a row the user has just created: hand its id to `highlight` —
+    /// what the screen passes as `highlightedID` — then take it back once the
+    /// scroll and the flash have had time to finish, so a later rebuild of the
+    /// list (switching tabs and back) doesn't replay them. Shared by the
+    /// Exercises tab's new exercises and the Home tab's new routines.
+    static func pointOut(_ id: UUID, via highlight: Binding<UUID?>) {
+        highlight.wrappedValue = id
+        Task {
+            try? await Task.sleep(for: .seconds(3.5))
+            if highlight.wrappedValue == id { highlight.wrappedValue = nil }
+        }
     }
 }
 

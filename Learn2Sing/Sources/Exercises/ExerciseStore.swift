@@ -655,6 +655,14 @@ final class ExerciseStore: ObservableObject {
         return routine
     }
 
+    /// Delete a just-created routine the user backed out of without touching:
+    /// its name and description still match the snapshot taken at creation and
+    /// no exercises were added. The routine's counterpart to `discardIfUntouched`.
+    func discardRoutineIfUntouched(_ created: Routine) {
+        guard routines.first(where: { $0.id == created.id }) == created else { return }
+        deleteRoutine(created.id)
+    }
+
     /// Delete a routine. Its exercises are untouched — they only stop being
     /// grouped by it.
     func deleteRoutine(_ id: UUID) {
@@ -665,7 +673,8 @@ final class ExerciseStore: ObservableObject {
     /// Rename a routine. Refused only when the new name is empty after trimming.
     func renameRoutine(_ id: UUID, to newName: String) {
         guard !newName.isEmpty,
-              let idx = routines.firstIndex(where: { $0.id == id }) else { return }
+              let idx = routines.firstIndex(where: { $0.id == id }),
+              routines[idx].name != newName else { return }
         routines[idx].name = newName
         saveRoutines()
     }

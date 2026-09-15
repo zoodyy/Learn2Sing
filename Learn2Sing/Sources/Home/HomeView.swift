@@ -244,9 +244,10 @@ struct HomeCategoryEditView: View {
 /// for — see NewForYouFeed),
 /// "Time Spent Singing" (the last 30 days of practice as coloured squares — see
 /// PracticeCalendarView), "Routines" (the user's own ordered exercise lists,
-/// created via the + button; swipe right on one to edit it, swipe left to
-/// delete it after a confirmation), "Favorites" (every exercise starred on its
-/// own intro screen, in the order they were starred), and "Recent" (the last
+/// created via the + button, which opens the new one's edit screen the way "New
+/// Exercise" opens an exercise's settings; swipe right on one to edit it, swipe
+/// left to delete it after a confirmation), "Favorites" (every exercise starred
+/// on its own intro screen, in the order they were starred), and "Recent" (the last
 /// five exercises that played through to the end).
 /// Routines and favourites are rearranged in place by long-pressing a row and
 /// dragging it, each within its own category — the computed categories can't
@@ -297,9 +298,16 @@ struct HomeView: View {
     @AppStorage(NewForYouFeed.countKey)
     private var newForYouCount = NewForYouFeed.defaultCount
 
-    /// Drives the "name your new routine" alert opened from the + button.
-    @State private var isNamingNewRoutine = false
-    @State private var newRoutineName = ""
+    /// The as-created snapshot of a routine added via the + button. Compared
+    /// against on return to the list so a routine the user never touched (no
+    /// name, description or exercise change) is silently discarded — exactly as
+    /// the Exercises tab does with a new exercise.
+    @State private var pendingNewRoutine: Routine?
+
+    /// The routine the list should scroll to and flash: a newly created one,
+    /// which otherwise lands at the bottom of "Routines", possibly off screen.
+    /// Cleared once the flash is over so it isn't repeated.
+    @State private var highlightedRoutineID: UUID?
 
     /// The routine a left swipe asked to delete, while its "really delete?"
     /// confirmation is up. A copy, not a lookup, so the alert still shows the
@@ -605,6 +613,25 @@ struct HomeView: View {
         }
     }
 
+    /// The + button on "Routines": create the routine immediately and open its
+    /// edit screen, where the user picks the name and everything else — like a
+    /// new exercise, it's named where it lives rather than in an alert beforehand.
+    private func addRoutine() {
+        guard let routine = store.addRoutine(named: L("New Routine")) else { return }
+        pendingNewRoutine = routine
+        navigationPath.append(ExerciseRoute.routine(routine.id))
+    }
+
+    /// Ask the list to scroll to a just-created routine and flash it. "Routines"
+    /// is expanded first — otherwise the row it should point at isn't in the list
+    /// at all.
+    private func revealCreatedRoutine(_ id: UUID) {
+        if collapsedCategories.contains(HomeCategories.routines) {
+            withAnimation { _ = collapsedCategories.remove(HomeCategories.routines) }
+        }
+        ExerciseCollectionList.pointOut(id, via: $highlightedRoutineID)
+    }
+
     /// Tap on a routine: open its intro screen, where the description is shown
     /// and the order for this play-through can be changed before starting. An
     /// empty routine opens its editor instead, since there's nothing to play yet.
@@ -774,10 +801,7 @@ struct HomeView: View {
             onHeaderLongPress: { navigationPath.append(ExerciseRoute.editCategories) },
             // "Routines" is the only category with a + button left, so a tap on
             // one is always a new routine.
-            onAdd: { _ in
-                newRoutineName = ""
-                isNamingNewRoutine = true
-            },
+            onAdd: { _ in addRoutine() },
             onCalendarSelect: { selection in
                 withAnimation(.snappy(duration: 0.2)) {
                     // Tapping the square the bubble already points at puts it
@@ -799,7 +823,8 @@ struct HomeView: View {
                 }
             },
             onDragChange: { isDraggingRow = $0 },
-            movesStayInSection: true
+            movesStayInSection: true,
+            highlightedID: highlightedRoutineID
         )
         // Span the full screen like a List so content scrolls under the
         // navigation and tab bars.
@@ -841,15 +866,6 @@ struct HomeView: View {
                     ReorderableListTitle(title: L("Home"), isDragging: isDraggingRow)
                 }
             }
-            .alert("New Routine", isPresented: $isNamingNewRoutine) {
-                TextField("Name", text: $newRoutineName)
-                Button("Create") {
-                    store.addRoutine(named: newRoutineName.trimmingCharacters(in: .whitespaces))
-                }
-                Button("Cancel", role: .cancel) {}
-            } message: {
-                Text("Enter a name for the new routine.")
-            }
             .alert("Delete Routine?", isPresented: $isConfirmingRoutineDelete,
                    presenting: routinePendingDelete) { routine in
                 Button("Delete", role: .destructive) {
@@ -864,10 +880,22 @@ struct HomeView: View {
             // list alone rather than reshuffling it under the user.
             .task { await newForYou.refreshIfNeeded() }
             .onChange(of: navigationPath) { old, new in
-                toasts.routesPopped(from: old, to: new)
                 // The bubble belongs to this screen, so it doesn't follow the
                 // user onto the next one and shouldn't be waiting on the way back.
                 calendarSelection = nil
+                // Back at the list after creating a routine: if it was never
+                // touched (the exercise picker deeper in this path can't be
+                // showing anymore), remove it again — and skip the "Saved!" toast
+                // for it. The same as the Exercises tab after "New Exercise".
+                if new.isEmpty, let created = pendingNewRoutine {
+                    pendingNewRoutine = nil
+                    store.discardRoutineIfUntouched(created)
+                    if !store.routines.contains(where: { $0.id == created.id }) { return }
+                    // Point it out, since it lands at the bottom of "Routines"
+                    // and may well be off screen.
+                    revealCreatedRoutine(created.id)
+                }
+                toasts.routesPopped(from: old, to: new)
             }
             // A delete is the only thing that can shorten the library, and the
             // only thing that can leave a route on the path pointing at something

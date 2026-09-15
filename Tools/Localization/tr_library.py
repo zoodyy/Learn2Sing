@@ -163,7 +163,6 @@ T("Downloads", "Downloads", "Descargas", "Téléchargements", "Download", "Downl
 
 # --- Routines & favourites ---
 T("New Routine", "Neue Routine", "Nueva rutina", "Nouvelle routine", "Nuova routine", "Nova rotina", "Nieuwe routine", "Новая программа", "Nowa rutyna", "Yeni rutin", "Ny rutin", "新規ルーティン", "새 루틴", "新建训练组", "روتين جديد")
-T("Enter a name for the new routine.", "Gib einen Namen für die neue Routine ein.", "Escribe un nombre para la nueva rutina.", "Saisissez un nom pour la nouvelle routine.", "Inserisci un nome per la nuova routine.", "Digite um nome para a nova rotina.", "Voer een naam in voor de nieuwe routine.", "Введите название новой программы.", "Wpisz nazwę nowej rutyny.", "Yeni rutin için bir ad girin.", "Ange ett namn för den nya rutinen.", "新しいルーティンの名前を入力してください。", "새 루틴의 이름을 입력하세요.", "请输入新训练组的名称。", "أدخل اسمًا للروتين الجديد.")
 T("Delete Routine?", "Routine löschen?", "¿Eliminar la rutina?", "Supprimer la routine ?", "Eliminare la routine?", "Excluir rotina?", "Routine verwijderen?", "Удалить программу?", "Usunąć rutynę?", "Rutin silinsin mi?", "Radera rutinen?", "ルーティンを削除しますか？", "루틴을 삭제할까요?", "要删除该训练组吗？", "حذف الروتين؟")
 T("“%@” will be deleted. Its exercises stay in your library. This cannot be undone.",
   "„%@“ wird gelöscht. Die enthaltenen Übungen bleiben in deiner Bibliothek. Das lässt sich nicht rückgängig machen.",
@@ -195,6 +194,7 @@ T("Hide %@", "%@ ausblenden", "Ocultar %@", "Masquer %@", "Nascondi %@", "Oculta
 
 # --- Toasts ---
 T("Exercise Saved!", "Übung gesichert!", "¡Ejercicio guardado!", "Exercice enregistré !", "Esercizio salvato!", "Exercício salvo!", "Oefening bewaard!", "Упражнение сохранено!", "Zapisano ćwiczenie!", "Egzersiz kaydedildi!", "Övningen sparad!", "エクササイズを保存しました！", "연습을 저장했습니다!", "已保存练习！", "تم حفظ التمرين!")
+T("Routine Saved!", "Routine gesichert!", "¡Rutina guardada!", "Routine enregistrée !", "Routine salvata!", "Rotina salva!", "Routine bewaard!", "Программа сохранена!", "Zapisano rutynę!", "Rutin kaydedildi!", "Rutinen sparad!", "ルーティンを保存しました！", "루틴을 저장했습니다!", "已保存训练组！", "تم حفظ الروتين!")
 T("MIDI Saved!", "MIDI gesichert!", "¡MIDI guardado!", "MIDI enregistré !", "MIDI salvato!", "MIDI salvo!", "MIDI bewaard!", "MIDI сохранён!", "Zapisano MIDI!", "MIDI kaydedildi!", "MIDI sparad!", "MIDIを保存しました！", "MIDI를 저장했습니다!", "已保存 MIDI！", "تم حفظ MIDI!")
 
 # --- MIDI editor ---
