@@ -31,6 +31,7 @@ extension View {
                     // negative value.
                     Button(action: onToggleSign) {
                         Image(systemName: "plus.forwardslash.minus")
+                            .toolbarSymbolHitArea(minWidth: 36)
                     }
                     .explain(L("Turns the number in the field from plus to minus and back, since the number pad has no minus key."))
                 }

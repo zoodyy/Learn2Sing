@@ -655,6 +655,7 @@ private struct CommunityFilterMenu: View {
             Image(systemName: list.activeFilter == nil
                   ? "line.3.horizontal.decrease.circle"
                   : "line.3.horizontal.decrease.circle.fill")
+                .toolbarHitArea()
         }
         .accessibilityLabel("Filter")
         .explain(L("Narrows the list to the exercises you have liked, or to the ones you have not. The button is filled in while a filter is on."))
@@ -686,6 +687,7 @@ private struct CommunitySortMenu: View {
             }
         } label: {
             Image(systemName: "arrow.up.arrow.down.circle")
+                .toolbarHitArea()
         }
         .accessibilityLabel("Sort")
         .explain(L("Sets the order the exercises come in. “Reverse Order” turns whichever order is picked around."))

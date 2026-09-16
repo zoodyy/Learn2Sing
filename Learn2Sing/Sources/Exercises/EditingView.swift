@@ -693,6 +693,10 @@ struct EditingView: View {
                 .padding(6)
                 .background(tool == t ? Color.accentColor.opacity(0.2) : Color.clear,
                             in: RoundedRectangle(cornerRadius: 6))
+                // Out to the glass's box at the ends of the row, and half the
+                // row's spacing towards each neighbour.
+                .toolbarHitArea(reach: EdgeInsets(top: 16, leading: t == .pen ? 16 : 1,
+                                                  bottom: 16, trailing: t == .hand ? 16 : 1))
         }
         .explain(help)
     }

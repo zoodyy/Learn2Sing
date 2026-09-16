@@ -281,6 +281,7 @@ struct InstrumentsView: View {
                     isImporting = true
                 } label: {
                     Image(systemName: "plus")
+                        .toolbarSymbolHitArea()
                 }
                 .explain(L("Uploads an MP3 or WAV file holding one single sound, to play the notes with."))
             }

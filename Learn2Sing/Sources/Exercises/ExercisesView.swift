@@ -872,6 +872,7 @@ struct ExercisesView: View {
                         }
                     } label: {
                         Image(systemName: "plus")
+                            .toolbarSymbolHitArea()
                     }
                     .explain(L("Makes an empty exercise and opens its settings, or adds a category to sort your exercises into."))
                 }
@@ -914,6 +915,7 @@ struct ExercisesView: View {
                         Image(systemName: activeFilters.isEmpty
                               ? "line.3.horizontal.decrease.circle"
                               : "line.3.horizontal.decrease.circle.fill")
+                            .toolbarHitArea()
                     }
                     .accessibilityLabel("Filter")
                     .explain(L("Narrows the list to where the exercises came from, to the ones you have shared, or to your favorites. The button is filled in while a filter is on."))
@@ -1057,6 +1059,7 @@ private struct ExerciseSortMenu: View {
             }
         } label: {
             Image(systemName: "arrow.up.arrow.down.circle")
+                .toolbarHitArea()
         }
         .accessibilityLabel("Sort")
         .explain(favouritesOnTop

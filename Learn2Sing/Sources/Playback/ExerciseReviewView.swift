@@ -128,15 +128,21 @@ struct ExerciseReviewView: View {
             ToolbarItem(placement: .topBarLeading) {
                 Button(action: onClose) {
                     Image(systemName: "chevron.backward")
+                        .toolbarSymbolHitArea()
                 }
                 .accessibilityLabel(L("Back"))
                 .explain(L("Goes back to where you came from, leaving the exercise as it is."))
             }
             if let onCalibrationDone {
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button("Done") { onCalibrationDone(delayMs.rounded()) }
-                        .fontWeight(.semibold)
-                        .explain(L("Saves the offset below as your microphone delay and closes the test."))
+                    Button {
+                        onCalibrationDone(delayMs.rounded())
+                    } label: {
+                        Text("Done")
+                            .toolbarHitArea()
+                    }
+                    .fontWeight(.semibold)
+                    .explain(L("Saves the offset below as your microphone delay and closes the test."))
                 }
             }
         }

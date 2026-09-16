@@ -1150,6 +1150,7 @@ struct PlaybackView: View {
                         togglePause()
                     } label: {
                         Image(systemName: isPaused ? "play.fill" : "pause.fill")
+                            .toolbarSymbolHitArea()
                     }
                     .background(
                         GeometryReader { g in
