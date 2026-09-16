@@ -2681,7 +2681,8 @@ final class Learn2SingUITests: XCTestCase {
     /// Tapping a routine plays its exercises in order: each one's intro screen,
     /// its playback, then the score screen — whose button reads "Next" and moves
     /// on to the following exercise's intro, until the last one's reads "Exit"
-    /// and returns home. Requires microphone access to be granted up front
+    /// and returns home. Start and Next carry the queue position they lead to,
+    /// "Start (1/2)" and "Next (2/2)". Requires microphone access to be granted up front
     /// (xcrun simctl privacy … grant microphone) so no permission alert blocks
     /// playback.
     func testRoutinePlaysExercisesInOrder() throws {
@@ -2723,14 +2724,14 @@ final class Learn2SingUITests: XCTestCase {
         cell(app, named: routineName).tap()
         XCTAssertTrue(app.navigationBars[picks[0]].waitForExistence(timeout: 3),
                       "tapping the routine should open \(picks[0])'s intro screen")
-        let start = app.buttons["Start"].firstMatch
+        let start = app.buttons["Start (1/2)"].firstMatch
         XCTAssertTrue(start.waitForExistence(timeout: 3))
         saveScreenshot("routine-play-intro-1")
         start.tap()
 
         // Let the exercise play through; the score screen's button reads "Next"
-        // because another exercise follows.
-        let next = app.buttons["Next"].firstMatch
+        // because another exercise follows, numbered as the one it opens.
+        let next = app.buttons["Next (2/2)"].firstMatch
         XCTAssertTrue(next.waitForExistence(timeout: 300),
                       "\(picks[0]) should finish with a score screen offering Next")
         XCTAssertFalse(app.buttons["Exit"].exists,
@@ -2742,7 +2743,7 @@ final class Learn2SingUITests: XCTestCase {
         // screen's button reads "Exit" and leads back home.
         XCTAssertTrue(app.navigationBars[picks[1]].waitForExistence(timeout: 5),
                       "Next should open \(picks[1])'s intro screen")
-        let start2 = app.buttons["Start"].firstMatch
+        let start2 = app.buttons["Start (2/2)"].firstMatch
         XCTAssertTrue(start2.waitForExistence(timeout: 3))
         start2.tap()
         let exit = app.buttons["Exit"].firstMatch

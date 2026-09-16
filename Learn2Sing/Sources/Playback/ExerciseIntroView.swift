@@ -51,6 +51,10 @@ struct ExerciseIntroView: View {
     /// it, and only while there is a next exercise — everywhere else (and on the
     /// last of a queue) the Start button has the row to itself.
     var onSkip: (() -> Void)? = nil
+    /// Where this exercise sits in the queue it is played from, written after
+    /// "Start". Set by the same two queues that set `onSkip`, on every exercise
+    /// including the last; nil everywhere else leaves the button at the one word.
+    var queuePosition: QueuePosition? = nil
     let onStart: () -> Void
 
     /// Source of the like count and of whether this user already liked it; both
@@ -189,7 +193,7 @@ struct ExerciseIntroView: View {
 
             HStack(spacing: 12) {
                 Button(action: onStart) {
-                    Text("Start")
+                    Text(verbatim: queuePosition?.title(L("Start")) ?? L("Start"))
                         .font(.headline)
                         .frame(maxWidth: .infinity)
                         .padding()
@@ -493,6 +497,27 @@ struct DifficultyStars: View {
                         }
                     }
             }
+    }
+}
+
+/// An exercise's place in a routine or the recommendation queue, 1-based, as the
+/// intro screen's Start and the score screen's Next buttons show it: "Start (1/5)".
+/// The score screen gives the position of the exercise Next goes to, not of the
+/// one just sung.
+struct QueuePosition {
+    let position: Int
+    let count: Int
+
+    init(_ position: Int, of count: Int) {
+        self.position = position
+        self.count = count
+    }
+
+    /// `word`, already translated, with the count after it. The count isn't a
+    /// localised string: digits and a slash, written the same way in every
+    /// language the app speaks, like the lessons screen's "3/12".
+    func title(_ word: String) -> String {
+        "\(word) (\(position)/\(count))"
     }
 }
 

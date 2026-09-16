@@ -926,8 +926,8 @@ struct PlaybackView: View {
     /// this screen — the sung test uses it to go back to the Audio settings, where
     /// the measured value is now in the delay field. nil keeps the default dismiss.
     var onDelayTestExit: (() -> Void)? = nil
-    /// Title of the score screen's exit button ("Next" while a routine has more
-    /// exercises to play).
+    /// Title of the score screen's exit button ("Next (2/5)" while a routine or the
+    /// recommendation queue has more exercises to play).
     var scoreExitTitle = L("Exit")
     /// What the score screen's exit button does instead of popping this screen
     /// (routines advance to the next exercise). nil keeps the default dismiss.

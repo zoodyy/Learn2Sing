@@ -1052,7 +1052,8 @@ struct HomeView: View {
                     exercise: exercises[index],
                     onSettings: { navigationPath.append(ExerciseRoute.settings(exerciseID)) },
                     onSkip: index + 1 < exercises.count
-                        ? { skipRoutine(id, at: index) } : nil
+                        ? { skipRoutine(id, at: index) } : nil,
+                    queuePosition: QueuePosition(index + 1, of: exercises.count)
                 ) {
                     navigationPath.append(ExerciseRoute.routinePlayback(id, index))
                 }
@@ -1061,7 +1062,9 @@ struct HomeView: View {
             let exercises = routineExercises(id)
             if index < exercises.count {
                 PlaybackView(exercise: exercises[index],
-                             scoreExitTitle: index + 1 < exercises.count ? L("Next") : L("Exit"),
+                             scoreExitTitle: index + 1 < exercises.count
+                                 ? QueuePosition(index + 2, of: exercises.count).title(L("Next"))
+                                 : L("Exit"),
                              onScoreExit: { advanceRoutine(id, after: index) })
             }
         case .recommendationIntro:
@@ -1107,7 +1110,8 @@ struct HomeView: View {
                     exercise: exercises[index],
                     onSettings: { navigationPath.append(ExerciseRoute.settings(exerciseID)) },
                     onSkip: index + 1 < exercises.count
-                        ? { skipRecommendations(at: index) } : nil
+                        ? { skipRecommendations(at: index) } : nil,
+                    queuePosition: QueuePosition(index + 1, of: exercises.count)
                 ) {
                     navigationPath.append(ExerciseRoute.recommendationPlayback(index))
                 }
@@ -1116,7 +1120,9 @@ struct HomeView: View {
             let exercises = recommendationExercises
             if index < exercises.count {
                 PlaybackView(exercise: exercises[index],
-                             scoreExitTitle: index + 1 < exercises.count ? L("Next") : L("Exit"),
+                             scoreExitTitle: index + 1 < exercises.count
+                                 ? QueuePosition(index + 2, of: exercises.count).title(L("Next"))
+                                 : L("Exit"),
                              onScoreExit: { advanceRecommendations(after: index) })
             }
         case .routinePicker(let id):
