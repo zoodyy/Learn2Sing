@@ -227,7 +227,6 @@ struct ExerciseIntroView: View {
                 } label: {
                     Label("See Score", systemImage: "chart.line.uptrend.xyaxis")
                 }
-                .explain(L("Shows how you have scored on this exercise so far, as a chart under the description."))
             }
             // Same screen the list's "Settings" swipe action opens, and the same
             // symbol, so the two read as one action.
@@ -236,10 +235,13 @@ struct ExerciseIntroView: View {
                     Button(action: onSettings) {
                         Label("Settings", systemImage: "slider.horizontal.3")
                     }
-                    .explain(L("Opens this exercise's settings: its name, tempo, repetitions and notes."))
                 }
             }
         }
+        .explainBarButton(L("See Score"),
+                          L("Shows how you have scored on this exercise so far, as a chart under the description."))
+        .explainBarButton(L("Settings"),
+                          L("Opens this exercise's settings: its name, tempo, repetitions and notes."))
     }
 
     /// Leave this exercise unplayed and go on to the next one in the queue.

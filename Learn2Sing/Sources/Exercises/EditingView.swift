@@ -393,7 +393,6 @@ struct EditingView: View {
                     Label("Back", systemImage: "chevron.backward")
                         .labelStyle(.titleAndIcon)
                 }
-                .explain(L("Saves what you drew and goes back to the exercise's settings."))
             }
             ToolbarItem(placement: .topBarTrailing) {
                 HStack(spacing: 2) {
@@ -408,6 +407,7 @@ struct EditingView: View {
                 }
             }
         }
+        .explainBarButton(L("Back"), L("Saves what you drew and goes back to the exercise's settings."))
         .alert("Text", isPresented: $showTextEditor) {
             TextField("Label", text: $textInput)
             Button("OK") { commitText() }

@@ -26,7 +26,8 @@
 //  Neither reaches the outer 4 pt of the glass, which lies outside every box.
 //  A button whose label is a `Label` stays a native bar button even with
 //  `.explain` on it, and answers across its whole glass without either. A
-//  `Text` label doesn't.
+//  `Text` label doesn't. SwiftUI drops the `.explain` there, hold and all, so
+//  such a button gets its hold from `explainBarButton` (see SettingHelp).
 //
 
 import SwiftUI

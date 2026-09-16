@@ -1087,9 +1087,10 @@ struct HomeView: View {
                     } label: {
                         Label("Settings", systemImage: "slider.horizontal.3")
                     }
-                    .explain(L("Opens the settings these suggestions are made under: how long you practice a day, and which exercises may be picked."))
                 }
             }
+            .explainBarButton(L("Settings"),
+                              L("Opens the settings these suggestions are made under: how long you practice a day, and which exercises may be picked."))
         case .homeTabSettings:
             HomeTabSettingsView(
                 openCategories: { navigationPath.append(ExerciseRoute.editCategories) },

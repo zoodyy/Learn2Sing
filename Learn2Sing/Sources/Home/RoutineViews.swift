@@ -368,9 +368,10 @@ struct RoutineIntroView: View {
                     Button(action: onSettings) {
                         Label("Edit Routine", systemImage: "slider.horizontal.3")
                     }
-                    .explain(L("Opens this routine's own screen, where its name, description and exercises are kept."))
                 }
             }
+            .explainBarButton(L("Edit Routine"),
+                              L("Opens this routine's own screen, where its name, description and exercises are kept."))
     }
 }
 

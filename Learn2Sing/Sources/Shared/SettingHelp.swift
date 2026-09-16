@@ -30,6 +30,19 @@ extension View {
     func explain(_ text: String) -> some View {
         modifier(SettingHelpModifier(text: text, fillsRow: false))
     }
+
+    /// The same hold for a toolbar button whose label is a `Label`. Goes on the
+    /// screen, not on the button: SwiftUI turns such a button into a native bar
+    /// button and drops the modifiers on it, `explain` with its hold, so this hold
+    /// is UIKit's and finds its button by title. `title` is the `Label`'s title as it
+    /// shows, `L("See Score")` for `Label("See Score", …)`.
+    ///
+    /// A bare `Image` or `Text` label would take `explain` itself, but it would be
+    /// hosted as a custom view that answers only on the label and not across its
+    /// glass (see ToolbarHitArea), which a native button does.
+    func explainBarButton(_ title: String, _ text: String) -> some View {
+        background(BarButtonHelpAnchor(title: title, text: text))
+    }
 }
 
 private struct SettingHelpModifier: ViewModifier {
@@ -135,17 +148,30 @@ enum SettingHelpBubble {
     private static let bubbleWidth: CGFloat = 260 + 32
 
     static func present(_ text: String, from view: UIView) {
+        present(text, presenter: view.owningViewController) { popover in
+            popover.sourceView = view
+            popover.sourceRect = view.bounds
+        }
+    }
+
+    /// The bubble pointing at a native bar button, which has no view of its own
+    /// to present from; `bar` is the bar it sits in.
+    static func present(_ text: String, from item: UIBarButtonItem, in bar: UIView) {
+        present(text, presenter: bar.owningViewController) { $0.sourceItem = item }
+    }
+
+    private static func present(_ text: String, presenter: UIViewController?,
+                                anchor: (UIPopoverPresentationController) -> Void) {
         // Presenting from a controller that already has something up throws,
         // so the bubble simply doesn't appear while it does.
-        guard let presenter = view.owningViewController,
+        guard let presenter,
               presenter.presentedViewController == nil,
               presenter.view.window != nil else { return }
         UIImpactFeedbackGenerator(style: .light).impactOccurred()
 
         let host = bubbleController(text)
         if let popover = host.popoverPresentationController {
-            popover.sourceView = view
-            popover.sourceRect = view.bounds
+            anchor(popover)
             popover.permittedArrowDirections = [.up, .down]
             popover.delegate = KeepAsPopover.shared
         }
@@ -294,6 +320,116 @@ private final class HintTouchCatcher: UIView {
 
     override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent?) {
         origin = nil
+    }
+}
+
+// MARK: - Native bar buttons
+
+/// Where `explainBarButton` puts its text: an empty view behind the screen, which
+/// is how the hold on the navigation bar finds out what the screen showing now
+/// has to say about its buttons.
+private struct BarButtonHelpAnchor: UIViewRepresentable {
+    let title: String
+    let text: String
+
+    func makeUIView(context: Context) -> BarButtonHelpAnchorView {
+        let view = BarButtonHelpAnchorView()
+        view.isUserInteractionEnabled = false
+        return view
+    }
+
+    func updateUIView(_ view: BarButtonHelpAnchorView, context: Context) {
+        view.title = title
+        view.text = text
+    }
+}
+
+private final class BarButtonHelpAnchorView: UIView {
+    var title = ""
+    var text = ""
+
+    /// Every anchor in a window. Weak, so a screen that goes away takes its
+    /// explanations with it.
+    static let onScreen = NSHashTable<BarButtonHelpAnchorView>.weakObjects()
+
+    override func didMoveToWindow() {
+        super.didMoveToWindow()
+        guard window != nil else {
+            Self.onScreen.remove(self)
+            return
+        }
+        Self.onScreen.add(self)
+        guard let bar = owningViewController?.navigationController?.navigationBar,
+              !(bar.gestureRecognizers ?? []).contains(where: { $0 is BarButtonHelpGesture })
+        else { return }
+        bar.addGestureRecognizer(BarButtonHelpGesture())
+    }
+
+    /// Whether this anchor is on the screen that `item` is the bar's item for.
+    /// The toolbar lands on the controller hosting the screen, but a parent is
+    /// asked too rather than relying on that.
+    func explains(_ item: UINavigationItem) -> Bool {
+        guard let controller = owningViewController else { return false }
+        return sequence(first: controller, next: \.parent).contains { $0.navigationItem === item }
+    }
+}
+
+/// The hold on a navigation bar, one per bar, answering only for the native
+/// buttons a screen has explained. A touch anywhere else is never even seen, so
+/// the bar's other buttons, and the SwiftUI-hosted ones with their own hold,
+/// behave as before.
+///
+/// Recognising takes the touch away from the button, as UIKit does for any
+/// gesture that wins, so the release isn't also a tap on it.
+private final class BarButtonHelpGesture: UILongPressGestureRecognizer, UIGestureRecognizerDelegate {
+    /// The button under the touch being watched, and what to say about it.
+    private var pending: (item: UIBarButtonItem, text: String)?
+
+    init() {
+        super.init(target: nil, action: nil)
+        addTarget(self, action: #selector(recognized))
+        // The same hold as `explain`'s LongPressGesture.
+        minimumPressDuration = 0.4
+        delegate = self
+    }
+
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer,
+                           shouldReceive touch: UITouch) -> Bool {
+        pending = nil
+        guard let bar = view as? UINavigationBar, let navigationItem = bar.topItem,
+              let item = Self.button(under: touch, of: navigationItem, in: bar),
+              let title = item.title,
+              let anchor = BarButtonHelpAnchorView.onScreen.allObjects
+                .first(where: { $0.title == title && $0.explains(navigationItem) })
+        else { return false }
+        pending = (item, anchor.text)
+        return true
+    }
+
+    /// The native button a touch landed on. UIKit's own hit test has already
+    /// picked the button's view, which takes touches across its whole glass and
+    /// not only inside the box it reports, so the item is the one whose box that
+    /// view sits in.
+    private static func button(under touch: UITouch, of navigationItem: UINavigationItem,
+                               in bar: UIView) -> UIBarButtonItem? {
+        var view = touch.view
+        while let candidate = view, !(candidate is UIControl) {
+            guard candidate !== bar else { return nil }
+            view = candidate.superview
+        }
+        guard let control = view else { return nil }
+        let center = control.convert(CGPoint(x: control.bounds.midX, y: control.bounds.midY), to: bar)
+        let groups = navigationItem.leadingItemGroups + navigationItem.trailingItemGroups
+        let items = groups.flatMap(\.barButtonItems)
+            + (navigationItem.leftBarButtonItems ?? []) + (navigationItem.rightBarButtonItems ?? [])
+        return items.first { item in
+            item.customView == nil && item.frame(in: bar)?.contains(center) == true
+        }
+    }
+
+    @objc private func recognized() {
+        guard state == .began, let pending, let bar = view else { return }
+        SettingHelpBubble.present(pending.text, from: pending.item, in: bar)
     }
 }
 
