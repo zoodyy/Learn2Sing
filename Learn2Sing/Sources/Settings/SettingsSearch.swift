@@ -1005,6 +1005,14 @@ private struct SettingsSearchContainer<Content: View>: View {
             Group {
                 if query.isEmpty {
                     content()
+                        // A form puts extra space above its first section while
+                        // the field is pinned, and drops it once the pin comes
+                        // off, so the list jumped up as the screen finished
+                        // coming in. With no top margin it lays out the same
+                        // either way. A screen with a top margin of its own
+                        // (Playback, for its preview) keeps it: that one is set
+                        // closer to the list.
+                        .contentMargins(.top, 0)
                 } else {
                     SettingsSearchResults(
                         results: SettingsCatalog.results(for: query, under: screen),
