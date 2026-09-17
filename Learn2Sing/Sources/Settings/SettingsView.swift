@@ -80,7 +80,7 @@ struct SettingsView: View {
                     // section's footer rather than a row below the section,
                     // which would leave a gap wide enough to push it off the
                     // bottom of the screen.
-                    websiteLink
+                    legalLinks
                 }
             }
             .navigationTitle(L("Settings"))
@@ -223,30 +223,60 @@ struct SettingsView: View {
         settingsPath.removeLast(settingsPath.count - 1)
     }
 
-    /// The app's own site, as a line of small print at the foot of the screen:
-    /// no row, no chevron, nothing but the word in the accent colour, so it
-    /// doesn't read as another category to work through.
-    private var websiteLink: some View {
-        HStack {
-            Spacer()
-            Link(destination: Self.website) {
-                Text(L("Website"))
-                    .font(.footnote)
-                    .foregroundStyle(Color.accentColor)
-            }
-            // The plain style so the line is coloured by the text above rather
-            // than tinted as a button, and stays that colour while pressed.
-            .buttonStyle(.plain)
-            .explain(L("The website of the app. Tapping it leaves the app and opens the site in your browser."))
-            Spacer()
+    /// The privacy policy and terms of use, side by side as a line of small
+    /// print at the foot of the screen: no rows, no chevrons, nothing but the
+    /// words in the accent colour, so they don't read as more categories to
+    /// work through. Every language fits on one line at the default text size;
+    /// a larger one stacks the two rather than breaking each over two lines.
+    private var legalLinks: some View {
+        ViewThatFits(in: .horizontal) {
+            HStack(spacing: 20) { legalLinkPair }
+            VStack(spacing: 8) { legalLinkPair }
         }
+        .frame(maxWidth: .infinity)
         .padding(.top, 6)
     }
 
-    /// Where that goes. Plain http because the site serves no https yet; App
+    @ViewBuilder
+    private var legalLinkPair: some View {
+        footerLink(L("Privacy Policy"), to: LegalPage.privacyPolicy.url(for: appLanguage.language),
+                   help: L("How the app handles your data. Tapping it leaves the app and opens the privacy policy in your browser."))
+        footerLink(L("Terms of Use"), to: LegalPage.termsOfUse.url(for: appLanguage.language),
+                   help: L("The rules for using the app and its Community. Tapping it leaves the app and opens them in your browser."))
+    }
+
+    private func footerLink(_ title: String, to destination: URL, help: String) -> some View {
+        Link(destination: destination) {
+            Text(title)
+                .font(.footnote)
+                .foregroundStyle(Color.accentColor)
+                .multilineTextAlignment(.center)
+        }
+        // The plain style so the line is coloured by the text above rather
+        // than tinted as a button, and stays that colour while pressed.
+        .buttonStyle(.plain)
+        .explain(help)
+    }
+
+    /// The legal pages on the app's site. Each exists in German and English
+    /// only, so German opens the German page and every other language the
+    /// English one. Plain http because the site serves no https yet; App
     /// Transport Security has no say in it either way, since the browser does
     /// the loading and not the app.
-    private static let website = URL(string: "http://you-can-sing.net")!
+    private enum LegalPage {
+        case privacyPolicy
+        case termsOfUse
+
+        func url(for language: AppLanguage) -> URL {
+            let german = language == .german
+            let page: String
+            switch self {
+            case .privacyPolicy: page = german ? "datenschutz.html" : "privacy.html"
+            case .termsOfUse: page = german ? "nutzungsbedingungen.html" : "terms.html"
+            }
+            return URL(string: "http://you-can-sing.net/\(page)")!
+        }
+    }
 
     /// A row that pushes a settings category screen onto the navigation stack.
     private func hubLink(_ title: String, systemImage: String, route: SettingsRoute) -> some View {

@@ -78,23 +78,39 @@ T("Export your exercise library to a file, or import one.",
   "将练习库导出为文件，或导入一个文件。",
   "صدّر مكتبة تمارينك إلى ملف، أو استورد ملفًا.")
 
-# --- The website line under the hub ---
-T("Website", "Website", "Sitio web", "Site web", "Sito web", "Site", "Website", "Сайт", "Strona internetowa", "Web sitesi", "Webbplats", "ウェブサイト", "웹사이트", "网站", "الموقع الإلكتروني")
-T("The website of the app. Tapping it leaves the app and opens the site in your browser.",
-  "Die Website der App. Ein Tipp verlässt die App und öffnet die Seite in deinem Browser.",
-  "El sitio web de la app. Al tocarlo sales de la app y se abre el sitio en tu navegador.",
-  "Le site web de l’app. En le touchant, vous quittez l’app et le site s’ouvre dans votre navigateur.",
-  "Il sito web dell’app. Toccandolo esci dall’app e il sito si apre nel tuo browser.",
-  "O site do app. Ao tocar, você sai do app e o site abre no seu navegador.",
-  "De website van de app. Als je erop tikt, verlaat je de app en opent de site in je browser.",
-  "Сайт приложения. Нажатие закрывает приложение и открывает сайт в браузере.",
-  "Strona internetowa aplikacji. Dotknięcie opuszcza aplikację i otwiera stronę w przeglądarce.",
-  "Uygulamanın web sitesi. Dokunduğunuzda uygulamadan çıkılır ve site tarayıcınızda açılır.",
-  "Appens webbplats. Ett tryck lämnar appen och öppnar sidan i din webbläsare.",
-  "アプリのウェブサイトです。タップするとアプリを離れ、ブラウザでサイトが開きます。",
-  "앱의 웹사이트입니다. 탭하면 앱을 나가 브라우저에서 사이트가 열립니다.",
-  "应用的网站。点按后会离开应用，在浏览器中打开该网站。",
-  "موقع التطبيق الإلكتروني. الضغط عليه يغادر التطبيق ويفتح الموقع في متصفحك.")
+# --- The legal links under the hub ---
+T("Privacy Policy", "Datenschutzerklärung", "Política de privacidad", "Politique de confidentialité", "Informativa sulla privacy", "Política de privacidade", "Privacybeleid", "Конфиденциальность", "Polityka prywatności", "Gizlilik politikası", "Integritetspolicy", "プライバシーポリシー", "개인정보 처리방침", "隐私政策", "سياسة الخصوصية")
+T("Terms of Use", "Nutzungsbedingungen", "Términos de uso", "Conditions d’utilisation", "Termini di utilizzo", "Termos de uso", "Gebruiksvoorwaarden", "Условия использования", "Warunki korzystania", "Kullanım koşulları", "Användarvillkor", "利用規約", "이용약관", "使用条款", "شروط الاستخدام")
+T("How the app handles your data. Tapping it leaves the app and opens the privacy policy in your browser.",
+  "Wie die App mit deinen Daten umgeht. Ein Tipp verlässt die App und öffnet die Datenschutzerklärung in deinem Browser.",
+  "Cómo trata la app tus datos. Al tocarlo sales de la app y se abre la política de privacidad en tu navegador.",
+  "Comment l’app traite vos données. En le touchant, vous quittez l’app et la politique de confidentialité s’ouvre dans votre navigateur.",
+  "Come l’app tratta i tuoi dati. Toccandolo esci dall’app e l’informativa sulla privacy si apre nel tuo browser.",
+  "Como o app trata seus dados. Ao tocar, você sai do app e a política de privacidade abre no seu navegador.",
+  "Hoe de app met je gegevens omgaat. Als je erop tikt, verlaat je de app en opent het privacybeleid in je browser.",
+  "Как приложение обращается с вашими данными. Нажатие закрывает приложение и открывает политику конфиденциальности в браузере.",
+  "Jak aplikacja przetwarza twoje dane. Dotknięcie opuszcza aplikację i otwiera politykę prywatności w przeglądarce.",
+  "Uygulamanın verilerinizi nasıl işlediği. Dokunduğunuzda uygulamadan çıkılır ve gizlilik politikası tarayıcınızda açılır.",
+  "Hur appen hanterar dina uppgifter. Ett tryck lämnar appen och öppnar integritetspolicyn i din webbläsare.",
+  "アプリがあなたのデータをどう扱うかの説明です。タップするとアプリを離れ、ブラウザでプライバシーポリシーが開きます。",
+  "앱이 데이터를 처리하는 방식입니다. 탭하면 앱을 나가 브라우저에서 개인정보 처리방침이 열립니다.",
+  "应用如何处理你的数据。点按后会离开应用，在浏览器中打开隐私政策。",
+  "كيف يتعامل التطبيق مع بياناتك. الضغط عليه يغادر التطبيق ويفتح سياسة الخصوصية في متصفحك.")
+T("The rules for using the app and its Community. Tapping it leaves the app and opens them in your browser.",
+  "Die Regeln für die Nutzung der App und ihrer Community. Ein Tipp verlässt die App und öffnet sie in deinem Browser.",
+  "Las normas para usar la app y su comunidad. Al tocarlo sales de la app y se abren en tu navegador.",
+  "Les règles d’utilisation de l’app et de sa communauté. En le touchant, vous quittez l’app et elles s’ouvrent dans votre navigateur.",
+  "Le regole per usare l’app e la sua comunità. Toccandolo esci dall’app e si aprono nel tuo browser.",
+  "As regras para usar o app e sua comunidade. Ao tocar, você sai do app e elas abrem no seu navegador.",
+  "De regels voor het gebruik van de app en de community. Als je erop tikt, verlaat je de app en openen ze in je browser.",
+  "Правила использования приложения и его сообщества. Нажатие закрывает приложение и открывает их в браузере.",
+  "Zasady korzystania z aplikacji i jej społeczności. Dotknięcie opuszcza aplikację i otwiera je w przeglądarce.",
+  "Uygulamanın ve topluluğunun kullanım kuralları. Dokunduğunuzda uygulamadan çıkılır ve kurallar tarayıcınızda açılır.",
+  "Reglerna för att använda appen och dess community. Ett tryck lämnar appen och öppnar dem i din webbläsare.",
+  "アプリとそのコミュニティを利用する際のルールです。タップするとアプリを離れ、ブラウザで開きます。",
+  "앱과 커뮤니티 이용 규칙입니다. 탭하면 앱을 나가 브라우저에서 열립니다.",
+  "使用本应用及其社区的规则。点按后会离开应用，在浏览器中打开。",
+  "قواعد استخدام التطبيق ومجتمعه. الضغط عليه يغادر التطبيق ويفتحها في متصفحك.")
 
 # --- Audio ---
 T("Devices", "Geräte", "Dispositivos", "Appareils", "Dispositivi", "Dispositivos", "Apparaten", "Устройства", "Urządzenia", "Aygıtlar", "Enheter", "デバイス", "기기", "设备", "الأجهزة")
