@@ -92,16 +92,36 @@ private struct SettingHelpModifier: ViewModifier {
     /// call site, so the branch costs the content no identity.
     @ViewBuilder
     private func target(_ content: Content) -> some View {
-        // New identity on each hold cancels the underlying control's active
-        // touch; without it, releasing after the hold lands as a tap on the
-        // control (e.g. flipping a Toggle).
-        let base = content.id(resetToken)
         if fillsRow {
             // Fill the row so the hold works anywhere along it, not just on the
             // label at the leading edge.
-            base.frame(maxWidth: .infinity, alignment: .leading)
+            reset(content).frame(maxWidth: .infinity, alignment: .leading)
         } else {
-            base
+            reset(content)
+        }
+    }
+
+    /// New identity on each hold cancels the underlying control's active touch;
+    /// without it, releasing after the hold lands as a tap on the control (e.g.
+    /// flipping a Toggle).
+    ///
+    /// Two branches holding the same thing, rather than `.id(resetToken)`: a
+    /// hold puts the content on the other branch, which rebuilds it just the
+    /// same, but leaves no explicit id for a `List` to take as the row's own
+    /// identity — that would be the same one for every helped row in the list,
+    /// and an animated insert or removal would then leave the rows it keeps
+    /// showing what they held before until the fade had finished.
+    ///
+    /// Keeping the id and hiding it inside a container (`ZStack { content.id(…) }`)
+    /// shields the row the same way, but a hold on a `Menu` row then crashes in
+    /// SwiftUI's display list: the menu is up by that point, and tearing the
+    /// content down inside a container leaves the layer it reparented behind.
+    @ViewBuilder
+    private func reset(_ content: Content) -> some View {
+        if resetToken.isMultiple(of: 2) {
+            content
+        } else {
+            content
         }
     }
 }
