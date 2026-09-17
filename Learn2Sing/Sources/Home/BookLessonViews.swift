@@ -139,9 +139,16 @@ struct BookLessonsView: View {
                 let lessons = library.lessons(in: selectedTopic)
                 Section {
                     ForEach(Array(lessons.enumerated()), id: \.element.id) { index, lesson in
-                        // The skip button walks on through the rest of the
-                        // topic, the way a Home category's Next button does.
-                        lessonRow(lesson) { onOpen(lessons.map(\.id), index) }
+                        // Wrapped so the list goes by the lesson ids above: the
+                        // `.id` settingHelp resets the row with would otherwise
+                        // be taken as the row's own, the same one for every row,
+                        // and a tab tap would then leave the titles as they were
+                        // until the rows it adds or removes had faded in or out.
+                        ZStack {
+                            // The skip button walks on through the rest of the
+                            // topic, the way a Home category's Next button does.
+                            lessonRow(lesson) { onOpen(lessons.map(\.id), index) }
+                        }
                     }
                 }
             }
