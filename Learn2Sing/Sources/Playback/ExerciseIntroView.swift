@@ -94,6 +94,13 @@ struct ExerciseIntroView: View {
     /// chart under the description.
     @State private var showScore = false
 
+    /// Whether this exercise has ever been sung to a score on this device. With
+    /// nothing recorded the chart would be an empty plot, so the "See Score"
+    /// button is left out altogether until there is a first score to show.
+    private var hasScores: Bool {
+        !ScoreHistory.entries(for: exercise.id).isEmpty
+    }
+
     /// Put up by a tap on the difficulty row: the rating the stars draw, as the
     /// number they were drawn from. A tap rather than the hold the row's
     /// explanation answers to, so the two questions a row of stars raises —
@@ -225,11 +232,13 @@ struct ExerciseIntroView: View {
             await community.refreshDifficulty(for: publicExerciseID)
         }
         .toolbar {
-            ToolbarItem(placement: .topBarTrailing) {
-                Button {
-                    withAnimation { showScore.toggle() }
-                } label: {
-                    Label("See Score", systemImage: "chart.line.uptrend.xyaxis")
+            if hasScores {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button {
+                        withAnimation { showScore.toggle() }
+                    } label: {
+                        Label("See Score", systemImage: "chart.line.uptrend.xyaxis")
+                    }
                 }
             }
             // Same screen the list's "Settings" swipe action opens, and the same
