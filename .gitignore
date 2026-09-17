@@ -1,3 +1,7 @@
 # Python bytecode from the scripts under Tools/
 __pycache__/
 *.pyc
+
+# Tools/PitchBench build output and unpacked recordings
+Tools/PitchBench/.build/
+Tools/PitchBench/.work/

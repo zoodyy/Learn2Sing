@@ -71,10 +71,10 @@ enum DebugRecordingAccess {
 /// recording is in progress. Kept to two calls so the hook in the detector is
 /// three lines that are obvious to delete.
 protocol DebugAudioSink: AnyObject {
-    /// The input tap has just (re)started on `format`. Main thread.
+    /// The microphone capture has just (re)started on `format`. Main thread.
     func begin(format: AVAudioFormat)
-    /// One microphone hop, straight off the audio thread — must not block.
-    func append(buffer: AVAudioPCMBuffer, time: AVAudioTime)
+    /// One microphone buffer, from the detector's analysis thread — must not block.
+    nonisolated func append(buffer: AVAudioPCMBuffer, time: AVAudioTime)
 }
 
 // MARK: - Lock-free-ish ring buffer
@@ -83,7 +83,7 @@ protocol DebugAudioSink: AnyObject {
 /// hops in; a background queue drains them to disk. Storage is a raw allocation
 /// rather than an `Array` because both sides touch it at once, which Swift's
 /// exclusivity rules don't allow for an array's buffer.
-private final class FloatRing {
+private nonisolated final class FloatRing {
     private let storage: UnsafeMutablePointer<Float>
     private let capacity: Int
     /// Monotonic totals, so the arithmetic never has to reason about wrap-around;
@@ -181,13 +181,14 @@ struct DebugRunContext {
 /// audio thread does per hop, or it would change the very timing the recording
 /// exists to capture.
 final class DebugRunRecorder: DebugAudioSink {
-    // Main-thread state.
-    private var isRecording = false
-    private var bpm: Double = 120
+    // Main-thread state. `append` reads the first three too, which is safe because
+    // they only change while no microphone buffers are arriving.
+    nonisolated(unsafe) private var isRecording = false
+    nonisolated(unsafe) private var bpm: Double = 120
     /// Converts a microphone buffer's host time into the playback beat that was
     /// being heard at that instant. Supplied by the playback screen so this class
     /// needs no knowledge of the audio engine.
-    private var beatForHostTime: ((UInt64) -> Double?)?
+    nonisolated(unsafe) private var beatForHostTime: ((UInt64) -> Double?)?
     private var startedAt = Date()
     private var route: RouteSnapshot?
     private var sampleRateChanged = false
@@ -199,21 +200,21 @@ final class DebugRunRecorder: DebugAudioSink {
     private var framesWritten = 0
     private var drainTimer: DispatchSourceTimer?
 
-    // Shared between the audio thread and the main thread.
-    private var ring: FloatRing?
-    private var sampleRate: Double = 0
-    private var stateLock = os_unfair_lock_s()
-    private var segments: [Segment] = []
-    private var segment: Segment?
-    private var framesAccepted = 0
-    private var expectedSampleTime: AVAudioFramePosition?
-    private var restartPending = true
+    // Shared between the analysis thread and the main thread.
+    nonisolated(unsafe) private var ring: FloatRing?
+    nonisolated(unsafe) private var sampleRate: Double = 0
+    nonisolated(unsafe) private var stateLock = os_unfair_lock_s()
+    nonisolated(unsafe) private var segments: [Segment] = []
+    nonisolated(unsafe) private var segment: Segment?
+    nonisolated(unsafe) private var framesAccepted = 0
+    nonisolated(unsafe) private var expectedSampleTime: AVAudioFramePosition?
+    nonisolated(unsafe) private var restartPending = true
 
     /// A stretch of microphone audio that is known to be continuous, with the
     /// beat its first frame was captured at. A run is normally one segment; a
     /// pause, a backgrounding or a dropped hop starts another, so the mapping
     /// from file frames to beats never has to assume audio that isn't there.
-    private struct Segment {
+    private nonisolated struct Segment {
         var startFrame: Int
         var frameCount: Int
         var hostTime: UInt64
@@ -312,7 +313,7 @@ final class DebugRunRecorder: DebugAudioSink {
         os_unfair_lock_unlock(&stateLock)
     }
 
-    func append(buffer: AVAudioPCMBuffer, time: AVAudioTime) {
+    nonisolated func append(buffer: AVAudioPCMBuffer, time: AVAudioTime) {
         guard isRecording, let ring, let channel = buffer.floatChannelData?[0] else { return }
         let n = Int(buffer.frameLength)
         guard n > 0 else { return }

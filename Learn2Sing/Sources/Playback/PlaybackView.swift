@@ -628,53 +628,36 @@ final class ExercisePlayer {
 // MARK: - PlaybackView
 
 /// Holds the on-screen pitch of the singer indicator, eased toward the latest
-/// microphone estimate once per rendered frame so the dot moves smoothly even
-/// though new estimates arrive less often than the display refreshes.
+/// microphone estimate once per rendered frame.
+///
+/// The ease is kept short, and measured in time rather than frames. Its old job was
+/// to smooth over estimates that arrived a tenth of a second apart and to keep one
+/// wrong estimate from flinging the dot across the screen; the detector now delivers
+/// every 10 ms and confirms a big jump before reporting it, so all that is left to
+/// smooth is the step from one estimate to the next. Easing by a fixed share per
+/// frame also made the dot twice as fast at 120 Hz as at 60, and cost the line about
+/// 25 ms against the voice (at 60 Hz); this costs 2 to 5 ms.
 private final class SingerIndicator {
     private var shown: Double? = nil
+    private var lastFrame: TimeInterval? = nil
 
-    /// How far the target may sit above the drawn value before the ease stops
-    /// closing a fixed *fraction* of the gap and starts closing a fixed *amount*.
-    ///
-    /// Easing by a fraction means one wrong estimate drags the dot in proportion to
-    /// how wrong it was: an octave-away reading moved it a third of an octave, and
-    /// then it took another ten frames to crawl back — one bad estimate, a swoop
-    /// lasting a sixth of a second. Capping the per-frame movement takes that away
-    /// without slowing the singer down, because the two move at completely different
-    /// speeds: over a whole run, 99% of the real frame-to-frame movement was under
-    /// 1.8 semitones, while the bad estimates were 12 to 14 away. Anything inside the
-    /// knee — all ordinary singing, and every note change in a normal exercise — eases
-    /// exactly as it did before.
-    private let knee = 3.0
+    /// Seconds for the dot to close all but 1/e of the gap to a new estimate.
+    private let timeConstant = 0.008
 
-    /// The last value drawn, kept across the gaps where nothing is detected so an
-    /// estimate that reappears can be measured against where the singer actually was.
-    private var lastShown: Double? = nil
-
-    /// How far a reappearing estimate may sit from that before it stops being taken
-    /// at face value. A note that has just started has to show at once — there is
-    /// nothing to ease from, and easing in would be a delay the singer feels on every
-    /// single note. But over a whole run the real re-entries all landed within 2.7
-    /// semitones of the pitch before the gap, while the wrong ones landed 10 to 16
-    /// away, so a bar between the two costs nothing and stops one bad estimate from
-    /// throwing the dot across the screen the instant a note begins.
-    private let reappearSnap = 5.0
-
-    /// Advance one frame toward `target` and return the value to draw.
-    func step(target: Double?, factor: Double) -> Double? {
+    /// Advance to the frame drawn at `time` (seconds, any fixed origin) and return the
+    /// value to draw. A note that has just started shows where it is: there is
+    /// nothing to ease from, and easing in would be a delay felt on every note.
+    func step(target: Double?, at time: TimeInterval) -> Double? {
+        defer { lastFrame = time }
         guard let target else { shown = nil; return nil }
-        let from: Double
-        if let current = shown {
-            from = current
-        } else if let last = lastShown, abs(target - last) > reappearSnap {
-            from = last                     // implausible re-entry: ease in like any move
-        } else {
-            from = target                   // a note starting: show it where it is
+        guard let current = shown, let last = lastFrame else {
+            shown = target
+            return target
         }
-        let limit = factor * knee
-        let next = from + min(limit, max(-limit, (target - from) * factor))
+        // A frame after a pause has nothing to ease over; it snaps.
+        let elapsed = min(0.1, max(0, time - last))
+        let next = current + (target - current) * (1 - exp(-elapsed / timeConstant))
         shown = next
-        lastShown = next
         return next
     }
 }
@@ -1116,7 +1099,7 @@ struct PlaybackView: View {
         // title/back bar and bottom menu, while the Canvas inside ignores the safe area
         // and draws full-screen — so the insets tell drawScene where those bars sit.
         GeometryReader { geo in
-            TimelineView(.animation(minimumInterval: nil, paused: isPaused)) { _ in
+            TimelineView(.animation(minimumInterval: nil, paused: isPaused)) { timeline in
                 // Drive the playhead from the audio engine's own output clock so the
                 // notes light up exactly when they're heard. While the clock is
                 // unanchored (before the first render, or right after resuming from a
@@ -1124,10 +1107,9 @@ struct PlaybackView: View {
                 let beat = player.currentBeat(bpm: bpm, leadIn: leadIn)
                     ?? lastDrawnBeat.value ?? -leadIn
 
-                // Ease the indicator toward the latest estimate every frame. A shade
-                // quicker than it used to be, which pays back the little the cap in
-                // `SingerIndicator` costs on the rare note change that clears its knee.
-                let singerPitch = indicator.step(target: pitchDetector.currentPitch, factor: 0.35)
+                // Ease the indicator toward the latest estimate every frame.
+                let singerPitch = indicator.step(target: pitchDetector.currentPitch,
+                                                 at: timeline.date.timeIntervalSinceReferenceDate)
 
                 Canvas { ctx, size in
                     lastDrawnBeat.value = beat
@@ -1551,7 +1533,8 @@ struct PlaybackView: View {
     /// Ticks sit on whole beats, so the nearest integer beat is the intended tick;
     /// claps near a warm-up tick or further than half a beat from any tick (stray
     /// noise) are ignored. The mean over the random human timing error cancels out,
-    /// leaving the systematic microphone round-trip delay.
+    /// leaving the systematic microphone round-trip delay, to which the pitch line's
+    /// own lag is added.
     private func measuredDelayMs() -> Double {
         let secPerBeat = 60.0 / bpm
         var offsets: [Double] = []
@@ -1564,7 +1547,9 @@ struct PlaybackView: View {
         }
         guard !offsets.isEmpty else { return 0 }
         let mean = offsets.reduce(0, +) / Double(offsets.count)
-        return max(0, mean * 1000.0)   // a delay can't be negative for compensation
+        // The claps are timed from the sound, the singing is scored from the pitch
+        // line, which trails the voice a little; the delay has to cover both.
+        return max(0, mean * 1000.0 + pitchDetector.lineLatencyMs)   // a delay can't be negative for compensation
     }
 
     // MARK: - Persistence
