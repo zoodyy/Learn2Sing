@@ -85,6 +85,8 @@ struct UserSettings: Codable {
     var recommendedPracticeMinutes: Int?
     /// Whether that category lists them or shows its single card instead.
     var recommendationsAsList: Bool?
+    /// Whether at most a third of what it suggests may be scales.
+    var recommendationsLimitScales: Bool?
     /// The groups of exercises whitelisted for recommendations automatically, as
     /// `ExerciseOrigin` raw values.
     var recommendationAutoWhitelist: [String]?
@@ -149,6 +151,9 @@ struct UserSettings: Codable {
             recommendationsAsList: d.object(forKey: RecommendedExercises.asListKey) == nil
                 ? RecommendedExercises.defaultAsList
                 : d.bool(forKey: RecommendedExercises.asListKey),
+            recommendationsLimitScales: d.object(forKey: RecommendedExercises.limitScalesKey) == nil
+                ? RecommendedExercises.defaultLimitScales
+                : d.bool(forKey: RecommendedExercises.limitScalesKey),
             // Both sorted so an unchanged setting encodes the same way twice:
             // each is a set, which has no order to preserve.
             recommendationAutoWhitelist: store.autoWhitelistOrigins.map(\.rawValue).sorted(),
@@ -218,6 +223,9 @@ struct UserSettings: Codable {
         }
         if let recommendationsAsList {
             d.set(recommendationsAsList, forKey: RecommendedExercises.asListKey)
+        }
+        if let recommendationsLimitScales {
+            d.set(recommendationsLimitScales, forKey: RecommendedExercises.limitScalesKey)
         }
         // The groups first: the whitelist restored after them is read as what the
         // user picked out from what those groups whitelist (see

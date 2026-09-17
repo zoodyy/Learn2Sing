@@ -481,11 +481,21 @@ final class ExerciseStore: ObservableObject {
     /// the same frame can't disagree about what was suggested, and neither can
     /// two launches.
     ///
+    /// With `limitScales` — Settings ▸ Home Tab, on unless switched off — no
+    /// more than a third of the batch comes from the "Scales" category, counted
+    /// in exercises: the whitelist ships with a great many scales, which would
+    /// otherwise crowd everything else out. A scale drawn while the batch has no
+    /// room for it is held back rather than thrown away, and goes in as soon as
+    /// enough other exercises have joined to make room — or, once nothing else is
+    /// left, to make up the time anyway, which is the one way a batch ends up
+    /// more than a third scales. Off, the draw is exactly the unlimited one.
+    ///
     /// `hardness` is how hard each exercise is, keyed by the id it is stored
     /// under, and `skill` the singer's own level, both on the 0-100 scale
     /// `SkillLevel` describes — see SkillLevelStore, which is where the Home tab
     /// gets them.
-    func recommendedExercises(minutes: Int, skill: Double, hardness: [UUID: Double]) -> [Exercise] {
+    func recommendedExercises(minutes: Int, skill: Double, hardness: [UUID: Double],
+                              limitScales: Bool) -> [Exercise] {
         let target = Double(minutes) * 60
         guard target > 0 else { return [] }
         // In library order, which is what keeps the draw below the same from one
@@ -514,29 +524,57 @@ final class ExerciseStore: ObservableObject {
         var generator = SeededGenerator(seed: recommendationSeed(pool, minutes: minutes, skill: skill))
         var batch: [Exercise] = []
         var length = 0.0
+        var drawn = 0
+        var scales = 0
+        // Scales drawn while the batch had no room for another, in the order they
+        // were drawn, so the likelier of them still go in first.
+        var heldScales: [Exercise] = []
+        func isScale(_ exercise: Exercise) -> Bool {
+            limitScales && exercise.category == RecommendedExercises.scalesCategory
+        }
+        // Whether one more scale keeps the batch at most a third scales.
+        func hasRoomForScale() -> Bool {
+            (scales + 1) * 3 <= batch.count + 1
+        }
         // Drawn until the batch is at least as long as the singer asked for,
         // which means the exercise that takes it over the line is kept: a
         // suggestion that came out short would be one they'd have to make up
         // themselves. Only running out of whitelisted exercises stops it early.
-        while length < target, batch.count < pool.count {
-            let total = weights.reduce(0, +)
-            var draw = Double.random(in: 0..<total, using: &generator)
-            // The last one still in the running catches a draw that the rounding
-            // of the running subtraction leaves standing at the end. Not simply
-            // the last one: it may have been drawn already, and a batch holding
-            // an exercise twice lists two rows with the same id, which the Home
-            // list's diffable data source traps on.
-            var chosen = weights.lastIndex { $0 > 0 } ?? weights.count - 1
-            for (index, weight) in weights.enumerated() {
-                draw -= weight
-                if draw < 0 {
-                    chosen = index
-                    break
+        while length < target {
+            let next: Exercise
+            if !heldScales.isEmpty, hasRoomForScale() || drawn == pool.count {
+                // Room has been made for it, or everything else is in already
+                // and the time still isn't reached.
+                next = heldScales.removeFirst()
+            } else if drawn < pool.count {
+                let total = weights.reduce(0, +)
+                var draw = Double.random(in: 0..<total, using: &generator)
+                // The last one still in the running catches a draw that the
+                // rounding of the running subtraction leaves standing at the end.
+                // Not simply the last one: it may have been drawn already, and a
+                // batch holding an exercise twice lists two rows with the same id,
+                // which the Home list's diffable data source traps on.
+                var chosen = weights.lastIndex { $0 > 0 } ?? weights.count - 1
+                for (index, weight) in weights.enumerated() {
+                    draw -= weight
+                    if draw < 0 {
+                        chosen = index
+                        break
+                    }
                 }
+                weights[chosen] = 0     // drawn: out of the running for the rest
+                drawn += 1
+                if isScale(pool[chosen]), !hasRoomForScale() {
+                    heldScales.append(pool[chosen])
+                    continue
+                }
+                next = pool[chosen]
+            } else {
+                break
             }
-            batch.append(pool[chosen])
-            length += runDuration(of: pool[chosen])
-            weights[chosen] = 0     // drawn: out of the running for the rest
+            batch.append(next)
+            if isScale(next) { scales += 1 }
+            length += runDuration(of: next)
         }
         return ramped(batch, skill: skill, hardness: hardness)
     }
@@ -1296,6 +1334,17 @@ enum RecommendedExercises {
     /// the list is the older shape, kept for anyone who prefers it.
     static let asListKey = "recommendationsAsList"
     static let defaultAsList = false
+
+    /// Whether at most a third of a suggestion may come from the "Scales"
+    /// category — see `ExerciseStore.recommendedExercises`. On by default: the
+    /// app ships with far more scales than anything else, and an unlimited draw
+    /// suggests mostly those.
+    static let limitScalesKey = "recommendationsLimitScales"
+    static let defaultLimitScales = true
+
+    /// The category the limit above applies to: the bundled one, which is stored
+    /// under its English name whatever language the app shows it in.
+    static let scalesCategory = "Scales"
 
     /// The groups of exercises whitelisted for recommendations automatically,
     /// stored newline-joined like the Home tab's category order. Absent — nothing

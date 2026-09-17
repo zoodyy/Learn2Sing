@@ -317,6 +317,11 @@ struct HomeView: View {
     @AppStorage(RecommendedExercises.asListKey)
     private var recommendationsAsList = RecommendedExercises.defaultAsList
 
+    /// Whether at most a third of what "Recommended" suggests may be scales,
+    /// likewise from Settings ▸ Home Tab.
+    @AppStorage(RecommendedExercises.limitScalesKey)
+    private var limitScales = RecommendedExercises.defaultLimitScales
+
     /// How many exercises "New for You" lists, likewise from Settings ▸ Home Tab.
     @AppStorage(NewForYouFeed.countKey)
     private var newForYouCount = NewForYouFeed.defaultCount
@@ -429,7 +434,8 @@ struct HomeView: View {
     /// towards the singer's level — see `recommendedExercises`.
     private var recommendedExercises: [Exercise] {
         store.recommendedExercises(minutes: practiceMinutes,
-                                   skill: skill.level, hardness: skill.hardness)
+                                   skill: skill.level, hardness: skill.hardness,
+                                   limitScales: limitScales)
     }
 
     /// The category most of the suggested exercises belong to — what the

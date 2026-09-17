@@ -297,6 +297,7 @@ enum ResettableSettings: String, CaseIterable, Identifiable {
         case .homeTab:
             defaults.removeObject(forKey: RecommendedExercises.minutesKey)
             defaults.removeObject(forKey: RecommendedExercises.asListKey)
+            defaults.removeObject(forKey: RecommendedExercises.limitScalesKey)
             defaults.removeObject(forKey: NewForYouFeed.countKey)
             store.resetRecommendationWhitelist()
         case .exercisesTab:

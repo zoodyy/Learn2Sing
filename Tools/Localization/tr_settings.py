@@ -570,6 +570,22 @@ T("The exercises recommendations are picked from. The groups picked above are ch
   "추천이 선택되는 연습 목록입니다. 위에서 고른 그룹은 자동으로 선택되며, 연습을 탭하면 직접 추가하거나 제거할 수 있고 그 뒤로는 그룹이 그 연습을 건드리지 않습니다.",
   "推荐所选取的练习范围。上面选中的分组会自动勾选；点按某个练习可自行添加或移除，此后分组不再改动它。",
   "التمارين التي تُختار منها الاقتراحات. المجموعات المختارة أعلاه محددة نيابةً عنك؛ اضغط على تمرين لإضافته أو إزالته بنفسك، وعندها تتركه المجموعات كما هو.")
+T("Limit scales to 1/3", "Tonleitern auf 1/3 begrenzen", "Limitar las escalas a 1/3", "Limiter les gammes à 1/3", "Limita le scale a 1/3", "Limitar as escalas a 1/3", "Toonladders beperken tot 1/3", "Ограничить гаммы до 1/3", "Ogranicz gamy do 1/3", "Dizileri 1/3 ile sınırla", "Begränsa skalor till 1/3", "音階を1/3までに制限", "음계를 1/3로 제한", "音阶最多占 1/3", "قصر السلالم على الثلث")
+T("At most a third of the exercises the Home tab's “Recommended” category suggests are from the “Scales” category. More scales are only added when there aren't enough other whitelisted exercises to reach your daily practice goal.",
+  "Höchstens ein Drittel der Übungen, die die Kategorie „Empfohlen“ im Start-Tab vorschlägt, stammt aus der Kategorie „Tonleitern“. Mehr Tonleitern kommen nur dazu, wenn es nicht genug andere zugelassene Übungen gibt, um dein tägliches Übungsziel zu erreichen.",
+  "Como mucho, un tercio de los ejercicios que sugiere la categoría «Recomendado» de la pestaña Inicio son de la categoría «Escalas». Solo se añaden más escalas cuando no hay suficientes ejercicios permitidos de otro tipo para alcanzar tu objetivo diario de práctica.",
+  "Au plus un tiers des exercices proposés par la catégorie « Recommandé » de l’onglet Accueil viennent de la catégorie « Gammes ». D’autres gammes ne sont ajoutées que s’il n’y a pas assez d’autres exercices autorisés pour atteindre votre objectif de pratique quotidien.",
+  "Al massimo un terzo degli esercizi proposti dalla categoria “Consigliati” della scheda Home proviene dalla categoria “Scale”. Altre scale vengono aggiunte solo se non ci sono abbastanza altri esercizi ammessi per raggiungere il tuo obiettivo di pratica giornaliero.",
+  "No máximo um terço dos exercícios sugeridos pela categoria “Recomendado” da aba Início vem da categoria “Escalas”. Mais escalas só são adicionadas quando não há outros exercícios permitidos suficientes para atingir sua meta diária de prática.",
+  "Hoogstens een derde van de oefeningen die de categorie ‘Aanbevolen’ op het tabblad Start voorstelt, komt uit de categorie ‘Toonladders’. Er komen alleen meer toonladders bij als er niet genoeg andere toegestane oefeningen zijn om je dagelijkse oefendoel te halen.",
+  "Не больше трети упражнений, которые предлагает категория «Рекомендуемые» на вкладке «Главная», берётся из категории «Гаммы». Больше гамм добавляется, только если других разрешённых упражнений не хватает, чтобы выполнить ежедневную цель занятий.",
+  "Najwyżej jedna trzecia ćwiczeń proponowanych przez kategorię „Polecane” na karcie Start pochodzi z kategorii „Gamy”. Więcej gam dochodzi tylko wtedy, gdy brakuje innych dozwolonych ćwiczeń, by osiągnąć dzienny cel ćwiczeń.",
+  "Ana Sayfa sekmesindeki “Önerilen” kategorisinin önerdiği egzersizlerin en fazla üçte biri “Diziler” kategorisinden gelir. Daha fazla dizi yalnızca günlük çalışma hedefinize ulaşmak için yeterli başka izin verilen egzersiz olmadığında eklenir.",
+  "Högst en tredjedel av övningarna som kategorin ”Rekommenderat” på fliken Hem föreslår kommer från kategorin ”Skalor”. Fler skalor läggs bara till när det inte finns tillräckligt många andra tillåtna övningar för att nå ditt dagliga övningsmål.",
+  "ホームタブの「おすすめ」カテゴリが提案するエクササイズのうち、「音階」カテゴリのものは最大で3分の1までです。1日の練習目標に届くだけの他の対象エクササイズがない場合にのみ、それ以上の音階が加えられます。",
+  "홈 탭의 “추천” 카테고리가 제안하는 연습 중 “음계” 카테고리의 연습은 최대 3분의 1까지입니다. 하루 연습 목표를 채울 만큼 다른 허용된 연습이 없을 때만 음계가 더 추가됩니다.",
+  "“首页”标签的“推荐”类别所建议的练习中，来自“音阶”类别的最多占三分之一。只有当其他已列入的练习不够达到你每天的练习目标时，才会加入更多音阶。",
+  "لا يزيد ما تقترحه فئة «المقترحة» في تبويب الرئيسية من فئة «السلالم» على ثلث التمارين. ولا تُضاف سلالم أكثر إلا إذا لم تكفِ التمارين الأخرى المسموح بها لبلوغ هدف التمرّن اليومي.")
 
 # --- Backup ---
 T("Export Exercises", "Übungen exportieren", "Exportar ejercicios", "Exporter les exercices", "Esporta esercizi", "Exportar exercícios", "Oefeningen exporteren", "Экспортировать упражнения", "Eksportuj ćwiczenia", "Egzersizleri dışa aktar", "Exportera övningar", "エクササイズを書き出す", "연습 내보내기", "导出练习", "تصدير التمارين")

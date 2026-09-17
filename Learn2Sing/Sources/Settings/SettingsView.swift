@@ -600,6 +600,8 @@ struct HomeTabSettingsView: View {
     private var practiceMinutes = RecommendedExercises.defaultMinutes
     @AppStorage(RecommendedExercises.asListKey)
     private var recommendationsAsList = RecommendedExercises.defaultAsList
+    @AppStorage(RecommendedExercises.limitScalesKey)
+    private var limitScales = RecommendedExercises.defaultLimitScales
     @AppStorage(NewForYouFeed.countKey)
     private var newForYouCount = NewForYouFeed.defaultCount
 
@@ -681,6 +683,9 @@ struct HomeTabSettingsView: View {
                 }
                 .foregroundStyle(.primary)
                 .setting(.whitelist)
+
+                Toggle("Limit scales to 1/3", isOn: $limitScales)
+                    .setting(.limitScales)
             } header: {
                 Text("Recommendations").settingSection(.homeTabRecommendations)
             }

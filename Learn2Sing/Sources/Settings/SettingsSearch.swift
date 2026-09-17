@@ -250,6 +250,7 @@ extension SettingKey {
     static let dailyPracticeGoal     = SettingKey("homeTab.practiceGoal")
     static let autoWhitelist         = SettingKey("homeTab.autoWhitelist")
     static let whitelist             = SettingKey("homeTab.whitelist")
+    static let limitScales           = SettingKey("homeTab.limitScales")
     static let reloadNewForYou       = SettingKey("homeTab.reloadNewForYou")
     static let newForYouCount        = SettingKey("homeTab.newForYouCount")
 
@@ -627,6 +628,8 @@ enum SettingsCatalog {
             help: L("Which exercises are whitelisted for you: switching a group on whitelists everything in it, including what was already in your library, and switching it off takes them out again. Exercises you check or uncheck yourself below are left as you left them."))
         add(.whitelist, .homeTab, section: L("Recommendations"), title: L("Whitelisted exercises"),
             help: L("The exercises recommendations are picked from. The groups picked above are checked for you; tap an exercise to add or remove it yourself, which the groups then leave alone."))
+        add(.limitScales, .homeTab, section: L("Recommendations"), title: L("Limit scales to 1/3"),
+            help: L("At most a third of the exercises the Home tab's “Recommended” category suggests are from the “Scales” category. More scales are only added when there aren't enough other whitelisted exercises to reach your daily practice goal."))
         heading(.homeTabNewForYou, .homeTab, L("New for You"))
         add(.reloadNewForYou, .homeTab, section: L("New for You"), title: L("Reload New for You"),
             help: L("Asks the community for its hottest exercises again and picks the Home tab's “New for You” from them. Otherwise they are only loaded once each time the app starts."))
