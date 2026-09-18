@@ -158,8 +158,14 @@ final class ProfileSync {
         var profile = UserProfile.load()
         profile.snapshot(store)
         profile.save()
+        // `customId1` is what `fetch-private` matches on, not the id in the path
+        // (a server change around 2026-09-18), so a POST without it leaves
+        // `restoreIfNeeded` reading back nothing. Every persist rewrites the
+        // custom ids, so it has to ride along on each one.
+        var components = URLComponents(string: "\(Self.baseURL)/persist/\(profile.deviceID)/\(Self.profileType)")
+        components?.queryItems = [URLQueryItem(name: "customId1", value: profile.deviceID)]
         guard let body = Self.uploadBody(for: profile),
-              let url = URL(string: "\(Self.baseURL)/persist/\(profile.deviceID)/\(Self.profileType)")
+              let url = components?.url
         else { return }
         // Nothing to say: the last document the server took is this one.
         guard body != lastUploadedBody else { return }
