@@ -101,6 +101,22 @@ struct ExerciseIntroView: View {
         !ScoreHistory.entries(for: exercise.id).isEmpty
     }
 
+    /// Puts up the sheet a report on this exercise is written in, from the flag
+    /// in the toolbar.
+    @State private var isReporting = false
+
+    /// What the toolbar's flag reports: the community exercise on screen, by the
+    /// public id it is listed under. nil everywhere but the community intro
+    /// screens (the Community tab's and Home's "New for You"), since an exercise
+    /// in the library is the user's own.
+    private var report: CommunityReport? {
+        guard let likeID else { return nil }
+        return .exercise(id: likeID,
+                         name: exercise.name,
+                         uploaderID: community.uploaderID(of: likeID),
+                         uploaderName: uploaderName)
+    }
+
     /// Put up by a tap on the difficulty row: the rating the stars draw, as the
     /// number they were drawn from. A tap rather than the hold the row's
     /// explanation answers to, so the two questions a row of stars raises —
@@ -250,11 +266,23 @@ struct ExerciseIntroView: View {
                     }
                 }
             }
+            // Last, so it sits in the corner. Left out on the user's own
+            // exercise, which they can't usefully report.
+            if let report, !report.isOwn {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button {
+                        isReporting = true
+                    } label: {
+                        Label("Report", systemImage: "flag")
+                    }
+                }
+            }
         }
         .explainBarButton(L("See Score"),
                           L("Shows how you have scored on this exercise so far, as a chart under the description."))
         .explainBarButton(L("Settings"),
                           L("Opens this exercise's settings: its name, tempo, repetitions and notes."))
+        .communityReportSheet(report, isPresented: $isReporting)
     }
 
     /// Leave this exercise unplayed and go on to the next one in the queue.

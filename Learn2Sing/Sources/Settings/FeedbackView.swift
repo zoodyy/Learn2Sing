@@ -81,10 +81,23 @@ enum FeedbackSender {
                      location: FeedbackLocation?,
                      message: String,
                      email: String) async -> Bool {
+        await send(severity: type.rawValue, subject: location?.rawValue ?? "",
+                   message: message, email: email)
+    }
+
+    /// The same message with its fields spelled out, for the senders that don't
+    /// go through this screen's pickers: a report from the Community tab (see
+    /// `CommunityReport`) is filed under a type and a place the pickers here
+    /// don't offer, since nobody writing to the developer from Settings means
+    /// either.
+    static func send(severity: String,
+                     subject: String,
+                     message: String,
+                     email: String) async -> Bool {
         let body = MessageBody(
             senderEmail: email,
-            subject: location?.rawValue ?? "",
-            severity: type.rawValue,
+            subject: subject,
+            severity: severity,
             body: message)
         guard let url = URL(string: "\(baseURL)/message/\(DeviceIdentifier.uuidString)/send"),
               let data = try? JSONEncoder().encode(body)

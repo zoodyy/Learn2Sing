@@ -24,6 +24,45 @@ T("No Public Exercises", "Keine öffentlichen Übungen", "Sin ejercicios públic
 T("%@ has no public exercises right now.", "%@ hat derzeit keine öffentlichen Übungen.", "%@ no tiene ejercicios públicos por ahora.", "%@ n’a aucun exercice public pour le moment.", "%@ al momento non ha esercizi pubblici.", "%@ não tem exercícios públicos no momento.", "%@ heeft op dit moment geen openbare oefeningen.", "Сейчас у %@ нет публичных упражнений.", "%@ nie ma teraz żadnych publicznych ćwiczeń.", "%@ şu anda herkese açık egzersize sahip değil.", "%@ har inga offentliga övningar just nu.", "%@さんの公開エクササイズは現在ありません。", "%@님의 공개 연습이 현재 없습니다.", "%@ 目前没有公开的练习。", "لا توجد لدى %@ تمارين عامة حاليًا.")
 T("Joined %@", "Beigetreten %@", "Se unió %@", "Inscrit %@", "Iscritto %@", "Entrou %@", "Lid geworden %@", "Присоединился %@", "Dołączył %@", "Katıldı: %@", "Gick med %@", "参加: %@", "가입: %@", "加入于 %@", "تاريخ الانضمام: %@")
 
+# --- Reporting a community exercise or profile ---
+T("Report", "Melden", "Denunciar", "Signaler", "Segnala", "Denunciar", "Melden", "Пожаловаться", "Zgłoś", "Bildir", "Rapportera", "報告", "신고", "举报", "إبلاغ")
+T("Report Exercise", "Übung melden", "Denunciar ejercicio", "Signaler l’exercice", "Segnala esercizio", "Denunciar exercício", "Oefening melden", "Пожаловаться на упражнение", "Zgłoś ćwiczenie", "Egzersizi bildir", "Rapportera övning", "エクササイズを報告", "연습 신고", "举报练习", "الإبلاغ عن التمرين")
+T("Report Profile", "Profil melden", "Denunciar perfil", "Signaler le profil", "Segnala profilo", "Denunciar perfil", "Profiel melden", "Пожаловаться на профиль", "Zgłoś profil", "Profili bildir", "Rapportera profil", "プロフィールを報告", "프로필 신고", "举报个人资料", "الإبلاغ عن الملف الشخصي")
+T("Why are you reporting this exercise?",
+  "Warum meldest du diese Übung?", "¿Por qué denuncias este ejercicio?", "Pourquoi signalez-vous cet exercice ?",
+  "Perché segnali questo esercizio?", "Por que você está denunciando este exercício?", "Waarom meld je deze oefening?",
+  "Почему вы жалуетесь на это упражнение?", "Dlaczego zgłaszasz to ćwiczenie?", "Bu egzersizi neden bildiriyorsun?",
+  "Varför rapporterar du den här övningen?", "このエクササイズを報告する理由を書いてください", "이 연습을 신고하는 이유를 적어 주세요",
+  "你为什么要举报这个练习？", "لماذا تبلغ عن هذا التمرين؟")
+T("Why are you reporting this profile?",
+  "Warum meldest du dieses Profil?", "¿Por qué denuncias este perfil?", "Pourquoi signalez-vous ce profil ?",
+  "Perché segnali questo profilo?", "Por que você está denunciando este perfil?", "Waarom meld je dit profiel?",
+  "Почему вы жалуетесь на этот профиль?", "Dlaczego zgłaszasz ten profil?", "Bu profili neden bildiriyorsun?",
+  "Varför rapporterar du den här profilen?", "このプロフィールを報告する理由を書いてください", "이 프로필을 신고하는 이유를 적어 주세요",
+  "你为什么要举报这个个人资料？", "لماذا تبلغ عن هذا الملف الشخصي؟")
+T("Report Sent!", "Meldung gesendet!", "¡Denuncia enviada!", "Signalement envoyé !", "Segnalazione inviata!",
+  "Denúncia enviada!", "Melding verstuurd!", "Жалоба отправлена!", "Wysłano zgłoszenie!", "Rapor gönderildi!",
+  "Rapporten skickad!", "報告を送信しました！", "신고를 보냈습니다!", "已发送举报！", "تم إرسال البلاغ!")
+T("Report Not Sent", "Meldung nicht gesendet", "Denuncia no enviada", "Signalement non envoyé",
+  "Segnalazione non inviata", "Denúncia não enviada", "Melding niet verstuurd", "Жалоба не отправлена",
+  "Nie wysłano zgłoszenia", "Rapor gönderilmedi", "Rapporten skickades inte", "報告を送信できませんでした",
+  "신고를 보내지 못했습니다", "举报未发送", "لم يُرسَل البلاغ")
+T("Your report couldn't be sent. Check your connection and try again.",
+  "Deine Meldung konnte nicht gesendet werden. Prüfe deine Verbindung und versuch es noch einmal.",
+  "No se ha podido enviar tu denuncia. Comprueba tu conexión e inténtalo de nuevo.",
+  "Votre signalement n’a pas pu être envoyé. Vérifiez votre connexion et réessayez.",
+  "Non è stato possibile inviare la segnalazione. Controlla la connessione e riprova.",
+  "Não foi possível enviar sua denúncia. Verifique sua conexão e tente novamente.",
+  "Je melding kon niet worden verstuurd. Controleer je verbinding en probeer het opnieuw.",
+  "Не удалось отправить жалобу. Проверьте подключение и попробуйте ещё раз.",
+  "Nie udało się wysłać zgłoszenia. Sprawdź połączenie i spróbuj ponownie.",
+  "Raporun gönderilemedi. Bağlantını kontrol edip tekrar dene.",
+  "Din rapport kunde inte skickas. Kontrollera din anslutning och försök igen.",
+  "報告を送信できませんでした。接続を確認してもう一度お試しください。",
+  "신고를 보내지 못했습니다. 연결을 확인한 후 다시 시도하세요.",
+  "无法发送你的举报。请检查网络连接后重试。",
+  "تعذّر إرسال بلاغك. تحقق من اتصالك وحاول مرة أخرى.")
+
 # --- Playback / score ---
 T("Score", "Punktzahl", "Puntuación", "Note", "Punteggio", "Pontuação", "Score", "Оценка", "Wynik", "Puan", "Poäng", "スコア", "점수", "得分", "النتيجة")
 T("Personal Record!", "Persönlicher Rekord!", "¡Récord personal!", "Record personnel !", "Record personale!", "Recorde pessoal!", "Persoonlijk record!", "Личный рекорд!", "Rekord osobisty!", "Kişisel rekor!", "Personligt rekord!", "自己ベスト更新！", "개인 최고 기록!", "个人纪录！", "رقم قياسي شخصي!")

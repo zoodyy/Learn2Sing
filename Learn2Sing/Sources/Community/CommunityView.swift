@@ -400,6 +400,9 @@ struct CommunityUserProfileView: View {
     /// answered. nil until then, and for a user who has published nothing — the
     /// header shows what it has either way.
     @State private var publicProfile: PublicProfileDoc?
+    /// Puts up the sheet a report on this profile is written in, from the flag
+    /// beside the back button.
+    @State private var isReporting = false
 
     init(uploaderID: String, username: String, onSelect: @escaping (UUID, [UUID]) -> Void) {
         _list = StateObject(wrappedValue: CommunityFeed(uploaderID: uploaderID))
@@ -411,6 +414,12 @@ struct CommunityUserProfileView: View {
     private var reversed: Bool { sort.isReversible && isReversed }
     private var sortRequest: CommunitySortRequest {
         CommunitySortRequest(sort: sort, reversed: reversed)
+    }
+
+    /// What the flag reports: this uploader's profile, by the id it is fetched
+    /// under.
+    private var report: CommunityReport {
+        .profile(id: uploaderID, name: username)
     }
 
     /// The fetched exercises as one unlabelled section. Nothing is filtered out
@@ -475,6 +484,17 @@ struct CommunityUserProfileView: View {
         // views this screen has.
         .scrollDismissesKeyboard(.interactively)
         .toolbar {
+            // Beside the back button, since the other corner holds the list's
+            // own controls. Left out on the user's own profile.
+            if !report.isOwn {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button {
+                        isReporting = true
+                    } label: {
+                        Label("Report", systemImage: "flag")
+                    }
+                }
+            }
             ToolbarItem(placement: .topBarTrailing) {
                 CommunityFilterMenu(list: list)
             }
@@ -482,6 +502,7 @@ struct CommunityUserProfileView: View {
                 CommunitySortMenu(sort: $sort, isReversed: $isReversed)
             }
         }
+        .communityReportSheet(report, isPresented: $isReporting)
         .stableTopEdgeFade()
         .task { await list.refreshIfNeeded() }
         // One call, for the description and join date this uploader published.
