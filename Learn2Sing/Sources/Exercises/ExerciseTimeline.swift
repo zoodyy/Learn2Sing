@@ -188,6 +188,22 @@ extension Exercise {
     /// over the line with a slow tempo, which would only stretch the count-in.
     static let minimumPublicDuration: Double = 10
 
+    /// Whether `seconds`, a `contentDuration(pattern:)`, clears
+    /// `minimumPublicDuration`. The slack absorbs the rounding of beats into
+    /// seconds, so an exercise landing exactly on the limit is never refused over
+    /// a fraction of a millisecond.
+    static func clearsMinimumPublicDuration(_ seconds: Double) -> Bool {
+        seconds >= minimumPublicDuration - 0.0001
+    }
+
+    /// Whether two names are the same name as far as the Community tab is
+    /// concerned, where each of a user's public exercises needs its own: case and
+    /// surrounding whitespace don't tell them apart.
+    static func isSamePublicName(_ a: String, _ b: String) -> Bool {
+        a.trimmingCharacters(in: .whitespacesAndNewlines)
+            .caseInsensitiveCompare(b.trimmingCharacters(in: .whitespacesAndNewlines)) == .orderedSame
+    }
+
     /// How long this exercise's music lasts, in seconds: every repetition at the
     /// tempo it is played at, and the silence left between them. Measured from
     /// the first beat to the end of the last repetition, so the count-in and the

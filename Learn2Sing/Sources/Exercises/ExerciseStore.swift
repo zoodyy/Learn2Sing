@@ -1230,6 +1230,70 @@ final class ExerciseStore: ObservableObject {
         return try? encoder.encode(exportBundle(ids: ids))
     }
 
+    /// Imports the exercises of a file chosen under Settings ▸ Backup. The file
+    /// has no say in what this user shares: an exercise the library doesn't hold
+    /// yet comes in private, and one it already holds keeps the visibility it has
+    /// here, whatever the file says, so an import never publishes anything. The
+    /// uploader name goes with the visibility, since it is stamped when an
+    /// exercise is made public and is what the public copy is shown under.
+    ///
+    /// An exercise that stays public has to meet the rules its settings screen
+    /// holds a public exercise to, and the file's version of it may not. Those go
+    /// private instead, and are returned so the import screen can say which. Like
+    /// that screen, a rule is only applied to what the import changes: a public
+    /// exercise that was already too short stays public, and so does one keeping
+    /// its name.
+    @discardableResult
+    func importBackup(_ bundle: ExerciseBundle) -> BackupImportDemotions {
+        var bundle = bundle
+        var demotions = BackupImportDemotions()
+        let importedIDs = Set(bundle.exercises.map(\.id))
+        // The names public exercises will go on holding, which a renamed one is
+        // measured against: those the import leaves alone, and those it keeps
+        // public under the name they already had.
+        var heldNames = exercises
+            .filter { $0.visibility == .public && !importedIDs.contains($0.id) }
+            .map(\.name)
+        var renamed: [Int] = []
+        for i in bundle.exercises.indices {
+            let id = bundle.exercises[i].id
+            guard let existing = exercises.first(where: { $0.id == id }) else {
+                bundle.exercises[i].visibility = .private
+                bundle.exercises[i].uploaderName = ""
+                continue
+            }
+            bundle.exercises[i].visibility = existing.visibility
+            bundle.exercises[i].uploaderName = existing.uploaderName
+            guard existing.visibility == .public else { continue }
+            // The file's pattern, or the library's when the file carries none for
+            // it — whichever `importBundle` leaves the exercise with.
+            let pattern = bundle.midi[id.uuidString] ?? notes(for: id)
+            if Exercise.clearsMinimumPublicDuration(existing.contentDuration(pattern: notes(for: id))),
+               !Exercise.clearsMinimumPublicDuration(bundle.exercises[i].contentDuration(pattern: pattern)) {
+                bundle.exercises[i].visibility = .private
+                demotions.tooShort.append(bundle.exercises[i].name)
+            } else if Exercise.isSamePublicName(existing.name, bundle.exercises[i].name) {
+                heldNames.append(existing.name)
+            } else {
+                renamed.append(i)
+            }
+        }
+        // After every name that stays put is known, so a clash is always settled
+        // against the renamed exercise; between two renamed into the same name,
+        // the one the file lists first keeps it.
+        for i in renamed {
+            let name = bundle.exercises[i].name
+            if heldNames.contains(where: { Exercise.isSamePublicName($0, name) }) {
+                bundle.exercises[i].visibility = .private
+                demotions.nameTaken.append(name)
+            } else {
+                heldNames.append(name)
+            }
+        }
+        importBundle(bundle)
+        return demotions
+    }
+
     /// Merges the exercises in `bundle` into the library (by id: existing ones are
     /// replaced, new ones appended), restoring their MIDI patterns too.
     ///
@@ -1386,6 +1450,18 @@ struct SeededGenerator: RandomNumberGenerator {
         z = (z ^ (z >> 27)) &* 0x94D0_49BB_1331_11EB
         return z ^ (z >> 31)
     }
+}
+
+/// The public exercises a backup import made private because the file's version
+/// of them breaks a rule every public exercise has to meet (see
+/// `ExerciseStore.importBackup`), by name, in the order the file lists them.
+struct BackupImportDemotions {
+    /// Shorter than `Exercise.minimumPublicDuration`.
+    var tooShort: [String] = []
+    /// Renamed to a name another of the user's public exercises already has.
+    var nameTaken: [String] = []
+
+    var count: Int { tooShort.count + nameTaken.count }
 }
 
 /// The on-disk format for export/import: the exercise list plus each one's MIDI

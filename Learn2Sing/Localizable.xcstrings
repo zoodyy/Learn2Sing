@@ -19088,6 +19088,95 @@
         }
       }
     },
+    "Exercise Made Private" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "أصبح التمرين خاصًا"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Übung ist jetzt privat"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El ejercicio ahora es privado"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Exercice rendu privé"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Esercizio reso privato"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "エクササイズを非公開にしました"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "비공개로 전환된 연습"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Oefening privé gemaakt"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ćwiczenie ustawiono jako prywatne"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Exercício agora é privado"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Упражнение стало личным"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Övningen gjordes privat"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Egzersiz özel yapıldı"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "练习已设为私有"
+          }
+        }
+      }
+    },
     "Exercise preview color" : {
       "localizations" : {
         "ar" : {
@@ -19526,6 +19615,95 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "已导入练习！"
+          }
+        }
+      }
+    },
+    "Exercises Made Private" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "أصبحت التمارين خاصة"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Übungen sind jetzt privat"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Los ejercicios ahora son privados"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Exercices rendus privés"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Esercizi resi privati"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "エクササイズを非公開にしました"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "비공개로 전환된 연습"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Oefeningen privé gemaakt"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ćwiczenia ustawiono jako prywatne"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Exercícios agora são privados"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Упражнения стали личными"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Övningarna gjordes privata"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Egzersizler özel yapıldı"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "练习已设为私有"
           }
         }
       }
@@ -37644,6 +37822,95 @@
         }
       }
     },
+    "Name already used by another of your public exercises:" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "الاسم مستخدم بالفعل في تمرين عام آخر لك:"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Name schon von einer anderen deiner öffentlichen Übungen verwendet:"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nombre ya usado por otro de tus ejercicios públicos:"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nom déjà utilisé par un autre de vos exercices publics :"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nome già usato da un altro dei tuoi esercizi pubblici:"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "名前がほかの公開エクササイズで使われているもの："
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "다른 공개 연습에서 이미 사용 중인 이름:"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Naam al gebruikt door een andere openbare oefening van je:"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nazwa zajęta już przez inne twoje publiczne ćwiczenie:"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nome já usado por outro dos seus exercícios públicos:"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Название уже занято другим вашим публичным упражнением:"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Namnet används redan av en annan av dina offentliga övningar:"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Adı, herkese açık başka bir egzersizinde zaten kullanılıyor:"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "名称已被你的另一个公开练习使用："
+          }
+        }
+      }
+    },
     "name@example.com" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -55024,6 +55291,95 @@
         }
       }
     },
+    "Shorter than %@, counting all repetitions:" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "أقصر من %@، باحتساب جميع التكرارات:"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kürzer als %@, alle Wiederholungen zusammen:"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Menos de %@ sumando todas las repeticiones:"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Moins de %@, toutes répétitions confondues :"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Meno di %@ contando tutte le ripetizioni:"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "繰り返しをすべて合わせて%@未満のもの："
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "모든 반복을 합쳐 %@ 미만:"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Korter dan %@, alle herhalingen samen:"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Krótsze niż %@ łącznie ze wszystkimi powtórzeniami:"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Menos de %@ somando todas as repetições:"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Короче %@ со всеми повторами вместе:"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kortare än %@ med alla repetitioner sammanlagt:"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tüm tekrarlarıyla birlikte %@ süreden kısa olanlar:"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "所有重复加在一起不足 %@："
+          }
+        }
+      }
+    },
     "Show %@" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -68161,6 +68517,95 @@
         }
       }
     },
+    "These exercises were public, but their imported versions don't meet the rules for public exercises, so they are now private. You can find them on the Exercises tab." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "كانت هذه التمارين عامة، لكن نسخها المستوردة لا تستوفي قواعد التمارين العامة، لذلك أصبحت خاصة الآن. ستجدها في تبويب التمارين."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Diese Übungen waren öffentlich, aber ihre importierten Fassungen erfüllen die Regeln für öffentliche Übungen nicht, deshalb sind sie jetzt privat. Du findest sie im Übungen-Tab."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Estos ejercicios eran públicos, pero sus versiones importadas no cumplen las reglas de los ejercicios públicos, así que ahora son privados. Los encontrarás en la pestaña Ejercicios."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ces exercices étaient publics, mais leurs versions importées ne respectent pas les règles des exercices publics : ils sont donc désormais privés. Vous les trouverez dans l’onglet Exercices."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Questi esercizi erano pubblici, ma le loro versioni importate non rispettano le regole per gli esercizi pubblici, quindi ora sono privati. Li trovi nella scheda Esercizi."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "これらのエクササイズは公開されていましたが、読み込んだバージョンが公開エクササイズのルールを満たしていないため、非公開になりました。エクササイズタブで確認できます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이 연습들은 공개 상태였지만, 가져온 버전이 공개 연습의 규칙을 충족하지 않아 비공개로 전환되었습니다. 연습 탭에서 찾을 수 있습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deze oefeningen waren openbaar, maar de geïmporteerde versies voldoen niet aan de regels voor openbare oefeningen, dus ze zijn nu privé. Je vindt ze op het tabblad Oefeningen."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Te ćwiczenia były publiczne, ale ich zaimportowane wersje nie spełniają zasad dla publicznych ćwiczeń, więc są teraz prywatne. Znajdziesz je na karcie Ćwiczenia."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Estes exercícios eram públicos, mas as versões importadas não atendem às regras dos exercícios públicos, então agora eles são privados. Você os encontra na aba Exercícios."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Эти упражнения были публичными, но их импортированные версии не соответствуют правилам для публичных упражнений, поэтому теперь они личные. Их можно найти на вкладке «Упражнения»."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "De här övningarna var offentliga, men de importerade versionerna uppfyller inte reglerna för offentliga övningar, så de är nu privata. Du hittar dem på fliken Övningar."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bu egzersizler herkese açıktı, ancak içe aktarılan sürümleri herkese açık egzersizlerin kurallarını karşılamadığı için artık özel. Onları Egzersizler sekmesinde bulabilirsin."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "这些练习原为公开，但导入的版本不符合公开练习的规则，因此现已设为私有。你可以在“练习”标签中找到它们。"
+          }
+        }
+      }
+    },
     "Think of the scale underneath the skips, so every note lands in tune." : {
       "extractionState" : "stale",
       "localizations" : {
@@ -68513,6 +68958,95 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "该练习时长为 %@。公开的练习把所有重复加在一起至少要有 %@，因此该练习将保持私有。"
+          }
+        }
+      }
+    },
+    "This exercise was public, but its imported version doesn't meet the rules for public exercises, so it is now private. You can find it on the Exercises tab." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "كان هذا التمرين عامًا، لكن نسخته المستوردة لا تستوفي قواعد التمارين العامة، لذلك أصبح خاصًا الآن. ستجده في تبويب التمارين."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Diese Übung war öffentlich, aber ihre importierte Fassung erfüllt die Regeln für öffentliche Übungen nicht, deshalb ist sie jetzt privat. Du findest sie im Übungen-Tab."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Este ejercicio era público, pero su versión importada no cumple las reglas de los ejercicios públicos, así que ahora es privado. Lo encontrarás en la pestaña Ejercicios."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cet exercice était public, mais sa version importée ne respecte pas les règles des exercices publics : il est donc désormais privé. Vous le trouverez dans l’onglet Exercices."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Questo esercizio era pubblico, ma la sua versione importata non rispetta le regole per gli esercizi pubblici, quindi ora è privato. Lo trovi nella scheda Esercizi."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "このエクササイズは公開されていましたが、読み込んだバージョンが公開エクササイズのルールを満たしていないため、非公開になりました。エクササイズタブで確認できます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이 연습은 공개 상태였지만, 가져온 버전이 공개 연습의 규칙을 충족하지 않아 비공개로 전환되었습니다. 연습 탭에서 찾을 수 있습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deze oefening was openbaar, maar de geïmporteerde versie voldoet niet aan de regels voor openbare oefeningen, dus hij is nu privé. Je vindt hem op het tabblad Oefeningen."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "To ćwiczenie było publiczne, ale jego zaimportowana wersja nie spełnia zasad dla publicznych ćwiczeń, więc jest teraz prywatne. Znajdziesz je na karcie Ćwiczenia."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Este exercício era público, mas a versão importada não atende às regras dos exercícios públicos, então agora ele é privado. Você o encontra na aba Exercícios."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Это упражнение было публичным, но его импортированная версия не соответствует правилам для публичных упражнений, поэтому теперь оно личное. Его можно найти на вкладке «Упражнения»."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Den här övningen var offentlig, men den importerade versionen uppfyller inte reglerna för offentliga övningar, så den är nu privat. Du hittar den på fliken Övningar."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bu egzersiz herkese açıktı, ancak içe aktarılan sürümü herkese açık egzersizlerin kurallarını karşılamadığı için artık özel. Onu Egzersizler sekmesinde bulabilirsin."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "该练习原为公开，但导入的版本不符合公开练习的规则，因此现已设为私有。你可以在“练习”标签中找到它。"
           }
         }
       }

@@ -137,7 +137,7 @@ struct ExerciseSettingsView: View {
                 openLabels = texts
                 openDates = ExerciseDates.timestamps(for: exercise.id)
                 wasWithinLengthRuleOnOpen = exercise.visibility != .public
-                    || clearsMinimumLength(exercise.contentDuration(pattern: notes))
+                    || Exercise.clearsMinimumPublicDuration(exercise.contentDuration(pattern: notes))
             } else {
                 // Back from the MIDI editor: notes taken out in there shorten the
                 // exercise exactly as the settings below do. Asked for a tick later
@@ -438,7 +438,7 @@ struct ExerciseSettingsView: View {
         exercise.contentDuration(pattern: pattern)
     }
 
-    private var isLongEnoughToPublish: Bool { clearsMinimumLength(contentLength) }
+    private var isLongEnoughToPublish: Bool { Exercise.clearsMinimumPublicDuration(contentLength) }
 
     // MARK: - Publishing
 
@@ -492,13 +492,6 @@ struct ExerciseSettingsView: View {
         return true
     }
 
-    /// Whether `seconds` clears `Exercise.minimumPublicDuration`. The slack
-    /// absorbs the rounding of beats into seconds, so an exercise landing exactly
-    /// on the limit is never refused over a fraction of a millisecond.
-    private func clearsMinimumLength(_ seconds: Double) -> Bool {
-        seconds >= Exercise.minimumPublicDuration - 0.0001
-    }
-
     /// A length written out for the alerts and the help bubble, in whole seconds
     /// and in the app's chosen language. Rounded down, so an exercise a hair
     /// under the limit is never reported as the length the rule asks for.
@@ -534,13 +527,11 @@ struct ExerciseSettingsView: View {
     }
 
     /// Whether another of this user's public exercises already uses this
-    /// exercise's name (ignoring case and surrounding whitespace).
+    /// exercise's name (see `Exercise.isSamePublicName`).
     private func isPublicNameTaken() -> Bool {
-        let name = exercise.name.trimmingCharacters(in: .whitespacesAndNewlines)
-        return store.exercises.contains {
+        store.exercises.contains {
             $0.id != exercise.id && $0.visibility == .public
-                && $0.name.trimmingCharacters(in: .whitespacesAndNewlines)
-                    .caseInsensitiveCompare(name) == .orderedSame
+                && Exercise.isSamePublicName($0.name, exercise.name)
         }
     }
 

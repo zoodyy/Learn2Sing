@@ -249,6 +249,10 @@ struct ExerciseImportSelectionView: View {
     /// The *un*ticked exercises — see `ExerciseExportSelectionView.excluded`.
     @State private var excluded: Set<UUID> = []
     @State private var collapsedCategories: Set<String> = []
+    /// The public exercises the import just made private, which the alert lists.
+    /// Kept after the alert is closed, so its text doesn't change on the way out.
+    @State private var madePrivate = BackupImportDemotions()
+    @State private var isShowingMadePrivate = false
 
     /// Section identifiers. They are only ever the diffable list's names for the
     /// two groups; what the headers read is passed as their `displayName`.
@@ -335,17 +339,54 @@ struct ExerciseImportSelectionView: View {
                 excluded = all ? [] : Set(bundle.exercises.map(\.id))
             }
         )
+        // The strings go through L(): an alert's message and actions miss the
+        // screen's locale.
+        .alert(madePrivate.count == 1 ? L("Exercise Made Private") : L("Exercises Made Private"),
+               isPresented: $isShowingMadePrivate) {
+            Button(L("OK"), role: .cancel) { finishImport() }
+        } message: {
+            Text(madePrivateMessage)
+        }
     }
 
-    /// Merge the ticked exercises into the library and go back to the Backup
-    /// screen. The confirmation is a toast rather than an alert because it
-    /// outlives this screen being popped (see `ToastCenter`).
+    /// Merge the ticked exercises into the library. Public exercises the import
+    /// had to make private are listed in an alert first; the screen goes back to
+    /// Backup once it is closed.
     private func runImport() {
         let selected = selectedIDs
         guard !selected.isEmpty else { return }
-        store.importBundle(bundle.filtered(to: selected))
+        let demotions = store.importBackup(bundle.filtered(to: selected))
+        if demotions.count == 0 {
+            finishImport()
+        } else {
+            madePrivate = demotions
+            isShowingMadePrivate = true
+        }
+    }
+
+    /// Go back to the Backup screen. The confirmation is a toast rather than an
+    /// alert because it outlives this screen being popped (see `ToastCenter`).
+    private func finishImport() {
         toasts.show(L("Exercises Imported!"))
         dismiss()
+    }
+
+    /// Which exercises the import made private, grouped by the rule they break,
+    /// so each can be found on the Exercises tab and put right there.
+    private var madePrivateMessage: String {
+        var parts = [madePrivate.count == 1
+            ? L("This exercise was public, but its imported version doesn't meet the rules for public exercises, so it is now private. You can find it on the Exercises tab.")
+            : L("These exercises were public, but their imported versions don't meet the rules for public exercises, so they are now private. You can find them on the Exercises tab.")]
+        func group(_ heading: String, _ names: [String]) {
+            guard !names.isEmpty else { return }
+            parts.append(([heading] + names.map { "• \($0)" }).joined(separator: "\n"))
+        }
+        let minimum = Duration.seconds(Exercise.minimumPublicDuration).formatted(
+            Duration.UnitsFormatStyle(allowedUnits: [.seconds], width: .wide)
+                .locale(appLanguage.language.locale))
+        group(L("Shorter than %@, counting all repetitions:", minimum), madePrivate.tooShort)
+        group(L("Name already used by another of your public exercises:"), madePrivate.nameTaken)
+        return parts.joined(separator: "\n\n")
     }
 }
 
