@@ -370,6 +370,14 @@ final class ProfilePictureStore: ObservableObject {
     /// publishes its emptiness over a picture that is still on the server.
     func restoreIfNeeded() async {
         guard !isResolved else { return }
+        // A block took the profile off the device, picture included (see
+        // AccountBlock); a reinstall doesn't fetch it back. Settled for good, so
+        // the picture stays gone once the block has ended, too.
+        guard !AccountBlock.shared.isBlocked else {
+            isResolved = true
+            UserDefaults.standard.set(true, forKey: Self.restoreCheckedKey)
+            return
+        }
         // A fetch that went unanswered leaves this unresolved on purpose: the
         // next launch asks again, and until one of them answers nothing is
         // published over whatever the server holds.

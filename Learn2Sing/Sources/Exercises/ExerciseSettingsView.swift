@@ -24,6 +24,16 @@ struct ExerciseSettingsView: View {
     /// `Exercise.minimumPublicDuration`; it stays private.
     @State private var isWarningTooShortToPublish = false
 
+    /// Shown when publishing is refused because the server has blocked this user
+    /// (see AccountBlock); the exercise stays private.
+    @State private var isWarningBlocked = false
+
+    /// Set when Public is picked, while the server is asked whether this user
+    /// may publish at all (see `CommunitySync.checkPublishing()`). The exercise
+    /// only goes public once it has answered; until then the picker shows Public
+    /// and waits. A fresh value per pick, so the task below runs for each one.
+    @State private var publishRequest: UUID?
+
     /// Shown when a change made here drops an exercise that is already public
     /// under that minimum. It can't stay as it is, so the user picks which way
     /// out: off the Community tab, or back to how this screen found it.
@@ -165,19 +175,20 @@ struct ExerciseSettingsView: View {
         } message: {
             Text(L("“%@” and its MIDI pattern will be deleted. This cannot be undone.", exercise.name))
         }
-        // Publishing stamps the current profile username as the uploader shown
-        // next to the exercise on the Community tab — unless the exercise is too
-        // short to be worth anyone's download, or the user already shares another
-        // exercise with this name. Either one is refused.
-        .onChange(of: exercise.visibility) { _, newValue in
-            guard newValue == .public else { return }
-            if !isLongEnoughToPublish {
-                exercise.visibility = .private
-                isWarningTooShortToPublish = true
-            } else if isPublicNameTaken() {
-                exercise.visibility = .private
-                isWarningDuplicateName = true
-            } else {
+        // The server's say on a pick of Public. Cancelled if the screen goes
+        // away first, which leaves the exercise private; coming back to it (from
+        // the MIDI editor) asks again.
+        .task(id: publishRequest) {
+            guard publishRequest != nil else { return }
+            let check = await CommunitySync.shared.checkPublishing()
+            guard !Task.isCancelled else { return }
+            publishRequest = nil
+            // A block learned some other way while this one was on the wire
+            // counts too, as does one already known when there was no answer.
+            if check == .blocked || AccountBlock.shared.isBlocked {
+                isWarningBlocked = true
+            } else if meetsPublicRules() {
+                exercise.visibility = .public
                 exercise.uploaderName = UserProfile.load().username
             }
         }
@@ -203,6 +214,11 @@ struct ExerciseSettingsView: View {
             Button("OK", role: .cancel) {}
         } message: {
             Text(L("You already have a public exercise named “%@”. Each of your public exercises needs a unique name, so this one stays private.", exercise.name))
+        }
+        .alert("Account Blocked", isPresented: $isWarningBlocked) {
+            Button("OK", role: .cancel) {}
+        } message: {
+            Text(AccountBlock.shared.message())
         }
         .alert("Too Short to Publish", isPresented: $isWarningTooShortToPublish) {
             Button("OK", role: .cancel) {}
@@ -380,11 +396,19 @@ struct ExerciseSettingsView: View {
             // setting at all.
             if !store.isBundled(exercise.id) {
                 Section {
-                    Picker("Visibility", selection: $exercise.visibility) {
+                    Picker(selection: visibilitySelection) {
                         ForEach(ExerciseVisibility.allCases, id: \.self) { visibility in
                             Text(visibility.label).tag(visibility)
                         }
+                    } label: {
+                        HStack(spacing: 8) {
+                            Text("Visibility")
+                            if publishRequest != nil { ProgressView() }
+                        }
                     }
+                    // One answer at a time: nothing to pick until the server has
+                    // had its say on the last one.
+                    .disabled(publishRequest != nil)
                     .settingHelp(L("Public exercises appear on the Community tab. Only an exercise lasting at least %@, counting all of its repetitions together, can be made public.",
                                    formattedLength(Exercise.minimumPublicDuration)))
                 } header: {
@@ -415,6 +439,58 @@ struct ExerciseSettingsView: View {
     }
 
     private var isLongEnoughToPublish: Bool { clearsMinimumLength(contentLength) }
+
+    // MARK: - Publishing
+
+    /// The visibility picker's side of the exercise. Private is simply set; Public
+    /// is a request, which the rules below and then the server get to turn down.
+    private var visibilitySelection: Binding<ExerciseVisibility> {
+        Binding {
+            publishRequest == nil ? exercise.visibility : .public
+        } set: { visibility in
+            if visibility == .public {
+                requestPublic()
+            } else {
+                exercise.visibility = .private
+            }
+        }
+    }
+
+    /// Publishing stamps the current profile username as the uploader shown next
+    /// to the exercise on the Community tab — unless the exercise is too short to
+    /// be worth anyone's download, the user already shares another exercise with
+    /// this name, or the server has blocked them. Any one of these is refused,
+    /// and the exercise stays private.
+    ///
+    /// The server is asked every time, blocked or not: its answer is how the app
+    /// finds out about a block, and how it keeps the days left up to date. A block
+    /// the app already knows of is refused straight away rather than after the
+    /// round trip, with the question sent all the same.
+    private func requestPublic() {
+        guard exercise.visibility != .public, publishRequest == nil,
+              meetsPublicRules() else { return }
+        if AccountBlock.shared.isBlocked {
+            isWarningBlocked = true
+            Task { await CommunitySync.shared.checkPublishing() }
+            return
+        }
+        publishRequest = UUID()
+    }
+
+    /// The app's own rules for a public exercise, putting up the alert for
+    /// whichever one it breaks. Asked again once the server has answered, since
+    /// the exercise may have changed in the meantime.
+    private func meetsPublicRules() -> Bool {
+        if !isLongEnoughToPublish {
+            isWarningTooShortToPublish = true
+            return false
+        }
+        if isPublicNameTaken() {
+            isWarningDuplicateName = true
+            return false
+        }
+        return true
+    }
 
     /// Whether `seconds` clears `Exercise.minimumPublicDuration`. The slack
     /// absorbs the rounding of beats into seconds, so an exercise landing exactly

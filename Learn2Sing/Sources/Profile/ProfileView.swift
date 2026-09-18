@@ -71,6 +71,11 @@ struct UserProfile: Codable {
     /// what decides which lesson is recommended next (see BookLessonProgress).
     /// Optional so profiles written before the lessons existed still decode.
     var finishedLessons: [String]? = nil
+    /// When the server's block on this user ends, as seconds since 1970; nil
+    /// while they aren't blocked. Kept here so it rides along in the private
+    /// backup and a reinstall still knows (see AccountBlock). Optional so
+    /// profiles written before it existed still decode.
+    var blockedUntil: Double? = nil
 
     static var fileURL: URL {
         FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
@@ -160,6 +165,10 @@ struct ProfileView: View {
     @State private var isAdjustingPicture = false
     /// Set when a picked photo couldn't be read or encoded at all.
     @State private var pictureFailed = false
+    /// Whether the server has blocked this user. While it has, the screen shows
+    /// how long for in place of the profile, which the block took off the
+    /// device.
+    @ObservedObject private var accountBlock = AccountBlock.shared
 
     /// A refused rename: the name as typed, so the message can follow the field,
     /// and the name the server named in its error, which is what it shows. The
@@ -180,125 +189,10 @@ struct ProfileView: View {
 
     var body: some View {
         Form {
-            Section {
-                // One row rather than four: the buttons stand in a column of
-                // their own, each still a list row tall, with the picture
-                // alongside the lot of them instead of above.
-                HStack(spacing: 16) {
-                    VStack(spacing: 0) {
-                        PhotosPicker(selection: $pickedPhoto, matching: .images, photoLibrary: .shared()) {
-                            // Spelled out either way rather than picked with a ternary:
-                            // the string extractor keys on the literal that follows
-                            // `Label(`, and would walk straight past both of these.
-                            if picture.thumb == nil {
-                                Label("Choose Photo", systemImage: "photo")
-                                    .pictureButtonRow()
-                            } else {
-                                Label("Change Photo", systemImage: "photo")
-                                    .pictureButtonRow()
-                            }
-                        }
-                        .buttonStyle(.plain)
-                        // A plain button draws its label in the primary colour,
-                        // and one that shares a row with others has to be plain
-                        // — see `pictureButtonRow` — so the tint is put back by
-                        // hand, greyed while a picked photo is being prepared.
-                        .foregroundStyle(isPreparingPicture ? AnyShapeStyle(.secondary)
-                                                            : AnyShapeStyle(Color.accentColor))
-                        .disabled(isPreparingPicture)
-                        .explain(L("Picks a picture from your photos to show on your public profile."))
-
-                        if picture.thumb != nil {
-                            Divider()
-                            Button {
-                                adjustPicture()
-                            } label: {
-                                Label("Adjust Picture", systemImage: "crop")
-                                    .pictureButtonRow()
-                            }
-                            .buttonStyle(.plain)
-                            .foregroundStyle(Color.accentColor)
-                            .explain(L("Drag and pinch to choose what shows in the circle."))
-
-                            Divider()
-                            Button(role: .destructive) {
-                                picture.removePicture()
-                            } label: {
-                                Label("Remove Photo", systemImage: "trash")
-                                    .pictureButtonRow()
-                            }
-                            // The destructive role only reddens a *row's* title,
-                            // and this is no longer a row of its own.
-                            .buttonStyle(.plain)
-                            .dangerRow()
-                            .explain(L("Takes your picture off your profile. The photo stays in your photo library."))
-                        }
-                    }
-
-                    ProfileAvatar(image: picture.thumb, side: 110)
-                        // Only felt before a picture has been chosen, where the
-                        // one button left is shorter than the circle and it is
-                        // the circle that sets the row's height.
-                        .padding(.vertical, 8)
-                        // Tapping the picture itself is the quickest way to the
-                        // thing most people come back to change.
-                        .onTapGesture { if picture.thumb != nil { adjustPicture() } }
-                        .explain(L("How your picture looks to everyone else. Tap it to move and zoom it."))
-                        .overlay {
-                            if isPreparingPicture {
-                                ProgressView()
-                                    .controlSize(.large)
-                                    .padding(20)
-                                    .background(.ultraThinMaterial, in: .circle)
-                            }
-                        }
-                }
-                // The buttons stand a list row tall by themselves, so the row
-                // they are in adds nothing on top; the horizontal inset is the
-                // one a row would have had, so the first button's words line up
-                // with the fields in the sections below.
-                .listRowInsets(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16))
-                // The row's own explanations sit on the buttons and the circle
-                // inside it, so it is marked for the search without one of its
-                // own.
-                .settingAnchor(.profilePicture)
-            } header: {
-                Text("Profile Picture")
-            } footer: {
-                if pictureFailed {
-                    Text("That photo could not be used.")
-                        .foregroundStyle(.red)
-                }
-            }
-
-            Section {
-                TextField("Username", text: $typedUsername)
-                    .autocorrectionDisabled()
-                    .focused($isEditingUsername)
-                    .onSubmit { commitUsername() }
-                    .setting(.username)
-            } header: {
-                Text("Username")
-            } footer: {
-                if let refused = refusedUsername, refused.typed == typedUsername {
-                    Text(L("Username “%@” is not available", refused.reported))
-                        .foregroundStyle(.red)
-                }
-            }
-
-            Section("Profile Description") {
-                TextField("Write something about yourself", text: $typedDescription, axis: .vertical)
-                    .lineLimit(3...8)
-                    .focused($isEditingDescription)
-                    .setting(.profileDescription)
-            }
-
-            Section {
-                Toggle("Make your join date public", isOn: $joinDatePublic)
-                    .onChange(of: joinDatePublic) { _, isPublic in
-                        save { $0.joinDatePublic = isPublic }
-                    }
-                    .setting(.joinDatePublic)
+            if accountBlock.isBlocked {
+                blockedSection
+            } else {
+                profileSections
             }
         }
         .navigationTitle(L("Profile"))
@@ -347,6 +241,161 @@ struct ProfileView: View {
             commitUsername()
             commitDescription()
         }
+        // The block cleared the profile file under this screen, so what it shows
+        // is read again from there — an edit still sitting in a field must not be
+        // committed back over the clearing when the field goes away.
+        .onChange(of: accountBlock.blockedUntil) { _, _ in
+            let stored = UserProfile.load()
+            profile = stored
+            typedUsername = stored.username
+            typedDescription = stored.profileDescription ?? ""
+            joinDatePublic = stored.joinDatePublic ?? false
+            refusedUsername = nil
+        }
+    }
+
+    /// In place of the profile while this user is blocked: how long the block has
+    /// left, counted down as the days go by.
+    private var blockedSection: some View {
+        Section {
+            TimelineView(.everyMinute) { context in
+                Label {
+                    Text(accountBlock.message(at: context.date))
+                } icon: {
+                    Image(systemName: "nosign")
+                        .foregroundStyle(.red)
+                }
+            }
+            .settingHelp(L("How long your account stays blocked. When the block ends, you can choose a username and set up your profile again."))
+        } header: {
+            Text("Account Blocked")
+        }
+    }
+
+    /// The profile itself: the picture, the username, the description and the
+    /// join date.
+    @ViewBuilder
+    private var profileSections: some View {
+        Section {
+            // One row rather than four: the buttons stand in a column of
+            // their own, each still a list row tall, with the picture
+            // alongside the lot of them instead of above.
+            HStack(spacing: 16) {
+                VStack(spacing: 0) {
+                    PhotosPicker(selection: $pickedPhoto, matching: .images, photoLibrary: .shared()) {
+                        // Spelled out either way rather than picked with a ternary:
+                        // the string extractor keys on the literal that follows
+                        // `Label(`, and would walk straight past both of these.
+                        if picture.thumb == nil {
+                            Label("Choose Photo", systemImage: "photo")
+                                .pictureButtonRow()
+                        } else {
+                            Label("Change Photo", systemImage: "photo")
+                                .pictureButtonRow()
+                        }
+                    }
+                    .buttonStyle(.plain)
+                    // A plain button draws its label in the primary colour,
+                    // and one that shares a row with others has to be plain
+                    // — see `pictureButtonRow` — so the tint is put back by
+                    // hand, greyed while a picked photo is being prepared.
+                    .foregroundStyle(isPreparingPicture ? AnyShapeStyle(.secondary)
+                                                        : AnyShapeStyle(Color.accentColor))
+                    .disabled(isPreparingPicture)
+                    .explain(L("Picks a picture from your photos to show on your public profile."))
+
+                    if picture.thumb != nil {
+                        Divider()
+                        Button {
+                            adjustPicture()
+                        } label: {
+                            Label("Adjust Picture", systemImage: "crop")
+                                .pictureButtonRow()
+                        }
+                        .buttonStyle(.plain)
+                        .foregroundStyle(Color.accentColor)
+                        .explain(L("Drag and pinch to choose what shows in the circle."))
+
+                        Divider()
+                        Button(role: .destructive) {
+                            picture.removePicture()
+                        } label: {
+                            Label("Remove Photo", systemImage: "trash")
+                                .pictureButtonRow()
+                        }
+                        // The destructive role only reddens a *row's* title,
+                        // and this is no longer a row of its own.
+                        .buttonStyle(.plain)
+                        .dangerRow()
+                        .explain(L("Takes your picture off your profile. The photo stays in your photo library."))
+                    }
+                }
+
+                ProfileAvatar(image: picture.thumb, side: 110)
+                    // Only felt before a picture has been chosen, where the
+                    // one button left is shorter than the circle and it is
+                    // the circle that sets the row's height.
+                    .padding(.vertical, 8)
+                    // Tapping the picture itself is the quickest way to the
+                    // thing most people come back to change.
+                    .onTapGesture { if picture.thumb != nil { adjustPicture() } }
+                    .explain(L("How your picture looks to everyone else. Tap it to move and zoom it."))
+                    .overlay {
+                        if isPreparingPicture {
+                            ProgressView()
+                                .controlSize(.large)
+                                .padding(20)
+                                .background(.ultraThinMaterial, in: .circle)
+                        }
+                    }
+            }
+            // The buttons stand a list row tall by themselves, so the row
+            // they are in adds nothing on top; the horizontal inset is the
+            // one a row would have had, so the first button's words line up
+            // with the fields in the sections below.
+            .listRowInsets(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16))
+            // The row's own explanations sit on the buttons and the circle
+            // inside it, so it is marked for the search without one of its
+            // own.
+            .settingAnchor(.profilePicture)
+        } header: {
+            Text("Profile Picture")
+        } footer: {
+            if pictureFailed {
+                Text("That photo could not be used.")
+                    .foregroundStyle(.red)
+            }
+        }
+
+        Section {
+            TextField("Username", text: $typedUsername)
+                .autocorrectionDisabled()
+                .focused($isEditingUsername)
+                .onSubmit { commitUsername() }
+                .setting(.username)
+        } header: {
+            Text("Username")
+        } footer: {
+            if let refused = refusedUsername, refused.typed == typedUsername {
+                Text(L("Username “%@” is not available", refused.reported))
+                    .foregroundStyle(.red)
+            }
+        }
+
+        Section("Profile Description") {
+            TextField("Write something about yourself", text: $typedDescription, axis: .vertical)
+                .lineLimit(3...8)
+                .focused($isEditingDescription)
+                .setting(.profileDescription)
+        }
+
+        Section {
+            Toggle("Make your join date public", isOn: $joinDatePublic)
+                .onChange(of: joinDatePublic) { _, isPublic in
+                    save { $0.joinDatePublic = isPublic }
+                }
+                .setting(.joinDatePublic)
+        }
     }
 
     /// Offers the typed name to the server, which is what decides whether it is
@@ -356,6 +405,9 @@ struct ProfileView: View {
     /// becomes this user's: the field goes on showing it, with the message
     /// underneath, until it is edited into a name that is free.
     private func commitUsername() {
+        // Nothing to commit while blocked: the field is gone, and the block
+        // cleared the name out from under it.
+        guard !accountBlock.isBlocked else { return }
         let name = typedUsername
         guard name != profile.username else {
             refusedUsername = nil
@@ -376,6 +428,11 @@ struct ProfileView: View {
                 save(username: name)
             case .taken(let taken):
                 refusedUsername = RefusedUsername(typed: name, reported: taken)
+            case .blocked:
+                // The server refused it because this user is blocked. The block
+                // has cleared the profile and been announced; the screen swaps
+                // the fields for the notice by itself.
+                refusedUsername = nil
             case .failed:
                 // No answer either way, so nothing to hold against the name:
                 // renaming offline works as it always did, and the name is
@@ -397,6 +454,7 @@ struct ProfileView: View {
     /// Writes the typed description into the profile once the field is finished
     /// with. Unlike a rename there is nothing to claim, so it is simply saved.
     private func commitDescription() {
+        guard !accountBlock.isBlocked else { return }
         let text = typedDescription
         guard text != (profile.profileDescription ?? "") else { return }
         save { $0.profileDescription = text }
@@ -417,7 +475,11 @@ struct ProfileView: View {
     /// while the description and the join date are also published — under the
     /// public user id, never the device one — for the Community tab to show on
     /// this user's profile (see `CommunitySync.uploadPublicProfile`).
+    ///
+    /// Nothing is saved while this user is blocked: the block cleared the
+    /// profile, and an edit left over from before it must not put anything back.
     private func save(_ edit: (inout UserProfile) -> Void) {
+        guard !accountBlock.isBlocked else { return }
         var stored = UserProfile.load()
         edit(&stored)
         stored.save()

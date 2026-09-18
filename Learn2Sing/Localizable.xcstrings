@@ -2855,6 +2855,94 @@
         }
       }
     },
+    "Account Blocked" : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "الحساب محظور"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Konto gesperrt"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cuenta bloqueada"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Compte bloqué"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Account bloccato"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "アカウントがブロックされています"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "계정 차단됨"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Account geblokkeerd"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Konto zablokowane"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Conta bloqueada"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Аккаунт заблокирован"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kontot är blockerat"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hesap engellendi"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "账号已被封禁"
+          }
+        }
+      }
+    },
     "Adapted from “%@” by the U.S. National Institute on Deafness and Other Communication Disorders (NIDCD), in the public domain." : {
       "extractionState" : "stale",
       "localizations" : {
@@ -25212,6 +25300,95 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "你打算每天练习多长时间。“首页”标签中的“推荐”类别会按你的水平，建议加起来至少这么长的练习，并避开你最近唱过的练习，尤其是反复唱过很多次的。“首页”标签的“歌唱时长”中，某一天练满这么久后就会被填满并打上对勾。"
+          }
+        }
+      }
+    },
+    "How long your account stays blocked. When the block ends, you can choose a username and set up your profile again." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "المدة التي يبقى فيها حسابك محظورًا. عند انتهاء الحظر، يمكنك اختيار اسم مستخدم وإعداد ملفك الشخصي من جديد."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wie lange dein Konto noch gesperrt ist. Wenn die Sperre endet, kannst du einen Benutzernamen wählen und dein Profil neu einrichten."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cuánto tiempo seguirá bloqueada tu cuenta. Cuando termine el bloqueo, podrás elegir un nombre de usuario y volver a configurar tu perfil."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Combien de temps votre compte reste bloqué. Quand le blocage prend fin, vous pouvez choisir un nom d’utilisateur et configurer à nouveau votre profil."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Per quanto tempo il tuo account resta bloccato. Quando il blocco termina, puoi scegliere un nome utente e configurare di nuovo il tuo profilo."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "アカウントのブロックが続く期間です。ブロックが解除されたら、ユーザー名を選んでプロフィールをもう一度設定できます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "계정 차단이 유지되는 기간입니다. 차단이 해제되면 사용자 이름을 선택하고 프로필을 다시 설정할 수 있습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hoe lang je account nog geblokkeerd blijft. Als de blokkering voorbij is, kun je een gebruikersnaam kiezen en je profiel opnieuw instellen."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jak długo twoje konto pozostanie zablokowane. Gdy blokada się skończy, możesz wybrać nazwę użytkownika i ponownie uzupełnić profil."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Por quanto tempo sua conta continua bloqueada. Quando o bloqueio terminar, você poderá escolher um nome de usuário e configurar seu perfil de novo."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сколько ещё продлится блокировка вашего аккаунта. Когда она закончится, вы сможете выбрать имя пользователя и заново заполнить профиль."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hur länge ditt konto förblir blockerat. När blockeringen upphör kan du välja ett användarnamn och fylla i din profil igen."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hesabınızın ne kadar süre daha engelli kalacağı. Engel bittiğinde bir kullanıcı adı seçip profilinizi yeniden oluşturabilirsiniz."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "你的账号还会被封禁多久。封禁解除后，你可以选择用户名并重新设置个人资料。"
           }
         }
       }
@@ -77483,6 +77660,95 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "唱歌时，你在塑造这些空间。舌头的位置、下巴张开的程度和嘴唇的形状，都会改变口腔这个共鸣腔，从而改变声音的色彩。咽腔因其位置、大小和可调节的程度，是最重要的共鸣腔。"
+          }
+        }
+      }
+    },
+    "Your account is blocked, so your profile has been removed and you can't make exercises public. The block ends in %@." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "حسابك محظور، لذلك أُزيل ملفك الشخصي ولا يمكنك جعل التمارين عامة. المدة المتبقية للحظر: %@."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dein Konto ist gesperrt. Deshalb wurde dein Profil entfernt, und du kannst keine Übungen veröffentlichen. Die Sperre gilt noch %@."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tu cuenta está bloqueada, así que tu perfil se ha eliminado y no puedes hacer públicos tus ejercicios. El bloqueo termina en %@."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Votre compte est bloqué : votre profil a donc été supprimé et vous ne pouvez pas rendre d’exercices publics. Le blocage prend fin dans %@."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il tuo account è bloccato, quindi il tuo profilo è stato rimosso e non puoi rendere pubblici gli esercizi. Il blocco termina tra %@."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "アカウントがブロックされているため、プロフィールは削除され、エクササイズを公開できません。ブロックはあと%@で解除されます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "계정이 차단되어 프로필이 삭제되었으며 연습을 공개할 수 없습니다. 차단은 %@ 후에 해제됩니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Je account is geblokkeerd. Daarom is je profiel verwijderd en kun je geen oefeningen openbaar maken. De blokkering eindigt over %@."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Twoje konto jest zablokowane, dlatego twój profil został usunięty i nie możesz upubliczniać ćwiczeń. Blokada skończy się za %@."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sua conta está bloqueada, por isso seu perfil foi removido e você não pode tornar exercícios públicos. O bloqueio termina em %@."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ваш аккаунт заблокирован, поэтому ваш профиль удалён и вы не можете делать упражнения публичными. Блокировка закончится через %@."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ditt konto är blockerat, så din profil har tagits bort och du kan inte göra övningar offentliga. Blockeringen upphör om %@."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hesabınız engellendi; bu yüzden profiliniz kaldırıldı ve egzersizleri herkese açık yapamazsınız. Engelin bitmesine %@ var."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "你的账号已被封禁，因此你的个人资料已被移除，也无法公开练习。封禁将在%@后解除。"
           }
         }
       }

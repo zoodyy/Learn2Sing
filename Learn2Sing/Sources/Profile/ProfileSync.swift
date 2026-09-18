@@ -311,6 +311,11 @@ final class ProfileSync {
         // CommunitySync reads this back when it starts, right after the restore.
         profile.likedExercises = remote.likedExercises
         profile.save()
+        // A block the server told this user about before the reinstall. After the
+        // save above, since picking it up clears the profile the save wrote.
+        if let blockedUntil = remote.blockedUntil {
+            AccountBlock.shared.restore(until: blockedUntil)
+        }
         if let bundle = remote.exercises {
             // Not stamped as just added: these are the exercises the profile
             // already had, and their dates come down with them.

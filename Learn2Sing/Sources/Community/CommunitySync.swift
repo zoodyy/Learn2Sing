@@ -85,9 +85,25 @@ enum UsernameClaimResult {
     /// re-posting a user's own name is accepted rather than refused, and this
     /// answer means what it says.
     case taken(String)
+    /// The server refused the post because this user is blocked. `AccountBlock`
+    /// has been told, and has taken the profile off the device.
+    case blocked
     /// No answer to go on — offline, or any other status. Whether the name is
     /// free is unknown, so it isn't held against the user.
     case failed
+}
+
+/// What the server said when asked whether this user may make an exercise
+/// public (see `CommunitySync.checkPublishing()`).
+enum PublishCheck {
+    /// It answered, and not with a block: it took the profile, or refused it for
+    /// another reason (a name somebody else has, or no name at all).
+    case allowed
+    /// It refused the profile because this user is blocked.
+    case blocked
+    /// No answer: offline, or the profile couldn't be put together yet. The
+    /// caller goes by what `AccountBlock` already knows.
+    case unanswered
 }
 
 /// What a user did to a public exercise. Posted one call per action to the
@@ -674,12 +690,17 @@ final class CommunitySync: ObservableObject {
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.httpBody = body
         do {
-            let (_, response) = try await URLSession.shared.data(for: request)
+            let (data, response) = try await URLSession.shared.data(for: request)
             if let http = response as? HTTPURLResponse, (200...299).contains(http.statusCode) {
                 return true
             }
             if let http = response as? HTTPURLResponse {
                 print("CommunitySync: upload of \(publicExerciseID) failed with status \(http.statusCode)")
+            }
+            // The profile is where a block is normally learned, but a refusal
+            // that says so is worth taking in wherever it turns up.
+            if let days = AccountBlock.daysLeft(in: data) {
+                AccountBlock.shared.record(daysLeft: days, announce: true)
             }
         } catch {
             print("CommunitySync: upload of \(publicExerciseID) failed: \(error)")
@@ -746,6 +767,40 @@ final class CommunitySync: ObservableObject {
         return result
     }
 
+    /// Asks the server whether this user may make an exercise public, by posting
+    /// their public profile exactly as it stands — the same document every other
+    /// post of it sends, over the one already there. There is no endpoint that
+    /// answers the question directly: a blocked user's write is refused with the
+    /// days the block has left (see `AccountBlock`), and this is the write.
+    ///
+    /// Posted even when nothing has changed since the last accept, since the
+    /// point is the answer rather than the upload, and for every user — one with
+    /// no username included. The server looks for a block before it looks at the
+    /// name (measured 2026-09-18: an empty name from a blocked user came back as
+    /// the block, not as the missing name), so theirs is a straight answer too;
+    /// without a block the empty name is refused and nothing is written.
+    ///
+    /// The picture is part of the document and has to be known before it goes
+    /// up, as for every other post of it; a fresh install fetches it first.
+    func checkPublishing() async -> PublishCheck {
+        await ProfilePictureStore.shared.restoreIfNeeded()
+        guard ProfilePictureStore.shared.isResolved else { return .unanswered }
+        let stored = UserProfile.load()
+        let doc = Self.publicProfileDoc(username: stored.username, in: stored)
+        guard let body = Self.encode(doc) else { return .unanswered }
+        switch await postPublicProfile(doc, body: body, announcingBlock: false) {
+        case .accepted:
+            lastUploadedProfile = body
+            return .allowed
+        case .taken:
+            return .allowed
+        case .blocked:
+            return .blocked
+        case .failed:
+            return .unanswered
+        }
+    }
+
     /// The document this device publishes about its user: the name being claimed,
     /// plus everything else they have chosen to make public.
     ///
@@ -774,8 +829,14 @@ final class CommunitySync: ObservableObject {
     /// in the document itself: the parameter is what the server resolves this
     /// user's id to on every exercise they have shared, and the document is what
     /// a reader of the profile goes by.
+    ///
+    /// A refusal because this user is blocked is handed to `AccountBlock`, which
+    /// announces it unless `announcingBlock` is off — the refusal to publish says
+    /// so in an alert of its own. A post the server takes means no block is in
+    /// force, so any this device knew of is lifted.
     private func postPublicProfile(_ doc: PublicProfileDoc,
-                                   body: Data) async -> UsernameClaimResult {
+                                   body: Data,
+                                   announcingBlock: Bool = true) async -> UsernameClaimResult {
         let userID = PublicIdentifier.user
         // A document over the backend's TEXT-column ceiling answers 500, and one
         // oversized POST once took `fetch-private` down for every user until the
@@ -805,7 +866,18 @@ final class CommunitySync: ObservableObject {
                 // name on this user's own exercises until the next refresh
                 // brought the records (and with them the names) back down.
                 remember(ownName: doc.username, for: userID)
+                AccountBlock.shared.lift()
                 return .accepted
+            }
+            // Before the 412 below: a block comes back as a 412 too (measured
+            // 2026-09-18), `error.persist.storage.user.blocked#29` in a plain-text
+            // body, and only the body tells the two apart.
+            if let days = AccountBlock.daysLeft(in: data) {
+                // Whatever the server held before, it has refused this user
+                // since; the next post must not be skipped as already there.
+                lastUploadedProfile = nil
+                AccountBlock.shared.record(daysLeft: days, announce: announcingBlock)
+                return .blocked
             }
             if http.statusCode == 412 {
                 return .taken(Self.rejectedName(in: data) ?? doc.username)

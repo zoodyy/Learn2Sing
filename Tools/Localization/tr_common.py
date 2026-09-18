@@ -52,6 +52,24 @@ T("Profile Description", "Profilbeschreibung", "Descripción del perfil", "Descr
 T("Write something about yourself", "Schreib etwas über dich", "Escribe algo sobre ti", "Écrivez quelque chose sur vous", "Scrivi qualcosa su di te", "Escreva algo sobre você", "Schrijf iets over jezelf", "Напишите что-нибудь о себе", "Napisz coś o sobie", "Kendiniz hakkında bir şeyler yazın", "Skriv något om dig själv", "自分について書いてください", "자신에 대해 써 보세요", "写点关于你自己的内容", "اكتب شيئًا عن نفسك")
 T("Make your join date public", "Beitrittsdatum öffentlich zeigen", "Hacer pública la fecha de registro", "Rendre publique la date d’inscription", "Rendi pubblica la data di iscrizione", "Tornar pública a data de entrada", "Aanmelddatum openbaar maken", "Показывать дату регистрации всем", "Pokazuj publicznie datę dołączenia", "Katılma tarihini herkese açık yap", "Gör ditt anslutningsdatum offentligt", "参加日を公開する", "가입 날짜 공개하기", "公开加入日期", "إظهار تاريخ انضمامك للجميع")
 
+# --- Account block (the server's refusal, AccountBlock.swift) ---
+T("Account Blocked", "Konto gesperrt", "Cuenta bloqueada", "Compte bloqué", "Account bloccato", "Conta bloqueada", "Account geblokkeerd", "Аккаунт заблокирован", "Konto zablokowane", "Hesap engellendi", "Kontot är blockerat", "アカウントがブロックされています", "계정 차단됨", "账号已被封禁", "الحساب محظور")
+T("Your account is blocked, so your profile has been removed and you can't make exercises public. The block ends in %@.",
+  "Dein Konto ist gesperrt. Deshalb wurde dein Profil entfernt, und du kannst keine Übungen veröffentlichen. Die Sperre gilt noch %@.",
+  "Tu cuenta está bloqueada, así que tu perfil se ha eliminado y no puedes hacer públicos tus ejercicios. El bloqueo termina en %@.",
+  "Votre compte est bloqué : votre profil a donc été supprimé et vous ne pouvez pas rendre d’exercices publics. Le blocage prend fin dans %@.",
+  "Il tuo account è bloccato, quindi il tuo profilo è stato rimosso e non puoi rendere pubblici gli esercizi. Il blocco termina tra %@.",
+  "Sua conta está bloqueada, por isso seu perfil foi removido e você não pode tornar exercícios públicos. O bloqueio termina em %@.",
+  "Je account is geblokkeerd. Daarom is je profiel verwijderd en kun je geen oefeningen openbaar maken. De blokkering eindigt over %@.",
+  "Ваш аккаунт заблокирован, поэтому ваш профиль удалён и вы не можете делать упражнения публичными. Блокировка закончится через %@.",
+  "Twoje konto jest zablokowane, dlatego twój profil został usunięty i nie możesz upubliczniać ćwiczeń. Blokada skończy się za %@.",
+  "Hesabınız engellendi; bu yüzden profiliniz kaldırıldı ve egzersizleri herkese açık yapamazsınız. Engelin bitmesine %@ var.",
+  "Ditt konto är blockerat, så din profil har tagits bort och du kan inte göra övningar offentliga. Blockeringen upphör om %@.",
+  "アカウントがブロックされているため、プロフィールは削除され、エクササイズを公開できません。ブロックはあと%@で解除されます。",
+  "계정이 차단되어 프로필이 삭제되었으며 연습을 공개할 수 없습니다. 차단은 %@ 후에 해제됩니다.",
+  "你的账号已被封禁，因此你的个人资料已被移除，也无法公开练习。封禁将在%@后解除。",
+  "حسابك محظور، لذلك أُزيل ملفك الشخصي ولا يمكنك جعل التمارين عامة. المدة المتبقية للحظر: %@.")
+
 # --- Profile picture ---
 T("Profile Picture", "Profilbild", "Foto de perfil", "Photo de profil", "Immagine del profilo", "Foto do perfil", "Profielfoto", "Фото профиля", "Zdjęcie profilowe", "Profil fotoğrafı", "Profilbild", "プロフィール写真", "프로필 사진", "个人头像", "صورة الملف الشخصي")
 T("Choose Photo", "Foto auswählen", "Elegir foto", "Choisir une photo", "Scegli foto", "Escolher foto", "Foto kiezen", "Выбрать фото", "Wybierz zdjęcie", "Fotoğraf seç", "Välj foto", "写真を選択", "사진 선택", "选择照片", "اختيار صورة")
