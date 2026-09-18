@@ -91,6 +91,19 @@ final class Learn2SingUITests: XCTestCase {
         saveScreenshot("list-bottom")
     }
 
+    /// Scroll a Settings form up by most of a screenful, with the drag started low
+    /// down. The playback-visuals screen pins a live preview of the playback
+    /// screen over the top half of its form, and `XCUIApplication.swipeUp()`
+    /// starts in the middle of the app — on that preview, which scrolls nothing,
+    /// so the rows below the fold are never reached. This starts below the
+    /// preview and stops short of the tab bar, and presses too briefly for a row
+    /// to take it for a press and hold.
+    private func scrollSettingsForm(_ app: XCUIApplication) {
+        let from = app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.85))
+        let to = app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.3))
+        from.press(forDuration: 0.05, thenDragTo: to)
+    }
+
     // MARK: - List introspection
 
     /// What the exercise list currently shows: category headers (top to bottom)
@@ -193,15 +206,21 @@ final class Learn2SingUITests: XCTestCase {
 
     private let homeOrderKey = "homeCategoryOrder"
     private let homeCollapsedKey = "homeCollapsedCategories"
+    private let homeHiddenKey = "homeHiddenCategories"
 
-    /// Launch the app on the Home tab with "Routines" as its first category, all
-    /// of it open, and have the routine named `routineName` deleted once the test
-    /// is over, passed or failed, so the list doesn't grow with every run.
+    /// Launch the app on the Home tab with "Routines" first, showing, and every
+    /// category open, and have the routine named `routineName` deleted once the
+    /// test is over, passed or failed, so the list doesn't grow with every run.
     /// "Routines" is moved up because the categories above it fill the first
     /// screen: after a relaunch a routine sits below the fold, where the list has
     /// no cell to find (and a swipe to scroll it lands on a header as a tap).
-    /// Both are forced through the argument domain, so the simulator's own order
-    /// and collapsed set are untouched, and `app` keeps them across relaunches.
+    /// The hidden set is emptied because a category that is hidden isn't on the
+    /// tab at all — no header, and so no + button to make a routine with — and
+    /// the set persists, so a run (or a user) that hid "Routines" would take the
+    /// category away from every run after it.
+    /// All three are forced through the argument domain, so the simulator's own
+    /// order, hidden set and collapsed set are untouched, and `app` keeps them
+    /// across relaunches.
     /// The order names "Routines" alone on purpose: the app stores these lists
     /// newline-joined, a launch argument with a newline in it doesn't reach the
     /// app whole, and the categories a stored order leaves out follow it anyway.
@@ -209,7 +228,8 @@ final class Learn2SingUITests: XCTestCase {
                                       environment: [String: String] = [:]) -> XCUIApplication {
         let app = XCUIApplication()
         app.launchArguments = ["-\(homeOrderKey)", "Routines",
-                               "-\(homeCollapsedKey)", ""]
+                               "-\(homeCollapsedKey)", "",
+                               "-\(homeHiddenKey)", ""]
         app.launchEnvironment.merge(environment) { _, new in new }
         addTeardownBlock { [unowned self] in
             self.deleteRoutine(named: routineName, in: app)
@@ -2164,22 +2184,30 @@ final class Learn2SingUITests: XCTestCase {
         sleep(1)
     }
 
-    /// The recommendation whitelist under Settings ▸ Exercises: a multi-select
+    /// Must match RecommendedExercises.asListKey in the app target.
+    private let recommendationsAsListKey = "recommendationsAsList"
+
+    /// The recommendation whitelist under Settings ▸ Home Tab: a multi-select
     /// picker over the whole library, starting with the app's own exercises
     /// ticked. Unticking one takes it out of Home's recommendations.
+    ///
+    /// "Recommended" shows its suggestions as one card by default, which names no
+    /// exercise; the setting that lists them instead is forced through the
+    /// argument domain, so the simulator's own choice is untouched.
     func testRecommendationWhitelist() throws {
         let app = XCUIApplication()
+        app.launchArguments = ["-\(recommendationsAsListKey)", "YES"]
         app.launch()
         XCTAssertTrue(app.navigationBars["Home"].waitForExistence(timeout: 5))
         sleep(2)
         let before = snapshotList(app).items["Recommended"] ?? []
         XCTAssertFalse(before.isEmpty, "Recommended should suggest exercises")
 
-        // Settings ▸ Exercises ▸ Whitelisted exercises.
+        // Settings ▸ Home Tab ▸ Whitelisted exercises.
         app.buttons["Settings"].firstMatch.tap()
         XCTAssertTrue(app.navigationBars["Settings"].waitForExistence(timeout: 5))
-        settingsRow(app, named: "Exercises")?.tap()
-        XCTAssertTrue(app.navigationBars["Exercises"].waitForExistence(timeout: 5))
+        app.buttons["Home Tab"].firstMatch.tap()
+        XCTAssertTrue(app.navigationBars["Home Tab"].waitForExistence(timeout: 5))
         let whitelistRow = app.buttons.matching(
             NSPredicate(format: "label BEGINSWITH %@", "Whitelisted exercises")).firstMatch
         XCTAssertTrue(whitelistRow.waitForExistence(timeout: 5),
@@ -2222,7 +2250,7 @@ final class Learn2SingUITests: XCTestCase {
 
         // Tick them again so the next run starts from the same state.
         app.buttons["Settings"].firstMatch.tap()
-        if app.navigationBars["Exercises"].waitForExistence(timeout: 2) {
+        if app.navigationBars["Home Tab"].waitForExistence(timeout: 2) {
             app.buttons.matching(
                 NSPredicate(format: "label BEGINSWITH %@", "Whitelisted exercises")).firstMatch.tap()
         }
@@ -2771,7 +2799,7 @@ final class Learn2SingUITests: XCTestCase {
         // The form renders lazily; scroll until the toggle near the bottom exists.
         let toggle = app.switches["Hide tab bar"].firstMatch
         for _ in 0..<8 where !toggle.exists {
-            app.swipeUp()
+            scrollSettingsForm(app)
         }
         XCTAssertTrue(toggle.waitForExistence(timeout: 5),
                       "Visuals → Playback should offer the Hide tab bar toggle")
@@ -2840,7 +2868,7 @@ final class Learn2SingUITests: XCTestCase {
         let stylePicker = app.buttons.matching(
             NSPredicate(format: "label BEGINSWITH %@", "Style")).firstMatch
         for _ in 0..<8 where !stylePicker.exists {
-            app.swipeUp()
+            scrollSettingsForm(app)
         }
         XCTAssertTrue(stylePicker.waitForExistence(timeout: 5),
                       "Visuals → Playback should offer the vertical line's Style picker")
@@ -2903,11 +2931,20 @@ final class Learn2SingUITests: XCTestCase {
             .first { $0.frame.height > 0 && (!tabBar.exists || $0.frame.maxY < tabBar.frame.minY) }
     }
 
+    /// Must match AutoMicDelay.enabledKey in the app target.
+    private let autoMicDelayKey = "automaticMicrophoneDelay"
+
     /// Walks the Settings category hubs (Audio with its Instruments sub-screen,
-    /// Visuals, Voice, Exercises, Backup) and checks each screen's key controls
-    /// exist, screenshotting along the way.
+    /// Visuals, Voice, Home Tab, Exercises Tab, Backup) and checks each screen's
+    /// key controls exist, screenshotting along the way.
+    ///
+    /// The Audio screen only offers the way to the delay tests while the delay
+    /// isn't being recognised automatically, which it is by default, so that
+    /// switch is forced off through the argument domain — leaving the
+    /// simulator's own setting untouched.
     func testSettingsCategoryNavigation() throws {
         let app = XCUIApplication()
+        app.launchArguments = ["-\(autoMicDelayKey)", "NO"]
         app.launch()
         let tab = app.buttons["Settings"]
         XCTAssertTrue(tab.waitForExistence(timeout: 5), "Settings tab not found")
@@ -2924,6 +2961,8 @@ final class Learn2SingUITests: XCTestCase {
             "Speaker picker not on the Audio screen")
         XCTAssertTrue(app.staticTexts["Microphone delay"].exists,
                       "Microphone delay row not on the Audio screen")
+        XCTAssertTrue(app.switches["Automatically recognize microphone delay"].exists,
+                      "automatic delay switch not on the Audio screen")
         XCTAssertTrue(app.buttons["Test for Delay"].exists,
                       "delay test button not on the Audio screen")
         saveScreenshot("settings-audio")
@@ -2963,18 +3002,35 @@ final class Learn2SingUITests: XCTestCase {
         app.navigationBars["Voice"].buttons.firstMatch.tap()
         XCTAssertTrue(app.navigationBars["Settings"].waitForExistence(timeout: 5))
 
-        // Exercises hub: how many exercises Home recommends. The row shares its
-        // label with the Exercises tab, so pick the one above the tab bar.
-        let exercisesRow = settingsRow(app, named: "Exercises")
-        XCTAssertNotNil(exercisesRow, "Exercises row not on the Settings screen")
-        exercisesRow?.tap()
-        XCTAssertTrue(app.navigationBars["Exercises"].waitForExistence(timeout: 5))
-        XCTAssertTrue(app.staticTexts["Recommended exercises amount"].waitForExistence(timeout: 5),
-                      "recommended amount row not on the Exercises screen")
+        // Home Tab hub: the way to that tab's categories, and what "Recommended"
+        // is made of — the practice time it fills and the list it draws from.
+        app.buttons["Home Tab"].firstMatch.tap()
+        XCTAssertTrue(app.navigationBars["Home Tab"].waitForExistence(timeout: 5),
+                      "Home Tab row should push the Home Tab hub")
+        XCTAssertTrue(app.buttons["Customize your Home tab"].waitForExistence(timeout: 5),
+                      "the way to the Home categories not on the Home Tab screen")
+        XCTAssertTrue(app.staticTexts["Daily practice goal"].exists,
+                      "practice goal row not on the Home Tab screen")
         XCTAssertTrue(app.steppers.firstMatch.exists,
-                      "recommended amount has no stepper")
-        saveScreenshot("settings-exercises")
-        app.navigationBars["Exercises"].buttons.firstMatch.tap()
+                      "practice goal has no stepper")
+        XCTAssertTrue(app.buttons.matching(
+            NSPredicate(format: "label BEGINSWITH %@", "Whitelisted exercises")).firstMatch.exists,
+            "whitelist row not on the Home Tab screen")
+        saveScreenshot("settings-home-tab")
+        app.navigationBars["Home Tab"].buttons.firstMatch.tap()
+        XCTAssertTrue(app.navigationBars["Settings"].waitForExistence(timeout: 5))
+
+        // Exercises Tab hub: the way to that tab's categories, and how a
+        // favourite is marked in it.
+        app.buttons["Exercises Tab"].firstMatch.tap()
+        XCTAssertTrue(app.navigationBars["Exercises Tab"].waitForExistence(timeout: 5),
+                      "Exercises Tab row should push the Exercises Tab hub")
+        XCTAssertTrue(app.buttons["Customize your Exercises tab"].waitForExistence(timeout: 5),
+                      "the way to the exercise categories not on the Exercises Tab screen")
+        XCTAssertTrue(app.switches["Mark favorites in Exercises tab"].exists,
+                      "favourite marking not on the Exercises Tab screen")
+        saveScreenshot("settings-exercises-tab")
+        app.navigationBars["Exercises Tab"].buttons.firstMatch.tap()
         XCTAssertTrue(app.navigationBars["Settings"].waitForExistence(timeout: 5))
 
         // Backup hub: exercise export and import.
@@ -2997,17 +3053,24 @@ final class Learn2SingUITests: XCTestCase {
         tab.tap()
         XCTAssertTrue(app.navigationBars["Home"].waitForExistence(timeout: 5))
 
-        let categories = ["Recent", "Routines", "Favorites", "Recommended"]
+        // Every category the tab has, because the rule under test is about the
+        // last one left: with any of them left out, the survivor would still have
+        // a category beside it and stay hideable.
+        let categories = ["Recommended", "New for You", "Time Spent Singing",
+                          "Book Lessons", "Routines", "Favorites", "Recent"]
 
-        // Long-press any visible header to reach the edit-categories screen. Hidden
-        // categories persist across launches, so the first visible one is whatever
-        // an earlier run left behind.
-        let anyVisible = app.staticTexts.matching(
-            NSPredicate(format: "label IN %@", categories)).firstMatch
-        XCTAssertTrue(anyVisible.waitForExistence(timeout: 5), "Home list has no categories")
-        anyVisible.press(forDuration: 0.8)
-        XCTAssertTrue(app.navigationBars["Edit Categories"].waitForExistence(timeout: 5),
-                      "long press did not open Edit Categories")
+        /// Long-press a visible header to reach the edit-categories screen. Which
+        /// header is whichever one is in view: hidden categories persist across
+        /// launches, so the first visible one is whatever an earlier run left behind.
+        func openEditCategories() {
+            let anyVisible = app.staticTexts.matching(
+                NSPredicate(format: "label IN %@", categories)).firstMatch
+            XCTAssertTrue(anyVisible.waitForExistence(timeout: 5), "Home list has no categories")
+            anyVisible.press(forDuration: 0.8)
+            XCTAssertTrue(app.navigationBars["Edit Categories"].waitForExistence(timeout: 5),
+                          "long press did not open Edit Categories")
+        }
+        openEditCategories()
 
         func hideButton(_ category: String) -> XCUIElement { app.buttons["Hide \(category)"] }
         func showButton(_ category: String) -> XCUIElement { app.buttons["Show \(category)"] }
@@ -3025,13 +3088,24 @@ final class Learn2SingUITests: XCTestCase {
             XCTAssertTrue(hideButton(category).isEnabled, "\(category) eye button disabled")
         }
 
-        // Hide all but the last: it flips to "Show", and the survivor locks.
-        for category in categories.dropLast() {
+        // Which of them Home has room for. The tab lists more categories than fit
+        // on a screen, and one below the fold is in no hierarchy to be found in,
+        // so the ones to look for on Home are read off it rather than assumed.
+        app.buttons["BackButton"].tap()
+        XCTAssertTrue(app.navigationBars["Home"].waitForExistence(timeout: 5))
+        let onHome = categories.filter { app.staticTexts[$0].exists }
+        guard let survivor = onHome.last else {
+            XCTFail("Home shows no categories with none of them hidden"); return
+        }
+        let hidden = categories.filter { $0 != survivor }
+        openEditCategories()
+
+        // Hide all but the survivor: each flips to "Show", and the survivor locks.
+        for category in hidden {
             hideButton(category).tap()
             XCTAssertTrue(showButton(category).waitForExistence(timeout: 3),
                           "\(category) did not flip to hidden")
         }
-        let survivor = categories[categories.count - 1]
         XCTAssertFalse(hideButton(survivor).isEnabled,
                        "the last visible category must not be hideable")
         saveScreenshot("home-edit-categories-hidden")
@@ -3041,7 +3115,7 @@ final class Learn2SingUITests: XCTestCase {
         XCTAssertTrue(app.navigationBars["Home"].waitForExistence(timeout: 5))
         XCTAssertTrue(app.staticTexts[survivor].waitForExistence(timeout: 5),
                       "\(survivor) vanished from Home")
-        for category in categories.dropLast() {
+        for category in hidden {
             XCTAssertFalse(app.staticTexts[category].exists,
                            "\(category) still on Home after being hidden")
         }
@@ -3052,7 +3126,7 @@ final class Learn2SingUITests: XCTestCase {
         app.launch()
         app.buttons["Home"].tap()
         XCTAssertTrue(app.staticTexts[survivor].waitForExistence(timeout: 5))
-        for category in categories.dropLast() {
+        for category in hidden {
             XCTAssertFalse(app.staticTexts[category].exists,
                            "\(category) came back on Home after a relaunch")
         }
@@ -3060,7 +3134,7 @@ final class Learn2SingUITests: XCTestCase {
         // Unhiding brings a category back — and restores the app for the next run.
         app.staticTexts[survivor].press(forDuration: 0.8)
         XCTAssertTrue(app.navigationBars["Edit Categories"].waitForExistence(timeout: 5))
-        for category in categories.dropLast() {
+        for category in hidden {
             showButton(category).tap()
             XCTAssertTrue(hideButton(category).waitForExistence(timeout: 3),
                           "\(category) did not flip back to visible")
@@ -3068,7 +3142,7 @@ final class Learn2SingUITests: XCTestCase {
         XCTAssertTrue(hideButton(survivor).isEnabled,
                       "survivor should be hideable again once another is visible")
         app.buttons["BackButton"].tap()
-        for category in categories {
+        for category in onHome {
             XCTAssertTrue(app.staticTexts[category].waitForExistence(timeout: 5),
                           "\(category) did not come back to Home")
         }
@@ -3154,6 +3228,9 @@ final class Learn2SingUITests: XCTestCase {
 
     // MARK: - Visual templates
 
+    /// Must match AppTheme.storageKey in the app target.
+    private let appThemeKey = "appTheme"
+
     /// Settings ▸ Visuals ▸ Playback: exactly one template is selected at a time —
     /// including right after saving a new one — a tap on the selected template
     /// deselects it, deleting it clears the selection, and the selection survives a
@@ -3162,6 +3239,10 @@ final class Learn2SingUITests: XCTestCase {
     /// through the template rows themselves.)
     func testPlaybackTemplateSelection() throws {
         let app = XCUIApplication()
+        // The look the test drives is the standard one for the appearance the app is
+        // in, so the appearance is pinned rather than taken from the simulator.
+        // Forced through the argument domain, leaving the stored theme untouched.
+        app.launchArguments = ["-\(appThemeKey)", "Dark"]
         app.launch()
         app.buttons["Settings"].tap()
         XCTAssertTrue(app.navigationBars["Settings"].waitForExistence(timeout: 5))
@@ -3171,27 +3252,39 @@ final class Learn2SingUITests: XCTestCase {
         XCTAssertTrue(app.navigationBars["Playback"].waitForExistence(timeout: 5))
 
         // Both the "Screen" toggle and the template rows sit at the bottom of the form.
-        for _ in 0..<4 { app.swipeUp() }
+        for _ in 0..<4 { scrollSettingsForm(app) }
 
         // Both bundled templates — the standard look for each appearance — are seeded
-        // on a fresh install, and both turn the tab bar off.
+        // on a fresh install, and both turn the tab bar off. The app is in the dark
+        // appearance, so the dark one is the standard look here.
         func isSelected(_ row: XCUIElement) -> Bool { row.isSelected }
-        let dark = app.buttons["Simplest - dark"].firstMatch
+        let bundled = app.buttons["Simplest - dark"].firstMatch
         let light = app.buttons["Simplest - light"].firstMatch
-        XCTAssertTrue(dark.waitForExistence(timeout: 5), "bundled dark template row not found")
+        XCTAssertTrue(bundled.waitForExistence(timeout: 5), "bundled dark template row not found")
         XCTAssertTrue(light.exists, "bundled light template row not found")
+        let bundledLabel = bundled.label
         let hideTabBar = app.switches.matching(
             NSPredicate(format: "label BEGINSWITH %@", "Hide tab bar")).firstMatch
         XCTAssertTrue(hideTabBar.waitForExistence(timeout: 5), "Hide tab bar toggle not found")
+
+        // The app puts its own looks on screen without selecting them, and a selection
+        // persists, so nothing is assumed about the one an earlier run left behind:
+        // the standard look is selected here, and it is the one checkmark from now on.
+        // Only tapped when it isn't already the selected one — a tap on that one is
+        // the gesture that deselects it.
+        if !isSelected(bundled) {
+            bundled.tap()
+            // Asked when the look on screen is held by no template, which an earlier
+            // run may well have left it as. Nothing of the user's is thrown away by
+            // saying no to saving it: every look here is one the app ships.
+            if app.alerts["Replace Current Settings?"].waitForExistence(timeout: 2) {
+                app.alerts.buttons["Select Anyway"].tap()
+            }
+        }
+        XCTAssertTrue(isSelected(bundled), "selecting the standard look didn't select it")
+        XCTAssertFalse(isSelected(light), "two templates are selected at once")
         XCTAssertEqual(hideTabBar.value as? String, "1",
                        "the bundled template should hide the tab bar")
-
-        // Whichever of the two matches the simulator's appearance is the one selected,
-        // so exactly one checkmark is showing. The rest of the test drives that one.
-        XCTAssertNotEqual(isSelected(dark), isSelected(light),
-                          "exactly one bundled template should be selected on a fresh install")
-        let bundled = isSelected(dark) ? dark : light
-        let bundledLabel = bundled.label
 
         // Saving the current look adds a third template and moves the selection to
         // it — one checkmark, not two.
@@ -3240,7 +3333,7 @@ final class Learn2SingUITests: XCTestCase {
         app.buttons["Visuals"].firstMatch.tap()
         app.buttons["Playback"].firstMatch.tap()
         XCTAssertTrue(app.navigationBars["Playback"].waitForExistence(timeout: 5))
-        for _ in 0..<4 { app.swipeUp() }
+        for _ in 0..<4 { scrollSettingsForm(app) }
         let reopened = app.buttons[bundledLabel].firstMatch
         XCTAssertTrue(reopened.waitForExistence(timeout: 5))
         XCTAssertTrue(isSelected(reopened), "the selection was lost across a relaunch")
