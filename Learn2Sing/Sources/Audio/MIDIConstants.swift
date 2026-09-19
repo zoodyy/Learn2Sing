@@ -153,7 +153,9 @@ enum ScoreTargetWindow {
 /// with this on (which is how the app ships) every run that plays through to the end
 /// is re-scored at every delay it could have been sung at, and the one that scores
 /// highest becomes the setting. The score the singer is then shown is the one at that
-/// delay, so the number on the screen is the best the run was worth. While it is on,
+/// delay, so the number on the screen is the best the run was worth. The search
+/// reaches a little below zero for singers who slide into notes early; a delay found
+/// there scores that run but never becomes the setting (see `floorMs`). While it is on,
 /// the delay field is read-only and the tests are put away: there is nothing left for
 /// them to do.
 enum AutoMicDelay {
@@ -200,6 +202,14 @@ enum AutoMicDelay {
     /// past any real microphone's round trip, and the same ceiling the sung test's
     /// offset controls stop at.
     static let ceilingMs: Double = 2000
+
+    /// The lowest delay a run is searched at, in milliseconds. Below zero is no
+    /// microphone at all but a singer who slides into each note early, over the end
+    /// of the one before, where the time a note allows for arriving on it does them
+    /// no good. Such a delay only ever scores the run it was found in and is never
+    /// saved (see `PlaybackView.recogniseDelay`), and past a tenth of a second it
+    /// would be crediting notes the singer was simply early for.
+    static let floorMs: Double = -100
 
     /// The highest delay worth trying on this run, in milliseconds.
     ///

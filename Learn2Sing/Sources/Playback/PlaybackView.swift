@@ -778,8 +778,8 @@ private final class Scorer {
     }
 
     /// The microphone delay this run would have scored highest at, in whole
-    /// milliseconds, searching every delay from none up to `maxMs`. nil when there is
-    /// nothing to search — no notes, no singing, or no room above zero.
+    /// milliseconds, searching every delay from `minMs` up to `maxMs`. nil when there
+    /// is nothing to search — no notes, no singing, or no room between the two.
     ///
     /// Rescoring the run once per candidate would be the obvious way to do it and far
     /// too slow: a two-minute run at 120 Hz leaves 14,000 samples, and two thousand
@@ -796,8 +796,12 @@ private final class Scorer {
     /// is the same one rescoring would have given, and the caller rescores at the
     /// delay this returns to get the number it shows.
     func bestDelayMs(samples: [PitchSample], notes: [MIDINote], bpm: Double,
-                     upTo maxMs: Double) -> Double? {
-        let steps = Int(maxMs.rounded(.down))          // one candidate per millisecond
+                     from minMs: Double, upTo maxMs: Double) -> Double? {
+        // One candidate per millisecond; index `k` of the arrays below is the delay
+        // `lowestMs + k`.
+        let lowestMs = Int(minMs.rounded(.up))
+        let highestMs = Int(maxMs.rounded(.down))
+        let steps = highestMs - lowestMs
         guard steps > 0, !notes.isEmpty, bpm > 0 else { return nil }
         let total = notes.reduce(0.0) { $0 + max(0, $1.length) }
         guard total > 0 else { return nil }
@@ -837,33 +841,44 @@ private final class Scorer {
                 // `sampleBeat - noteEnd` up to and including `sampleBeat - noteBeat`.
                 let highest = (sample.beat - note.beat) / beatsPerMs
                 let lowest = (sample.beat - note.beat - length) / beatsPerMs
-                guard highest >= 0, lowest < Double(steps) else { continue }
-                let last = min(steps, Int(highest.rounded(.down)))
-                let first = max(0, Int(lowest.rounded(.down)) + 1)
+                guard highest >= Double(lowestMs), lowest < Double(highestMs) else { continue }
+                let last = min(highestMs, Int(highest.rounded(.down))) - lowestMs
+                let first = max(lowestMs, Int(lowest.rounded(.down)) + 1) - lowestMs
                 guard first <= last else { continue }
                 change[first] += sample.dt
                 change[last + 1] -= sample.dt
             }
 
             var covered = 0.0
-            for ms in 0...steps {
-                covered += change[ms]
+            for k in 0...steps {
+                covered += change[k]
                 // Marked as `score` marks it, including the all-or-nothing case for a
                 // note that asks for nothing. The tolerance there is what is left of a
                 // sample after it has been added and taken away again.
                 let hit = required[i] > 0
                     ? min(1, max(0, covered) / required[i])
                     : (covered > 1e-9 ? 1 : 0)
-                earned[ms] += length * hit
+                earned[k] += length * hit
             }
         }
 
-        // The lowest delay that earns the most: a stretch of equally good offsets means
-        // the singer was inside the notes throughout it, and the near end of that
-        // stretch is the one that doesn't push the last note off the end of the run.
-        var best = 0
-        for ms in 1...steps where earned[ms] > earned[best] { best = ms }
-        return Double(best)
+        // Of the delays that earn the most, the one nearest zero. A stretch of equally
+        // good offsets means the singer was inside the notes throughout it: above zero
+        // its near end is the one that doesn't push the last note off the end of the
+        // run, and below zero it is the least early the singer has to be taken to have
+        // been. So a delay below zero only wins by beating every one from zero up. The
+        // same tolerance as above keeps what is left of adding a sample and taking it
+        // away again from telling equal delays apart.
+        let most = earned.max() ?? 0
+        var best: Int? = nil
+        for k in 0...steps where earned[k] >= most - 1e-9 {
+            let ms = lowestMs + k
+            // Walking upwards, a delay replaces the one kept when it is at least as
+            // near zero, which settles a tie between -d and +d on +d.
+            if let kept = best, abs(ms) > abs(kept) { continue }
+            best = ms
+        }
+        return best.map(Double.init)
     }
 }
 
@@ -954,6 +969,11 @@ struct PlaybackView: View {
     @State private var debugRecorder = DebugRunRecorder()
     @State private var debugRecording: DebugRunRecording? = nil
     @State private var delayResultMs: Double? = nil
+    /// The microphone delay the finished run was scored at when that isn't the
+    /// setting: a negative one, found for that run alone (see `recogniseDelay`). The
+    /// review screen draws the sung line at it, so it shows the line that earned the
+    /// score. nil when the run was scored at the setting.
+    @State private var runDelayMs: Double? = nil
     @State private var visuals = VisualSettings.current
     @State private var follower = VerticalFollower()
     /// Set while the user has playback paused via the toolbar button. Freezes the
@@ -1051,7 +1071,8 @@ struct PlaybackView: View {
                 if isReviewing {
                     ExerciseReviewView(exercise: exercise, notes: notes, texts: texts,
                                        samples: trail.recording, bpm: bpm,
-                                       repeatLayout: repeatLayout) {
+                                       repeatLayout: repeatLayout,
+                                       scoredDelayMs: runDelayMs) {
                         isReviewing = false
                     }
                 } else {
@@ -1228,7 +1249,8 @@ struct PlaybackView: View {
                     debugRecording = debugRecorder.finish(
                         DebugRunContext(exercise: exercise, notes: notes, texts: texts,
                                         samples: trail.recording, bpm: bpm, leadInBeats: leadIn,
-                                        repeatSpan: repeatLayout.span, micDelayMs: micDelayMs,
+                                        repeatSpan: repeatLayout.span,
+                                        micDelayMs: runDelayMs ?? micDelayMs,   // the one `score` is at
                                         score: score))
                     // It counts for the Home tab's "Recent" category regardless of the
                     // score — and for its full length on the Home tab's calendar, which
@@ -1311,10 +1333,16 @@ struct PlaybackView: View {
     /// singer whose delay is badly wrong cannot score well until it is roughly right,
     /// so the first runs take the best offset going and the bar takes over once there
     /// is a delay worth keeping.
+    ///
+    /// The search reaches below zero, to `AutoMicDelay.floorMs`, for a singer who
+    /// slides into every note early. A delay down there is not the microphone's, so
+    /// it scores this run alone: the setting stays where it was, and `runDelayMs`
+    /// keeps the offset for the review screen.
     private func recogniseDelay(scoring played: Int) -> Int {
+        runDelayMs = nil
         guard AutoMicDelay.isEnabled else { return played }
         guard let best = scorer.bestDelayMs(
-            samples: trail.recording, notes: notes, bpm: bpm,
+            samples: trail.recording, notes: notes, bpm: bpm, from: AutoMicDelay.floorMs,
             upTo: AutoMicDelay.maxDelayMs(notes: notes, samples: trail.recording, bpm: bpm))
         else { return played }
 
@@ -1325,10 +1353,13 @@ struct PlaybackView: View {
         // for; that one keeps the score it was played at.
         let adopt = found >= played
             && (found > AutoMicDelay.minimumScore || !AutoMicDelay.isEstablished)
-        if adopt { micDelayMs = best }
-        let score = adopt ? found : played
-        if score > AutoMicDelay.minimumScore { AutoMicDelay.markEstablished() }
-        return score
+        let saves = adopt && best >= 0
+        if saves { micDelayMs = best }
+        if adopt && !saves { runDelayMs = best }
+        // Established is about the delay left saved, so an early delay, which leaves
+        // the saved one alone, is judged on what the saved one scored.
+        if (saves ? found : played) > AutoMicDelay.minimumScore { AutoMicDelay.markEstablished() }
+        return adopt ? found : played
     }
 
     /// Done on the sung delay test's last screen: the offset the singer dialled in

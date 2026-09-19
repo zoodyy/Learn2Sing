@@ -8,9 +8,11 @@ import UIKit
 /// One finger scrolls; a pinch zooms the axis the fingers are arranged along.
 ///
 /// The line drawn is the one the score was computed from, so it is shifted
-/// earlier by the microphone-delay setting: scoring treats the notes as sounding
-/// that much later than they are drawn, which is the same comparison as putting
-/// the detected pitch that much further left (see `micDelayBeats`).
+/// earlier by the microphone delay the run was scored at: scoring treats the notes
+/// as sounding that much later than they are drawn, which is the same comparison as
+/// putting the detected pitch that much further left (see `micDelayBeats`). That is
+/// the setting, unless the run was scored at a negative delay of its own, which
+/// shifts the line later instead (see `scoredDelayMs`).
 ///
 /// The same screen is the last step of the sung microphone-delay test (Settings ▸
 /// Audio ▸ Test for delay). There `onCalibrationDone` is set: the shift is no
@@ -32,6 +34,10 @@ struct ExerciseReviewView: View {
     let bpm: Double
     /// Where the repetitions sit on the timeline, for the repetition counter badge.
     let repeatLayout: RepeatLayout
+    /// The delay the run's score was worked out at when that isn't the saved
+    /// setting: a negative one, found for that run alone and never saved. nil draws
+    /// the line at the setting.
+    var scoredDelayMs: Double? = nil
     /// Set when this screen is a microphone-delay calibration rather than a look
     /// back: the offset controls appear along the bottom and Done hands the offset
     /// the singer settled on (in milliseconds) back to be saved. nil elsewhere, where
@@ -48,8 +54,8 @@ struct ExerciseReviewView: View {
     @State private var calibrationMs: Double? = nil
 
     /// Milliseconds the sung line is drawn earlier than it was recorded: the offset
-    /// being dialled in during the delay test, otherwise the saved setting.
-    private var delayMs: Double { calibrationMs ?? micDelayMs }
+    /// being dialled in during the delay test, otherwise the one the run was scored at.
+    private var delayMs: Double { calibrationMs ?? scoredDelayMs ?? micDelayMs }
 
     /// Where the view is looking. `nil` until the singer moves it: the drawing
     /// falls back to the framing worked out from the screen size, so the very
