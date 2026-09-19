@@ -24,18 +24,20 @@ enum DeleteEverything {
     /// Set while a wipe still owes the server something, so a wipe made offline
     /// finishes at the next launch instead of quietly leaving the records up.
     private static let pendingKey = "pendingServerWipe"
-    /// The shared exercises that wipe hasn't managed to delete yet, by raw id.
-    /// Written down when the user asks rather than looked up again later: an
-    /// exercise shared *after* the wipe is theirs to keep, and a retry that went
-    /// by what is shared now would take it with the rest.
-    private static let pendingExercisesKey = "pendingServerWipeExercises"
+    /// Where older builds wrote down, by raw id, the shared exercises a pending
+    /// wipe still owed the server. One call now takes them all, so all that is
+    /// left to do with it is clear it out once the wipe is through.
+    private static let legacyPendingExercisesKey = "pendingServerWipeExercises"
 
-    /// Wipes everything, server first.
-    ///
-    /// The server side goes first because the local side is what says where to
-    /// look: which exercises have a record on the server is bookkeeping that the
-    /// wipe itself clears. What it can't get through — the whole of it, offline —
-    /// is left marked, and `finishPendingWipe()` picks it up at the next launch.
+    /// Whether a wipe still owes the server something. Community sync holds its
+    /// exercise uploads back meanwhile (see `CommunitySync.uploadSharedExercises`).
+    static var isServerWipePending: Bool {
+        UserDefaults.standard.bool(forKey: pendingKey)
+    }
+
+    /// Wipes everything, server first. What the server side can't get through —
+    /// the whole of it, offline — is left marked, and `finishPendingWipe()`
+    /// picks it up at the next launch.
     ///
     /// Uploads are held back across the whole thing. Clearing a library and a
     /// screen's worth of settings is hundreds of changes, every one of which asks
@@ -44,9 +46,7 @@ enum DeleteEverything {
     static func run(store: ExerciseStore, templates: VisualTemplateStore) async {
         ProfileSync.shared.suspendUploads()
         CommunitySync.shared.suspendUploads()
-        let defaults = UserDefaults.standard
-        defaults.set(true, forKey: pendingKey)
-        defaults.set(CommunitySync.shared.uploadedExerciseIDs, forKey: pendingExercisesKey)
+        UserDefaults.standard.set(true, forKey: pendingKey)
 
         await deleteFromServer()
         wipeDevice(store: store, templates: templates)
@@ -78,17 +78,12 @@ enum DeleteEverything {
         // these is awaited on its own rather than short-circuited, since a call
         // that fails is no reason to leave the other records up.
         let backup = await ProfileSync.shared.deleteBackup()
-        let owed = defaults.stringArray(forKey: pendingExercisesKey) ?? []
-        let failed = await CommunitySync.shared.deleteSharedExercises(owed)
+        let shared = await CommunitySync.shared.deleteAllSharedExercises()
         let events = await CommunitySync.shared.deleteAllEvents()
         let profile = await CommunitySync.shared.deletePublicProfile()
-        if failed.isEmpty {
-            defaults.removeObject(forKey: pendingExercisesKey)
-        } else {
-            defaults.set(failed, forKey: pendingExercisesKey)
-        }
-        if backup && events && profile && failed.isEmpty {
+        if backup && shared && events && profile {
             defaults.removeObject(forKey: pendingKey)
+            defaults.removeObject(forKey: legacyPendingExercisesKey)
         }
     }
 

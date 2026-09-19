@@ -570,7 +570,11 @@ final class CommunitySync: ObservableObject {
     /// overwrites the records of exercises that are no longer public with
     /// tombstones so they vanish from everyone's Community tab.
     private func uploadSharedExercises() async {
-        guard readyToUpload, let store else { return }
+        // Held while a "Delete Everything" still owes the server its deletions:
+        // the retry takes down everything this user has shared, so an exercise
+        // shared in the meantime would go with it. The launch that finishes the
+        // wipe runs it before this sync starts, and shares it then.
+        guard readyToUpload, !DeleteEverything.isServerWipePending, let store else { return }
         let userID = PublicIdentifier.user
         let publicExercises = store.exercises.filter { $0.visibility == .public }
         let defaults = UserDefaults.standard
@@ -929,41 +933,25 @@ final class CommunitySync: ObservableObject {
         return await ServerDelete.storage(PublicIdentifier.user, type: Self.publicProfileType)
     }
 
-    /// Raw ids (uppercase UUID strings, as the store keys them) of the exercises
-    /// this device has a live record on the server for. What "Delete Everything"
-    /// takes down, and the list it holds on to while a wipe is still owed.
-    var uploadedExerciseIDs: [String] {
-        UserDefaults.standard.stringArray(forKey: Self.uploadedExerciseIDsKey) ?? []
-    }
-
-    /// Takes the named exercises off the server, each with the likes, downloads
-    /// and plays that were counted against it, and answers with the ones the
-    /// server wouldn't part with.
+    /// Takes every exercise this user ever shared off the server in one call,
+    /// each with the likes, downloads and plays that were counted against it.
+    /// For "Delete Everything".
     ///
-    /// Named rather than "every shared exercise" so that a wipe finished at a
-    /// later launch deletes what was shared when the user asked for it, not
-    /// whatever is shared by then: an exercise published in between is the user's
-    /// own doing after the wipe, and deleting it would come as a surprise.
+    /// Keyed on the uploader rather than on each exercise: `delete-storage`
+    /// matches a row's `customId1` (see ServerDelete), which on every
+    /// SHARED_EXERCISE record is its uploader's public id. So it also takes the
+    /// records this device has lost track of, like the tombstones older versions
+    /// left behind or whatever an earlier install shared.
     ///
-    /// The bookkeeping of what is on the server keeps whatever couldn't be
-    /// deleted, so an ordinary upload has the same list to work from as before.
     /// The exercises themselves are untouched: they stay in the library, private;
     /// deleting them is the library's business, and the record is gone either way.
     @discardableResult
-    func deleteSharedExercises(_ idStrings: [String]) async -> [String] {
-        let defaults = UserDefaults.standard
-        var onServer = Set(defaults.stringArray(forKey: Self.uploadedExerciseIDsKey) ?? [])
-        var failed: [String] = []
-        for idString in idStrings {
-            if await deleteSharedExercise(publicExerciseID: PublicIdentifier.exerciseID(idString)) {
-                lastUploadedBodies.removeValue(forKey: idString)
-                onServer.remove(idString)
-            } else {
-                failed.append(idString)
-            }
-        }
-        defaults.set(onServer.sorted(), forKey: Self.uploadedExerciseIDsKey)
-        return failed
+    func deleteAllSharedExercises() async -> Bool {
+        guard await ServerDelete.storage(PublicIdentifier.user, type: Self.sharedExerciseType)
+        else { return false }
+        lastUploadedBodies = [:]
+        UserDefaults.standard.removeObject(forKey: Self.uploadedExerciseIDsKey)
+        return true
     }
 
     /// Deletes every event this user has posted anywhere — every like, every

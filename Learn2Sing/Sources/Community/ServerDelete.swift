@@ -16,16 +16,17 @@ import Foundation
 /// was and only made it read as nothing; these take the row away.
 ///
 /// What each path segment is matched against is not obvious from the persist
-/// side, so it was measured against the live backend on 2026-09-09, with
-/// throwaway ids:
+/// side, so it was measured against the live backend on 2026-09-09, and again
+/// on 2026-09-19 after the server changed it, with throwaway ids:
 ///
-/// * **The `userId` of a storage row is the `entityId` it was persisted under**
-///   — the first path segment of `persist/<entityId>/<STORAGE_TYPE>`. That is
-///   the user themselves for PROFILE and PUBLIC_PROFILE, which this app
-///   persists under the device id and the public user id; for SHARED_EXERCISE
-///   it is the exercise's public id, so one call takes down one exercise.
-///   Nothing matches `customId1`, which is where a shared exercise carries its
-///   uploader.
+/// * **The `userId` of a storage row is its `customId1`** (since about
+///   2026-09-18, the same change that hit `fetch-private`). This app persists
+///   PROFILE and PUBLIC_PROFILE with `customId1` set to their own id — the
+///   device id and the public user id — so those still go by that id. A
+///   SHARED_EXERCISE carries its *uploader's* public id there, so one call
+///   with the public user id takes down every exercise that user shared, and a
+///   call with an exercise's own id matches nothing. Until then it was the
+///   `entityId`, and one call took down one exercise.
 /// * **Deleting a storage row deletes that entity's user events with it** — the
 ///   likes, downloads and plays posted against the same id, whoever posted
 ///   them. So unsharing an exercise now costs it its tally and its community
@@ -34,20 +35,19 @@ import Foundation
 ///   scoped to the one user: another user's events on the same exercise stay.
 /// * **The four-segment `delete-storage/<userId>/<TYPE>/<entityId>` matches
 ///   nothing.** It answers 200 and leaves the row where it is, for every
-///   combination of a row's own ids that was tried. Its job is done by the
-///   three-segment form anyway — the entityId *is* the key — so nothing here
-///   calls it.
+///   combination of a row's own ids that was tried (re-checked 2026-09-19), so
+///   nothing here calls it.
 ///
 /// Every one of these answers 200 whether or not it matched a row, so what the
 /// results below report is that the server took the request, not that anything
 /// was there to delete.
 enum ServerDelete {
-    /// Deletes the record persisted under `entityID` for `storageType`, and with
-    /// it every user event posted against that same id.
+    /// Deletes every `storageType` record whose `customId1` is `id`, and with
+    /// each one every user event posted against it.
     @discardableResult
-    static func storage(_ entityID: String, type storageType: String) async -> Bool {
-        await send("delete-storage/\(entityID)/\(storageType)",
-                   describedAs: "\(storageType) record \(entityID)")
+    static func storage(_ id: String, type storageType: String) async -> Bool {
+        await send("delete-storage/\(id)/\(storageType)",
+                   describedAs: "\(storageType) records of \(id)")
     }
 
     /// Deletes one user's events of one type on one entity, leaving both their
