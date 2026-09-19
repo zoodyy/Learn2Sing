@@ -144,7 +144,8 @@ enum VisualKeys {
 
 /// Default values, used both for the @AppStorage controls and when resolving the
 /// stored settings, so a never-touched setting reads the same in both places.
-enum VisualDefaults {
+/// Nonisolated, as `VisualTemplate` decodes with them wherever it is decoded.
+nonisolated enum VisualDefaults {
     static let noteColor        = "#34C759"   // green, matching the original look
     static let playingNoteColor = "#FFFFFF"   // white, matching the original active-note look
     static let noteRoundness  = 0.2

@@ -10,8 +10,9 @@ import Security
 
 /// A per-install UUID stored in the Keychain, so it survives app
 /// reinstalls (unlike `identifierForVendor`, which is regenerated
-/// once all apps from the vendor are removed).
-enum DeviceIdentifier {
+/// once all apps from the vendor are removed). Nonisolated: the Keychain is
+/// safe to read from any thread, and ProfileSync reads it off the main actor.
+nonisolated enum DeviceIdentifier {
     private static let service = Bundle.main.bundleIdentifier ?? "CDE.Learn2Singg"
     private static let account = "deviceID"
 

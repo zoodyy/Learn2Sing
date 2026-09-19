@@ -4,7 +4,7 @@ import Combine
 /// An ordered list of exercises the user assembles on the Home tab. Unlike
 /// categories, routines are keyed by id — names are free-form and don't have
 /// to be unique — and an exercise can appear in any number of routines.
-struct Routine: Identifiable, Hashable, Codable {
+nonisolated struct Routine: Identifiable, Hashable, Codable {
     var id = UUID()
     var name: String
     /// Shown on the routine's intro screen, like an exercise's `details`.
@@ -1147,8 +1147,8 @@ final class ExerciseStore: ObservableObject {
 
     // MARK: - MIDI pattern access
 
-    static func midiKey(_ id: UUID) -> String { "midi_\(id.uuidString)" }
-    static func midiTextKey(_ id: UUID) -> String { "miditext_\(id.uuidString)" }
+    nonisolated static func midiKey(_ id: UUID) -> String { "midi_\(id.uuidString)" }
+    nonisolated static func midiTextKey(_ id: UUID) -> String { "miditext_\(id.uuidString)" }
 
     func notes(for id: UUID) -> [MIDINote] {
         guard let data = UserDefaults.standard.data(forKey: Self.midiKey(id)),
@@ -1194,21 +1194,30 @@ final class ExerciseStore: ObservableObject {
     /// `ids` narrows the snapshot to those exercises — what the export screen
     /// ticked. nil takes the whole library.
     func exportBundle(ids: Set<UUID>? = nil) -> ExerciseBundle {
-        var ordered: [Exercise] = []
-        for category in categories {
-            ordered.append(contentsOf: exercises.filter { $0.category == category })
-        }
-        ordered.append(contentsOf: exercises.filter { !categories.contains($0.category) })
-        if let ids { ordered = ordered.filter { ids.contains($0.id) } }
+        let library = orderedLibrary(ids: ids)
         var midi: [String: [MIDINote]] = [:]
         var texts: [String: [MIDIText]] = [:]
-        for exercise in ordered {
+        for exercise in library.exercises {
             midi[exercise.id.uuidString] = notes(for: exercise.id)
             let t = self.texts(for: exercise.id)
             if !t.isEmpty { texts[exercise.id.uuidString] = t }
         }
-        return ExerciseBundle(exercises: ordered, categories: exportedCategories(of: ordered),
+        return ExerciseBundle(exercises: library.exercises, categories: library.categories,
                               midi: midi, texts: texts.isEmpty ? nil : texts)
+    }
+
+    /// `exportBundle(ids:)` without the patterns: the exercises in the order it
+    /// lists them and the categories it carries. Cheap enough for ProfileSync to
+    /// take on the main actor, reading the patterns later and elsewhere.
+    func orderedLibrary(ids: Set<UUID>? = nil) -> (exercises: [Exercise], categories: [String]) {
+        // Grouped in one pass rather than filtered once per category; grouping
+        // keeps each category's exercises in library order.
+        let byCategory = Dictionary(grouping: exercises, by: \.category)
+        var ordered = categories.flatMap { byCategory[$0] ?? [] }
+        let known = Set(categories)
+        ordered.append(contentsOf: exercises.filter { !known.contains($0.category) })
+        if let ids { ordered = ordered.filter { ids.contains($0.id) } }
+        return (ordered, exportedCategories(of: ordered))
     }
 
     /// The category list a bundle of `exported` exercises carries: those the
@@ -1216,11 +1225,9 @@ final class ExerciseStore: ObservableObject {
     /// exercise that could have been unticked, so leaving it out would mean a
     /// full export no longer restores the library's grouping as it stands.
     private func exportedCategories(of exported: [Exercise]) -> [String] {
-        let exportedIDs = Set(exported.map(\.id))
-        return categories.filter { category in
-            let inCategory = exercises.filter { $0.category == category }
-            return inCategory.isEmpty || inCategory.contains { exportedIDs.contains($0.id) }
-        }
+        let occupied = Set(exercises.map(\.category))
+        let exportedFrom = Set(exported.map(\.category))
+        return categories.filter { !occupied.contains($0) || exportedFrom.contains($0) }
     }
 
     /// `exportBundle(ids:)` encoded as a standalone JSON file.
@@ -1466,7 +1473,7 @@ struct BackupImportDemotions {
 
 /// The on-disk format for export/import: the exercise list plus each one's MIDI
 /// pattern keyed by exercise UUID string.
-struct ExerciseBundle: Codable {
+nonisolated struct ExerciseBundle: Codable {
     var exercises: [Exercise]
     /// The category display order at export time. Optional so bundles written
     /// before categories were exported still decode.

@@ -26,10 +26,11 @@ nonisolated struct ExerciseTimestamps: Codable, Equatable {
 /// They are older than every exercise that has one, and the orders treat them
 /// that way (see `ExerciseSort.ordered`).
 enum ExerciseDates {
-    static let storageKey = "exerciseDates"
+    nonisolated static let storageKey = "exerciseDates"
 
     /// Every recorded exercise's dates, keyed by exercise UUID string.
-    static func all() -> [String: ExerciseTimestamps] {
+    /// Nonisolated: ProfileSync reads it off the main actor.
+    nonisolated static func all() -> [String: ExerciseTimestamps] {
         guard let data = UserDefaults.standard.data(forKey: storageKey),
               let saved = try? JSONDecoder().decode([String: ExerciseTimestamps].self, from: data)
         else { return [:] }

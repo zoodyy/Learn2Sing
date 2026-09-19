@@ -2,13 +2,15 @@ import SwiftUI
 
 /// Whether an exercise stays in the user's own library or also appears on the
 /// Community tab.
-enum ExerciseVisibility: String, Codable, CaseIterable {
+nonisolated enum ExerciseVisibility: String, Codable, CaseIterable {
     case `private`, `public`
 
-    var label: String { L(rawValue.capitalized) }
+    @MainActor var label: String { L(rawValue.capitalized) }
 }
 
-struct Exercise: Identifiable, Hashable, Codable {
+/// Plain data, free of the module's default main-actor isolation, so the
+/// profile document it rides in can be built off the main actor.
+nonisolated struct Exercise: Identifiable, Hashable, Codable {
     var id = UUID()
     var name: String
     var details: String = ""          // shown on the intro screen before playback

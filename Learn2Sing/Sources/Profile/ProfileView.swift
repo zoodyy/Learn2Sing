@@ -7,11 +7,14 @@
 
 import SwiftUI
 import PhotosUI
+import os
 
 /// The user's profile, persisted as JSON in the app's documents directory.
 /// The same JSON (with the exercise library embedded) is what ProfileSync
-/// uploads to and restores from the server.
-struct UserProfile: Codable {
+/// uploads to and restores from the server. Plain data, free of the module's
+/// default main-actor isolation, since ProfileSync builds and writes it off the
+/// main actor.
+nonisolated struct UserProfile: Codable {
     var username: String = ""
     var deviceID: String = ""
     /// What the user writes about themselves on the profile screen. Optional so
@@ -82,39 +85,31 @@ struct UserProfile: Codable {
             .appendingPathComponent("profile.json")
     }
 
+    /// How many times the profile file has been written, held while it is read
+    /// or written. The file is written from two sides — from the main actor for
+    /// an edit to one of its own fields (a rename, a like, a block), and by
+    /// ProfileSync from off it for the copy of the library it keeps there — and
+    /// a copy built from an older read must not land over a newer edit (see
+    /// `save(unlessWrittenSince:)`).
+    private static let fileWrites = OSAllocatedUnfairLock(initialState: 0)
+
     /// Loads the stored profile (or a fresh one) and stamps in the device ID,
     /// a UUID kept in the Keychain so it survives reinstalls.
     static func load() -> UserProfile {
-        var profile = (try? Data(contentsOf: fileURL))
+        loadCountingWrites().profile
+    }
+
+    /// `load()`, together with how many writes the file had seen when it was
+    /// read — what `save(unlessWrittenSince:)` checks against.
+    static func loadCountingWrites() -> (profile: UserProfile, writes: Int) {
+        let (data, writes) = fileWrites.withLock { writes in
+            (try? Data(contentsOf: fileURL), writes)
+        }
+        var profile = data
             .flatMap { try? JSONDecoder().decode(UserProfile.self, from: $0) }
             ?? UserProfile()
         profile.deviceID = DeviceIdentifier.uuidString
-        return profile
-    }
-
-    /// Fills in the parts of the profile that live outside the profile file: the
-    /// exercise library, the Home tab's routines and favourites, every exercise's
-    /// score history, the practice calendar, the settings, the singer's skill
-    /// level, when each exercise was added and last edited, and the book lessons
-    /// finished this round. Not the Home tab's category order or hidden
-    /// categories: those stay on the device (see `HomeCategories`). Used for both
-    /// the copy ProfileSync uploads and the file the profile screen shares.
-    mutating func snapshot(_ store: ExerciseStore) {
-        exercises = store.exportBundle()
-        routines = store.routines
-        favourites = store.favourites
-        let histories = ScoreHistory.all().mapValues(ScoreHistoryDoc.init)
-        scores = histories.isEmpty ? nil : histories
-        practice = PracticeLog.doc()
-        settings = UserSettings.capturingCurrent(store: store)
-        skillLevel = SkillLevelStore.shared.level
-        let finished = BookLessonProgress.shared.finished
-        finishedLessons = finished.isEmpty ? nil : finished
-        // Only the library's own, so dates a restore brought for exercises that
-        // aren't here don't travel on.
-        let libraryIDs = Set(store.exercises.map(\.id.uuidString))
-        let dates = ExerciseDates.all().filter { libraryIDs.contains($0.key) }
-        exerciseDates = dates.isEmpty ? nil : dates
+        return (profile, writes)
     }
 
     func jsonData() -> Data? {
@@ -124,7 +119,34 @@ struct UserProfile: Codable {
     }
 
     func save() {
-        try? jsonData()?.write(to: Self.fileURL, options: .atomic)
+        guard let data = jsonData() else { return }
+        Self.fileWrites.withLock { writes in
+            writes += 1
+            try? data.write(to: Self.fileURL, options: .atomic)
+        }
+    }
+
+    /// Saves this profile only if nothing has written the file since it was read
+    /// with `writes` writes behind it, and says whether it did. ProfileSync
+    /// builds its copy of the library into the profile off the main actor, while
+    /// the screens that edit the profile's own fields go on saving from it; a
+    /// copy read before one of those edits would take the edit back out.
+    func save(unlessWrittenSince writes: Int) -> Bool {
+        guard let data = jsonData() else { return true }
+        return Self.fileWrites.withLock { current in
+            guard current == writes else { return false }
+            try? data.write(to: Self.fileURL, options: .atomic)
+            return true
+        }
+    }
+
+    /// Deletes the profile file, for "Delete Everything" — counted as a write,
+    /// so a copy built before it doesn't bring the file back.
+    static func deleteFile() {
+        fileWrites.withLock { writes in
+            writes += 1
+            try? FileManager.default.removeItem(at: fileURL)
+        }
     }
 }
 

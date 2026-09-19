@@ -27,7 +27,7 @@ nonisolated struct PracticeDay: Equatable, Hashable {
 /// its full length: an exercise walked out of halfway adds nothing at all,
 /// rather than adding the part that was sung.
 enum PracticeLog {
-    private static let key = "practiceSeconds"
+    nonisolated private static let key = "practiceSeconds"
 
     /// How much history is kept. The calendar only ever draws the last 30 days;
     /// the rest is held so a reinstall restores more than the current month —
@@ -46,7 +46,7 @@ enum PracticeLog {
     }
 
     /// The whole log: seconds practised, keyed by day number.
-    static func all() -> [Int: Int] {
+    nonisolated static func all() -> [Int: Int] {
         let stored = UserDefaults.standard.dictionary(forKey: key) as? [String: Int] ?? [:]
         return stored.reduce(into: [:]) { log, entry in
             if let day = Int(entry.key) { log[day] = entry.value }
@@ -99,7 +99,8 @@ enum PracticeLog {
     /// interleaved in one flat array, `[d₀, s₀, d₁, s₁, …]`, oldest first —
     /// the same shape (and for the same size reasons) as `ScoreHistoryDoc`.
     /// nil when nothing has been practised yet, so the key is left out entirely.
-    static func doc() -> [Int]? {
+    /// Nonisolated: ProfileSync reads it off the main actor.
+    nonisolated static func doc() -> [Int]? {
         let log = all()
         guard !log.isEmpty else { return nil }
         return log.keys.sorted().flatMap { [$0, log[$0]!] }

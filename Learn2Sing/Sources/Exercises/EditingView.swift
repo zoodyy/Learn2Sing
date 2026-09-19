@@ -16,10 +16,10 @@ extension CodingUserInfoKey {
     /// stable while the editor is working with a pattern, and so do the community
     /// documents, which older installs still decode with a synthesised
     /// initialiser that would throw on a missing key.
-    static let omitPatternIDs = CodingUserInfoKey(rawValue: "omitPatternIDs")!
+    nonisolated static let omitPatternIDs = CodingUserInfoKey(rawValue: "omitPatternIDs")!
 }
 
-struct MIDINote: Identifiable, Codable, Equatable {
+nonisolated struct MIDINote: Identifiable, Codable, Equatable {
     var id = UUID()
     var pitch: Int      // MIDI pitch number
     var beat: Double    // start position in beats
@@ -61,7 +61,7 @@ struct MIDINote: Identifiable, Codable, Equatable {
 /// A free-floating text label placed on the grid. It shares the note coordinate
 /// system (a `pitch` row for vertical position, a `beat` for horizontal) so it
 /// scrolls in lockstep with the notes during playback.
-struct MIDIText: Identifiable, Codable, Equatable {
+nonisolated struct MIDIText: Identifiable, Codable, Equatable {
     var id = UUID()
     var text: String
     var pitch: Int      // row position (vertical)

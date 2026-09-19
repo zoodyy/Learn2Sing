@@ -125,7 +125,7 @@ enum DeleteEverything {
         // the description, the join date and the liked and downloaded sets with
         // it — the parts the Profile category's reset leaves alone because a
         // reset of the *settings* has no business deleting them.
-        try? FileManager.default.removeItem(at: UserProfile.fileURL)
+        UserProfile.deleteFile()
         // Bar a block, which is the server's doing rather than the user's data:
         // wiping the device doesn't end it.
         AccountBlock.shared.rewrite()

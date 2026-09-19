@@ -11,7 +11,9 @@ import Combine
 /// A named set of playback-visual settings, stored as the raw values used by
 /// `VisualKeys`/`VisualDefaults` (hex colour strings, numbers, bools, the font's raw
 /// value) so it round-trips through UserDefaults and JSON without any lossy conversion.
-struct VisualTemplate: Codable, Identifiable, Hashable {
+/// Plain data, free of the module's default main-actor isolation, since it rides in
+/// the profile document ProfileSync builds off the main actor.
+nonisolated struct VisualTemplate: Codable, Identifiable, Hashable {
     var id: UUID
     var name: String
     var noteColor: String
@@ -114,6 +116,7 @@ struct VisualTemplate: Codable, Identifiable, Hashable {
     /// Captures the settings currently stored in UserDefaults into a new template,
     /// using the same defaulting as `VisualSettings.current` so an untouched setting
     /// is captured as its default rather than as a missing value.
+    @MainActor
     static func capturingCurrent(name: String) -> VisualTemplate {
         let d = UserDefaults.standard
         func dbl(_ k: String, _ def: Double) -> Double { d.object(forKey: k) == nil ? def : d.double(forKey: k) }
@@ -150,6 +153,7 @@ struct VisualTemplate: Codable, Identifiable, Hashable {
     /// Writes this template's values into UserDefaults under the `VisualKeys`. The
     /// @AppStorage-bound controls and the live PlaybackView both read those keys, so
     /// applying a template updates the editor (and its preview) and the real playback.
+    @MainActor
     func apply() {
         let d = UserDefaults.standard
         d.set(noteColor, forKey: VisualKeys.noteColor)
@@ -182,6 +186,7 @@ struct VisualTemplate: Codable, Identifiable, Hashable {
     /// UserDefaults first. `VisualSettings.current` is the same conversion for the
     /// look that is *on* — this one is for drawing a template that isn't, which is
     /// what the tutorial's theme slide does with the app's own two.
+    @MainActor
     var settings: VisualSettings {
         VisualSettings(
             noteColor: Color(hex: noteColor),
@@ -214,6 +219,7 @@ struct VisualTemplate: Codable, Identifiable, Hashable {
     /// i.e. it is the look on screen right now. The selection itself is explicit (see
     /// `VisualTemplateStore.selectedID`); this only answers whether the settings on
     /// screen are already stored somewhere, so nothing is lost by switching template.
+    @MainActor
     var matchesCurrent: Bool {
         var current = VisualTemplate.capturingCurrent(name: name)
         current.id = id

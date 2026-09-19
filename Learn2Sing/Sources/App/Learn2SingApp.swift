@@ -9,6 +9,7 @@ struct Learn2SingApp: App {
     // app's appearance applied, before any playback — making it the starting look
     // rather than only after the visuals settings screen is first opened.
     @StateObject private var visualTemplates = VisualTemplateStore()
+    @Environment(\.scenePhase) private var scenePhase
 
     var body: some Scene {
         WindowGroup {
@@ -33,6 +34,16 @@ struct Learn2SingApp: App {
                     SkillLevelStore.shared.start(with: store)
                     await CommunitySync.shared.start(with: store)
                 }
+        }
+        // The private backup keeps edits back for a few seconds and rearrangements
+        // for a couple of minutes; leaving the app sends whatever is still waiting,
+        // since it may never come back to the foreground to do it.
+        .onChange(of: scenePhase) { _, phase in
+            switch phase {
+            case .background: ProfileSync.shared.appDidEnterBackground()
+            case .active: ProfileSync.shared.appDidBecomeActive()
+            default: break
+            }
         }
     }
 }

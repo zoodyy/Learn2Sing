@@ -22,11 +22,11 @@ nonisolated struct ScoreEntry: Codable {
 /// Score history storage, kept in UserDefaults under `scores_<uuid>` alongside the
 /// exercise list and MIDI patterns that ExerciseStore manages.
 enum ScoreHistory {
-    private static let keyPrefix = "scores_"
+    nonisolated private static let keyPrefix = "scores_"
 
-    static func key(_ id: UUID) -> String { keyPrefix + id.uuidString }
+    nonisolated static func key(_ id: UUID) -> String { keyPrefix + id.uuidString }
 
-    static func entries(for id: UUID) -> [ScoreEntry] {
+    nonisolated static func entries(for id: UUID) -> [ScoreEntry] {
         guard let data = UserDefaults.standard.data(forKey: key(id)),
               let saved = try? JSONDecoder().decode([ScoreEntry].self, from: data)
         else { return [] }
@@ -76,8 +76,9 @@ enum ScoreHistory {
     /// Every recorded history, keyed by exercise UUID string — what the profile
     /// document carries. Histories left behind by deleted exercises are included,
     /// the same ones `deleteAll` clears, so an exercise that comes back from the
-    /// server brings its scores with it.
-    static func all() -> [String: [ScoreEntry]] {
+    /// server brings its scores with it. Nonisolated, like the reads it is made
+    /// of: ProfileSync calls it off the main actor.
+    nonisolated static func all() -> [String: [ScoreEntry]] {
         let defaults = UserDefaults.standard
         var histories: [String: [ScoreEntry]] = [:]
         for key in defaults.dictionaryRepresentation().keys where key.hasPrefix(keyPrefix) {

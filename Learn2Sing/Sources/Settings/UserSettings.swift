@@ -27,7 +27,11 @@ import Foundation
 ///
 /// Every field is optional, so a profile written before a setting existed still
 /// decodes and `apply(store:templates:)` simply leaves that setting alone.
-struct UserSettings: Codable {
+///
+/// Plain data, free of the module's default main-actor isolation, so ProfileSync
+/// can encode it off the main actor; reading and applying the settings stay on
+/// it.
+nonisolated struct UserSettings: Codable {
 
     // MARK: Audio
 
@@ -125,6 +129,7 @@ struct UserSettings: Codable {
     /// Reads every setting as it currently stands. Values are resolved through the
     /// same defaults the settings screens show, so a setting the user never touched
     /// is captured as what they see rather than as a missing value.
+    @MainActor
     static func capturingCurrent(store: ExerciseStore) -> UserSettings {
         let d = UserDefaults.standard
         var visuals = VisualTemplate.capturingCurrent(name: "")
@@ -157,7 +162,12 @@ struct UserSettings: Codable {
             // Both sorted so an unchanged setting encodes the same way twice:
             // each is a set, which has no order to preserve.
             recommendationAutoWhitelist: store.autoWhitelistOrigins.map(\.rawValue).sorted(),
-            recommendationWhitelist: store.recommendationWhitelist.sorted { $0.uuidString < $1.uuidString },
+            // Each id spelled out once rather than twice per comparison: it is
+            // the priciest part of a snapshot ProfileSync takes on the main actor.
+            recommendationWhitelist: store.recommendationWhitelist
+                .map { (key: $0.uuidString, id: $0) }
+                .sorted { $0.key < $1.key }
+                .map(\.id),
             newForYouCount: NewForYouFeed.count,
             communitySort: d.string(forKey: CommunityFeed.sortKey) ?? CommunitySort.hot.rawValue,
             communitySortReversed: d.bool(forKey: CommunityFeed.reversedKey),
