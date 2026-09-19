@@ -79,6 +79,11 @@ nonisolated struct UserProfile: Codable {
     /// backup and a reinstall still knows (see AccountBlock). Optional so
     /// profiles written before it existed still decode.
     var blockedUntil: Double? = nil
+    /// The other users this user has blocked from the report sheet, whose
+    /// exercises and profile the app no longer shows (see BlockedUsers). Owned
+    /// by BlockedUsers; optional so profiles written before it existed still
+    /// decode.
+    var blockedUsers: [BlockedUser]? = nil
 
     static var fileURL: URL {
         FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
@@ -191,6 +196,10 @@ struct ProfileView: View {
     /// how long for in place of the profile, which the block took off the
     /// device.
     @ObservedObject private var accountBlock = AccountBlock.shared
+    /// The other users this user has blocked from a report, listed at the bottom
+    /// so a block can be taken back: a blocked user's exercises and profile are
+    /// nowhere else to be found in the app.
+    @ObservedObject private var blockedUsers = BlockedUsers.shared
 
     /// A refused rename: the name as typed, so the message can follow the field,
     /// and the name the server named in its error, which is what it shows. The
@@ -216,6 +225,9 @@ struct ProfileView: View {
             } else {
                 profileSections
             }
+            // Under either: blocking other users has nothing to do with whether
+            // the server has blocked this one.
+            blockedUsersSection
         }
         .navigationTitle(L("Profile"))
         .navigationBarTitleDisplayMode(.inline)
@@ -291,6 +303,40 @@ struct ProfileView: View {
             .settingHelp(L("How long your account stays blocked. When the block ends, you can choose a username and set up your profile again."))
         } header: {
             Text("Account Blocked")
+        }
+    }
+
+    /// The users blocked from the report sheet, each with the button that
+    /// unblocks them, or a line saying there are none. Always there rather than
+    /// only once somebody is blocked, so the settings search has a heading to
+    /// land on.
+    ///
+    /// The search's mark goes on the heading and not on a row: it is an `.id`,
+    /// and on the rows of a `ForEach` it would stand in for their identity.
+    private var blockedUsersSection: some View {
+        Section {
+            if blockedUsers.users.isEmpty {
+                Text("You haven't blocked anyone.")
+                    .foregroundStyle(.secondary)
+                    .settingHelp(L("Users you block from a report are listed here, so you can unblock them again."))
+            } else {
+                ForEach(blockedUsers.users, id: \.id) { user in
+                    HStack {
+                        Text(verbatim: user.name.isEmpty ? L("Unknown user") : user.name)
+                        Spacer()
+                        Button("Unblock") {
+                            withAnimation { blockedUsers.unblock(user.id) }
+                        }
+                        // Borderless, so only the button answers a tap and not
+                        // the whole row.
+                        .buttonStyle(.borderless)
+                    }
+                    .settingHelp(L("A user you blocked. Their exercises and profile are hidden from you until you tap Unblock."))
+                }
+            }
+        } header: {
+            Text("Blocked Users")
+                .settingSection(.blockedUsers)
         }
     }
 

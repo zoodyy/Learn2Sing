@@ -24,7 +24,11 @@ struct CommunityView: View {
     /// fetch their own (see CommunityFeed), so nothing they are sorted, filtered
     /// or searched by touches this list.
     @ObservedObject private var list = CommunitySync.shared.list
-    @State private var navigationPath = NavigationPath()
+    /// Typed (not NavigationPath) so a block can find the blocked user's screens
+    /// on it and take them off — see `dropBlockedRoutes`.
+    @State private var navigationPath: [ExerciseRoute] = []
+    /// Who this user has blocked, watched so the stack can be cleared of them.
+    @ObservedObject private var blockedUsers = BlockedUsers.shared
     @State private var searchText = ""
     /// The order the list is shown in, picked from the toolbar's sort menu.
     /// Persisted, so it survives launches (and applies on the uploader profiles
@@ -69,10 +73,33 @@ struct CommunityView: View {
     }
 
     /// The exercise listed below `id`, skipping any that a refresh has since
-    /// dropped. nil at the end of the list, where the Next button is left out.
+    /// dropped, and any by a user blocked since the queue was captured. nil at
+    /// the end of the list, where the Next button is left out.
     private func nextExercise(after id: UUID) -> UUID? {
         guard let index = playQueue.firstIndex(of: id) else { return nil }
-        return playQueue[(index + 1)...].first { exercise(for: $0) != nil }
+        return playQueue[(index + 1)...].first {
+            exercise(for: $0) != nil && !blockedUsers.hides(exercise: $0)
+        }
+    }
+
+    /// Takes a newly blocked user's screens off the stack — their profile, their
+    /// exercises' intro and playback screens — along with everything pushed on
+    /// top of them, so the user lands on the list with that user already gone
+    /// from it. Cut at the lowest one: whatever was opened from a blocked user's
+    /// profile was theirs too.
+    private func dropBlockedRoutes() {
+        let cut = navigationPath.firstIndex { route in
+            switch route {
+            case .play(let id), .playback(let id):
+                blockedUsers.hides(exercise: id)
+            case .user(let id, _):
+                blockedUsers.contains(id)
+            default:
+                false
+            }
+        }
+        guard let cut else { return }
+        navigationPath.removeSubrange(cut...)
     }
 
     /// The score screen's Next button: swap the finished exercise's intro/playback
@@ -289,6 +316,7 @@ struct CommunityView: View {
             // Updated") can't be worked out from the list already held. The
             // reverse switch rides along as the fetch's `sortDirection`.
             .onChange(of: sortRequest) { Task { await list.refresh() } }
+            .onChange(of: blockedUsers.users) { dropBlockedRoutes() }
             .navigationDestination(for: ExerciseRoute.self) { route in
                 switch route {
                 case .play(let id):

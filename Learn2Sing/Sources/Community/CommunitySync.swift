@@ -1023,8 +1023,15 @@ final class CommunitySync: ObservableObject {
     /// type in its path and hands back shared exercises (see `CommunityFeed`).
     /// Nothing private goes over it: the id is the derived public one, and the
     /// document holds only what its author chose to publish.
+    ///
+    /// Also nil for a user this user has blocked, without asking: whatever they
+    /// published is not to be shown (see BlockedUsers). Checked again once the
+    /// answer is in, in case the block was made while the call was out.
     func publicProfile(for userID: String) async -> PublicProfileDoc? {
-        guard case .answered(let doc) = await fetchPublicProfile(for: userID) else { return nil }
+        guard !BlockedUsers.shared.contains(userID),
+              case .answered(let doc) = await fetchPublicProfile(for: userID),
+              !BlockedUsers.shared.contains(userID)
+        else { return nil }
         return doc
     }
 

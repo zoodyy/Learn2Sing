@@ -122,10 +122,11 @@ enum DeleteEverything {
 
         // The profile file itself, rather than field by field: a fresh install
         // has none, and `UserProfile.load()` mints an empty one on demand. Takes
-        // the description, the join date and the liked and downloaded sets with
-        // it — the parts the Profile category's reset leaves alone because a
-        // reset of the *settings* has no business deleting them.
+        // the description, the join date, the liked and downloaded sets and the
+        // blocked users with it — the parts the Profile category's reset leaves
+        // alone because a reset of the *settings* has no business deleting them.
         UserProfile.deleteFile()
+        BlockedUsers.shared.forget()
         // Bar a block, which is the server's doing rather than the user's data:
         // wiping the device doesn't end it.
         AccountBlock.shared.rewrite()

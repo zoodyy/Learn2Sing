@@ -153,6 +153,7 @@ extension SettingKey {
     static let username           = SettingKey("profile.username")
     static let profileDescription = SettingKey("profile.description")
     static let joinDatePublic     = SettingKey("profile.joinDate")
+    static let blockedUsers       = SettingKey("profile.blockedUsers")
 
     // Section headings. Only the ones that say something the rows under them
     // don't: a heading that repeats the title of its own row (Profile's
@@ -464,6 +465,8 @@ enum SettingsCatalog {
             help: L("A few words about yourself, shown at the top of your profile in the Community tab."))
         add(.joinDatePublic, .profile, title: L("Make your join date public"),
             help: L("Shows other users how long you have had the app, under your profile description."))
+        heading(.blockedUsers, .profile, L("Blocked Users"),
+                help: L("The users you blocked from a report. You don't see their exercises or profile anywhere in the app until you unblock them."))
 
         // MARK: Audio
         let routeHelp = L("“Automatic” uses connected earphones (e.g. AirPods) when available, otherwise the phone.")

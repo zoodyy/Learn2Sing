@@ -80,11 +80,17 @@ final class NewForYouFeed: ObservableObject {
     /// between them, and a tap on that button looks like it did nothing at all.
     static let minimumSpinner = Duration.milliseconds(500)
 
-    /// Everything those pages returned, in the order the server ranked them —
-    /// what `exercises(atLevel:)` picks out of. Published rather than the pick
+    /// Everything those pages returned, in the order the server ranked them,
+    /// less the exercises of users this user has blocked — what
+    /// `exercises(atLevel:)` picks out of. Published rather than the pick
     /// itself, since the pick depends on a level that moves with every run the
     /// singer finishes. Empty until the first fetch lands.
     @Published private(set) var candidates: [Exercise] = []
+    /// The same with the blocked users' exercises left in, which `candidates` is
+    /// cut from again when somebody is blocked or unblocked (see BlockedUsers).
+    private var fetchedCandidates: [Exercise] = []
+    /// Hears a user being blocked or unblocked.
+    private var blockObservation: AnyCancellable?
 
     /// true while the fetch is on the wire — and for as long after it as
     /// `minimumSpinner` asks for. It keeps a second visit to the tab from asking
@@ -103,7 +109,28 @@ final class NewForYouFeed: ObservableObject {
     /// another attempt starts.
     @Published private(set) var didFail = false
 
-    private init() {}
+    private init() {
+        blockObservation = BlockedUsers.shared.$users
+            .dropFirst()
+            .sink { [weak self] users in
+                self?.publishCandidates(hiding: BlockedUsers.ids(of: users))
+            }
+    }
+
+    /// Puts the fetched candidates up for picking, bar those of the users in
+    /// `blocked`, by the uploader the fetch named for each. Dropped here rather
+    /// than as the pages are read, so a block takes them out on the spot.
+    private func publishCandidates(hiding blocked: Set<String>) {
+        guard !blocked.isEmpty else {
+            candidates = fetchedCandidates
+            return
+        }
+        let sync = CommunitySync.shared
+        candidates = fetchedCandidates.filter { exercise in
+            guard let uploader = sync.uploaderID(of: exercise.id) else { return true }
+            return !blocked.contains(uploader)
+        }
+    }
 
     /// Loads the candidates the first time the Home tab appears, and again after
     /// a fetch that failed. Every later visit leaves them alone: the category
@@ -135,7 +162,8 @@ final class NewForYouFeed: ObservableObject {
         let remaining = Self.minimumSpinner - started.duration(to: .now)
         if remaining > .zero { try? await Task.sleep(for: remaining) }
         if let fetched {
-            candidates = fetched
+            fetchedCandidates = fetched
+            publishCandidates(hiding: BlockedUsers.shared.ids)
             hasLoaded = true
         }
         isFetching = false

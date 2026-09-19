@@ -88,9 +88,14 @@ final class CommunityFeed: ObservableObject {
     /// `isComplete` below.
     private var isWholeCommunity: Bool { uploaderID == nil }
 
-    /// The exercises fetched so far, in the order the server returned them.
-    /// Empty until the first fetch succeeds.
+    /// The exercises fetched so far, in the order the server returned them,
+    /// less those of the users this user has blocked (see BlockedUsers). Empty
+    /// until the first fetch succeeds.
     @Published private(set) var exercises: [Exercise] = []
+    /// The same with the blocked users' exercises left in: what `exercises` is
+    /// cut from again when somebody is blocked or unblocked, so the list changes
+    /// on the spot rather than at the next fetch.
+    private var fetchedExercises: [Exercise] = []
     /// true while a refresh is on the wire; drives the initial spinner.
     @Published private(set) var isFetching = false
     /// Whether the last refresh came back empty-handed — no connection, or a
@@ -171,9 +176,17 @@ final class CommunityFeed: ObservableObject {
     /// true while `continueFullLoad` is walking the feed, so the requests that
     /// start it don't start a second walk.
     private var isFullLoading = false
+    /// Hears a user being blocked or unblocked, which changes what this list
+    /// shows without anything being fetched.
+    private var blockObservation: AnyCancellable?
 
     init(uploaderID: String? = nil) {
         self.uploaderID = uploaderID
+        blockObservation = BlockedUsers.shared.$users
+            .dropFirst()
+            .sink { [weak self] users in
+                self?.publishExercises(hiding: BlockedUsers.ids(of: users))
+            }
     }
 
     // MARK: - Order
@@ -543,11 +556,28 @@ final class CommunityFeed: ObservableObject {
         // The uploader scope is the server's to apply and it doesn't yet, so it
         // is applied to the answer as well — see `uploaderID`.
         if let uploaderID {
-            exercises = applied.exercises.filter { applied.uploaderIDs[$0.id] == uploaderID }
+            fetchedExercises = applied.exercises.filter { applied.uploaderIDs[$0.id] == uploaderID }
         } else {
-            exercises = applied.exercises
+            fetchedExercises = applied.exercises
         }
         uploaderIDs = applied.uploaderIDs
+        publishExercises(hiding: BlockedUsers.shared.ids)
+    }
+
+    /// Puts what has been fetched on screen, bar the exercises of the users in
+    /// `blocked`. Blocking is this device's own business, so the server lists
+    /// their exercises like anyone else's and they are dropped here, after the
+    /// paging: a page of nothing but theirs still counts as read, and the list
+    /// asks for the next one when it finds it has no new rows to show.
+    private func publishExercises(hiding blocked: Set<String>) {
+        guard !blocked.isEmpty else {
+            exercises = fetchedExercises
+            return
+        }
+        exercises = fetchedExercises.filter { exercise in
+            guard let uploader = uploaderIDs[exercise.id] else { return true }
+            return !blocked.contains(uploader)
+        }
     }
 
     /// The username per public user id carried by a page of records: the
@@ -571,7 +601,7 @@ final class CommunityFeed: ObservableObject {
     /// refetch. Every other name arrives with the records it labels (see
     /// `append`).
     func relabel(with names: [String: String]) {
-        var relabelled = exercises
+        var relabelled = fetchedExercises
         var changed = false
         for index in relabelled.indices {
             guard let userID = uploaderIDs[relabelled[index].id],
@@ -581,7 +611,9 @@ final class CommunityFeed: ObservableObject {
             relabelled[index].uploaderName = name
             changed = true
         }
-        if changed { exercises = relabelled }
+        guard changed else { return }
+        fetchedExercises = relabelled
+        publishExercises(hiding: BlockedUsers.shared.ids)
     }
 
     // MARK: - Full load

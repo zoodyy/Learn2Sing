@@ -608,6 +608,9 @@ final class ProfileSync {
         if let blockedUntil = remote.blockedUntil {
             AccountBlock.shared.restore(until: blockedUntil)
         }
+        // The users this user blocked, merged into any blocked since the install.
+        // After the save above, which wrote a copy of the file read before it.
+        BlockedUsers.shared.merge(remote.blockedUsers)
         if let bundle = remote.exercises {
             // Not stamped as just added: these are the exercises the profile
             // already had, and their dates come down with them.

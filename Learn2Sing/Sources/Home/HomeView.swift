@@ -296,6 +296,9 @@ struct HomeView: View {
     /// Which book lessons are finished, which decides the lesson the "Book
     /// Lessons" card names and the progress it draws. See BookLessonProgress.
     @ObservedObject private var lessons = BookLessonProgress.shared
+    /// Who this user has blocked, watched so a blocked user's community screens
+    /// come off the stack (see `dropBlockedRoutes`).
+    @ObservedObject private var blockedUsers = BlockedUsers.shared
     // Typed (not NavigationPath) so pops can be inspected for the saved toasts.
     @State private var navigationPath: [ExerciseRoute] = []
 
@@ -777,10 +780,33 @@ struct HomeView: View {
 
     /// The same walk down "New for You", which needs its own: those exercises are
     /// resolved through CommunitySync rather than out of the library, so the
-    /// library is no test of whether one is still there to play.
+    /// library is no test of whether one is still there to play. Skips the
+    /// exercises of anyone blocked since the queue was captured.
     private func nextCommunityExercise(after id: UUID) -> UUID? {
         guard let index = playQueue.firstIndex(of: id) else { return nil }
-        return playQueue[(index + 1)...].first { CommunitySync.shared.exercise(for: $0) != nil }
+        return playQueue[(index + 1)...].first {
+            CommunitySync.shared.exercise(for: $0) != nil && !blockedUsers.hides(exercise: $0)
+        }
+    }
+
+    /// Takes a newly blocked user's screens off the stack: a "New for You"
+    /// exercise of theirs and its playback, and their profile, with everything
+    /// pushed on top. Cut at the lowest one, so the user lands where they were
+    /// before opening any of it. Only the community routes can be theirs; `play`
+    /// and `playback` here are the library's own.
+    private func dropBlockedRoutes() {
+        let cut = navigationPath.firstIndex { route in
+            switch route {
+            case .communityPlay(let id), .communityPlayback(let id):
+                blockedUsers.hides(exercise: id)
+            case .user(let id, _):
+                blockedUsers.contains(id)
+            default:
+                false
+            }
+        }
+        guard let cut else { return }
+        navigationPath.removeSubrange(cut...)
     }
 
     /// The score screen's Next button: swap the finished exercise's intro/playback
@@ -957,6 +983,7 @@ struct HomeView: View {
             .onChange(of: store.exercises.count) { _, _ in
                 dropStaleRoutes()
             }
+            .onChange(of: blockedUsers.users) { dropBlockedRoutes() }
             .navigationDestination(for: ExerciseRoute.self) { route in
                 destination(for: route)
             }

@@ -8,6 +8,11 @@
 //  Settings ▸ "Request a New Feature / Report a Bug" (see `FeedbackSender`), as a
 //  message of the type "Report", with no address to answer.
 //
+//  The same sheet is where a user is blocked: a switch under the reason, which
+//  hides everything that user publishes from this one (see BlockedUsers). A
+//  block is always reported too, with or without a reason, so the developer
+//  hears about whoever it was aimed at.
+//
 
 import SwiftUI
 
@@ -60,13 +65,25 @@ enum CommunityReport {
         }
     }
 
+    /// Who the sheet's block switch blocks: whoever uploaded the exercise, or
+    /// the owner of the profile. nil for an exercise whose uploader no list has
+    /// named this session, which leaves the switch out: there is no id to block.
+    var blockTarget: BlockedUser? {
+        switch self {
+        case .exercise(_, _, let uploaderID, let uploaderName):
+            uploaderID.map { BlockedUser(id: $0, name: uploaderName) }
+        case .profile(let id, let name):
+            BlockedUser(id: id, name: name)
+        }
+    }
+
     /// The flag's explanation, held for on the screen that shows it.
     var buttonHelp: String {
         switch self {
         case .exercise:
-            L("Tells the developer about this exercise if it's offensive, spam or doesn't belong here. You write why before anything is sent.")
+            L("Tells the developer about this exercise if it's offensive, spam or doesn't belong here. You can also block whoever made it, which hides everything they publish from you.")
         case .profile:
-            L("Tells the developer about this profile if its name, picture or description is offensive or doesn't belong here. You write why before anything is sent.")
+            L("Tells the developer about this profile if its name, picture or description is offensive or doesn't belong here. You can also block this user, which hides everything they publish from you.")
         }
     }
 
@@ -84,12 +101,15 @@ enum CommunityReport {
         }
     }
 
-    /// Posts the report and says whether the server took it.
-    fileprivate func send(_ message: String) async -> Bool {
-        await FeedbackSender.send(severity: "Report",
-                                  subject: subject,
-                                  message: "\(message)\n\n---\n\(reference)",
-                                  email: "")
+    /// Posts the report and says whether the server took it. A block goes with
+    /// a line saying so, and may come with no reason at all.
+    fileprivate func send(_ message: String, blocking: Bool) async -> Bool {
+        let reason = message.isEmpty ? "(No reason given.)" : message
+        let block = blocking ? "\nThe reporter blocked this user." : ""
+        return await FeedbackSender.send(severity: "Report",
+                                         subject: subject,
+                                         message: "\(reason)\n\n---\n\(reference)\(block)",
+                                         email: "")
     }
 }
 
@@ -102,20 +122,48 @@ extension View {
     /// nil for a screen that shows no flag: the exercise intro screen outside
     /// the community, which takes this unconditionally.
     func communityReportSheet(_ report: CommunityReport?, isPresented: Binding<Bool>) -> some View {
-        sheet(isPresented: isPresented) {
-            if let report {
-                CommunityReportView(report: report)
-            }
-        }
-        // With no flag on screen there is no button for the hold to find, so the
-        // empty explanation is never asked for.
-        .explainBarButton(L("Report"), report?.buttonHelp ?? "")
+        modifier(CommunityReportSheet(report: report, isPresented: isPresented))
     }
 }
 
-/// The sheet a report is written in: one field for the reason, Cancel and Send.
-/// Nothing is kept: a sent report closes the sheet behind a toast, and one the
-/// server didn't take stays on screen to be sent again, like the Settings form.
+/// What `communityReportSheet` puts on a screen.
+///
+/// A block the sheet sent is held here until the sheet has gone, and only made
+/// then. Blocking takes the blocked user's screens off the navigation stack (see
+/// CommunityView and HomeView), this one included, and popping the screen a
+/// sheet is presented from while that sheet is still closing is asking for the
+/// two animations to trip over each other.
+private struct CommunityReportSheet: ViewModifier {
+    let report: CommunityReport?
+    @Binding var isPresented: Bool
+
+    @State private var pendingBlock: BlockedUser?
+
+    func body(content: Content) -> some View {
+        content
+            .sheet(isPresented: $isPresented, onDismiss: blockIfSent) {
+                if let report {
+                    CommunityReportView(report: report) { pendingBlock = $0 }
+                }
+            }
+            // With no flag on screen there is no button for the hold to find, so
+            // the empty explanation is never asked for.
+            .explainBarButton(L("Report"), report?.buttonHelp ?? "")
+    }
+
+    private func blockIfSent() {
+        guard let user = pendingBlock else { return }
+        pendingBlock = nil
+        BlockedUsers.shared.block(user)
+    }
+}
+
+/// The sheet a report is written in: one field for the reason, a switch that
+/// blocks the user as well, Cancel and Send. Nothing is kept: a sent report
+/// closes the sheet behind a toast, and one the server didn't take stays on
+/// screen to be sent again, like the Settings form. A block waits on the report
+/// in the same way, so a user is never blocked without the developer hearing of
+/// it.
 private struct CommunityReportView: View {
     /// Re-renders when the language is changed in Settings; the strings are
     /// resolved when the body runs, so SwiftUI needs telling.
@@ -126,8 +174,15 @@ private struct CommunityReportView: View {
     @Environment(\.dismiss) private var dismiss
 
     let report: CommunityReport
+    /// Handed the user to block once the report has gone, for the screen to
+    /// block when the sheet has closed (see `CommunityReportSheet`).
+    let onBlock: (BlockedUser) -> Void
 
     @State private var message = ""
+    /// The block switch. Off to begin with: a report is about one exercise or
+    /// profile, and hiding everything its author ever publishes is a bigger
+    /// step the user takes on purpose.
+    @State private var blocksUser = false
     @State private var isSending = false
     /// Set when the server didn't take the report, and shown in an alert. The
     /// reason stays in the field, so Send can just be tapped again.
@@ -139,6 +194,12 @@ private struct CommunityReportView: View {
         message.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
+    /// A reason, or a block, or both: a block is reason enough to write to the
+    /// developer on its own.
+    private var canSend: Bool {
+        !isSending && (!trimmedMessage.isEmpty || blocksUser && report.blockTarget != nil)
+    }
+
     var body: some View {
         NavigationStack {
             Form {
@@ -146,6 +207,19 @@ private struct CommunityReportView: View {
                     .lineLimit(5...15)
                     .focused($isWriting)
                     .settingHelp(L("Why you're reporting it. The more exactly you say what's wrong, the easier it is to do something about it."))
+
+                // A section of its own, so it reads as a second thing the sheet
+                // does rather than as part of the reason.
+                if let target = report.blockTarget {
+                    Section {
+                        Toggle(isOn: $blocksUser) {
+                            Text(verbatim: target.name.isEmpty
+                                 ? L("Block this user")
+                                 : L("Block %@", target.name))
+                        }
+                        .settingHelp(L("Hides this user's exercises and profile from you everywhere in the app. You can unblock them in Settings under Profile."))
+                    }
+                }
             }
             .navigationTitle(report.sheetTitle)
             .navigationBarTitleDisplayMode(.inline)
@@ -174,8 +248,8 @@ private struct CommunityReportView: View {
                         }
                     }
                     .fontWeight(.semibold)
-                    .disabled(trimmedMessage.isEmpty || isSending)
-                    .explain(L("Sends your report to the developer, along with what it's about. It stays grayed out until you've written a reason."))
+                    .disabled(!canSend)
+                    .explain(L("Sends your report to the developer, along with what it's about, and blocks the user if you turned that on. It stays grayed out until you've written a reason or turned on blocking."))
                 }
             }
             // `L(_:)` inside the alert: its buttons are built in the alert's own
@@ -203,21 +277,28 @@ private struct CommunityReportView: View {
 
     /// Posts the report, then closes the sheet; the toast lives above the tabs, so
     /// the confirmation outlives the sheet. A report the server didn't take
-    /// leaves the sheet exactly as it was.
+    /// leaves the sheet exactly as it was, block switch included: nothing is
+    /// blocked until the developer has heard about it.
     private func send() {
-        guard !trimmedMessage.isEmpty, !isSending else { return }
+        guard canSend else { return }
         isWriting = false
         isSending = true
         let message = trimmedMessage
         let report = report
+        let target = blocksUser ? report.blockTarget : nil
         Task {
-            let sent = await report.send(message)
+            let sent = await report.send(message, blocking: target != nil)
             isSending = false
             guard sent else {
                 failure = L("Your report couldn't be sent. Check your connection and try again.")
                 return
             }
-            toasts.show(L("Report Sent!"))
+            if let target {
+                onBlock(target)
+                toasts.show(L("Reported and Blocked!"))
+            } else {
+                toasts.show(L("Report Sent!"))
+            }
             dismiss()
         }
     }
