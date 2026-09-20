@@ -48,6 +48,23 @@ T("Username “%@” is not available",
   "사용자 이름 “%@”은(는) 사용할 수 없습니다",
   "用户名“%@”不可用",
   "اسم المستخدم «%@» غير متاح")
+# Under the username field while the user has none, which is when it is the only
+# field the profile screen shows.
+T("Pick a username to set up your public profile. Your picture, description and join date follow once a name has been accepted.",
+  "Wähle einen Benutzernamen, um dein öffentliches Profil einzurichten. Bild, Beschreibung und Beitrittsdatum folgen, sobald ein Name angenommen wurde.",
+  "Elige un nombre de usuario para crear tu perfil público. Tu foto, tu descripción y tu fecha de registro llegarán en cuanto se acepte un nombre.",
+  "Choisissez un nom d’utilisateur pour créer votre profil public. Votre photo, votre description et votre date d’inscription suivront dès qu’un nom sera accepté.",
+  "Scegli un nome utente per creare il tuo profilo pubblico. Immagine, descrizione e data di iscrizione arrivano appena un nome viene accettato.",
+  "Escolha um nome de usuário para criar seu perfil público. Sua foto, sua descrição e sua data de entrada aparecem assim que um nome for aceito.",
+  "Kies een gebruikersnaam om je openbare profiel op te zetten. Je foto, beschrijving en aanmelddatum volgen zodra een naam is geaccepteerd.",
+  "Выберите имя пользователя, чтобы создать публичный профиль. Фото, описание и дата регистрации появятся, как только имя будет принято.",
+  "Wybierz nazwę użytkownika, aby utworzyć publiczny profil. Zdjęcie, opis i data dołączenia pojawią się, gdy nazwa zostanie przyjęta.",
+  "Herkese açık profilinizi oluşturmak için bir kullanıcı adı seçin. Fotoğrafınız, açıklamanız ve katılma tarihiniz, bir ad kabul edilir edilmez gelir.",
+  "Välj ett användarnamn för att skapa din offentliga profil. Din bild, din beskrivning och ditt anslutningsdatum kommer så snart ett namn har godkänts.",
+  "公開プロフィールを作るには、ユーザー名を決めてください。名前が受け付けられると、画像・説明・参加日が表示されます。",
+  "공개 프로필을 만들려면 사용자 이름을 정하세요. 이름이 승인되면 사진, 설명, 가입 날짜가 나타납니다.",
+  "先取一个用户名，才能建立公开的个人资料。名称通过后，头像、简介和加入日期就会出现。",
+  "اختر اسم مستخدم لإنشاء ملفك الشخصي العام. ستظهر صورتك ووصفك وتاريخ انضمامك بمجرد قبول الاسم.")
 T("Profile Description", "Profilbeschreibung", "Descripción del perfil", "Description du profil", "Descrizione del profilo", "Descrição do perfil", "Profielbeschrijving", "Описание профиля", "Opis profilu", "Profil açıklaması", "Profilbeskrivning", "プロフィールの説明", "프로필 설명", "个人资料简介", "وصف الملف الشخصي")
 T("Write something about yourself", "Schreib etwas über dich", "Escribe algo sobre ti", "Écrivez quelque chose sur vous", "Scrivi qualcosa su di te", "Escreva algo sobre você", "Schrijf iets over jezelf", "Напишите что-нибудь о себе", "Napisz coś o sobie", "Kendiniz hakkında bir şeyler yazın", "Skriv något om dig själv", "自分について書いてください", "자신에 대해 써 보세요", "写点关于你自己的内容", "اكتب شيئًا عن نفسك")
 T("Make your join date public", "Beitrittsdatum öffentlich zeigen", "Hacer pública la fecha de registro", "Rendre publique la date d’inscription", "Rendi pubblica la data di iscrizione", "Tornar pública a data de entrada", "Aanmelddatum openbaar maken", "Показывать дату регистрации всем", "Pokazuj publicznie datę dołączenia", "Katılma tarihini herkese açık yap", "Gör ditt anslutningsdatum offentligt", "参加日を公開する", "가입 날짜 공개하기", "公开加入日期", "إظهار تاريخ انضمامك للجميع")

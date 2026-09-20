@@ -28,6 +28,13 @@ struct ExerciseSettingsView: View {
     /// (see AccountBlock); the exercise stays private.
     @State private var isWarningBlocked = false
 
+    /// Shown when publishing is refused because this user has no username yet,
+    /// with the way to Settings ▸ Profile to pick one; the exercise stays
+    /// private. A shared exercise is labelled with the name of whoever shared
+    /// it, and there is no public profile to share from without one (see
+    /// `CommunitySync.uploadPublicProfile`).
+    @State private var isWarningNoUsername = false
+
     /// Set when Public is picked, while the server is asked whether this user
     /// may publish at all (see `CommunitySync.checkPublishing()`). The exercise
     /// only goes public once it has answered; until then the picker shows Public
@@ -189,7 +196,7 @@ struct ExerciseSettingsView: View {
                 isWarningBlocked = true
             } else if meetsPublicRules() {
                 exercise.visibility = .public
-                exercise.uploaderName = UserProfile.load().username
+                exercise.uploaderName = UserProfile.currentUsername
             }
         }
         // Renames are checked when editing ends, not per keystroke — a name
@@ -219,6 +226,14 @@ struct ExerciseSettingsView: View {
             Button("OK", role: .cancel) {}
         } message: {
             Text(AccountBlock.shared.message())
+        }
+        // The way out of this one is on another tab, so it is offered here
+        // rather than left for the user to find (see `AppNavigation`).
+        .alert("Username Needed", isPresented: $isWarningNoUsername) {
+            Button("Choose a Username") { AppNavigation.shared.openSettings(.profile) }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text(L("Exercises on the Community tab are shown with the username of whoever shared them, so you need one before you can make an exercise public. This one stays private in the meantime."))
         }
         .alert("Too Short to Publish", isPresented: $isWarningTooShortToPublish) {
             Button("OK", role: .cancel) {}
@@ -457,23 +472,27 @@ struct ExerciseSettingsView: View {
     }
 
     /// Publishing stamps the current profile username as the uploader shown next
-    /// to the exercise on the Community tab — unless the exercise is too short to
-    /// be worth anyone's download, the user already shares another exercise with
-    /// this name, or the server has blocked them. Any one of these is refused,
-    /// and the exercise stays private.
+    /// to the exercise on the Community tab — unless the user has no username to
+    /// stamp, the exercise is too short to be worth anyone's download, the user
+    /// already shares another exercise with this name, or the server has blocked
+    /// them. Any one of these is refused, and the exercise stays private.
     ///
     /// The server is asked every time, blocked or not: its answer is how the app
     /// finds out about a block, and how it keeps the days left up to date. A block
     /// the app already knows of is refused straight away rather than after the
     /// round trip, with the question sent all the same.
     private func requestPublic() {
-        guard exercise.visibility != .public, publishRequest == nil,
-              meetsPublicRules() else { return }
+        guard exercise.visibility != .public, publishRequest == nil else { return }
+        // A known block is asked about before the app's own rules, as it is once
+        // the server has answered: the block took this user's username with it,
+        // and being sent off to pick a new one would only lead to the screen
+        // that says they can't.
         if AccountBlock.shared.isBlocked {
             isWarningBlocked = true
             Task { await CommunitySync.shared.checkPublishing() }
             return
         }
+        guard meetsPublicRules() else { return }
         publishRequest = UUID()
     }
 
@@ -481,6 +500,12 @@ struct ExerciseSettingsView: View {
     /// whichever one it breaks. Asked again once the server has answered, since
     /// the exercise may have changed in the meantime.
     private func meetsPublicRules() -> Bool {
+        // Asked first: without a username there is nothing to share under at
+        // all, so it is worth saying before anything about this one exercise.
+        if UserProfile.currentUsername.isEmpty {
+            isWarningNoUsername = true
+            return false
+        }
         if !isLongEnoughToPublish {
             isWarningTooShortToPublish = true
             return false

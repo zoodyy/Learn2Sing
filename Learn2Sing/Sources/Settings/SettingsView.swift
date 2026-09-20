@@ -18,6 +18,10 @@ struct SettingsView: View {
 
     @State private var settingsPath: [SettingsRoute] = []
 
+    /// Where a screen on another tab asked to send the user: the tab switch has
+    /// already been made (see `AppNavigation`), and the push is this side's.
+    @ObservedObject private var navigation = AppNavigation.shared
+
     /// A category the Exercises tab's edit-categories screen just created with its
     /// + button, waiting there to be handed the keyboard. Kept here, where the
     /// screen is pushed from, as the Exercises tab keeps its own.
@@ -211,6 +215,19 @@ struct SettingsView: View {
             search.request = nil
             search.pending = request
         }
+        // A screen asked for from another tab, opened the way a tapped search
+        // result is. Also on appearance, for the ask that arrives while this tab
+        // has never been opened: nothing of it exists yet to be told.
+        .onChange(of: navigation.pendingSettingsScreen) { _, _ in openRequestedScreen() }
+        .onAppear { openRequestedScreen() }
+    }
+
+    /// Pushes the screen another tab asked for, if one is waiting.
+    private func openRequestedScreen() {
+        guard let screen = navigation.pendingSettingsScreen else { return }
+        navigation.pendingSettingsScreen = nil
+        let path = SettingsRoute.path(to: screen)
+        if settingsPath != path { settingsPath = path }
     }
 
     /// Back to the Audio screen from the far end of the sung delay test, rather than

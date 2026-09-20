@@ -104,6 +104,30 @@ nonisolated struct UserProfile: Codable {
         loadCountingWrites().profile
     }
 
+    /// This user's public name, or an empty string while they have none —
+    /// which is to say, while they have no public profile at all: the server
+    /// keys that document on the name and refuses one without it, so nothing
+    /// can be shared until a name has been taken (see
+    /// `CommunitySync.claimUsername(_:)`).
+    ///
+    /// Held onto between reads, because the screens ask often and cheaply — the
+    /// settings search asks once per row on every keystroke — while the file
+    /// behind it carries the whole exercise library. The write counter is what
+    /// keeps it honest: every write to the file moves it, so a rename, a
+    /// restored backup or a block is picked up on the next read.
+    static var currentUsername: String {
+        let writes = fileWrites.withLock { $0 }
+        if let cached = cachedUsername.withLock({ $0 }), cached.writes == writes {
+            return cached.name
+        }
+        let name = load().username
+        cachedUsername.withLock { $0 = (writes, name) }
+        return name
+    }
+
+    private static let cachedUsername =
+        OSAllocatedUnfairLock<(writes: Int, name: String)?>(initialState: nil)
+
     /// `load()`, together with how many writes the file had seen when it was
     /// read — what `save(unlessWrittenSince:)` checks against.
     static func loadCountingWrites() -> (profile: UserProfile, writes: Int) {
@@ -340,10 +364,32 @@ struct ProfileView: View {
         }
     }
 
+    /// Whether this user has a public name, and with it a public profile at
+    /// all. The server keys that document on the name and refuses one without
+    /// it (see `CommunitySync.claimUsername(_:)`), so a picture or a
+    /// description chosen before a name has been taken would have nowhere to
+    /// go: until one has been, the field to type it in is the only thing on
+    /// the screen.
+    ///
+    /// Read from the profile rather than from the field, so the rest of the
+    /// screen arrives with the name the server took and not with the one being
+    /// typed.
+    private var hasUsername: Bool { !profile.username.isEmpty }
+
     /// The profile itself: the picture, the username, the description and the
-    /// join date.
+    /// join date — the last three of which need a name to go under.
     @ViewBuilder
     private var profileSections: some View {
+        if hasUsername { pictureSection }
+        usernameSection
+        if hasUsername {
+            descriptionSection
+            joinDateSection
+        }
+    }
+
+    /// The profile picture, with the buttons that choose, adjust and remove it.
+    private var pictureSection: some View {
         Section {
             // One row rather than four: the buttons stand in a column of
             // their own, each still a list row tall, with the picture
@@ -434,7 +480,11 @@ struct ProfileView: View {
                     .foregroundStyle(.red)
             }
         }
+    }
 
+    /// The name this user shares under, and what the server said when it
+    /// wouldn't give it to them.
+    private var usernameSection: some View {
         Section {
             TextField("Username", text: $typedUsername)
                 .autocorrectionDisabled()
@@ -447,16 +497,26 @@ struct ProfileView: View {
             if let refused = refusedUsername, refused.typed == typedUsername {
                 Text(L("Username “%@” is not available", refused.reported))
                     .foregroundStyle(.red)
+            } else if !hasUsername {
+                // Why there is nothing else on the screen yet.
+                Text("Pick a username to set up your public profile. Your picture, description and join date follow once a name has been accepted.")
             }
         }
+    }
 
+    /// What this user writes about themselves, shown at the top of their
+    /// profile on the Community tab.
+    private var descriptionSection: some View {
         Section("Profile Description") {
             TextField("Write something about yourself", text: $typedDescription, axis: .vertical)
                 .lineLimit(3...8)
                 .focused($isEditingDescription)
                 .setting(.profileDescription)
         }
+    }
 
+    /// Whether this user's join date is shown on their public profile.
+    private var joinDateSection: some View {
         Section {
             Toggle("Make your join date public", isOn: $joinDatePublic)
                 .onChange(of: joinDatePublic) { _, isPublic in

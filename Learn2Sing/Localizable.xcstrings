@@ -8885,6 +8885,94 @@
         }
       }
     },
+    "Choose a Username" : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "اختر اسم مستخدم"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Benutzernamen wählen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elegir un nombre de usuario"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choisir un nom d’utilisateur"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scegli un nome utente"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ユーザー名を決める"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "사용자 이름 정하기"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gebruikersnaam kiezen"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wybierz nazwę użytkownika"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Escolher um nome de usuário"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Выбрать имя пользователя"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Välj användarnamn"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kullanıcı adı seç"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "选择用户名"
+          }
+        }
+      }
+    },
     "Choose an Exercise" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -20059,6 +20147,95 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "练习已设为私有"
+          }
+        }
+      }
+    },
+    "Exercises on the Community tab are shown with the username of whoever shared them, so you need one before you can make an exercise public. This one stays private in the meantime." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "تظهر التمارين في تبويب المجتمع مقترنة باسم مستخدم من شاركها، لذلك تحتاج إلى اسم مستخدم قبل أن تجعل تمرينًا عامًا. يبقى هذا التمرين خاصًا حتى ذلك الحين."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Übungen im Community-Tab werden mit dem Benutzernamen dessen angezeigt, der sie geteilt hat. Deshalb brauchst du einen, bevor du eine Übung veröffentlichen kannst. Diese bleibt so lange privat."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Los ejercicios de la pestaña Comunidad se muestran con el nombre de usuario de quien los compartió, así que necesitas uno antes de poder hacer público un ejercicio. Mientras tanto, este seguirá siendo privado."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Les exercices de l’onglet Communauté portent le nom d’utilisateur de la personne qui les a partagés : il vous en faut donc un avant de pouvoir rendre un exercice public. En attendant, celui-ci reste privé."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gli esercizi nella scheda Comunità sono mostrati con il nome utente di chi li ha condivisi, quindi te ne serve uno prima di poter rendere pubblico un esercizio. Nel frattempo questo resta privato."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "コミュニティタブのエクササイズには共有した人のユーザー名が表示されるため、エクササイズを公開するにはユーザー名が必要です。それまでこのエクササイズは非公開のままです。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "커뮤니티 탭의 연습에는 공유한 사람의 사용자 이름이 함께 표시되므로, 연습을 공개하려면 사용자 이름이 필요합니다. 그때까지 이 연습은 비공개로 유지됩니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Oefeningen op het tabblad Community worden getoond met de gebruikersnaam van degene die ze heeft gedeeld, dus je hebt er een nodig voordat je een oefening openbaar kunt maken. Deze blijft zolang privé."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ćwiczenia na karcie Społeczność są pokazywane z nazwą użytkownika osoby, która je udostępniła, więc potrzebujesz jej, zanim upublicznisz ćwiczenie. Na razie to ćwiczenie pozostaje prywatne."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Os exercícios na aba Comunidade aparecem com o nome de usuário de quem os compartilhou, então você precisa de um antes de tornar um exercício público. Enquanto isso, este continua privado."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Упражнения на вкладке «Сообщество» показываются с именем пользователя того, кто ими поделился, поэтому без него сделать упражнение публичным нельзя. Пока что оно останется личным."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Övningar på fliken Community visas med användarnamnet på den som delade dem, så du behöver ett innan du kan göra en övning offentlig. Den här förblir privat så länge."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Topluluk sekmesindeki egzersizler, onları paylaşan kişinin kullanıcı adıyla gösterilir; bu yüzden bir egzersizi herkese açık yapmadan önce bir kullanıcı adına ihtiyacınız var. Bu egzersiz o zamana kadar özel kalır."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“社区”标签中的练习会显示分享者的用户名，因此你需要先有一个用户名，才能把练习设为公开。在此之前，这个练习将保持私有。"
           }
         }
       }
@@ -45180,6 +45357,94 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "选择一种外观。"
+          }
+        }
+      }
+    },
+    "Pick a username to set up your public profile. Your picture, description and join date follow once a name has been accepted." : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "اختر اسم مستخدم لإنشاء ملفك الشخصي العام. ستظهر صورتك ووصفك وتاريخ انضمامك بمجرد قبول الاسم."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wähle einen Benutzernamen, um dein öffentliches Profil einzurichten. Bild, Beschreibung und Beitrittsdatum folgen, sobald ein Name angenommen wurde."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elige un nombre de usuario para crear tu perfil público. Tu foto, tu descripción y tu fecha de registro llegarán en cuanto se acepte un nombre."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choisissez un nom d’utilisateur pour créer votre profil public. Votre photo, votre description et votre date d’inscription suivront dès qu’un nom sera accepté."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scegli un nome utente per creare il tuo profilo pubblico. Immagine, descrizione e data di iscrizione arrivano appena un nome viene accettato."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "公開プロフィールを作るには、ユーザー名を決めてください。名前が受け付けられると、画像・説明・参加日が表示されます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "공개 프로필을 만들려면 사용자 이름을 정하세요. 이름이 승인되면 사진, 설명, 가입 날짜가 나타납니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kies een gebruikersnaam om je openbare profiel op te zetten. Je foto, beschrijving en aanmelddatum volgen zodra een naam is geaccepteerd."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wybierz nazwę użytkownika, aby utworzyć publiczny profil. Zdjęcie, opis i data dołączenia pojawią się, gdy nazwa zostanie przyjęta."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Escolha um nome de usuário para criar seu perfil público. Sua foto, sua descrição e sua data de entrada aparecem assim que um nome for aceito."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Выберите имя пользователя, чтобы создать публичный профиль. Фото, описание и дата регистрации появятся, как только имя будет принято."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Välj ett användarnamn för att skapa din offentliga profil. Din bild, din beskrivning och ditt anslutningsdatum kommer så snart ett namn har godkänts."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Herkese açık profilinizi oluşturmak için bir kullanıcı adı seçin. Fotoğrafınız, açıklamanız ve katılma tarihiniz, bir ad kabul edilir edilmez gelir."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "先取一个用户名，才能建立公开的个人资料。名称通过后，头像、简介和加入日期就会出现。"
           }
         }
       }
@@ -73486,6 +73751,94 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "用户名“%@”不可用"
+          }
+        }
+      }
+    },
+    "Username Needed" : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "مطلوب اسم مستخدم"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Benutzername nötig"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Se necesita un nombre de usuario"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nom d’utilisateur requis"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Serve un nome utente"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ユーザー名が必要です"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "사용자 이름 필요"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gebruikersnaam nodig"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Potrzebna nazwa użytkownika"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nome de usuário necessário"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Нужно имя пользователя"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Användarnamn krävs"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kullanıcı adı gerekli"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "需要用户名"
           }
         }
       }

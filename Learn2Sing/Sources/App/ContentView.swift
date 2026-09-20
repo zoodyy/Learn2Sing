@@ -18,25 +18,27 @@ struct ContentView: View {
     /// that replays it opens it from the other side of the tab view — so it is
     /// presented here, over every tab, rather than from any one of them.
     @ObservedObject private var tutorial = IntroTutorial.shared
-    /// The tab on screen, held out here so it outlasts the tab view being rebuilt
-    /// when the layout direction changes (see below).
-    @State private var selectedTab = 0
+    /// The tab on screen, and the screen another tab has asked for. Held out
+    /// there so the selected tab outlasts the tab view being rebuilt when the
+    /// layout direction changes (see below), and so a screen on one tab can
+    /// send the user to a screen on another.
+    @ObservedObject private var navigation = AppNavigation.shared
 
     var body: some View {
-        TabView(selection: $selectedTab) {
-            Tab("Home", systemImage: "house", value: 0) {
+        TabView(selection: $navigation.selectedTab) {
+            Tab("Home", systemImage: "house", value: AppTab.home) {
                 HomeView()
             }
 
-            Tab("Exercises", systemImage: "music.mic", value: 1) {
+            Tab("Exercises", systemImage: "music.mic", value: AppTab.exercises) {
                 ExercisesView()
             }
 
-            Tab("Community", systemImage: "person.3", value: 2) {
+            Tab("Community", systemImage: "person.3", value: AppTab.community) {
                 CommunityView()
             }
 
-            Tab("Settings", systemImage: "gearshape", value: 3) {
+            Tab("Settings", systemImage: "gearshape", value: AppTab.settings) {
                 SettingsView()
             }
         }

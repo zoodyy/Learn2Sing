@@ -147,6 +147,25 @@ T("You already have a public exercise named “%@”. Each of your public exerci
   "你已经有一个名为“%@”的公开练习。你的每个公开练习都需要唯一的名称，因此该练习将保持私有。",
   "لديك بالفعل تمرين عام باسم «%@». يجب أن يكون لكل تمرين من تمارينك العامة اسم فريد، لذلك سيبقى هذا التمرين خاصًا.")
 
+# Picking Public with no username yet, and the button that leads to Settings > Profile.
+T("Username Needed", "Benutzername nötig", "Se necesita un nombre de usuario", "Nom d’utilisateur requis", "Serve un nome utente", "Nome de usuário necessário", "Gebruikersnaam nodig", "Нужно имя пользователя", "Potrzebna nazwa użytkownika", "Kullanıcı adı gerekli", "Användarnamn krävs", "ユーザー名が必要です", "사용자 이름 필요", "需要用户名", "مطلوب اسم مستخدم")
+T("Choose a Username", "Benutzernamen wählen", "Elegir un nombre de usuario", "Choisir un nom d’utilisateur", "Scegli un nome utente", "Escolher um nome de usuário", "Gebruikersnaam kiezen", "Выбрать имя пользователя", "Wybierz nazwę użytkownika", "Kullanıcı adı seç", "Välj användarnamn", "ユーザー名を決める", "사용자 이름 정하기", "选择用户名", "اختر اسم مستخدم")
+T("Exercises on the Community tab are shown with the username of whoever shared them, so you need one before you can make an exercise public. This one stays private in the meantime.",
+  "Übungen im Community-Tab werden mit dem Benutzernamen dessen angezeigt, der sie geteilt hat. Deshalb brauchst du einen, bevor du eine Übung veröffentlichen kannst. Diese bleibt so lange privat.",
+  "Los ejercicios de la pestaña Comunidad se muestran con el nombre de usuario de quien los compartió, así que necesitas uno antes de poder hacer público un ejercicio. Mientras tanto, este seguirá siendo privado.",
+  "Les exercices de l’onglet Communauté portent le nom d’utilisateur de la personne qui les a partagés : il vous en faut donc un avant de pouvoir rendre un exercice public. En attendant, celui-ci reste privé.",
+  "Gli esercizi nella scheda Comunità sono mostrati con il nome utente di chi li ha condivisi, quindi te ne serve uno prima di poter rendere pubblico un esercizio. Nel frattempo questo resta privato.",
+  "Os exercícios na aba Comunidade aparecem com o nome de usuário de quem os compartilhou, então você precisa de um antes de tornar um exercício público. Enquanto isso, este continua privado.",
+  "Oefeningen op het tabblad Community worden getoond met de gebruikersnaam van degene die ze heeft gedeeld, dus je hebt er een nodig voordat je een oefening openbaar kunt maken. Deze blijft zolang privé.",
+  "Упражнения на вкладке «Сообщество» показываются с именем пользователя того, кто ими поделился, поэтому без него сделать упражнение публичным нельзя. Пока что оно останется личным.",
+  "Ćwiczenia na karcie Społeczność są pokazywane z nazwą użytkownika osoby, która je udostępniła, więc potrzebujesz jej, zanim upublicznisz ćwiczenie. Na razie to ćwiczenie pozostaje prywatne.",
+  "Topluluk sekmesindeki egzersizler, onları paylaşan kişinin kullanıcı adıyla gösterilir; bu yüzden bir egzersizi herkese açık yapmadan önce bir kullanıcı adına ihtiyacınız var. Bu egzersiz o zamana kadar özel kalır.",
+  "Övningar på fliken Community visas med användarnamnet på den som delade dem, så du behöver ett innan du kan göra en övning offentlig. Den här förblir privat så länge.",
+  "コミュニティタブのエクササイズには共有した人のユーザー名が表示されるため、エクササイズを公開するにはユーザー名が必要です。それまでこのエクササイズは非公開のままです。",
+  "커뮤니티 탭의 연습에는 공유한 사람의 사용자 이름이 함께 표시되므로, 연습을 공개하려면 사용자 이름이 필요합니다. 그때까지 이 연습은 비공개로 유지됩니다.",
+  "“社区”标签中的练习会显示分享者的用户名，因此你需要先有一个用户名，才能把练习设为公开。在此之前，这个练习将保持私有。",
+  "تظهر التمارين في تبويب المجتمع مقترنة باسم مستخدم من شاركها، لذلك تحتاج إلى اسم مستخدم قبل أن تجعل تمرينًا عامًا. يبقى هذا التمرين خاصًا حتى ذلك الحين.")
+
 # --- Intro screen ---
 T("Difficulty:", "Schwierigkeit:", "Dificultad:", "Difficulté :", "Difficoltà:", "Dificuldade:", "Moeilijkheid:", "Сложность:", "Trudność:", "Zorluk:", "Svårighetsgrad:", "難易度:", "난이도:", "难度：", "الصعوبة:")
 T("Created by:", "Erstellt von:", "Creado por:", "Créé par :", "Creato da:", "Criado por:", "Gemaakt door:", "Автор:", "Autor:", "Oluşturan:", "Skapad av:", "作成者:", "만든 사람:", "创建者：", "أنشأه:")

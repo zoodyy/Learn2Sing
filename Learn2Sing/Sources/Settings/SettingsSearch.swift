@@ -412,6 +412,10 @@ enum SettingsCatalog {
     /// The delay tests are off the Audio screen entirely while the runs measure the
     /// delay themselves, so the whole screen they lead to goes with them.
     private static var setsDelayByHand: Bool { !AutoMicDelay.isEnabled }
+    /// The rest of the profile only exists once there is a name to put it
+    /// under: until then the Profile screen shows the username field and
+    /// nothing else (see `ProfileView.hasUsername`).
+    private static var hasUsername: Bool { !UserProfile.currentUsername.isEmpty }
 
     private static func build() -> [SettingsSearchEntry] {
         var entries: [SettingsSearchEntry] = []
@@ -457,14 +461,17 @@ enum SettingsCatalog {
 
         // MARK: Profile
         add(.profilePicture, .profile, section: L("Profile Picture"), title: L("Profile Picture"),
-            help: L("Picks a picture from your photos to show on your public profile."))
+            help: L("Picks a picture from your photos to show on your public profile."),
+            available: { hasUsername })
         add(.username, .profile, section: L("Username"), title: L("Username"),
             help: L("The name shown beside the exercises you share. No two users can have the same one."))
         add(.profileDescription, .profile, section: L("Profile Description"),
             title: L("Profile Description"),
-            help: L("A few words about yourself, shown at the top of your profile in the Community tab."))
+            help: L("A few words about yourself, shown at the top of your profile in the Community tab."),
+            available: { hasUsername })
         add(.joinDatePublic, .profile, title: L("Make your join date public"),
-            help: L("Shows other users how long you have had the app, under your profile description."))
+            help: L("Shows other users how long you have had the app, under your profile description."),
+            available: { hasUsername })
         heading(.blockedUsers, .profile, L("Blocked Users"),
                 help: L("The users you blocked from a report. You don't see their exercises or profile anywhere in the app until you unblock them."))
 
