@@ -47,7 +47,7 @@ enum DebugRecordingAccess {
     /// Who may record and export. One id per line; an empty list switches the
     /// feature off for everybody.
     private static let allowed: Set<String> = [
-        "11111111-1111-1111-1111-111111111111",
+        "e5a93d58-38d8-5f6a-821e-2bff0ea9d398",   // Artjom's iPhone
     ]
 
     /// Whether this install may record and export its runs. Worked out once:
