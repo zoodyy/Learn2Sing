@@ -104,10 +104,14 @@ minute of singing; lower is better except coverage):
 | balanced | 34 ms | 59 ms | 25.8 / 12.7 | 29.0 / 14.0 | 6.3 / 18.6 |
 | most accurate | 94 ms | 112 ms | 10.8 / 5.0 | 12.8 / 6.2 | 3.4 / 17.9 |
 | SwiftF0 (2025), full look-ahead (176 ms) | ~8 ms* | | 100.7 / 45.5 | 37.1 / 24.8 | 11.8 / 29.4 |
-| SwiftF0, 48 ms look-ahead | 56 ms | | 105.4 / 44.8 | 37.8 / 27.0 | 16.7 / 37.9 |
-| CREPE tiny, live (64 ms window) | 36 ms | | 45.5 / 32.0 | 40.3 / 37.7 | |
+| SwiftF0, 48 ms look-ahead | 56 ms | | 105.4 / 44.8 | 37.0 / 30.5 | 16.0 / 28.3 |
+| CREPE full, live (64 ms window) | 36 ms | | 50.2 / 34.3 | 47.8 / 48.3 | |
+| CREPE tiny, live | 36 ms | | 45.5 / 32.0 | 40.3 / 37.7 | |
+| PESTO (LGPL), offline | ~6 ms* | | 85.3 / 57.9 | 50.6 / 21.6 | |
 
-\* offline: it sees the whole file. The neural trackers follow the voice's real
+\* offline: it sees the whole file (PESTO's median error on steady notes is also 8 cents
+against the analyzer's 1.6: its bins are a third of a semitone). CREPE and PESTO are
+shown at their best voicing threshold (0.7, 0.85). The neural trackers follow the voice's real
 consonant slides faithfully, which is exactly what the singer reads as the line being
 thrown off, and at the delays a live line can afford they make more gross errors than
 the analyzer. Coverage of steady notes stays at 99.5-99.9% for all three settings.

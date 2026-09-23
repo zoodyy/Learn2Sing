@@ -2,6 +2,7 @@
 
   neural.py <kind> <sets>      kind: swiftf0-offline | swiftf0-la<N> | crepe-tiny | crepe-full | pesto-offline
   neural.py crepe-tracks <model> <periodicity threshold>
+  neural.py pesto-tracks <confidence threshold>
 
 Every track is (t_avail, midi): when a value could first be on screen, given only the audio
 up to then. "-offline" runs see the whole file: what the model can do with unlimited
