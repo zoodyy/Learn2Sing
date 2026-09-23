@@ -6493,6 +6493,95 @@
         }
       }
     },
+    "Balanced delay and accuracy" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "توازن بين التأخير والدقة"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ausgewogen zwischen Verzögerung und Genauigkeit"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Equilibrio entre retraso y precisión"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Équilibre entre délai et précision"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Equilibrio tra ritardo e precisione"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "遅延と正確さのバランス"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "지연과 정확도의 균형"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Evenwicht tussen vertraging en nauwkeurigheid"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Równowaga opóźnienia i dokładności"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Equilíbrio entre atraso e precisão"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Баланс задержки и точности"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Balans mellan fördröjning och noggrannhet"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gecikme ve doğruluk dengeli"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "延迟与准确度平衡"
+          }
+        }
+      }
+    },
     "Baritone" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -10217,91 +10306,91 @@
         }
       }
     },
-    "Clears your vocal range, including the custom lowest and highest notes, and puts the target window back to the whole note." : {
+    "Clears your vocal range, including the custom lowest and highest notes, puts the target window back to the whole note, and sets pitch detection back to the fastest." : {
       "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "يمسح مداك الصوتي، بما في ذلك أخفض وأعلى نغمة مخصصتين، ويعيد النافذة المستهدفة إلى النغمة كاملة."
+            "value" : "يمسح مداك الصوتي، بما في ذلك أخفض وأعلى نغمة مخصصتين، ويعيد النافذة المستهدفة إلى النغمة كاملة واكتشاف درجة الصوت إلى الأسرع."
           }
         },
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Löscht deinen Stimmumfang samt den eigenen tiefsten und höchsten Noten und setzt das Zielfenster wieder auf die ganze Note."
+            "value" : "Löscht deinen Stimmumfang samt den eigenen tiefsten und höchsten Noten, setzt das Zielfenster wieder auf die ganze Note und die Tonhöhenerkennung wieder auf die schnellste."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Borra tu tesitura, incluidas las notas más grave y más aguda personalizadas, y devuelve la ventana objetivo a la nota entera."
+            "value" : "Borra tu tesitura, incluidas las notas más grave y más aguda personalizadas, devuelve la ventana objetivo a la nota entera y la detección de tono a la más rápida."
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Efface votre tessiture, y compris les notes la plus grave et la plus aiguë personnalisées, et remet la fenêtre cible sur la note entière."
+            "value" : "Efface votre tessiture, y compris les notes la plus grave et la plus aiguë personnalisées, remet la fenêtre cible sur la note entière et la détection de hauteur sur la plus rapide."
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Cancella la tua estensione vocale, comprese le note più bassa e più alta personalizzate, e riporta la finestra target all’intera nota."
+            "value" : "Cancella la tua estensione vocale, comprese le note più bassa e più alta personalizzate, riporta la finestra target all’intera nota e il rilevamento dell’intonazione al più veloce."
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "声域を、カスタムの最低音と最高音を含めて消去し、ターゲット範囲を音符全体に戻します。"
+            "value" : "声域を、カスタムの最低音と最高音を含めて消去し、ターゲット範囲を音符全体に、ピッチ検出を最速に戻します。"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "직접 지정한 최저음과 최고음을 포함해 음역대를 지우고, 목표 범위를 음표 전체로 되돌립니다."
+            "value" : "직접 지정한 최저음과 최고음을 포함해 음역대를 지우고, 목표 범위를 음표 전체로, 음정 인식을 가장 빠름으로 되돌립니다."
           }
         },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Wist je stembereik, inclusief de eigen laagste en hoogste noot, en zet het doelvenster terug op de hele noot."
+            "value" : "Wist je stembereik, inclusief de eigen laagste en hoogste noot, zet het doelvenster terug op de hele noot en de toonhoogtedetectie op de snelste."
           }
         },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Czyści twoją skalę głosu wraz z własnymi najniższą i najwyższą nutą i przywraca okno docelowe do całej nuty."
+            "value" : "Czyści twoją skalę głosu wraz z własnymi najniższą i najwyższą nutą, przywraca okno docelowe do całej nuty, a wykrywanie wysokości dźwięku do najszybszego."
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Limpa sua extensão vocal, incluindo as notas mais grave e mais aguda personalizadas, e devolve a janela alvo à nota inteira."
+            "value" : "Limpa sua extensão vocal, incluindo as notas mais grave e mais aguda personalizadas, devolve a janela alvo à nota inteira e a detecção de altura à mais rápida."
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Очищает ваш диапазон голоса, включая собственные самую низкую и самую высокую ноты, и возвращает целевое окно ко всей ноте."
+            "value" : "Очищает ваш диапазон голоса, включая собственные самую низкую и самую высокую ноты, возвращает целевое окно ко всей ноте, а определение высоты тона к самому быстрому."
           }
         },
         "sv" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Rensar ditt röstomfång, inklusive de egna lägsta och högsta tonerna, och återställer målfönstret till hela noten."
+            "value" : "Rensar ditt röstomfång, inklusive de egna lägsta och högsta tonerna, återställer målfönstret till hela noten och tonhöjdsavläsningen till den snabbaste."
           }
         },
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ses aralığınızı, özel en pes ve en tiz notalar dahil temizler ve hedef pencereyi tüm notaya geri döndürür."
+            "value" : "Ses aralığınızı, özel en pes ve en tiz notalar dahil temizler, hedef pencereyi tüm notaya ve perde algılamayı en hızlısına geri döndürür."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "清除你的音域，包括自定的最低音和最高音，并将目标范围恢复为整个音符。"
+            "value" : "清除你的音域，包括自定的最低音和最高音，将目标范围恢复为整个音符，并将音高识别恢复为最快。"
           }
         }
       }
@@ -16956,6 +17045,273 @@
         }
       }
     },
+    "Draws your pitch about 35 ms after you sing it. Short wrong readings, and most of the slide a consonant puts at the start and end of a syllable, are left out." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "يرسم درجة صوتك بعد نحو 35 مللي ث من غنائك لها. تُستبعد القراءات الخاطئة القصيرة ومعظم الانزلاق الذي يُحدثه الحرف الساكن في بداية المقطع ونهايته."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zeichnet deine Tonhöhe etwa 35 ms nachdem du sie singst. Kurze Fehlmessungen und der größte Teil des Rutschers, den ein Konsonant an Anfang und Ende einer Silbe erzeugt, werden weggelassen."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dibuja tu tono unos 35 ms después de que lo cantes. Se omiten las lecturas erróneas breves y la mayor parte del deslizamiento que una consonante provoca al principio y al final de una sílaba."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dessine votre hauteur environ 35 ms après que vous la chantez. Les brèves mesures erronées et l’essentiel du glissement qu’une consonne provoque au début et à la fin d’une syllabe sont laissés de côté."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Disegna la tua intonazione circa 35 ms dopo che la canti. Le brevi letture errate e la maggior parte dello scivolamento che una consonante provoca all’inizio e alla fine di una sillaba vengono tralasciate."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "歌ってから約35ミリ秒後に音程を描きます。短い誤検出や、子音が音節の始めと終わりに生むずれの大部分は表示されません。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "부른 뒤 약 35밀리초 후에 음정을 그립니다. 짧은 잘못된 측정값과, 자음이 음절의 시작과 끝에 만드는 미끄러짐의 대부분은 표시하지 않습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tekent je toonhoogte ongeveer 35 ms nadat je hem zingt. Korte foute metingen en het grootste deel van de glijder die een medeklinker aan het begin en eind van een lettergreep veroorzaakt, worden weggelaten."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rysuje wysokość dźwięku około 35 ms po tym, jak ją zaśpiewasz. Krótkie błędne odczyty i większość poślizgu, jaki spółgłoska wywołuje na początku i końcu sylaby, są pomijane."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Desenha sua altura cerca de 35 ms depois de você cantá-la. Leituras erradas curtas e a maior parte do deslize que uma consoante causa no início e no fim de uma sílaba ficam de fora."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Рисует высоту тона примерно через 35 мс после того, как вы её спели. Короткие ошибочные измерения и большая часть скольжения, которое согласная вызывает в начале и в конце слога, не показываются."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ritar din tonhöjd cirka 35 ms efter att du sjunger den. Korta felavläsningar och det mesta av glidningen som en konsonant ger i början och slutet av en stavelse utelämnas."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Perdenizi söyledikten yaklaşık 35 ms sonra çizer. Kısa yanlış ölçümler ve bir ünsüzün hecenin başında ve sonunda yarattığı kaymanın çoğu gösterilmez."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在你唱出后约 35 毫秒画出音高。短暂的错误读数，以及辅音在音节开头和结尾造成的滑动的大部分，都不会显示。"
+          }
+        }
+      }
+    },
+    "Draws your pitch about 95 ms after you sing it. The line stays on the note you are holding through consonants such as “t”, “k” and “s”, and wrong readings are left out." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "يرسم درجة صوتك بعد نحو 95 مللي ث من غنائك لها. يبقى الخط على النغمة التي تمدّها حتى مع حروف ساكنة مثل «ت» و«ك» و«س»، وتُستبعد القراءات الخاطئة."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zeichnet deine Tonhöhe etwa 95 ms nachdem du sie singst. Die Linie bleibt bei Konsonanten wie „t“, „k“ und „s“ auf der Note, die du hältst, und Fehlmessungen werden weggelassen."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dibuja tu tono unos 95 ms después de que lo cantes. La línea se mantiene en la nota que sostienes a través de consonantes como «t», «k» y «s», y se omiten las lecturas erróneas."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dessine votre hauteur environ 95 ms après que vous la chantez. La ligne reste sur la note que vous tenez malgré les consonnes comme « t », « k » et « s », et les mesures erronées sont laissées de côté."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Disegna la tua intonazione circa 95 ms dopo che la canti. La linea resta sulla nota che stai tenendo anche con consonanti come “t”, “k” e “s”, e le letture errate vengono tralasciate."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "歌ってから約95ミリ秒後に音程を描きます。「t」「k」「s」のような子音があっても線は伸ばしている音にとどまり、誤検出は表示されません。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "부른 뒤 약 95밀리초 후에 음정을 그립니다. ‘t’, ‘k’, ‘s’ 같은 자음에서도 선이 지금 내고 있는 음에 머무르며, 잘못된 측정값은 표시하지 않습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tekent je toonhoogte ongeveer 95 ms nadat je hem zingt. De lijn blijft op de noot die je aanhoudt, ook bij medeklinkers als ‘t’, ‘k’ en ‘s’, en foute metingen worden weggelaten."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rysuje wysokość dźwięku około 95 ms po tym, jak ją zaśpiewasz. Linia zostaje na nucie, którą trzymasz, także przy spółgłoskach takich jak „t”, „k” i „s”, a błędne odczyty są pomijane."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Desenha sua altura cerca de 95 ms depois de você cantá-la. A linha fica na nota que você está sustentando mesmo com consoantes como “t”, “k” e “s”, e leituras erradas ficam de fora."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Рисует высоту тона примерно через 95 мс после того, как вы её спели. Линия остаётся на ноте, которую вы тянете, даже на согласных вроде «т», «к» и «с», а ошибочные измерения не показываются."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ritar din tonhöjd cirka 95 ms efter att du sjunger den. Linjen stannar på tonen du håller även vid konsonanter som ”t”, ”k” och ”s”, och felavläsningar utelämnas."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Perdenizi söyledikten yaklaşık 95 ms sonra çizer. Çizgi, “t”, “k” ve “s” gibi ünsüzlerde de tuttuğunuz notada kalır ve yanlış ölçümler gösterilmez."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在你唱出后约 95 毫秒画出音高。即使遇到“t”“k”“s”这样的辅音，线也会停留在你正在唱的音上，错误读数也不会显示。"
+          }
+        }
+      }
+    },
+    "Draws your pitch as soon as it is heard, about 15 ms after you sing it. Consonants and mouth sounds show up in the line as jumps and short wrong notes." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "يرسم درجة صوتك فور سماعها، بعد نحو 15 مللي ث من غنائك لها. تظهر الحروف الساكنة وأصوات الفم في الخط على شكل قفزات ونغمات خاطئة قصيرة."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zeichnet deine Tonhöhe, sobald sie zu hören ist, etwa 15 ms nachdem du sie singst. Konsonanten und Mundgeräusche erscheinen in der Linie als Sprünge und kurze falsche Noten."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dibuja tu tono en cuanto se oye, unos 15 ms después de que lo cantes. Las consonantes y los ruidos de la boca aparecen en la línea como saltos y notas erróneas breves."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dessine votre hauteur dès qu’elle est entendue, environ 15 ms après que vous la chantez. Les consonnes et les bruits de bouche apparaissent dans la ligne sous forme de sauts et de brèves fausses notes."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Disegna la tua intonazione appena si sente, circa 15 ms dopo che la canti. Consonanti e rumori della bocca compaiono nella linea come salti e brevi note sbagliate."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "音程が聞こえた瞬間、歌ってから約15ミリ秒後に描きます。子音や口の音は、線の跳ねや短い誤った音として現れます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "음정이 들리는 즉시, 부른 뒤 약 15밀리초 후에 그립니다. 자음과 입소리가 선에 튀는 부분이나 짧은 틀린 음으로 나타납니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tekent je toonhoogte zodra die te horen is, ongeveer 15 ms nadat je hem zingt. Medeklinkers en mondgeluiden verschijnen in de lijn als sprongen en korte verkeerde noten."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rysuje wysokość dźwięku, gdy tylko ją słychać, około 15 ms po tym, jak ją zaśpiewasz. Spółgłoski i odgłosy ust pojawiają się na linii jako skoki i krótkie błędne nuty."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Desenha sua altura assim que ela é ouvida, cerca de 15 ms depois de você cantá-la. Consoantes e ruídos da boca aparecem na linha como saltos e notas erradas curtas."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Рисует высоту тона, как только она слышна, примерно через 15 мс после того, как вы её спели. Согласные и звуки рта появляются на линии как скачки и короткие неверные ноты."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ritar din tonhöjd så snart den hörs, cirka 15 ms efter att du sjunger den. Konsonanter och munljud syns i linjen som hopp och korta felaktiga toner."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Perdenizi duyulur duyulmaz, söyledikten yaklaşık 15 ms sonra çizer. Ünsüzler ve ağız sesleri çizgide sıçramalar ve kısa yanlış notalar olarak görünür."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "一听到音高就画出来，大约在你唱出后 15 毫秒。辅音和口腔杂音会在线上显示为跳动和短暂的错音。"
+          }
+        }
+      }
+    },
     "e.g. C3 or 130.81" : {
       "localizations" : {
         "ar" : {
@@ -21035,6 +21391,95 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "将练习库导出为文件，或导入一个文件。"
+          }
+        }
+      }
+    },
+    "Fastest, jittery" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "الأسرع، متذبذب"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Am schnellsten, unruhig"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Más rápida, inestable"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La plus rapide, instable"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La più veloce, instabile"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "最速・揺れやすい"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "가장 빠름, 불안정"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Snelst, onrustig"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Najszybsze, niespokojne"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mais rápida, instável"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Самое быстрое, дёрганое"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Snabbast, ryckig"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "En hızlı, titrek"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "最快，易抖动"
           }
         }
       }
@@ -26722,6 +27167,95 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "本次演唱中音准正确的比例。红色为低，绿色为高。"
+          }
+        }
+      }
+    },
+    "How quickly your pitch line follows your voice. The slower choices wait a moment to see what comes next, so consonants and mouth sounds throw the line off less, and your score allows for the wait." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "مدى سرعة تتبّع خط درجة الصوت لصوتك. تنتظر الخيارات الأبطأ لحظة لترى ما يأتي بعد ذلك، فتقلّ إزاحة الحروف الساكنة وأصوات الفم للخط، وتأخذ نتيجتك هذا الانتظار في الحسبان."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wie schnell deine Tonhöhenlinie deiner Stimme folgt. Die langsameren Optionen warten einen Moment ab, was als Nächstes kommt, damit Konsonanten und Mundgeräusche die Linie weniger aus der Bahn werfen, und deine Punktzahl berücksichtigt die Wartezeit."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Con qué rapidez tu línea de tono sigue a tu voz. Las opciones más lentas esperan un momento para ver lo que viene después, así que las consonantes y los ruidos de la boca desvían menos la línea, y tu puntuación tiene en cuenta la espera."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La rapidité avec laquelle votre ligne de hauteur suit votre voix. Les choix plus lents attendent un instant de voir ce qui suit, si bien que les consonnes et les bruits de bouche dévient moins la ligne, et votre note tient compte de l’attente."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quanto velocemente la tua linea dell’intonazione segue la tua voce. Le scelte più lente aspettano un attimo per vedere cosa viene dopo, così consonanti e rumori della bocca disturbano meno la linea, e il punteggio tiene conto dell’attesa."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ピッチの線が声にどれだけ速く追従するか。遅い選択肢は次に来る音を少し待ってから描くため、子音や口の音で線が乱れにくくなり、採点ではその待ち時間が考慮されます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "음정 선이 목소리를 얼마나 빨리 따라가는지 정합니다. 느린 선택지는 다음에 오는 소리를 잠시 기다렸다 그리므로 자음이나 입소리에 선이 덜 흔들리며, 점수는 그 기다림을 반영합니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hoe snel je toonhoogtelijn je stem volgt. De langzamere keuzes wachten even af wat er daarna komt, zodat medeklinkers en mondgeluiden de lijn minder van slag brengen, en je score houdt rekening met het wachten."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jak szybko linia wysokości dźwięku podąża za twoim głosem. Wolniejsze opcje czekają chwilę, by zobaczyć, co będzie dalej, więc spółgłoski i odgłosy ust mniej zakłócają linię, a wynik uwzględnia to oczekiwanie."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Com que rapidez sua linha de altura acompanha sua voz. As opções mais lentas esperam um instante para ver o que vem a seguir, então consoantes e ruídos da boca atrapalham menos a linha, e sua pontuação leva a espera em conta."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Насколько быстро линия высоты тона следует за вашим голосом. Более медленные варианты немного ждут, чтобы увидеть, что будет дальше, поэтому согласные и звуки рта меньше сбивают линию, а оценка учитывает это ожидание."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hur snabbt din tonhöjdslinje följer din röst. De långsammare valen väntar ett ögonblick för att se vad som kommer härnäst, så att konsonanter och munljud stör linjen mindre, och dina poäng tar hänsyn till väntan."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Perde çizginizin sesinizi ne kadar hızlı takip ettiği. Daha yavaş seçenekler sırada ne geldiğini görmek için kısa bir süre bekler; böylece ünsüzler ve ağız sesleri çizgiyi daha az bozar ve puanınız bu beklemeyi hesaba katar."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "音高线跟随你声音的速度。较慢的选项会稍等片刻，看清接下来的声音再画，因此辅音和口腔杂音不太会打乱这条线，评分也会把这段等待考虑在内。"
           }
         }
       }
@@ -45715,6 +46249,94 @@
         }
       }
     },
+    "Pitch Detection" : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "اكتشاف درجة الصوت"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tonhöhenerkennung"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Detección de tono"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Détection de hauteur"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rilevamento dell’intonazione"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ピッチ検出"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "음정 인식"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Toonhoogtedetectie"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wykrywanie wysokości dźwięku"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Detecção de altura"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Определение высоты тона"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tonhöjdsavläsning"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Perde algılama"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "音高识别"
+          }
+        }
+      }
+    },
     "Pitch name color" : {
       "localizations" : {
         "ar" : {
@@ -59455,6 +60077,95 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "跳过这一课"
+          }
+        }
+      }
+    },
+    "Slowest, most accurate" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "الأبطأ، الأدق"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Am langsamsten, am genauesten"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Más lenta, más precisa"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La plus lente, la plus précise"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La più lenta, la più precisa"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "最も遅い・最も正確"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "가장 느림, 가장 정확"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Traagst, nauwkeurigst"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Najwolniejsze, najdokładniejsze"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mais lenta, mais precisa"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Самое медленное, самое точное"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Långsammast, noggrannast"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "En yavaş, en doğru"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "最慢，最准确"
           }
         }
       }
@@ -81213,91 +81924,91 @@
         }
       }
     },
-    "Your vocal range, the test that measures it, and how precisely you have to hit a note for it to count." : {
+    "Your vocal range, the test that measures it, how quickly your pitch line follows your voice, and how precisely you have to hit a note for it to count." : {
       "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "مداك الصوتي، والاختبار الذي يقيسه، ومدى الدقة المطلوبة لإصابة النغمة حتى تُحتسب."
+            "value" : "مداك الصوتي، والاختبار الذي يقيسه، ومدى سرعة تتبّع خط درجة الصوت لصوتك، ومدى الدقة المطلوبة لإصابة النغمة حتى تُحتسب."
           }
         },
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Dein Stimmumfang, der Test, der ihn misst, und wie genau du eine Note treffen musst, damit sie zählt."
+            "value" : "Dein Stimmumfang, der Test, der ihn misst, wie schnell deine Tonhöhenlinie deiner Stimme folgt, und wie genau du eine Note treffen musst, damit sie zählt."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Tu tesitura, la prueba que la mide y con cuánta precisión debes acertar una nota para que cuente."
+            "value" : "Tu tesitura, la prueba que la mide, con qué rapidez tu línea de tono sigue a tu voz y con cuánta precisión debes acertar una nota para que cuente."
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Votre tessiture, le test qui la mesure et la précision avec laquelle vous devez atteindre une note pour qu’elle compte."
+            "value" : "Votre tessiture, le test qui la mesure, la rapidité avec laquelle votre ligne de hauteur suit votre voix et la précision avec laquelle vous devez atteindre une note pour qu’elle compte."
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "La tua estensione vocale, il test che la misura e con quanta precisione devi centrare una nota perché conti."
+            "value" : "La tua estensione vocale, il test che la misura, quanto velocemente la tua linea dell’intonazione segue la tua voce e con quanta precisione devi centrare una nota perché conti."
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "あなたの声域、それを測定するテスト、そして音符が当たりとみなされる正確さ。"
+            "value" : "あなたの声域、それを測定するテスト、ピッチの線が声にどれだけ速く追従するか、そして音符が当たりとみなされる正確さ。"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "음역대, 이를 측정하는 테스트, 그리고 음표가 인정되려면 얼마나 정확히 맞혀야 하는지."
+            "value" : "음역대, 이를 측정하는 테스트, 음정 선이 목소리를 얼마나 빨리 따라가는지, 그리고 음표가 인정되려면 얼마나 정확히 맞혀야 하는지."
           }
         },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Je stembereik, de test die het meet en hoe nauwkeurig je een noot moet raken om te tellen."
+            "value" : "Je stembereik, de test die het meet, hoe snel je toonhoogtelijn je stem volgt en hoe nauwkeurig je een noot moet raken om te tellen."
           }
         },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Twoja skala głosu, test, który ją mierzy, i to, jak dokładnie trzeba trafić nutę, żeby się liczyła."
+            "value" : "Twoja skala głosu, test, który ją mierzy, to, jak szybko linia wysokości dźwięku podąża za głosem, i to, jak dokładnie trzeba trafić nutę, żeby się liczyła."
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sua extensão vocal, o teste que a mede e com que precisão você precisa acertar uma nota para que ela conte."
+            "value" : "Sua extensão vocal, o teste que a mede, com que rapidez sua linha de altura acompanha sua voz e com que precisão você precisa acertar uma nota para que ela conte."
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ваш диапазон голоса, тест, который его измеряет, и то, насколько точно нужно попасть в ноту, чтобы она засчиталась."
+            "value" : "Ваш диапазон голоса, тест, который его измеряет, то, насколько быстро линия высоты тона следует за голосом, и то, насколько точно нужно попасть в ноту, чтобы она засчиталась."
           }
         },
         "sv" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ditt röstomfång, testet som mäter det och hur exakt du måste träffa en ton för att den ska räknas."
+            "value" : "Ditt röstomfång, testet som mäter det, hur snabbt din tonhöjdslinje följer din röst och hur exakt du måste träffa en ton för att den ska räknas."
           }
         },
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ses aralığınız, onu ölçen test ve bir notanın sayılması için ne kadar isabetli söylemeniz gerektiği."
+            "value" : "Ses aralığınız, onu ölçen test, perde çizginizin sesinizi ne kadar hızlı takip ettiği ve bir notanın sayılması için ne kadar isabetli söylemeniz gerektiği."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "你的音域、测量音域的测试，以及唱中一个音符需要多准确才会计分。"
+            "value" : "你的音域、测量音域的测试、音高线跟随你声音的速度，以及唱中一个音符需要多准确才会计分。"
           }
         }
       }

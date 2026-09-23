@@ -24,12 +24,22 @@ final class PitchDetector: ObservableObject {
     // flood the main thread and stutter the UI.
     var currentPitch: Double? { listener.pitch }
 
-    /// How far, in milliseconds, the singer's drawn line trails their voice: the
-    /// analysis window's delay, the wait for the next I/O buffer and the on-screen
-    /// ease, as measured by replaying recordings against a look-ahead pitch track.
-    /// The clap test adds it to what it measures, because claps are timed from the
-    /// sound itself while singing is scored from the line.
+    /// How far, in milliseconds, the singer's drawn line trails their voice on the
+    /// fastest pitch detection: the analysis window's delay, the wait for the next I/O
+    /// buffer and the on-screen ease, as measured by replaying recordings against a
+    /// look-ahead pitch track. The clap test adds it to what it measures, because claps
+    /// are timed from the sound itself while singing is scored from the line. A slower
+    /// `detection` holds the line back by its look-ahead on top of this; that part is
+    /// added wherever the delay is used rather than saved in it, so the setting means
+    /// the same whichever detection it was measured with.
     var lineLatencyMs: Double { usingTap ? 60 : 15 }
+
+    /// The pitch detection this capture runs with: the setting as it stood when the
+    /// microphone was last started, so it can't change under a run.
+    private(set) var detection = PitchDetection.current
+
+    /// How much later than the fastest detection's this capture's line is drawn.
+    var lookAheadMs: Double { detection.extraDelayMs }
 
     private let engine = AVAudioEngine()
     private var running = false
@@ -102,6 +112,7 @@ final class PitchDetector: ObservableObject {
         // interruption isn't mistaken for "already listening" and skipped.
         if running && !engine.isRunning { running = false }
         guard !running else { return }
+        detection = PitchDetection.current
         // The audio session / route is configured once by PlaybackView before this
         // is called, so we must not reconfigure it here — doing so would switch the
         // route out from under the already-running playback engine.
@@ -144,7 +155,7 @@ final class PitchDetector: ObservableObject {
         if engine.isRunning { engine.stop() }
         input.removeTap(onBus: 0)
         usingTap = false
-        listener.start(sampleRate: format.sampleRate)
+        listener.start(sampleRate: format.sampleRate, detection: detection)
 
         let sink: AVAudioSinkNode
         if let existing = sinkNode {
@@ -184,7 +195,7 @@ final class PitchDetector: ObservableObject {
         if let sink = sinkNode { engine.disconnectNodeInput(sink) }
         running = false
         guard format.sampleRate > 0, format.channelCount > 0 else { return }
-        listener.start(sampleRate: format.sampleRate)
+        listener.start(sampleRate: format.sampleRate, detection: detection)
         usingTap = true
         let input = engine.inputNode
         listener.queue.installTap(on: input, format: format)
@@ -385,10 +396,10 @@ nonisolated final class MicrophoneListener: @unchecked Sendable {
 
     /// Start a fresh analysis thread for audio at `sampleRate`, ending any previous
     /// one first. Called while the audio is stopped.
-    func start(sampleRate rate: Double) {
+    func start(sampleRate rate: Double, detection: PitchDetection) {
         stop()
         sampleRate = rate
-        analyzer = PitchAnalyzer(sampleRate: rate)
+        analyzer = PitchAnalyzer(sampleRate: rate, detection: detection)
         queue.reset(sampleRate: rate)
         resetClaps()
         stopRequested.store(false, ordering: .sequentiallyConsistent)

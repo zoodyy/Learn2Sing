@@ -170,6 +170,9 @@ struct DebugRunContext {
     let leadInBeats: Double
     let repeatSpan: Double
     let micDelayMs: Double
+    /// The pitch detection the run was sung with; it holds the line back by its
+    /// look-ahead on top of the microphone delay.
+    let pitchDetection: PitchDetection
     let score: Int
 }
 
@@ -486,7 +489,7 @@ final class DebugRunRecorder: DebugAudioSink {
                 "A single run of one exercise: the raw microphone audio, the notes it was sung against, and every pitch estimate the app drew.",
                 "Beat 0 is the first beat of the exercise as drawn. Audio and playback both begin at -exercise.leadInBeats.",
                 "audio.segments[i].beat is the playback beat that was being heard from the speaker at the instant that segment's first audio frame was captured. Frame f of a segment therefore sits at beat = segment.beat + (f - segment.startFrame) / audio.sampleRate * exercise.bpm / 60.",
-                "pitchSamples[j].beat is the beat at which the app *drew* that estimate, so it already lags the audio that produced it by the microphone's round-trip latency plus the analysis window. settings.microphoneDelayMs is the user's compensation for exactly that lag: scoring treats the notes as sounding that much later, and the review screen shifts the sung line that much earlier.",
+                "pitchSamples[j].beat is the beat at which the app *drew* that estimate, so it already lags the audio that produced it by the microphone's round-trip latency plus the analysis window. settings.microphoneDelayMs is the user's compensation for exactly that lag: scoring treats the notes as sounding that much later, and the review screen shifts the sung line that much earlier. A pitch detection other than \"fastest\" draws the line settings.pitchDetectionLookAheadMs later still, and both are compensated for together.",
                 "pitchSamples[j].pitch is a fractional MIDI note number, or null where the detector found nothing.",
                 "A run is normally one audio segment. More than one means the tap restarted (a pause, a backgrounding) or the system dropped hops; audio.droppedFrames counts frames lost because the writer fell behind.",
             ],
@@ -510,6 +513,8 @@ final class DebugRunRecorder: DebugAudioSink {
                 leadInBeats: context.leadInBeats),
             settings: SettingsJSON(
                 microphoneDelayMs: context.micDelayMs,
+                pitchDetection: context.pitchDetection.rawValue,
+                pitchDetectionLookAheadMs: context.pitchDetection.extraDelayMs,
                 vocalRange: defaults.string(forKey: VocalRange.storageKey) ?? "",
                 vocalRangeCustomLow: custom.low,
                 vocalRangeCustomHigh: custom.high,
@@ -613,6 +618,8 @@ private struct ExerciseJSON: Encodable {
 
 private struct SettingsJSON: Encodable {
     let microphoneDelayMs: Double
+    let pitchDetection: String
+    let pitchDetectionLookAheadMs: Double
     let vocalRange: String
     let vocalRangeCustomLow: Int
     let vocalRangeCustomHigh: Int

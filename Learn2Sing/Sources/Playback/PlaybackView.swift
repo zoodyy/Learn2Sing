@@ -1065,6 +1065,7 @@ struct PlaybackView: View {
                 ExerciseReviewView(exercise: exercise, notes: notes, texts: texts,
                                    samples: trail.recording, bpm: bpm,
                                    repeatLayout: repeatLayout,
+                                   lookAheadMs: pitchDetector.lookAheadMs,
                                    onCalibrationDone: calibrationDone,
                                    onClose: calibrationSkipped)
             } else if let finalScore {
@@ -1072,6 +1073,7 @@ struct PlaybackView: View {
                     ExerciseReviewView(exercise: exercise, notes: notes, texts: texts,
                                        samples: trail.recording, bpm: bpm,
                                        repeatLayout: repeatLayout,
+                                       lookAheadMs: pitchDetector.lookAheadMs,
                                        scoredDelayMs: runDelayMs) {
                         isReviewing = false
                     }
@@ -1251,6 +1253,7 @@ struct PlaybackView: View {
                                         samples: trail.recording, bpm: bpm, leadInBeats: leadIn,
                                         repeatSpan: repeatLayout.span,
                                         micDelayMs: runDelayMs ?? micDelayMs,   // the one `score` is at
+                                        pitchDetection: pitchDetector.detection,
                                         score: score))
                     // It counts for the Home tab's "Recent" category regardless of the
                     // score — and for its full length on the Home tab's calendar, which
@@ -1341,21 +1344,26 @@ struct PlaybackView: View {
     private func recogniseDelay(scoring played: Int) -> Int {
         runDelayMs = nil
         guard AutoMicDelay.isEnabled else { return played }
+        // The line trails the voice by the pitch detection's look-ahead on top of the
+        // microphone, so the offsets are searched with it added and the setting keeps
+        // the microphone's part alone.
+        let lookAhead = pitchDetector.lookAheadMs
         guard let best = scorer.bestDelayMs(
-            samples: trail.recording, notes: notes, bpm: bpm, from: AutoMicDelay.floorMs,
+            samples: trail.recording, notes: notes, bpm: bpm, from: AutoMicDelay.floorMs + lookAhead,
             upTo: AutoMicDelay.maxDelayMs(notes: notes, samples: trail.recording, bpm: bpm))
         else { return played }
 
         let found = scorer.rescored(samples: trail.recording, notes: notes,
                                     noteShift: micDelayBeats(best, bpm: bpm), bpm: bpm)
+        let delay = best - lookAhead
         // `found` beats `played` on any run whose delay was inside the range searched,
         // which is all of them bar a delay set higher than the last note leaves room
         // for; that one keeps the score it was played at.
         let adopt = found >= played
             && (found > AutoMicDelay.minimumScore || !AutoMicDelay.isEstablished)
-        let saves = adopt && best >= 0
-        if saves { micDelayMs = best }
-        if adopt && !saves { runDelayMs = best }
+        let saves = adopt && delay >= 0
+        if saves { micDelayMs = delay }
+        if adopt && !saves { runDelayMs = delay }
         // Established is about the delay left saved, so an early delay, which leaves
         // the saved one alone, is judged on what the saved one scored.
         if (saves ? found : played) > AutoMicDelay.minimumScore { AutoMicDelay.markEstablished() }
@@ -1459,9 +1467,10 @@ struct PlaybackView: View {
         // 100% leaves the reach exactly as it always was.
         let targetHalfHeight = (baseRowH - 2) / 2 * CGFloat(ScoreTargetWindow.fraction(percent: scoreTargetWindow))
         let lineToleranceSemitones = Double((targetHalfHeight + 1.25) / baseRowH)
-        // Convert the user's microphone-delay setting (ms) into beats so notes are
-        // scored as if shifted that far to the right (later in time).
-        let noteShift = micDelayBeats(micDelayMs, bpm: bpm)
+        // Convert the user's microphone-delay setting (ms), plus the look-ahead the
+        // pitch detection holds the line back by, into beats so notes are scored as if
+        // shifted that far to the right (later in time).
+        let noteShift = micDelayBeats(micDelayMs + pitchDetector.lookAheadMs, bpm: bpm)
         // Neither delay test shows a score: the clap test has no sung notes to score,
         // and the sung one is measuring the very setting the score depends on.
         if mode == .normal {

@@ -78,6 +78,9 @@ nonisolated struct UserSettings: Codable {
     /// How much of a note counts as hit when a run is scored, as a percentage of the
     /// note. Lives under Voice alongside the range, which is where its setting is.
     var scoreTargetWindow: Int?
+    /// How the pitch line trades delay against steadiness, as a `PitchDetection` raw
+    /// value.
+    var pitchDetection: String?
 
     // MARK: Exercises
 
@@ -152,6 +155,7 @@ nonisolated struct UserSettings: Codable {
             vocalRangeCustomLow: custom.low,
             vocalRangeCustomHigh: custom.high,
             scoreTargetWindow: ScoreTargetWindow.percent,
+            pitchDetection: PitchDetection.current.rawValue,
             recommendedPracticeMinutes: RecommendedExercises.minutes,
             recommendationsAsList: d.object(forKey: RecommendedExercises.asListKey) == nil
                 ? RecommendedExercises.defaultAsList
@@ -226,6 +230,10 @@ nonisolated struct UserSettings: Codable {
         if let vocalRangeCustomHigh { d.set(vocalRangeCustomHigh, forKey: VocalRange.customHighKey) }
         if let scoreTargetWindow {
             d.set(ScoreTargetWindow.clamped(scoreTargetWindow), forKey: ScoreTargetWindow.storageKey)
+        }
+        // A choice a later version added means nothing here; the setting is left alone.
+        if let pitchDetection, PitchDetection(rawValue: pitchDetection) != nil {
+            d.set(pitchDetection, forKey: PitchDetection.storageKey)
         }
 
         if let recommendedPracticeMinutes {

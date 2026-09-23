@@ -55,6 +55,15 @@ func loadRecording(_ dir: String) -> Recording {
                      recordedAt: json["recordedAt"] as? String ?? "")
 }
 
+/// Channel 0 of any WAV, at its own rate.
+func loadWav(_ path: String) -> (samples: [Float], rate: Double) {
+    let file = try! AVAudioFile(forReading: URL(fileURLWithPath: path))
+    let fmt = file.processingFormat
+    let buf = AVAudioPCMBuffer(pcmFormat: fmt, frameCapacity: AVAudioFrameCount(file.length))!
+    try! file.read(into: buf)
+    return (Array(UnsafeBufferPointer(start: buf.floatChannelData![0], count: Int(buf.frameLength))), fmt.sampleRate)
+}
+
 /// One realtime output: the detector's estimate right after the buffer ending at `endSample`.
 struct TrackPoint { let endSample: Int; let pitch: Double? }
 

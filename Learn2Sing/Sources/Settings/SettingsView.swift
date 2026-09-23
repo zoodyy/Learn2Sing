@@ -420,7 +420,8 @@ struct SettingsHubRow: View {
 }
 
 /// The "Voice" hub reached from Settings: the user's vocal range, the test that
-/// measures it, and how much of a note counts as hit when a run is scored.
+/// measures it, how the pitch line trades delay against steadiness, and how much of
+/// a note counts as hit when a run is scored.
 struct VoiceSettingsView: View {
     /// Re-renders this screen when the language is changed in Settings; the
     /// strings are resolved when the body runs, so SwiftUI needs telling.
@@ -430,6 +431,7 @@ struct VoiceSettingsView: View {
     @AppStorage(VocalRange.customLowKey)  private var customLow  = VocalRange.customDefault.low
     @AppStorage(VocalRange.customHighKey) private var customHigh = VocalRange.customDefault.high
     @AppStorage(ScoreTargetWindow.storageKey) private var targetWindow = ScoreTargetWindow.defaultPercent
+    @AppStorage(PitchDetection.storageKey) private var pitchDetectionRaw = PitchDetection.defaultValue.rawValue
 
     /// True from the first value a drag moves the target-window slider to until that
     /// drag ends, which is the only time the picture of the note below it is shown:
@@ -489,6 +491,31 @@ struct VoiceSettingsView: View {
                 .setting(.testVocalRange)
             } header: {
                 Text("Vocal Range").settingSection(.voiceRange)
+            }
+
+            Section {
+                ForEach(PitchDetection.allCases) { detection in
+                    let isSelected = (PitchDetection(rawValue: pitchDetectionRaw) ?? .defaultValue) == detection
+                    Button {
+                        pitchDetectionRaw = detection.rawValue
+                    } label: {
+                        HStack {
+                            Text(detection.title)
+                            Spacer()
+                            if isSelected {
+                                Image(systemName: "checkmark")
+                                    .font(.body.weight(.semibold))
+                                    .foregroundStyle(.tint)
+                            }
+                        }
+                        .contentShape(Rectangle())
+                    }
+                    .foregroundStyle(.primary)
+                    .accessibilityAddTraits(isSelected ? .isSelected : [])
+                    .setting(.pitchDetection(detection))
+                }
+            } header: {
+                Text("Pitch Detection").settingSection(.voicePitchDetection)
             }
 
             Section {
@@ -937,5 +964,31 @@ struct ExerciseDocument: FileDocument {
 
     func fileWrapper(configuration: WriteConfiguration) throws -> FileWrapper {
         FileWrapper(regularFileWithContents: data)
+    }
+}
+
+// MARK: - Pitch detection
+
+extension PitchDetection {
+    /// The choice as the Voice screen lists it.
+    var title: String {
+        switch self {
+        case .fastest:      L("Fastest, jittery")
+        case .balanced:     L("Balanced delay and accuracy")
+        case .mostAccurate: L("Slowest, most accurate")
+        }
+    }
+
+    /// Its press-and-hold explanation. The delays are the line's own, measured by
+    /// replaying recordings (see `PitchDetector.lineLatencyMs` and `lookAheadSeconds`).
+    var help: String {
+        switch self {
+        case .fastest:
+            L("Draws your pitch as soon as it is heard, about 15 ms after you sing it. Consonants and mouth sounds show up in the line as jumps and short wrong notes.")
+        case .balanced:
+            L("Draws your pitch about 35 ms after you sing it. Short wrong readings, and most of the slide a consonant puts at the start and end of a syllable, are left out.")
+        case .mostAccurate:
+            L("Draws your pitch about 95 ms after you sing it. The line stays on the note you are holding through consonants such as “t”, “k” and “s”, and wrong readings are left out.")
+        }
     }
 }

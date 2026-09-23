@@ -12,7 +12,8 @@ import UIKit
 /// as sounding that much later than they are drawn, which is the same comparison as
 /// putting the detected pitch that much further left (see `micDelayBeats`). That is
 /// the setting, unless the run was scored at a negative delay of its own, which
-/// shifts the line later instead (see `scoredDelayMs`).
+/// shifts the line later instead (see `scoredDelayMs`), plus the look-ahead the pitch
+/// detection held the line back by (see `lookAheadMs`).
 ///
 /// The same screen is the last step of the sung microphone-delay test (Settings ▸
 /// Audio ▸ Test for delay). There `onCalibrationDone` is set: the shift is no
@@ -34,6 +35,11 @@ struct ExerciseReviewView: View {
     let bpm: Double
     /// Where the repetitions sit on the timeline, for the repetition counter badge.
     let repeatLayout: RepeatLayout
+    /// How much later than the fastest pitch detection's the run's line was drawn
+    /// (see `PitchDetection`). The line is shifted back by it on top of the delay,
+    /// which, like the setting, is the microphone's part alone: the number the delay
+    /// test shows and saves means the same whichever detection it was sung with.
+    var lookAheadMs: Double = 0
     /// The delay the run's score was worked out at when that isn't the saved
     /// setting: a negative one, found for that run alone and never saved. nil draws
     /// the line at the setting.
@@ -56,6 +62,9 @@ struct ExerciseReviewView: View {
     /// Milliseconds the sung line is drawn earlier than it was recorded: the offset
     /// being dialled in during the delay test, otherwise the one the run was scored at.
     private var delayMs: Double { calibrationMs ?? scoredDelayMs ?? micDelayMs }
+
+    /// How far the sung line is drawn earlier than it was recorded, in beats.
+    private var lineShift: Double { micDelayBeats(delayMs + lookAheadMs, bpm: bpm) }
 
     /// Where the view is looking. `nil` until the singer moves it: the drawing
     /// falls back to the framing worked out from the screen size, so the very
@@ -270,7 +279,7 @@ struct ExerciseReviewView: View {
         let cam = resolvedCamera(size: size)
         let layout = sceneLayout(size: size, camera: cam, safeTop: safeTop, safeBottom: safeBottom)
         let beat = cam.playheadBeat
-        let delay = micDelayBeats(delayMs, bpm: bpm)
+        let delay = lineShift
 
         // The sung line, shifted earlier by the microphone delay so it lies where
         // the scorer compared it against the notes. Only the stretch that can land
@@ -317,7 +326,7 @@ struct ExerciseReviewView: View {
         guard !samples.isEmpty else { return nil }
         // Back into the recording's own timeline: the line is drawn `delay` beats
         // to the left of where its samples were taken.
-        let target = beat + micDelayBeats(delayMs, bpm: bpm)
+        let target = beat + lineShift
 
         // The samples are in the order they were recorded and the playback clock
         // never runs backwards, so they're sorted by beat and can be searched.
@@ -384,7 +393,7 @@ struct ExerciseReviewView: View {
     /// the line's ends: it only starts where the singer did, not at the silent
     /// lead-in the recording also covers.
     private func measureContent() -> Content {
-        let delay = micDelayBeats(delayMs, bpm: bpm)
+        let delay = lineShift
         var firstBeat = Double.infinity
         var lastBeat = -Double.infinity
         for note in notes {

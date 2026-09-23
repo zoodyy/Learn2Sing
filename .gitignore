@@ -5,3 +5,4 @@ __pycache__/
 # Tools/PitchBench build output and unpacked recordings
 Tools/PitchBench/.build/
 Tools/PitchBench/.work/
+Tools/PitchBench/.venv/

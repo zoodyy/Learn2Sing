@@ -32,11 +32,15 @@ import Foundation
 ///    before it appears and a large jump before the line follows it. A wrong reading
 ///    almost never survives two analyses in a row, so asking for agreement removes
 ///    the one- and two-frame spikes at note starts at the cost of one interval.
-/// 5. Unless the singer chose the fastest line (see `PitchDetection`), a
-///    `PitchSettler` holds that answer back a few analyses and, having seen what
-///    followed, takes out what only hindsight can tell from singing: consonants
-///    sliding the voice into and out of a note, and sounds too short to be one.
-nonisolated final class PitchAnalyzer {
+func benchParam(_ key: String, _ fallback: Double) -> Double {
+    ProcessInfo.processInfo.environment[key].flatMap(Double.init) ?? fallback
+}
+
+/// The bench's copy of the app's `PitchAnalyzer` without its `PitchSettler`: the same
+/// analysis, with its tuning read from the environment (`benchParam`) so variants can be
+/// tried without rebuilding, and every analysis recorded for `frames` (and printed for
+/// DEBUG_T=<from>,<to> seconds). The defaults are the app's; keep them in step with it.
+final class ExpAnalyzer {
     // MARK: Tuning
 
     /// The range searched, in Hz. A little below C2 and a little above C6, so a
@@ -52,7 +56,7 @@ nonisolated final class PitchAnalyzer {
 
     /// How many periods of the most recent audio each lag is compared over. Shorter
     /// answers sooner; below this the readings got noisy enough to double the spikes.
-    private static let periodsCompared: Float = 1.5
+    private static let periodsCompared = Float(benchParam("PERIODS", 1.5))
 
     /// The comparison window never gets shorter than this, in seconds, however high
     /// the note: a handful of 1 kHz periods is too little to judge.
@@ -74,19 +78,18 @@ nonisolated final class PitchAnalyzer {
     /// decision, which weighs the comb at `combWeight` against the correlation. Tuned
     /// on every analysis of the recordings with a steady reference: this picks the
     /// right octave in 99.99% of them (the correlation alone: 99.2% at best).
-    private static let combShare: Float = 0.5
-    private static let combWeight = 0.7
+    private static let combShare = Float(benchParam("COMB_SHARE", 0.5))
+    private static let combWeight = benchParam("COMB_WEIGHT", 0.7)
+    /// Bench: weight of the evidence below a candidate (energy at f/2, f/3, 2f/3), which a
+    /// true fundamental doesn't have and a harmonic mistaken for one does.
+    private static let subWeight = benchParam("SUB_WEIGHT", 0)
+    /// Bench: bonus for the candidate that continues the note on show (within `continuityRange`
+    /// semitones), so a harmonic has to win clearly before the line jumps to it.
+    private static let continuityBonus = benchParam("CONT_BONUS", 0.1)
+    private static let continuityRange = benchParam("CONT_RANGE", 1.0)
     /// The harmonics the comb looks at: primes only, so a candidate an octave or two
     /// too low can't collect the true pitch's harmonics as its own even ones.
     private static let combHarmonics: [Double] = [1, 2, 3, 5, 7]
-    /// While a note is showing, a candidate within `continuityRange` semitones of it
-    /// gets this much added in the comb decision. A bright voice whose third harmonic
-    /// sits on a formant (a belted "ah" around G4) can otherwise win the comb by a
-    /// hair for one analysis in three, and the line spikes an octave and a fifth up;
-    /// a real leap wins by far more than this. Replaying the public datasets, it took
-    /// 5 to 19% of the wrong-octave readings out and changed nothing on the rest.
-    private static let continuityBonus = 0.1
-    private static let continuityRange = 1.0
 
     /// Clarity (the winning peak's height, 1 for a perfectly periodic sound) needed to
     /// start a note straight after one confirming analysis.
@@ -122,12 +125,25 @@ nonisolated final class PitchAnalyzer {
 
     let sampleRate: Double
 
+    /// Bench only: what every analysis saw, for prototyping what comes after it.
+    struct FrameInfo {
+        var end = 0
+        var level: Float = 0
+        var midi = Double.nan
+        var clarity: Float = 0
+        var longClarity: Float = 0
+        var shown = Double.nan
+        var window = 0
+    }
+    var frames: [FrameInfo] = []
+    var recordFrames = false
+    var debugWindow: (Double, Double)? = ProcessInfo.processInfo.environment["DEBUG_T"].map {
+        let p = $0.split(separator: ",").map { Double($0)! }; return (p[0], p[1])
+    }
+    private var samplesIn = 0
+
     /// The pitch to show, as a fractional MIDI note number; nil while nothing is sung.
     private(set) var pitch: Double? = nil
-
-    /// What the state machine below is showing; `pitch` is this, settled.
-    private var tracked: Double? = nil
-    private let settler: PitchSettler?
 
     private let hop: Int
     private let capacity: Int
@@ -179,10 +195,8 @@ nonisolated final class PitchAnalyzer {
     private var jumpCandidate: Double? = nil
     private var notePeak: Float = 0
 
-    init(sampleRate: Double, detection: PitchDetection = .fastest) {
+    init(sampleRate: Double) {
         self.sampleRate = sampleRate
-        let lookAhead = Int((detection.lookAheadSeconds / Self.analysisInterval).rounded())
-        settler = lookAhead > 0 ? PitchSettler(lookAhead: lookAhead) : nil
         hop = max(1, Int(sampleRate * Self.analysisInterval))
         minLag = max(2, Int(sampleRate / Self.highestFrequency))
         maxLag = max(minLag + 4, Int(sampleRate / Self.lowestFrequency))
@@ -233,6 +247,7 @@ nonisolated final class PitchAnalyzer {
         while done < count {
             let take = min(count - done, hop - sinceAnalysis)
             append(samples + done, count: take)
+            samplesIn += take
             done += take
             sinceAnalysis += take
             if sinceAnalysis >= hop {
@@ -277,7 +292,7 @@ nonisolated final class PitchAnalyzer {
     }
 
     private func silence() {
-        tracked = nil
+        pitch = nil
         showing = false
         pendingCount = 0
         jumpCandidate = nil
@@ -285,8 +300,13 @@ nonisolated final class PitchAnalyzer {
     }
 
     private func analyse() {
-        var level: Float = 0
-        defer { pitch = settler.map { $0.push(tracked, level: level) } ?? tracked }
+        var info = FrameInfo(end: samplesIn)
+        defer {
+            if recordFrames {
+                info.shown = pitch ?? .nan
+                frames.append(info)
+            }
+        }
         let n = capacity
         guard filled >= Int(Float(minLag) * (Self.periodsCompared + 1)) + 8 else { silence(); return }
         let available = filled
@@ -296,7 +316,8 @@ nonisolated final class PitchAnalyzer {
         history.withUnsafeBufferPointer {
             vDSP_svesq($0.baseAddress! + n - levelCount, 1, &sumSquares, vDSP_Length(levelCount))
         }
-        level = sqrtf(sumSquares / Float(levelCount))
+        let level = sqrtf(sumSquares / Float(levelCount))
+        info.level = level
         guard level > Self.silenceLevel else { silence(); return }
 
         // Running energy, so normalising any span is two lookups.
@@ -401,9 +422,24 @@ nonisolated final class PitchAnalyzer {
             }
         }
         guard chosen >= 0 else { silence(); return }
+        if let d = debugWindow, Double(samplesIn) / sampleRate >= d.0, Double(samplesIn) / sampleRate <= d.1 {
+            var line = String(format: "t=%.3f lvl %.3f chosen %d |", Double(samplesIn) / sampleRate, level, chosen)
+            for i in 0..<candidateCount {
+                line += String(format: " %.1f(%.2f c%.3f)", 69 + 12 * log2(sampleRate / candidateLags[i] / 440), candidateScores[i], candidateCombs[i])
+            }
+            print(line)
+        }
         let period = candidateLags[chosen]
         let clarity = candidateScores[chosen]
         let midi = 69 + 12 * log2(sampleRate / period / 440)
+        if recordFrames {
+            info.midi = midi
+            info.clarity = clarity
+            let lag = Int(period.rounded())
+            let window = min(available - lag, Int(Float(lag) * Self.holdPeriods))
+            info.longClarity = window > 0 ? correlation(lag: lag, window: window, available: available) : 0
+            info.window = windowFor(lag: lag)
+        }
 
         // ── Whether, and what, to show ───────────────────────────────────────
         if showing {
@@ -416,7 +452,7 @@ nonisolated final class PitchAnalyzer {
             guard keep else { silence(); return }
             notePeak = max(notePeak, level)
             guard level >= notePeak * Self.releaseLevel else { silence(); return }
-            if let shown = tracked, abs(midi - shown) > Self.jumpToConfirm {
+            if let shown = pitch, abs(midi - shown) > Self.jumpToConfirm {
                 // Hold the line where it is until the next analysis agrees.
                 if let waiting = jumpCandidate, abs(waiting - midi) <= 1 {
                     jumpCandidate = nil
@@ -445,7 +481,7 @@ nonisolated final class PitchAnalyzer {
             pendingCount = 0
             notePeak = level
         }
-        tracked = midi
+        pitch = midi
         showing = true
     }
 
@@ -468,6 +504,7 @@ nonisolated final class PitchAnalyzer {
     /// The index of the candidate the comb and the correlation agree on best, or -1
     /// when there is nothing to decide between (or nothing for the comb to go on).
     private func combChoice(best: Float, available: Int) -> Int {
+        for i in 0..<candidateCount { candidateCombs[i] = .nan }
         var longest = 0.0
         var contenders = 0
         for i in 0..<candidateCount where candidateScores[i] >= best * Self.combShare {
@@ -488,10 +525,10 @@ nonisolated final class PitchAnalyzer {
         guard tallest > 0 else { return -1 }
         var chosen = -1
         var chosenValue = -Double.infinity
-        let held = showing ? tracked : nil
         for i in 0..<candidateCount where candidateScores[i] >= best * Self.combShare {
             var value = Double(candidateScores[i] / best) + Self.combWeight * candidateCombs[i] / tallest
-            if let held, abs(69 + 12 * log2(sampleRate / candidateLags[i] / 440) - held) <= Self.continuityRange {
+            if Self.continuityBonus > 0, showing, let shown = pitch,
+               abs(69 + 12 * log2(sampleRate / candidateLags[i] / 440) - shown) <= Self.continuityRange {
                 value += Self.continuityBonus
             }
             if value > chosenValue {
@@ -554,6 +591,12 @@ nonisolated final class PitchAnalyzer {
                 - 0.5 * (amplitude((harmonic - 0.5) * frequency) + amplitude((harmonic + 0.5) * frequency)))
             weights += weight
         }
-        return weights > 0 ? sum / weights : 0
+        guard weights > 0 else { return 0 }
+        var value = sum / weights
+        if Self.subWeight > 0 {
+            let below = 0.5 * amplitude(frequency / 2) + 0.25 * (amplitude(frequency / 3) + amplitude(2 * frequency / 3))
+            value -= Self.subWeight * below
+        }
+        return value
     }
 }

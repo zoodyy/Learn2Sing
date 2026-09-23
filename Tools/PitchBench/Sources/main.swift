@@ -16,6 +16,11 @@ pitchbench synth <old|new> <bufferFrames> [config]     (RATE=44100 etc.)
 pitchbench dump <old|new> <bufferFrames> <latencyMs> <recording|synth:config>
 pitchbench classify <old|new> <bufferFrames> <latencyMs>
 pitchbench validate <bufferFrames> [recording dirs...]  old detector vs what the app drew
+pitchbench export <detector> <bufferFrames> [recording dirs...]   raw output per recording
+pitchbench runlist <detector> <bufferFrames> <list>   "<in.wav>\\t<out.bin>" lines, any WAV
+pitchbench reflist <list>                             reference tracks for any WAV
+pitchbench frames <bufferFrames> <list>               every analysis of `exp`
+detectors: old, new (= fastest), balanced, accurate, exp (tuning from the environment)
 """
 
 func allDirs() -> [String] {
@@ -263,6 +268,70 @@ case "synth":
     if ProcessInfo.processInfo.environment["QUIET"] == nil { for l in lines { print(l) } }
     print("SYNTH MEAN", fmt(mean(all)))
 
+case "export":
+    // export <detector> <bufferFrames> [recording dirs...]: write each run's raw output to
+    // <dir>/track_<detector>.bin as float32 pairs (seconds at the end of the buffer, MIDI or NaN).
+    let detName = args[1]
+    let hop = Int(args[2])!
+    let dirs = args.count > 3 ? Array(args.dropFirst(3)).map { $0.hasPrefix("/") ? $0 : recRoot + "/" + $0 } : allDirs()
+    DispatchQueue.concurrentPerform(iterations: dirs.count) { di in
+        let rec = loadRecording(dirs[di])
+        let det = makeDetector(detName, sampleRate: rec.sampleRate)
+        let (pts, _) = runDetector(det, samples: rec.samples, hop: hop)
+        var flat: [Float] = []
+        for p in pts { flat += [Float(Double(p.endSample) / rec.sampleRate), Float(p.pitch ?? .nan)] }
+        let data = flat.withUnsafeBufferPointer { Data(buffer: $0) }
+        try! data.write(to: URL(fileURLWithPath: dirs[di] + "/track_\(detName).bin"))
+    }
+
+case "runlist":
+    // runlist <detector> <bufferFrames> <list>: every line of <list> is "<in.wav>\t<out.bin>";
+    // runs the detector over channel 0 of each WAV at its own rate and writes the raw output
+    // as `export` does. For audio that isn't an exported recording (public datasets).
+    let detName = args[1]
+    let hop = Int(args[2])!
+    let jobs = try! String(contentsOfFile: args[3], encoding: .utf8).split(separator: "\n").map { $0.split(separator: "\t").map(String.init) }
+    DispatchQueue.concurrentPerform(iterations: jobs.count) { ji in
+        let (samples, rate) = loadWav(jobs[ji][0])
+        let det = makeDetector(detName, sampleRate: rate)
+        let (pts, _) = runDetector(det, samples: samples, hop: hop)
+        var flat: [Float] = []
+        for p in pts { flat += [Float(Double(p.endSample) / rate), Float(p.pitch ?? .nan)] }
+        let data = flat.withUnsafeBufferPointer { Data(buffer: $0) }
+        try! data.write(to: URL(fileURLWithPath: jobs[ji][1]))
+    }
+
+case "frames":
+    // frames <bufferFrames> <list>: "<in.wav>\t<out.bin>"; every analysis of the experimental
+    // analyzer as float32 rows [end s, level, midi, clarity, longClarity, shown, window s].
+    let hop = Int(args[1])!
+    let jobs = try! String(contentsOfFile: args[2], encoding: .utf8).split(separator: "\n").map { $0.split(separator: "\t").map(String.init) }
+    DispatchQueue.concurrentPerform(iterations: jobs.count) { ji in
+        let (samples, rate) = loadWav(jobs[ji][0])
+        let an = ExpAnalyzer(sampleRate: rate)
+        an.recordFrames = true
+        samples.withUnsafeBufferPointer { buf in
+            var i = 0
+            while i + hop <= buf.count { an.process(buf.baseAddress! + i, count: hop); i += hop }
+        }
+        var flat: [Float] = []
+        flat.reserveCapacity(an.frames.count * 7)
+        for f in an.frames {
+            flat += [Float(Double(f.end) / rate), f.level, Float(f.midi), f.clarity, f.longClarity, Float(f.shown), Float(Double(f.window) / rate)]
+        }
+        let data = flat.withUnsafeBufferPointer { Data(buffer: $0) }
+        try! data.write(to: URL(fileURLWithPath: jobs[ji][1]))
+    }
+
+case "reflist":
+    // reflist <list>: "<in.wav>\t<out.bin>" per line; the reference track (as `prepare`
+    // computes it, 96-frame steps) of any WAV.
+    let jobs = try! String(contentsOfFile: args[1], encoding: .utf8).split(separator: "\n").map { $0.split(separator: "\t").map(String.init) }
+    for job in jobs where !FileManager.default.fileExists(atPath: job[1]) {
+        let (samples, rate) = loadWav(job[0])
+        saveRef(ReferenceTracker(sampleRate: rate, step: refStep).analyze(samples), to: job[1])
+    }
+
 case "validate":
     // Compare the simulated drawn track of the old detector with what the app drew.
     let hop = Int(args[1])!
@@ -313,7 +382,10 @@ func mean(_ ms: [Metrics]) -> Metrics {
 func makeDetector(_ name: String, sampleRate: Double) -> RealtimeDetector {
     switch name {
     case "old": return OldDetector(sampleRate: sampleRate)
-    case "new": return NewDetectorAdapter(sampleRate: sampleRate)
+    case "new", "fastest": return NewDetectorAdapter(sampleRate: sampleRate)
+    case "balanced": return NewDetectorAdapter(sampleRate: sampleRate, detection: .balanced)
+    case "accurate": return NewDetectorAdapter(sampleRate: sampleRate, detection: .mostAccurate)
+    case let n where n.hasPrefix("exp"): return ExpDetectorAdapter(sampleRate: sampleRate)
     default: fatalError("unknown detector \(name)")
     }
 }
@@ -337,11 +409,25 @@ struct AnySmoother: DisplaySmoother {
     mutating func step(target: Double?, dt: Double) -> Double? { box.step(target: target, dt: dt) }
 }
 
+/// The bench's experimental copy of the analyzer; its tuning comes from the environment.
+final class ExpDetectorAdapter: RealtimeDetector {
+    var name: String { "exp" }
+    let analyzer: ExpAnalyzer
+    init(sampleRate: Double) { analyzer = ExpAnalyzer(sampleRate: sampleRate) }
+    func process(_ channel: UnsafePointer<Float>, _ n: Int) -> Bool {
+        analyzer.process(channel, count: n)
+        return true
+    }
+    var current: Double? { analyzer.pitch }
+}
+
 /// The app's PitchAnalyzer (compiled straight from the app's source) behind the bench's protocol.
 final class NewDetectorAdapter: RealtimeDetector {
     var name: String { "new" }
     let analyzer: PitchAnalyzer
-    init(sampleRate: Double) { analyzer = PitchAnalyzer(sampleRate: sampleRate) }
+    init(sampleRate: Double, detection: PitchDetection = .fastest) {
+        analyzer = PitchAnalyzer(sampleRate: sampleRate, detection: detection)
+    }
     func process(_ channel: UnsafePointer<Float>, _ n: Int) -> Bool {
         analyzer.process(channel, count: n)
         return true

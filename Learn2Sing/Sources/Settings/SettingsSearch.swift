@@ -176,6 +176,7 @@ extension SettingKey {
     static let playbackTemplates     = SettingKey("section.playback.templates")
     static let voiceRange            = SettingKey("section.voice.range")
     static let voiceScoreCalculation = SettingKey("section.voice.score")
+    static let voicePitchDetection   = SettingKey("section.voice.pitchDetection")
     static let homeTabRecommendations = SettingKey("section.homeTab.recommendations")
     static let homeTabNewForYou      = SettingKey("section.homeTab.newForYou")
     static let backupExercises       = SettingKey("section.backup.exercises")
@@ -244,6 +245,11 @@ extension SettingKey {
     static let highestNote    = SettingKey("voice.highestNote")
     static let testVocalRange = SettingKey("voice.test")
     static let targetWindow   = SettingKey("voice.targetWindow")
+
+    /// One of the pitch detection choices on the Voice screen.
+    static func pitchDetection(_ detection: PitchDetection) -> SettingKey {
+        SettingKey("voice.pitchDetection.\(detection.rawValue)")
+    }
 
     // Home tab
     static let customiseHome         = SettingKey("homeTab.customise")
@@ -441,7 +447,7 @@ enum SettingsCatalog {
         add(.audio, .root, title: L("Audio"),
             help: L("Instruments, playback and recording devices, and the microphone delay used for scoring."))
         add(.voice, .root, title: L("Voice"),
-            help: L("Your vocal range, the test that measures it, and how precisely you have to hit a note for it to count."))
+            help: L("Your vocal range, the test that measures it, how quickly your pitch line follows your voice, and how precisely you have to hit a note for it to count."))
         add(.visuals, .root, title: L("Visuals"),
             help: L("Theme, orientation and the look of the playback screen."))
         add(.homeTab, .root, title: L("Home Tab"),
@@ -619,6 +625,12 @@ enum SettingsCatalog {
             help: customNotesHelp, available: { hasCustomVocalRange })
         add(.testVocalRange, .voice, section: L("Vocal Range"), title: L("Test Vocal Range"),
             help: L("Sing your lowest and highest notes and the app sets them as your custom vocal range above."))
+        heading(.voicePitchDetection, .voice, L("Pitch Detection"),
+                help: L("How quickly your pitch line follows your voice. The slower choices wait a moment to see what comes next, so consonants and mouth sounds throw the line off less, and your score allows for the wait."))
+        for detection in PitchDetection.allCases {
+            add(.pitchDetection(detection), .voice, section: L("Pitch Detection"),
+                title: detection.title, help: detection.help)
+        }
         heading(.voiceScoreCalculation, .voice, L("Score Calculation"))
         add(.targetWindow, .voice, section: L("Score Calculation"), title: L("Target window size"),
             help: L("How much of a note counts as hit when your score is worked out. At 100% the whole note counts, as it always has; lower, and only that share of the note's middle does, so you have to sing nearer the center of the pitch for it to count."))
