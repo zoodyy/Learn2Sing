@@ -232,6 +232,10 @@ struct ExerciseQueueIntroView: View {
     /// Tap on a queued exercise: start the play-through from that one. nil makes
     /// the rows display-only.
     var onSelect: ((UUID) -> Void)? = nil
+    /// The reload button on the start button's leading side: throw this queue
+    /// away and put a new one together. Only the recommendation card's screen
+    /// sets it; nil leaves the start button the whole row.
+    var onReload: (() -> Void)? = nil
     let onStart: () -> Void
 
     /// The name and description, styled exactly like the exercise intro
@@ -317,20 +321,31 @@ struct ExerciseQueueIntroView: View {
             // exercise intro screen's, which is a plain ScrollView.
             .contentMargins(.top, 0, for: .scrollContent)
 
-            Button(action: onStart) {
-                Text(startTitle)
-                    .font(.headline)
-                    .frame(maxWidth: .infinity)
-                    .padding()
-                    .background(.tint, in: RoundedRectangle(cornerRadius: 14))
-                    .foregroundStyle(.white)
+            HStack(spacing: 12) {
+                // The exercise intro screen's skip button with its own symbol,
+                // but on the main button's other side: it answers "not these"
+                // rather than "not this one".
+                if let onReload {
+                    QueueSkipButton(accessibilityLabel: L("Reload Recommendations"),
+                                    help: L("Puts together a new list in place of this one. The exercises shown now count as sung, so they are less likely to be picked again."),
+                                    systemImage: "arrow.clockwise",
+                                    action: onReload)
+                }
+                Button(action: onStart) {
+                    Text(startTitle)
+                        .font(.headline)
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(.tint, in: RoundedRectangle(cornerRadius: 14))
+                        .foregroundStyle(.white)
+                }
+                // A queue every exercise has been swiped out of has nothing to
+                // start: the button would push a play route resolving to a
+                // blank screen.
+                .disabled(order.isEmpty)
+                .opacity(order.isEmpty ? 0.4 : 1)
+                .explain(L("Sings the exercises above one after the other, from the top."))
             }
-            // A queue every exercise has been swiped out of has nothing to
-            // start: the button would push a play route resolving to a blank
-            // screen.
-            .disabled(order.isEmpty)
-            .opacity(order.isEmpty ? 0.4 : 1)
-            .explain(L("Sings the exercises above one after the other, from the top."))
             .padding(.horizontal)
             .padding(.bottom)
         }

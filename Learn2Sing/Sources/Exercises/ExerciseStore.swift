@@ -399,14 +399,30 @@ final class ExerciseStore: ObservableObject {
             recentlyPlayed.removeLast(recentlyPlayed.count - 20)
         }
         saveRecentlyPlayed()
-        playHistory.insert(id, at: 0)
+        addToPlayHistory([id])
+    }
+
+    // MARK: - Play history
+
+    /// Count a recommended batch the singer turned down as sung, one run per
+    /// exercise in the order the queue held them, so the next draw steers away
+    /// from them exactly as it steers away from what was sung lately. Called by
+    /// the reload button on the recommendation card's screen. Only the play
+    /// history hears of it: nothing was sung, so "Recent" stays as it is.
+    func markPassedOver(_ ids: [UUID]) {
+        addToPlayHistory(ids)
+    }
+
+    /// Record runs of `ids`, the first of them sung first, which leaves the last
+    /// one newest at the front of the history.
+    private func addToPlayHistory(_ ids: [UUID]) {
+        guard !ids.isEmpty else { return }
+        playHistory.insert(contentsOf: ids.reversed(), at: 0)
         if playHistory.count > Self.playHistoryLength {
             playHistory.removeLast(playHistory.count - Self.playHistoryLength)
         }
         savePlayHistory()
     }
-
-    // MARK: - Play history
 
     /// How many runs `playHistory` keeps: a few weeks of daily practice, long
     /// enough that an exercise sung over and over still counts against itself

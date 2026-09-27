@@ -568,24 +568,34 @@ struct QueuePosition {
 /// needs no share of a row the main button should keep.
 ///
 /// Shared by an exercise's intro screen, beside Start, and a book lesson's,
-/// beside Mark as Finished, so the two are the same button.
+/// beside Mark as Finished, so the two are the same button. The recommendation
+/// card's queue screen draws its reload button the same way, with its own
+/// symbol, so the button beside a main one always looks alike.
 struct QueueSkipButton: View {
     /// What VoiceOver reads it as, already translated.
     let accessibilityLabel: String
     /// What holding it explains, already translated.
     let help: String
+    var systemImage = "forward.end.fill"
     let action: () -> Void
 
     var body: some View {
         Button(action: action) {
-            Image(systemName: "forward.end.fill")
-                .font(.headline)
-                .padding()
-                // Square at the default text size, where the glyph is narrower
-                // than the main button's line is tall.
-                .frame(minWidth: 54)
-                .background(.tint.opacity(0.15), in: RoundedRectangle(cornerRadius: 14))
-                .foregroundStyle(.tint)
+            // Sized by a hidden line of the main button's font as well as by
+            // the glyph: glyphs differ in height, and the skip-track one is
+            // shorter than that line, which left the button a few points
+            // shorter than the one beside it.
+            ZStack {
+                Text(verbatim: "0").hidden()
+                Image(systemName: systemImage)
+            }
+            .font(.headline)
+            .padding()
+            // Square at the default text size, where the glyph is narrower
+            // than the main button's line is tall.
+            .frame(minWidth: 54)
+            .background(.tint.opacity(0.15), in: RoundedRectangle(cornerRadius: 14))
+            .foregroundStyle(.tint)
         }
         .accessibilityLabel(accessibilityLabel)
         .explain(help)

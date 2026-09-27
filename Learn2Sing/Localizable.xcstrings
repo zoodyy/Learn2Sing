@@ -50331,6 +50331,95 @@
         }
       }
     },
+    "Puts together a new list in place of this one. The exercises shown now count as sung, so they are less likely to be picked again." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "يُعِدّ قائمة جديدة بدلًا من هذه. تُحسب التمارين المعروضة الآن كأنها غُنّيت، لذا يقل احتمال اختيارها مرة أخرى."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stellt anstelle dieser Liste eine neue zusammen. Die jetzt angezeigten Übungen zählen als gesungen und werden daher seltener wieder ausgewählt."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Prepara una lista nueva en lugar de esta. Los ejercicios que se muestran ahora cuentan como cantados, así que es menos probable que vuelvan a elegirse."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Compose une nouvelle liste à la place de celle-ci. Les exercices affichés maintenant comptent comme chantés, ils ont donc moins de chances d’être choisis à nouveau."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Prepara un nuovo elenco al posto di questo. Gli esercizi mostrati ora contano come cantati, quindi è meno probabile che vengano scelti di nuovo."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "このリストの代わりに新しいリストを作ります。今表示されているエクササイズは歌ったものとして扱われるため、再び選ばれにくくなります。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이 목록 대신 새 목록을 만듭니다. 지금 표시된 연습은 부른 것으로 계산되므로 다시 선택될 가능성이 낮아집니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stelt een nieuwe lijst samen in plaats van deze. De oefeningen die nu worden getoond tellen als gezongen, dus worden ze minder snel opnieuw gekozen."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Układa nową listę w miejsce tej. Pokazane teraz ćwiczenia liczą się jako zaśpiewane, więc rzadziej zostaną wybrane ponownie."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Monta uma nova lista no lugar desta. Os exercícios mostrados agora contam como cantados, então é menos provável que sejam escolhidos de novo."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Составляет новый список вместо этого. Показанные сейчас упражнения считаются спетыми, поэтому они реже будут выбраны снова."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sätter ihop en ny lista i stället för den här. Övningarna som visas nu räknas som sjungna, så de väljs mer sällan igen."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bunun yerine yeni bir liste hazırlar. Şu an gösterilen egzersizler söylenmiş sayılır, bu yüzden yeniden seçilme olasılıkları azalır."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "重新组成一份列表来代替当前这份。现在显示的练习会算作已唱过，因此再次被选中的可能性更小。"
+          }
+        }
+      }
+    },
     "Question" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -51480,6 +51569,95 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "重新载入“最新推荐”"
+          }
+        }
+      }
+    },
+    "Reload Recommendations" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "إعادة تحميل الاقتراحات"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Empfehlungen neu laden"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Recargar recomendaciones"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Recharger les recommandations"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ricarica le raccomandazioni"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "おすすめを再読み込み"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "추천 새로고침"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aanbevelingen opnieuw laden"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Odśwież rekomendacje"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Recarregar recomendações"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Обновить рекомендации"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Läs in rekommendationerna igen"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Önerileri yenile"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "重新载入推荐"
           }
         }
       }

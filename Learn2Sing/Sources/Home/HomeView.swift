@@ -731,6 +731,17 @@ struct HomeView: View {
         navigationPath.append(ExerciseRoute.recommendationIntro)
     }
 
+    /// The reload button on that screen: the singer doesn't fancy this batch.
+    /// Everything still in the queue goes into the play history as if it had
+    /// been sung, in the queue's order, which both reseeds the draw and weighs
+    /// against those same exercises in it, so the new batch mostly holds others.
+    /// One that does come back only gets less likely with every reload, since
+    /// each one records it again.
+    private func reloadRecommendations() {
+        store.markPassedOver(recommendationExercises.map(\.id))
+        withAnimation { recommendationOrder = recommendedExercises.map(\.id) }
+    }
+
     /// `advanceRoutine` for that queue, which needs no routine to say which one.
     private func advanceRecommendations(after index: Int) {
         if index + 1 < recommendationExercises.count {
@@ -1112,6 +1123,7 @@ struct HomeView: View {
                         .firstIndex(where: { $0.id == exerciseID }) else { return }
                     navigationPath.append(ExerciseRoute.recommendationPlay(index))
                 },
+                onReload: reloadRecommendations,
                 onStart: { navigationPath.append(ExerciseRoute.recommendationPlay(0)) }
             )
             // Where a routine has its edit screen, the suggestion has the
