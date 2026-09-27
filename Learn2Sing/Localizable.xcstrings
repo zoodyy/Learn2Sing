@@ -6493,6 +6493,95 @@
         }
       }
     },
+    "Balanced" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "متوازن"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ausgewogen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Equilibrada"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Équilibrée"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bilanciata"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "バランス"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "균형"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gebalanceerd"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zrównoważone"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Equilibrada"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Баланс"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Balanserad"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dengeli"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "平衡"
+          }
+        }
+      }
+    },
     "Balanced delay and accuracy" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -10306,91 +10395,91 @@
         }
       }
     },
-    "Clears your vocal range, including the custom lowest and highest notes, puts the target window back to the whole note, and sets pitch detection back to the fastest." : {
+    "Clears your vocal range, including the custom lowest and highest notes, puts the target window back to the whole note, and sets pitch detection back to the balanced one." : {
       "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "يمسح مداك الصوتي، بما في ذلك أخفض وأعلى نغمة مخصصتين، ويعيد النافذة المستهدفة إلى النغمة كاملة واكتشاف درجة الصوت إلى الأسرع."
+            "value" : "يمسح مداك الصوتي، بما في ذلك أخفض وأعلى نغمة مخصصتين، ويعيد النافذة المستهدفة إلى النغمة كاملة واكتشاف درجة الصوت إلى المتوازن."
           }
         },
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Löscht deinen Stimmumfang samt den eigenen tiefsten und höchsten Noten, setzt das Zielfenster wieder auf die ganze Note und die Tonhöhenerkennung wieder auf die schnellste."
+            "value" : "Löscht deinen Stimmumfang samt den eigenen tiefsten und höchsten Noten, setzt das Zielfenster wieder auf die ganze Note und die Tonhöhenerkennung wieder auf die ausgewogene."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Borra tu tesitura, incluidas las notas más grave y más aguda personalizadas, devuelve la ventana objetivo a la nota entera y la detección de tono a la más rápida."
+            "value" : "Borra tu tesitura, incluidas las notas más grave y más aguda personalizadas, devuelve la ventana objetivo a la nota entera y la detección de tono a la equilibrada."
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Efface votre tessiture, y compris les notes la plus grave et la plus aiguë personnalisées, remet la fenêtre cible sur la note entière et la détection de hauteur sur la plus rapide."
+            "value" : "Efface votre tessiture, y compris les notes la plus grave et la plus aiguë personnalisées, remet la fenêtre cible sur la note entière et la détection de hauteur sur le réglage équilibré."
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Cancella la tua estensione vocale, comprese le note più bassa e più alta personalizzate, riporta la finestra target all’intera nota e il rilevamento dell’intonazione al più veloce."
+            "value" : "Cancella la tua estensione vocale, comprese le note più bassa e più alta personalizzate, riporta la finestra target all’intera nota e il rilevamento dell’intonazione a quello bilanciato."
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "声域を、カスタムの最低音と最高音を含めて消去し、ターゲット範囲を音符全体に、ピッチ検出を最速に戻します。"
+            "value" : "声域を、カスタムの最低音と最高音を含めて消去し、ターゲット範囲を音符全体に、ピッチ検出をバランスに戻します。"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "직접 지정한 최저음과 최고음을 포함해 음역대를 지우고, 목표 범위를 음표 전체로, 음정 인식을 가장 빠름으로 되돌립니다."
+            "value" : "직접 지정한 최저음과 최고음을 포함해 음역대를 지우고, 목표 범위를 음표 전체로, 음정 인식을 균형으로 되돌립니다."
           }
         },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Wist je stembereik, inclusief de eigen laagste en hoogste noot, zet het doelvenster terug op de hele noot en de toonhoogtedetectie op de snelste."
+            "value" : "Wist je stembereik, inclusief de eigen laagste en hoogste noot, zet het doelvenster terug op de hele noot en de toonhoogtedetectie op de gebalanceerde."
           }
         },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Czyści twoją skalę głosu wraz z własnymi najniższą i najwyższą nutą, przywraca okno docelowe do całej nuty, a wykrywanie wysokości dźwięku do najszybszego."
+            "value" : "Czyści twoją skalę głosu wraz z własnymi najniższą i najwyższą nutą, przywraca okno docelowe do całej nuty, a wykrywanie wysokości dźwięku do zrównoważonego."
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Limpa sua extensão vocal, incluindo as notas mais grave e mais aguda personalizadas, devolve a janela alvo à nota inteira e a detecção de altura à mais rápida."
+            "value" : "Limpa sua extensão vocal, incluindo as notas mais grave e mais aguda personalizadas, devolve a janela alvo à nota inteira e a detecção de altura à equilibrada."
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Очищает ваш диапазон голоса, включая собственные самую низкую и самую высокую ноты, возвращает целевое окно ко всей ноте, а определение высоты тона к самому быстрому."
+            "value" : "Очищает ваш диапазон голоса, включая собственные самую низкую и самую высокую ноты, возвращает целевое окно ко всей ноте, а определение высоты тона к сбалансированному."
           }
         },
         "sv" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Rensar ditt röstomfång, inklusive de egna lägsta och högsta tonerna, återställer målfönstret till hela noten och tonhöjdsavläsningen till den snabbaste."
+            "value" : "Rensar ditt röstomfång, inklusive de egna lägsta och högsta tonerna, återställer målfönstret till hela noten och tonhöjdsavläsningen till den balanserade."
           }
         },
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ses aralığınızı, özel en pes ve en tiz notalar dahil temizler, hedef pencereyi tüm notaya ve perde algılamayı en hızlısına geri döndürür."
+            "value" : "Ses aralığınızı, özel en pes ve en tiz notalar dahil temizler, hedef pencereyi tüm notaya ve perde algılamayı dengeli olana geri döndürür."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "清除你的音域，包括自定的最低音和最高音，将目标范围恢复为整个音符，并将音高识别恢复为最快。"
+            "value" : "清除你的音域，包括自定的最低音和最高音，将目标范围恢复为整个音符，并将音高识别恢复为平衡。"
           }
         }
       }
@@ -10568,6 +10657,95 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "关闭"
+          }
+        }
+      }
+    },
+    "Closes this without changing your pitch detection." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "يغلق هذه الشاشة دون تغيير طريقة اكتشاف درجة الصوت."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Schließt dies, ohne deine Tonhöhenerkennung zu ändern."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cierra esto sin cambiar tu detección de tono."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ferme cet écran sans modifier votre détection de hauteur."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chiude senza cambiare il tuo rilevamento dell’intonazione."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ピッチ検出を変えずに閉じます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "음정 인식을 바꾸지 않고 닫습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sluit dit zonder je toonhoogtedetectie te wijzigen."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zamyka ekran bez zmiany wykrywania wysokości dźwięku."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fecha isto sem mudar sua detecção de altura."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Закрывает экран, не меняя определение высоты тона."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stänger utan att ändra din tonhöjdsavläsning."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Perde algılamanızı değiştirmeden kapatır."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "关闭此页面，不更改你的音高识别方式。"
           }
         }
       }
@@ -21395,6 +21573,95 @@
         }
       }
     },
+    "Fastest" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "الأسرع"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Schnellste"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Más rápida"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Plus rapide"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Più veloce"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "最速"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "가장 빠름"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Snelst"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Najszybsze"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mais rápida"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Быстрое"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Snabbast"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "En hızlı"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "最快"
+          }
+        }
+      }
+    },
     "Fastest, jittery" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -27171,6 +27438,94 @@
         }
       }
     },
+    "How quickly your pitch line follows your voice. Slower choices are thrown off less by consonants, and your score allows for the wait." : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "مدى سرعة تتبّع خط درجة الصوت لصوتك. تتأثر الخيارات الأبطأ بالحروف الساكنة بدرجة أقل، وتأخذ نتيجتك هذا الانتظار في الحسبان."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wie schnell deine Tonhöhenlinie deiner Stimme folgt. Langsamere Optionen lassen sich von Konsonanten weniger aus der Bahn werfen, und deine Punktzahl berücksichtigt die Wartezeit."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Con qué rapidez tu línea de tono sigue a tu voz. Las opciones más lentas se desvían menos con las consonantes, y tu puntuación tiene en cuenta la espera."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La rapidité avec laquelle votre ligne de hauteur suit votre voix. Les choix plus lents sont moins déviés par les consonnes, et votre note tient compte de l’attente."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quanto velocemente la tua linea dell’intonazione segue la tua voce. Le scelte più lente sono disturbate meno dalle consonanti, e il punteggio tiene conto dell’attesa."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ピッチの線が声にどれだけ速く追従するか。遅い選択肢ほど子音で線が乱れにくく、採点ではその待ち時間が考慮されます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "음정 선이 목소리를 얼마나 빨리 따라가는지 정합니다. 느린 선택지일수록 자음에 덜 흔들리며, 점수는 그 기다림을 반영합니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hoe snel je toonhoogtelijn je stem volgt. Langzamere keuzes raken minder van slag door medeklinkers, en je score houdt rekening met het wachten."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jak szybko linia wysokości dźwięku podąża za twoim głosem. Wolniejsze opcje mniej zakłócają spółgłoski, a wynik uwzględnia to oczekiwanie."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Com que rapidez sua linha de altura acompanha sua voz. As opções mais lentas se desviam menos com as consoantes, e sua pontuação leva a espera em conta."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Насколько быстро линия высоты тона следует за вашим голосом. Более медленные варианты меньше сбиваются на согласных, а оценка учитывает это ожидание."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hur snabbt din tonhöjdslinje följer din röst. Långsammare val störs mindre av konsonanter, och dina poäng tar hänsyn till väntan."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Perde çizginizin sesinizi ne kadar hızlı takip ettiği. Daha yavaş seçenekler ünsüzlerden daha az etkilenir ve puanınız bu beklemeyi hesaba katar."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "音高线跟随你声音的速度。越慢的选项越不容易被辅音打乱，评分也会把这段等待考虑在内。"
+          }
+        }
+      }
+    },
     "How quickly your pitch line follows your voice. The slower choices wait a moment to see what comes next, so consonants and mouth sounds throw the line off less, and your score allows for the wait." : {
       "extractionState" : "stale",
       "localizations" : {
@@ -31253,6 +31608,95 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "让应用保持所选方向。“不锁定”则随设备一起旋转。"
+          }
+        }
+      }
+    },
+    "Keeps the checked choice and closes this." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "يُبقي على الخيار المحدد ويغلق هذه النافذة."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Behält die markierte Option und schließt dieses Fenster."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mantiene la opción marcada y cierra esto."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Garde le choix coché et ferme cette fenêtre."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mantiene la scelta spuntata e chiude questa finestra."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "チェックした選択肢のまま閉じます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "선택한 항목을 유지하고 이 창을 닫습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Houdt de aangevinkte keuze aan en sluit dit venster."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zachowuje zaznaczoną opcję i zamyka to okno."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mantém a opção marcada e fecha isto."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сохраняет отмеченный вариант и закрывает окно."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Behåller det markerade valet och stänger det här."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "İşaretli seçeneği korur ve bu pencereyi kapatır."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "保留勾选的选项并关闭此窗口。"
           }
         }
       }
@@ -35425,6 +35869,95 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "新建一个空练习并打开其设置，或添加一个用于归类练习的分类。"
+          }
+        }
+      }
+    },
+    "Makes the selected choice your pitch detection and leaves this screen." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "يجعل الخيار المختار طريقة اكتشاف درجة الصوت لديك ويغادر هذه الشاشة."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Macht die ausgewählte Option zu deiner Tonhöhenerkennung und verlässt diesen Bildschirm."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Convierte la opción seleccionada en tu detección de tono y sale de esta pantalla."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fait du choix sélectionné votre détection de hauteur et quitte cet écran."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Imposta la scelta selezionata come tuo rilevamento dell’intonazione ed esce da questa schermata."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "選んだ選択肢をピッチ検出に設定して、この画面を閉じます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "선택한 항목을 음정 인식으로 설정하고 이 화면을 나갑니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Maakt de geselecteerde keuze je toonhoogtedetectie en verlaat dit scherm."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ustawia wybraną opcję jako twoje wykrywanie wysokości dźwięku i zamyka ten ekran."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Torna a opção selecionada sua detecção de altura e sai desta tela."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Делает выбранный вариант вашим определением высоты тона и закрывает этот экран."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gör det valda alternativet till din tonhöjdsavläsning och lämnar den här skärmen."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Seçili seçeneği perde algılamanız yapar ve bu ekrandan çıkar."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "将所选选项设为你的音高识别方式，并离开此页面。"
           }
         }
       }
@@ -41723,6 +42256,95 @@
         }
       }
     },
+    "Not Recommended" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "غير موصى به"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nicht empfohlen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No recomendado"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Déconseillé"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sconsigliato"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "非推奨"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "비추천"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Niet aanbevolen"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Niezalecane"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Não recomendado"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не рекомендуется"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rekommenderas inte"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Önerilmez"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "不推荐"
+          }
+        }
+      }
+    },
     "Not set" : {
       "localizations" : {
         "ar" : {
@@ -47218,6 +47840,95 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "正在播放的音符颜色"
+          }
+        }
+      }
+    },
+    "Plays an exercise on repeat, so you can switch between the choices while you sing and see how each one draws your line." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "يشغّل تمرينًا بشكل متكرر، لتتمكن من التبديل بين الخيارات أثناء الغناء ورؤية كيف يرسم كل منها خطك."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Spielt eine Übung in Dauerschleife, damit du beim Singen zwischen den Optionen wechseln und sehen kannst, wie jede deine Linie zeichnet."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reproduce un ejercicio en bucle para que puedas cambiar entre las opciones mientras cantas y ver cómo dibuja cada una tu línea."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Joue un exercice en boucle pour que vous puissiez passer d’un choix à l’autre en chantant et voir comment chacun dessine votre ligne."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Riproduce un esercizio a ripetizione, così puoi passare da una scelta all’altra mentre canti e vedere come ognuna disegna la tua linea."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "練習を繰り返し再生します。歌いながら選択肢を切り替えて、それぞれが線をどう描くかを確かめられます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "연습을 반복해서 재생합니다. 노래하면서 선택지를 바꿔 가며 각각이 선을 어떻게 그리는지 볼 수 있습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Speelt een oefening steeds opnieuw af, zodat je tijdens het zingen tussen de keuzes kunt wisselen en ziet hoe elke keuze je lijn tekent."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Odtwarza ćwiczenie w pętli, abyś mógł przełączać się między opcjami podczas śpiewania i zobaczyć, jak każda rysuje twoją linię."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Toca um exercício em repetição para você alternar entre as opções enquanto canta e ver como cada uma desenha sua linha."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Проигрывает упражнение по кругу, чтобы вы могли переключаться между вариантами прямо во время пения и видеть, как каждый рисует вашу линию."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Spelar en övning om och om igen, så att du kan växla mellan valen medan du sjunger och se hur var och en ritar din linje."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bir alıştırmayı tekrar tekrar çalar; böylece şarkı söylerken seçenekler arasında geçiş yapabilir ve her birinin çizginizi nasıl çizdiğini görebilirsiniz."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "循环播放一个练习，让你边唱边在各选项之间切换，看看每种选项如何画出你的音高线。"
           }
         }
       }
@@ -60081,6 +60792,95 @@
         }
       }
     },
+    "Slowest" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "الأبطأ"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Langsamste"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Más lenta"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Plus lente"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Più lenta"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "最も遅い"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "가장 느림"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Traagst"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Najwolniejsze"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mais lenta"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Медленное"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Långsammast"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "En yavaş"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "最慢"
+          }
+        }
+      }
+    },
     "Slowest, most accurate" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -63092,6 +63892,95 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "在多少次后改变移调方向"
+          }
+        }
+      }
+    },
+    "Switches how your pitch line is drawn straight away, so you can compare the choices while you sing." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "يبدّل فورًا طريقة رسم خط درجة الصوت، لتتمكن من المقارنة بين الخيارات أثناء الغناء."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wechselt sofort, wie deine Tonhöhenlinie gezeichnet wird, damit du die Optionen beim Singen vergleichen kannst."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cambia al instante cómo se dibuja tu línea de tono, para que puedas comparar las opciones mientras cantas."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Change immédiatement la façon dont votre ligne de hauteur est dessinée, pour comparer les choix pendant que vous chantez."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cambia subito come viene disegnata la tua linea dell’intonazione, così puoi confrontare le scelte mentre canti."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ピッチの線の描き方をすぐに切り替えます。歌いながら選択肢を比べられます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "음정 선을 그리는 방식을 바로 바꿉니다. 노래하면서 선택지를 비교할 수 있습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wisselt meteen hoe je toonhoogtelijn wordt getekend, zodat je de keuzes tijdens het zingen kunt vergelijken."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Od razu zmienia sposób rysowania linii wysokości dźwięku, abyś mógł porównać opcje podczas śpiewania."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Muda na hora como sua linha de altura é desenhada, para você comparar as opções enquanto canta."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сразу меняет то, как рисуется линия высоты тона, чтобы вы могли сравнить варианты прямо во время пения."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Byter direkt hur din tonhöjdslinje ritas, så att du kan jämföra valen medan du sjunger."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Perde çizginizin nasıl çizildiğini anında değiştirir; böylece şarkı söylerken seçenekleri karşılaştırabilirsiniz."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "立即切换音高线的绘制方式，让你边唱边比较各个选项。"
           }
         }
       }
@@ -69671,6 +70560,95 @@
         }
       }
     },
+    "The Voice screen in Settings lists the same choices, with Try It Out beside them." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "تعرض شاشة «الصوت» في الإعدادات الخيارات نفسها، ومعها «جرّبه»."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Der Bildschirm Stimme in den Einstellungen zeigt dieselben Optionen, mit „Ausprobieren“ gleich daneben."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La pantalla Voz de Ajustes muestra las mismas opciones, junto con «Probar»."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "L’écran Voix des Réglages propose les mêmes choix, avec « Essayer » à côté."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La schermata Voce in Impostazioni elenca le stesse scelte, con “Prova” accanto."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "設定の「声」画面にも同じ選択肢があり、「試してみる」も並んでいます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "설정의 음성 화면에도 같은 선택지가 있으며, 옆에 ‘사용해 보기’도 있습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Het scherm Stem in Instellingen toont dezelfde keuzes, met ‘Uitproberen’ ernaast."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ekran Głos w Ustawieniach zawiera te same opcje, a obok nich przycisk „Wypróbuj”."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A tela Voz em Ajustes mostra as mesmas opções, com “Experimentar” ao lado."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "На экране «Голос» в настройках есть те же варианты и кнопка «Попробовать» рядом с ними."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Skärmen Röst i Inställningar visar samma val, med ”Prova” bredvid."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ayarlar’daki Ses ekranında aynı seçenekler ve yanlarında “Dene” düğmesi bulunur."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“设置”中的嗓音页面列出了相同的选项，旁边还有“试一试”。"
+          }
+        }
+      }
+    },
     "The whole exercise with the pitch you sang drawn over it. Drag to move around, pinch to zoom." : {
       "extractionState" : "stale",
       "localizations" : {
@@ -72514,6 +73492,94 @@
         }
       }
     },
+    "Try It Out" : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "جرّبه"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ausprobieren"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Probar"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Essayer"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Prova"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "試してみる"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "사용해 보기"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Uitproberen"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wypróbuj"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Experimentar"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Попробовать"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Prova"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dene"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "试一试"
+          }
+        }
+      }
+    },
     "Try not to overuse your voice. Avoid speaking or singing when your voice is hoarse or tired, and rest it when you are sick, since illness puts extra stress on your voice." : {
       "extractionState" : "stale",
       "localizations" : {
@@ -74196,6 +75262,94 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "用腹部而不是喉咙发出短促、有弹性的“Ha”。跳进时保持放松。"
+          }
+        }
+      }
+    },
+    "Use This Pitch Detection" : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "استخدم هذا الخيار"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Diese Tonhöhenerkennung verwenden"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Usar esta detección de tono"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Utiliser cette détection de hauteur"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Usa questo rilevamento dell’intonazione"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "このピッチ検出を使う"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이 음정 인식 사용"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deze toonhoogtedetectie gebruiken"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Użyj tej opcji"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Usar esta detecção de altura"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Использовать этот вариант"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Använd den här tonhöjdsavläsningen"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bu perde algılamayı kullan"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "使用此音高识别"
           }
         }
       }
@@ -76508,6 +77662,95 @@
         }
       }
     },
+    "What the checked choice above does to your pitch line." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ما يفعله الخيار المحدد أعلاه بخط درجة الصوت."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Was die oben markierte Option mit deiner Tonhöhenlinie macht."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Qué hace con tu línea de tono la opción marcada arriba."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ce que le choix coché ci-dessus change à votre ligne de hauteur."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cosa fa alla tua linea dell’intonazione la scelta spuntata sopra."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "上でチェックした選択肢が、ピッチの線をどう変えるか。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "위에서 체크한 항목이 음정 선에 어떤 영향을 주는지 알려 줍니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wat de keuze die hierboven is aangevinkt met je toonhoogtelijn doet."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Co zaznaczona wyżej opcja robi z linią wysokości dźwięku."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O que a opção marcada acima faz com sua linha de altura."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Что отмеченный выше вариант делает с линией высоты тона."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vad valet som är markerat ovan gör med din tonhöjdslinje."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Yukarıda işaretli seçeneğin perde çizginize ne yaptığı."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "上方勾选的选项会如何影响你的音高线。"
+          }
+        }
+      }
+    },
     "What the message is: something that's broken, something you'd like added, what you make of the app, or something you'd like to know." : {
       "extractionState" : "stale",
       "localizations" : {
@@ -76593,6 +77836,95 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "这条消息是关于什么的：出问题的地方、希望添加的功能、对应用的看法，或想问的问题。"
+          }
+        }
+      }
+    },
+    "What the selected choice does to your pitch line." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ما يفعله الخيار المختار بخط درجة الصوت."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Was die ausgewählte Option mit deiner Tonhöhenlinie macht."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Qué hace con tu línea de tono la opción seleccionada."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ce que le choix sélectionné change à votre ligne de hauteur."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cosa fa alla tua linea dell’intonazione la scelta selezionata."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "選んだ選択肢が、ピッチの線をどう変えるか。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "선택한 항목이 음정 선에 어떤 영향을 주는지 알려 줍니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wat de geselecteerde keuze met je toonhoogtelijn doet."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Co wybrana opcja robi z linią wysokości dźwięku."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O que a opção selecionada faz com sua linha de altura."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Что выбранный вариант делает с линией высоты тона."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vad det valda alternativet gör med din tonhöjdslinje."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Seçili seçeneğin perde çizginize ne yaptığı."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "所选选项会如何影响你的音高线。"
           }
         }
       }
@@ -79791,6 +81123,94 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "你已经有一个名为“%@”的公开练习。你的每个公开练习都需要唯一的名称，因此该练习将保持私有。"
+          }
+        }
+      }
+    },
+    "You can change this anytime in Settings under Voice." : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "يمكنك تغيير ذلك في أي وقت من الإعدادات ضمن «الصوت»."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Du kannst das jederzeit in den Einstellungen unter Stimme ändern."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Puedes cambiarlo cuando quieras en Ajustes, en Voz."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vous pouvez le modifier à tout moment dans Réglages, sous Voix."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Puoi cambiarlo quando vuoi in Impostazioni, sotto Voce."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "設定の「声」でいつでも変更できます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "설정의 음성에서 언제든지 바꿀 수 있습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Je kunt dit altijd wijzigen in Instellingen onder Stem."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Możesz to zmienić w każdej chwili w Ustawieniach w sekcji Głos."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Você pode mudar isso quando quiser em Ajustes, em Voz."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Это можно изменить в любой момент в настройках, в разделе «Голос»."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Du kan ändra det när som helst i Inställningar under Röst."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bunu istediğiniz zaman Ayarlar’daki Ses bölümünden değiştirebilirsiniz."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "你随时可以在“设置”的嗓音里修改。"
           }
         }
       }

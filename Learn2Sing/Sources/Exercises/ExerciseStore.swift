@@ -1114,11 +1114,13 @@ final class ExerciseStore: ObservableObject {
         }
     }
 
-    private static func bundledNotes(_ id: UUID) -> [MIDINote] {
+    /// A bundled exercise's MIDI pattern exactly as it ships.
+    static func bundledNotes(_ id: UUID) -> [MIDINote] {
         bundledBundle?.midi[id.uuidString] ?? []
     }
 
-    private static func bundledTexts(_ id: UUID) -> [MIDIText] {
+    /// A bundled exercise's text labels exactly as they ship.
+    static func bundledTexts(_ id: UUID) -> [MIDIText] {
         bundledBundle?.texts?[id.uuidString] ?? []
     }
 

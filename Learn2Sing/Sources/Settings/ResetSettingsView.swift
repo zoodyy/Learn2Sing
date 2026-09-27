@@ -233,7 +233,7 @@ enum ResettableSettings: String, CaseIterable, Identifiable {
         case .visuals:
             L("Puts the theme, the orientation lock and the look of the menus and the playback screen back to how they started out. Templates you saved are deleted, and the app's own two come back as they started out.")
         case .voice:
-            L("Clears your vocal range, including the custom lowest and highest notes, puts the target window back to the whole note, and sets pitch detection back to the fastest.")
+            L("Clears your vocal range, including the custom lowest and highest notes, puts the target window back to the whole note, and sets pitch detection back to the balanced one.")
         case .homeTab:
             L("Puts the daily practice goal and the number of exercises in “New for You” back, and returns the whitelist to every exercise in your library, dropping the ones you checked or unchecked yourself. The categories the tab shows and the order they come in are left as you arranged them.")
         case .exercisesTab:

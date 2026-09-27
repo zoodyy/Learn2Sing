@@ -29,9 +29,10 @@ nonisolated enum PitchDetection: String, CaseIterable, Identifiable {
     /// UserDefaults key holding the choice's raw value.
     static let storageKey = "pitchDetection"
 
-    /// What the app did before this was a choice, so an install that never touches it
-    /// sees the line it always saw.
-    static let defaultValue = PitchDetection.fastest
+    /// The one recommended to the singer (see `PitchDetectionPrompt`): nearly as quick
+    /// as the fastest, without its jumps at consonants. An install that never chose
+    /// sees this, including one that was on the fastest line before it was a choice.
+    static let defaultValue = PitchDetection.balanced
 
     /// The setting as it currently stands, for the places that read it once rather
     /// than binding to it.

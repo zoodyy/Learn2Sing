@@ -892,6 +892,11 @@ enum PlaybackMode {
     /// the score, ends in the review screen with the offset controls: the singer
     /// lines their recorded line up with the notes and that offset becomes the delay.
     case sungDelayTest
+    /// Try It Out, for the pitch detection (Settings ▸ Voice, and the one-off
+    /// question after the fourth scored run): a bundled exercise, as it ships, played
+    /// round and round with nothing scored or saved, above a panel that switches the
+    /// detection while the singer sings, so the choices can be compared on the spot.
+    case pitchDetectionTrial
 }
 
 /// Collects the beat position of each detected clap during the delay test. A class
@@ -943,6 +948,10 @@ struct PlaybackView: View {
     /// their public id already; nil everywhere else, where the exercise holds the
     /// private id it is stored under and the public one is derived from it.
     var communityID: UUID? = nil
+    /// What the pitch detection try-out does once a detection has been chosen (and
+    /// saved) instead of popping this screen: from the one-off question, it closes
+    /// the question along with it. nil keeps the default dismiss.
+    var onTrialExit: (() -> Void)? = nil
 
     @State private var player = ExercisePlayer()
     @StateObject private var pitchDetector = PitchDetector()
@@ -965,6 +974,13 @@ struct PlaybackView: View {
     /// reaches it.
     @State private var isCalibrating = false
     @State private var claps = ClapCollector()
+    /// The detection the try-out is drawing with, switched from its panel. Starts at
+    /// the setting and only becomes it when the panel's button says so.
+    @State private var trialDetection = PitchDetection.current
+    /// Set by a run whose score makes it the singer's fourth, which the score screen
+    /// answers by asking which pitch detection they want (see `PitchDetectionPrompt`).
+    @State private var asksForPitchDetection = false
+    @State private var isShowingPitchDetectionPrompt = false
     // DEBUG RECORDING — remove together with DebugRecording.swift.
     @State private var debugRecorder = DebugRunRecorder()
     @State private var debugRecording: DebugRunRecording? = nil
@@ -1097,6 +1113,7 @@ struct PlaybackView: View {
                               }) {
                         if let onScoreExit { onScoreExit() } else { dismiss() }
                     }
+                    .task { await askForPitchDetectionIfDue() }
                 }
             } else {
                 playback
@@ -1115,32 +1132,20 @@ struct PlaybackView: View {
         .microphoneNotice(isDenied: pitchDetector.isMicrophoneDenied,
                           onShow: pauseForMicrophoneNotice,
                           onDismiss: resumeAfterMicrophoneNotice)
+        .sheet(isPresented: $isShowingPitchDetectionPrompt) {
+            PitchDetectionPromptView()
+        }
     }
 
     private var playback: some View {
-        // The GeometryReader (which respects the safe area) reports the insets for the
-        // title/back bar and bottom menu, while the Canvas inside ignores the safe area
-        // and draws full-screen — so the insets tell drawScene where those bars sit.
-        GeometryReader { geo in
-            TimelineView(.animation(minimumInterval: nil, paused: isPaused)) { timeline in
-                // Drive the playhead from the audio engine's own output clock so the
-                // notes light up exactly when they're heard. While the clock is
-                // unanchored (before the first render, or right after resuming from a
-                // pause) hold the previously drawn beat so nothing jumps.
-                let beat = player.currentBeat(bpm: bpm, leadIn: leadIn)
-                    ?? lastDrawnBeat.value ?? -leadIn
-
-                // Ease the indicator toward the latest estimate every frame.
-                let singerPitch = indicator.step(target: pitchDetector.currentPitch,
-                                                 at: timeline.date.timeIntervalSinceReferenceDate)
-
-                Canvas { ctx, size in
-                    lastDrawnBeat.value = beat
-                    drawScene(ctx: ctx, size: size, beat: beat, singerPitch: singerPitch,
-                              safeTop: geo.safeAreaInsets.top, safeBottom: geo.safeAreaInsets.bottom,
-                              playheadTop: playheadTop(safeTop: geo.safeAreaInsets.top))
+        VStack(spacing: 0) {
+            runCanvas
+            // Below the drawing rather than over it, so no note can be hidden under
+            // it, and the drawing keeps working out its rows from the room it has.
+            if mode == .pitchDetectionTrial {
+                PitchDetectionTrialPanel(selection: $trialDetection) {
+                    if let onTrialExit { onTrialExit() } else { dismiss() }
                 }
-                .ignoresSafeArea()
             }
         }
         .background(Color.black.ignoresSafeArea())
@@ -1211,61 +1216,12 @@ struct PlaybackView: View {
                 }
                 pitchDetector.debugSink = debugRecorder
             }
-            player.schedule(notes: notes, bpm: bpm, leadIn: leadIn,
-                            preview: playsExercise,
-                            repeatLayout: repeatLayout, betweenReps: exercise.beatsBetweenReps) {
-                switch mode {
-                case .clapDelayTest:
-                    // Convert the detected claps to beat positions *before* tearing
-                    // the audio down — the conversion needs the engine's still-live
-                    // playback clock to anchor each clap against the metronome ticks.
-                    for host in pitchDetector.drainClaps() {
-                        if let clapBeat = player.beat(forHostTime: host, bpm: bpm, leadIn: leadIn) {
-                            claps.add(clapBeat)
-                        }
-                    }
-                    let ms = measuredDelayMs()
-                    teardownAudio()
-                    micDelayMs = ms.rounded()   // replace the setting automatically
-                    delayResultMs = ms.rounded()
-                case .sungDelayTest:
-                    // Straight to the review screen, where the singer lines their own
-                    // recorded line up with the notes. No score is worked out and
-                    // nothing is written to the exercise's history: this run was a
-                    // measurement, not practice.
-                    teardownAudio()
-                    isCalibrating = true
-                case .normal:
-                    // Tear the audio down fully before revealing the score so it has no
-                    // engine running. Stopping both engines together (rather than only
-                    // the mic, leaving the synth rendering on the shared playAndRecord
-                    // session) is what avoids the intermittent freeze when navigating back.
-                    teardownAudio()
-                    // The run played through to the end, which is the only kind of run
-                    // the delay can be recognised from: one walked out of half way
-                    // never gets here, and its part-sung line would put the best offset
-                    // anywhere.
-                    let score = recogniseDelay(scoring: scorer.score(notes: notes, bpm: bpm))
-                    // DEBUG RECORDING — remove together with DebugRecording.swift.
-                    // After teardownAudio, so no more microphone hops can arrive.
-                    debugRecording = debugRecorder.finish(
-                        DebugRunContext(exercise: exercise, notes: notes, texts: texts,
-                                        samples: trail.recording, bpm: bpm, leadInBeats: leadIn,
-                                        repeatSpan: repeatLayout.span,
-                                        micDelayMs: runDelayMs ?? micDelayMs,   // the one `score` is at
-                                        pitchDetection: pitchDetector.detection,
-                                        score: score))
-                    // It counts for the Home tab's "Recent" category regardless of the
-                    // score — and for its full length on the Home tab's calendar, which
-                    // a run walked out of before this point never reaches. It is a
-                    // finished exercise for the exercise list's one-off hint too.
-                    store.markPlayed(exercise.id)
-                    PracticeLog.record(seconds: runDuration)
-                    CategoryHint.recordFinishedExercise()
-                    finishRun(score: score)
-                }
-            }
+            scheduleRun()
+            if mode == .pitchDetectionTrial { pitchDetector.use(trialDetection) }
             pitchDetector.start()
+        }
+        .onChange(of: trialDetection) { _, detection in
+            pitchDetector.use(detection)
         }
         .onDisappear {
             teardownAudio()
@@ -1303,6 +1259,109 @@ struct PlaybackView: View {
         }
     }
 
+    // MARK: - Scheduling a run
+
+    /// Hands the notes to the player, with `runPlayedOut` to call when it gets to the
+    /// end of them.
+    private func scheduleRun() {
+        player.schedule(notes: notes, bpm: bpm, leadIn: leadIn,
+                        preview: playsExercise,
+                        repeatLayout: repeatLayout, betweenReps: exercise.beatsBetweenReps) {
+            runPlayedOut()
+        }
+    }
+
+    /// What the end of the notes leads to, which is what each mode is for.
+    private func runPlayedOut() {
+        switch mode {
+        case .clapDelayTest:
+            // Convert the detected claps to beat positions *before* tearing
+            // the audio down — the conversion needs the engine's still-live
+            // playback clock to anchor each clap against the metronome ticks.
+            for host in pitchDetector.drainClaps() {
+                if let clapBeat = player.beat(forHostTime: host, bpm: bpm, leadIn: leadIn) {
+                    claps.add(clapBeat)
+                }
+            }
+            let ms = measuredDelayMs()
+            teardownAudio()
+            micDelayMs = ms.rounded()   // replace the setting automatically
+            delayResultMs = ms.rounded()
+        case .sungDelayTest:
+            // Straight to the review screen, where the singer lines their own
+            // recorded line up with the notes. No score is worked out and
+            // nothing is written to the exercise's history: this run was a
+            // measurement, not practice.
+            teardownAudio()
+            isCalibrating = true
+        case .normal:
+            // Tear the audio down fully before revealing the score so it has no
+            // engine running. Stopping both engines together (rather than only
+            // the mic, leaving the synth rendering on the shared playAndRecord
+            // session) is what avoids the intermittent freeze when navigating back.
+            teardownAudio()
+            // The run played through to the end, which is the only kind of run
+            // the delay can be recognised from: one walked out of half way
+            // never gets here, and its part-sung line would put the best offset
+            // anywhere.
+            let score = recogniseDelay(scoring: scorer.score(notes: notes, bpm: bpm))
+            // DEBUG RECORDING — remove together with DebugRecording.swift.
+            // After teardownAudio, so no more microphone hops can arrive.
+            debugRecording = debugRecorder.finish(
+                DebugRunContext(exercise: exercise, notes: notes, texts: texts,
+                                samples: trail.recording, bpm: bpm, leadInBeats: leadIn,
+                                repeatSpan: repeatLayout.span,
+                                micDelayMs: runDelayMs ?? micDelayMs,   // the one `score` is at
+                                pitchDetection: pitchDetector.detection,
+                                score: score))
+            // It counts for the Home tab's "Recent" category regardless of the
+            // score — and for its full length on the Home tab's calendar, which
+            // a run walked out of before this point never reaches. It is a
+            // finished exercise for the exercise list's one-off hint too.
+            store.markPlayed(exercise.id)
+            PracticeLog.record(seconds: runDuration)
+            CategoryHint.recordFinishedExercise()
+            finishRun(score: score)
+        case .pitchDetectionTrial:
+            // Round again, from the lead-in, for as long as the singer is comparing.
+            // Both engines keep running; scheduling afresh re-anchors the clock, and
+            // the line and the follower start over with it.
+            trail = PitchTrail()
+            lastDrawnBeat.value = nil
+            follower.reset()
+            scheduleRun()
+        }
+    }
+
+    /// The run itself, drawn from the audio clock every frame.
+    private var runCanvas: some View {
+        // The GeometryReader (which respects the safe area) reports the insets for the
+        // title/back bar and bottom menu, while the Canvas inside ignores the safe area
+        // and draws full-screen — so the insets tell drawScene where those bars sit.
+        GeometryReader { geo in
+            TimelineView(.animation(minimumInterval: nil, paused: isPaused)) { timeline in
+                // Drive the playhead from the audio engine's own output clock so the
+                // notes light up exactly when they're heard. While the clock is
+                // unanchored (before the first render, or right after resuming from a
+                // pause) hold the previously drawn beat so nothing jumps.
+                let beat = player.currentBeat(bpm: bpm, leadIn: leadIn)
+                    ?? lastDrawnBeat.value ?? -leadIn
+
+                // Ease the indicator toward the latest estimate every frame.
+                let singerPitch = indicator.step(target: pitchDetector.currentPitch,
+                                                 at: timeline.date.timeIntervalSinceReferenceDate)
+
+                Canvas { ctx, size in
+                    lastDrawnBeat.value = beat
+                    drawScene(ctx: ctx, size: size, beat: beat, singerPitch: singerPitch,
+                              safeTop: geo.safeAreaInsets.top, safeBottom: geo.safeAreaInsets.bottom,
+                              playheadTop: playheadTop(safeTop: geo.safeAreaInsets.top))
+                }
+                .ignoresSafeArea()
+            }
+        }
+    }
+
     // MARK: - Finishing a run
 
     /// Everything a finished run leaves behind that depends on its score, and the
@@ -1315,6 +1374,9 @@ struct PlaybackView: View {
         isPersonalRecord = ScoreHistory.isPersonalRecord(score: score, for: exercise.id)
         // Save before showing the result so the chart includes this run.
         ScoreHistory.record(score: score, for: exercise.id)
+        // Asked after saving, since it counts the runs saved, this one included; and
+        // only after a run that earned a score, which is the kind being counted.
+        asksForPitchDetection = score > 0 && PitchDetectionPrompt.isDue
         // Count the run for everyone: the score goes up to the server with the play,
         // which averages it into the difficulty the intro screen's stars show. Only a
         // run that reached a score is worth posting, so this is the one place it
@@ -1323,6 +1385,19 @@ struct PlaybackView: View {
         CommunitySync.shared.registerPlay(
             for: communityID ?? PublicIdentifier.exercise(exercise.id), score: score)
         finalScore = score
+    }
+
+    /// Puts the one-off pitch detection question up over the score screen, when this
+    /// run was the one it waits for. A moment late, so the score is seen first; and
+    /// only if the score screen is still showing by then, which the task being
+    /// cancelled with it takes care of.
+    private func askForPitchDetectionIfDue() async {
+        guard asksForPitchDetection else { return }
+        try? await Task.sleep(for: .seconds(0.8))
+        guard !Task.isCancelled, asksForPitchDetection else { return }
+        asksForPitchDetection = false
+        PitchDetectionPrompt.markShown()
+        isShowingPitchDetectionPrompt = true
     }
 
     /// Works the microphone delay out from the run that has just played and adopts it,
@@ -1595,15 +1670,24 @@ struct PlaybackView: View {
     // MARK: - Persistence
 
     private func loadNotes() {
-        let key = "midi_\(exercise.id.uuidString)"
-        guard let data = UserDefaults.standard.data(forKey: key),
-              let saved = try? JSONDecoder().decode([MIDINote].self, from: data)
-        else { return }
-
+        let saved: [MIDINote]
         var savedTexts: [MIDIText] = []
-        if let data = UserDefaults.standard.data(forKey: "miditext_\(exercise.id.uuidString)"),
-           let decoded = try? JSONDecoder().decode([MIDIText].self, from: data) {
-            savedTexts = decoded
+        if mode == .pitchDetectionTrial {
+            // The exercise as it ships, whether the library still holds it or the
+            // singer has changed their copy since.
+            saved = ExerciseStore.bundledNotes(exercise.id)
+            savedTexts = ExerciseStore.bundledTexts(exercise.id)
+        } else {
+            let key = "midi_\(exercise.id.uuidString)"
+            guard let data = UserDefaults.standard.data(forKey: key),
+                  let decoded = try? JSONDecoder().decode([MIDINote].self, from: data)
+            else { return }
+            saved = decoded
+
+            if let data = UserDefaults.standard.data(forKey: "miditext_\(exercise.id.uuidString)"),
+               let decoded = try? JSONDecoder().decode([MIDIText].self, from: data) {
+                savedTexts = decoded
+            }
         }
 
         // The same expansion the settings screen's preview draws from: every

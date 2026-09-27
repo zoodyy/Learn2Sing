@@ -125,9 +125,17 @@ struct SettingsView: View {
                                      onDelayTestExit: returnToAudioSettings)
                     }
                 case .voice:
-                    VoiceSettingsView { settingsPath.append(SettingsRoute.vocalRangeTest) }
+                    VoiceSettingsView(
+                        openRangeTest: { settingsPath.append(SettingsRoute.vocalRangeTest) },
+                        openPitchDetectionTrial: { settingsPath.append(SettingsRoute.pitchDetectionTrial) })
                 case .vocalRangeTest:
                     VocalRangeTestView { settingsPath = [] }
+                case .pitchDetectionTrial:
+                    // Its choose button pops back here, to the Voice screen, with the
+                    // choice checked there.
+                    if let exercise = PitchDetectionTrial.exercise {
+                        PlaybackView(exercise: exercise, mode: .pitchDetectionTrial)
+                    }
                 case .visualsHub:
                     VisualsHubView(
                         openMenus: { settingsPath.append(SettingsRoute.visualsMenus) },
@@ -306,9 +314,9 @@ struct SettingsView: View {
     /// (Audio with its instruments screens, Visuals, Voice, Home Tab and Exercises
     /// Tab with their edit-categories screens, Backup, Reset with its four
     /// screens, Language, Profile, and the message form) and the
-    /// microphone-delay and vocal-range tests they lead to. The delay test
-    /// branches in two: the clap test's intro and playback, or the sung test's
-    /// exercise picker and the run it starts.
+    /// microphone-delay and vocal-range tests they lead to, and the pitch
+    /// detection's Try It Out. The delay test branches in two: the clap test's
+    /// intro and playback, or the sung test's exercise picker and the run it starts.
     private enum SettingsRoute: Hashable {
         case audio
         case instruments
@@ -320,6 +328,7 @@ struct SettingsView: View {
         case delayExercisePlayback(UUID)
         case voice
         case vocalRangeTest
+        case pitchDetectionTrial
         case visualsHub
         case visualsMenus
         case visualsPlayback
@@ -449,6 +458,8 @@ struct VoiceSettingsView: View {
 
     /// Push the vocal-range test onto the shared Settings navigation stack.
     let openRangeTest: () -> Void
+    /// Push the pitch detection's Try It Out onto it.
+    let openPitchDetectionTrial: () -> Void
 
     private var isCustom: Bool { vocalRangeRaw == VocalRange.custom.rawValue }
 
@@ -514,6 +525,12 @@ struct VoiceSettingsView: View {
                     .accessibilityAddTraits(isSelected ? .isSelected : [])
                     .setting(.pitchDetection(detection))
                 }
+
+                Button(action: openPitchDetectionTrial) {
+                    Label("Try It Out", systemImage: "play.circle")
+                }
+                .disabled(PitchDetectionTrial.exercise == nil)
+                .setting(.tryPitchDetection)
             } header: {
                 Text("Pitch Detection").settingSection(.voicePitchDetection)
             }
@@ -989,6 +1006,25 @@ extension PitchDetection {
             L("Draws your pitch about 35 ms after you sing it. Short wrong readings, and most of the slide a consonant puts at the start and end of a syllable, are left out.")
         case .mostAccurate:
             L("Draws your pitch about 95 ms after you sing it. The line stays on the note you are holding through consonants such as “t”, “k” and “s”, and wrong readings are left out.")
+        }
+    }
+
+    /// The choice in a word, for Try It Out's segmented control, which has no room
+    /// for the whole title.
+    var shortTitle: String {
+        switch self {
+        case .fastest:      L("Fastest")
+        case .balanced:     L("Balanced")
+        case .mostAccurate: L("Slowest")
+        }
+    }
+
+    /// What the one-off question marks the choice as, if anything.
+    var recommendation: (text: String, isRecommended: Bool)? {
+        switch self {
+        case .fastest:      nil
+        case .balanced:     (L("Recommended"), true)
+        case .mostAccurate: (L("Not Recommended"), false)
         }
     }
 }

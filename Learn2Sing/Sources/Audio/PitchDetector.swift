@@ -35,8 +35,13 @@ final class PitchDetector: ObservableObject {
     var lineLatencyMs: Double { usingTap ? 60 : 15 }
 
     /// The pitch detection this capture runs with: the setting as it stood when the
-    /// microphone was last started, so it can't change under a run.
+    /// microphone was last started, so it can't change under a run. Only `use(_:)`
+    /// changes it in between.
     private(set) var detection = PitchDetection.current
+
+    /// A detection picked by the screen rather than the setting, kept through every
+    /// restart (a pause, the app going to the background). nil follows the setting.
+    private var chosenDetection: PitchDetection?
 
     /// How much later than the fastest detection's this capture's line is drawn.
     var lookAheadMs: Double { detection.extraDelayMs }
@@ -112,7 +117,7 @@ final class PitchDetector: ObservableObject {
         // interruption isn't mistaken for "already listening" and skipped.
         if running && !engine.isRunning { running = false }
         guard !running else { return }
-        detection = PitchDetection.current
+        detection = chosenDetection ?? PitchDetection.current
         // The audio session / route is configured once by PlaybackView before this
         // is called, so we must not reconfigure it here — doing so would switch the
         // route out from under the already-running playback engine.
@@ -133,6 +138,20 @@ final class PitchDetector: ObservableObject {
                 self.beginListening()
             }
         }
+    }
+
+    /// Draw the line with `newDetection` from now on instead of the setting, switching
+    /// a capture that is already listening on the spot. For Settings ▸ Voice ▸ Try It
+    /// Out, where the singer compares the choices while singing; a run that is scored
+    /// keeps the detection it started with, since its scoring allows for exactly that
+    /// one's look-ahead.
+    func use(_ newDetection: PitchDetection) {
+        chosenDetection = newDetection
+        guard newDetection != detection else { return }
+        detection = newDetection
+        // Not listening yet (or any more): the next start builds its analysis with
+        // `detection` anyway.
+        if running { listener.switchDetection(to: newDetection) }
     }
 
     func stop() {
@@ -371,6 +390,9 @@ nonisolated final class MicrophoneListener: @unchecked Sendable {
     let queue = MicrophoneQueue()
 
     private let pitchValue = Mutex<Double?>(nil)
+    /// A detection the analysis should switch to, left here by `switchDetection` and
+    /// picked up before the next buffer is analysed.
+    private let requestedDetection = Mutex<PitchDetection?>(nil)
     private let clapTimes = Mutex<[UInt64]>([])
     private let clapsWanted = Atomic<Bool>(false)
 
@@ -400,6 +422,7 @@ nonisolated final class MicrophoneListener: @unchecked Sendable {
         stop()
         sampleRate = rate
         analyzer = PitchAnalyzer(sampleRate: rate, detection: detection)
+        requestedDetection.withLock { $0 = nil }   // this one is built with it already
         queue.reset(sampleRate: rate)
         resetClaps()
         stopRequested.store(false, ordering: .sequentiallyConsistent)
@@ -408,6 +431,13 @@ nonisolated final class MicrophoneListener: @unchecked Sendable {
         worker.qualityOfService = .userInteractive
         thread = worker
         worker.start()
+    }
+
+    /// Have the running analysis carry on with another detection (see
+    /// `PitchAnalyzer.use`). The switch itself happens on the analysis thread, which
+    /// owns the analyzer, before the next buffer.
+    func switchDetection(to detection: PitchDetection) {
+        requestedDetection.withLock { $0 = detection }
     }
 
     /// End the analysis thread (waiting the few milliseconds it may need to finish the
@@ -436,6 +466,12 @@ nonisolated final class MicrophoneListener: @unchecked Sendable {
     private func handle(_ chunk: MicrophoneQueue.Chunk) {
         let count = chunk.count
         guard count > 0 else { return }
+        if let wanted = requestedDetection.withLock({ request in
+            defer { request = nil }
+            return request
+        }) {
+            analyzer.use(wanted)
+        }
         forwardToDebugSink(chunk)   // DEBUG RECORDING — remove with DebugRecording.swift
         if detectClaps { findClaps(count: count, time: chunk.time) }
         analyzer.process(scratch, count: count)

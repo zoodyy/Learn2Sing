@@ -250,6 +250,7 @@ extension SettingKey {
     static func pitchDetection(_ detection: PitchDetection) -> SettingKey {
         SettingKey("voice.pitchDetection.\(detection.rawValue)")
     }
+    static let tryPitchDetection = SettingKey("voice.pitchDetection.try")
 
     // Home tab
     static let customiseHome         = SettingKey("homeTab.customise")
@@ -631,6 +632,8 @@ enum SettingsCatalog {
             add(.pitchDetection(detection), .voice, section: L("Pitch Detection"),
                 title: detection.title, help: detection.help)
         }
+        add(.tryPitchDetection, .voice, section: L("Pitch Detection"), title: L("Try It Out"),
+            help: PitchDetectionTrial.help)
         heading(.voiceScoreCalculation, .voice, L("Score Calculation"))
         add(.targetWindow, .voice, section: L("Score Calculation"), title: L("Target window size"),
             help: L("How much of a note counts as hit when your score is worked out. At 100% the whole note counts, as it always has; lower, and only that share of the note's middle does, so you have to sing nearer the center of the pitch for it to count."))

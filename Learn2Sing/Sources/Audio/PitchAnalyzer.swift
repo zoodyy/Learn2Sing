@@ -127,7 +127,9 @@ nonisolated final class PitchAnalyzer {
 
     /// What the state machine below is showing; `pitch` is this, settled.
     private var tracked: Double? = nil
-    private let settler: PitchSettler?
+    /// Holds `tracked` back for the chosen detection's look-ahead; nil for the fastest.
+    /// Replaced by `use(_:)` when the detection is switched mid-stream.
+    private var settler: PitchSettler?
 
     private let hop: Int
     private let capacity: Int
@@ -181,8 +183,7 @@ nonisolated final class PitchAnalyzer {
 
     init(sampleRate: Double, detection: PitchDetection = .fastest) {
         self.sampleRate = sampleRate
-        let lookAhead = Int((detection.lookAheadSeconds / Self.analysisInterval).rounded())
-        settler = lookAhead > 0 ? PitchSettler(lookAhead: lookAhead) : nil
+        settler = Self.settler(for: detection)
         hop = max(1, Int(sampleRate * Self.analysisInterval))
         minLag = max(2, Int(sampleRate / Self.highestFrequency))
         maxLag = max(minLag + 4, Int(sampleRate / Self.lowestFrequency))
@@ -282,6 +283,29 @@ nonisolated final class PitchAnalyzer {
         pendingCount = 0
         jumpCandidate = nil
         notePeak = 0
+    }
+
+    /// Switch to another detection without starting over: everything up to the state
+    /// machine carries on as it was, and only the look-ahead stage is swapped. A new
+    /// settler knows nothing yet, so a slower detection's line takes up to its
+    /// look-ahead to reappear; the fastest one picks up at the very next analysis.
+    ///
+    /// For Settings ▸ Voice ▸ Try It Out, which switches while the singer sings. It
+    /// allocates, so it belongs on the analysis thread, never the audio one.
+    func use(_ detection: PitchDetection) {
+        let lookAhead = Self.lookAheadAnalyses(detection)
+        guard lookAhead != (settler?.lookAhead ?? 0) else { return }
+        settler = Self.settler(for: detection)
+    }
+
+    /// The detection's look-ahead in analyses.
+    private static func lookAheadAnalyses(_ detection: PitchDetection) -> Int {
+        Int((detection.lookAheadSeconds / analysisInterval).rounded())
+    }
+
+    private static func settler(for detection: PitchDetection) -> PitchSettler? {
+        let lookAhead = lookAheadAnalyses(detection)
+        return lookAhead > 0 ? PitchSettler(lookAhead: lookAhead) : nil
     }
 
     private func analyse() {
