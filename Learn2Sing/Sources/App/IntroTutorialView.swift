@@ -115,6 +115,11 @@ struct IntroTutorialView: View {
                 .padding(.horizontal)
                 .padding(.bottom, 8)
         }
+        // The last slide tells the singer to press and hold anything, and has
+        // nothing of its own to explain: a hold anywhere on it, "Done" and the ✕
+        // included, gets a bubble all the same, so trying it out there doesn't
+        // look like it doesn't work.
+        .explainScreen(L("Exactly like that 👍🙂‍↕️👍"), isEnabled: slide == Self.slideCount - 1)
         .animation(.snappy(duration: 0.25), value: slide)
         // The language and the appearance the root view sets, asserted again here.
         // This is presented over that view rather than inside it, and a presentation

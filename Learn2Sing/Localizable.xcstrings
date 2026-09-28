@@ -19977,6 +19977,95 @@
         }
       }
     },
+    "Exactly like that 👍🙂‍↕️👍" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "تمامًا هكذا 👍🙂‍↕️👍"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Genau so 👍🙂‍↕️👍"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Exactamente así 👍🙂‍↕️👍"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Exactement comme ça 👍🙂‍↕️👍"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Esattamente così 👍🙂‍↕️👍"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "まさにそんな感じ 👍🙂‍↕️👍"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "바로 그렇게요 👍🙂‍↕️👍"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Precies zo 👍🙂‍↕️👍"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dokładnie tak 👍🙂‍↕️👍"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Exatamente assim 👍🙂‍↕️👍"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Именно так 👍🙂‍↕️👍"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Precis så 👍🙂‍↕️👍"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aynen böyle 👍🙂‍↕️👍"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "就是这样 👍🙂‍↕️👍"
+          }
+        }
+      }
+    },
     "Exercise Lists" : {
       "localizations" : {
         "ar" : {

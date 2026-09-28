@@ -31,6 +31,18 @@ extension View {
         modifier(SettingHelpModifier(text: text, fillsRow: false))
     }
 
+    /// The same hold across a whole screen that is explained as one thing: held
+    /// anywhere on it, its buttons included, which the hold keeps from also being
+    /// tapped as it does for `explain`. The bubble points at the finger, since the
+    /// screen's own edges are nowhere near it.
+    ///
+    /// `isEnabled` switches the hold off without taking the modifier away, which
+    /// would give everything under it a new identity each time.
+    func explainScreen(_ text: String, isEnabled: Bool = true) -> some View {
+        modifier(SettingHelpModifier(text: text, fillsRow: false,
+                                     pointsAtTouch: true, isEnabled: isEnabled))
+    }
+
     /// The same hold for a toolbar button whose label is a `Label`. Goes on the
     /// screen, not on the button: SwiftUI turns such a button into a native bar
     /// button and drops the modifiers on it, `explain` with its hold, so this hold
@@ -51,15 +63,23 @@ private struct SettingHelpModifier: ViewModifier {
     /// for anything laid out beside something else, where filling the row would
     /// push its neighbours around.
     let fillsRow: Bool
+    /// Points the bubble at the spot held rather than at the whole target: for a
+    /// target the size of the screen (`explainScreen`).
+    var pointsAtTouch = false
+    /// False leaves the hold and the VoiceOver hint off, and the target's own
+    /// gestures as they were.
+    var isEnabled = true
 
     @State private var isShowing = false
     /// Bumped when a hold is recognised to give the row a new identity, which
     /// tears the control down and rebuilds it — cancelling the touch that's in
     /// flight so the release doesn't complete as a tap on it.
     @State private var resetToken = 0
+    /// Where the latest touch on the target went down, for `pointsAtTouch`.
+    @State private var touchDown = CGPoint.zero
 
     func body(content: Content) -> some View {
-        target(content)
+        tracksTouch(target(content)
             // Hit-test the whole rectangle so the hold works anywhere on the
             // target, not just where it has drawn something.
             .contentShape(Rectangle())
@@ -78,14 +98,35 @@ private struct SettingHelpModifier: ViewModifier {
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                         isShowing = true
                     }
-                }
-            )
-            .popover(isPresented: $isShowing) {
+                },
+                including: isEnabled ? .all : .subviews
+            ))
+            .popover(isPresented: $isShowing, attachmentAnchor: anchor) {
                 SettingHelpText(text: text)
             }
             // Keep the explanation available to VoiceOver now that the visible
             // footer is gone.
-            .accessibilityHint(text)
+            .accessibilityHint(Text(verbatim: text), isEnabled: isEnabled)
+    }
+
+    /// The whole target, as for any popover, or the point where the finger went
+    /// down.
+    private var anchor: PopoverAttachmentAnchor {
+        pointsAtTouch ? .rect(.rect(CGRect(origin: touchDown, size: .zero))) : .rect(.bounds)
+    }
+
+    /// Records where each touch on the target begins. The start rather than the
+    /// finger's latest position: that is where a hold is recognised, give or take
+    /// its 10 pt of slop, and it stays put when the finger drifts under the bubble.
+    @ViewBuilder
+    private func tracksTouch(_ view: some View) -> some View {
+        if pointsAtTouch {
+            view.simultaneousGesture(
+                DragGesture(minimumDistance: 0).onChanged { touchDown = $0.startLocation },
+                including: isEnabled ? .all : .subviews)
+        } else {
+            view
+        }
     }
 
     /// The view the hold is attached to. `fillsRow` never changes for a given
