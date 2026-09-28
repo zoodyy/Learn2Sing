@@ -299,6 +299,10 @@ struct HomeView: View {
     /// Who this user has blocked, watched so a blocked user's community screens
     /// come off the stack (see `dropBlockedRoutes`).
     @ObservedObject private var blockedUsers = BlockedUsers.shared
+    /// The batch "Recommended" is holding on to since it was last opened, which
+    /// it shows instead of a fresh draw until a while after its screens are
+    /// closed — see RecommendationQueue.
+    @ObservedObject private var recommendationQueue = RecommendationQueue.shared
     // Typed (not NavigationPath) so pops can be inspected for the saved toasts.
     @State private var navigationPath: [ExerciseRoute] = []
 
@@ -359,11 +363,11 @@ struct HomeView: View {
     /// see `syncRoutineQueue`.
     @State private var routineQueueSources: [UUID: [UUID]] = [:]
 
-    /// The same thing for the recommendation card's screen, which is one queue
-    /// rather than one per routine: the exercises it is showing, in the order it
-    /// is showing them. Set as the card is tapped, so a shuffle or a drag there
-    /// likewise lasts for a single play-through.
-    @State private var recommendationOrder: [UUID] = []
+    /// Whether the screens on the stack were opened from a row of "Recommended"
+    /// shown as a list, which pushes the same `play` route every other category
+    /// does. With the card, the queue screen at the bottom of the stack says so
+    /// itself. See `isRecommendationOpen`.
+    @State private var isPlayingRecommendedRow = false
 
     /// The exercises of the category the user last started playing from, in the
     /// order that category showed them — what the score screen's "Next" button
@@ -441,13 +445,26 @@ struct HomeView: View {
                                    limitScales: limitScales)
     }
 
+    /// What "Recommended" shows: the batch held since it was last opened, in the
+    /// order its queue screen left it, while RecommendationQueue still holds one
+    /// — and otherwise the draw as it stands now.
+    private var recommendation: [Exercise] {
+        if let held = recommendationQueue.held(minutes: practiceMinutes,
+                                               limitScales: limitScales,
+                                               whitelist: store.recommendationWhitelist) {
+            let exercises = held.compactMap { id in store.exercises.first { $0.id == id } }
+            if !exercises.isEmpty { return exercises }
+        }
+        return recommendedExercises
+    }
+
     /// The category most of the suggested exercises belong to — what the
     /// recommendation card names — or nil when there is nothing to suggest.
     /// A tie goes to whichever category comes first in the Exercises tab's own
     /// order, so the card doesn't flip between two equally represented ones.
     private var recommendedCategory: String? {
         var counts: [String: Int] = [:]
-        for exercise in recommendedExercises { counts[exercise.category, default: 0] += 1 }
+        for exercise in recommendation { counts[exercise.category, default: 0] += 1 }
         let order = store.categories
         return counts.max { lhs, rhs in
             if lhs.value != rhs.value { return lhs.value < rhs.value }
@@ -534,7 +551,7 @@ struct HomeView: View {
             favouriteExercises.map { ExerciseListRow(exercise: $0, pattern: store.notes(for: $0.id)) }
         case HomeCategories.recommended:
             recommendationsAsList
-                ? recommendedExercises.map { ExerciseListRow(exercise: $0, pattern: store.notes(for: $0.id)) }
+                ? recommendation.map { ExerciseListRow(exercise: $0, pattern: store.notes(for: $0.id)) }
                 : recommendationCardRow.map { [$0] } ?? []
         case HomeCategories.calendar:
             [calendarRow]
@@ -719,16 +736,30 @@ struct HomeView: View {
     /// this play-through uses — the recommendation routes index into this list,
     /// exactly as the routine ones index into a routine's.
     private var recommendationExercises: [Exercise] {
-        recommendationOrder.compactMap { id in store.exercises.first { $0.id == id } }
+        recommendationQueue.order.compactMap { id in store.exercises.first { $0.id == id } }
+    }
+
+    /// Hold on to what "Recommended" is showing, as it is opened: the batch
+    /// already held, dragged and shuffled as it was left, or the draw that
+    /// replaced it once it was let go of.
+    private func holdRecommendation() {
+        recommendationQueue.hold(recommendation.map(\.id),
+                                 minutes: practiceMinutes, limitScales: limitScales)
     }
 
     /// Tap on the recommendation card: open the suggestion as one queue, where
-    /// its order can be changed before it starts. Always from the suggestion as
-    /// it stands, so whatever the last play-through was dragged or shuffled into
-    /// is discarded.
+    /// its order can be changed before it starts.
     private func openRecommendations() {
-        recommendationOrder = recommendedExercises.map(\.id)
+        holdRecommendation()
         navigationPath.append(ExerciseRoute.recommendationIntro)
+    }
+
+    /// Whether `path` holds screens opened from "Recommended": its queue screen
+    /// at the bottom, and whatever was pushed on top of that — or, with the
+    /// category shown as a list, whatever one of its rows opened. What the
+    /// batch is held on to for; see RecommendationQueue.
+    private func isRecommendationOpen(_ path: [ExerciseRoute]) -> Bool {
+        path.first == .recommendationIntro || isPlayingRecommendedRow && !path.isEmpty
     }
 
     /// The reload button on that screen: the singer doesn't fancy this batch.
@@ -739,7 +770,10 @@ struct HomeView: View {
     /// each one records it again.
     private func reloadRecommendations() {
         store.markPassedOver(recommendationExercises.map(\.id))
-        withAnimation { recommendationOrder = recommendedExercises.map(\.id) }
+        withAnimation {
+            recommendationQueue.hold(recommendedExercises.map(\.id),
+                                     minutes: practiceMinutes, limitScales: limitScales)
+        }
     }
 
     /// `advanceRoutine` for that queue, which needs no routine to say which one.
@@ -867,6 +901,13 @@ struct HomeView: View {
                 // Remember the tapped row's category, in the order it showed
                 // its exercises, so "Next" can walk it (and stop at its end).
                 playQueue = rows(in: category).map(\.id)
+                // A row of "Recommended" shown as a list opens it as much as
+                // the card does, so the list stays as it is for the singer's
+                // way back.
+                if category == HomeCategories.recommended {
+                    holdRecommendation()
+                    isPlayingRecommendedRow = true
+                }
                 guard category != HomeCategories.newForYou else {
                     // Not in the library, so not `play`: the community pair of
                     // routes, which resolve their exercise through CommunitySync
@@ -974,6 +1015,8 @@ struct HomeView: View {
                 // The bubble belongs to this screen, so it doesn't follow the
                 // user onto the next one and shouldn't be waiting on the way back.
                 calendarSelection = nil
+                recommendationQueue.setOpen(isRecommendationOpen(new))
+                if new.isEmpty { isPlayingRecommendedRow = false }
                 // Back at the list after creating a routine: if it was never
                 // touched (the exercise picker deeper in this path can't be
                 // showing anymore), remove it again — and skip the "Saved!" toast
@@ -1115,7 +1158,7 @@ struct HomeView: View {
             // The routine intro screen with nothing above the queue: the
             // suggestion has no name or description of its own to show.
             ExerciseQueueIntroView(
-                order: $recommendationOrder,
+                order: $recommendationQueue.order,
                 title: ExerciseCategoryName.localized(HomeCategories.recommended),
                 startTitle: L("Play Recommended Exercises"),
                 onSelect: { exerciseID in

@@ -104,6 +104,7 @@ enum DeleteEverything {
         store.clearFavourites()
         store.clearRoutines()
         store.clearPlayHistory()
+        RecommendationQueue.shared.forget()
         BookLessonProgress.shared.clear()
 
         // Reset ▸ Settings, every category — which includes putting the visual

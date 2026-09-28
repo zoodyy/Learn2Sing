@@ -207,9 +207,14 @@ struct RoutineEditView: View {
 /// header's shuffle button reorders without any dragging at all.)
 ///
 /// Reordering — by dragging or shuffling — and dropping an exercise change
-/// `order` only, which the Home tab keeps for this play-through and resets the
-/// next time the screen is opened; nothing stored is touched, so a swiped-away
-/// exercise stays in the routine it belongs to.
+/// `order` only; nothing stored is touched, so a swiped-away exercise stays in
+/// the routine it belongs to. A routine's is kept for this play-through and
+/// reset the next time the screen is opened. The recommendation card's is the
+/// batch RecommendationQueue holds, so it lasts as long as that does.
+///
+/// The buttons along the bottom float over the list rather than sitting on a
+/// strip of their own under it, so a queue long enough to reach them scrolls
+/// on behind them and shows between them.
 ///
 /// Tapping a row starts the queue from that exercise rather than from the top:
 /// `onSelect` opens its intro screen the same way the start button opens the
@@ -299,28 +304,30 @@ struct ExerciseQueueIntroView: View {
     }
 
     var body: some View {
-        VStack(spacing: 0) {
-            List {
-                if let heading {
-                    Section {
-                        headerRow(heading)
-                    }
-                }
+        List {
+            if let heading {
                 Section {
-                    ForEach(order, id: \.self) { exerciseID in
-                        queueRow(exerciseID)
-                    }
-                    .onMove { source, destination in
-                        order.move(fromOffsets: source, toOffset: destination)
-                    }
-                } header: {
-                    exercisesHeader
+                    headerRow(heading)
                 }
             }
-            // Drops the list's own top inset so the heading sits as high as the
-            // exercise intro screen's, which is a plain ScrollView.
-            .contentMargins(.top, 0, for: .scrollContent)
-
+            Section {
+                ForEach(order, id: \.self) { exerciseID in
+                    queueRow(exerciseID)
+                }
+                .onMove { source, destination in
+                    order.move(fromOffsets: source, toOffset: destination)
+                }
+            } header: {
+                exercisesHeader
+            }
+        }
+        // Drops the list's own top inset so the heading sits as high as the
+        // exercise intro screen's, which is a plain ScrollView.
+        .contentMargins(.top, 0, for: .scrollContent)
+        // An inset rather than a strip of its own under the list: the rows go on
+        // behind the buttons, with nothing drawn around or between them, and the
+        // list still makes room to scroll its last row up clear of them.
+        .safeAreaInset(edge: .bottom) {
             HStack(spacing: 12) {
                 // The exercise intro screen's skip button with its own symbol,
                 // but on the main button's other side: it answers "not these"
@@ -330,6 +337,11 @@ struct ExerciseQueueIntroView: View {
                                     help: L("Puts together a new list in place of this one. The exercises shown now count as sung, so they are less likely to be picked again."),
                                     systemImage: "arrow.clockwise",
                                     action: onReload)
+                        // Its tint is see-through, and rows passing behind would
+                        // show in it: solid underneath, in the colour it was
+                        // drawn over before the list reached this far.
+                        .background(Color(.systemGroupedBackground),
+                                    in: RoundedRectangle(cornerRadius: 14))
                 }
                 Button(action: onStart) {
                     Text(startTitle)
@@ -349,8 +361,6 @@ struct ExerciseQueueIntroView: View {
             .padding(.horizontal)
             .padding(.bottom)
         }
-        // So the strip the button sits on matches the list above it.
-        .background(Color(.systemGroupedBackground))
         .navigationTitle(title)
         .navigationBarTitleDisplayMode(.inline)
     }
