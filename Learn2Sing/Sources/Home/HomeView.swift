@@ -869,13 +869,14 @@ struct HomeView: View {
         navigationPath.append(ExerciseRoute.communityPlay(id))
     }
 
-    /// Copies a community exercise into the user's library and counts the
-    /// download towards its total (only the first time this user downloads it) —
-    /// the Download button on a "New for You" exercise's intro and score screens,
-    /// exactly as in the Community tab.
+    /// Copies a community exercise into the user's library, counts the download
+    /// towards its total (only the first time this user downloads it) and gives
+    /// the copy the original's difficulty — the Download button on a "New for
+    /// You" exercise's intro and score screens, exactly as in the Community tab.
     private func downloadCommunity(_ exercise: Exercise) {
-        _ = store.downloadCopy(of: exercise)
+        let copy = store.downloadCopy(of: exercise)
         CommunitySync.shared.registerDownload(for: exercise.id)
+        CommunitySync.shared.inheritDifficulty(for: copy.id, from: exercise.id)
     }
 
     private var listContent: some View {

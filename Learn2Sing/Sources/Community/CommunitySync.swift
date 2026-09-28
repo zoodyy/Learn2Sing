@@ -260,6 +260,10 @@ final class CommunitySync: ObservableObject {
     /// Raw exercise id to the seeded score still owed to the server, for the
     /// exercises made while it couldn't be reached. Retried at the next launch.
     private static let pendingDifficultySeedsKey = "communityPendingDifficultySeeds"
+    /// Raw id of each downloaded copy whose seed rows still carry the original's
+    /// rating, to the estimate its notes had when it was downloaded — see
+    /// `inheritDifficulty(for:from:)`.
+    private static let inheritedDifficultyEstimatesKey = "communityInheritedDifficultyEstimates"
     /// The users a seeded difficulty is posted as.
     ///
     /// Always these three, on every device: the server holds one row per user,
@@ -368,6 +372,12 @@ final class CommunitySync: ObservableObject {
     /// when an estimate is made and emptied as the plays are posted, so one made
     /// offline goes up at the next launch instead of being lost.
     private var pendingDifficultySeeds: [UUID: Int] = [:]
+    /// The downloaded copies whose seed rows carry the original's rating rather
+    /// than an estimate, by raw exercise id, each with the estimate its notes had
+    /// on download. That estimate, not the rows' value, is what an edit to the
+    /// copy is measured against, and the first edit that moves it drops the
+    /// entry — see `inheritDifficulty(for:from:)`.
+    private var inheritedDifficultyEstimates: [UUID: Int] = [:]
     /// Whether `uploadDifficultySeeds` is on the wire, and whether it has been
     /// asked for again since it started. One pass at a time: every row is cleared
     /// and then written, and two passes interleaving those calls on the same
@@ -438,6 +448,7 @@ final class CommunitySync: ObservableObject {
         seededDifficultyIDs = Set(seeded.compactMap(UUID.init(uuidString:)))
         seededDifficultyScores = Self.storedCounts(forKey: Self.seededDifficultyScoresKey)
         pendingDifficultySeeds = Self.storedCounts(forKey: Self.pendingDifficultySeedsKey)
+        inheritedDifficultyEstimates = Self.storedCounts(forKey: Self.inheritedDifficultyEstimatesKey)
     }
 
     private static func storedCounts(forKey key: String) -> [UUID: Int] {
@@ -991,6 +1002,7 @@ final class CommunitySync: ObservableObject {
         seededDifficultyIDs = []
         seededDifficultyScores = [:]
         pendingDifficultySeeds = [:]
+        inheritedDifficultyEstimates = [:]
         lastUploadedBodies = [:]
         lastUploadedProfile = nil
         uploaderNames = [:]
@@ -1386,6 +1398,12 @@ final class CommunitySync: ObservableObject {
     /// tempo — keeps whatever it last posted. There is no estimate to correct it
     /// with, and an empty exercise is on its way somewhere rather than finished:
     /// the notes that come back are rated when they do.
+    ///
+    /// A downloaded copy starts out with the original's rating on its seed rows
+    /// rather than an estimate (see `inheritDifficulty(for:from:)`), and is
+    /// treated from then on as if this had posted them. The one difference is
+    /// what "left the difficulty alone" is measured against: the estimate of its
+    /// notes as downloaded, since the rows hold something else.
     func seedDifficulty(for exerciseID: UUID) {
         guard let store,
               !ExerciseStore.bundledExerciseIDs.contains(exerciseID),
@@ -1395,6 +1413,15 @@ final class CommunitySync: ObservableObject {
         else { return }
         let score = ExerciseDifficulty.expectedScore(forRating: rating)
         let publicExerciseID = PublicIdentifier.exercise(exerciseID)
+        // A copy still on the original's rating keeps it through every edit
+        // that leaves its estimate where the download had it. The first edit
+        // that moves it makes the copy an estimated exercise like any other,
+        // whose rows are corrected below.
+        if let inherited = inheritedDifficultyEstimates[exerciseID] {
+            if inherited == score { return }
+            inheritedDifficultyEstimates.removeValue(forKey: exerciseID)
+            persistDifficultySeeds()
+        }
         let estimated = seededDifficultyIDs.contains(exerciseID)
         // Estimated before: only an edit that moves the estimate is worth
         // posting. An estimate from a version that didn't record its score reads
@@ -1464,6 +1491,70 @@ final class CommunitySync: ObservableObject {
                 persistDifficultySeeds()
             }
         }
+    }
+
+    /// Gives a copy just downloaded from the Community tab the difficulty the
+    /// original has, instead of none.
+    ///
+    /// The copy lives under an id of its own (see `ExerciseStore.downloadCopy(of:)`),
+    /// so the server has nothing for it and its stars would stay empty until it
+    /// was sung. It takes the original's rating instead — the server's average,
+    /// real scores and all, not an estimate read off the notes — posted as the
+    /// seed plays `seedDifficulty(for:)` posts, from the same three ids. Rounded
+    /// on the way, since the server turns away a score with a fraction (400);
+    /// the cache holds the rounded value too, which is what the rows will answer.
+    ///
+    /// From there on the copy is treated as if `seedDifficulty(for:)` had posted
+    /// them: an edit that moves its estimate takes them down and posts the
+    /// estimate in their place, and one that doesn't leaves them be.
+    ///
+    /// The original's average as cached — what its intro screen fetched when it
+    /// opened, a moment ago — is taken straight away, so the stars are up at once
+    /// and a download made offline is still owed to the server at the next
+    /// launch. It is then asked for again, since a Download from the score screen
+    /// follows a run that has just moved it. An original the server has no
+    /// rating for leaves the copy to be estimated, the way a new exercise is.
+    ///
+    /// A copy with nothing to rate is left alone: there would be no estimate to
+    /// measure its edits against.
+    func inheritDifficulty(for copyID: UUID, from publicSourceID: UUID) {
+        guard let store,
+              let copy = store.exercises.first(where: { $0.id == copyID }),
+              let rating = ExerciseDifficulty.rating(for: copy, pattern: store.notes(for: copyID))
+        else { return }
+        let estimate = ExerciseDifficulty.expectedScore(forRating: rating)
+        if let cached = difficulties[publicSourceID] {
+            inherit(cached, for: copyID, estimate: estimate)
+        }
+        Task {
+            if let fetched = await Self.fetchDifficulty(for: publicSourceID) {
+                inherit(fetched, for: copyID, estimate: estimate)
+            } else if difficulties[publicSourceID] == nil {
+                seedDifficulty(for: copyID)
+                return
+            }
+            await uploadDifficultySeeds()
+        }
+    }
+
+    /// Puts the original's `difficulty` on a copy's seed rows — locally, with the
+    /// post left pending for `uploadDifficultySeeds` — unless the copy has moved
+    /// on from it: an edit that made the rows an estimate since (the no-cache
+    /// case, where the edit came first, included) keeps them one.
+    private func inherit(_ difficulty: Double, for copyID: UUID, estimate: Int) {
+        let score = Int(difficulty.rounded())
+        if seededDifficultyIDs.contains(copyID) {
+            guard inheritedDifficultyEstimates[copyID] != nil,
+                  seededDifficultyScores[copyID] != score else { return }
+        }
+        seededDifficultyIDs.insert(copyID)
+        seededDifficultyScores[copyID] = score
+        pendingDifficultySeeds[copyID] = score
+        inheritedDifficultyEstimates[copyID] = estimate
+        persistDifficultySeeds()
+        difficulties[PublicIdentifier.exercise(copyID)] = Double(score)
+        persistDifficulties()
+        SkillLevelStore.shared.recompute()
     }
 
     /// Counts a finished run of an exercise, addressed by its public id, and
@@ -1563,6 +1654,7 @@ final class CommunitySync: ObservableObject {
         }
         store(seededDifficultyScores, forKey: Self.seededDifficultyScoresKey)
         store(pendingDifficultySeeds, forKey: Self.pendingDifficultySeedsKey)
+        store(inheritedDifficultyEstimates, forKey: Self.inheritedDifficultyEstimatesKey)
     }
 
     private func persistShareDates() {
