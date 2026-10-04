@@ -46,13 +46,14 @@ struct ExerciseSettingsView: View {
     /// out: off the Community tab, or back to how this screen found it.
     @State private var isResolvingTooShort = false
 
-    /// The exercise, its notes and the labels over them exactly as this screen
-    /// found them, which "Undo My Changes" puts back. Taken on the first
-    /// appearance only: the screen appears again every time the MIDI editor is
-    /// left, and what was drawn in there is a change made from here too.
+    /// The exercise, its notes, ghost notes and the labels over them exactly as
+    /// this screen found them, which "Undo My Changes" puts back. Taken on the
+    /// first appearance only: the screen appears again every time the MIDI editor
+    /// is left, and what was drawn in there is a change made from here too.
     @State private var openState: Exercise?
     @State private var openNotes: [MIDINote] = []
     @State private var openLabels: [MIDIText] = []
+    @State private var openGhosts: [MIDINote] = []
     /// The exercise's dates as this screen found them, put back with the rest so
     /// an undo doesn't leave the exercise looking freshly edited.
     @State private var openDates: ExerciseTimestamps?
@@ -64,12 +65,13 @@ struct ExerciseSettingsView: View {
     /// it either.
     @State private var wasWithinLengthRuleOnOpen = true
 
-    /// The exercise's saved MIDI pattern and the labels written over it, for the
-    /// preview at the top of the screen. Read when the screen appears rather than
-    /// per frame — the pattern lives in UserDefaults, and only the MIDI editor
-    /// changes it.
+    /// The exercise's saved MIDI pattern, the labels written over it and its
+    /// ghost notes, for the preview at the top of the screen. Read when the screen
+    /// appears rather than per frame — the pattern lives in UserDefaults, and only
+    /// the MIDI editor changes it.
     @State private var pattern: [MIDINote] = []
     @State private var labels: [MIDIText] = []
+    @State private var ghosts: [MIDINote] = []
 
     /// How far the form is scrolled (0 at rest, growing downward), which collapses
     /// the preview pinned above it.
@@ -125,7 +127,7 @@ struct ExerciseSettingsView: View {
                     // gets no pattern thumbnail in the lists.
                     if !pattern.isEmpty {
                         ExercisePlaybackPreview(
-                            exercise: exercise, pattern: pattern, labels: labels,
+                            exercise: exercise, pattern: pattern, labels: labels, ghosts: ghosts,
                             width: previewWidth, fullHeight: previewSize,
                             scrollOffset: scrollOffset)
                     }
@@ -136,12 +138,15 @@ struct ExerciseSettingsView: View {
         .onAppear {
             let notes = store.notes(for: exercise.id)
             let texts = store.texts(for: exercise.id)
+            let ghostNotes = store.ghosts(for: exercise.id)
             pattern = notes
             labels = texts
+            ghosts = ghostNotes
             if openState == nil {
                 openState = exercise
                 openNotes = notes
                 openLabels = texts
+                openGhosts = ghostNotes
                 openDates = ExerciseDates.timestamps(for: exercise.id)
                 wasWithinLengthRuleOnOpen = exercise.visibility != .public
                     || Exercise.clearsMinimumPublicDuration(exercise.contentDuration(pattern: notes))
@@ -536,14 +541,16 @@ struct ExerciseSettingsView: View {
     }
 
     /// Puts the exercise back exactly as this screen found it: its settings, its
-    /// notes and the labels over them. The pattern goes back too because the MIDI
-    /// editor writes every stroke through as it is drawn, so a repetition emptied
-    /// out in there is one of the changes made from here.
+    /// notes, its ghost notes and the labels over them. The pattern goes back too
+    /// because the MIDI editor writes every stroke through as it is drawn, so a
+    /// repetition emptied out in there is one of the changes made from here.
     private func revertToOpenState() {
         guard let openState else { return }
-        store.restorePattern(notes: openNotes, texts: openLabels, for: openState.id)
+        store.restorePattern(notes: openNotes, texts: openLabels, ghosts: openGhosts,
+                             for: openState.id)
         pattern = openNotes
         labels = openLabels
+        ghosts = openGhosts
         // Last, so the write to the store that the server syncs watch happens
         // once the pattern they upload alongside it is back in place.
         exercise = openState

@@ -701,20 +701,26 @@ nonisolated extension UserProfile {
         let decoder = JSONDecoder()
         var midi: [String: [MIDINote]] = [:]
         var texts: [String: [MIDIText]] = [:]
+        var ghosts: [String: [MIDINote]] = [:]
         for exercise in snapshot.exercises {
             let key = exercise.id.uuidString
-            // Read as `ExerciseStore.notes(for:)` and `texts(for:)` read them: a
-            // pattern that is missing or won't decode is an empty one, and only
-            // exercises with labels carry any.
+            // Read as `ExerciseStore.notes(for:)`, `texts(for:)` and `ghosts(for:)`
+            // read them: a pattern that is missing or won't decode is an empty one,
+            // and only exercises with labels or ghost notes carry any.
             midi[key] = defaults.data(forKey: ExerciseStore.midiKey(exercise.id))
                 .flatMap { try? decoder.decode([MIDINote].self, from: $0) } ?? []
             if let labels = defaults.data(forKey: ExerciseStore.midiTextKey(exercise.id))
                 .flatMap({ try? decoder.decode([MIDIText].self, from: $0) }), !labels.isEmpty {
                 texts[key] = labels
             }
+            if let ghostNotes = defaults.data(forKey: ExerciseStore.midiGhostKey(exercise.id))
+                .flatMap({ try? decoder.decode([MIDINote].self, from: $0) }), !ghostNotes.isEmpty {
+                ghosts[key] = ghostNotes
+            }
         }
         exercises = ExerciseBundle(exercises: snapshot.exercises, categories: snapshot.categories,
-                                   midi: midi, texts: texts.isEmpty ? nil : texts)
+                                   midi: midi, texts: texts.isEmpty ? nil : texts,
+                                   ghosts: ghosts.isEmpty ? nil : ghosts)
         routines = snapshot.routines
         favourites = snapshot.favourites
         let histories = ScoreHistory.all().mapValues(ScoreHistoryDoc.init)

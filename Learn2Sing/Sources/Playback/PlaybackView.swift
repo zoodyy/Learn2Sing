@@ -525,14 +525,18 @@ final class ExercisePlayer {
 
     // MARK: Scheduling
 
-    func schedule(notes: [MIDINote], bpm: Double, leadIn: Double, preview: Bool = true,
+    /// Plays `notes` with the `ghosts` drawn over them, which sound in their place
+    /// wherever the two meet (see `soundingNotes(melody:ghosts:)`).
+    func schedule(notes: [MIDINote], ghosts: [MIDINote] = [], bpm: Double, leadIn: Double,
+                  preview: Bool = true,
                   repeatLayout: RepeatLayout = RepeatLayout(), betweenReps: Double = 0,
                   onFinish: @escaping () -> Void) {
         let secPerBeat = 60.0 / bpm
+        let heard = soundingNotes(melody: notes, ghosts: ghosts)
 
         var events: [Event] = []
-        events.reserveCapacity(notes.count * 2 + 2)
-        for note in notes {
+        events.reserveCapacity(heard.count * 2 + 2)
+        for note in heard {
             let onSample  = Int((note.beat + leadIn) * secPerBeat * sampleRate)
             let offSample = Int((note.beat + note.length + leadIn) * secPerBeat * sampleRate)
             events.append(Event(sample: onSample,  pitch: note.pitch, on: true))
@@ -547,6 +551,9 @@ final class ExercisePlayer {
         // Later repetitions only get one when the gap between reps is at least three
         // beats — the preview's two-beat tone plus one-beat pause — so it fits inside
         // the silence without colliding with the previous repetition.
+        //
+        // A first note with ghost notes sounding over its start isn't heard there
+        // itself, so what is previewed is what is: those ghost notes, together.
         if preview {
             // Earliest note of each repetition. Each repetition's first note already
             // carries that rep's transposition, so its pitch is the right one to
@@ -564,11 +571,17 @@ final class ExercisePlayer {
                 let firstBeat = firstNote.beat + leadIn
                 let previewOn  = repeatLayout.beat(3.0, before: rep, startingAt: firstBeat)
                 let previewOff = repeatLayout.beat(1.0, before: rep, startingAt: firstBeat)
+                let over = ghosts.filter {
+                    firstNote.beat >= $0.beat - 1e-9 && firstNote.beat < $0.beat + $0.length - 1e-9
+                }
+                let pitches = over.isEmpty ? [firstNote.pitch] : Set(over.map(\.pitch)).sorted()
                 if previewOn >= 0 {
-                    events.append(Event(sample: Int(previewOn  * secPerBeat * sampleRate),
-                                        pitch: firstNote.pitch, on: true))
-                    events.append(Event(sample: Int(previewOff * secPerBeat * sampleRate),
-                                        pitch: firstNote.pitch, on: false))
+                    for pitch in pitches {
+                        events.append(Event(sample: Int(previewOn  * secPerBeat * sampleRate),
+                                            pitch: pitch, on: true))
+                        events.append(Event(sample: Int(previewOff * secPerBeat * sampleRate),
+                                            pitch: pitch, on: false))
+                    }
                 }
             }
         }
@@ -576,7 +589,7 @@ final class ExercisePlayer {
         // repeated pitch is released before its next strike begins.
         events.sort { $0.sample != $1.sample ? $0.sample < $1.sample : (!$0.on && $1.on) }
 
-        let lastBeat = notes.map { $0.beat + $0.length }.max() ?? 0
+        let lastBeat = heard.map { $0.beat + $0.length }.max() ?? 0
         let finishSample = Int((lastBeat + leadIn + 1.0) * secPerBeat * sampleRate)
 
         os_unfair_lock_lock(&lock)
@@ -960,6 +973,9 @@ struct PlaybackView: View {
     @State private var scorer = Scorer()
     @State private var notes: [MIDINote] = []
     @State private var texts: [MIDIText] = []
+    /// The ghost notes, laid out over the repetitions like `notes`: heard in their
+    /// place where the two meet and drawn faintly, but never scored.
+    @State private var ghosts: [MIDINote] = []
     @State private var finalScore: Int? = nil
     /// Set alongside it when that score beat every earlier one for this exercise,
     /// which the score screen says out loud. Worked out in `finishRun`, before the
@@ -1047,7 +1063,7 @@ struct PlaybackView: View {
     /// to its own tempo in `notes`), and the beat it waits at the end. This is
     /// what a finished run adds to the Home tab's practice calendar.
     private var runDuration: Double {
-        let lastBeat = notes.map { $0.beat + $0.length }.max() ?? 0
+        let lastBeat = (notes + ghosts).map { $0.beat + $0.length }.max() ?? 0
         return (lastBeat + leadIn + 1.0) * (60.0 / bpm)
     }
 
@@ -1079,6 +1095,7 @@ struct PlaybackView: View {
                 // with controls that slide the sung line over the notes. Done saves
                 // what was dialled in and shows it; the back button leaves without it.
                 ExerciseReviewView(exercise: exercise, notes: notes, texts: texts,
+                                   ghosts: ghosts,
                                    samples: trail.recording, bpm: bpm,
                                    repeatLayout: repeatLayout,
                                    lookAheadMs: pitchDetector.lookAheadMs,
@@ -1087,6 +1104,7 @@ struct PlaybackView: View {
             } else if let finalScore {
                 if isReviewing {
                     ExerciseReviewView(exercise: exercise, notes: notes, texts: texts,
+                                       ghosts: ghosts,
                                        samples: trail.recording, bpm: bpm,
                                        repeatLayout: repeatLayout,
                                        lookAheadMs: pitchDetector.lookAheadMs,
@@ -1264,7 +1282,7 @@ struct PlaybackView: View {
     /// Hands the notes to the player, with `runPlayedOut` to call when it gets to the
     /// end of them.
     private func scheduleRun() {
-        player.schedule(notes: notes, bpm: bpm, leadIn: leadIn,
+        player.schedule(notes: notes, ghosts: ghosts, bpm: bpm, leadIn: leadIn,
                         preview: playsExercise,
                         repeatLayout: repeatLayout, betweenReps: exercise.beatsBetweenReps) {
             runPlayedOut()
@@ -1564,6 +1582,7 @@ struct PlaybackView: View {
         }
 
         drawPlaybackScene(ctx: ctx, layout: layout, beat: beat, notes: notes, texts: texts,
+                          ghosts: ghosts,
                           trailPath: trailPath, singerPitch: singerPitch, settings: s,
                           repetition: repetition, safeTop: safeTop, safeBottom: safeBottom,
                           playheadTop: playheadTop, repeatLayout: repeatLayout)
@@ -1642,6 +1661,7 @@ struct PlaybackView: View {
         }
         notes = ns
         texts = ts
+        ghosts = []
     }
 
     /// Average lag between each counted clap and the metronome tick that prompted it.
@@ -1672,11 +1692,13 @@ struct PlaybackView: View {
     private func loadNotes() {
         let saved: [MIDINote]
         var savedTexts: [MIDIText] = []
+        var savedGhosts: [MIDINote] = []
         if mode == .pitchDetectionTrial {
             // The exercise as it ships, whether the library still holds it or the
             // singer has changed their copy since.
             saved = ExerciseStore.bundledNotes(exercise.id)
             savedTexts = ExerciseStore.bundledTexts(exercise.id)
+            savedGhosts = ExerciseStore.bundledGhosts(exercise.id)
         } else {
             let key = "midi_\(exercise.id.uuidString)"
             guard let data = UserDefaults.standard.data(forKey: key),
@@ -1688,15 +1710,17 @@ struct PlaybackView: View {
                let decoded = try? JSONDecoder().decode([MIDIText].self, from: data) {
                 savedTexts = decoded
             }
+            savedGhosts = store.ghosts(for: exercise.id)
         }
 
         // The same expansion the settings screen's preview draws from: every
         // repetition in its place, at its own tempo and transposition, moved to fit
         // the singer's vocal range.
-        let timeline = exercise.timeline(pattern: saved, labels: savedTexts,
+        let timeline = exercise.timeline(pattern: saved, labels: savedTexts, ghosts: savedGhosts,
                                          vocalRange: VocalRange(rawValue: vocalRangeRaw))
         notes = timeline.notes
         texts = timeline.texts
+        ghosts = timeline.ghosts
         repeatLayout = timeline.repeats
         repetitionCenters = timeline.centers
         repetitionMaxExtent = timeline.maxExtent

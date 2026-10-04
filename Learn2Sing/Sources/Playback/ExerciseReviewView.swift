@@ -30,6 +30,9 @@ struct ExerciseReviewView: View {
     /// repetitions and transposed, so they sit where the singer saw them.
     let notes: [MIDINote]
     let texts: [MIDIText]
+    /// The ghost notes played along with them, expanded the same way: drawn
+    /// faintly, as during the run, and never what the line is measured against.
+    var ghosts: [MIDINote] = []
     /// Every pitch estimate of the run, oldest first, at the beat it was heard.
     let samples: [PitchSample]
     let bpm: Double
@@ -314,6 +317,7 @@ struct ExerciseReviewView: View {
         }
 
         drawPlaybackScene(ctx: ctx, layout: layout, beat: beat, notes: notes, texts: texts,
+                          ghosts: ghosts,
                           trailPath: trailPath, singerPitch: pitch(at: beat), settings: visuals,
                           repetition: repetition, safeTop: safeTop, safeBottom: safeBottom,
                           playheadTop: playheadTop(safeTop: safeTop), repeatLayout: repeatLayout)
@@ -384,8 +388,9 @@ struct ExerciseReviewView: View {
         /// exercise or the line — reaches further.
         var beats: ClosedRange<Double>
         /// The pitches the camera's centre may travel between, on the same footing:
-        /// anything drawn — a note, a label, any point of the sung line — can be
-        /// brought to the middle of the screen, where no bar is covering it.
+        /// anything drawn — a note, a ghost note, a label, any point of the sung
+        /// line — can be brought to the middle of the screen, where no bar is
+        /// covering it.
         var pitches: ClosedRange<Double>
     }
 
@@ -396,7 +401,7 @@ struct ExerciseReviewView: View {
         let delay = lineShift
         var firstBeat = Double.infinity
         var lastBeat = -Double.infinity
-        for note in notes {
+        for note in [notes, ghosts].joined() {
             firstBeat = min(firstBeat, note.beat)
             lastBeat = max(lastBeat, note.beat + note.length)
         }
@@ -414,7 +419,7 @@ struct ExerciseReviewView: View {
 
         var lowPitch = Double.infinity
         var highPitch = -Double.infinity
-        for note in notes {
+        for note in [notes, ghosts].joined() {
             lowPitch = min(lowPitch, Double(note.pitch))
             highPitch = max(highPitch, Double(note.pitch))
         }

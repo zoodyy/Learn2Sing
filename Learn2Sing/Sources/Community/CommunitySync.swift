@@ -7,7 +7,7 @@ import Foundation
 import Combine
 
 /// The document persisted per public exercise, under the exercise's own ID:
-/// the exercise together with its MIDI pattern and text labels. An exercise made
+/// the exercise together with its MIDI pattern, text labels and ghost notes. An exercise made
 /// private or deleted now has its record deleted outright (see
 /// `deleteSharedExercise`), so nothing writes an `exercise` of nil any more —
 /// but the tombstones older versions left in place of a delete are still on the
@@ -26,6 +26,11 @@ struct SharedExerciseDoc: Codable {
     var exercise: Exercise? = nil
     var midi: [MIDINote] = []
     var texts: [MIDIText]? = nil
+    /// The notes played along with `midi` but never sung (see
+    /// `ExerciseStore.ghosts(for:)`). Left out when there are none, and a key of
+    /// its own rather than a flag on the notes in `midi`, so the versions that
+    /// predate it read the exercise as its melody alone.
+    var ghosts: [MIDINote]? = nil
     /// When the exercise was first shared, as seconds since 1970. Stamped by the
     /// uploader on the first upload and then carried forward unchanged (edits
     /// don't reset it), so the Community tab can sort by age. Optional: exercises
@@ -205,8 +210,8 @@ final class CommunityCounts: ObservableObject {
 /// The list itself is never persisted: it holds exactly
 /// what the server returned this session, so every user's Community tab looks
 /// the same. Fetched patterns are cached under the standard `midi_<uuid>` /
-/// `miditext_<uuid>` UserDefaults keys, so thumbnails, playback, and Download
-/// treat community exercises exactly like local ones.
+/// `miditext_<uuid>` / `midighost_<uuid>` UserDefaults keys, so thumbnails,
+/// playback, and Download treat community exercises exactly like local ones.
 @MainActor
 final class CommunitySync: ObservableObject {
     static let shared = CommunitySync()
@@ -219,8 +224,9 @@ final class CommunitySync: ObservableObject {
     nonisolated static let publicProfileType = "PUBLIC_PROFILE"
     /// Storage type of the per-exercise public document (see `SharedExerciseDoc`).
     nonisolated static let sharedExerciseType = "SHARED_EXERCISE"
-    /// UUID strings whose midi/miditext keys were written by a fetch, so a later
-    /// fetch can clean up patterns of exercises that left the community list.
+    /// UUID strings whose midi/miditext/midighost keys were written by a fetch,
+    /// so a later fetch can clean up patterns of exercises that left the
+    /// community list.
     private static let cachedPatternIDsKey = "communityPatternIDs"
     /// UUID strings of this device's exercises that have a live record on the
     /// server; persisted so exercises unshared or deleted while offline (or in
@@ -600,6 +606,7 @@ final class CommunitySync: ObservableObject {
         for exercise in publicExercises {
             let idString = exercise.id.uuidString
             let t = store.texts(for: exercise.id)
+            let g = store.ghosts(for: exercise.id)
             // Publish under the exercise's public id; the raw id stays local
             // (it still keys the pattern lookups and the bookkeeping below).
             var shared = exercise
@@ -608,6 +615,7 @@ final class CommunitySync: ObservableObject {
                                         exercise: shared,
                                         midi: store.notes(for: exercise.id),
                                         texts: t.isEmpty ? nil : t,
+                                        ghosts: g.isEmpty ? nil : g,
                                         createdAt: shareDate(for: shared.id)?.timeIntervalSince1970)
             guard let body = try? encoder.encode(doc) else { continue }
             if body == lastUploadedBodies[idString] {
@@ -1817,6 +1825,11 @@ final class CommunitySync: ObservableObject {
             } else {
                 defaults.removeObject(forKey: ExerciseStore.midiTextKey(exercise.id))
             }
+            if let ghosts = doc.ghosts, let data = try? JSONEncoder().encode(ghosts) {
+                defaults.set(data, forKey: ExerciseStore.midiGhostKey(exercise.id))
+            } else {
+                defaults.removeObject(forKey: ExerciseStore.midiGhostKey(exercise.id))
+            }
             cachedPatternSources[exercise.id] = fetchedDoc.source
         }
         let cached = Set(defaults.stringArray(forKey: Self.cachedPatternIDsKey) ?? [])
@@ -1825,6 +1838,7 @@ final class CommunitySync: ObservableObject {
                 guard let id = UUID(uuidString: idString) else { continue }
                 defaults.removeObject(forKey: ExerciseStore.midiKey(id))
                 defaults.removeObject(forKey: ExerciseStore.midiTextKey(id))
+                defaults.removeObject(forKey: ExerciseStore.midiGhostKey(id))
                 // The pattern is gone, so the next fetch that lists this exercise
                 // again has to write it back even if the document hasn't changed.
                 cachedPatternSources.removeValue(forKey: id)

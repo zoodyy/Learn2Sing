@@ -418,6 +418,11 @@ private func labelHalfWidth(_ text: String) -> CGFloat {
 
 // MARK: - Shared scene renderer
 
+/// How strongly a ghost note is drawn, as a share of an ordinary note's colour:
+/// enough to see the chord a note sits in, faint enough never to be mistaken for
+/// one to sing.
+private let ghostNoteOpacity = 0.22
+
 /// Draws the scrolling note scene used by both the live playback screen and the
 /// visuals-customisation preview, honouring `settings`. Pure drawing — the caller
 /// supplies the data, the current beat, the singer's pitch and a pre-built trail
@@ -430,8 +435,12 @@ private func labelHalfWidth(_ text: String) -> CGFloat {
 /// it level with the top of the toolbar buttons instead of running to the screen edge.
 /// `repeatLayout` says where the repetitions sit on the timeline, needed only by the
 /// dotted playhead's "hide dots in unused pitches" option to tell them apart.
+/// `ghosts` are the notes played along with `notes` but never sung, drawn as faint
+/// copies of them underneath; nothing else here — the keyboard's lit keys, the
+/// dotted playhead's rows — takes any notice of them, since those point the singer
+/// at what to sing.
 func drawPlaybackScene(ctx: GraphicsContext, layout: SceneLayout, beat: Double,
-                       notes: [MIDINote], texts: [MIDIText],
+                       notes: [MIDINote], texts: [MIDIText], ghosts: [MIDINote] = [],
                        trailPath: Path, singerPitch: Double?,
                        settings: VisualSettings,
                        repetition: (current: Int, total: Int)? = nil,
@@ -560,12 +569,15 @@ func drawPlaybackScene(ctx: GraphicsContext, layout: SceneLayout, beat: Double,
     }
 
     // ── Notes ───────────────────────────────────────────────────────────────
-    for note in notes {
+    // The ghost notes first, so a note sung at the same pitch covers its ghost
+    // rather than being veiled by it. They take the notes' own colours, lighting up
+    // as they sound like any other note, at a fraction of their strength.
+    func drawNote(_ note: MIDINote, opacity: Double) {
         let noteX = layout.x(note.beat, beat: beat)
         let noteW = CGFloat(note.length) * layout.beatPx
         let leftEdge = max(noteX, pianoW)
         let rightEdge = min(noteX + noteW, size.width)
-        guard rightEdge > leftEdge else { continue }
+        guard rightEdge > leftEdge else { return }
 
         let cy = layout.y(Double(note.pitch))
         let rect = CGRect(x: leftEdge, y: cy - rowH / 2 + 1,
@@ -577,13 +589,15 @@ func drawPlaybackScene(ctx: GraphicsContext, layout: SceneLayout, beat: Double,
         if isActive {
             // Stroke in the same colour as the fill so the active note isn't a hair
             // smaller than the others, which carry an outward 1pt stroke of their own.
-            ctx.fill(path, with: .color(settings.playingNoteColor))
-            ctx.stroke(path, with: .color(settings.playingNoteColor), lineWidth: 1)
+            ctx.fill(path, with: .color(settings.playingNoteColor.opacity(opacity)))
+            ctx.stroke(path, with: .color(settings.playingNoteColor.opacity(opacity)), lineWidth: 1)
         } else {
-            ctx.fill(path, with: .color(settings.noteColor))
-            ctx.stroke(path, with: .color(settings.noteColor.opacity(0.7)), lineWidth: 1)
+            ctx.fill(path, with: .color(settings.noteColor.opacity(opacity)))
+            ctx.stroke(path, with: .color(settings.noteColor.opacity(0.7 * opacity)), lineWidth: 1)
         }
     }
+    for ghost in ghosts { drawNote(ghost, opacity: ghostNoteOpacity) }
+    for note in notes { drawNote(note, opacity: 1) }
 
     // ── Text labels ───────────────────────────────────────────────────────
     // Drawn centred on `centreBeat` — the middle the editor placed the label by —

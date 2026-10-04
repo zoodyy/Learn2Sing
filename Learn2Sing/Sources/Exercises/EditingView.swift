@@ -188,6 +188,9 @@ private let rulerH: CGFloat = 26
 private let minLength: Double = 0.25
 /// Slack for comparing snapped beat positions, so touching notes don't read as overlapping.
 private let beatEpsilon: Double = 1e-9
+/// How many ghost notes may sound at the same moment: a chord of five, which is as
+/// many notes as a hand plays.
+private let maxGhostsAtOnce = 5
 
 
 // MARK: - EditingView
@@ -201,6 +204,9 @@ struct EditingView: View {
 
     @State private var notes: [MIDINote] = []
     @State private var texts: [MIDIText] = []
+    /// The notes drawn with the ghost tool: played, but never sung or scored. See
+    /// `NoteLayer`.
+    @State private var ghosts: [MIDINote] = []
     @State private var interaction: Interaction = .idle
     @State private var tool: Tool = .pen
 
@@ -209,6 +215,7 @@ struct EditingView: View {
     // snapshot back.
     @State private var savedNotes: [MIDINote] = []
     @State private var savedTexts: [MIDIText] = []
+    @State private var savedGhosts: [MIDINote] = []
     /// The exercise's dates as they were when the editor opened, which leaving
     /// without saving puts back along with the pattern (see ExerciseDates).
     @State private var savedDates: ExerciseTimestamps?
@@ -240,8 +247,26 @@ struct EditingView: View {
     private enum Tool {
         case pen    // create / move / resize notes
         case text   // place / move / edit text labels
-        case erase  // delete notes and text
+        case erase  // delete notes, ghost notes and text
         case hand   // pan & scroll (gesture disabled)
+        case ghost  // create / move / resize ghost notes, exactly as the pen does notes
+    }
+
+    /// The two kinds of note on the roll. The melody is what the exercise is sung
+    /// to, drawn with the pen. Ghost notes, drawn with the ghost tool, are only ever
+    /// played: wherever they sound over the melody they're heard in its place, so a
+    /// note can be hidden in a chord the singer has to find it in. Neither kind gets
+    /// in the other's way.
+    private enum NoteLayer {
+        case melody, ghost
+
+        /// How many of the layer's notes may sound at the same moment.
+        var capacity: Int {
+            switch self {
+            case .melody: 1
+            case .ghost: maxGhostsAtOnce
+            }
+        }
     }
 
     /// Which end of a note a drag is dragging: the start or the end of it.
@@ -252,12 +277,13 @@ struct EditingView: View {
     private enum Interaction {
         case idle
         // `anchor` is the beat the press landed on; the note grows right from it, or
-        // left from the right edge it started with.
-        case creating(note: MIDINote, anchor: Double)
+        // left from the right edge it started with. `layer` is the kind of note it is.
+        case creating(note: MIDINote, anchor: Double, layer: NoteLayer)
         // A press that landed on a beat no note can start on — another note already
-        // sounds there, or there's too little room left before the next one. Nothing is
-        // drawn yet: the note appears the moment the drag reaches free timeline either
-        // side, butted up against the stretch that blocked it.
+        // sounds there (for a ghost note, as many as there's room for), or there's too
+        // little room left before the next one. Nothing is drawn yet: the note appears
+        // the moment the drag reaches free timeline either side, butted up against the
+        // stretch that blocked it.
         case pendingNote(pitch: Int, origin: Double)
         case resizing(id: UUID, edge: ResizeEdge)
         case movingNote(id: UUID, grabDX: Double)
@@ -273,23 +299,43 @@ struct EditingView: View {
 
     // Notes visible during an in-progress drag
     private var liveNotes: [MIDINote] {
-        if case .creating(let n, _) = interaction { return notes + [n] }
+        if case .creating(let n, _, .melody) = interaction { return notes + [n] }
         return notes
     }
 
+    /// The ghost notes, likewise.
+    private var liveGhosts: [MIDINote] {
+        if case .creating(let n, _, .ghost) = interaction { return ghosts + [n] }
+        return ghosts
+    }
+
     private var inProgressID: UUID? {
-        if case .creating(let n, _) = interaction { return n.id }
+        if case .creating(let n, _, _) = interaction { return n.id }
         return nil
+    }
+
+    private func layerNotes(_ layer: NoteLayer) -> [MIDINote] {
+        layer == .melody ? notes : ghosts
+    }
+
+    /// Puts `note` back over the note of `layer` with its id, if it's still there.
+    private func replace(_ note: MIDINote, in layer: NoteLayer) {
+        switch layer {
+        case .melody:
+            if let i = notes.firstIndex(where: { $0.id == note.id }) { notes[i] = note }
+        case .ghost:
+            if let i = ghosts.firstIndex(where: { $0.id == note.id }) { ghosts[i] = note }
+        }
     }
 
     // MARK: - Dynamic grid width
 
-    /// Furthest beat any content reaches: the end of the longest-reaching note or the
-    /// right edge of the furthest text chip. Uses `liveNotes` so the grid grows live
-    /// while a note is being dragged into the trailing free measures.
+    /// Furthest beat any content reaches: the end of the longest-reaching note (or
+    /// ghost note) or the right edge of the furthest text chip. Uses `liveNotes` so the
+    /// grid grows live while a note is being dragged into the trailing free measures.
     private var contentEndBeat: Double {
         var maxBeat = 0.0
-        for note in liveNotes { maxBeat = max(maxBeat, note.beat + note.length) }
+        for note in liveNotes + liveGhosts { maxBeat = max(maxBeat, note.beat + note.length) }
         for label in texts { maxBeat = max(maxBeat, Double(textRect(for: label).maxX / beatW)) }
         return maxBeat
     }
@@ -372,6 +418,16 @@ struct EditingView: View {
     }
 
     var body: some View {
+        // Every edit is written through as it happens (see `savedNotes`). Kept apart
+        // from the screen itself so the compiler can still type-check both.
+        editor
+            .onChange(of: notes) { _, _ in saveNotes() }
+            .onChange(of: texts) { _, _ in saveTexts() }
+            .onChange(of: ghosts) { _, _ in saveGhosts() }
+            .onChange(of: leadW) { old, new in holdScroll(throughMarginChange: new - old) }
+    }
+
+    private var editor: some View {
         VStack(spacing: 0) {
             // Time runs left to right across the grid in every language, with the
             // keys on its left, so a mirrored app lays the ruler and the roll out as
@@ -394,18 +450,7 @@ struct EditingView: View {
                         .labelStyle(.titleAndIcon)
                 }
             }
-            ToolbarItem(placement: .topBarTrailing) {
-                HStack(spacing: 2) {
-                    toolButton(.pen,   system: "pencil",
-                               help: L("Draw notes: drag on the grid to make one, drag a note to move it, or drag its ends to make it longer or shorter."))
-                    toolButton(.text,  system: "textformat",
-                               help: L("Write a label on the grid, for the syllable to sing. Tap a label to change it, or drag it somewhere else."))
-                    toolButton(.erase, system: "eraser",
-                               help: L("Erase notes and labels by dragging across them."))
-                    toolButton(.hand,  system: "hand.point.up.left",
-                               help: L("Scroll the grid around without changing anything."))
-                }
-            }
+            ToolbarItem(placement: .topBarTrailing) { toolRow }
         }
         .explainBarButton(L("Back"), L("Saves what you drew and goes back to the exercise's settings."))
         .alert("Text", isPresented: $showTextEditor) {
@@ -433,8 +478,10 @@ struct EditingView: View {
             didLoad = true
             loadNotes()
             loadTexts()
+            loadGhosts()
             savedNotes = notes
             savedTexts = texts
+            savedGhosts = ghosts
             savedDates = exercise.flatMap { ExerciseDates.timestamps(for: $0.id) }
         }
         .onDisappear {
@@ -461,9 +508,6 @@ struct EditingView: View {
         .onReceive(Timer.publish(every: 0.25, on: .main, in: .common).autoconnect()) { _ in
             followPlayhead()
         }
-        .onChange(of: notes) { _, _ in saveNotes() }
-        .onChange(of: texts) { _, _ in saveTexts() }
-        .onChange(of: leadW) { old, new in holdScroll(throughMarginChange: new - old) }
     }
 
     /// The scroll offset is measured from the content's leading edge, and the dead
@@ -486,16 +530,20 @@ struct EditingView: View {
 
     private func startPlayback(from startBeat: Double) {
         // Keep only what sounds at or after the playhead; a note straddling it is
-        // clipped so just its remainder plays.
-        let clipped: [MIDINote] = notes.compactMap { note in
-            let end = note.beat + note.length
-            guard end > startBeat else { return nil }
-            var n = note
-            n.beat = max(0, note.beat - startBeat)
-            n.length = (end - startBeat) - n.beat
-            return n
+        // clipped so just its remainder plays. Ghost notes the same.
+        func clipped(_ list: [MIDINote]) -> [MIDINote] {
+            list.compactMap { note in
+                let end = note.beat + note.length
+                guard end > startBeat else { return nil }
+                var n = note
+                n.beat = max(0, note.beat - startBeat)
+                n.length = (end - startBeat) - n.beat
+                return n
+            }
         }
-        guard !clipped.isEmpty else { return }
+        let melody = clipped(notes)
+        let ghostNotes = clipped(ghosts)
+        guard !melody.isEmpty || !ghostNotes.isEmpty else { return }
 
         // Configure the route and start the engine on first play only; afterwards it
         // keeps running between runs so play/stop is instant.
@@ -507,7 +555,7 @@ struct EditingView: View {
         player.setClickMode(false)
         player.setInstrument(Instrument.current)
         playStartBeat = startBeat
-        player.schedule(notes: clipped, bpm: bpm, leadIn: 0, preview: false) {
+        player.schedule(notes: melody, ghosts: ghostNotes, bpm: bpm, leadIn: 0, preview: false) {
             isPlaying = false
             playheadBeat = playStartBeat
         }
@@ -552,8 +600,10 @@ struct EditingView: View {
     private func leaveDiscardingChanges() {
         notes = savedNotes
         texts = savedTexts
+        ghosts = savedGhosts
         writeNotes(savedNotes)
         writeTexts(savedTexts)
+        writeGhosts(savedGhosts)
         // The edits are gone, so the date they stamped goes with them.
         if let exercise { ExerciseDates.restore(savedDates, for: exercise.id) }
         toasts.suppressNext()
@@ -660,7 +710,7 @@ struct EditingView: View {
                     .font(.title3)
                     .frame(width: 28)
             }
-            .disabled(notes.isEmpty)
+            .disabled(notes.isEmpty && ghosts.isEmpty)
             .accessibilityLabel(isPlaying ? L("Stop") : L("Play"))
             .explain(L("Plays what you have drawn from the playhead, so you can hear it. Nothing is recorded or scored here."))
             TimelineView(.animation(minimumInterval: 0.1, paused: !isPlaying)) { _ in
@@ -687,6 +737,25 @@ struct EditingView: View {
         return "\(Int(b) / beatsPerMeasure + 1).\(Int(b) % beatsPerMeasure + 1)"
     }
 
+    /// The tools along the top right. Kept out of `body` so the compiler can still
+    /// type-check that.
+    private var toolRow: some View {
+        HStack(spacing: 2) {
+            toolButton(.pen,   system: "pencil",
+                       help: L("Draw notes: drag on the grid to make one, drag a note to move it, or drag its ends to make it longer or shorter."))
+            toolButton(.text,  system: "textformat",
+                       help: L("Write a label on the grid, for the syllable to sing. Tap a label to change it, or drag it somewhere else."))
+            toolButton(.erase, system: "eraser",
+                       help: L("Erase notes and labels by dragging across them."))
+            toolButton(.hand,  system: "hand.point.up.left",
+                       help: L("Scroll the grid around without changing anything."))
+            // SF Symbols has no ghost. A dashed bar is what a ghost note looks like
+            // on the grid.
+            toolButton(.ghost, system: "rectangle.dashed",
+                       help: L("Draw ghost notes the way you draw notes. They're played but never sung or scored, and while they play over a note only they are heard, so the note can be hidden in a chord. Up to %d can play at once.", maxGhostsAtOnce))
+        }
+    }
+
     private func toolButton(_ t: Tool, system: String, help: String) -> some View {
         Button { tool = t } label: {
             Image(systemName: system)
@@ -696,7 +765,7 @@ struct EditingView: View {
                 // Out to the glass's box at the ends of the row, and half the
                 // row's spacing towards each neighbour.
                 .toolbarHitArea(reach: EdgeInsets(top: 16, leading: t == .pen ? 16 : 1,
-                                                  bottom: 16, trailing: t == .hand ? 16 : 1))
+                                                  bottom: 16, trailing: t == .ghost ? 16 : 1))
         }
         .explain(help)
     }
@@ -738,6 +807,7 @@ struct EditingView: View {
 
     private var rollCanvas: some View {
         let shown = liveNotes
+        let shownGhosts = liveGhosts
         let overlaps = overlapSpans(in: shown)
         return Canvas { ctx, _ in
             // The dead margin: flat black, no rows and no lines, so it's plain that
@@ -810,6 +880,33 @@ struct EditingView: View {
                 }
             }
 
+            // Ghost notes, over the notes: see-through, so a note one is laid on still
+            // shows beneath it, and outlined in dashes, so a ghost note laid exactly
+            // over a note can still be told apart from it.
+            for ghost in shownGhosts {
+                let inner = rect(for: ghost).insetBy(dx: 1, dy: 1)
+                let dimmed = ghost.id == inProgressID
+                let ghostPath = Path(roundedRect: inner, cornerRadius: 3)
+                ctx.fill(ghostPath, with: .color(.green.opacity(dimmed ? 0.18 : 0.3)))
+                ctx.stroke(ghostPath, with: .color(.green.opacity(0.9)),
+                           style: StrokeStyle(lineWidth: 1, dash: [3, 2]))
+
+                // A note of the same pitch already has its name written there.
+                let named = shown.contains {
+                    $0.pitch == ghost.pitch && ghost.beat >= $0.beat - beatEpsilon
+                        && ghost.beat < $0.beat + $0.length - beatEpsilon
+                }
+                if inner.width > 20, !named {
+                    ctx.draw(
+                        Text(pitchName(ghost.pitch))
+                            .font(.system(size: 8, weight: .medium))
+                            .foregroundColor(.white.opacity(0.75)),
+                        at: CGPoint(x: inner.minX + 3, y: inner.midY),
+                        anchor: .leading
+                    )
+                }
+            }
+
             // The snap line: while a label is being dragged onto a note's middle, a
             // stroke down the beat the two share, so it's plain they line up. Drawn
             // over the notes but under the labels, so the text on top of it stays
@@ -845,7 +942,8 @@ struct EditingView: View {
         DragGesture(minimumDistance: 0, coordinateSpace: .local)
             .onChanged { v in
                 switch tool {
-                case .pen:   penChanged(v)
+                case .pen:   noteChanged(v, in: .melody)
+                case .ghost: noteChanged(v, in: .ghost)
                 case .text:  textChanged(v)
                 case .erase: eraseChanged(v)
                 case .hand:  break
@@ -853,7 +951,8 @@ struct EditingView: View {
             }
             .onEnded { v in
                 switch tool {
-                case .pen:   penEnded(v)
+                case .pen:   noteEnded(v, in: .melody)
+                case .ghost: noteEnded(v, in: .ghost)
                 case .text:  textEnded(v)
                 case .erase: interaction = .idle
                 case .hand:  break
@@ -861,16 +960,19 @@ struct EditingView: View {
             }
     }
 
-    // MARK: Pen tool — create, move, resize notes (no delete)
+    // MARK: Pen and ghost tools — create, move, resize notes (no delete)
+    //
+    // The two tools work exactly alike, each on its own `layer` of notes and under
+    // that layer's rule for how many of them may sound at once.
 
-    private func penChanged(_ v: DragGesture.Value) {
+    private func noteChanged(_ v: DragGesture.Value, in layer: NoteLayer) {
         switch interaction {
         case .idle:
             guard beatValue(v.startLocation.x) >= 0 else {
                 interaction = .deadSpace
                 break
             }
-            if let hit = noteAt(v.startLocation) {
+            if let hit = noteAt(v.startLocation, in: layer) {
                 if let edge = resizeEdge(of: hit, x: gridPoint(v.startLocation).x) {
                     interaction = .resizing(id: hit.id, edge: edge)
                 } else {
@@ -880,9 +982,10 @@ struct EditingView: View {
             } else {
                 // Only one note may sound at a time, so a press that lands on a beat
                 // another note already covers — even several rows away — draws nothing
-                // yet; it waits to see whether the drag leaves the taken stretch.
+                // yet; it waits to see whether the drag leaves the taken stretch. The
+                // same goes for a ghost note where as many as there's room for sound.
                 let start = snappedBeat(v.startLocation.x)
-                guard !isOccupied(start), spaceAfter(start) >= minLength else {
+                guard !isOccupied(start, in: layer), spaceAfter(start, in: layer) >= minLength else {
                     interaction = .pendingNote(pitch: pitchAt(v.startLocation.y), origin: start)
                     break
                 }
@@ -891,7 +994,7 @@ struct EditingView: View {
                     beat: start,
                     length: minLength
                 )
-                interaction = .creating(note: note, anchor: start)
+                interaction = .creating(note: note, anchor: start, layer: layer)
             }
 
         case .pendingNote(let pitch, let origin):
@@ -900,46 +1003,51 @@ struct EditingView: View {
             // the blocking note as a note can start — on whichever side the drag went.
             let pointer = beatValue(v.location.x)
             let from = beatValue(v.startLocation.x)
-            if pointer > from, let anchor = nextFreeStart(atOrAfter: origin), pointer >= anchor {
+            if pointer > from, let anchor = nextFreeStart(atOrAfter: origin, in: layer),
+               pointer >= anchor {
                 let note = MIDINote(pitch: pitch, beat: anchor, length: minLength)
-                interaction = .creating(note: grown(note, anchor: anchor, pointer: pointer),
-                                        anchor: anchor)
-            } else if pointer < from, let end = previousFreeEnd(atOrBefore: origin), pointer <= end {
+                interaction = .creating(note: grown(note, anchor: anchor, pointer: pointer, in: layer),
+                                        anchor: anchor, layer: layer)
+            } else if pointer < from, let end = previousFreeEnd(atOrBefore: origin, in: layer),
+                      pointer <= end {
                 let anchor = end - minLength
                 let note = MIDINote(pitch: pitch, beat: anchor, length: minLength)
-                interaction = .creating(note: grown(note, anchor: anchor, pointer: pointer),
-                                        anchor: anchor)
+                interaction = .creating(note: grown(note, anchor: anchor, pointer: pointer, in: layer),
+                                        anchor: anchor, layer: layer)
             }
 
-        case .creating(let note, let anchor):
+        case .creating(let note, let anchor, let creatingLayer):
             interaction = .creating(note: grown(note, anchor: anchor,
-                                                pointer: beatValue(v.location.x)),
-                                    anchor: anchor)
+                                                pointer: beatValue(v.location.x), in: creatingLayer),
+                                    anchor: anchor, layer: creatingLayer)
 
         case .resizing(let id, let edge):
-            if let i = notes.firstIndex(where: { $0.id == id }) {
+            if var note = layerNotes(layer).first(where: { $0.id == id }) {
                 let pointer = beatValue(v.location.x)
                 switch edge {
                 case .trailing:
-                    notes[i].length = min(max(minLength, snapped(pointer - notes[i].beat)),
-                                          spaceAfter(notes[i].beat, excluding: id))
+                    note.length = min(max(minLength, snapped(pointer - note.beat)),
+                                      spaceAfter(note.beat, in: layer, excluding: id))
                 case .leading:
                     // Dragging the start of the note: the end of it stays put.
-                    let rightEdge = notes[i].beat + notes[i].length
-                    let leftLimit = rightEdge - spaceBefore(rightEdge, excluding: id)
+                    let rightEdge = note.beat + note.length
+                    let leftLimit = rightEdge - spaceBefore(rightEdge, in: layer, excluding: id)
                     let beat = min(max(snapped(pointer), leftLimit), rightEdge - minLength)
-                    notes[i].beat = beat
-                    notes[i].length = rightEdge - beat
+                    note.beat = beat
+                    note.length = rightEdge - beat
                 }
+                replace(note, in: layer)
             }
 
         case .movingNote(let id, let grabDX):
-            if let i = notes.firstIndex(where: { $0.id == id }) {
+            if var note = layerNotes(layer).first(where: { $0.id == id }) {
                 let desired = max(0, snapped(beatValue(v.location.x) - grabDX))
-                notes[i].beat = placement(desired: desired,
-                                          length: notes[i].length,
-                                          excluding: id) ?? notes[i].beat
-                notes[i].pitch = pitchAt(v.location.y)
+                note.beat = placement(desired: desired,
+                                      length: note.length,
+                                      in: layer,
+                                      excluding: id) ?? note.beat
+                note.pitch = pitchAt(v.location.y)
+                replace(note, in: layer)
             }
 
         default:
@@ -947,15 +1055,24 @@ struct EditingView: View {
         }
     }
 
-    private func penEnded(_ v: DragGesture.Value) {
+    private func noteEnded(_ v: DragGesture.Value, in layer: NoteLayer) {
         switch interaction {
-        case .creating(let note, _):
+        case .creating(let note, _, .melody):
             notes.append(note)
+
+        case .creating(let note, _, .ghost):
+            ghosts.append(note)
 
         case .pendingNote:
             // Never left the taken stretch, so nothing was drawn — say why, since the
             // press looks like it should have worked.
-            toasts.show(L("Notes Can't Overlap"), icon: "exclamationmark.triangle.fill")
+            switch layer {
+            case .melody:
+                toasts.show(L("Notes Can't Overlap"), icon: "exclamationmark.triangle.fill")
+            case .ghost:
+                toasts.show(L("Up to %d Ghost Notes at Once", maxGhostsAtOnce),
+                            icon: "exclamationmark.triangle.fill")
+            }
 
         default:
             break
@@ -965,15 +1082,17 @@ struct EditingView: View {
 
     /// The note being drawn, stretched to the pointer: right of `anchor` it grows right
     /// from that edge, left of it the right edge the note started with stays put. Either
-    /// way it stops at the notes on both sides of it.
-    private func grown(_ note: MIDINote, anchor: Double, pointer: Double) -> MIDINote {
+    /// way it stops at the notes of its `layer` on both sides of it.
+    private func grown(_ note: MIDINote, anchor: Double, pointer: Double,
+                       in layer: NoteLayer) -> MIDINote {
         var note = note
         if pointer >= anchor {
             note.beat = anchor
-            note.length = min(max(minLength, snapped(pointer - anchor)), spaceAfter(anchor))
+            note.length = min(max(minLength, snapped(pointer - anchor)),
+                              spaceAfter(anchor, in: layer))
         } else {
             let rightEdge = anchor + minLength
-            let leftLimit = rightEdge - spaceBefore(rightEdge)
+            let leftLimit = rightEdge - spaceBefore(rightEdge, in: layer)
             note.beat = min(max(snapped(pointer), leftLimit), anchor)
             note.length = rightEdge - note.beat
         }
@@ -1064,10 +1183,13 @@ struct EditingView: View {
         editingTextID = nil
     }
 
-    // MARK: Erase tool — scrub over notes and text to delete
+    // MARK: Erase tool — scrub over notes, ghost notes and text to delete
 
     private func eraseChanged(_ v: DragGesture.Value) {
-        if let n = noteAt(v.location) {
+        // Ghost notes first: they're drawn over the notes.
+        if let g = noteAt(v.location, in: .ghost) {
+            ghosts.removeAll { $0.id == g.id }
+        } else if let n = noteAt(v.location, in: .melody) {
             notes.removeAll { $0.id == n.id }
         } else if let t = textAt(v.location) {
             texts.removeAll { $0.id == t.id }
@@ -1081,22 +1203,69 @@ struct EditingView: View {
     // never share a stretch of the timeline, no matter how far apart their pitches
     // are. Editing clamps every placement to keep that true; anything that slipped
     // through anyway (an older pattern, a downloaded one) is drawn red instead.
+    //
+    // Ghost notes are held to the very same rules among themselves, only with room
+    // for `maxGhostsAtOnce` of them at any moment instead of one. The two layers
+    // never block each other: a ghost note sounding over a note is what it's for.
+    // So every rule below takes the layer it's about, and with room for one note
+    // comes down to the melody's rule as it has always been.
 
-    /// Free stretches of the timeline, as `(start, end)` beat pairs, with `id`'s own
-    /// note left out. The last stretch runs to infinity.
-    private func freeGaps(excluding id: UUID?) -> [(start: Double, end: Double)] {
+    /// Free stretches of `layer`'s timeline, as `(start, end)` beat pairs, with `id`'s
+    /// own note left out: everywhere fewer of its notes sound than it has room for.
+    /// The last stretch runs to infinity.
+    private func freeGaps(in layer: NoteLayer, excluding id: UUID?) -> [(start: Double, end: Double)] {
         var gaps: [(start: Double, end: Double)] = []
         var cursor = 0.0
-        for note in notes.filter({ $0.id != id }).sorted(by: { $0.beat < $1.beat }) {
-            if note.beat > cursor + beatEpsilon { gaps.append((cursor, note.beat)) }
-            cursor = max(cursor, note.beat + note.length)
+        for span in fullSpans(in: layer, excluding: id) {
+            if span.start > cursor + beatEpsilon { gaps.append((cursor, span.start)) }
+            cursor = max(cursor, span.end)
         }
         gaps.append((cursor, .infinity))
         return gaps
     }
 
+    /// The stretches over which `layer` has no room left — as many of its notes
+    /// sounding as it may hold — in the order they start, with `id`'s own note left
+    /// out. With room for a single note, that's every note.
+    private func fullSpans(in layer: NoteLayer, excluding id: UUID?) -> [(start: Double, end: Double)] {
+        let others = layerNotes(layer).filter { $0.id != id }
+        guard layer.capacity > 1 else {
+            return others.sorted { $0.beat < $1.beat }.map { ($0.beat, $0.beat + $0.length) }
+        }
+        // How many sound only changes where a note starts or ends, so between two of
+        // those edges it's whatever it is halfway along.
+        let edges = Set(others.flatMap { [$0.beat, $0.beat + $0.length] }).sorted()
+        return zip(edges, edges.dropFirst()).compactMap { start, end in
+            let middle = (start + end) / 2
+            let sounding = others.count { $0.beat < middle && $0.beat + $0.length > middle }
+            return sounding >= layer.capacity ? (start, end) : nil
+        }
+    }
+
+    /// How many of `layer`'s notes are sounding at `beat`, `id`'s own left out.
+    private func soundingCount(at beat: Double, in layer: NoteLayer,
+                               excluding id: UUID? = nil) -> Int {
+        layerNotes(layer).count { note in
+            note.id != id
+                && beat >= note.beat - beatEpsilon
+                && beat < note.beat + note.length - beatEpsilon
+        }
+    }
+
+    /// How many of `layer`'s notes are sounding just before `beat` — the ones still
+    /// going as it's reached, not the ones starting on it — `id`'s own left out.
+    private func soundingCount(before beat: Double, in layer: NoteLayer,
+                               excluding id: UUID? = nil) -> Int {
+        layerNotes(layer).count { note in
+            note.id != id
+                && note.beat < beat - beatEpsilon
+                && note.beat + note.length > beat - beatEpsilon
+        }
+    }
+
     /// The note sounding at `beat`, if any — at most one ever is, since the editor
-    /// keeps notes off each other.
+    /// keeps notes off each other. Ghost notes aren't asked about: this is what a
+    /// label snaps to, and a label belongs to what is sung.
     private func noteSounding(at beat: Double, excluding id: UUID? = nil) -> MIDINote? {
         notes.first { note in
             note.id != id
@@ -1105,58 +1274,69 @@ struct EditingView: View {
         }
     }
 
-    /// Is some note already sounding at `beat`?
-    private func isOccupied(_ beat: Double, excluding id: UUID? = nil) -> Bool {
-        noteSounding(at: beat, excluding: id) != nil
+    /// Has `layer` no room left at `beat` — a note already sounding there, or for
+    /// ghost notes as many as may sound at once?
+    private func isOccupied(_ beat: Double, in layer: NoteLayer, excluding id: UUID? = nil) -> Bool {
+        soundingCount(at: beat, in: layer, excluding: id) >= layer.capacity
     }
 
-    /// How long a note starting at `beat` may grow before it runs into the next one.
-    private func spaceAfter(_ beat: Double, excluding id: UUID? = nil) -> Double {
-        let next = notes
-            .filter { $0.id != id && $0.beat > beat + beatEpsilon }
+    /// How long a note of `layer` starting at `beat` may grow before it runs into the
+    /// next one — for ghost notes, the next one to start where that leaves no room.
+    private func spaceAfter(_ beat: Double, in layer: NoteLayer, excluding id: UUID? = nil) -> Double {
+        let next = layerNotes(layer)
+            .filter {
+                $0.id != id && $0.beat > beat + beatEpsilon
+                    && soundingCount(at: $0.beat, in: layer, excluding: id) >= layer.capacity
+            }
             .map(\.beat)
             .min()
         return (next ?? .infinity) - beat
     }
 
-    /// How far a note ending at `beat` may grow leftwards before it runs into the
-    /// previous one, or the start of the timeline.
-    private func spaceBefore(_ beat: Double, excluding id: UUID? = nil) -> Double {
-        let previousEnd = notes
-            .filter { $0.id != id && $0.beat + $0.length < beat + beatEpsilon }
+    /// How far a note of `layer` ending at `beat` may grow leftwards before it runs
+    /// into the previous one — for ghost notes, the previous one to end where that
+    /// leaves no room — or the start of the timeline.
+    private func spaceBefore(_ beat: Double, in layer: NoteLayer, excluding id: UUID? = nil) -> Double {
+        let previousEnd = layerNotes(layer)
+            .filter {
+                let end = $0.beat + $0.length
+                return $0.id != id && end < beat + beatEpsilon
+                    && soundingCount(before: end, in: layer, excluding: id) >= layer.capacity
+            }
             .map { $0.beat + $0.length }
             .max()
         return beat - max(0, previousEnd ?? 0)
     }
 
-    /// The first beat from `origin` rightwards a new note may start on: `origin` itself
-    /// when there's room, otherwise the end of whatever is in the way. `nil` if nothing
-    /// to the right can hold a note.
-    private func nextFreeStart(atOrAfter origin: Double) -> Double? {
-        for gap in freeGaps(excluding: nil) {
+    /// The first beat from `origin` rightwards a new note of `layer` may start on:
+    /// `origin` itself when there's room, otherwise the end of whatever is in the way.
+    /// `nil` if nothing to the right can hold a note.
+    private func nextFreeStart(atOrAfter origin: Double, in layer: NoteLayer) -> Double? {
+        for gap in freeGaps(in: layer, excluding: nil) {
             let start = max(gap.start, origin)
             if gap.end - start >= minLength - beatEpsilon { return start }
         }
         return nil
     }
 
-    /// The last beat up to `origin` a new note may end on: `origin` itself when there's
-    /// room in front of it, otherwise the start of whatever is in the way. `nil` if
-    /// nothing to the left can hold a note.
-    private func previousFreeEnd(atOrBefore origin: Double) -> Double? {
+    /// The last beat up to `origin` a new note of `layer` may end on: `origin` itself
+    /// when there's room in front of it, otherwise the start of whatever is in the way.
+    /// `nil` if nothing to the left can hold a note.
+    private func previousFreeEnd(atOrBefore origin: Double, in layer: NoteLayer) -> Double? {
         var result: Double? = nil
-        for gap in freeGaps(excluding: nil) where gap.start <= origin + beatEpsilon {
+        for gap in freeGaps(in: layer, excluding: nil) where gap.start <= origin + beatEpsilon {
             let end = min(gap.end, origin)
             if end - gap.start >= minLength - beatEpsilon { result = end }
         }
         return result
     }
 
-    /// Where a note of `length` dragged to `desired` may actually land: inside the free
-    /// gap the drag is centred on, or the nearest gap big enough if that one is taken.
-    /// `nil` when nothing on the timeline can hold it.
-    private func placement(desired: Double, length: Double, excluding id: UUID?) -> Double? {
-        let fitting = freeGaps(excluding: id).filter { $0.end - $0.start >= length - beatEpsilon }
+    /// Where a note of `layer` and `length` dragged to `desired` may actually land:
+    /// inside the free gap the drag is centred on, or the nearest gap big enough if that
+    /// one is taken. `nil` when nothing on the timeline can hold it.
+    private func placement(desired: Double, length: Double, in layer: NoteLayer,
+                           excluding id: UUID?) -> Double? {
+        let fitting = freeGaps(in: layer, excluding: id).filter { $0.end - $0.start >= length - beatEpsilon }
         guard !fitting.isEmpty else { return nil }
         let centre = desired + length / 2
         let gap = fitting.first { centre >= $0.start && centre <= $0.end }
@@ -1268,9 +1448,9 @@ struct EditingView: View {
         CGPoint(x: point.x - leadW, y: point.y)
     }
 
-    private func noteAt(_ point: CGPoint) -> MIDINote? {
+    private func noteAt(_ point: CGPoint, in layer: NoteLayer) -> MIDINote? {
         let p = gridPoint(point)
-        return notes.last { rect(for: $0).contains(p) }
+        return layerNotes(layer).last { rect(for: $0).contains(p) }
     }
 
     private func textAt(_ point: CGPoint) -> MIDIText? {
@@ -1314,6 +1494,10 @@ struct EditingView: View {
 
     private var textSaveKey: String {
         "miditext_\(exercise?.id.uuidString ?? "standalone")"
+    }
+
+    private var ghostSaveKey: String {
+        "midighost_\(exercise?.id.uuidString ?? "standalone")"
     }
 
     private func saveNotes() { writeNotes(notes) }
@@ -1363,6 +1547,22 @@ struct EditingView: View {
               let saved = try? JSONDecoder().decode([MIDIText].self, from: data)
         else { return }
         texts = saved
+    }
+
+    private func saveGhosts() { writeGhosts(ghosts) }
+
+    private func writeGhosts(_ value: [MIDINote]) {
+        guard let data = try? JSONEncoder().encode(value) else { return }
+        UserDefaults.standard.set(data, forKey: ghostSaveKey)
+        recordEdit(if: value != savedGhosts)
+        scheduleServerSync()
+    }
+
+    private func loadGhosts() {
+        guard let data = UserDefaults.standard.data(forKey: ghostSaveKey),
+              let saved = try? JSONDecoder().decode([MIDINote].self, from: data)
+        else { return }
+        ghosts = saved
     }
 }
 

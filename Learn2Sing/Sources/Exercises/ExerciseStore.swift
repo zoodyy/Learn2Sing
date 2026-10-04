@@ -30,7 +30,9 @@ nonisolated struct Routine: Identifiable, Hashable, Codable {
 
 /// Single source of truth for the user's exercises and their MIDI patterns.
 /// Backed by UserDefaults (exercise list under `exercises`, each pattern under
-/// `midi_<uuid>`) so it stays compatible with the existing EditingView/PlaybackView.
+/// `midi_<uuid>`, its labels under `miditext_<uuid>` and its ghost notes under
+/// `midighost_<uuid>`) so it stays compatible with the existing
+/// EditingView/PlaybackView.
 final class ExerciseStore: ObservableObject {
     @Published var exercises: [Exercise] = []
     /// User-defined categories used to group exercises in the list, in display order.
@@ -187,7 +189,8 @@ final class ExerciseStore: ObservableObject {
         let inLibrary = Set(exercises.map(\.id))
         let missing = new.filter { !inLibrary.contains($0.id) }
         if !missing.isEmpty {
-            importBundle(ExerciseBundle(exercises: missing, midi: bundle.midi, texts: bundle.texts))
+            importBundle(ExerciseBundle(exercises: missing, midi: bundle.midi, texts: bundle.texts,
+                                        ghosts: bundle.ghosts))
         }
         recordOfferedBundled(Set(new.map(\.id)))
     }
@@ -973,8 +976,8 @@ final class ExerciseStore: ObservableObject {
     /// copy is independent of the original, private visibility, no uploader name,
     /// and the "No Category" group. The original uploader is remembered in
     /// `downloadedFrom`, which is what marks the copy as a community exercise for
-    /// the Exercises tab's filter. The MIDI pattern and text labels are copied
-    /// too. Takes the exercise by value because community exercises fetched from
+    /// the Exercises tab's filter. The MIDI pattern, its text labels and its ghost
+    /// notes are copied too. Takes the exercise by value because community exercises fetched from
     /// the server aren't in `exercises` (their patterns are still readable by id
     /// — CommunitySync caches them under the standard keys).
     @discardableResult
@@ -988,6 +991,7 @@ final class ExerciseStore: ObservableObject {
         exercises.append(copy)
         setNotes(notes(for: source.id), for: copy.id)
         setTexts(texts(for: source.id), for: copy.id)
+        setGhosts(ghosts(for: source.id), for: copy.id)
         ExerciseDates.markAdded([copy.id])
         save()
         return copy
@@ -995,12 +999,13 @@ final class ExerciseStore: ObservableObject {
 
     /// Delete a just-created exercise the user backed out of without touching:
     /// every setting (name, description, …) still matches the snapshot taken at
-    /// creation and no MIDI notes or text labels were added.
+    /// creation and no MIDI notes, ghost notes or text labels were added.
     func discardIfUntouched(_ created: Exercise) {
         guard let current = exercises.first(where: { $0.id == created.id }),
               current == created,
               notes(for: created.id).isEmpty,
-              texts(for: created.id).isEmpty
+              texts(for: created.id).isEmpty,
+              ghosts(for: created.id).isEmpty
         else { return }
         delete(id: created.id)
     }
@@ -1009,6 +1014,7 @@ final class ExerciseStore: ObservableObject {
         exercises.removeAll { $0.id == id }
         UserDefaults.standard.removeObject(forKey: Self.midiKey(id))
         UserDefaults.standard.removeObject(forKey: Self.midiTextKey(id))
+        UserDefaults.standard.removeObject(forKey: Self.midiGhostKey(id))
         ScoreHistory.delete(for: id)
         ExerciseDates.remove(id)
         if recentlyPlayed.contains(id) {
@@ -1084,7 +1090,7 @@ final class ExerciseStore: ObservableObject {
     }
 
     /// Whether the user has changed a bundled exercise from how it ships — edited
-    /// its settings, notes or text labels, or deleted it outright.
+    /// its settings, notes, ghost notes or text labels, or deleted it outright.
     func isBundledChanged(_ id: UUID) -> Bool {
         guard let original = Self.bundledOriginal(id) else { return false }
         // A deleted bundled exercise counts as changed: reverting brings it back.
@@ -1092,6 +1098,7 @@ final class ExerciseStore: ObservableObject {
         return current != original
             || notes(for: id) != Self.bundledNotes(id)
             || texts(for: id) != Self.bundledTexts(id)
+            || ghosts(for: id) != Self.bundledGhosts(id)
     }
 
     /// The bundled exercises the user has changed, in the order they ship. Ids
@@ -1100,8 +1107,8 @@ final class ExerciseStore: ObservableObject {
         (Self.bundledBundle?.exercises.map(\.id) ?? []).filter(isBundledChanged)
     }
 
-    /// Put a bundled exercise back to how it ships — its settings, MIDI pattern and
-    /// text labels — restoring it if the user deleted it. Where it sits in the
+    /// Put a bundled exercise back to how it ships — its settings, MIDI pattern,
+    /// ghost notes and text labels — restoring it if the user deleted it. Where it sits in the
     /// user's own lists (favourites, routines, the recommendation whitelist) is
     /// left alone; those are reset from their own screens.
     func revertBundled(_ id: UUID) {
@@ -1118,6 +1125,7 @@ final class ExerciseStore: ObservableObject {
         }
         setNotes(Self.bundledNotes(id), for: id)
         setTexts(Self.bundledTexts(id), for: id)
+        setGhosts(Self.bundledGhosts(id), for: id)
         // The group it belongs to may have been renamed or deleted since.
         addCategory(original.category)
         save()
@@ -1138,6 +1146,11 @@ final class ExerciseStore: ObservableObject {
     /// A bundled exercise's text labels exactly as they ship.
     static func bundledTexts(_ id: UUID) -> [MIDIText] {
         bundledBundle?.texts?[id.uuidString] ?? []
+    }
+
+    /// A bundled exercise's ghost notes exactly as they ship.
+    static func bundledGhosts(_ id: UUID) -> [MIDINote] {
+        bundledBundle?.ghosts?[id.uuidString] ?? []
     }
 
     /// Empty the Home tab's "Favorites" list. The exercises themselves stay.
@@ -1167,6 +1180,11 @@ final class ExerciseStore: ObservableObject {
 
     nonisolated static func midiKey(_ id: UUID) -> String { "midi_\(id.uuidString)" }
     nonisolated static func midiTextKey(_ id: UUID) -> String { "miditext_\(id.uuidString)" }
+    /// Ghost notes are kept apart from the notes rather than flagged among them, so
+    /// a version of the app that has never heard of them doesn't take them for
+    /// notes to sing: it plays the melody alone, and an exercise shared or synced
+    /// with ghost notes in it still opens there as the exercise it was.
+    nonisolated static func midiGhostKey(_ id: UUID) -> String { "midighost_\(id.uuidString)" }
 
     func notes(for id: UUID) -> [MIDINote] {
         guard let data = UserDefaults.standard.data(forKey: Self.midiKey(id)),
@@ -1192,15 +1210,30 @@ final class ExerciseStore: ObservableObject {
         UserDefaults.standard.set(data, forKey: Self.midiTextKey(id))
     }
 
-    /// Puts a pattern back the way it was, notes and the labels over them
-    /// together. The exercise settings screen's "undo my changes" uses it: the
-    /// MIDI editor writes every stroke straight to UserDefaults, so restoring
+    /// The notes drawn with the MIDI editor's ghost tool: played along with the
+    /// pattern, in place of it wherever they sound, but never sung or scored.
+    func ghosts(for id: UUID) -> [MIDINote] {
+        guard let data = UserDefaults.standard.data(forKey: Self.midiGhostKey(id)),
+              let saved = try? JSONDecoder().decode([MIDINote].self, from: data)
+        else { return [] }
+        return saved
+    }
+
+    private func setGhosts(_ ghosts: [MIDINote], for id: UUID) {
+        guard let data = try? JSONEncoder().encode(ghosts) else { return }
+        UserDefaults.standard.set(data, forKey: Self.midiGhostKey(id))
+    }
+
+    /// Puts a pattern back the way it was, notes, ghost notes and the labels over
+    /// them together. The exercise settings screen's "undo my changes" uses it:
+    /// the MIDI editor writes every stroke straight to UserDefaults, so restoring
     /// the exercise alone would leave the notes its length is measured from
     /// changed. The caller is expected to be writing the exercise back too,
     /// which is what the server syncs watch.
-    func restorePattern(notes: [MIDINote], texts: [MIDIText], for id: UUID) {
+    func restorePattern(notes: [MIDINote], texts: [MIDIText], ghosts: [MIDINote], for id: UUID) {
         setNotes(notes, for: id)
         setTexts(texts, for: id)
+        setGhosts(ghosts, for: id)
     }
 
     // MARK: - Export / Import
@@ -1215,13 +1248,17 @@ final class ExerciseStore: ObservableObject {
         let library = orderedLibrary(ids: ids)
         var midi: [String: [MIDINote]] = [:]
         var texts: [String: [MIDIText]] = [:]
+        var ghosts: [String: [MIDINote]] = [:]
         for exercise in library.exercises {
             midi[exercise.id.uuidString] = notes(for: exercise.id)
             let t = self.texts(for: exercise.id)
             if !t.isEmpty { texts[exercise.id.uuidString] = t }
+            let g = self.ghosts(for: exercise.id)
+            if !g.isEmpty { ghosts[exercise.id.uuidString] = g }
         }
         return ExerciseBundle(exercises: library.exercises, categories: library.categories,
-                              midi: midi, texts: texts.isEmpty ? nil : texts)
+                              midi: midi, texts: texts.isEmpty ? nil : texts,
+                              ghosts: ghosts.isEmpty ? nil : ghosts)
     }
 
     /// `exportBundle(ids:)` without the patterns: the exercises in the order it
@@ -1333,10 +1370,12 @@ final class ExerciseStore: ObservableObject {
             if exercise.category.isEmpty { exercise.category = Self.noCategoryName }
             let pattern = bundle.midi[exercise.id.uuidString]
             let labels = bundle.texts?[exercise.id.uuidString]
+            let ghostNotes = bundle.ghosts?[exercise.id.uuidString]
             // Measured before anything is replaced, against the library as it was.
             if recordsDates {
                 if let existing = exercises.first(where: { $0.id == exercise.id }) {
-                    if isChanged(existing, into: exercise, pattern: pattern, labels: labels) {
+                    if isChanged(existing, into: exercise, pattern: pattern, labels: labels,
+                                 ghosts: ghostNotes) {
                         ExerciseDates.markEdited(exercise.id)
                     }
                 } else {
@@ -1354,6 +1393,9 @@ final class ExerciseStore: ObservableObject {
             if let labels {
                 setTexts(labels, for: exercise.id)
             }
+            if let ghostNotes {
+                setGhosts(ghostNotes, for: exercise.id)
+            }
         }
         ExerciseDates.markAdded(added)
         // Register imported categories in the order the bundle lists them (older
@@ -1367,16 +1409,19 @@ final class ExerciseStore: ObservableObject {
     }
 
     /// Whether importing `imported` over `existing` changes the exercise: its
-    /// settings, or the pattern and labels the bundle carries for it. Which
+    /// settings, or the pattern, labels and ghost notes the bundle carries for
+    /// it. Which
     /// category it sits in is where it is rather than what it is, so that is
     /// left out.
     private func isChanged(_ existing: Exercise, into imported: Exercise,
-                           pattern: [MIDINote]?, labels: [MIDIText]?) -> Bool {
+                           pattern: [MIDINote]?, labels: [MIDIText]?,
+                           ghosts: [MIDINote]?) -> Bool {
         var placed = existing
         placed.category = imported.category
         return placed != imported
             || (pattern.map { $0 != notes(for: existing.id) } ?? false)
             || (labels.map { $0 != texts(for: existing.id) } ?? false)
+            || (ghosts.map { $0 != self.ghosts(for: existing.id) } ?? false)
     }
 }
 
@@ -1500,6 +1545,9 @@ nonisolated struct ExerciseBundle: Codable {
     /// Text labels per exercise UUID string. Optional so bundles written before the
     /// text tool existed still decode.
     var texts: [String: [MIDIText]]? = nil
+    /// Ghost notes per exercise UUID string, for the exercises that have any.
+    /// Optional so bundles written before the ghost tool existed still decode.
+    var ghosts: [String: [MIDINote]]? = nil
 }
 
 extension ExerciseBundle {
@@ -1515,12 +1563,12 @@ extension ExerciseBundle {
     }
 
     /// This bundle narrowed to the exercises `ids` names — what the import screen
-    /// ticked — carrying their patterns and texts and only the categories those
-    /// exercises belong to, so a category nothing was taken from isn't created on
-    /// the way in.
+    /// ticked — carrying their patterns, texts and ghost notes and only the
+    /// categories those exercises belong to, so a category nothing was taken from
+    /// isn't created on the way in.
     func filtered(to ids: Set<UUID>) -> ExerciseBundle {
         let kept = exercises.filter { ids.contains($0.id) }
-        // Patterns and texts are keyed by UUID string, exactly as
+        // Patterns, texts and ghost notes are keyed by UUID string, exactly as
         // `ExerciseStore.importBundle` looks them up.
         let keys = Set(kept.map { $0.id.uuidString })
         return ExerciseBundle(
@@ -1531,7 +1579,8 @@ extension ExerciseBundle {
                 list.filter { category in kept.contains { $0.category == category } }
             },
             midi: midi.filter { keys.contains($0.key) },
-            texts: texts.map { $0.filter { keys.contains($0.key) } }
+            texts: texts.map { $0.filter { keys.contains($0.key) } },
+            ghosts: ghosts.map { $0.filter { keys.contains($0.key) } }
         )
     }
 }

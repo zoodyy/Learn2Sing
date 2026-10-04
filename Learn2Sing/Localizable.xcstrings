@@ -16778,6 +16778,95 @@
         }
       }
     },
+    "Draw ghost notes the way you draw notes. They're played but never sung or scored, and while they play over a note only they are heard, so the note can be hidden in a chord. Up to %d can play at once." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ارسم نغمات شبحية كما ترسم النغمات. تُعزف لكنها لا تُغنّى ولا تُحتسب في النتيجة، وطالما تُعزف فوق نغمة لا يُسمع سواها، فيمكن إخفاء النغمة داخل وتر. يمكن أن يُعزف حتى %d منها في آن واحد."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zeichnet Geisternoten, genau wie Noten. Sie werden gespielt, aber nie gesungen oder bewertet, und solange sie über einer Note erklingen, hört man nur sie. So lässt sich die Note in einem Akkord verstecken. Bis zu %d können gleichzeitig erklingen."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dibuja notas fantasma igual que las notas. Suenan, pero nunca se cantan ni se puntúan, y mientras suenan sobre una nota solo se oyen ellas, así que la nota puede quedar escondida en un acorde. Pueden sonar hasta %d a la vez."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dessinez des notes fantômes comme des notes. Elles sont jouées mais jamais chantées ni notées, et tant qu’elles sonnent par-dessus une note, on n’entend qu’elles : la note peut ainsi se cacher dans un accord. Jusqu’à %d peuvent sonner en même temps."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Disegna note fantasma come disegni le note. Vengono suonate ma mai cantate né valutate, e mentre suonano sopra una nota si sentono solo loro, così la nota può nascondersi in un accordo. Ne possono suonare fino a %d insieme."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "音符と同じようにゴーストノートを描きます。演奏されますが、歌うことも採点されることもありません。音符と重なって鳴っている間はゴーストノートだけが聞こえるので、音符を和音の中に隠せます。同時に鳴らせるのは%d個までです。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "음표를 그리듯 고스트 노트를 그립니다. 연주되지만 부르거나 채점하지 않으며, 음표 위에서 울리는 동안에는 고스트 노트만 들리므로 음표를 화음 속에 숨길 수 있습니다. 동시에 최대 %d개까지 울릴 수 있습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Teken spooknoten zoals je noten tekent. Ze worden gespeeld maar nooit gezongen of beoordeeld, en zolang ze over een noot klinken hoor je alleen hen, zodat de noot in een akkoord verstopt kan zitten. Er kunnen er maximaal %d tegelijk klinken."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rysuje nuty-duchy tak samo jak zwykłe nuty. Są odtwarzane, ale nigdy śpiewane ani oceniane, a gdy brzmią nad nutą, słychać tylko je, więc nutę można ukryć w akordzie. Jednocześnie może brzmieć do %d."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Desenhe notas fantasma do mesmo jeito que as notas. Elas são tocadas, mas nunca cantadas nem pontuadas, e enquanto tocam sobre uma nota só elas são ouvidas, então a nota pode ficar escondida num acorde. Até %d podem tocar ao mesmo tempo."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Рисует ноты-призраки так же, как обычные ноты. Они звучат, но их не поют и не оценивают, а пока они звучат поверх ноты, слышны только они, так что ноту можно спрятать в аккорде. Одновременно может звучать до %d."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rita spöktoner på samma sätt som toner. De spelas men sjungs aldrig och poängsätts inte, och medan de spelar över en ton hörs bara de, så tonen kan gömmas i ett ackord. Upp till %d kan spela samtidigt."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hayalet notaları normal notalar gibi çizin. Çalınırlar ama asla söylenmez ve puanlanmazlar; bir notanın üzerinde çalarken yalnızca onlar duyulur, böylece nota bir akorun içine gizlenebilir. Aynı anda en fazla %d tanesi çalabilir."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "像画音符一样画幽灵音符。它们会被演奏，但不用唱，也不计分；与音符同时响起时只听得到它们，因此可以把音符藏在和弦里。最多可同时响起 %d 个。"
+          }
+        }
+      }
+    },
     "Draw notes: drag on the grid to make one, drag a note to move it, or drag its ends to make it longer or shorter." : {
       "extractionState" : "stale",
       "localizations" : {
@@ -74907,6 +74996,95 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "取消点赞"
+          }
+        }
+      }
+    },
+    "Up to %d Ghost Notes at Once" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%d نغمات شبحية كحد أقصى في آن واحد"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Höchstens %d Geisternoten gleichzeitig"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hasta %d notas fantasma a la vez"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%d notes fantômes au maximum en même temps"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Al massimo %d note fantasma insieme"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "同時に鳴らせるゴーストノートは%d個までです"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "고스트 노트는 동시에 최대 %d개입니다"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Maximaal %d spooknoten tegelijk"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Maksymalnie %d nut-duchów naraz"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No máximo %d notas fantasma ao mesmo tempo"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не больше %d нот-призраков одновременно"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Högst %d spöktoner samtidigt"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aynı anda en fazla %d hayalet nota"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "最多同时 %d 个幽灵音符"
           }
         }
       }

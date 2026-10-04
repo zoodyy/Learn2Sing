@@ -22,10 +22,12 @@ struct ExercisePlaybackPreview: View {
     /// The exercise as the settings screen currently has it, so an edit to any of
     /// its settings is drawn on the next frame.
     let exercise: Exercise
-    /// Its saved MIDI pattern and the labels written over it — one repetition's
-    /// worth, before this exercise's repetitions are laid out from them.
+    /// Its saved MIDI pattern, the labels written over it and the ghost notes
+    /// played along with it — one repetition's worth, before this exercise's
+    /// repetitions are laid out from them.
     let pattern: [MIDINote]
     let labels: [MIDIText]
+    let ghosts: [MIDINote]
     /// The size the preview is drawn at, before it collapses.
     let width: CGFloat
     let fullHeight: CGFloat
@@ -78,6 +80,7 @@ struct ExercisePlaybackPreview: View {
             .onChange(of: exercise, initial: true) { _, _ in rebuild() }
             .onChange(of: pattern) { _, _ in rebuild() }
             .onChange(of: labels) { _, _ in rebuild() }
+            .onChange(of: ghosts) { _, _ in rebuild() }
     }
 
     private func canvas(crop: (top: CGFloat, bottom: CGFloat)) -> some View {
@@ -91,6 +94,7 @@ struct ExercisePlaybackPreview: View {
             // stays inside the visible strip as the preview collapses.
             drawPlaybackScene(ctx: ctx, layout: layout, beat: beat,
                               notes: timeline.notes, texts: timeline.texts,
+                              ghosts: timeline.ghosts,
                               trailPath: Path(), singerPitch: nil, settings: settings,
                               repetition: repetition(at: beat),
                               safeTop: crop.top, safeBottom: crop.bottom,
@@ -113,7 +117,7 @@ struct ExercisePlaybackPreview: View {
     }
 
     private func rebuild() {
-        timeline = exercise.timeline(pattern: pattern, labels: labels,
+        timeline = exercise.timeline(pattern: pattern, labels: labels, ghosts: ghosts,
                                      vocalRange: VocalRange(rawValue: vocalRangeRaw))
     }
 
@@ -176,6 +180,7 @@ struct ExercisePlaybackPreview: View {
         func y(_ pitch: Double) -> CGFloat { fullHeight / 2 - CGFloat(pitch - center) * rowH }
         let pitches = timeline.notes.map { Double($0.pitch) }
             + timeline.texts.map { Double($0.pitch) }
+            + timeline.ghosts.map { Double($0.pitch) }
         guard let low = pitches.min(), let high = pitches.max() else { return (0, fullHeight) }
         return (y(high + 1.5), y(low - 1.5))
     }
@@ -193,12 +198,12 @@ struct ExercisePlaybackPreview: View {
         return first + Double((playheadX - keyboardWidth) / beatPx)
     }
 
-    /// How far the playhead may travel: far enough each way that every note and every
-    /// label can be brought under it.
+    /// How far the playhead may travel: far enough each way that every note, ghost
+    /// note and label can be brought under it.
     private var contentBeats: ClosedRange<Double> {
         var first = Double.infinity
         var last = -Double.infinity
-        for note in timeline.notes {
+        for note in [timeline.notes, timeline.ghosts].joined() {
             first = min(first, note.beat)
             last = max(last, note.beat + note.length)
         }

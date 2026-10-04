@@ -14,13 +14,17 @@ struct ExerciseTimeline {
     /// The labels that annotate it, expanded identically so each stays over the note
     /// it was written on.
     var texts: [MIDIText] = []
+    /// The ghost notes played along with it, expanded identically too. Never sung
+    /// or scored: they are only heard — in place of `notes` wherever they sound
+    /// (see `soundingNotes(melody:ghosts:)`) — and drawn faintly.
+    var ghosts: [MIDINote] = []
     /// Where the repetitions sit on that timeline.
     var repeats = RepeatLayout()
     /// Vertical centre of each repetition — the midpoint of its pitch range — which
     /// "follow notes vertically" recentres on.
     var centers: [Double] = []
-    /// Furthest content from a repetition's centre (a note or a label, above or
-    /// below) in semitones. The relative geometry is the same for every repetition,
+    /// Furthest content from a repetition's centre (a note, a ghost note or a
+    /// label, above or below) in semitones. The relative geometry is the same for every repetition,
     /// so one value covers them all.
     var maxExtent: Double = 0
 }
@@ -80,17 +84,20 @@ extension Exercise {
         return offset
     }
 
-    /// Expand `pattern` (and the `labels` written over it) into the timeline this
-    /// exercise plays: every repetition in its place, at its own tempo and its own
-    /// transposition, with the whole thing finally moved to fit `vocalRange` — the
-    /// singer's, or nil to leave the pitches where the pattern puts them.
-    func timeline(pattern: [MIDINote], labels: [MIDIText] = [],
+    /// Expand `pattern` (and the `labels` written over it, and the `ghosts` played
+    /// along with it) into the timeline this exercise plays: every repetition in its
+    /// place, at its own tempo and its own transposition, with the whole thing
+    /// finally moved to fit `vocalRange` — the singer's, or nil to leave the pitches
+    /// where the pattern puts them.
+    func timeline(pattern: [MIDINote], labels: [MIDIText] = [], ghosts: [MIDINote] = [],
                   vocalRange: VocalRange? = nil) -> ExerciseTimeline {
         // Length of one repetition, rounded up to a whole beat so repeats stay aligned,
         // plus any silent beats the user wants between repetitions. The layout then
         // says where each repetition begins and how far its beats are squeezed or
-        // stretched to play it at its own tempo ("speed up per repetition").
-        let patternEnd = pattern.map { $0.beat + $0.length }.max() ?? 0
+        // stretched to play it at its own tempo ("speed up per repetition"). A ghost
+        // note left ringing past the last note is part of the repetition too, so the
+        // next one doesn't start on top of it.
+        let patternEnd = (pattern + ghosts).map { $0.beat + $0.length }.max() ?? 0
         let span = patternEnd.rounded(.up) + max(0, beatsBetweenReps)
         let layout = repeatLayout(span: span)
         let repeats = layout.count
@@ -100,6 +107,7 @@ extension Exercise {
         // same transform to the drawn notes keeps playback and animation in sync.
         var expanded: [MIDINote] = []
         var expandedTexts: [MIDIText] = []
+        var expandedGhosts: [MIDINote] = []
         // How much clear room each label has around it, which is what says how far it
         // may be shrunk in a squeezed repetition. Measured once: the room is the
         // pattern's own, and every repetition draws the same labels over the same
@@ -109,14 +117,16 @@ extension Exercise {
             let transpose = cumulativeTranspose(forRepetition: rep)
             let start = layout.starts[rep]
             let scale = layout.scales[rep]
-            for note in pattern {
+            func placed(_ note: MIDINote) -> MIDINote {
                 var n = note
                 n.id = UUID()
                 n.pitch += pitchShift + transpose
                 n.beat = start + note.beat * scale
                 n.length = note.length * scale
-                expanded.append(n)
+                return n
             }
+            expanded.append(contentsOf: pattern.map(placed))
+            expandedGhosts.append(contentsOf: ghosts.map(placed))
             // Text labels share the note coordinate system, so they take the identical
             // expansion (beat shift + tempo scale + transpose per repeat) to stay
             // pinned to the notes they annotate as the pattern repeats and scrolls.
@@ -143,10 +153,11 @@ extension Exercise {
         }
 
         // Finally, if the singer has set a vocal range, transpose the whole exercise
-        // (notes and their labels together) to fit it: never let a note drop below
-        // the voice's lowest note, lowering the exercise only when its top pokes
-        // above the voice's highest note. Applied to the fully expanded pitches so
-        // every repetition's transposition is accounted for.
+        // (notes, their labels and the ghost notes together) to fit it: never let a
+        // note drop below the voice's lowest note, lowering the exercise only when its
+        // top pokes above the voice's highest note. Applied to the fully expanded
+        // pitches so every repetition's transposition is accounted for. Measured on
+        // the notes alone, since those are what the voice has to reach.
         var vocalShift = 0
         if let vocalRange,
            let lo = expanded.map(\.pitch).min(),
@@ -155,10 +166,12 @@ extension Exercise {
             if vocalShift != 0 {
                 for i in expanded.indices { expanded[i].pitch += vocalShift }
                 for i in expandedTexts.indices { expandedTexts[i].pitch += vocalShift }
+                for i in expandedGhosts.indices { expandedGhosts[i].pitch += vocalShift }
             }
         }
 
-        var timeline = ExerciseTimeline(notes: expanded, texts: expandedTexts, repeats: layout)
+        var timeline = ExerciseTimeline(notes: expanded, texts: expandedTexts,
+                                        ghosts: expandedGhosts, repeats: layout)
 
         // The vertical centre of each repetition (the midpoint of its pitch range) so
         // "follow notes vertically" can recentre once per repetition. Each
@@ -169,8 +182,9 @@ extension Exercise {
             timeline.centers = (0..<repeats).map { rep in
                 baseMid + Double(pitchShift + cumulativeTranspose(forRepetition: rep) + vocalShift)
             }
-            let contentMax = max(Double(pMax), labels.map { Double($0.pitch) }.max() ?? -.infinity)
-            let contentMin = min(Double(pMin), labels.map { Double($0.pitch) }.min() ?? .infinity)
+            let others = labels.map { Double($0.pitch) } + ghosts.map { Double($0.pitch) }
+            let contentMax = max(Double(pMax), others.max() ?? -.infinity)
+            let contentMin = min(Double(pMin), others.min() ?? .infinity)
             timeline.maxExtent = max(contentMax - baseMid, baseMid - contentMin)
         }
         return timeline
@@ -212,7 +226,9 @@ extension Exercise {
     /// expanding the timeline, since nothing here needs the notes themselves.
     ///
     /// `pattern` is the exercise's stored notes, one repetition of them — what
-    /// `ExerciseStore.notes(for:)` hands over.
+    /// `ExerciseStore.notes(for:)` hands over. Ghost notes are left out: they are
+    /// played rather than sung, so they can't carry an exercise over the minimum
+    /// either.
     func contentDuration(pattern: [MIDINote]) -> Double {
         guard bpm > 0, !pattern.isEmpty else { return 0 }
         let patternEnd = pattern.map { $0.beat + $0.length }.max() ?? 0
@@ -234,4 +250,60 @@ extension Exercise {
         return contentDuration(pattern: pattern)
             + (Self.playbackLeadInBeats + 1.0) * (60.0 / bpm)
     }
+}
+
+// MARK: - What is heard
+
+/// What an exercise sounds like, as the notes to play: every ghost note, and the
+/// notes of `melody` wherever no ghost note is sounding. A ghost note over part of a
+/// note silences that part and nothing more, so a note the ghosts cover the first
+/// half of is heard for its second half, struck again where they stop. Only the
+/// sound changes: the notes are still what is sung and scored, silenced or not.
+///
+/// Ghost notes of one pitch that overlap are played as a single note, since the
+/// player lets go of every voice of a pitch at the first note-off and would cut the
+/// longer of them short. Ones that only touch stay two notes, struck twice.
+nonisolated func soundingNotes(melody: [MIDINote], ghosts: [MIDINote]) -> [MIDINote] {
+    guard !ghosts.isEmpty else { return melody }
+    let slack = 1e-9
+    let covered = mergedSpans(of: ghosts, joiningTouching: true)
+    var heard: [MIDINote] = []
+    func play(_ note: MIDINote, from start: Double, to end: Double) {
+        guard end - start > slack else { return }
+        heard.append(MIDINote(pitch: note.pitch, beat: start, length: end - start))
+    }
+    for note in melody {
+        var start = note.beat
+        let end = note.beat + note.length
+        for span in covered where span.end > start && span.start < end {
+            play(note, from: start, to: span.start)
+            start = span.end
+        }
+        play(note, from: start, to: end)
+    }
+    for (pitch, sameNote) in Dictionary(grouping: ghosts, by: \.pitch) {
+        for span in mergedSpans(of: sameNote, joiningTouching: false) {
+            heard.append(MIDINote(pitch: pitch, beat: span.start, length: span.end - span.start))
+        }
+    }
+    return heard
+}
+
+/// The stretches of the timeline `notes` sound over, in order, with the notes that
+/// overlap — and, with `joiningTouching`, the ones that butt up against each other
+/// — folded into one.
+nonisolated private func mergedSpans(of notes: [MIDINote],
+                                     joiningTouching: Bool) -> [(start: Double, end: Double)] {
+    let slack = 1e-9
+    var spans: [(start: Double, end: Double)] = []
+    for note in notes.sorted(by: { $0.beat < $1.beat }) {
+        let end = note.beat + note.length
+        if let last = spans.last,
+           joiningTouching ? note.beat <= last.end + slack : note.beat < last.end - slack {
+            spans[spans.count - 1].end = max(last.end, end)
+        } else {
+            spans.append((note.beat, end))
+        }
+    }
+    return spans
 }
