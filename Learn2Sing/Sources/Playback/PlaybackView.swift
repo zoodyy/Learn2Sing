@@ -1153,6 +1153,12 @@ struct PlaybackView: View {
         .sheet(isPresented: $isShowingPitchDetectionPrompt) {
             PitchDetectionPromptView()
         }
+        // Whatever this screen is showing, the rating pop-up holds off until it
+        // has gone. Run, score and review are all one screen to these (moving
+        // between them fires neither), so only leaving the exercise lets an
+        // owed pop-up go up (see `ReviewPrompt`).
+        .onAppear { ReviewPrompt.shared.exerciseScreenAppeared() }
+        .onDisappear { ReviewPrompt.shared.exerciseScreenDisappeared() }
     }
 
     private var playback: some View {
@@ -1392,6 +1398,9 @@ struct PlaybackView: View {
         isPersonalRecord = ScoreHistory.isPersonalRecord(score: score, for: exercise.id)
         // Save before showing the result so the chart includes this run.
         ScoreHistory.record(score: score, for: exercise.id)
+        // A new best can earn the rating pop-up, which waits for the singer to
+        // leave this screen before it goes up (see `ReviewPrompt`).
+        ReviewPrompt.shared.runScored(score, isPersonalRecord: isPersonalRecord)
         // Asked after saving, since it counts the runs saved, this one included; and
         // only after a run that earned a score, which is the kind being counted.
         asksForPitchDetection = score > 0 && PitchDetectionPrompt.isDue

@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import StoreKit
 
 struct ContentView: View {
     @AppStorage(AppTheme.storageKey) private var themeRaw = AppTheme.system.rawValue
@@ -23,6 +24,9 @@ struct ContentView: View {
     /// layout direction changes (see below), and so a screen on one tab can
     /// send the user to a screen on another.
     @ObservedObject private var navigation = AppNavigation.shared
+    /// Says when Apple's rating pop-up is due, which only a view can put up.
+    @ObservedObject private var reviewPrompt = ReviewPrompt.shared
+    @Environment(\.requestReview) private var requestReview
 
     var body: some View {
         TabView(selection: $navigation.selectedTab) {
@@ -70,6 +74,8 @@ struct ContentView: View {
         // In a task rather than in `onAppear`, so the first launch's tutorial is
         // asked for after the first frame instead of during it.
         .task { tutorial.presentIfNeeded() }
+        // Apple's pop-up comes up over everything, whichever tab is showing.
+        .onChange(of: reviewPrompt.askCount) { requestReview() }
     }
 }
 

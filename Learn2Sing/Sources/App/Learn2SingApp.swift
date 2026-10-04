@@ -38,10 +38,17 @@ struct Learn2SingApp: App {
         // The private backup keeps edits back for a few seconds and rearrangements
         // for a couple of minutes; leaving the app sends whatever is still waiting,
         // since it may never come back to the foreground to do it.
+        //
+        // The time spent in the app, which the rating pop-up waits for, is
+        // counted from the same two moments.
         .onChange(of: scenePhase) { _, phase in
             switch phase {
-            case .background: ProfileSync.shared.appDidEnterBackground()
-            case .active: ProfileSync.shared.appDidBecomeActive()
+            case .background:
+                ProfileSync.shared.appDidEnterBackground()
+                AppUsageTime.pause()
+            case .active:
+                ProfileSync.shared.appDidBecomeActive()
+                AppUsageTime.resume()
             default: break
             }
         }
