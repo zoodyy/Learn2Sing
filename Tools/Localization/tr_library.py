@@ -8,6 +8,7 @@ T("Scales", "Tonleitern", "Escalas", "Gammes", "Scale", "Escalas", "Toonladders"
 T("Articulation", "Artikulation", "Articulación", "Articulation", "Articolazione", "Articulação", "Articulatie", "Артикуляция", "Artykulacja", "Artikülasyon", "Artikulation", "アーティキュレーション", "발음", "咬字", "النطق")
 T("Agility", "Beweglichkeit", "Agilidad", "Agilité", "Agilità", "Agilidade", "Beweeglijkheid", "Подвижность", "Zwinność", "Çeviklik", "Rörlighet", "俊敏さ", "민첩성", "灵活度", "المرونة")
 T("Range", "Umfang", "Rango", "Étendue", "Estensione", "Extensão", "Bereik", "Диапазон", "Skala", "Aralık", "Omfång", "音域", "음역", "音域", "المدى")
+T("Harmonies", "Harmonien", "Armonías", "Harmonies", "Armonie", "Harmonias", "Harmonieën", "Гармонии", "Harmonie", "Armoniler", "Harmonier", "ハーモニー", "화음", "和声", "التناغمات")
 T("Recent", "Zuletzt", "Recientes", "Récents", "Recenti", "Recentes", "Recent", "Недавние", "Ostatnie", "Son kullanılan", "Senaste", "最近", "최근", "最近", "الأخيرة")
 T("Routines", "Routinen", "Rutinas", "Routines", "Routine", "Rotinas", "Routines", "Программы", "Rutyny", "Rutinler", "Rutiner", "ルーティン", "루틴", "训练组", "الروتينات")
 T("Favorites", "Favoriten", "Favoritos", "Favoris", "Preferiti", "Favoritos", "Favorieten", "Избранное", "Ulubione", "Favoriler", "Favoriter", "お気に入り", "즐겨찾기", "收藏", "المفضلة")

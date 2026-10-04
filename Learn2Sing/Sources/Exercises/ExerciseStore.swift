@@ -180,7 +180,9 @@ final class ExerciseStore: ObservableObject {
     /// under the same rule as that first import: one the user deletes afterwards
     /// stays deleted, and one already in the library — a copy restored from the
     /// profile, or imported — is left exactly as it is. They go in after
-    /// everything else, so each lands at the end of its category.
+    /// everything else, so each lands at the end of its category; a category the
+    /// library doesn't have yet goes in front of "No Category", where a fresh
+    /// install has it, rather than after the user's own exercises.
     private func importNewBundledIfNeeded() {
         guard let bundle = Self.bundledBundle else { return }
         let offered = offeredBundledIDs
@@ -189,6 +191,14 @@ final class ExerciseStore: ObservableObject {
         let inLibrary = Set(exercises.map(\.id))
         let missing = new.filter { !inLibrary.contains($0.id) }
         if !missing.isEmpty {
+            var placedCategory = false
+            for category in bundle.categories ?? [] where !categories.contains(category)
+                && missing.contains(where: { $0.category == category }) {
+                let at = categories.firstIndex(of: Self.noCategoryName) ?? categories.endIndex
+                categories.insert(category, at: at)
+                placedCategory = true
+            }
+            if placedCategory { saveCategories() }
             importBundle(ExerciseBundle(exercises: missing, midi: bundle.midi, texts: bundle.texts,
                                         ghosts: bundle.ghosts))
         }

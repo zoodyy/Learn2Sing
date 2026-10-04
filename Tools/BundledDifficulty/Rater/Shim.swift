@@ -121,6 +121,13 @@ struct MIDINote: Identifiable, Codable {
     var beat: Double
     var length: Double
 
+    init(id: UUID = UUID(), pitch: Int, beat: Double, length: Double) {
+        self.id = id
+        self.pitch = pitch
+        self.beat = beat
+        self.length = length
+    }
+
     private enum CodingKeys: String, CodingKey { case id, pitch, beat, length }
 
     init(from decoder: Decoder) throws {
@@ -155,6 +162,8 @@ struct ExerciseBundle: Codable {
     var categories: [String]? = nil
     var midi: [String: [MIDINote]]
     var texts: [String: [MIDIText]]? = nil
+    /// Decoded but never rated: ghost notes are played, not sung.
+    var ghosts: [String: [MIDINote]]? = nil
 }
 
 // MARK: - Label geometry

@@ -29,13 +29,14 @@ extension Exercise {
 }
 
 enum ExerciseCategoryName {
-    /// The categories the app creates itself: the five the bundled exercises are
+    /// The categories the app creates itself: the six the bundled exercises are
     /// grouped into, the always-present "No Category", and the Home tab's four
     /// built-ins. They're stored — and compared, exported and synced — in English,
     /// so only the display side is translated. A category the user creates keeps
     /// the name they gave it.
     static let appProvided: Set<String> = Set([
-        "Tone", "Scales", "Articulation", "Agility", "Range", ExerciseStore.noCategoryName,
+        "Tone", "Scales", "Articulation", "Agility", "Range", "Harmonies",
+        ExerciseStore.noCategoryName,
     ] + HomeCategories.all)
 
     static func localized(_ name: String) -> String {

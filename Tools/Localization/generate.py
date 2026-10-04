@@ -52,7 +52,7 @@ INDIRECT = [
     # Audio route sentinels
     "Automatic", "iPhone Speaker", "iPhone Microphone",
     # Categories: bundled + Home tab built-ins
-    "Tone", "Scales", "Articulation", "Agility", "Range", "No Category",
+    "Tone", "Scales", "Articulation", "Agility", "Range", "Harmonies", "No Category",
     "Recent", "Routines", "Favorites", "Recommended", "Time Spent Singing", "New for You",
     "Book Lessons",
     # Bundled visual templates
