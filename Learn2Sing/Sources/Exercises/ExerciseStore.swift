@@ -1105,10 +1105,7 @@ final class ExerciseStore: ObservableObject {
         guard let original = Self.bundledOriginal(id) else { return false }
         // A deleted bundled exercise counts as changed: reverting brings it back.
         guard let current = exercises.first(where: { $0.id == id }) else { return true }
-        return current != original
-            || notes(for: id) != Self.bundledNotes(id)
-            || texts(for: id) != Self.bundledTexts(id)
-            || ghosts(for: id) != Self.bundledGhosts(id)
+        return current != original || !hasShippedPattern(id)
     }
 
     /// The bundled exercises the user has changed, in the order they ship. Ids
@@ -1162,6 +1159,106 @@ final class ExerciseStore: ObservableObject {
     static func bundledGhosts(_ id: UUID) -> [MIDINote] {
         bundledBundle?.ghosts?[id.uuidString] ?? []
     }
+
+    // MARK: - Rating
+
+    /// The public id an exercise's finished runs are posted under, and so the one
+    /// its difficulty is read back from (see `CommunitySync.registerPlay`).
+    ///
+    /// A bundled exercise has the same raw id on every install, which is what
+    /// lets everyone's runs of it add up to one rating. That only works while it
+    /// is the exercise everybody sings. If the user edits one (slows it right
+    /// down, say, so it scores high), its runs would drag everyone's rating
+    /// along. So an edited one is rated under an id of this install's own
+    /// instead (`PublicIdentifier.editedBundledExercise`), and gets an estimate
+    /// read off its notes, like an exercise the user made (see
+    /// `CommunitySync.seedDifficulty(for:)`). Once it is put back the way it
+    /// ships, it goes back to the shared id.
+    func ratingID(for id: UUID) -> UUID {
+        let edited = isBundledEdited(id)
+        if let known = ratingIDs[id], known.edited == edited { return known.id }
+        let derived = edited ? PublicIdentifier.editedBundledExercise(id) : PublicIdentifier.exercise(id)
+        ratingIDs[id] = (edited, derived)
+        return derived
+    }
+
+    /// The ids `ratingID(for:)` has derived, each with which of the two it is.
+    /// Remembered because a derivation costs a SHA-1 (and an edited one a
+    /// Keychain read on top), and SkillLevelStore walks the whole library every
+    /// time a run is scored.
+    private var ratingIDs: [UUID: (edited: Bool, id: UUID)] = [:]
+
+    /// Whether the user has edited a bundled exercise: changed anything on its
+    /// settings screen (name and description included), or its notes, ghost
+    /// notes or text labels in the MIDI editor. An edited one is no longer the
+    /// exercise everyone else sings under its id, so it is rated under one of
+    /// its own (see `ratingID(for:)`).
+    ///
+    /// Unlike `isBundledChanged`, the category doesn't count, since that is where
+    /// the exercise is kept rather than what is sung. A deleted one doesn't count
+    /// either: there is nothing left to sing.
+    func isBundledEdited(_ id: UUID) -> Bool {
+        guard let original = Self.bundledOriginal(id),
+              let current = exercises.first(where: { $0.id == id }) else { return false }
+        var placed = current
+        placed.category = original.category
+        return placed != original || !hasShippedPattern(id)
+    }
+
+    /// The bundled exercises the user has edited (see `isBundledEdited`).
+    var editedBundledIDs: [UUID] {
+        (Self.bundledBundle?.exercises.map(\.id) ?? []).filter(isBundledEdited)
+    }
+
+    /// Whether a bundled exercise's notes, ghost notes and text labels are the
+    /// ones it ships with. Compared on what they are, not on the ids they carry
+    /// or their order in the list: the profile backup leaves the ids out (see
+    /// ProfileSync), so a library restored after a reinstall holds every pattern
+    /// under fresh ones.
+    ///
+    /// The answer is remembered against the stored bytes it was worked out from.
+    /// SkillLevelStore asks about every bundled exercise each time a run is
+    /// scored, and decoding them all costs far more than reading them. The MIDI
+    /// editor writes patterns without going through the store, so a change has
+    /// to be noticed in the bytes rather than reported.
+    private func hasShippedPattern(_ id: UUID) -> Bool {
+        let defaults = UserDefaults.standard
+        let stored = [Self.midiKey(id), Self.midiTextKey(id), Self.midiGhostKey(id)]
+            .map { defaults.data(forKey: $0) }
+        if let known = shippedPatterns[id], known.stored == stored { return known.shipped }
+        let shipped = Self.sameNotes(notes(for: id), Self.bundledNotes(id))
+            && Self.sameNotes(ghosts(for: id), Self.bundledGhosts(id))
+            && Self.sameTexts(texts(for: id), Self.bundledTexts(id))
+        shippedPatterns[id] = (stored, shipped)
+        return shipped
+    }
+
+    /// What `hasShippedPattern` last worked out per exercise, and from which
+    /// stored notes, labels and ghost notes.
+    private var shippedPatterns: [UUID: (stored: [Data?], shipped: Bool)] = [:]
+
+    /// Whether two lists of notes play the same: the same pitches at the same
+    /// beats for the same lengths, whatever ids they carry and in whatever order.
+    private static func sameNotes(_ lhs: [MIDINote], _ rhs: [MIDINote]) -> Bool {
+        func content(_ notes: [MIDINote]) -> [MIDINote] {
+            notes.map { MIDINote(id: blankPatternID, pitch: $0.pitch, beat: $0.beat, length: $0.length) }
+                .sorted { ($0.beat, $0.pitch, $0.length) < ($1.beat, $1.pitch, $1.length) }
+        }
+        return lhs.count == rhs.count && content(lhs) == content(rhs)
+    }
+
+    /// The same for text labels: the same words in the same places.
+    private static func sameTexts(_ lhs: [MIDIText], _ rhs: [MIDIText]) -> Bool {
+        func content(_ texts: [MIDIText]) -> [MIDIText] {
+            texts.map { MIDIText(id: blankPatternID, text: $0.text, pitch: $0.pitch, beat: $0.beat) }
+                .sorted { ($0.beat, $0.pitch, $0.text) < ($1.beat, $1.pitch, $1.text) }
+        }
+        return lhs.count == rhs.count && content(lhs) == content(rhs)
+    }
+
+    /// The id every note and label is given before the comparisons above, so
+    /// that only what they are is compared.
+    private static let blankPatternID = UUID(uuidString: "00000000-0000-0000-0000-000000000000")!
 
     /// Empty the Home tab's "Favorites" list. The exercises themselves stay.
     func clearFavourites() {

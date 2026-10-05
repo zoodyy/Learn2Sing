@@ -67,11 +67,13 @@ struct ExerciseIntroView: View {
     /// The id the server counts this exercise under. An exercise opened from the
     /// Community tab arrives holding its public id already (that is what the feed
     /// lists it by, and `likeID`); every other tab holds the private id it is
-    /// stored under, whose public form has to be derived — the same one its plays
-    /// are posted with, so the difficulty asked for here is the one they add up
-    /// to. See PublicIdentifier for why the private id can't travel itself.
+    /// stored under, whose public form the store works out — the same one its
+    /// plays are posted with, so the difficulty asked for here is the one they
+    /// add up to (see `ExerciseStore.ratingID(for:)`, which gives an edited
+    /// bundled exercise an id of its own). See PublicIdentifier for why the
+    /// private id can't travel itself.
     private var publicExerciseID: UUID {
-        likeID ?? PublicIdentifier.exercise(exercise.id)
+        likeID ?? store.ratingID(for: exercise.id)
     }
 
     /// Flips after a download so the button confirms instead of copying again.

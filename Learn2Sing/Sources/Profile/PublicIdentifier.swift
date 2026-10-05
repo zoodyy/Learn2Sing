@@ -36,6 +36,16 @@ enum PublicIdentifier {
         UUID(uuidString: derived(from: id.uuidString)) ?? id
     }
 
+    /// The public id a bundled exercise is rated under once this user has edited
+    /// it, in place of the one `exercise(_:)` derives, which every install shares
+    /// because the bundle's ids are fixed (see `ExerciseStore.ratingID(for:)`).
+    /// The device id goes into it as well, so it belongs to this install alone
+    /// and stays the same after a reinstall. Like `user`, it is one-way and gives
+    /// neither id away.
+    static func editedBundledExercise(_ id: UUID) -> UUID {
+        UUID(uuidString: derived(from: "edited-bundled/\(DeviceIdentifier.uuidString)/\(id.uuidString)")) ?? id
+    }
+
     /// Version-5 UUID of `name` under the app namespace, as a lowercase string.
     private static func derived(from name: String) -> String {
         var input = [UInt8]()

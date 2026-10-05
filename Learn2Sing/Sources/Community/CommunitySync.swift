@@ -498,7 +498,12 @@ final class CommunitySync: ObservableObject {
         // Alongside the list rather than after it: the Home tab's suggestions
         // are ranked on these, and it is the first tab the app opens on, while
         // the community list is a tab away.
-        Task { await refreshRecommendationDifficulties() }
+        Task {
+            await refreshRecommendationDifficulties()
+            // After the fetch, so an edited bundled exercise whose own id the
+            // server has rated already is left to that rating.
+            seedEditedBundledDifficulties()
+        }
         // Estimates made while the server was out of reach. Nothing waits on
         // them either — the exercises they belong to already show their stars
         // from the cache.
@@ -1151,7 +1156,7 @@ final class CommunitySync: ObservableObject {
         let scored = Set(ScoreHistory.all().keys.compactMap(UUID.init(uuidString:)))
         let wanted = store.exercises
             .filter { store.recommendationWhitelist.contains($0.id) || scored.contains($0.id) }
-            .map { PublicIdentifier.exercise($0.id) }
+            .map { store.ratingID(for: $0.id) }
         apply(fetched: await Self.fetchDifficulties(for: wanted))
         // Even when nothing moved: this is the first point in a launch at which
         // the whole picture is in, and the level and the hardness map are worked
@@ -1318,7 +1323,15 @@ final class CommunitySync: ObservableObject {
     /// exercises, and nothing on screen is waiting for them.
     func deletePlayEvents(for exerciseIDs: [UUID]) {
         guard !exerciseIDs.isEmpty else { return }
-        let publicIDs = exerciseIDs.map(PublicIdentifier.exercise)
+        // A bundled exercise's runs can sit under two ids: the shared one, for
+        // runs sung as it ships, and this install's own, for runs sung after the
+        // user edited it (see `ExerciseStore.ratingID(for:)`). The scores being
+        // forgotten include both.
+        let publicIDs = exerciseIDs.flatMap { id in
+            ExerciseStore.bundledExerciseIDs.contains(id)
+                ? [PublicIdentifier.exercise(id), PublicIdentifier.editedBundledExercise(id)]
+                : [PublicIdentifier.exercise(id)]
+        }
         for id in publicIDs { playCounts.removeValue(forKey: id) }
         persistCounts()
         Task {
@@ -1393,10 +1406,13 @@ final class CommunitySync: ObservableObject {
     /// An edit that leaves the estimate where it was posts nothing at all, so
     /// renaming an exercise or nudging a note within its beat costs no calls.
     ///
-    /// Bundled exercises are left out. Their ids are the same on every install,
-    /// so their ratings are shared by everyone who has the app, and a user who
-    /// had edited their own copy of one would be posting their edit's difficulty
-    /// as everybody's.
+    /// A bundled exercise is left out while it is the way it ships. Its id is
+    /// the same on every install, so its rating comes from everyone's runs (and
+    /// the estimate Tools/BundledDifficulty posts for it). Once the user edits
+    /// it, it is rated under an id of this install's own (see
+    /// `ExerciseStore.ratingID(for:)`) and is estimated here like any other
+    /// exercise. Its rows stay on that id after it is put back the way it ships,
+    /// ready for the next edit; until then nothing reads them.
     ///
     /// An exercise the server had already rated when it was first seen here is
     /// never given a first estimate: real scores are the thing the estimate
@@ -1414,13 +1430,13 @@ final class CommunitySync: ObservableObject {
     /// notes as downloaded, since the rows hold something else.
     func seedDifficulty(for exerciseID: UUID) {
         guard let store,
-              !ExerciseStore.bundledExerciseIDs.contains(exerciseID),
+              !store.isBundled(exerciseID) || store.isBundledEdited(exerciseID),
               let exercise = store.exercises.first(where: { $0.id == exerciseID }),
               let rating = ExerciseDifficulty.rating(for: exercise,
                                                      pattern: store.notes(for: exerciseID))
         else { return }
         let score = ExerciseDifficulty.expectedScore(forRating: rating)
-        let publicExerciseID = PublicIdentifier.exercise(exerciseID)
+        let publicExerciseID = Self.seedID(for: exerciseID)
         // A copy still on the original's rating keeps it through every edit
         // that leaves its estimate where the download had it. The first edit
         // that moves it makes the copy an estimated exercise like any other,
@@ -1461,6 +1477,28 @@ final class CommunitySync: ObservableObject {
         Task { await uploadDifficultySeeds() }
     }
 
+    /// The public id an exercise's estimate rows are posted under, by raw id.
+    /// Normally that is the id its runs are rated under. A bundled exercise is
+    /// only estimated once the user has edited it, and its rows always go to
+    /// that edited id: an estimate still pending when the exercise is put back
+    /// the way it ships must not reach the id everyone shares.
+    private static func seedID(for exerciseID: UUID) -> UUID {
+        ExerciseStore.bundledExerciseIDs.contains(exerciseID)
+            ? PublicIdentifier.editedBundledExercise(exerciseID)
+            : PublicIdentifier.exercise(exerciseID)
+    }
+
+    /// Estimates every edited bundled exercise, at launch. Most edits are
+    /// estimated as the user leaves the settings screen or the MIDI editor. This
+    /// pass catches the ones that never went through either: edits made before
+    /// bundled exercises got an id of their own when edited, and edits brought in
+    /// by a backup import or a profile restore. It costs nothing for an exercise
+    /// already estimated as it stands (see `seedDifficulty(for:)`).
+    private func seedEditedBundledDifficulties() {
+        guard let store else { return }
+        for id in store.editedBundledIDs { seedDifficulty(for: id) }
+    }
+
     /// Posts the seeded scores that haven't reached the server yet, dropping
     /// each exercise from the pending list once all of its plays are in.
     ///
@@ -1485,7 +1523,7 @@ final class CommunitySync: ObservableObject {
         while seedUploadRequested {
             seedUploadRequested = false
             for (exerciseID, score) in pendingDifficultySeeds {
-                let publicExerciseID = PublicIdentifier.exercise(exerciseID)
+                let publicExerciseID = Self.seedID(for: exerciseID)
                 let entityID = publicExerciseID.uuidString.lowercased()
                 var posted = true
                 for userID in Self.seedUserIDs {
@@ -1572,8 +1610,11 @@ final class CommunitySync: ObservableObject {
     /// again — and for every exercise, not only the ones opened from the
     /// Community tab: the difficulty the intro screen draws is the server's
     /// average of these scores, and the bundled exercises (whose ids are the same
-    /// on every install) would never be rated if their runs didn't count. A run
-    /// the singer walked out of never gets here, since it has no score to report.
+    /// on every install) would never be rated if their runs didn't count. An
+    /// edited bundled exercise arrives here under an id of its own, so that its
+    /// runs stay out of that shared rating (see `ExerciseStore.ratingID(for:)`).
+    /// A run the singer walked out of never gets here, since it has no score to
+    /// report.
     ///
     /// Unlike likes and downloads every play counts, so there is nothing to
     /// remember locally — bar a run that scored 0%. That is a silent or abandoned

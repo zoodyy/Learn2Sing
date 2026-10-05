@@ -254,11 +254,6 @@ final class SkillLevelStore: ObservableObject {
     /// isn't read as a singer who has never sung.
     private var restoredLevel: Double?
 
-    /// Derived public ids, remembered: each one costs a SHA-1 (see
-    /// PublicIdentifier) and the whole library is walked every time a run is
-    /// scored.
-    private var publicIDs: [UUID: UUID] = [:]
-
     private init() {
         level = UserDefaults.standard.object(forKey: Self.levelKey) as? Double ?? SkillLevel.starting
     }
@@ -330,10 +325,10 @@ final class SkillLevelStore: ObservableObject {
         UserDefaults.standard.set(new, forKey: Self.levelKey)
     }
 
+    /// The id the server rates an exercise under, which the store works out: an
+    /// edited bundled exercise has one of its own (see
+    /// `ExerciseStore.ratingID(for:)`).
     private func publicID(of id: UUID) -> UUID {
-        if let known = publicIDs[id] { return known }
-        let derived = PublicIdentifier.exercise(id)
-        publicIDs[id] = derived
-        return derived
+        store?.ratingID(for: id) ?? PublicIdentifier.exercise(id)
     }
 }

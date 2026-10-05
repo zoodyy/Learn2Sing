@@ -959,7 +959,8 @@ struct PlaybackView: View {
     /// Public id of the community exercise being played, for the play this run
     /// posts when it finishes. Set from the Community tab, whose exercises carry
     /// their public id already; nil everywhere else, where the exercise holds the
-    /// private id it is stored under and the public one is derived from it.
+    /// private id it is stored under and the store works out the public one (see
+    /// `ExerciseStore.ratingID(for:)`).
     var communityID: UUID? = nil
     /// What the pitch detection try-out does once a detection has been chosen (and
     /// saved) instead of popping this screen: from the one-off question, it closes
@@ -1409,8 +1410,11 @@ struct PlaybackView: View {
         // run that reached a score is worth posting, so this is the one place it
         // happens — a replay comes back through here with its own score. A 0% run
         // stays off the server, as it stays out of the history (see `registerPlay`).
+        // A bundled exercise the singer has edited counts under an id of its own,
+        // so its scores stay out of the rating everyone else's copy shares (see
+        // `ExerciseStore.ratingID(for:)`).
         CommunitySync.shared.registerPlay(
-            for: communityID ?? PublicIdentifier.exercise(exercise.id), score: score)
+            for: communityID ?? store.ratingID(for: exercise.id), score: score)
         finalScore = score
     }
 
