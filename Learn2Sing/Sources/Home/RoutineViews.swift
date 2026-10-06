@@ -494,7 +494,8 @@ struct RoutineExercisePickerView: View {
 
 /// The exercises the Home tab's "Recommended" category may draw from, reached
 /// from Settings ▸ Home Tab. Every exercise in the library is listed; the
-/// ticked ones start out as those that shipped with the app.
+/// ticked ones start out as all of them but the bundled harmonies and trills
+/// (see `ExerciseStore.bundledOffWhitelist`).
 struct RecommendationWhitelistView: View {
     @EnvironmentObject private var store: ExerciseStore
 

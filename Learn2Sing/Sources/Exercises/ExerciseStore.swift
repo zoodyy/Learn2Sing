@@ -62,8 +62,9 @@ final class ExerciseStore: ObservableObject {
 
     /// The groups of exercises whitelisted for recommendations automatically,
     /// from Settings ▸ Home Tab. Every group by default, so a library recommends
-    /// from all of itself until the user says otherwise — which is also what an
-    /// upgrade lands on, the whitelist not having recorded until now which of its
+    /// from all of itself until the user says otherwise (but for a few bundled
+    /// exercises, see `bundledOffWhitelist`) — which is also what an upgrade
+    /// lands on, the whitelist not having recorded until now which of its
     /// omissions were the user's doing.
     @Published private(set) var autoWhitelistOrigins = RecommendedExercises.storedAutoWhitelist
 
@@ -489,8 +490,9 @@ final class ExerciseStore: ObservableObject {
     /// short when the whole whitelist is shorter than that.
     ///
     /// Every whitelisted exercise is in the running — that starts out as the
-    /// ones that shipped with the app, and the user edits it under
-    /// Settings ▸ Home Tab — and each is drawn with a chance made of two things:
+    /// whole library but the bundled harmonies and trills (see
+    /// `bundledOffWhitelist`), and the user edits it under Settings ▸ Home Tab —
+    /// and each is drawn with a chance made of two things:
     ///
     /// * **How recently, and how often, it was sung.** Every run in
     ///   `playHistory` cuts the chance of the exercise it played: sharply for a
@@ -614,6 +616,18 @@ final class ExerciseStore: ObservableObject {
     /// whitelist.
     func runDuration(of exercise: Exercise) -> Double {
         exercise.runDuration(pattern: notes(for: exercise.id))
+    }
+
+    /// How many seconds a run of `exercise` played through to the end adds to
+    /// the Home tab's practice calendar: the run as `PlaybackView` lays it out
+    /// and schedules it, ghost notes and all, rounded the way PracticeLog files
+    /// it. What the recommendation card adds up to say how long its queue takes.
+    func practiceSeconds(of exercise: Exercise) -> Int {
+        let timeline = exercise.timeline(pattern: notes(for: exercise.id),
+                                         ghosts: ghosts(for: exercise.id))
+        return PracticeLog.filedSeconds(
+            Exercise.scheduledRunDuration(notes: timeline.notes, ghosts: timeline.ghosts,
+                                          bpm: exercise.bpm))
     }
 
     /// A batch in the order the category shows it: easiest first, hardest last.
@@ -859,10 +873,38 @@ final class ExerciseStore: ObservableObject {
 
     /// Whether "Automatically whitelisted exercises" covers the group this
     /// exercise came from — what it is whitelisted by unless the user has said
-    /// otherwise for this exercise in particular.
+    /// otherwise for this exercise in particular. The bundled exercises in
+    /// `bundledOffWhitelist` are the exception: "Bundled Exercises" leaves them
+    /// out, so they are only recommended once the user ticks them.
     private func isAutomaticallyWhitelisted(_ exercise: Exercise) -> Bool {
-        autoWhitelistOrigins.contains(ExerciseOrigin.of(exercise, isBundled: isBundled(exercise.id)))
+        let bundled = isBundled(exercise.id)
+        guard autoWhitelistOrigins.contains(ExerciseOrigin.of(exercise, isBundled: bundled))
+        else { return false }
+        return !bundled || !Self.bundledOffWhitelist.contains(exercise.id)
     }
+
+    /// The bundled exercises that start out off the recommendation whitelist:
+    /// every one shipped in "Harmonies", and the lip and tongue trills, whose
+    /// flutter the pitch detection doesn't follow well.
+    ///
+    /// Picked by id, and the harmonies by the category the bundle files them
+    /// under rather than the one they sit in now, so it is these exercises in
+    /// particular and nothing else: a bundled harmony moved to another category
+    /// stays out, and the user's own or downloaded exercises filed under
+    /// "Harmonies" are whitelisted by their group like any other. Since this
+    /// is what the automatic groups say about them, ticking one is a pick of the
+    /// user's own, and a reset of the whitelist leaves them out again.
+    static let bundledOffWhitelist: Set<UUID> = {
+        let harmonies = (bundledBundle?.exercises ?? [])
+            .filter { $0.category == "Harmonies" }
+            .map(\.id)
+        let trills = [
+            "7A76BACA-20D0-4665-B8B8-CA9721C0CF1B", // Brrrr (lip trill)
+            "C7AFD618-085D-477B-9920-52F0A419F8F5", // Tongue Trill
+            "A0CE38A2-8063-421F-AE07-47359C8B67D9", // Octave Lip Trill
+        ].compactMap(UUID.init(uuidString:))
+        return Set(harmonies + trills)
+    }()
 
     /// Work the whitelist out again: the setting's word on each exercise's group,
     /// with the user's own picks overriding it one exercise at a time. Called

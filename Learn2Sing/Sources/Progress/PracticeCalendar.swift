@@ -57,8 +57,14 @@ enum PracticeLog {
     static func record(seconds: Double, at date: Date = Date()) {
         guard seconds > 0 else { return }
         var log = all()
-        log[day(for: date), default: 0] += Int(seconds.rounded())
+        log[day(for: date), default: 0] += filedSeconds(seconds)
         save(log)
+    }
+
+    /// What `record` adds for a run `seconds` long: the log keeps whole
+    /// seconds, so each run is rounded on its own before it goes in.
+    static func filedSeconds(_ seconds: Double) -> Int {
+        seconds > 0 ? Int(seconds.rounded()) : 0
     }
 
     /// The last `count` days, oldest first — what the calendar draws. Days

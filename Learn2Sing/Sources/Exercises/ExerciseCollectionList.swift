@@ -13,10 +13,11 @@ enum ExerciseListRowContent: Equatable {
     /// along so that changing it reaches the cell as a changed row.
     case practiceCalendar([PracticeDay], goalMinutes: Int)
     /// The recommendation card, naming the category most of the recommended
-    /// exercises come from and the singer's own level (0-100 — see
+    /// exercises come from ("Scales" aside), how many seconds singing them all
+    /// adds to the practice calendar, and the singer's own level (0-100 — see
     /// SkillLevelStore). Shown in place of the "Recommended" list when
     /// Settings ▸ Home Tab says so.
-    case recommendation(category: String, skill: Double)
+    case recommendation(category: String, seconds: Int, skill: Double)
     /// A spinner filling the row: the category's exercises are still on their
     /// way (Home ▸ "New for You", whose rows come off the server).
     case loading
@@ -632,13 +633,14 @@ final class ExerciseListController: UIViewController {
         }
         let recommendationRegistration = UICollectionView.CellRegistration<ExerciseListCell, ItemID> {
             [weak self] cell, _, itemID in
-            guard case .recommendation(let category, let skill) = self?.rowsByID[itemID.id]?.content
+            guard case .recommendation(let category, let seconds, let skill)
+                    = self?.rowsByID[itemID.id]?.content
             else { return }
             let locale = (self?.language ?? LanguageManager.shared.language).locale
             cell.contentConfiguration = UIHostingConfiguration {
-                RecommendationCard(category: category, skill: skill)
+                RecommendationCard(category: category, seconds: seconds, skill: skill)
                     .environment(\.locale, locale)
-                    .explain(L("Tap to sing everything the app suggests for you today, one exercise after another. The stars are your own level, which the suggestions are pitched at."))
+                    .explain(L("Tap to sing everything the app suggests for you today, one exercise after another. The time is what singing them all adds to today's “Time Spent Singing”, and the stars are your own level, which the suggestions are pitched at."))
             }
             cell.accessories = []
         }

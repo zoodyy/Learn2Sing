@@ -235,7 +235,7 @@ enum ResettableSettings: String, CaseIterable, Identifiable {
         case .voice:
             L("Clears your vocal range, including the custom lowest and highest notes, puts the target window back to the whole note, and sets pitch detection back to the balanced one.")
         case .homeTab:
-            L("Puts the daily practice goal and the number of exercises in “New for You” back, and returns the whitelist to every exercise in your library, dropping the ones you checked or unchecked yourself. The categories the tab shows and the order they come in are left as you arranged them.")
+            L("Puts the daily practice goal and the number of exercises in “New for You” back, and returns the whitelist to how it started out, dropping the exercises you checked or unchecked yourself. The categories the tab shows and the order they come in are left as you arranged them.")
         case .exercisesTab:
             L("Marks your favorites on the Exercises tab with a star again and puts them back at the top of their categories. Your categories and the order you sorted the tab in are left as they are.")
         case .language:

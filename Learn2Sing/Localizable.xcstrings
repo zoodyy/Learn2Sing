@@ -54425,91 +54425,91 @@
         }
       }
     },
-    "Puts the daily practice goal and the number of exercises in “New for You” back, and returns the whitelist to every exercise in your library, dropping the ones you checked or unchecked yourself. The categories the tab shows and the order they come in are left as you arranged them." : {
+    "Puts the daily practice goal and the number of exercises in “New for You” back, and returns the whitelist to how it started out, dropping the exercises you checked or unchecked yourself. The categories the tab shows and the order they come in are left as you arranged them." : {
       "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "يعيد هدف التمرّن اليومي وعدد التمارين في «جديد لك»، ويعيد قائمة المسموح بها إلى كل تمارين مكتبتك، متجاهلًا ما حددته أو ألغيت تحديده بنفسك. تبقى الفئات التي يعرضها التبويب وترتيبها كما رتّبتها."
+            "value" : "يعيد هدف التمرّن اليومي وعدد التمارين في «جديد لك»، ويعيد قائمة المسموح بها إلى ما كانت عليه في البداية، متجاهلًا ما حددته أو ألغيت تحديده بنفسك. تبقى الفئات التي يعرضها التبويب وترتيبها كما رتّبتها."
           }
         },
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Setzt das tägliche Übungsziel und die Anzahl der Übungen in „Neu für dich“ zurück und lässt wieder alle Übungen deiner Bibliothek zu; selbst an- oder abgewählte Übungen werden dabei verworfen. Welche Kategorien der Tab zeigt und in welcher Reihenfolge, bleibt so, wie du es eingerichtet hast."
+            "value" : "Setzt das tägliche Übungsziel und die Anzahl der Übungen in „Neu für dich“ zurück und bringt die zugelassenen Übungen wieder in ihren Ausgangszustand; selbst an- oder abgewählte Übungen werden dabei verworfen. Welche Kategorien der Tab zeigt und in welcher Reihenfolge, bleibt so, wie du es eingerichtet hast."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Restablece el objetivo diario de práctica y el número de ejercicios de «Nuevo para ti», y vuelve a permitir todos los ejercicios de tu biblioteca, descartando los que marcaste o desmarcaste tú. Las categorías que muestra la pestaña y su orden se quedan como las dejaste."
+            "value" : "Restablece el objetivo diario de práctica y el número de ejercicios de «Nuevo para ti», y devuelve los ejercicios permitidos a como estaban al principio, descartando los que marcaste o desmarcaste tú. Las categorías que muestra la pestaña y su orden se quedan como las dejaste."
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Rétablit l’objectif de pratique quotidien et le nombre d’exercices de « Nouveautés pour vous », et autorise de nouveau tous les exercices de votre bibliothèque, en abandonnant ceux que vous aviez cochés ou décochés vous-même. Les catégories affichées par l’onglet et leur ordre restent comme vous les avez réglés."
+            "value" : "Rétablit l’objectif de pratique quotidien et le nombre d’exercices de « Nouveautés pour vous », et remet les exercices autorisés comme au départ, en abandonnant ceux que vous aviez cochés ou décochés vous-même. Les catégories affichées par l’onglet et leur ordre restent comme vous les avez réglés."
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ripristina l’obiettivo di pratica giornaliero e il numero di esercizi in “Novità per te”, e riammette tutti gli esercizi della tua libreria, scartando quelli che avevi selezionato o deselezionato tu. Le categorie mostrate dalla scheda e il loro ordine restano come li hai sistemati."
+            "value" : "Ripristina l’obiettivo di pratica giornaliero e il numero di esercizi in “Novità per te”, e riporta gli esercizi ammessi com’erano all’inizio, scartando quelli che avevi selezionato o deselezionato tu. Le categorie mostrate dalla scheda e il loro ordine restano come li hai sistemati."
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "1日の練習目標と「あなたへの新着」のエクササイズ数を元に戻し、ライブラリのすべてのエクササイズを再び対象にします。自分で付け外ししたチェックは破棄されます。タブに表示するカテゴリとその並び順は、あなたが並べたままです。"
+            "value" : "1日の練習目標と「あなたへの新着」のエクササイズ数を元に戻し、対象のエクササイズを最初の状態に戻します。自分で付け外ししたチェックは破棄されます。タブに表示するカテゴリとその並び順は、あなたが並べたままです。"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "하루 연습 목표와 “나를 위한 새 연습” 연습 개수를 되돌리고, 라이브러리의 모든 연습을 다시 허용하며 직접 선택하거나 해제한 항목은 사라집니다. 탭에 보이는 분류와 그 순서는 정해 둔 그대로 남습니다."
+            "value" : "하루 연습 목표와 “나를 위한 새 연습” 연습 개수를 되돌리고, 허용된 연습을 처음 상태로 되돌리며 직접 선택하거나 해제한 항목은 사라집니다. 탭에 보이는 분류와 그 순서는 정해 둔 그대로 남습니다."
           }
         },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Zet het dagelijkse oefendoel en het aantal oefeningen in ‘Nieuw voor jou’ terug en staat weer alle oefeningen in je bibliotheek toe, waarbij de oefeningen die je zelf aan- of uitvinkte vervallen. Welke categorieën het tabblad toont en in welke volgorde, blijft zoals je het hebt ingericht."
+            "value" : "Zet het dagelijkse oefendoel en het aantal oefeningen in ‘Nieuw voor jou’ terug en zet de toegestane oefeningen weer zoals ze in het begin waren, waarbij de oefeningen die je zelf aan- of uitvinkte vervallen. Welke categorieën het tabblad toont en in welke volgorde, blijft zoals je het hebt ingericht."
           }
         },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Przywraca dzienny cel ćwiczeń i liczbę ćwiczeń w „Nowe dla Ciebie” oraz ponownie dopuszcza wszystkie ćwiczenia w twojej bibliotece, odrzucając te, które sam zaznaczyłeś lub odznaczyłeś. To, jakie kategorie pokazuje karta i w jakiej kolejności, zostaje tak, jak to ustawiłeś."
+            "value" : "Przywraca dzienny cel ćwiczeń i liczbę ćwiczeń w „Nowe dla Ciebie” oraz ustawia dozwolone ćwiczenia tak jak na początku, odrzucając te, które sam zaznaczyłeś lub odznaczyłeś. To, jakie kategorie pokazuje karta i w jakiej kolejności, zostaje tak, jak to ustawiłeś."
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Restaura a meta diária de prática e o número de exercícios em “Novidades para você”, e volta a permitir todos os exercícios da sua biblioteca, descartando os que você marcou ou desmarcou. As categorias que a aba mostra e a ordem delas ficam como você organizou."
+            "value" : "Restaura a meta diária de prática e o número de exercícios em “Novidades para você”, e volta os exercícios permitidos a como eram no início, descartando os que você marcou ou desmarcou. As categorias que a aba mostra e a ordem delas ficam como você organizou."
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Возвращает ежедневную цель занятий и число упражнений в «Новое для вас» и снова разрешает все упражнения в вашей библиотеке, отменяя те, что вы отметили или сняли сами. Какие категории показывает вкладка и в каком порядке, остаётся так, как вы настроили."
+            "value" : "Возвращает ежедневную цель занятий и число упражнений в «Новое для вас» и приводит список разрешённых упражнений в исходное состояние, отменяя те, что вы отметили или сняли сами. Какие категории показывает вкладка и в каком порядке, остаётся так, как вы настроили."
           }
         },
         "sv" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Återställer det dagliga övningsmålet och antalet övningar i ”Nytt för dig” och tillåter åter alla övningar i ditt bibliotek, och släpper dem du själv kryssat i eller ur. Vilka kategorier fliken visar och i vilken ordning lämnas som du ordnat dem."
+            "value" : "Återställer det dagliga övningsmålet och antalet övningar i ”Nytt för dig” och ställer tillbaka de tillåtna övningarna som de var från början, och släpper dem du själv kryssat i eller ur. Vilka kategorier fliken visar och i vilken ordning lämnas som du ordnat dem."
           }
         },
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Günlük çalışma hedefini ve “Sizin için yeni” egzersiz sayısını geri getirir ve kitaplığındaki tüm egzersizlere yeniden izin verir; kendin işaretlediklerin ya da işaretini kaldırdıkların silinir. Sekmenin hangi kategorileri hangi sırayla gösterdiği, senin düzenlediğin gibi kalır."
+            "value" : "Günlük çalışma hedefini ve “Sizin için yeni” egzersiz sayısını geri getirir ve izin verilen egzersizleri başlangıçtaki hâline döndürür; kendin işaretlediklerin ya da işaretini kaldırdıkların silinir. Sekmenin hangi kategorileri hangi sırayla gösterdiği, senin düzenlediğin gibi kalır."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "恢复每天的练习目标和“最新推荐”中的练习数量，并将练习库中的全部练习重新列入，同时放弃你自己勾选或取消的项。标签显示哪些分类以及它们的顺序会保持你安排的样子。"
+            "value" : "恢复每天的练习目标和“最新推荐”中的练习数量，并将已列入的练习恢复为最初的样子，同时放弃你自己勾选或取消的项。标签显示哪些分类以及它们的顺序会保持你安排的样子。"
           }
         }
       }
@@ -71194,91 +71194,91 @@
         }
       }
     },
-    "Tap to sing everything the app suggests for you today, one exercise after another. The stars are your own level, which the suggestions are pitched at." : {
+    "Tap to sing everything the app suggests for you today, one exercise after another. The time is what singing them all adds to today's “Time Spent Singing”, and the stars are your own level, which the suggestions are pitched at." : {
       "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "اضغط لغناء كل ما يقترحه التطبيق لك اليوم، تمرينًا تلو الآخر. النجوم تمثل مستواك، والاقتراحات مصممة له."
+            "value" : "اضغط لغناء كل ما يقترحه التطبيق لك اليوم، تمرينًا تلو الآخر. الوقت هو ما يضيفه غناؤها كلها إلى «وقت الغناء» اليوم، والنجوم تمثل مستواك، والاقتراحات مصممة له."
           }
         },
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Tippe darauf, um alles zu singen, was die App dir heute vorschlägt, eine Übung nach der anderen. Die Sterne stehen für dein eigenes Niveau, auf das die Vorschläge zugeschnitten sind."
+            "value" : "Tippe darauf, um alles zu singen, was die App dir heute vorschlägt, eine Übung nach der anderen. Die Zeit zeigt, wie viel alle zusammen heute zu „Gesungene Zeit“ beitragen, und die Sterne stehen für dein eigenes Niveau, auf das die Vorschläge zugeschnitten sind."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Toca para cantar todo lo que la app te sugiere hoy, un ejercicio tras otro. Las estrellas son tu propio nivel, al que se ajustan las sugerencias."
+            "value" : "Toca para cantar todo lo que la app te sugiere hoy, un ejercicio tras otro. El tiempo es lo que cantarlos todos suma hoy al «Tiempo cantado», y las estrellas son tu propio nivel, al que se ajustan las sugerencias."
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Touchez pour chanter tout ce que l’app vous propose aujourd’hui, un exercice après l’autre. Les étoiles indiquent votre niveau, sur lequel les suggestions sont calées."
+            "value" : "Touchez pour chanter tout ce que l’app vous propose aujourd’hui, un exercice après l’autre. La durée est ce que les chanter tous ajoute aujourd’hui au « Temps de chant », et les étoiles indiquent votre niveau, sur lequel les suggestions sont calées."
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Tocca per cantare tutto ciò che l’app ti propone oggi, un esercizio dopo l’altro. Le stelle sono il tuo livello, su cui sono tarate le proposte."
+            "value" : "Tocca per cantare tutto ciò che l’app ti propone oggi, un esercizio dopo l’altro. Il tempo è quanto cantarli tutti aggiunge oggi al “Tempo cantato”, e le stelle sono il tuo livello, su cui sono tarate le proposte."
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "タップすると、今日おすすめのエクササイズを続けて歌えます。星はあなた自身のレベルで、おすすめはそれに合わせて選ばれます。"
+            "value" : "タップすると、今日おすすめのエクササイズを続けて歌えます。時間はすべて歌うと今日の「歌った時間」に加わる長さで、星はあなた自身のレベルです。おすすめはそれに合わせて選ばれます。"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "탭하면 앱이 오늘 추천하는 연습을 차례로 이어서 부릅니다. 별은 당신의 실력이며, 추천은 그 수준에 맞춰집니다."
+            "value" : "탭하면 앱이 오늘 추천하는 연습을 차례로 이어서 부릅니다. 시간은 모두 부르면 오늘의 “노래한 시간”에 더해지는 양이고, 별은 당신의 실력이며 추천은 그 수준에 맞춰집니다."
           }
         },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Tik om alles te zingen wat de app je vandaag voorstelt, de ene oefening na de andere. De sterren zijn je eigen niveau, waarop de suggesties zijn afgestemd."
+            "value" : "Tik om alles te zingen wat de app je vandaag voorstelt, de ene oefening na de andere. De tijd is wat ze allemaal zingen vandaag aan de ‘Gezongen tijd’ toevoegt, en de sterren zijn je eigen niveau, waarop de suggesties zijn afgestemd."
           }
         },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Dotknij, aby zaśpiewać wszystko, co aplikacja proponuje ci dziś, ćwiczenie po ćwiczeniu. Gwiazdki to twój poziom, pod który dobrane są propozycje."
+            "value" : "Dotknij, aby zaśpiewać wszystko, co aplikacja proponuje ci dziś, ćwiczenie po ćwiczeniu. Czas to tyle, ile zaśpiewanie ich wszystkich doda dziś do „Czasu śpiewania”, a gwiazdki to twój poziom, pod który dobrane są propozycje."
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Toque para cantar tudo o que o app sugere para você hoje, um exercício após o outro. As estrelas são o seu nível, no qual as sugestões são baseadas."
+            "value" : "Toque para cantar tudo o que o app sugere para você hoje, um exercício após o outro. O tempo é quanto cantar todos eles soma hoje ao “Tempo cantado”, e as estrelas são o seu nível, no qual as sugestões são baseadas."
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Нажмите, чтобы спеть всё, что приложение предлагает вам сегодня, упражнение за упражнением. Звёзды показывают ваш уровень, под который подобраны предложения."
+            "value" : "Нажмите, чтобы спеть всё, что приложение предлагает вам сегодня, упражнение за упражнением. Время показывает, сколько всё это добавит сегодня во «Время пения», а звёзды показывают ваш уровень, под который подобраны предложения."
           }
         },
         "sv" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Tryck för att sjunga allt appen föreslår åt dig i dag, en övning i taget. Stjärnorna är din egen nivå, som förslagen är anpassade efter."
+            "value" : "Tryck för att sjunga allt appen föreslår åt dig i dag, en övning i taget. Tiden är vad det lägger till i dagens ”Sångtid” att sjunga dem alla, och stjärnorna är din egen nivå, som förslagen är anpassade efter."
           }
         },
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Uygulamanın bugün önerdiği her şeyi sırayla söylemek için dokunun. Yıldızlar sizin seviyenizi gösterir; öneriler ona göre seçilir."
+            "value" : "Uygulamanın bugün önerdiği her şeyi sırayla söylemek için dokunun. Süre, hepsini söylemenin bugünkü “Şarkı söyleme süresi”ne ekleyeceği zamandır; yıldızlar ise sizin seviyenizi gösterir ve öneriler ona göre seçilir."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "点按即可依次唱完应用今天为你推荐的全部练习。星星表示你自己的水平，推荐正是按它来挑选的。"
+            "value" : "点按即可依次唱完应用今天为你推荐的全部练习。时间表示全部唱完会为今天的“歌唱时长”增加多少，星星表示你自己的水平，推荐正是按它来挑选的。"
           }
         }
       }
@@ -88162,91 +88162,91 @@
         }
       }
     },
-    "Which exercises are whitelisted for you: switching a group on whitelists everything in it, including what was already in your library, and switching it off takes them out again. Exercises you check or uncheck yourself below are left as you left them." : {
+    "Which exercises are whitelisted for you: switching a group on whitelists everything in it, including what was already in your library, and switching it off takes them out again. Bundled exercises in “Harmonies” and the lip and tongue trills, which pitch detection struggles to follow, are left out until you check them below. Exercises you check or uncheck yourself below are left as you left them." : {
       "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "أي التمارين مسموح بها لك: تشغيل مجموعة يسمح بكل ما فيها، بما في ذلك ما كان في مكتبتك من قبل، وإيقافها يُخرجها مرة أخرى. التمارين التي تحددها أو تلغي تحديدها بنفسك أدناه تبقى كما تركتها."
+            "value" : "أي التمارين مسموح بها لك: تشغيل مجموعة يسمح بكل ما فيها، بما في ذلك ما كان في مكتبتك من قبل، وإيقافها يُخرجها مرة أخرى. التمارين المرفقة في «التناغمات» ورفرفة الشفاه واللسان، التي يصعب على اكتشاف درجة الصوت تتبّعها، تبقى خارجها حتى تحددها أدناه. التمارين التي تحددها أو تلغي تحديدها بنفسك أدناه تبقى كما تركتها."
           }
         },
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Welche Übungen automatisch zugelassen werden: Schaltest du eine Gruppe ein, wird alles darin zugelassen — auch was schon in deiner Bibliothek war —, schaltest du sie aus, wird es wieder entfernt. Übungen, die du unten selbst an- oder abwählst, bleiben so, wie du sie gelassen hast."
+            "value" : "Welche Übungen automatisch zugelassen werden: Schaltest du eine Gruppe ein, wird alles darin zugelassen, auch was schon in deiner Bibliothek war, und schaltest du sie aus, wird es wieder entfernt. Mitgelieferte Übungen in „Harmonien“ sowie die Lippen- und Zungentriller, denen die Tonhöhenerkennung nur schlecht folgen kann, bleiben außen vor, bis du sie unten anwählst. Übungen, die du unten selbst an- oder abwählst, bleiben so, wie du sie gelassen hast."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Qué ejercicios se permiten automáticamente: al activar un grupo se permiten todos los suyos, incluidos los que ya estaban en tu biblioteca, y al desactivarlo se vuelven a quitar. Los ejercicios que marcas o desmarcas tú abajo se quedan como los dejaste."
+            "value" : "Qué ejercicios se permiten automáticamente: al activar un grupo se permiten todos los suyos, incluidos los que ya estaban en tu biblioteca, y al desactivarlo se vuelven a quitar. Los ejercicios incluidos en «Armonías» y las vibraciones de labios y de lengua, que a la detección de tono le cuesta seguir, quedan fuera hasta que los marques abajo. Los ejercicios que marcas o desmarcas tú abajo se quedan como los dejaste."
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Quels exercices sont autorisés automatiquement : activer un groupe autorise tout ce qu’il contient, y compris ce qui était déjà dans votre bibliothèque, et le désactiver les retire à nouveau. Les exercices que vous cochez ou décochez vous-même ci-dessous restent comme vous les avez laissés."
+            "value" : "Quels exercices sont autorisés automatiquement : activer un groupe autorise tout ce qu’il contient, y compris ce qui était déjà dans votre bibliothèque, et le désactiver les retire à nouveau. Les exercices fournis dans « Harmonies » et les trilles des lèvres et de la langue, que la détection de hauteur a du mal à suivre, restent à l’écart jusqu’à ce que vous les cochiez ci-dessous. Les exercices que vous cochez ou décochez vous-même ci-dessous restent comme vous les avez laissés."
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Quali esercizi vengono ammessi automaticamente: attivando un gruppo vengono ammessi tutti i suoi esercizi, compresi quelli già presenti nella tua libreria, e disattivandolo vengono tolti di nuovo. Gli esercizi che selezioni o deselezioni tu qui sotto restano come li hai lasciati."
+            "value" : "Quali esercizi vengono ammessi automaticamente: attivando un gruppo vengono ammessi tutti i suoi esercizi, compresi quelli già presenti nella tua libreria, e disattivandolo vengono tolti di nuovo. Gli esercizi inclusi in “Armonie” e i trilli labiali e di lingua, che il rilevamento dell’intonazione fatica a seguire, restano esclusi finché non li selezioni qui sotto. Gli esercizi che selezioni o deselezioni tu qui sotto restano come li hai lasciati."
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "どのエクササイズを自動で対象にするか。グループをオンにすると、ライブラリにすでにあるものも含めてその中のすべてが対象になり、オフにすると再び外れます。下で自分でチェックを付けたり外したりしたエクササイズは、そのままにされます。"
+            "value" : "どのエクササイズを自動で対象にするか。グループをオンにすると、ライブラリにすでにあるものも含めてその中のすべてが対象になり、オフにすると再び外れます。「ハーモニー」の付属のエクササイズと、ピッチ検出が追いにくいリップロールとタングトリルは、下でチェックを付けるまで対象外です。下で自分でチェックを付けたり外したりしたエクササイズは、そのままにされます。"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "어떤 연습을 자동으로 허용할지 정합니다. 그룹을 켜면 이미 라이브러리에 있던 것까지 그 안의 모든 연습이 허용되고, 끄면 다시 제외됩니다. 아래에서 직접 선택하거나 해제한 연습은 그대로 유지됩니다."
+            "value" : "어떤 연습을 자동으로 허용할지 정합니다. 그룹을 켜면 이미 라이브러리에 있던 것까지 그 안의 모든 연습이 허용되고, 끄면 다시 제외됩니다. “화음”의 기본 제공 연습과 음정 인식이 따라가기 어려운 립 트릴과 혀 트릴은 아래에서 직접 선택할 때까지 제외됩니다. 아래에서 직접 선택하거나 해제한 연습은 그대로 유지됩니다."
           }
         },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Welke oefeningen automatisch worden toegestaan: zet je een groep aan, dan wordt alles erin toegestaan, ook wat al in je bibliotheek stond, en zet je hem uit, dan gaan ze er weer af. Oefeningen die je hieronder zelf aan- of uitvinkt, blijven zoals je ze hebt achtergelaten."
+            "value" : "Welke oefeningen automatisch worden toegestaan: zet je een groep aan, dan wordt alles erin toegestaan, ook wat al in je bibliotheek stond, en zet je hem uit, dan gaan ze er weer af. Meegeleverde oefeningen in ‘Harmonieën’ en de lip- en tongtrillen, die de toonhoogtedetectie moeilijk kan volgen, blijven erbuiten tot je ze hieronder aanvinkt. Oefeningen die je hieronder zelf aan- of uitvinkt, blijven zoals je ze hebt achtergelaten."
           }
         },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Które ćwiczenia są dozwolone automatycznie: włączenie grupy dopuszcza wszystko, co się w niej znajduje, także to, co już było w twojej bibliotece, a wyłączenie znów je usuwa. Ćwiczenia, które sam zaznaczysz lub odznaczysz poniżej, zostają tak, jak je zostawiłeś."
+            "value" : "Które ćwiczenia są dozwolone automatycznie: włączenie grupy dopuszcza wszystko, co się w niej znajduje, także to, co już było w twojej bibliotece, a wyłączenie znów je usuwa. Dołączone ćwiczenia z kategorii „Harmonie” oraz trele wargowe i językowe, za którymi wykrywanie wysokości dźwięku słabo nadąża, zostają pominięte, dopóki nie zaznaczysz ich poniżej. Ćwiczenia, które sam zaznaczysz lub odznaczysz poniżej, zostają tak, jak je zostawiłeś."
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Quais exercícios são permitidos automaticamente: ativar um grupo permite tudo o que há nele, inclusive o que já estava na sua biblioteca, e desativá-lo os retira de novo. Os exercícios que você marca ou desmarca abaixo ficam como você os deixou."
+            "value" : "Quais exercícios são permitidos automaticamente: ativar um grupo permite tudo o que há nele, inclusive o que já estava na sua biblioteca, e desativá-lo os retira de novo. Os exercícios incluídos em “Harmonias” e as vibrações de lábios e de língua, que a detecção de altura tem dificuldade de acompanhar, ficam de fora até você marcá-los abaixo. Os exercícios que você marca ou desmarca abaixo ficam como você os deixou."
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Какие упражнения разрешаются автоматически: если включить группу, разрешается всё, что в неё входит, включая то, что уже было в вашей библиотеке, а если выключить — снова убирается. Упражнения, которые вы сами отмечаете или снимаете ниже, остаются такими, как вы их оставили."
+            "value" : "Какие упражнения разрешаются автоматически: если включить группу, разрешается всё, что в неё входит, включая то, что уже было в вашей библиотеке, а если выключить, снова убирается. Встроенные упражнения из категории «Гармонии», а также губные и язычные трели, за которыми определению высоты тона трудно следить, не включаются, пока вы не отметите их ниже. Упражнения, которые вы сами отмечаете или снимаете ниже, остаются такими, как вы их оставили."
           }
         },
         "sv" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Vilka övningar som tillåts automatiskt: slår du på en grupp tillåts allt i den, även det som redan fanns i ditt bibliotek, och slår du av den tas de bort igen. Övningar som du själv kryssar i eller ur nedan lämnas som du lämnade dem."
+            "value" : "Vilka övningar som tillåts automatiskt: slår du på en grupp tillåts allt i den, även det som redan fanns i ditt bibliotek, och slår du av den tas de bort igen. Medföljande övningar i ”Harmonier” och läpp- och tungdrillarna, som tonhöjdsavläsningen har svårt att följa, lämnas utanför tills du kryssar i dem nedan. Övningar som du själv kryssar i eller ur nedan lämnas som du lämnade dem."
           }
         },
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Hangi egzersizlere otomatik izin verileceği: bir grubu açtığında içindeki her şeye izin verilir — kitaplığında zaten bulunanlara da — kapattığında yeniden çıkarılır. Aşağıda kendin işaretlediğin ya da işaretini kaldırdığın egzersizler bıraktığın gibi kalır."
+            "value" : "Hangi egzersizlere otomatik izin verileceği: bir grubu açtığında, kitaplığında zaten bulunanlar dahil içindeki her şeye izin verilir; kapattığında yeniden çıkarılır. “Armoniler” içindeki uygulamayla gelen egzersizler ile perde algılamanın takip etmekte zorlandığı dudak ve dil titreşimleri, aşağıda işaretleyene kadar dışarıda kalır. Aşağıda kendin işaretlediğin ya da işaretini kaldırdığın egzersizler bıraktığın gibi kalır."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "哪些练习会被自动列入：打开某一组会列入其中的全部练习，包括你库中已有的；关闭则会重新移除。你在下面自己勾选或取消的练习会保持原样。"
+            "value" : "哪些练习会被自动列入：打开某一组会列入其中的全部练习，包括你库中已有的；关闭则会重新移除。“和声”中的自带练习，以及音高识别难以跟上的唇颤音和舌颤音，在你于下面勾选之前不会列入。你在下面自己勾选或取消的练习会保持原样。"
           }
         }
       }

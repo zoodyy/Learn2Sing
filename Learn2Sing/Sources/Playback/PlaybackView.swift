@@ -1064,8 +1064,7 @@ struct PlaybackView: View {
     /// to its own tempo in `notes`), and the beat it waits at the end. This is
     /// what a finished run adds to the Home tab's practice calendar.
     private var runDuration: Double {
-        let lastBeat = (notes + ghosts).map { $0.beat + $0.length }.max() ?? 0
-        return (lastBeat + leadIn + 1.0) * (60.0 / bpm)
+        Exercise.scheduledRunDuration(notes: notes, ghosts: ghosts, bpm: bpm)
     }
 
     /// Whether this run is one of the user's own exercises, played the way the

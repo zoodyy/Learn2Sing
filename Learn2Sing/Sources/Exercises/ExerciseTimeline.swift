@@ -250,6 +250,21 @@ extension Exercise {
         return contentDuration(pattern: pattern)
             + (Self.playbackLeadInBeats + 1.0) * (60.0 / bpm)
     }
+
+    /// How long a run lasts as `PlaybackView` schedules it, in seconds: the
+    /// silent lead-in, `notes` and `ghosts` (an expanded timeline's) played out
+    /// to whichever of them ends last, and the beat it waits at the end, all at
+    /// `bpm`. This is what a finished run adds to the Home tab's practice
+    /// calendar.
+    ///
+    /// Unlike `runDuration(pattern:)` it counts a ghost note left ringing past
+    /// the last sung one, as the player does. That one is left as it is: it is
+    /// what the "Recommended" draw measures its batches in, and changing it
+    /// would change which exercises get drawn.
+    static func scheduledRunDuration(notes: [MIDINote], ghosts: [MIDINote], bpm: Double) -> Double {
+        let lastBeat = (notes + ghosts).map { $0.beat + $0.length }.max() ?? 0
+        return (lastBeat + playbackLeadInBeats + 1.0) * (60.0 / bpm)
+    }
 }
 
 // MARK: - What is heard

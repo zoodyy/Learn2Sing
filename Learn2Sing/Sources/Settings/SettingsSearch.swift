@@ -650,7 +650,7 @@ enum SettingsCatalog {
             help: L("How long you mean to practice a day. The Home tab's “Recommended” category suggests exercises adding up to at least this long, pitched at your skill level and steering clear of the ones you've sung lately, above all the ones you've sung over and over. A day of the Home tab's “Time Spent Singing” is filled in and checked off once you have practiced this much."))
         add(.autoWhitelist, .homeTab, section: L("Recommendations"),
             title: L("Automatically whitelisted exercises"),
-            help: L("Which exercises are whitelisted for you: switching a group on whitelists everything in it, including what was already in your library, and switching it off takes them out again. Exercises you check or uncheck yourself below are left as you left them."))
+            help: L("Which exercises are whitelisted for you: switching a group on whitelists everything in it, including what was already in your library, and switching it off takes them out again. Bundled exercises in “Harmonies” and the lip and tongue trills, which pitch detection struggles to follow, are left out until you check them below. Exercises you check or uncheck yourself below are left as you left them."))
         add(.whitelist, .homeTab, section: L("Recommendations"), title: L("Whitelisted exercises"),
             help: L("The exercises recommendations are picked from. The groups picked above are checked for you; tap an exercise to add or remove it yourself, which the groups then leave alone."))
         add(.limitScales, .homeTab, section: L("Recommendations"), title: L("Limit scales to 1/3"),

@@ -107,9 +107,9 @@ enum HomeCategories {
 
 /// The Home tab's "Recommended" category as a single card: a big play button
 /// beside the name of the category most of the suggested exercises come from,
-/// with the singer's own level under it. Shown instead of listing them unless
-/// Settings ▸ Home Tab ▸ Recommendations asks for the list; tapping it opens
-/// the whole suggestion as one queue.
+/// with how long they take and the singer's own level under it. Shown instead
+/// of listing them unless Settings ▸ Home Tab ▸ Recommendations asks for the
+/// list; tapping it opens the whole suggestion as one queue.
 ///
 /// Drawn to the practice calendar's shape, so the tab's two cards are exactly
 /// the same size — and since that shape, not the contents, is what sets the
@@ -118,11 +118,18 @@ struct RecommendationCard: View {
     /// The category to name. Stored in English for the app's own categories and
     /// translated on the way to the screen, like everywhere else they're shown.
     let category: String
+    /// How much singing the whole suggestion through once adds to today's
+    /// square in "Time Spent Singing", in seconds.
+    let seconds: Int
     /// How hard an exercise the singer can handle, 0-100 — see SkillLevelStore.
     /// The suggestions behind this card are pitched at it, so it is drawn on the
     /// card that opens them, as the same five stars an exercise's difficulty
     /// gets on its intro screen: the two are the same scale.
     let skill: Double
+
+    /// The app's chosen language, which the list hands the card by hand: the
+    /// time is written out here rather than by a `Text` that would pick it up.
+    @Environment(\.locale) private var locale
 
     var body: some View {
         GeometryReader { geo in
@@ -149,6 +156,22 @@ struct RecommendationCard: View {
                         // card taller, which would break it away from the
                         // calendar's size.
                         .minimumScaleFactor(0.5)
+
+                    // Written the way the calendar's bubble writes a day, part
+                    // minutes dropped, so it is what that day's bubble goes up
+                    // by once the queue has been sung through. A stack rather
+                    // than a Label, whose own gap between the clock and the
+                    // time doesn't scale down with the type.
+                    HStack(spacing: geo.size.height * 0.03) {
+                        Image(systemName: "clock")
+                        Text(verbatim: Duration.seconds(seconds)
+                            .formatted(PracticeCalendarView.durationStyle(seconds, locale: locale)))
+                    }
+                    .font(.system(size: geo.size.height * 0.11, weight: .semibold))
+                    .monospacedDigit()
+                    .foregroundStyle(.secondary)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.5)
 
                     // Sized off the card like everything else on it, so the row
                     // of stars stays a row however wide the list is.
@@ -458,13 +481,18 @@ struct HomeView: View {
         return recommendedExercises
     }
 
-    /// The category most of the suggested exercises belong to — what the
-    /// recommendation card names — or nil when there is nothing to suggest.
-    /// A tie goes to whichever category comes first in the Exercises tab's own
-    /// order, so the card doesn't flip between two equally represented ones.
-    private var recommendedCategory: String? {
+    /// The category most of `exercises` belong to — what the recommendation
+    /// card names — or nil when there is nothing to suggest. "Scales" is passed
+    /// over for the next most common one: the app ships with so many scales
+    /// that they would be the card's name more often than not, which says
+    /// little about a batch. Only a batch of nothing but scales is named after
+    /// them. A tie goes to whichever category comes first in the Exercises
+    /// tab's own order, so the card doesn't flip between two equally
+    /// represented ones.
+    private func recommendedCategory(of exercises: [Exercise]) -> String? {
         var counts: [String: Int] = [:]
-        for exercise in recommendation { counts[exercise.category, default: 0] += 1 }
+        for exercise in exercises { counts[exercise.category, default: 0] += 1 }
+        if counts.count > 1 { counts[RecommendedExercises.scalesCategory] = nil }
         let order = store.categories
         return counts.max { lhs, rhs in
             if lhs.value != rhs.value { return lhs.value < rhs.value }
@@ -535,10 +563,17 @@ struct HomeView: View {
     /// The one row "Recommended" holds while it shows its card: the card itself,
     /// drawn across the whole row like the calendar's. nil when there is nothing
     /// to suggest, which leaves the category as empty as the list would.
+    ///
+    /// The time on it is what singing the whole queue through once adds to
+    /// today's square in "Time Spent Singing": every run's length, worked out
+    /// and rounded the way a finished run files it.
     private var recommendationCardRow: ExerciseListRow? {
-        guard let category = recommendedCategory else { return nil }
+        let exercises = recommendation
+        guard let category = recommendedCategory(of: exercises) else { return nil }
+        let seconds = exercises.reduce(0) { $0 + store.practiceSeconds(of: $1) }
         return placeholderRow(HomeCategories.recommendationRowID,
-                              content: .recommendation(category: category, skill: skill.level))
+                              content: .recommendation(category: category, seconds: seconds,
+                                                       skill: skill.level))
     }
 
     private func rows(in category: String) -> [ExerciseListRow] {
