@@ -99,8 +99,9 @@ def average(public_id: str) -> float | None:
     return json.loads(body).get("calculatedValue")
 
 
-def rate() -> list[dict]:
-    """Every bundled exercise's rating, from the app's own code."""
+def run_rater(bundle: pathlib.Path) -> list[dict]:
+    """Each exercise's rating in a file shaped like BundledExercises.json, from
+    the app's own code. Rows without a "rating" had nothing to rate."""
     sources = [
         HERE / "Rater" / "main.swift",
         HERE / "Rater" / "Shim.swift",
@@ -110,9 +111,14 @@ def rate() -> list[dict]:
     with tempfile.TemporaryDirectory() as tmp:
         rater = pathlib.Path(tmp) / "rater"
         subprocess.run(["swiftc", "-o", str(rater), *map(str, sources)], check=True)
-        out = subprocess.run([str(rater), "rate", str(BUNDLE)],
+        out = subprocess.run([str(rater), "rate", str(bundle)],
                              capture_output=True, text=True, check=True).stdout
-    rows = [json.loads(line) for line in out.splitlines()]
+    return [json.loads(line) for line in out.splitlines()]
+
+
+def rate() -> list[dict]:
+    """Every bundled exercise's rating, from the app's own code."""
+    rows = run_rater(BUNDLE)
     for row in rows:
         row["public_id"] = derived(row["id"])
     unrated = [row["name"] for row in rows if "rating" not in row]
