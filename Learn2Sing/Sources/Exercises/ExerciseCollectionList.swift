@@ -131,8 +131,10 @@ struct ExerciseCollectionList: UIViewControllerRepresentable {
     /// which the Home tab needs, since the same exercise can be listed under
     /// several of its categories at once.
     var onSelect: (UUID, String) -> Void
-    /// Tap on a row's grey uploader name (Community tab). nil leaves the name inert.
-    var onSelectUploader: ((String) -> Void)? = nil
+    /// Tap on a row's grey uploader name (Community tab), with the exercise the
+    /// row lists — not the name it drew, which two uploaders can share. nil
+    /// leaves the name inert.
+    var onSelectUploader: ((UUID) -> Void)? = nil
     /// Pull-to-refresh handler (Community tab); the spinner stays until it
     /// returns. nil (the other tabs) installs no refresh control at all.
     var onRefresh: (() async -> Void)? = nil
@@ -354,7 +356,7 @@ nonisolated private struct ItemID: Hashable {
 
 final class ExerciseListController: UIViewController {
     var onSelect: ((UUID, String) -> Void)?
-    var onSelectUploader: ((String) -> Void)?
+    var onSelectUploader: ((UUID) -> Void)?
     var onRefresh: (() async -> Void)?
     var onSettings: ((UUID) -> Void)?
     var onDelete: ((UUID) -> Void)?
@@ -543,7 +545,7 @@ final class ExerciseListController: UIViewController {
                 cell.contentConfiguration = NameUploaderConfiguration(
                     name: row.exercise.localizedName, uploader: uploader,
                     onTapUploader: self?.onSelectUploader.map { open in
-                        { open(uploader) }
+                        { open(itemID.id) }
                     }
                 )
             } else {

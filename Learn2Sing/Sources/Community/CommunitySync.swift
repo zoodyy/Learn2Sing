@@ -558,22 +558,13 @@ final class CommunitySync: ObservableObject {
         fetchedExercises[publicExerciseID]
     }
 
-    /// The public user id of whoever uploaded the exercises going by `username`
-    /// in the lists loaded so far, so a tap on a row's uploader name can open
-    /// their profile — which is fetched by id. What a list row has to go on: it
-    /// hands over the name it drew and nothing else.
-    func uploaderID(named username: String, in feed: CommunityFeed) -> String? {
-        guard !username.isEmpty else { return nil }
-        for exercise in feed.exercises where exercise.uploaderName == username {
-            if let id = feed.uploaderIDs[exercise.id] { return id }
-        }
-        return uploaderNames.first { $0.value == username }?.key
-    }
-
     /// The public user id of whoever uploaded one exercise, from whichever list
     /// turned it up — what the screens pushed off a list ask, since they hold the
-    /// exercise itself. Exact where the lookup by name above can only be a good
-    /// guess: two uploaders are free to go by the same username.
+    /// exercise itself, and what a tap on a list row's uploader name goes by.
+    /// Always by the exercise, never by the name on it: two uploaders can go by
+    /// the same one, since an uploader with no PUBLIC_PROFILE document is labelled
+    /// with the name stamped on their exercises, which the server's uniqueness
+    /// check never saw.
     func uploaderID(of publicExerciseID: UUID) -> String? {
         fetchedUploaderIDs[publicExerciseID]
     }

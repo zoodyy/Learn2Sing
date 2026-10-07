@@ -125,13 +125,17 @@ struct CommunityView: View {
 
     /// A stable row id for a user result row. The list is keyed by UUID and a
     /// user row isn't an exercise, so its id is derived (128-bit FNV-1a over a
-    /// namespaced string) from the username: unchanged between keystrokes, so
-    /// the diffable identity doesn't churn, and never equal to an exercise id.
-    private static func userRowID(for username: String) -> UUID {
+    /// namespaced string) from the uploader's public id: unchanged between
+    /// keystrokes, so the diffable identity doesn't churn, and never equal to an
+    /// exercise id. Not from the username, which two uploaders can share — one
+    /// whose exercises only carry the name stamped on them when they were
+    /// published, beside the one who holds it — and two rows with one id crash
+    /// the list.
+    private static func userRowID(for uploaderID: String) -> UUID {
         var bytes: [UInt8] = []
         for seed in [0xcbf2_9ce4_8422_2325, 0x9e37_79b9_7f4a_7c15] as [UInt64] {
             var hash = seed
-            for byte in "community.user:\(username)".utf8 {
+            for byte in "community.user:\(uploaderID)".utf8 {
                 hash = (hash ^ UInt64(byte)) &* 0x100_0000_01b3
             }
             withUnsafeBytes(of: hash.bigEndian) { bytes.append(contentsOf: $0) }
@@ -142,13 +146,17 @@ struct CommunityView: View {
                            bytes[12], bytes[13], bytes[14], bytes[15]))
     }
 
-    /// The public id of the uploader going by `username`, since a profile is
-    /// fetched by id rather than by name. This tab's own list first, then every
-    /// uploader any list has named this session — the intro screen's "Created
-    /// by" line asks for exercises opened from an uploader's profile too, and
-    /// that profile fetches separately from this list.
-    private func uploaderID(named username: String) -> String? {
-        community.uploaderID(named: username, in: list)
+    /// Opens the profile of whoever uploaded the exercise on a row whose grey
+    /// uploader name was tapped. Resolved by the exercise, exactly as the intro
+    /// screen's "Created by" line is, rather than by the name on it: two
+    /// uploaders can go by one name, and a lookup by name lands on whichever of
+    /// them the list happens to show first.
+    private func openUploader(ofExercise exerciseID: UUID) {
+        guard let id = list.uploaderIDs[exerciseID] ?? community.uploaderID(of: exerciseID)
+        else { return }
+        let name = list.exercises.first { $0.id == exerciseID }?.uploaderName
+            ?? exercise(for: exerciseID)?.uploaderName ?? ""
+        navigationPath.append(ExerciseRoute.user(id: id, name: name))
     }
 
     /// What the list shows for the current search text: every fetched exercise in
@@ -198,10 +206,18 @@ struct CommunityView: View {
         if !uploaders.isEmpty {
             let rows = uploaders
                 .map { CommunityUploader(id: $0.key, name: $0.value) }
-                .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
+                // By name, and by id where two share one, so those two don't
+                // trade places from one keystroke to the next.
+                .sorted {
+                    switch $0.name.localizedStandardCompare($1.name) {
+                    case .orderedAscending: true
+                    case .orderedDescending: false
+                    case .orderedSame: $0.id < $1.id
+                    }
+                }
                 .map { uploader in
                     var placeholder = Exercise(name: uploader.name)
-                    placeholder.id = Self.userRowID(for: uploader.name)
+                    placeholder.id = Self.userRowID(for: uploader.id)
                     users[placeholder.id] = uploader
                     return ExerciseListRow(exercise: placeholder, pattern: [])
                 }
@@ -259,10 +275,7 @@ struct CommunityView: View {
                                 navigationPath.append(ExerciseRoute.play(id))
                             }
                         },
-                        onSelectUploader: { name in
-                            guard let id = uploaderID(named: name) else { return }
-                            navigationPath.append(ExerciseRoute.user(id: id, name: name))
-                        },
+                        onSelectUploader: { openUploader(ofExercise: $0) },
                         onRefresh: { await list.refresh() },
                         // The list is a page of the community at a time, topped
                         // up as the user scrolls towards the end of it. Not while
