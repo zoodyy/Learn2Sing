@@ -15,15 +15,12 @@ import Foundation
 /// settings screen binds to with @AppStorage, so a restored setting is
 /// indistinguishable from one picked on the device.
 ///
-/// Four things are deliberately absent. The app's language belongs to the device
+/// Three things are deliberately absent. The app's language belongs to the device
 /// it was chosen on (Settings says as much on its row), so it is never carried.
 /// The Home tab's hidden categories stay behind too, so a reinstall shows every
-/// category again, in the default order (see `HomeCategories`). The instruments
-/// the user uploaded are audio files in the documents directory rather than
-/// settings, and a selection pointing at one is skipped on restore for the same
-/// reason. And the visual templates' *contents* do come along, but the
-/// scores, exercises and Home lists stay where they are — `UserProfile` carries
-/// those itself.
+/// category again, in the default order (see `HomeCategories`). And the visual
+/// templates' *contents* do come along, but the scores, exercises and Home lists
+/// stay where they are — `UserProfile` carries those itself.
 ///
 /// Every field is optional, so a profile written before a setting existed still
 /// decodes and `apply(store:templates:)` simply leaves that setting alone.
@@ -46,8 +43,8 @@ nonisolated struct UserSettings: Codable {
     /// The flag recording that a run has already found a delay worth keeping is not
     /// carried: it is about this device's microphone (see `AutoMicDelay`).
     var automaticMicrophoneDelay: Bool?
-    /// The selected instrument's raw value. A `custom:` selection names an uploaded
-    /// sound, which the profile can't carry — see `apply(store:templates:)`.
+    /// The selected instrument's raw value. A profile written by version 1.0 can
+    /// name a sound the user uploaded instead — see `apply(store:templates:)`.
     var instrument: String?
 
     // MARK: Visuals
@@ -199,10 +196,10 @@ nonisolated struct UserSettings: Codable {
         if let automaticMicrophoneDelay {
             d.set(automaticMicrophoneDelay, forKey: AutoMicDelay.enabledKey)
         }
-        // A "custom:" selection names an instrument the user uploaded, and its audio
-        // file isn't part of the profile — restoring the selection would pick a sound
-        // that isn't here, so the built-in one this device starts on is left alone.
-        if let instrument, !instrument.hasPrefix(CustomInstrumentStore.selectionPrefix) {
+        // Only an instrument the app has: version 1.0 also let the user upload a
+        // sound of their own ("custom:<id>"), which no longer exists, so a profile
+        // naming one leaves the instrument this device is on alone.
+        if let instrument, Instrument(rawValue: instrument) != nil {
             d.set(instrument, forKey: Instrument.storageKey)
         }
 

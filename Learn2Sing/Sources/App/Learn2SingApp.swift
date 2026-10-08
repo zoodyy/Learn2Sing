@@ -11,6 +11,11 @@ struct Learn2SingApp: App {
     @StateObject private var visualTemplates = VisualTemplateStore()
     @Environment(\.scenePhase) private var scenePhase
 
+    init() {
+        // Before the profile backup first reads the instrument.
+        Instrument.removeUploadedInstruments()
+    }
+
     var body: some Scene {
         WindowGroup {
             ContentView()

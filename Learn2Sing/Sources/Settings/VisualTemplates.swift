@@ -428,6 +428,18 @@ final class VisualTemplateStore: ObservableObject {
         ("Paper - light",     UUID(uuidString: "8934687D-2982-42BC-A9DE-08D01AA51ABD")!),
     ]
 
+    /// Earlier versions of the looks the app ships, as those versions shipped them and
+    /// under the ids pinned for them here, so `refreshBundledTemplates()` can tell a
+    /// copy nobody has touched from one the user edited even where this device has no
+    /// record of having been given it. Whenever a shipped look changes, add the file
+    /// as it was to SupersededPlaybackTemplates.json; it is only ever added to.
+    private static let supersededBundled: [VisualTemplate] = {
+        guard let url = Bundle.main.url(forResource: "SupersededPlaybackTemplates", withExtension: "json"),
+              let data = try? Data(contentsOf: url)
+        else { return [] }
+        return (try? JSONDecoder().decode([VisualTemplate].self, from: data)) ?? []
+    }()
+
     /// The ids these two looks went out under before the ids were pinned, oldest first.
     /// A list holding one of them holds an earlier copy of a template the app ships, so
     /// it is folded into the current one rather than left sitting beside it.
@@ -555,13 +567,19 @@ final class VisualTemplateStore: ObservableObject {
     ///
     /// A copy still holding exactly what the app last gave this device hasn't been
     /// touched, so it is replaced with what is shipped now — that is how improving one
-    /// of the two looks reaches installs sitting on it. A copy that differs is the
-    /// user's: a bundled template is what a fresh install starts on and what every edit
-    /// on the visuals screen is then saved into, so an app update must not paint over
-    /// it. Only the name follows there, so a list that gained one under an earlier name
-    /// still shows the name the rest of the app — including the translations — knows it
-    /// by. Templates the user saved or imported have neither a bundled id nor a shipped
-    /// copy, and are never touched.
+    /// of the two looks reaches installs sitting on it. So is a copy holding exactly an
+    /// earlier version (`supersededBundled`), which is what a list restored from a
+    /// profile an earlier version wrote carries. Where that copy's look is also the one
+    /// on screen, the new look goes on screen with it; not under a template of the
+    /// user's own that merely holds the same values, though, as applying would write
+    /// the new look into that one.
+    ///
+    /// A copy that differs is the user's: a bundled template is what a fresh install
+    /// starts on and what every edit on the visuals screen is then saved into, so an
+    /// app update must not paint over it. Only the name follows there, so a list that
+    /// gained one under an earlier name still shows the name the rest of the app —
+    /// including the translations — knows it by. Templates the user saved or imported
+    /// have neither a bundled id nor a shipped copy, and are never touched.
     private func refreshBundledTemplates() {
         let shipped = Self.bundledTemplates
         var asShipped: [UUID: VisualTemplate] = [:]
@@ -571,12 +589,17 @@ final class VisualTemplateStore: ObservableObject {
         }
 
         var changed = false
+        var onScreen: VisualTemplate?
         for template in shipped {
             guard let index = templates.firstIndex(where: { $0.id == template.id }),
                   templates[index] != template else { continue }
-            if templates[index] == asShipped[template.id] {
+            let copy = templates[index]
+            if copy == asShipped[template.id] || Self.supersededBundled.contains(copy) {
                 templates[index] = template
-            } else if templates[index].name != template.name {
+                if selectedID == nil || selectedID == template.id, copy.matchesCurrent {
+                    onScreen = template
+                }
+            } else if copy.name != template.name {
                 templates[index].name = template.name
             } else {
                 continue
@@ -584,6 +607,7 @@ final class VisualTemplateStore: ObservableObject {
             changed = true
         }
         if changed { persist() }
+        onScreen?.apply()
 
         // Record what this version ships, so the next one can tell an untouched copy
         // apart again. Written only when it has actually changed: every write is one

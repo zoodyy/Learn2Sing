@@ -98,9 +98,7 @@ struct SettingsView: View {
                         openInstruments: { settingsPath.append(SettingsRoute.instruments) },
                         openDelayTest: { settingsPath.append(SettingsRoute.delayChoice) })
                 case .instruments:
-                    InstrumentsView { settingsPath.append(SettingsRoute.customInstrument($0)) }
-                case .customInstrument(let id):
-                    CustomInstrumentDetailView(instrument: CustomInstrumentStore.shared.binding(for: id))
+                    InstrumentsView()
                 case .delayChoice:
                     DelayTestChoiceView(
                         openClapTest: { settingsPath.append(SettingsRoute.delayIntro) },
@@ -311,7 +309,7 @@ struct SettingsView: View {
     }
 
     /// Screens pushed onto the Settings navigation stack: the category hubs
-    /// (Audio with its instruments screens, Visuals, Voice, Home Tab and Exercises
+    /// (Audio with its instruments screen, Visuals, Voice, Home Tab and Exercises
     /// Tab with their edit-categories screens, Backup, Reset with its four
     /// screens, Language, Profile, and the message form) and the
     /// microphone-delay and vocal-range tests they lead to, and the pitch
@@ -320,7 +318,6 @@ struct SettingsView: View {
     private enum SettingsRoute: Hashable {
         case audio
         case instruments
-        case customInstrument(UUID)
         case delayChoice
         case delayIntro
         case delayPlayback

@@ -486,7 +486,9 @@ struct ProfileView: View {
     /// wouldn't give it to them.
     private var usernameSection: some View {
         Section {
-            TextField("Username", text: $typedUsername)
+            // The placeholder asks for a name, so an empty field can't be read as
+            // one already set to "Username"; the title stays the field's label.
+            TextField("Username", text: $typedUsername, prompt: Text("Enter a username"))
                 .autocorrectionDisabled()
                 .focused($isEditingUsername)
                 .onSubmit { commitUsername() }

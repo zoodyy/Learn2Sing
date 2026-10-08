@@ -112,9 +112,6 @@ enum DeleteEverything {
         for category in ResettableSettings.allCases {
             category.reset(store: store, templates: templates)
         }
-        // Instruments the user uploaded, which the Audio category deliberately
-        // keeps: a reset puts settings back, this deletes things.
-        CustomInstrumentStore.shared.deleteAll()
 
         // The profile file itself, rather than field by field: a fresh install
         // has none, and `UserProfile.load()` mints an empty one on demand. Takes

@@ -1,95 +1,6 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
-    "“%@” and its audio file will be deleted. This cannot be undone." : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "ar" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "سيُحذف «%@» وملفه الصوتي. لا يمكن التراجع عن ذلك."
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "„%@“ und die zugehörige Audiodatei werden gelöscht. Das lässt sich nicht rückgängig machen."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Se eliminarán «%@» y su archivo de audio. Esta acción no se puede deshacer."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "« %@ » et son fichier audio seront supprimés. Cette action est irréversible."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "“%@” e il suo file audio verranno eliminati. L’operazione non può essere annullata."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "「%@」とそのオーディオファイルが削除されます。この操作は取り消せません。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "“%@”과(와) 해당 오디오 파일이 삭제됩니다. 이 작업은 되돌릴 수 없습니다."
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "‘%@’ en het bijbehorende audiobestand worden verwijderd. Dit kan niet ongedaan worden gemaakt."
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "„%@” i jego plik dźwiękowy zostaną usunięte. Tej operacji nie można cofnąć."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "“%@” e seu arquivo de áudio serão excluídos. Isso não pode ser desfeito."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "«%@» и его аудиофайл будут удалены. Это действие нельзя отменить."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "”%@” och dess ljudfil raderas. Det går inte att ångra."
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "“%@” ve ses dosyası silinecek. Bu işlem geri alınamaz."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "将删除“%@”及其音频文件。此操作无法撤销。"
-          }
-        }
-      }
-    },
     "“%@” and its MIDI pattern will be deleted. This cannot be undone." : {
       "extractionState" : "stale",
       "localizations" : {
@@ -2584,95 +2495,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "一个在爵士和流行抒情歌中常见的柔和、梦幻的和弦。七音位于最高音下方半音，要把两者清楚地分开。"
-          }
-        }
-      }
-    },
-    "A sound you uploaded yourself. Tap the name to open it, the speaker to hear it, and swipe left to delete it." : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "ar" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "صوت رفعته بنفسك. اضغط على الاسم لفتحه، وعلى مكبر الصوت لسماعه، واسحب لليمين لحذفه."
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ein Klang, den du selbst hochgeladen hast. Tippe auf den Namen zum Öffnen, auf den Lautsprecher zum Anhören, und wische nach links zum Löschen."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Un sonido que subiste tú. Toca el nombre para abrirlo, el altavoz para oírlo y desliza a la izquierda para borrarlo."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Un son que vous avez importé. Touchez le nom pour l’ouvrir, le haut-parleur pour l’écouter, et balayez vers la gauche pour le supprimer."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Un suono che hai caricato tu. Tocca il nome per aprirlo, l’altoparlante per ascoltarlo e scorri a sinistra per eliminarlo."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "自分でアップロードした音です。名前をタップして開き、スピーカーで試聴し、左にスワイプすると削除できます。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "직접 올린 소리입니다. 이름을 탭하면 열리고, 스피커로 들어보며, 왼쪽으로 밀면 삭제됩니다."
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Een geluid dat je zelf hebt geüpload. Tik op de naam om het te openen, op de luidspreker om het te horen, en veeg naar links om het te verwijderen."
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Dźwięk wgrany przez ciebie. Dotknij nazwy, aby go otworzyć, głośnika, aby posłuchać, a przesuń w lewo, aby usunąć."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Um som que você mesmo enviou. Toque no nome para abrir, no alto-falante para ouvir e deslize para a esquerda para excluir."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Звук, который вы загрузили сами. Нажмите на название, чтобы открыть, на динамик, чтобы послушать, смахните влево, чтобы удалить."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ett ljud du laddat upp själv. Tryck på namnet för att öppna det, på högtalaren för att höra det, och svep åt vänster för att radera det."
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Kendi yüklediğiniz bir ses. Açmak için ada, dinlemek için hoparlöre dokunun; silmek için sola kaydırın."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "你自己上传的音色。点按名称可打开，点喇叭可试听，向左滑动可删除。"
           }
         }
       }
@@ -8448,94 +8270,6 @@
         }
       }
     },
-    "Built-in" : {
-      "localizations" : {
-        "ar" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "مدمجة"
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Integriert"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Integrados"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Intégrés"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Integrati"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "内蔵"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "기본 제공"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ingebouwd"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Wbudowane"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Integrados"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Встроенные"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Inbyggda"
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Yerleşik"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "内置"
-          }
-        }
-      }
-    },
     "Bundled Exercises" : {
       "localizations" : {
         "ar" : {
@@ -10040,91 +9774,91 @@
         }
       }
     },
-    "Choose the sound that plays the notes, or upload your own." : {
+    "Choose the sound that plays the notes." : {
       "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "اختر الصوت الذي تُعزف به النغمات، أو ارفع صوتك الخاص."
+            "value" : "اختر الصوت الذي تُعزف به النغمات."
           }
         },
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Wähle den Klang, mit dem die Noten gespielt werden, oder lade einen eigenen hoch."
+            "value" : "Wähle den Klang, mit dem die Noten gespielt werden."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Elige el sonido con el que suenan las notas, o sube el tuyo."
+            "value" : "Elige el sonido con el que suenan las notas."
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Choisissez le son qui joue les notes, ou importez le vôtre."
+            "value" : "Choisissez le son qui joue les notes."
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Scegli il suono con cui vengono suonate le note, oppure caricane uno tuo."
+            "value" : "Scegli il suono con cui vengono suonate le note."
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "音を鳴らす楽器を選ぶか、自分の音源をアップロードします。"
+            "value" : "音を鳴らす楽器を選びます。"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "음을 재생할 소리를 선택하거나 직접 업로드하세요."
+            "value" : "음을 재생할 소리를 선택하세요."
           }
         },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Kies het geluid waarmee de noten klinken, of upload je eigen geluid."
+            "value" : "Kies het geluid waarmee de noten klinken."
           }
         },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Wybierz dźwięk, którym odtwarzane są nuty, lub prześlij własny."
+            "value" : "Wybierz dźwięk, którym odtwarzane są nuty."
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Escolha o som que toca as notas ou envie o seu."
+            "value" : "Escolha o som que toca as notas."
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Выберите звук, которым проигрываются ноты, или загрузите свой."
+            "value" : "Выберите звук, которым проигрываются ноты."
           }
         },
         "sv" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Välj ljudet som spelar noterna, eller ladda upp ett eget."
+            "value" : "Välj ljudet som spelar noterna."
           }
         },
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Notaları çalan sesi seçin veya kendi sesinizi yükleyin."
+            "value" : "Notaları çalan sesi seçin."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "选择用于演奏音符的声音，或上传你自己的声音。"
+            "value" : "选择用于演奏音符的声音。"
           }
         }
       }
@@ -13061,6 +12795,7 @@
       }
     },
     "Custom" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -14204,182 +13939,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "要删除该练习吗？"
-          }
-        }
-      }
-    },
-    "Delete Instrument" : {
-      "localizations" : {
-        "ar" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "حذف الآلة"
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Instrument löschen"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Eliminar instrumento"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Supprimer l’instrument"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Elimina strumento"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "楽器を削除"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "악기 삭제"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Instrument verwijderen"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Usuń instrument"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Excluir instrumento"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Удалить инструмент"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Radera instrument"
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Enstrümanı sil"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "删除乐器"
-          }
-        }
-      }
-    },
-    "Delete Instrument?" : {
-      "localizations" : {
-        "ar" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "حذف الآلة؟"
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Instrument löschen?"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "¿Eliminar el instrumento?"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Supprimer l’instrument ?"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Eliminare lo strumento?"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "楽器を削除しますか？"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "악기를 삭제할까요?"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Instrument verwijderen?"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Usunąć instrument?"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Excluir instrumento?"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Удалить инструмент?"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Radera instrumentet?"
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Enstrüman silinsin mi?"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "要删除该乐器吗？"
           }
         }
       }
@@ -15535,95 +15094,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "删除这个练习及其音符和成绩。此操作无法撤销。"
-          }
-        }
-      }
-    },
-    "Deletes this sound and the file it came from. This cannot be undone." : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "ar" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "يحذف هذا الصوت والملف الذي جاء منه. لا يمكن التراجع عن ذلك."
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Löscht diesen Klang und die Datei, aus der er stammt. Das lässt sich nicht rückgängig machen."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Borra este sonido y el archivo del que salió. No se puede deshacer."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Supprime ce son et le fichier dont il provient. Cette action est irréversible."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Elimina questo suono e il file da cui proviene. L’operazione non può essere annullata."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "この音と、その元になったファイルを削除します。取り消せません。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "이 소리와 원본 파일을 삭제합니다. 되돌릴 수 없습니다."
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Verwijdert dit geluid en het bestand waar het vandaan komt. Dit kan niet ongedaan worden gemaakt."
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Usuwa ten dźwięk i plik, z którego pochodzi. Tego nie można cofnąć."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Exclui este som e o arquivo de onde ele veio. Isso não pode ser desfeito."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Удаляет этот звук и файл, из которого он взят. Отменить это нельзя."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Raderar det här ljudet och filen det kom från. Det går inte att ångra."
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Bu sesi ve geldiği dosyayı siler. Bu geri alınamaz."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "删除这个音色及其来源文件。此操作无法撤销。"
           }
         }
       }
@@ -19003,94 +18473,6 @@
         }
       }
     },
-    "e.g. C3 or 130.81" : {
-      "localizations" : {
-        "ar" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "مثل C3 أو 130.81"
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "z. B. C3 oder 130.81"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "p. ej. C3 o 130.81"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "p. ex. C3 ou 130.81"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "es. C3 o 130.81"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "例: C3 または 130.81"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "예: C3 또는 130.81"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "bijv. C3 of 130.81"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "np. C3 lub 130.81"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "por ex. C3 ou 130.81"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "например, C3 или 130.81"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "t.ex. C3 eller 130.81"
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "ör. C3 veya 130.81"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "例如 C3 或 130.81"
-          }
-        }
-      }
-    },
     "Each chord is missing one note, and you sing it. Listen to the notes you're given and fill the gap so the chord sounds complete." : {
       "extractionState" : "stale",
       "localizations" : {
@@ -20508,6 +19890,94 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "清空“首页”标签的“收藏”列表。其中的练习会保留。"
+          }
+        }
+      }
+    },
+    "Enter a username" : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "أدخل اسم مستخدم"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Benutzernamen eingeben"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Introduce un nombre de usuario"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Saisissez un nom d’utilisateur"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Inserisci un nome utente"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ユーザー名を入力"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "사용자 이름을 입력하세요"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Voer een gebruikersnaam in"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wpisz nazwę użytkownika"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Digite um nome de usuário"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Введите имя пользователя"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ange ett användarnamn"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bir kullanıcı adı girin"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "输入用户名"
           }
         }
       }
@@ -32416,94 +31886,6 @@
         }
       }
     },
-    "Interpreted as" : {
-      "localizations" : {
-        "ar" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "فُسِّر على أنه"
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Erkannt als"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Interpretado como"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Interprété comme"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Interpretato come"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "解釈結果"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "인식된 값"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Gelezen als"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Odczytano jako"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Interpretado como"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Распознано как"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tolkas som"
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Şu şekilde yorumlandı"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "识别为"
-          }
-        }
-      }
-    },
     "iPhone Microphone" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -39162,95 +38544,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "将所选选项设为你的音高识别方式，并离开此页面。"
-          }
-        }
-      }
-    },
-    "Makes this the sound the notes are played with everywhere in the app." : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "ar" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "يجعل هذا الصوت هو الذي تُعزف به النغمات في كل مكان في التطبيق."
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Macht diesen Klang zu dem, mit dem die Noten überall in der App gespielt werden."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Hace que las notas suenen con este sonido en toda la app."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Fait de ce son celui avec lequel les notes sont jouées partout dans l’app."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Rende questo il suono con cui le note vengono suonate in tutta l’app."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "アプリ全体で音符を鳴らす音色をこれにします。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "앱 전체에서 음을 재생할 소리를 이것으로 정합니다."
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Maakt dit het geluid waarmee de noten overal in de app worden gespeeld."
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sprawia, że nuty w całej aplikacji grane są tym dźwiękiem."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Faz deste o som com que as notas são tocadas em todo o app."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Делает этот звук тем, которым ноты играются во всём приложении."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Gör det här till ljudet tonerna spelas med i hela appen."
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Uygulamanın her yerinde notaların bu sesle çalınmasını sağlar."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "让整个应用中的音符都用这个音色播放。"
           }
         }
       }
@@ -46084,94 +45377,6 @@
         }
       }
     },
-    "Not recognized" : {
-      "localizations" : {
-        "ar" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "غير معروف"
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Nicht erkannt"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "No reconocido"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Non reconnu"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Non riconosciuto"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "認識できません"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "인식할 수 없음"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Niet herkend"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Nie rozpoznano"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Não reconhecido"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Не распознано"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Känns inte igen"
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tanınmadı"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "无法识别"
-          }
-        }
-      }
-    },
     "Not Recommended" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -51497,94 +50702,6 @@
         }
       }
     },
-    "Pitch of the Recording" : {
-      "localizations" : {
-        "ar" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "درجة صوت التسجيل"
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tonhöhe der Aufnahme"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tono de la grabación"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Hauteur de l’enregistrement"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Altezza della registrazione"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "録音の音高"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "녹음의 음높이"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Toonhoogte van de opname"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Wysokość nagrania"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Altura da gravação"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Высота записи"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Inspelningens tonhöjd"
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Kaydın perdesi"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "录音的音高"
-          }
-        }
-      }
-    },
     "Play" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -54692,91 +53809,91 @@
         }
       }
     },
-    "Puts the instrument, the playback and recording devices and the microphone delay back to their starting values. Instruments you uploaded are kept." : {
+    "Puts the instrument, the playback and recording devices and the microphone delay back to their starting values." : {
       "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "يعيد الآلة الموسيقية وأجهزة التشغيل والتسجيل وتأخير الميكروفون إلى قيمها الأولية. تبقى الآلات التي رفعتها."
+            "value" : "يعيد الآلة الموسيقية وأجهزة التشغيل والتسجيل وتأخير الميكروفون إلى قيمها الأولية."
           }
         },
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Setzt das Instrument, die Wiedergabe- und Aufnahmegeräte und die Mikrofonverzögerung auf die Anfangswerte zurück. Von dir hochgeladene Instrumente bleiben erhalten."
+            "value" : "Setzt das Instrument, die Wiedergabe- und Aufnahmegeräte und die Mikrofonverzögerung auf die Anfangswerte zurück."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Restablece el instrumento, los dispositivos de reproducción y grabación y el retardo del micrófono a sus valores iniciales. Los instrumentos que subiste se conservan."
+            "value" : "Restablece el instrumento, los dispositivos de reproducción y grabación y el retardo del micrófono a sus valores iniciales."
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Remet l’instrument, les appareils de lecture et d’enregistrement et le retard du micro à leurs valeurs initiales. Les instruments que vous avez importés sont conservés."
+            "value" : "Remet l’instrument, les appareils de lecture et d’enregistrement et le retard du micro à leurs valeurs initiales."
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Riporta lo strumento, i dispositivi di riproduzione e registrazione e il ritardo del microfono ai valori iniziali. Gli strumenti che hai caricato vengono mantenuti."
+            "value" : "Riporta lo strumento, i dispositivi di riproduzione e registrazione e il ritardo del microfono ai valori iniziali."
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "楽器、再生・録音デバイス、マイク遅延を初期値に戻します。アップロードした楽器は残ります。"
+            "value" : "楽器、再生・録音デバイス、マイク遅延を初期値に戻します。"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "악기, 재생 및 녹음 기기, 마이크 지연을 초기값으로 되돌립니다. 직접 업로드한 악기는 유지됩니다."
+            "value" : "악기, 재생 및 녹음 기기, 마이크 지연을 초기값으로 되돌립니다."
           }
         },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Zet het instrument, de weergave- en opnameapparaten en de microfoonvertraging terug op hun beginwaarden. Instrumenten die je hebt geüpload blijven behouden."
+            "value" : "Zet het instrument, de weergave- en opnameapparaten en de microfoonvertraging terug op hun beginwaarden."
           }
         },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Przywraca instrument, urządzenia odtwarzania i nagrywania oraz opóźnienie mikrofonu do wartości początkowych. Instrumenty, które wgrałeś, pozostają."
+            "value" : "Przywraca instrument, urządzenia odtwarzania i nagrywania oraz opóźnienie mikrofonu do wartości początkowych."
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Volta o instrumento, os dispositivos de reprodução e gravação e o atraso do microfone aos valores iniciais. Os instrumentos que você enviou são mantidos."
+            "value" : "Volta o instrumento, os dispositivos de reprodução e gravação e o atraso do microfone aos valores iniciais."
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Возвращает инструмент, устройства воспроизведения и записи и задержку микрофона к исходным значениям. Загруженные вами инструменты остаются."
+            "value" : "Возвращает инструмент, устройства воспроизведения и записи и задержку микрофона к исходным значениям."
           }
         },
         "sv" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Återställer instrumentet, uppspelnings- och inspelningsenheterna och mikrofonfördröjningen till sina ursprungsvärden. Instrument du laddat upp behålls."
+            "value" : "Återställer instrumentet, uppspelnings- och inspelningsenheterna och mikrofonfördröjningen till sina ursprungsvärden."
           }
         },
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Enstrümanı, çalma ve kayıt aygıtlarını ve mikrofon gecikmesini başlangıç değerlerine döndürür. Yüklediğiniz enstrümanlar kalır."
+            "value" : "Enstrümanı, çalma ve kayıt aygıtlarını ve mikrofon gecikmesini başlangıç değerlerine döndürür."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "将乐器、播放和录音设备以及麦克风延迟恢复为初始值。你上传的乐器会保留。"
+            "value" : "将乐器、播放和录音设备以及麦克风延迟恢复为初始值。"
           }
         }
       }
@@ -72965,95 +72082,6 @@
         }
       }
     },
-    "That file could not be imported: %@" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "ar" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "تعذّر استيراد هذا الملف: %@"
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Diese Datei konnte nicht importiert werden: %@"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "No se pudo importar ese archivo: %@"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ce fichier n’a pas pu être importé : %@"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Impossibile importare quel file: %@"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "そのファイルは読み込めませんでした: %@"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "해당 파일을 가져올 수 없습니다: %@"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Dat bestand kon niet worden geïmporteerd: %@"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Nie udało się zaimportować tego pliku: %@"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Não foi possível importar esse arquivo: %@"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Не удалось импортировать этот файл: %@"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Filen kunde inte importeras: %@"
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Bu dosya içe aktarılamadı: %@"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "无法导入该文件：%@"
-          }
-        }
-      }
-    },
     "That file could not be imported." : {
       "extractionState" : "stale",
       "localizations" : {
@@ -76431,95 +75459,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "显示在你分享的练习旁边的名字。两个用户不能重名。"
-          }
-        }
-      }
-    },
-    "The note (e.g. C3) or frequency in Hz (e.g. 130.81) of the recorded sound. Playback shifts the recording up or down from here to reach each note." : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "ar" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "النغمة (مثل C3) أو التردد بالهرتز (مثل 130.81) للصوت المسجَّل. عند التشغيل يُنقل التسجيل للأعلى أو للأسفل من هنا ليصل إلى كل نغمة."
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Die Note (z. B. C3) oder Frequenz in Hz (z. B. 130.81) des aufgenommenen Klangs. Von hier aus wird die Aufnahme bei der Wiedergabe nach oben oder unten verschoben, um jede Note zu erreichen."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "La nota (p. ej. C3) o la frecuencia en Hz (p. ej. 130.81) del sonido grabado. La reproducción desplaza la grabación hacia arriba o abajo desde ahí para alcanzar cada nota."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "La note (p. ex. C3) ou la fréquence en Hz (p. ex. 130.81) du son enregistré. La lecture transpose l’enregistrement vers le haut ou le bas à partir de là pour atteindre chaque note."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "La nota (es. C3) o la frequenza in Hz (es. 130.81) del suono registrato. La riproduzione sposta la registrazione verso l’alto o il basso da qui per raggiungere ogni nota."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "録音された音の音名（例: C3）または周波数（Hz、例: 130.81）。再生時にはここを基準に上下へ移調して各音を鳴らします。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "녹음된 소리의 음이름(예: C3) 또는 주파수(Hz, 예: 130.81). 재생 시 여기를 기준으로 위아래로 이동해 각 음을 냅니다."
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "De noot (bijv. C3) of frequentie in Hz (bijv. 130.81) van het opgenomen geluid. Bij het afspelen wordt de opname vanaf hier omhoog of omlaag verschoven om elke noot te bereiken."
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Dźwięk (np. C3) lub częstotliwość w Hz (np. 130.81) nagranego dźwięku. Podczas odtwarzania nagranie jest przesuwane stąd w górę lub w dół, aby uzyskać każdy dźwięk."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "A nota (por ex. C3) ou a frequência em Hz (por ex. 130.81) do som gravado. A reprodução desloca a gravação para cima ou para baixo a partir daqui para alcançar cada nota."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Нота (например, C3) или частота в Гц (например, 130.81) записанного звука. При воспроизведении запись сдвигается вверх или вниз отсюда, чтобы взять каждую ноту."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Den inspelade ljudets ton (t.ex. C3) eller frekvens i Hz (t.ex. 130.81). Vid uppspelning flyttas inspelningen upp eller ner härifrån för att nå varje ton."
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Kaydedilen sesin notası (ör. C3) veya Hz cinsinden frekansı (ör. 130.81). Çalma sırasında kayıt, her notaya ulaşmak için buradan yukarı veya aşağı kaydırılır."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "所录声音的音名（如 C3）或频率（Hz，如 130.81）。播放时会以此为基准上下移调，以奏出每个音符。"
           }
         }
       }
@@ -83811,184 +82750,6 @@
         }
       }
     },
-    "Upload an MP3 or WAV file containing a single sound. Playback shifts it up and down from its pitch to reach every note. After uploading, set the pitch the recording actually has." : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "ar" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "ارفع ملف MP3 أو WAV يحتوي على صوت واحد. عند التشغيل يُنقل الصوت للأعلى وللأسفل من درجته ليصل إلى كل نغمة. بعد الرفع، حدّد درجة الصوت الفعلية للتسجيل."
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Lade eine MP3- oder WAV-Datei mit einem einzelnen Klang hoch. Die Wiedergabe verschiebt ihn von seiner Tonhöhe aus nach oben und unten, um alle Noten zu erreichen. Stelle nach dem Hochladen die tatsächliche Tonhöhe der Aufnahme ein."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sube un archivo MP3 o WAV con un solo sonido. La reproducción lo desplaza hacia arriba y abajo desde su tono para alcanzar todas las notas. Después de subirlo, indica el tono real de la grabación."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Importez un fichier MP3 ou WAV contenant un seul son. La lecture le transpose vers le haut et vers le bas depuis sa hauteur pour atteindre toutes les notes. Après l’import, indiquez la hauteur réelle de l’enregistrement."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Carica un file MP3 o WAV con un singolo suono. La riproduzione lo sposta verso l’alto e verso il basso a partire dalla sua altezza per raggiungere ogni nota. Dopo il caricamento, imposta l’altezza reale della registrazione."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "単一の音が入ったMP3またはWAVファイルをアップロードします。再生時にはその音を基準に上下へ移調して、すべての音をまかないます。アップロード後に、録音の実際の音高を設定してください。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "하나의 소리가 담긴 MP3 또는 WAV 파일을 업로드하세요. 재생 시 해당 음높이를 기준으로 위아래로 이동해 모든 음을 냅니다. 업로드한 뒤 녹음의 실제 음높이를 설정하세요."
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Upload een MP3- of WAV-bestand met één enkel geluid. Bij het afspelen wordt het vanaf zijn toonhoogte omhoog en omlaag verschoven om elke noot te bereiken. Stel na het uploaden de werkelijke toonhoogte van de opname in."
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Prześlij plik MP3 lub WAV z pojedynczym dźwiękiem. Podczas odtwarzania jest on przesuwany w górę i w dół od swojej wysokości, aby objąć wszystkie dźwięki. Po przesłaniu ustaw rzeczywistą wysokość nagrania."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Envie um arquivo MP3 ou WAV com um único som. A reprodução o desloca para cima e para baixo a partir da sua altura para alcançar todas as notas. Depois de enviar, defina a altura real da gravação."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Загрузите файл MP3 или WAV с одним звуком. При воспроизведении он сдвигается вверх и вниз от своей высоты, чтобы охватить все ноты. После загрузки укажите реальную высоту записи."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ladda upp en MP3- eller WAV-fil med ett enda ljud. Vid uppspelning flyttas det upp och ner från sin tonhöjd för att nå alla toner. Ange den tonhöjd inspelningen faktiskt har efter uppladdningen."
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tek bir ses içeren bir MP3 veya WAV dosyası yükleyin. Çalma sırasında bu ses, her notaya ulaşmak için kendi perdesinden yukarı ve aşağı kaydırılır. Yükledikten sonra kaydın gerçek perdesini ayarlayın."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "上传包含单个声音的 MP3 或 WAV 文件。播放时会以该声音的音高为基准上下移调，以覆盖所有音符。上传后，请设置录音的实际音高。"
-          }
-        }
-      }
-    },
-    "Uploads an MP3 or WAV file holding one single sound, to play the notes with." : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "ar" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "يرفع ملف MP3 أو WAV يحتوي على صوت واحد فقط، لتُعزف به النغمات."
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Lädt eine MP3- oder WAV-Datei mit einem einzelnen Klang hoch, mit dem die Noten gespielt werden."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sube un archivo MP3 o WAV con un solo sonido para reproducir las notas."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Importe un fichier MP3 ou WAV contenant un seul son, avec lequel jouer les notes."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Carica un file MP3 o WAV con un solo suono, con cui suonare le note."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "音が 1 つだけ入った MP3 または WAV ファイルをアップロードし、その音で音符を鳴らします。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "소리 하나만 담긴 MP3 또는 WAV 파일을 올려 음을 그 소리로 재생합니다."
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Uploadt een MP3- of WAV-bestand met één enkel geluid om de noten mee te spelen."
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Wgrywa plik MP3 lub WAV z jednym dźwiękiem, którym grane będą nuty."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Envia um arquivo MP3 ou WAV com um único som, para tocar as notas."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Загружает файл MP3 или WAV с одним звуком, которым будут играть ноты."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Laddar upp en MP3- eller WAV-fil med ett enda ljud att spela tonerna med."
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Notaların çalınacağı tek bir ses içeren MP3 veya WAV dosyası yükler."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "上传包含单个音的 MP3 或 WAV 文件，用来演奏音符。"
-          }
-        }
-      }
-    },
     "Use a dopey, speech-like \"Nuh\" to keep your larynx from rising. Stay relaxed and don't push for volume." : {
       "extractionState" : "stale",
       "localizations" : {
@@ -84163,94 +82924,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "在家使用加湿器，尤其是在冬天或气候干燥的地方。建议湿度保持在 30% 左右。"
-          }
-        }
-      }
-    },
-    "Use for Playback" : {
-      "localizations" : {
-        "ar" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "استخدام للتشغيل"
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Für Wiedergabe verwenden"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Usar para la reproducción"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Utiliser pour la lecture"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Usa per la riproduzione"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "再生に使用"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "재생에 사용"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Gebruiken voor afspelen"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Użyj do odtwarzania"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Usar na reprodução"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Использовать для воспроизведения"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Använd vid uppspelning"
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Çalma için kullan"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "用于播放"
           }
         }
       }
@@ -87270,95 +85943,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "这个训练组在首页标签中显示的名称。"
-          }
-        }
-      }
-    },
-    "What this sound is called in the list of instruments." : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "ar" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "اسم هذا الصوت في قائمة الآلات الموسيقية."
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Wie dieser Klang in der Liste der Instrumente heißt."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Cómo se llama este sonido en la lista de instrumentos."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Le nom de ce son dans la liste des instruments."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Come si chiama questo suono nell’elenco degli strumenti."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "この音が楽器一覧でどう表示されるかです。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "이 소리가 악기 목록에 표시되는 이름입니다."
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Hoe dit geluid heet in de lijst met instrumenten."
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Jak ten dźwięk nazywa się na liście instrumentów."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Como este som se chama na lista de instrumentos."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Как этот звук называется в списке инструментов."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Vad det här ljudet heter i listan över instrument."
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Bu sesin enstrüman listesindeki adı."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "这个音色在乐器列表中显示的名称。"
           }
         }
       }

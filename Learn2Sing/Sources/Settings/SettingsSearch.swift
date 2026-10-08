@@ -27,8 +27,7 @@ import Combine
 
 /// A screen of the Settings tab that carries a search field. Screens whose rows
 /// are the user's own content rather than settings — the exercise pickers, the
-/// detail screen of an uploaded instrument, the tests — are deliberately absent:
-/// there is nothing on them to search for.
+/// tests — are deliberately absent: there is nothing on them to search for.
 enum SettingsScreen: String, CaseIterable, Hashable {
     case root
     case profile
@@ -160,8 +159,6 @@ extension SettingKey {
     // "Username", the message form's "Email") would only turn up twice.
     static let audioDevices          = SettingKey("section.audio.devices")
     static let audioScoring          = SettingKey("section.audio.scoring")
-    static let instrumentsBuiltIn    = SettingKey("section.instruments.builtIn")
-    static let instrumentsCustom     = SettingKey("section.instruments.custom")
     static let delayChooseTest       = SettingKey("section.delay.choose")
     static let visualsOrientation    = SettingKey("section.visuals.orientation")
     static let menusExerciseLists    = SettingKey("section.menus.exerciseLists")
@@ -485,7 +482,7 @@ enum SettingsCatalog {
         // MARK: Audio
         let routeHelp = L("“Automatic” uses connected earphones (e.g. AirPods) when available, otherwise the phone.")
         add(.instruments, .audio, title: L("Instruments"),
-            help: L("Choose the sound that plays the notes, or upload your own."))
+            help: L("Choose the sound that plays the notes."))
         heading(.audioDevices, .audio, L("Devices"))
         add(.speaker, .audio, section: L("Devices"), title: L("Speaker"), help: routeHelp)
         add(.microphone, .audio, section: L("Devices"), title: L("Microphone"), help: routeHelp)
@@ -500,13 +497,9 @@ enum SettingsCatalog {
             available: { setsDelayByHand })
 
         // MARK: Instruments
-        let builtInHelp = L("Tap the name to play the exercises' notes with this sound. The speaker plays a sample of it.")
-        heading(.instrumentsBuiltIn, .instruments, L("Built-in"))
-        heading(.instrumentsCustom, .instruments, L("Custom"),
-                help: L("Upload an MP3 or WAV file containing a single sound. Playback shifts it up and down from its pitch to reach every note. After uploading, set the pitch the recording actually has."))
+        let instrumentHelp = L("Tap the name to play the exercises' notes with this sound. The speaker plays a sample of it.")
         for instrument in Instrument.allCases {
-            add(.instrument(instrument), .instruments, section: L("Built-in"),
-                title: instrument.title, help: builtInHelp)
+            add(.instrument(instrument), .instruments, title: instrument.title, help: instrumentHelp)
         }
 
         // MARK: Delay test
@@ -883,7 +876,7 @@ private struct SettingSectionAnchor: ViewModifier {
     @ViewBuilder
     func body(content: Content) -> some View {
         // Constant for a given heading, so the branch costs the content no
-        // identity: only the "Custom" instruments heading has help of its own.
+        // identity: only the Blocked Users heading has help of its own.
         let help = SettingsCatalog.help(for: key)
         if help.isEmpty {
             marked(content)

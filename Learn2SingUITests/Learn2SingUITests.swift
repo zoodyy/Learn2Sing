@@ -806,7 +806,7 @@ final class Learn2SingUITests: XCTestCase {
         let usernameField = app.textFields["Username"].firstMatch
         XCTAssertTrue(usernameField.waitForExistence(timeout: 3), "username field not found")
         var uploaderName = (usernameField.value as? String) ?? ""
-        if uploaderName.isEmpty || uploaderName == "Username" { // placeholder when empty
+        if uploaderName.isEmpty || uploaderName == "Enter a username" { // placeholder when empty
             usernameField.tap()
             usernameField.typeText("TestSinger")
             uploaderName = (usernameField.value as? String) ?? "TestSinger"
@@ -2967,13 +2967,13 @@ final class Learn2SingUITests: XCTestCase {
                       "delay test button not on the Audio screen")
         saveScreenshot("settings-audio")
 
-        // Instruments: built-in choices plus the custom-instrument list.
+        // Instruments: the app's own sounds, and nothing to upload one with.
         app.buttons["Instruments"].firstMatch.tap()
         XCTAssertTrue(app.navigationBars["Instruments"].waitForExistence(timeout: 5),
                       "Instruments row should push the Instruments screen")
         XCTAssertTrue(app.buttons["Piano"].waitForExistence(timeout: 5),
                       "built-in instruments not listed")
-        XCTAssertTrue(app.staticTexts["Custom"].exists, "Custom section not shown")
+        XCTAssertFalse(app.staticTexts["Custom"].exists, "uploaded-instruments section still shown")
         saveScreenshot("settings-instruments")
         app.navigationBars["Instruments"].buttons.firstMatch.tap()   // back to Audio
         XCTAssertTrue(app.navigationBars["Audio"].waitForExistence(timeout: 5))

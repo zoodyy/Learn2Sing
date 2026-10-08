@@ -330,4 +330,22 @@ enum Instrument: String, CaseIterable, Identifiable {
         Instrument(rawValue: UserDefaults.standard.string(forKey: storageKey) ?? "")
             ?? .piano
     }
+
+    /// Version 1.0 also let the user upload a recording to play the notes with:
+    /// its file went into Documents/Instruments, the list of them into
+    /// "customInstruments", and picking one stored "custom:<id>" as the
+    /// instrument. That is gone, so whatever 1.0 left behind is deleted, and a
+    /// selection naming one goes back to the default.
+    static func removeUploadedInstruments() {
+        let defaults = UserDefaults.standard
+        if defaults.string(forKey: storageKey)?.hasPrefix("custom:") == true {
+            defaults.removeObject(forKey: storageKey)
+        }
+        let listKey = "customInstruments"
+        guard defaults.object(forKey: listKey) != nil else { return }
+        defaults.removeObject(forKey: listKey)
+        let folder = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+            .appendingPathComponent("Instruments", isDirectory: true)
+        try? FileManager.default.removeItem(at: folder)
+    }
 }

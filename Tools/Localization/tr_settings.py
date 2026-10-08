@@ -199,21 +199,21 @@ T("%d ms earlier", "%d ms früher", "%d ms antes", "%d ms plus tôt", "%d ms pri
 T("%d ms later", "%d ms später", "%d ms después", "%d ms plus tard", "%d ms dopo", "%d ms depois", "%d ms later", "на %d мс позже", "%d ms później", "%d ms daha geç", "%d ms senare", "%d ミリ秒遅く", "%d밀리초 뒤로", "延后 %d 毫秒", "مُؤخَّر بمقدار %d مللي ث")
 
 T("Instruments", "Instrumente", "Instrumentos", "Instruments", "Strumenti", "Instrumentos", "Instrumenten", "Инструменты", "Instrumenty", "Enstrümanlar", "Instrument", "楽器", "악기", "乐器", "الآلات الموسيقية")
-T("Choose the sound that plays the notes, or upload your own.",
-  "Wähle den Klang, mit dem die Noten gespielt werden, oder lade einen eigenen hoch.",
-  "Elige el sonido con el que suenan las notas, o sube el tuyo.",
-  "Choisissez le son qui joue les notes, ou importez le vôtre.",
-  "Scegli il suono con cui vengono suonate le note, oppure caricane uno tuo.",
-  "Escolha o som que toca as notas ou envie o seu.",
-  "Kies het geluid waarmee de noten klinken, of upload je eigen geluid.",
-  "Выберите звук, которым проигрываются ноты, или загрузите свой.",
-  "Wybierz dźwięk, którym odtwarzane są nuty, lub prześlij własny.",
-  "Notaları çalan sesi seçin veya kendi sesinizi yükleyin.",
-  "Välj ljudet som spelar noterna, eller ladda upp ett eget.",
-  "音を鳴らす楽器を選ぶか、自分の音源をアップロードします。",
-  "음을 재생할 소리를 선택하거나 직접 업로드하세요.",
-  "选择用于演奏音符的声音，或上传你自己的声音。",
-  "اختر الصوت الذي تُعزف به النغمات، أو ارفع صوتك الخاص.")
+T("Choose the sound that plays the notes.",
+  "Wähle den Klang, mit dem die Noten gespielt werden.",
+  "Elige el sonido con el que suenan las notas.",
+  "Choisissez le son qui joue les notes.",
+  "Scegli il suono con cui vengono suonate le note.",
+  "Escolha o som que toca as notas.",
+  "Kies het geluid waarmee de noten klinken.",
+  "Выберите звук, которым проигрываются ноты.",
+  "Wybierz dźwięk, którym odtwarzane są nuty.",
+  "Notaları çalan sesi seçin.",
+  "Välj ljudet som spelar noterna.",
+  "音を鳴らす楽器を選びます。",
+  "음을 재생할 소리를 선택하세요.",
+  "选择用于演奏音符的声音。",
+  "اختر الصوت الذي تُعزف به النغمات.")
 T("“Automatic” uses connected earphones (e.g. AirPods) when available, otherwise the phone.",
   "„Automatisch“ nutzt angeschlossene Kopfhörer (z. B. AirPods), sonst das Telefon.",
   "«Automático» usa los auriculares conectados (p. ej. AirPods) si los hay; si no, el teléfono.",
@@ -276,61 +276,8 @@ T("Compensates for the lag between singing and pitch detection. Only the score i
   "يعوّض الفارق الزمني بين الغناء واكتشاف درجة الصوت. تتأثر النتيجة فقط، ولا يتغير التشغيل ولا العرض. شغّل الاختبار لقياسه تلقائيًا.")
 
 # --- Instruments screen ---
-T("Built-in", "Integriert", "Integrados", "Intégrés", "Integrati", "Integrados", "Ingebouwd", "Встроенные", "Wbudowane", "Yerleşik", "Inbyggda", "内蔵", "기본 제공", "内置", "مدمجة")
 T("Custom", "Eigene", "Personalizado", "Personnalisé", "Personalizzato", "Personalizado", "Aangepast", "Свои", "Własne", "Özel", "Egna", "カスタム", "사용자 지정", "自定义", "مخصص")
 T("Play Sample", "Beispiel abspielen", "Reproducir muestra", "Écouter un exemple", "Riproduci esempio", "Reproduzir amostra", "Voorbeeld afspelen", "Прослушать пример", "Odtwórz próbkę", "Örneği çal", "Spela upp exempel", "サンプルを再生", "샘플 재생", "播放示例", "تشغيل عيّنة")
-T("Upload an MP3 or WAV file containing a single sound. Playback shifts it up and down from its pitch to reach every note. After uploading, set the pitch the recording actually has.",
-  "Lade eine MP3- oder WAV-Datei mit einem einzelnen Klang hoch. Die Wiedergabe verschiebt ihn von seiner Tonhöhe aus nach oben und unten, um alle Noten zu erreichen. Stelle nach dem Hochladen die tatsächliche Tonhöhe der Aufnahme ein.",
-  "Sube un archivo MP3 o WAV con un solo sonido. La reproducción lo desplaza hacia arriba y abajo desde su tono para alcanzar todas las notas. Después de subirlo, indica el tono real de la grabación.",
-  "Importez un fichier MP3 ou WAV contenant un seul son. La lecture le transpose vers le haut et vers le bas depuis sa hauteur pour atteindre toutes les notes. Après l’import, indiquez la hauteur réelle de l’enregistrement.",
-  "Carica un file MP3 o WAV con un singolo suono. La riproduzione lo sposta verso l’alto e verso il basso a partire dalla sua altezza per raggiungere ogni nota. Dopo il caricamento, imposta l’altezza reale della registrazione.",
-  "Envie um arquivo MP3 ou WAV com um único som. A reprodução o desloca para cima e para baixo a partir da sua altura para alcançar todas as notas. Depois de enviar, defina a altura real da gravação.",
-  "Upload een MP3- of WAV-bestand met één enkel geluid. Bij het afspelen wordt het vanaf zijn toonhoogte omhoog en omlaag verschoven om elke noot te bereiken. Stel na het uploaden de werkelijke toonhoogte van de opname in.",
-  "Загрузите файл MP3 или WAV с одним звуком. При воспроизведении он сдвигается вверх и вниз от своей высоты, чтобы охватить все ноты. После загрузки укажите реальную высоту записи.",
-  "Prześlij plik MP3 lub WAV z pojedynczym dźwiękiem. Podczas odtwarzania jest on przesuwany w górę i w dół od swojej wysokości, aby objąć wszystkie dźwięki. Po przesłaniu ustaw rzeczywistą wysokość nagrania.",
-  "Tek bir ses içeren bir MP3 veya WAV dosyası yükleyin. Çalma sırasında bu ses, her notaya ulaşmak için kendi perdesinden yukarı ve aşağı kaydırılır. Yükledikten sonra kaydın gerçek perdesini ayarlayın.",
-  "Ladda upp en MP3- eller WAV-fil med ett enda ljud. Vid uppspelning flyttas det upp och ner från sin tonhöjd för att nå alla toner. Ange den tonhöjd inspelningen faktiskt har efter uppladdningen.",
-  "単一の音が入ったMP3またはWAVファイルをアップロードします。再生時にはその音を基準に上下へ移調して、すべての音をまかないます。アップロード後に、録音の実際の音高を設定してください。",
-  "하나의 소리가 담긴 MP3 또는 WAV 파일을 업로드하세요. 재생 시 해당 음높이를 기준으로 위아래로 이동해 모든 음을 냅니다. 업로드한 뒤 녹음의 실제 음높이를 설정하세요.",
-  "上传包含单个声音的 MP3 或 WAV 文件。播放时会以该声音的音高为基准上下移调，以覆盖所有音符。上传后，请设置录音的实际音高。",
-  "ارفع ملف MP3 أو WAV يحتوي على صوت واحد. عند التشغيل يُنقل الصوت للأعلى وللأسفل من درجته ليصل إلى كل نغمة. بعد الرفع، حدّد درجة الصوت الفعلية للتسجيل.")
-T("Pitch of the Recording", "Tonhöhe der Aufnahme", "Tono de la grabación", "Hauteur de l’enregistrement", "Altezza della registrazione", "Altura da gravação", "Toonhoogte van de opname", "Высота записи", "Wysokość nagrania", "Kaydın perdesi", "Inspelningens tonhöjd", "録音の音高", "녹음의 음높이", "录音的音高", "درجة صوت التسجيل")
-T("e.g. C3 or 130.81", "z. B. C3 oder 130.81", "p. ej. C3 o 130.81", "p. ex. C3 ou 130.81", "es. C3 o 130.81", "por ex. C3 ou 130.81", "bijv. C3 of 130.81", "например, C3 или 130.81", "np. C3 lub 130.81", "ör. C3 veya 130.81", "t.ex. C3 eller 130.81", "例: C3 または 130.81", "예: C3 또는 130.81", "例如 C3 或 130.81", "مثل C3 أو 130.81")
-T("The note (e.g. C3) or frequency in Hz (e.g. 130.81) of the recorded sound. Playback shifts the recording up or down from here to reach each note.",
-  "Die Note (z. B. C3) oder Frequenz in Hz (z. B. 130.81) des aufgenommenen Klangs. Von hier aus wird die Aufnahme bei der Wiedergabe nach oben oder unten verschoben, um jede Note zu erreichen.",
-  "La nota (p. ej. C3) o la frecuencia en Hz (p. ej. 130.81) del sonido grabado. La reproducción desplaza la grabación hacia arriba o abajo desde ahí para alcanzar cada nota.",
-  "La note (p. ex. C3) ou la fréquence en Hz (p. ex. 130.81) du son enregistré. La lecture transpose l’enregistrement vers le haut ou le bas à partir de là pour atteindre chaque note.",
-  "La nota (es. C3) o la frequenza in Hz (es. 130.81) del suono registrato. La riproduzione sposta la registrazione verso l’alto o il basso da qui per raggiungere ogni nota.",
-  "A nota (por ex. C3) ou a frequência em Hz (por ex. 130.81) do som gravado. A reprodução desloca a gravação para cima ou para baixo a partir daqui para alcançar cada nota.",
-  "De noot (bijv. C3) of frequentie in Hz (bijv. 130.81) van het opgenomen geluid. Bij het afspelen wordt de opname vanaf hier omhoog of omlaag verschoven om elke noot te bereiken.",
-  "Нота (например, C3) или частота в Гц (например, 130.81) записанного звука. При воспроизведении запись сдвигается вверх или вниз отсюда, чтобы взять каждую ноту.",
-  "Dźwięk (np. C3) lub częstotliwość w Hz (np. 130.81) nagranego dźwięku. Podczas odtwarzania nagranie jest przesuwane stąd w górę lub w dół, aby uzyskać każdy dźwięk.",
-  "Kaydedilen sesin notası (ör. C3) veya Hz cinsinden frekansı (ör. 130.81). Çalma sırasında kayıt, her notaya ulaşmak için buradan yukarı veya aşağı kaydırılır.",
-  "Den inspelade ljudets ton (t.ex. C3) eller frekvens i Hz (t.ex. 130.81). Vid uppspelning flyttas inspelningen upp eller ner härifrån för att nå varje ton.",
-  "録音された音の音名（例: C3）または周波数（Hz、例: 130.81）。再生時にはここを基準に上下へ移調して各音を鳴らします。",
-  "녹음된 소리의 음이름(예: C3) 또는 주파수(Hz, 예: 130.81). 재생 시 여기를 기준으로 위아래로 이동해 각 음을 냅니다.",
-  "所录声音的音名（如 C3）或频率（Hz，如 130.81）。播放时会以此为基准上下移调，以奏出每个音符。",
-  "النغمة (مثل C3) أو التردد بالهرتز (مثل 130.81) للصوت المسجَّل. عند التشغيل يُنقل التسجيل للأعلى أو للأسفل من هنا ليصل إلى كل نغمة.")
-T("Interpreted as", "Erkannt als", "Interpretado como", "Interprété comme", "Interpretato come", "Interpretado como", "Gelezen als", "Распознано как", "Odczytano jako", "Şu şekilde yorumlandı", "Tolkas som", "解釈結果", "인식된 값", "识别为", "فُسِّر على أنه")
-T("Not recognized", "Nicht erkannt", "No reconocido", "Non reconnu", "Non riconosciuto", "Não reconhecido", "Niet herkend", "Не распознано", "Nie rozpoznano", "Tanınmadı", "Känns inte igen", "認識できません", "인식할 수 없음", "无法识别", "غير معروف")
-T("Use for Playback", "Für Wiedergabe verwenden", "Usar para la reproducción", "Utiliser pour la lecture", "Usa per la riproduzione", "Usar na reprodução", "Gebruiken voor afspelen", "Использовать для воспроизведения", "Użyj do odtwarzania", "Çalma için kullan", "Använd vid uppspelning", "再生に使用", "재생에 사용", "用于播放", "استخدام للتشغيل")
-T("Delete Instrument", "Instrument löschen", "Eliminar instrumento", "Supprimer l’instrument", "Elimina strumento", "Excluir instrumento", "Instrument verwijderen", "Удалить инструмент", "Usuń instrument", "Enstrümanı sil", "Radera instrument", "楽器を削除", "악기 삭제", "删除乐器", "حذف الآلة")
-T("Delete Instrument?", "Instrument löschen?", "¿Eliminar el instrumento?", "Supprimer l’instrument ?", "Eliminare lo strumento?", "Excluir instrumento?", "Instrument verwijderen?", "Удалить инструмент?", "Usunąć instrument?", "Enstrüman silinsin mi?", "Radera instrumentet?", "楽器を削除しますか？", "악기를 삭제할까요?", "要删除该乐器吗？", "حذف الآلة؟")
-T("“%@” and its audio file will be deleted. This cannot be undone.",
-  "„%@“ und die zugehörige Audiodatei werden gelöscht. Das lässt sich nicht rückgängig machen.",
-  "Se eliminarán «%@» y su archivo de audio. Esta acción no se puede deshacer.",
-  "« %@ » et son fichier audio seront supprimés. Cette action est irréversible.",
-  "“%@” e il suo file audio verranno eliminati. L’operazione non può essere annullata.",
-  "“%@” e seu arquivo de áudio serão excluídos. Isso não pode ser desfeito.",
-  "‘%@’ en het bijbehorende audiobestand worden verwijderd. Dit kan niet ongedaan worden gemaakt.",
-  "«%@» и его аудиофайл будут удалены. Это действие нельзя отменить.",
-  "„%@” i jego plik dźwiękowy zostaną usunięte. Tej operacji nie można cofnąć.",
-  "“%@” ve ses dosyası silinecek. Bu işlem geri alınamaz.",
-  "”%@” och dess ljudfil raderas. Det går inte att ångra.",
-  "「%@」とそのオーディオファイルが削除されます。この操作は取り消せません。",
-  "“%@”과(와) 해당 오디오 파일이 삭제됩니다. 이 작업은 되돌릴 수 없습니다.",
-  "将删除“%@”及其音频文件。此操作无法撤销。",
-  "سيُحذف «%@» وملفه الصوتي. لا يمكن التراجع عن ذلك.")
 
 # --- Voice ---
 T("Vocal Range", "Stimmumfang", "Tesitura", "Tessiture", "Estensione vocale", "Extensão vocal", "Stembereik", "Диапазон голоса", "Skala głosu", "Ses aralığı", "Röstomfång", "声域", "음역대", "音域", "المدى الصوتي")
@@ -862,7 +809,6 @@ T("Choose a file, then pick which of its exercises to add to your library or upd
   "اختر ملفًا، ثم حدّد أي تمارينه تريد إضافتها إلى مكتبتك أو تحديثها.")
 T("Could not prepare the export file.", "Die Exportdatei konnte nicht erstellt werden.", "No se pudo preparar el archivo de exportación.", "Impossible de préparer le fichier d’export.", "Impossibile preparare il file di esportazione.", "Não foi possível preparar o arquivo de exportação.", "Kon het exportbestand niet aanmaken.", "Не удалось подготовить файл экспорта.", "Nie udało się przygotować pliku eksportu.", "Dışa aktarma dosyası hazırlanamadı.", "Det gick inte att förbereda exportfilen.", "書き出しファイルを準備できませんでした。", "내보내기 파일을 준비할 수 없습니다.", "无法准备导出文件。", "تعذّر تجهيز ملف التصدير.")
 T("That file could not be imported.", "Diese Datei konnte nicht importiert werden.", "No se pudo importar ese archivo.", "Ce fichier n’a pas pu être importé.", "Impossibile importare quel file.", "Não foi possível importar esse arquivo.", "Dat bestand kon niet worden geïmporteerd.", "Не удалось импортировать этот файл.", "Nie udało się zaimportować tego pliku.", "Bu dosya içe aktarılamadı.", "Filen kunde inte importeras.", "そのファイルは読み込めませんでした。", "해당 파일을 가져올 수 없습니다.", "无法导入该文件。", "تعذّر استيراد هذا الملف.")
-T("That file could not be imported: %@", "Diese Datei konnte nicht importiert werden: %@", "No se pudo importar ese archivo: %@", "Ce fichier n’a pas pu être importé : %@", "Impossibile importare quel file: %@", "Não foi possível importar esse arquivo: %@", "Dat bestand kon niet worden geïmporteerd: %@", "Не удалось импортировать этот файл: %@", "Nie udało się zaimportować tego pliku: %@", "Bu dosya içe aktarılamadı: %@", "Filen kunde inte importeras: %@", "そのファイルは読み込めませんでした: %@", "해당 파일을 가져올 수 없습니다: %@", "无法导入该文件：%@", "تعذّر استيراد هذا الملف: %@")
 T("Export failed: %@", "Export fehlgeschlagen: %@", "Error al exportar: %@", "Échec de l’export : %@", "Esportazione non riuscita: %@", "Falha na exportação: %@", "Exporteren mislukt: %@", "Не удалось выполнить экспорт: %@", "Eksport nie powiódł się: %@", "Dışa aktarma başarısız: %@", "Exporten misslyckades: %@", "書き出しに失敗しました: %@", "내보내기 실패: %@", "导出失败：%@", "فشل التصدير: %@")
 T("Import failed: %@", "Import fehlgeschlagen: %@", "Error al importar: %@", "Échec de l’import : %@", "Importazione non riuscita: %@", "Falha na importação: %@", "Importeren mislukt: %@", "Не удалось выполнить импорт: %@", "Import nie powiódł się: %@", "İçe aktarma başarısız: %@", "Importen misslyckades: %@", "読み込みに失敗しました: %@", "가져오기 실패: %@", "导入失败：%@", "فشل الاستيراد: %@")
 

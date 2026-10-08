@@ -229,7 +229,7 @@ enum ResettableSettings: String, CaseIterable, Identifiable {
         case .profile:
             L("Clears the username you chose and deletes your public profile, so the name is free for someone else to take. Your device ID and your exercises are kept.")
         case .audio:
-            L("Puts the instrument, the playback and recording devices and the microphone delay back to their starting values. Instruments you uploaded are kept.")
+            L("Puts the instrument, the playback and recording devices and the microphone delay back to their starting values.")
         case .visuals:
             L("Puts the theme, the orientation lock and the look of the menus and the playback screen back to how they started out. Templates you saved are deleted, and the app's own two come back as they started out.")
         case .voice:
