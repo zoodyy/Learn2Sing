@@ -15,7 +15,8 @@
 //  │   2. Delete every block tagged `DEBUG RECORDING` in the other two files    │
 //  │      it touches — PitchDetector.swift and PlaybackView.swift:              │
 //  │        grep -rn "DEBUG RECORDING" Learn2Sing --include="*.swift"           │
-//  │      Each tag sits on the block it belongs to; nothing else has to change. │
+//  │      Each tag sits on the block it belongs to; nothing else has to change, │
+//  │      except the hold in `ReviewHold`, which keeps its `.explain` line.     │
 //  │                                                                            │
 //  │ Nothing else has to be undone: no localized strings (every label here      │
 //  │ goes through `Text(verbatim:)`, which Tools/Localization/extract.py        │
@@ -27,13 +28,14 @@
 import AVFoundation
 import Combine
 import SwiftUI
+import UIKit
 import os
 
 // MARK: - Who the feature is for
 
 /// The installs the debug recording is switched on for. Every other install
-/// runs as if the feature weren't compiled in: nothing is recorded, and the
-/// score screen has no export button.
+/// runs as if the feature weren't compiled in: nothing is recorded, and holding
+/// the score screen's Review button explains it as usual.
 ///
 /// An entry is either an install's public user id (`PublicIdentifier.user`, the
 /// id its Community uploads are stamped with) or the Keychain device id behind
@@ -687,7 +689,8 @@ private struct SampleJSON: Encodable {
 
 /// A run that has been written to disk and is being packaged for the share
 /// sheet. Zipping a few megabytes takes a moment, so it happens off the main
-/// thread while the score screen is already up and the button waits for it.
+/// thread while the score screen is already up, and a hold on its Review
+/// button that comes before then waits for it.
 final class DebugRunRecording: ObservableObject {
     /// What to hand the share sheet: one zip, or — if zipping failed — the JSON
     /// and the WAV loose. Empty until packaging finishes.
@@ -720,75 +723,89 @@ final class DebugRunRecording: ObservableObject {
     }
 }
 
-// MARK: - Score-screen button
+// MARK: - Score-screen hold
+// MARK: - Score-screen hold
 
-/// The export button on the score screen. Deliberately not styled like the rest
-/// of that screen — it's a debug affordance and should look like one.
+extension View {
+    /// Holding the score screen's Review button hands the run's recording to the
+    /// share sheet, in place of the explanation the hold would otherwise show. A
+    /// tap still opens the review.
+    func exportsDebugRecording(_ recording: DebugRunRecording) -> some View {
+        modifier(DebugRecordingHold(recording: recording))
+    }
+}
+
+/// The hold behind `exportsDebugRecording`, built like `explain`'s: the same
+/// duration and tick, and the same rebuild of the button, which cancels the
+/// touch under it so letting go doesn't open the review as well.
 ///
-/// Every label goes through `Text(verbatim:)` so `Tools/Localization/extract.py`
-/// skips it and this feature never shows up as a missing translation.
-struct DebugRecordingExportButton: View {
+/// A hold that comes while the recording is still being packaged is kept, and
+/// the share sheet goes up as soon as the files are there.
+private struct DebugRecordingHold: ViewModifier {
     @ObservedObject var recording: DebugRunRecording
-    /// Landscape, where the score screen has no room for another full-width row
-    /// and the button joins the icons at the bottom instead.
-    var compact = false
 
-    /// Matches the score screen's own button row.
-    private let height: CGFloat = 54
-    private let tint = Color.orange
+    /// Flipped by each hold, putting the button on the other of two identical
+    /// branches - see `SettingHelpModifier.reset` for why not `.id`.
+    @State private var resetToken = 0
+    /// Held, and the share sheet not up yet.
+    @State private var isWaiting = false
+    /// Where the button is in the window, for the share sheet's popover on iPad.
+    /// Measured rather than taken from a UIKit view behind the button: the
+    /// rebuild above makes a new one of those on every hold.
+    @State private var frame = CGRect.zero
 
-    var body: some View {
-        if !DebugRecordingAccess.isAllowed {
-            // Belt and braces: nothing off the allowlist gets a recording to
-            // begin with, so this only matters if a recording ever reaches the
-            // score screen by some other route.
-            EmptyView()
-        } else if recording.files.isEmpty {
-            preparing
-        } else if compact {
-            ShareLink(items: recording.files) { icon }
-                .accessibilityLabel(Text(verbatim: "Export debug recording"))
+    func body(content: Content) -> some View {
+        reset(content)
+            .contentShape(Rectangle())
+            .simultaneousGesture(
+                LongPressGesture(minimumDuration: 0.4).onEnded { _ in
+                    UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                    resetToken += 1
+                    // A beat after the rebuild, as for `explain`'s bubble.
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                        isWaiting = true
+                        presentIfReady()
+                    }
+                })
+            .onGeometryChange(for: CGRect.self) { $0.frame(in: .global) } action: { frame = $0 }
+            .onChange(of: recording.files) { presentIfReady() }
+    }
+
+    private func presentIfReady() {
+        guard isWaiting, !recording.files.isEmpty else { return }
+        isWaiting = false
+        DebugShareSheet.present(recording.files, pointingAt: frame)
+    }
+
+    @ViewBuilder
+    private func reset(_ content: Content) -> some View {
+        if resetToken.isMultiple(of: 2) {
+            content
         } else {
-            ShareLink(items: recording.files) { row }
+            content
         }
     }
+}
 
-    private var icon: some View {
-        Image(systemName: "ladybug.fill")
-            .font(.headline)
-            .frame(width: height, height: height)
-            .background(tint, in: RoundedRectangle(cornerRadius: 14))
-            .foregroundStyle(.white)
-    }
+/// The system share sheet over whatever is on screen. `ShareLink` is a button of
+/// its own and can't be opened by a hold on another one.
+private enum DebugShareSheet {
+    static func present(_ files: [URL], pointingAt frame: CGRect) {
+        guard let window = UIApplication.shared.connectedScenes
+            .compactMap({ $0 as? UIWindowScene })
+            .first(where: { $0.activationState == .foregroundActive })?.keyWindow,
+              var top = window.rootViewController
+        else { return }
+        // Anything already up (the pitch-detection question, say) owns the
+        // screen, so the sheet goes over that.
+        while let presented = top.presentedViewController { top = presented }
 
-    private var row: some View {
-        HStack(spacing: 8) {
-            Image(systemName: "ladybug.fill")
-            Text(verbatim: "Export Debug Recording")
+        let controller = UIActivityViewController(activityItems: files, applicationActivities: nil)
+        // A popover on iPad, which is refused without something to point at.
+        if let popover = controller.popoverPresentationController {
+            popover.sourceView = window
+            popover.sourceRect = frame
         }
-        .font(.headline)
-        .frame(maxWidth: .infinity)
-        .padding()
-        .background(tint.opacity(0.15), in: RoundedRectangle(cornerRadius: 14))
-        .foregroundStyle(tint)
-    }
-
-    private var preparing: some View {
-        Group {
-            if compact {
-                ProgressView()
-                    .frame(width: height, height: height)
-            } else {
-                HStack(spacing: 8) {
-                    ProgressView()
-                    Text(verbatim: "Packaging Recording…")
-                }
-                .font(.headline)
-                .frame(maxWidth: .infinity)
-                .padding()
-            }
-        }
-        .background(tint.opacity(0.15), in: RoundedRectangle(cornerRadius: 14))
-        .foregroundStyle(tint)
+        top.present(controller, animated: true)
     }
 }

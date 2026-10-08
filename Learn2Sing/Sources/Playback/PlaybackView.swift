@@ -1756,7 +1756,8 @@ private struct ScoreView: View {
     var exitTitle = L("Exit")
     /// DEBUG RECORDING — remove together with DebugRecording.swift.
     /// The run's microphone capture, notes and pitch estimates, packaged for the
-    /// share sheet. nil until the run has produced one.
+    /// share sheet that holding the Review button opens. nil until the run has
+    /// produced one.
     var debugRecording: DebugRunRecording? = nil
     /// When set (playing from the Community tab), a Download button appears above
     /// the Play Again/Exit row, copying the exercise into the user's own library.
@@ -1878,7 +1879,7 @@ private struct ScoreView: View {
                 .background(.tint.opacity(0.15), in: RoundedRectangle(cornerRadius: 14))
                 .foregroundStyle(.tint)
         }
-        .explain(reviewHelp)
+        .modifier(reviewHold)
     }
 
     /// What the Review button does, said the same way in both of its shapes.
@@ -1886,6 +1887,11 @@ private struct ScoreView: View {
     /// first read in.
     private var reviewHelp: String {
         L("Opens the run you just sang as a still picture: your pitch drawn over the notes, so you can see where it went.")
+    }
+
+    /// What holding the Review button does, in both of its shapes.
+    private var reviewHold: ReviewHold {
+        ReviewHold(help: reviewHelp, debugRecording: debugRecording)
     }
 
     private var reviewIcon: some View {
@@ -1897,7 +1903,7 @@ private struct ScoreView: View {
                 .foregroundStyle(.white)
         }
         .accessibilityLabel(L("Review"))
-        .explain(reviewHelp)
+        .modifier(reviewHold)
     }
 
     /// How far a sideways drag has to travel before it counts as the exit swipe.
@@ -1969,12 +1975,6 @@ private struct ScoreView: View {
                     .padding(.horizontal, 40)
             }
 
-            // DEBUG RECORDING — remove together with DebugRecording.swift.
-            if let debugRecording, verticalSizeClass != .compact {
-                DebugRecordingExportButton(recording: debugRecording)
-                    .padding(.horizontal, 40)
-            }
-
             if let onDownload {
                 Button {
                     onDownload()
@@ -1997,10 +1997,6 @@ private struct ScoreView: View {
                 playAgainButton
                 if verticalSizeClass == .compact {
                     reviewIcon
-                }
-                // DEBUG RECORDING — remove together with DebugRecording.swift.
-                if let debugRecording, verticalSizeClass == .compact {
-                    DebugRecordingExportButton(recording: debugRecording, compact: true)
                 }
                 if let onNext {
                     actionButton(L("Next"),
@@ -2028,6 +2024,24 @@ private struct ScoreView: View {
         .coordinateSpace(.named(swipeSpace))
         .gesture(exitSwipe)
         .navigationBarBackButtonHidden(true)
+    }
+}
+
+/// The hold on the score screen's Review button: its explanation.
+private struct ReviewHold: ViewModifier {
+    let help: String
+    /// DEBUG RECORDING — remove together with DebugRecording.swift.
+    var debugRecording: DebugRunRecording? = nil
+
+    @ViewBuilder
+    func body(content: Content) -> some View {
+        // DEBUG RECORDING — remove together with DebugRecording.swift, keeping the
+        // `explain` line. On the allowlisted installs the hold exports the run.
+        if let debugRecording, DebugRecordingAccess.isAllowed {
+            content.exportsDebugRecording(debugRecording)
+        } else {
+            content.explain(help)
+        }
     }
 }
 
