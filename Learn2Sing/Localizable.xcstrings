@@ -42094,6 +42094,95 @@
         }
       }
     },
+    "Minor Scale Over a Pulsing Drone" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "السلم الصغير فوق النغمة المستمرة النابضة"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Molltonleiter über pulsierendem Bordun"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Escala menor sobre bordón pulsante"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gamme mineure sur bourdon pulsé"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scala minore sul bordone pulsante"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "脈打つドローンの上の短音階"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "맥박 치는 드론 위의 단음계"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mineurtoonladder op pulserende bourdon"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gama molowa nad pulsującym burdonem"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Escala menor sobre bordão pulsante"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Минорная гамма над пульсирующим бурдоном"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mollskala över pulserande bordun"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vuruşlu dem sesi üzerinde minör dizi"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "脉动持续音上的小调音阶"
+          }
+        }
+      }
+    },
     "Minor Seventh Chord Tones" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -59656,6 +59745,95 @@
         }
       }
     },
+    "Scale Over a Pulsing Drone" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "السلم فوق النغمة المستمرة النابضة"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tonleiter über pulsierendem Bordun"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Escala sobre bordón pulsante"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gamme sur bourdon pulsé"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scala sul bordone pulsante"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "脈打つドローンの上の音階"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "맥박 치는 드론 위의 음계"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Toonladder op pulserende bourdon"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gama nad pulsującym burdonem"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Escala sobre bordão pulsante"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Гамма над пульсирующим бурдоном"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Skala över pulserande bordun"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vuruşlu dem sesi üzerinde dizi"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "脉动持续音上的音阶"
+          }
+        }
+      }
+    },
     "Scale Sequence" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -64977,180 +65155,180 @@
         }
       }
     },
-    "Sing the top part of a simple three-part cadence. Only your first note is played, so hold your line against the other two parts." : {
+    "Sing the top part of a simple three-part cadence. Your notes are only played briefly as they start, so hold your line against the other two parts." : {
       "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "غنِّ الصوت العلوي في قفلة بسيطة من ثلاثة أصوات. تُعزف نغمتك الأولى فقط، فحافظ على خطك أمام الصوتين الآخرين."
+            "value" : "غنِّ الصوت العلوي في قفلة بسيطة من ثلاثة أصوات. تُعزف نغماتك لحظةً قصيرة فقط عند بدايتها، فحافظ على خطك أمام الصوتين الآخرين."
           }
         },
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sing die Oberstimme einer einfachen dreistimmigen Kadenz. Nur dein erster Ton wird gespielt, also halte deine Linie gegen die beiden anderen Stimmen."
+            "value" : "Sing die Oberstimme einer einfachen dreistimmigen Kadenz. Deine Töne erklingen nur kurz, wenn sie beginnen, also halte deine Linie gegen die beiden anderen Stimmen."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Canta la voz superior de una cadencia sencilla a tres voces. Solo suena tu primera nota, así que mantén tu línea frente a las otras dos voces."
+            "value" : "Canta la voz superior de una cadencia sencilla a tres voces. Tus notas solo suenan un instante al empezar, así que mantén tu línea frente a las otras dos voces."
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Chantez la voix supérieure d’une cadence simple à trois voix. Seule votre première note est jouée : tenez votre ligne face aux deux autres voix."
+            "value" : "Chantez la voix supérieure d’une cadence simple à trois voix. Vos notes ne sont jouées qu’un bref instant au moment où elles commencent : tenez votre ligne face aux deux autres voix."
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Canta la voce superiore di una semplice cadenza a tre voci. Viene suonata solo la tua prima nota, quindi tieni la tua linea contro le altre due voci."
+            "value" : "Canta la voce superiore di una semplice cadenza a tre voci. Le tue note suonano solo per un attimo quando iniziano, quindi tieni la tua linea contro le altre due voci."
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "シンプルな3声のカデンツの上声部を歌います。鳴るのは最初の1音だけなので、ほかの2声部に対して自分の旋律を保ちます。"
+            "value" : "シンプルな3声のカデンツの上声部を歌います。自分の音は始まりに短く鳴るだけなので、ほかの2声部に対して自分の旋律を保ちます。"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "간단한 3성부 종지의 윗성부를 부르세요. 첫 음만 연주되니 나머지 두 성부에 맞서 자신의 선율을 지키세요."
+            "value" : "간단한 3성부 종지의 윗성부를 부르세요. 내 음은 시작할 때 잠깐만 연주되니 나머지 두 성부에 맞서 자신의 선율을 지키세요."
           }
         },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Zing de bovenstem van een eenvoudige driestemmige cadens. Alleen je eerste noot wordt gespeeld, dus houd je lijn vast tegen de twee andere stemmen."
+            "value" : "Zing de bovenstem van een eenvoudige driestemmige cadens. Je noten klinken alleen kort wanneer ze beginnen, dus houd je lijn vast tegen de twee andere stemmen."
           }
         },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Zaśpiewaj głos górny prostej trzygłosowej kadencji. Odtwarzany jest tylko twój pierwszy dźwięk, więc utrzymaj swoją linię wobec dwóch pozostałych głosów."
+            "value" : "Zaśpiewaj głos górny prostej trzygłosowej kadencji. Twoje dźwięki są odtwarzane tylko krótko na początku, więc utrzymaj swoją linię wobec dwóch pozostałych głosów."
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Cante a voz superior de uma cadência simples a três vozes. Só a sua primeira nota é tocada, então sustente sua linha contra as outras duas vozes."
+            "value" : "Cante a voz superior de uma cadência simples a três vozes. Suas notas só soam por um instante quando começam, então sustente sua linha contra as outras duas vozes."
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Спойте верхний голос простой трёхголосной каденции. Звучит только ваша первая нота, поэтому держите свою линию против двух других голосов."
+            "value" : "Спойте верхний голос простой трёхголосной каденции. Ваши ноты звучат лишь коротко, когда начинаются, поэтому держите свою линию против двух других голосов."
           }
         },
         "sv" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sjung överstämman i en enkel trestämmig kadens. Bara din första ton spelas, så håll din linje mot de två andra stämmorna."
+            "value" : "Sjung överstämman i en enkel trestämmig kadens. Dina toner spelas bara kort när de börjar, så håll din linje mot de två andra stämmorna."
           }
         },
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Basit, üç sesli bir kadansın üst sesini söyleyin. Yalnızca ilk notanız çalınır, bu yüzden diğer iki sese karşı kendi çizginizi koruyun."
+            "value" : "Basit, üç sesli bir kadansın üst sesini söyleyin. Notalarınız yalnızca başlarken kısaca çalınır, bu yüzden diğer iki sese karşı kendi çizginizi koruyun."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "演唱一个简单三声部终止式的上声部。只有你的第一个音会被演奏，所以要在另外两个声部中守住自己的线条。"
+            "value" : "演唱一个简单三声部终止式的上声部。你的音只在开始时短暂奏响，所以要在另外两个声部中守住自己的线条。"
           }
         }
       }
     },
-    "Sing the top part over the four chords behind countless pop songs. Only your first note is played, so lock your line into each chord." : {
+    "Sing the top part over the four chords behind countless pop songs. Your notes are only played briefly as they start, so lock your line into each chord." : {
       "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "غنِّ الصوت العلوي فوق التآلفات الأربعة التي تقوم عليها أغانٍ بوب لا تُحصى. تُعزف نغمتك الأولى فقط، فاجعل خطك ينطبق على كل تآلف."
+            "value" : "غنِّ الصوت العلوي فوق التآلفات الأربعة التي تقوم عليها أغانٍ بوب لا تُحصى. تُعزف نغماتك لحظةً قصيرة فقط عند بدايتها، فاجعل خطك ينطبق على كل تآلف."
           }
         },
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sing die Oberstimme über den vier Akkorden, auf denen unzählige Popsongs beruhen. Nur dein erster Ton wird gespielt, also lass deine Linie in jedem Akkord einrasten."
+            "value" : "Sing die Oberstimme über den vier Akkorden, auf denen unzählige Popsongs beruhen. Deine Töne erklingen nur kurz, wenn sie beginnen, also lass deine Linie in jedem Akkord einrasten."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Canta la voz superior sobre los cuatro acordes de incontables canciones pop. Solo suena tu primera nota, así que encaja tu línea en cada acorde."
+            "value" : "Canta la voz superior sobre los cuatro acordes de incontables canciones pop. Tus notas solo suenan un instante al empezar, así que encaja tu línea en cada acorde."
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Chantez la voix supérieure sur les quatre accords d’innombrables chansons pop. Seule votre première note est jouée : calez votre ligne dans chaque accord."
+            "value" : "Chantez la voix supérieure sur les quatre accords d’innombrables chansons pop. Vos notes ne sont jouées qu’un bref instant au moment où elles commencent : calez votre ligne dans chaque accord."
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Canta la voce superiore sui quattro accordi alla base di innumerevoli canzoni pop. Viene suonata solo la tua prima nota, quindi incastra la tua linea in ogni accordo."
+            "value" : "Canta la voce superiore sui quattro accordi alla base di innumerevoli canzoni pop. Le tue note suonano solo per un attimo quando iniziano, quindi incastra la tua linea in ogni accordo."
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "数えきれないポップソングを支える4つの和音の上で、上声部を歌います。鳴るのは最初の1音だけなので、自分の旋律を各和音にぴたりと合わせます。"
+            "value" : "数えきれないポップソングを支える4つの和音の上で、上声部を歌います。自分の音は始まりに短く鳴るだけなので、自分の旋律を各和音にぴたりと合わせます。"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "수많은 팝송을 받치는 네 개의 화음 위에서 윗성부를 부르세요. 첫 음만 연주되니 자신의 선율을 각 화음에 꼭 맞추세요."
+            "value" : "수많은 팝송을 받치는 네 개의 화음 위에서 윗성부를 부르세요. 내 음은 시작할 때 잠깐만 연주되니 자신의 선율을 각 화음에 꼭 맞추세요."
           }
         },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Zing de bovenstem over de vier akkoorden achter talloze popsongs. Alleen je eerste noot wordt gespeeld, dus laat je lijn in elk akkoord vallen."
+            "value" : "Zing de bovenstem over de vier akkoorden achter talloze popsongs. Je noten klinken alleen kort wanneer ze beginnen, dus laat je lijn in elk akkoord vallen."
           }
         },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Zaśpiewaj głos górny nad czterema akordami, na których opiera się mnóstwo piosenek pop. Odtwarzany jest tylko twój pierwszy dźwięk, więc wpasuj swoją linię w każdy akord."
+            "value" : "Zaśpiewaj głos górny nad czterema akordami, na których opiera się mnóstwo piosenek pop. Twoje dźwięki są odtwarzane tylko krótko na początku, więc wpasuj swoją linię w każdy akord."
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Cante a voz superior sobre os quatro acordes por trás de inúmeras músicas pop. Só a sua primeira nota é tocada, então encaixe sua linha em cada acorde."
+            "value" : "Cante a voz superior sobre os quatro acordes por trás de inúmeras músicas pop. Suas notas só soam por um instante quando começam, então encaixe sua linha em cada acorde."
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Спойте верхний голос поверх четырёх аккордов, на которых построены бесчисленные поп-песни. Звучит только ваша первая нота, так что впишите свою линию в каждый аккорд."
+            "value" : "Спойте верхний голос поверх четырёх аккордов, на которых построены бесчисленные поп-песни. Ваши ноты звучат лишь коротко, когда начинаются, так что впишите свою линию в каждый аккорд."
           }
         },
         "sv" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sjung överstämman över de fyra ackord som bär otaliga poplåtar. Bara din första ton spelas, så lås fast din linje i varje ackord."
+            "value" : "Sjung överstämman över de fyra ackord som bär otaliga poplåtar. Dina toner spelas bara kort när de börjar, så lås fast din linje i varje ackord."
           }
         },
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sayısız pop şarkısının arkasındaki dört akorun üzerinde üst sesi söyleyin. Yalnızca ilk notanız çalınır, bu yüzden çizginizi her akora oturtun."
+            "value" : "Sayısız pop şarkısının arkasındaki dört akorun üzerinde üst sesi söyleyin. Notalarınız yalnızca başlarken kısaca çalınır, bu yüzden çizginizi her akora oturtun."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "在无数流行歌曲背后的四个和弦上演唱上声部。只有你的第一个音会被演奏，所以要让你的线条与每个和弦严丝合缝。"
+            "value" : "在无数流行歌曲背后的四个和弦上演唱上声部。你的音只在开始时短暂奏响，所以要让你的线条与每个和弦严丝合缝。"
           }
         }
       }
@@ -74117,6 +74295,184 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "社区列表加载失败。点按可重试。"
+          }
+        }
+      }
+    },
+    "The drone pulses as each note starts, but your notes aren't played. Keep the third, sixth and seventh low, and tune each one against the drone." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "تنبض النغمة المستمرة عند بداية كل نغمة، لكن نغماتك لا تُعزف. أبقِ النغمات الثالثة والسادسة والسابعة منخفضة، واضبط كل نغمة على النغمة المستمرة."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Der Bordun pulsiert, sobald ein Ton beginnt, aber deine Töne werden nicht gespielt. Halte den dritten, sechsten und siebten Ton tief und stimme jeden gegen den Bordun."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El bordón late al empezar cada nota, pero tus notas no suenan. Mantén bajas la tercera, la sexta y la séptima, y afina cada una contra el bordón."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le bourdon pulse au début de chaque note, mais vos notes ne sont pas jouées. Gardez basses les troisième, sixième et septième notes, et accordez chacune avec le bourdon."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il bordone pulsa all’inizio di ogni nota, ma le tue note non vengono suonate. Tieni basse la terza, la sesta e la settima, e intona ognuna rispetto al bordone."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "各音の始まりでドローンが脈打ちますが、自分の音は鳴りません。第3音、第6音、第7音を低めに保ち、一つずつドローンに合わせて音程を整えます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "각 음이 시작될 때 드론이 맥박 치듯 울리지만, 내 음은 연주되지 않습니다. 셋째, 여섯째, 일곱째 음을 낮게 유지하며 하나하나 드론에 맞춰 음정을 잡으세요."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "De bourdon pulseert bij het begin van elke noot, maar je noten worden niet gespeeld. Houd de derde, zesde en zevende laag, en stem elke noot af op de bourdon."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Burdon pulsuje na początku każdego dźwięku, ale twoje dźwięki nie są odtwarzane. Trzymaj nisko trzeci, szósty i siódmy dźwięk i stroj każdy względem burdonu."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O bordão pulsa quando cada nota começa, mas suas notas não são tocadas. Mantenha baixas a terceira, a sexta e a sétima, e afine cada uma contra o bordão."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Бурдон пульсирует в начале каждой ноты, но ваши ноты не звучат. Держите третью, шестую и седьмую ступени низкими и выстраивайте каждую относительно бурдона."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Borduntonen pulserar när varje ton börjar, men dina toner spelas inte. Håll den tredje, sjätte och sjunde tonen låga och stäm varje ton mot borduntonen."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dem sesi her nota başladığında vurur, ama notalarınız çalınmaz. Üçüncü, altıncı ve yedinci notaları pes tutun ve her birini dem sesine göre akort edin."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "每个音开始时持续音都会脉动一下，但你的音不会被演奏。让第三、第六和第七个音保持偏低，并以持续音为准把每个音唱准。"
+          }
+        }
+      }
+    },
+    "The drone pulses as each note starts, so you know when to move, but your notes aren't played. Find each one by how it sits against the drone." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "تنبض النغمة المستمرة عند بداية كل نغمة لتعرف متى تنتقل، لكن نغماتك لا تُعزف. اعثر على كل واحدة من خلال موقعها من النغمة المستمرة."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Der Bordun pulsiert, sobald ein Ton beginnt, damit du weißt, wann du weitergehst, aber deine Töne werden nicht gespielt. Finde jeden daran, wie er gegen den Bordun klingt."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El bordón late al empezar cada nota, así sabes cuándo moverte, pero tus notas no suenan. Encuentra cada una por cómo se asienta sobre el bordón."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le bourdon pulse au début de chaque note, pour que vous sachiez quand avancer, mais vos notes ne sont pas jouées. Trouvez chacune à la façon dont elle se pose sur le bourdon."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il bordone pulsa all’inizio di ogni nota, così sai quando muoverti, ma le tue note non vengono suonate. Trova ognuna da come si appoggia sul bordone."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "各音の始まりでドローンが脈打つので、動くタイミングはわかりますが、自分の音は鳴りません。ドローンに対する響き方を頼りに、一つずつ音を見つけます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "각 음이 시작될 때 드론이 맥박 치듯 울려 언제 움직일지 알 수 있지만, 내 음은 연주되지 않습니다. 드론에 어떻게 얹히는지 들으며 음을 하나하나 찾으세요."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "De bourdon pulseert bij het begin van elke noot, zodat je weet wanneer je verder moet, maar je noten worden niet gespeeld. Vind elke noot aan hoe hij tegen de bourdon klinkt."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Burdon pulsuje na początku każdego dźwięku, więc wiesz, kiedy iść dalej, ale twoje dźwięki nie są odtwarzane. Znajdź każdy po tym, jak brzmi względem burdonu."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O bordão pulsa quando cada nota começa, para você saber quando mudar, mas suas notas não são tocadas. Encontre cada uma pelo jeito como ela assenta sobre o bordão."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Бурдон пульсирует в начале каждой ноты, чтобы вы знали, когда двигаться дальше, но ваши ноты не звучат. Находите каждую по тому, как она ложится на бурдон."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Borduntonen pulserar när varje ton börjar, så att du vet när du ska gå vidare, men dina toner spelas inte. Hitta varje ton genom hur den ligger mot borduntonen."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dem sesi her nota başladığında vurur, böylece ne zaman ilerleyeceğinizi bilirsiniz, ama notalarınız çalınmaz. Her birini dem sesine göre nasıl oturduğundan bulun."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "每个音开始时持续音都会脉动一下，让你知道何时移动，但你的音不会被演奏。凭它与持续音的关系，找到每一个音。"
           }
         }
       }

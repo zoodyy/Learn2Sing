@@ -92,6 +92,9 @@ final class ExerciseStore: ObservableObject {
     /// Ids of the bundled exercises this install has been given, whether or not
     /// they are still in its library — see `importNewBundledIfNeeded`.
     private let offeredBundledKey = "offeredBundledExerciseIDs"
+    /// The size of the superseded-versions file this install's library was last
+    /// brought up to date against at launch — see `updateSupersededBundledIfNeeded`.
+    private let supersededCheckedKey = "supersededBundledCheckedBytes"
     private let playHistorySeededKey = "didSeedPlayHistory"
 
     init() {
@@ -104,6 +107,7 @@ final class ExerciseStore: ObservableObject {
         loadWhitelistOverrides()
         importBundledIfNeeded()
         importNewBundledIfNeeded()
+        updateSupersededBundledIfNeeded()
         adoptNoCategory()
         enforceBundledPrivacy()
         seedPlayHistoryIfNeeded()
@@ -249,6 +253,63 @@ final class ExerciseStore: ObservableObject {
         "24C5B25B-D49A-4A0D-9E7C-9E0F72AA8E86", // Mom Moh
         "7A76BACA-20D0-4665-B8B8-CA9721C0CF1B", // Brrrr
     ].compactMap(UUID.init(uuidString:)))
+
+    /// Earlier versions of bundled exercises: what the bundle shipped before an
+    /// update changed them, one bundle per such update holding only the exercises
+    /// it changed. Written alongside the change to BundledExercises.json, and only
+    /// ever added to.
+    private static let supersededBundlesData: Data? = Bundle.main
+        .url(forResource: "SupersededBundledExercises", withExtension: "json")
+        .flatMap { try? Data(contentsOf: $0) }
+
+    private static let supersededBundles: [ExerciseBundle] = {
+        guard let data = supersededBundlesData else { return [] }
+        return (try? JSONDecoder().decode([ExerciseBundle].self, from: data)) ?? []
+    }()
+
+    /// Brings every bundled exercise the library holds exactly as an earlier
+    /// version shipped it up to how it ships now, so a fix to a bundled exercise
+    /// reaches every install that never touched it. Without this, such a copy
+    /// would count as edited by its user (see `isBundledEdited`) and be rated
+    /// under an id of its own. One the user has changed in any way stays as it
+    /// is; which category it sits in doesn't count, and is kept, as is its place
+    /// in the list. Returns whether anything was updated, for the caller to save.
+    @discardableResult
+    private func updateSupersededBundled() -> Bool {
+        var updated = false
+        for old in Self.supersededBundles {
+            for shipped in old.exercises {
+                let id = shipped.id
+                guard let current = Self.bundledOriginal(id),
+                      let index = exercises.firstIndex(where: { $0.id == id }) else { continue }
+                var placed = exercises[index]
+                placed.category = shipped.category
+                guard placed == shipped,
+                      Self.sameNotes(notes(for: id), old.midi[id.uuidString] ?? []),
+                      Self.sameNotes(ghosts(for: id), old.ghosts?[id.uuidString] ?? []),
+                      Self.sameTexts(texts(for: id), old.texts?[id.uuidString] ?? [])
+                else { continue }
+                var replacement = current
+                replacement.category = exercises[index].category
+                exercises[index] = replacement
+                setNotes(Self.bundledNotes(id), for: id)
+                setTexts(Self.bundledTexts(id), for: id)
+                setGhosts(Self.bundledGhosts(id), for: id)
+                updated = true
+            }
+        }
+        return updated
+    }
+
+    /// `updateSupersededBundled` at launch, once per version of the file: an old
+    /// copy only reaches the library from outside it afterwards, through
+    /// `importBundle`, which runs it again itself.
+    private func updateSupersededBundledIfNeeded() {
+        let size = Self.supersededBundlesData?.count ?? 0
+        guard UserDefaults.standard.integer(forKey: supersededCheckedKey) != size else { return }
+        if updateSupersededBundled() { save() }
+        UserDefaults.standard.set(size, forKey: supersededCheckedKey)
+    }
 
     // MARK: - Exercise list persistence
 
@@ -1553,6 +1614,9 @@ final class ExerciseStore: ObservableObject {
         for category in bundle.categories ?? bundle.exercises.map(\.category) {
             addCategory(category)
         }
+        // A profile or backup written before an update can still carry a bundled
+        // exercise the way it shipped then.
+        updateSupersededBundled()
         save()
         enforceBundledPrivacy()
     }

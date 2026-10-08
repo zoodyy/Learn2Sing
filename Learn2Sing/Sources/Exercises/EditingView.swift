@@ -191,6 +191,10 @@ private let beatEpsilon: Double = 1e-9
 /// How many ghost notes may sound at the same moment: a chord of five, which is as
 /// many notes as a hand plays.
 private let maxGhostsAtOnce = 5
+/// What the stretch of a note a ghost note of the same pitch lies over is painted:
+/// plain to see against the green, without the alarm of the red that marks
+/// overlapping notes.
+private let ghostOverNoteColor = Color.cyan
 
 
 // MARK: - EditingView
@@ -809,6 +813,7 @@ struct EditingView: View {
         let shown = liveNotes
         let shownGhosts = liveGhosts
         let overlaps = overlapSpans(in: shown)
+        let ghostCovers = ghostCoverSpans(of: shown, by: shownGhosts)
         return Canvas { ctx, _ in
             // The dead margin: flat black, no rows and no lines, so it's plain that
             // nothing goes there. Only a label hanging off the front reaches over it —
@@ -854,6 +859,17 @@ struct EditingView: View {
                 ctx.fill(notePath, with: .color(.green.opacity(dimmed ? 0.6 : 0.88)))
                 ctx.stroke(notePath, with: .color(.green), lineWidth: 1)
 
+                // Where a ghost note of the same pitch lies over the note. Under the
+                // red, which marks something to fix; this only says where it is.
+                for span in ghostCovers[note.id] ?? [] {
+                    let x0 = max(inner.minX, CGFloat(span.start) * beatW)
+                    let x1 = min(inner.maxX, CGFloat(span.end) * beatW)
+                    guard x1 > x0 else { continue }
+                    let covered = CGRect(x: x0, y: inner.minY, width: x1 - x0, height: inner.height)
+                    ctx.fill(Path(roundedRect: covered, cornerRadius: 2),
+                             with: .color(ghostOverNoteColor.opacity(dimmed ? 0.6 : 0.95)))
+                }
+
                 // Paint the stretches another note sounds over, so it's clear which
                 // part of the note is the problem rather than just which notes are.
                 if let spans = overlaps[note.id] {
@@ -882,12 +898,18 @@ struct EditingView: View {
 
             // Ghost notes, over the notes: see-through, so a note one is laid on still
             // shows beneath it, and outlined in dashes, so a ghost note laid exactly
-            // over a note can still be told apart from it.
+            // over a note can still be told apart from it. Where one lies on a note of
+            // its own pitch, that note has painted the stretch already, and the green
+            // is kept off it so the colour there stays clear.
             for ghost in shownGhosts {
                 let inner = rect(for: ghost).insetBy(dx: 1, dy: 1)
                 let dimmed = ghost.id == inProgressID
                 let ghostPath = Path(roundedRect: inner, cornerRadius: 3)
-                ctx.fill(ghostPath, with: .color(.green.opacity(dimmed ? 0.18 : 0.3)))
+                var fill = ctx
+                for note in shown where note.pitch == ghost.pitch {
+                    fill.clip(to: Path(rect(for: note).insetBy(dx: 1, dy: 1)), options: .inverse)
+                }
+                fill.fill(ghostPath, with: .color(.green.opacity(dimmed ? 0.18 : 0.3)))
                 ctx.stroke(ghostPath, with: .color(.green.opacity(0.9)),
                            style: StrokeStyle(lineWidth: 1, dash: [3, 2]))
 
@@ -1355,24 +1377,44 @@ struct EditingView: View {
     private func overlapSpans(in all: [MIDINote]) -> [UUID: [(start: Double, end: Double)]] {
         var result: [UUID: [(start: Double, end: Double)]] = [:]
         for (i, a) in all.enumerated() {
-            var spans: [(start: Double, end: Double)] = []
-            for (j, b) in all.enumerated() where i != j {
-                let start = max(a.beat, b.beat)
-                let end = min(a.beat + a.length, b.beat + b.length)
-                if end - start > beatEpsilon { spans.append((start, end)) }
-            }
-            guard !spans.isEmpty else { continue }
-            var merged: [(start: Double, end: Double)] = []
-            for span in spans.sorted(by: { $0.start < $1.start }) {
-                if let last = merged.last, span.start <= last.end + beatEpsilon {
-                    merged[merged.count - 1].end = max(last.end, span.end)
-                } else {
-                    merged.append(span)
-                }
-            }
-            result[a.id] = merged
+            let others = all.enumerated().filter { $0.offset != i }.map(\.element)
+            let spans = stretches(of: a, under: others)
+            if !spans.isEmpty { result[a.id] = spans }
         }
         return result
+    }
+
+    /// Stretches of each note that a ghost note of the same pitch lies over, which
+    /// are painted a colour of their own: drawn see-through green on green, a ghost
+    /// note laid over a note would all but vanish into it.
+    private func ghostCoverSpans(of notes: [MIDINote],
+                                 by ghosts: [MIDINote]) -> [UUID: [(start: Double, end: Double)]] {
+        var result: [UUID: [(start: Double, end: Double)]] = [:]
+        for note in notes {
+            let spans = stretches(of: note, under: ghosts.filter { $0.pitch == note.pitch })
+            if !spans.isEmpty { result[note.id] = spans }
+        }
+        return result
+    }
+
+    /// The stretches of `note` that any of `others` sounds over, merged.
+    private func stretches(of note: MIDINote,
+                           under others: [MIDINote]) -> [(start: Double, end: Double)] {
+        var spans: [(start: Double, end: Double)] = []
+        for other in others {
+            let start = max(note.beat, other.beat)
+            let end = min(note.beat + note.length, other.beat + other.length)
+            if end - start > beatEpsilon { spans.append((start, end)) }
+        }
+        var merged: [(start: Double, end: Double)] = []
+        for span in spans.sorted(by: { $0.start < $1.start }) {
+            if let last = merged.last, span.start <= last.end + beatEpsilon {
+                merged[merged.count - 1].end = max(last.end, span.end)
+            } else {
+                merged.append(span)
+            }
+        }
+        return merged
     }
 
     /// Whether any two notes currently sound at the same time.
