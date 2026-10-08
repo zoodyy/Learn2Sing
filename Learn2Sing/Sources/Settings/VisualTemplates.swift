@@ -758,6 +758,24 @@ final class VisualTemplateStore: ObservableObject {
         applyStandard(for: AppTheme.currentScheme)
     }
 
+    /// "Delete Everything": the templates and the playback look as a first launch
+    /// leaves them, worked out by the steps `init` takes on an empty store — the
+    /// looks the app ships, as it ships them, with the standard one for the
+    /// appearance the app is in put on screen and left unselected. Called once the
+    /// theme is cleared, so that appearance is the device's own.
+    func resetToFirstLaunch() {
+        deselect()
+        let defaults = UserDefaults.standard
+        for key in [Self.storageKey, Self.seededIDsKey, Self.legacySeededKey, Self.asShippedKey]
+            + VisualKeys.all {
+            defaults.removeObject(forKey: key)
+        }
+        templates = []
+        migrateLegacyBundledIDs()
+        seedBundledIfNeeded()
+        refreshBundledTemplates()
+    }
+
     private func persist() {
         if let data = try? JSONEncoder().encode(templates) {
             UserDefaults.standard.set(data, forKey: Self.storageKey)

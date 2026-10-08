@@ -98,6 +98,13 @@ final class ExerciseStore: ObservableObject {
     private let playHistorySeededKey = "didSeedPlayHistory"
 
     init() {
+        startFromStorage()
+    }
+
+    /// What every launch does: read the library and the lists built on it back,
+    /// and bring them up to date with the bundle. On a first launch, with nothing
+    /// stored, it is what seeds the library.
+    private func startFromStorage() {
         load()
         loadCategories()
         loadRecentlyPlayed()
@@ -1239,6 +1246,38 @@ final class ExerciseStore: ObservableObject {
         // The group it belongs to may have been renamed or deleted since.
         addCategory(original.category)
         save()
+    }
+
+    /// "Delete Everything": the library exactly as a first launch leaves it. The
+    /// bundled exercises in the order and the categories they ship in, and nothing
+    /// of the user's: no exercise or category of their own, no edit, no score,
+    /// favourite, routine, play history or whitelist pick. What is stored goes
+    /// first, then `startFromStorage()` seeds the library the way a new install's
+    /// first launch does, rather than this putting it back piece by piece.
+    func resetToFirstLaunch() {
+        let defaults = UserDefaults.standard
+        for exercise in exercises {
+            defaults.removeObject(forKey: Self.midiKey(exercise.id))
+            defaults.removeObject(forKey: Self.midiTextKey(exercise.id))
+            defaults.removeObject(forKey: Self.midiGhostKey(exercise.id))
+        }
+        for key in [storeKey, categoriesKey, recentlyPlayedKey, playHistoryKey, routinesKey,
+                    favouritesKey, whitelistOverridesKey, bundledImportedKey, offeredBundledKey,
+                    supersededCheckedKey, playHistorySeededKey, ExerciseDates.storageKey,
+                    RecommendedExercises.autoWhitelistKey] {
+            defaults.removeObject(forKey: key)
+        }
+        ScoreHistory.deleteAll()
+
+        exercises = []
+        categories = []
+        recentlyPlayed = []
+        playHistory = []
+        routines = []
+        favourites = []
+        whitelistOverrides = [:]
+        autoWhitelistOrigins = RecommendedExercises.storedAutoWhitelist
+        startFromStorage()
     }
 
     /// Put every bundled exercise back to how it ships.

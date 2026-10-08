@@ -46,6 +46,13 @@ enum AppUsageTime {
         UserDefaults.standard.set(stored + elapsed, forKey: key)
     }
 
+    /// "Delete Everything": the count starts again from nothing, as on a new
+    /// install, from now if the app is in the foreground.
+    static func restart() {
+        UserDefaults.standard.removeObject(forKey: key)
+        if activeSince != nil { activeSince = Date() }
+    }
+
     /// Seconds spent in the app, the stretch it has been open for right now
     /// included.
     static var seconds: Double {
@@ -156,6 +163,15 @@ final class ReviewPrompt: ObservableObject {
             guard !Task.isCancelled else { return }
             self?.askIfStillOwed()
         }
+    }
+
+    /// "Delete Everything": a pop-up earned before it is owed no longer, and the
+    /// last time it went up is forgotten with the rest of the install.
+    func forget() {
+        isOwed = false
+        pendingAsk?.cancel()
+        pendingAsk = nil
+        UserDefaults.standard.removeObject(forKey: Self.lastAskedKey)
     }
 
     private func askIfStillOwed() {

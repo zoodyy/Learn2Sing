@@ -27,6 +27,12 @@ final class IntroTutorial: ObservableObject {
 
     @Published var isPresented = false
 
+    /// Whether this launch has already asked. Only the launch itself may open the
+    /// tutorial: "Delete Everything" clears the flag above so the next launch
+    /// starts with it, as a new install does, and the root view asking again
+    /// later in the same run must not put it up straight over the Reset screen.
+    private var didAskThisLaunch = false
+
     private init() {}
 
     /// Opens the introduction on the first launch after an install, and never again
@@ -37,6 +43,8 @@ final class IntroTutorial: ObservableObject {
     /// thing the tutorial writes is a vocal range that takes some seconds of singing
     /// to measure, by which time a restore on a returning device has long landed.
     func presentIfNeeded() {
+        guard !didAskThisLaunch else { return }
+        didAskThisLaunch = true
         guard !UserDefaults.standard.bool(forKey: Self.seenKey) else { return }
         isPresented = true
     }

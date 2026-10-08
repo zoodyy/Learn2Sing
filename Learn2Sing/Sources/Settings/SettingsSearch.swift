@@ -684,7 +684,7 @@ enum SettingsCatalog {
         add(.resetHomeRow, .reset, title: L("Home"),
             help: L("Clear the Home tab's favorites, routines and recently played list."))
         add(.deleteEverything, .reset, title: L("Delete Everything"),
-            help: L("Does what all four screens above do at once, and deletes what you have on the server too: the backup a new install would bring your library back from, your public profile, the exercises you shared and every like, download and score you sent. The only thing left is the ID your device was given, which lives outside the app."))
+            help: L("Puts the app back exactly as a new install finds it, every setting and the introduction included, and deletes what you have on the server too: the backup a new install would bring your library back from, your public profile, the exercises you shared and every like, download and score you sent. The only thing left is the ID your device was given, which lives outside the app."))
 
         heading(.resetRecordedScores, .resetScores, L("Recorded Scores"))
         add(.deleteAllScores, .resetScores, title: L("Delete All Scores"),

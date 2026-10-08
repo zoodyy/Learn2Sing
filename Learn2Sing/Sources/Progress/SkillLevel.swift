@@ -316,6 +316,16 @@ final class SkillLevelStore: ObservableObject {
         setLevel(restoredLevel ?? SkillLevel.starting)
     }
 
+    /// "Delete Everything": a new singer's level, with no restored one held over
+    /// for `recompute` to fall back on. Nothing is written — a fresh install has no
+    /// level on file until it has sung something to work one out from.
+    func forget() {
+        restoredLevel = nil
+        level = SkillLevel.starting
+        UserDefaults.standard.removeObject(forKey: Self.levelKey)
+        recompute()
+    }
+
     /// Written through to UserDefaults, which is both how the Home tab has a
     /// level to draw before anything is worked out and how the new one reaches
     /// the server: ProfileSync uploads on any defaults change.

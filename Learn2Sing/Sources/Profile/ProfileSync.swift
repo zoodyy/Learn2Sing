@@ -36,7 +36,9 @@ final class ProfileSync {
     nonisolated private static let baseURL = "https://echolex.api.phrase-by-phrase.com/api/v1/learn2Sing"
     /// Set once a restore attempt has reached the server. Lives in UserDefaults,
     /// which is wiped on reinstall — exactly when a restore should run again.
-    private static let restoredKey = "didAttemptProfileRestore"
+    /// "Delete Everything" leaves it, as a first launch has set it by then too
+    /// (see `DeleteEverything.survives`).
+    static let restoredKey = "didAttemptProfileRestore"
     /// Storage type of the private per-device backup this class owns.
     nonisolated private static let profileType = "PROFILE"
 
@@ -205,9 +207,10 @@ final class ProfileSync {
     }
 
     /// Lets uploads through again, with the profile as it stands taken as the one
-    /// the server already has.
+    /// the server already has — when `backupDeleted` says the server took the
+    /// delete.
     ///
-    /// That last part is what keeps "Delete Everything" deleted. Resuming with
+    /// That adoption is what keeps "Delete Everything" deleted. Resuming with
     /// nothing remembered would have the next change — and after a wipe every
     /// last thing has just changed — post the emptied profile straight back into
     /// the record that was deleted a moment earlier, so the user would watch
@@ -215,11 +218,21 @@ final class ProfileSync {
     /// nothing goes up until there is something new to say, and then it goes up
     /// as usual. The adoption is built by the worker like any upload, ahead of
     /// any snapshot that comes in after it.
-    func resumeUploads() {
+    ///
+    /// A delete the server didn't take (offline, or a route it doesn't have)
+    /// leaves the old backup up, library and all, for a reinstall to restore.
+    /// Then the wiped profile goes up over it instead, which leaves the server
+    /// holding what a new install would upload, and is retried like any upload
+    /// until it lands.
+    func resumeUploads(backupDeleted: Bool) {
         guard let store else { return }
-        pendingAdoption = ProfileSnapshot(store)
         readyToUpload = true
-        startWorker()
+        if backupDeleted {
+            pendingAdoption = ProfileSnapshot(store)
+            startWorker()
+        } else {
+            takeSnapshot(urgent: true)
+        }
     }
 
     // MARK: - Delete

@@ -300,8 +300,9 @@ final class ProfilePictureStore: ObservableObject {
     /// Set once the server has answered about this install's picture, so the
     /// many users who never set one don't pay for a fetch on every launch. A
     /// call that went unanswered doesn't set it — "we couldn't ask" must not be
-    /// remembered as "there is nothing there".
-    private static let restoreCheckedKey = "profilePictureRestoreChecked"
+    /// remembered as "there is nothing there". "Delete Everything" leaves it set
+    /// (see `DeleteEverything.survives`).
+    static let restoreCheckedKey = "profilePictureRestoreChecked"
 
     private static var fileURL: URL {
         FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]

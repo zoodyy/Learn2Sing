@@ -66,7 +66,7 @@ struct ResetSettingsView: View {
                 .resetConfirmation(
                     $pending, for: .everything,
                     confirmLabel: L("Delete"),
-                    message: L("Everything the four screens above delete, and everything you have on the server with it: your backup, your public profile, the exercises you shared and every like, download and score you sent.")
+                    message: L("Puts the app back to how it was when you first installed it, and deletes everything you have on the server: your backup, your public profile, the exercises you shared and every like, download and score you sent.")
                 ) {
                     Task { await DeleteEverything.run(store: store, templates: visualTemplates) }
                 }
