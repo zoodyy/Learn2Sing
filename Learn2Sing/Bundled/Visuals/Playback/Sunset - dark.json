@@ -1,7 +1,6 @@
 {
   "autoPitchNameColor" : true,
   "background" : "#1B1027",
-  "followVertical" : true,
   "hideTabBar" : true,
   "hideUnusedDots" : false,
   "horizontalZoom" : 1.5,

@@ -243,7 +243,6 @@ struct PlaybackVisualsView: View {
     @AppStorage(VisualKeys.noteRoundness)  private var noteRoundness  = VisualDefaults.noteRoundness
     @AppStorage(VisualKeys.verticalZoom)   private var verticalZoom   = VisualDefaults.verticalZoom
     @AppStorage(VisualKeys.horizontalZoom) private var horizontalZoom = VisualDefaults.horizontalZoom
-    @AppStorage(VisualKeys.followVertical) private var followVertical = VisualDefaults.followVertical
     @AppStorage(VisualKeys.showLines)      private var showLines      = VisualDefaults.showLines
     @AppStorage(VisualKeys.background)     private var background      = VisualDefaults.background
     @AppStorage(VisualKeys.showKeyboard)   private var showKeyboard   = VisualDefaults.showKeyboard
@@ -300,7 +299,6 @@ struct PlaybackVisualsView: View {
             noteRoundness: noteRoundness,
             verticalZoom: verticalZoom,
             horizontalZoom: horizontalZoom,
-            followNotesVertically: followVertical,
             showHorizontalLines: showLines,
             backgroundColor: Color(hex: background),
             showKeyboard: showKeyboard,
@@ -321,8 +319,7 @@ struct PlaybackVisualsView: View {
     }
 
     // Demo content. A short three-note motif repeated many times so the preview can
-    // scroll for a long while without running out. The notes sit well above the
-    // default centre so "follow notes vertically" visibly recentres them.
+    // scroll for a long while without running out.
     private static let demoPattern: [(pitch: Int, beat: Double)] = [(60, 0), (64, 1), (67, 2)]
     /// One repetition of the motif, in beats — the fourth beat is the gap before the
     /// next one. Passed to the renderer so "hide dots in unused pitches" can preview.
@@ -345,7 +342,8 @@ struct PlaybackVisualsView: View {
         MIDIText(text: "La", pitch: PlaybackVisualsView.demoTextPitch,
                  beat: midiTextBeat(centring: "La", at: Double($0) * 4 + 0.45))
     }
-    /// Midpoint of the demo notes, used as the centre when following vertically.
+    /// Midpoint of the demo notes, which the preview centres on the way playback
+    /// centres on each repetition.
     private let demoCenter = Double(60 + 67) / 2
 
     /// Highest / lowest pitch any demo element (note or text) is drawn at. The
@@ -463,8 +461,6 @@ struct PlaybackVisualsView: View {
                     .setting(.verticalZoom)
                 sliderRow(L("Horizontal zoom"), value: $horizontalZoom, range: 0.4...3)
                     .setting(.horizontalZoom)
-                Toggle("Follow notes vertically", isOn: $followVertical)
-                    .setting(.followVertical)
             } header: {
                 Text("Zoom & Position").settingSection(.playbackZoom)
             }
@@ -673,9 +669,8 @@ struct PlaybackVisualsView: View {
     private func collapsiblePreview(width: CGFloat, fullHeight: CGFloat) -> some View {
         // Mirror the Canvas maths so the crop bounds line up with the drawn rows.
         let rowH = fullHeight / CGFloat(hiPitch - loPitch + 1) * CGFloat(verticalZoom)
-        let centerPitch = followVertical ? demoCenter : Double(hiPitch + loPitch) / 2
         func y(_ pitch: Double) -> CGFloat {
-            fullHeight / 2 - CGFloat(pitch - centerPitch) * rowH
+            fullHeight / 2 - CGFloat(pitch - demoCenter) * rowH
         }
         // Top edge of the row one above the highest demo element and bottom edge of
         // the row one below the lowest.
@@ -717,11 +712,8 @@ struct PlaybackVisualsView: View {
                 let rowH = baseRowH * CGFloat(settings.verticalZoom)
                 let beatPx = playbackBeatWidth * CGFloat(settings.horizontalZoom)
                 let pW: CGFloat = settings.showKeyboard ? playbackKeyboardWidth : 0
-                let center = settings.followNotesVertically
-                    ? demoCenter
-                    : Double(hiPitch + loPitch) / 2
                 let layout = SceneLayout(size: size, pianoW: pW, rowH: rowH, beatPx: beatPx,
-                                         playheadX: size.width / 3, centerPitch: center)
+                                         playheadX: size.width / 3, centerPitch: demoCenter)
                 // A gently bobbing dot so the singer indicator is visible too.
                 let singer = demoSingerPitch(at: beat)
 

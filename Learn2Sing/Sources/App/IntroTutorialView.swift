@@ -562,7 +562,7 @@ private struct PlaybackLookPreview: View {
         MIDIText(text: "La", pitch: 68,
                  beat: midiTextBeat(centring: "La", at: Double($0) * span + 0.3))
     }
-    /// Midpoint of the motif, which is where "follow notes vertically" centres it.
+    /// Midpoint of the motif, which is where playback would centre it.
     private static let centre = Double(60 + 64) / 2
     /// The beat under the playhead. Far enough in that the singer's line has a
     /// repetition behind it to trail across, and on a note so one is lit up.
@@ -577,9 +577,7 @@ private struct PlaybackLookPreview: View {
                 size: size,
                 pianoW: settings.showKeyboard ? playbackKeyboardWidth : 0,
                 rowH: rowH, beatPx: beatPx, playheadX: size.width / 3,
-                centerPitch: settings.followNotesVertically
-                    ? Self.centre
-                    : Double(hiPitch + loPitch) / 2)
+                centerPitch: Self.centre)
             drawPlaybackScene(
                 ctx: ctx, layout: layout, beat: Self.beat,
                 notes: Self.notes, texts: Self.texts,

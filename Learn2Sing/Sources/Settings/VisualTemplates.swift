@@ -21,7 +21,6 @@ nonisolated struct VisualTemplate: Codable, Identifiable, Hashable {
     var noteRoundness: Double
     var verticalZoom: Double
     var horizontalZoom: Double
-    var followVertical: Bool
     var showLines: Bool
     var background: String
     var showKeyboard: Bool
@@ -43,7 +42,7 @@ nonisolated struct VisualTemplate: Codable, Identifiable, Hashable {
 
     init(id: UUID = UUID(), name: String,
          noteColor: String, playingNoteColor: String, noteRoundness: Double,
-         verticalZoom: Double, horizontalZoom: Double, followVertical: Bool,
+         verticalZoom: Double, horizontalZoom: Double,
          showLines: Bool, background: String, showKeyboard: Bool, showPitches: Bool,
          autoPitchNameColor: Bool, pitchNameColor: String,
          textColor: String, textFont: String,
@@ -59,7 +58,6 @@ nonisolated struct VisualTemplate: Codable, Identifiable, Hashable {
         self.noteRoundness = noteRoundness
         self.verticalZoom = verticalZoom
         self.horizontalZoom = horizontalZoom
-        self.followVertical = followVertical
         self.showLines = showLines
         self.background = background
         self.showKeyboard = showKeyboard
@@ -82,7 +80,8 @@ nonisolated struct VisualTemplate: Codable, Identifiable, Hashable {
 
     /// Custom decoding so templates saved (or bundled) before a setting existed still
     /// load: any missing key falls back to its `VisualDefaults` value rather than
-    /// failing the whole decode.
+    /// failing the whole decode. A key for a setting since removed (`followVertical`,
+    /// now always on) is simply ignored.
     init(from decoder: Decoder) throws {
         let c = try decoder.container(keyedBy: CodingKeys.self)
         id = try c.decodeIfPresent(UUID.self, forKey: .id) ?? UUID()
@@ -92,7 +91,6 @@ nonisolated struct VisualTemplate: Codable, Identifiable, Hashable {
         noteRoundness = try c.decodeIfPresent(Double.self, forKey: .noteRoundness) ?? VisualDefaults.noteRoundness
         verticalZoom = try c.decodeIfPresent(Double.self, forKey: .verticalZoom) ?? VisualDefaults.verticalZoom
         horizontalZoom = try c.decodeIfPresent(Double.self, forKey: .horizontalZoom) ?? VisualDefaults.horizontalZoom
-        followVertical = try c.decodeIfPresent(Bool.self, forKey: .followVertical) ?? VisualDefaults.followVertical
         showLines = try c.decodeIfPresent(Bool.self, forKey: .showLines) ?? VisualDefaults.showLines
         background = try c.decodeIfPresent(String.self, forKey: .background) ?? VisualDefaults.background
         showKeyboard = try c.decodeIfPresent(Bool.self, forKey: .showKeyboard) ?? VisualDefaults.showKeyboard
@@ -129,7 +127,6 @@ nonisolated struct VisualTemplate: Codable, Identifiable, Hashable {
             noteRoundness: dbl(VisualKeys.noteRoundness, VisualDefaults.noteRoundness),
             verticalZoom: dbl(VisualKeys.verticalZoom, VisualDefaults.verticalZoom),
             horizontalZoom: dbl(VisualKeys.horizontalZoom, VisualDefaults.horizontalZoom),
-            followVertical: bool(VisualKeys.followVertical, VisualDefaults.followVertical),
             showLines: bool(VisualKeys.showLines, VisualDefaults.showLines),
             background: str(VisualKeys.background, VisualDefaults.background),
             showKeyboard: bool(VisualKeys.showKeyboard, VisualDefaults.showKeyboard),
@@ -161,7 +158,6 @@ nonisolated struct VisualTemplate: Codable, Identifiable, Hashable {
         d.set(noteRoundness, forKey: VisualKeys.noteRoundness)
         d.set(verticalZoom, forKey: VisualKeys.verticalZoom)
         d.set(horizontalZoom, forKey: VisualKeys.horizontalZoom)
-        d.set(followVertical, forKey: VisualKeys.followVertical)
         d.set(showLines, forKey: VisualKeys.showLines)
         d.set(background, forKey: VisualKeys.background)
         d.set(showKeyboard, forKey: VisualKeys.showKeyboard)
@@ -194,7 +190,6 @@ nonisolated struct VisualTemplate: Codable, Identifiable, Hashable {
             noteRoundness: noteRoundness,
             verticalZoom: verticalZoom,
             horizontalZoom: horizontalZoom,
-            followNotesVertically: followVertical,
             showHorizontalLines: showLines,
             backgroundColor: Color(hex: background),
             showKeyboard: showKeyboard,

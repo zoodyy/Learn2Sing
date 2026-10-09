@@ -213,7 +213,6 @@ extension SettingKey {
     static let noteRoundness        = SettingKey("playback.noteRoundness")
     static let verticalZoom         = SettingKey("playback.verticalZoom")
     static let horizontalZoom       = SettingKey("playback.horizontalZoom")
-    static let followVertical       = SettingKey("playback.followVertical")
     static let showLines            = SettingKey("playback.showLines")
     static let backgroundColor      = SettingKey("playback.background")
     static let showKeyboard         = SettingKey("playback.showKeyboard")
@@ -545,8 +544,6 @@ enum SettingsCatalog {
             help: L("How tall a pitch is. Turn it up to spread the notes apart, down to fit more of your range on screen."))
         add(.horizontalZoom, .playback, section: L("Zoom & Position"), title: L("Horizontal zoom"),
             help: L("How wide a beat is. Turn it down to see more of what is coming."))
-        add(.followVertical, .playback, section: L("Zoom & Position"), title: L("Follow notes vertically"),
-            help: L("Scrolls the screen up and down so the notes being sung stay in the middle. Off, the whole exercise is shown at once."))
 
         heading(.playbackBackground, .playback, L("Background"))
         add(.showLines, .playback, section: L("Background"), title: L("Show horizontal lines"),

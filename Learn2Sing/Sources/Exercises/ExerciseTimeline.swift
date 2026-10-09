@@ -6,7 +6,7 @@ import Foundation
 // the same settings.
 
 /// The result of that expansion: where every note and label of every repetition
-/// lands, and what "follow notes vertically" needs to frame them.
+/// lands, and what playback needs to frame them as it follows the notes.
 struct ExerciseTimeline {
     /// The pattern repeated: each repetition shifted along the timeline, scaled to
     /// its own tempo and transposed by its share of "transpose per repetition".
@@ -21,7 +21,7 @@ struct ExerciseTimeline {
     /// Where the repetitions sit on that timeline.
     var repeats = RepeatLayout()
     /// Vertical centre of each repetition — the midpoint of its pitch range — which
-    /// "follow notes vertically" recentres on.
+    /// playback recentres on.
     var centers: [Double] = []
     /// Furthest content from a repetition's centre (a note, a ghost note or a
     /// label, above or below) in semitones. The relative geometry is the same for every repetition,
@@ -174,9 +174,9 @@ extension Exercise {
                                         ghosts: expandedGhosts, repeats: layout)
 
         // The vertical centre of each repetition (the midpoint of its pitch range) so
-        // "follow notes vertically" can recentre once per repetition. Each
-        // repetition's range is the pattern's range shifted by that repetition's
-        // cumulative transpose, plus the global pitch- and vocal-range shifts.
+        // playback can recentre once per repetition. Each repetition's range is the
+        // pattern's range shifted by that repetition's cumulative transpose, plus the
+        // global pitch- and vocal-range shifts.
         if let pMin = pattern.map(\.pitch).min(), let pMax = pattern.map(\.pitch).max() {
             let baseMid = Double(pMin + pMax) / 2
             timeline.centers = (0..<repeats).map { rep in

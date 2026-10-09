@@ -139,21 +139,21 @@ struct ExercisePlaybackPreview: View {
     private var playheadX: CGFloat { width / 3 }
 
     /// Points per semitone, worked out as playback works it out — including the
-    /// zoom-out "follow notes vertically" applies when a repetition is too tall to
-    /// fit, measured here against the preview at its full height so the drawing
-    /// doesn't change scale while the form scrolls it shut.
+    /// zoom-out it applies when a repetition is too tall to fit, measured here
+    /// against the preview at its full height so the drawing doesn't change scale
+    /// while the form scrolls it shut.
     private var rowHeight: CGFloat {
         let base = fullHeight / CGFloat(hiPitch - loPitch + 1) * CGFloat(settings.verticalZoom)
-        guard settings.followNotesVertically, timeline.maxExtent > 0 else { return base }
+        guard timeline.maxExtent > 0 else { return base }
         return min(base, (fullHeight / 2) / CGFloat(timeline.maxExtent + 1))
     }
 
-    /// The pitch drawn at the vertical centre: the whole keyboard's midpoint, or —
-    /// with "follow notes vertically" on — the centre of the repetition the playhead
-    /// is in, the same as during playback.
+    /// The pitch drawn at the vertical centre: the centre of the repetition the
+    /// playhead is in, the same as during playback, or the whole keyboard's midpoint
+    /// for an exercise without one.
     private func centerPitch(at beat: Double) -> Double {
         let centers = timeline.centers
-        guard settings.followNotesVertically, !centers.isEmpty else {
+        guard !centers.isEmpty else {
             return Double(hiPitch + loPitch) / 2
         }
         let index = min(centers.count - 1, timeline.repeats.index(at: beat))
@@ -171,7 +171,7 @@ struct ExercisePlaybackPreview: View {
     /// from what is on screen, so it holds still while the exercise is dragged past.
     private var contentBand: (top: CGFloat, bottom: CGFloat) {
         let rowH = rowHeight
-        if settings.followNotesVertically, !timeline.centers.isEmpty {
+        if !timeline.centers.isEmpty {
             // Every repetition is drawn around the middle, so one band covers them all.
             let half = CGFloat(timeline.maxExtent + 1.5) * rowH
             return (fullHeight / 2 - half, fullHeight / 2 + half)

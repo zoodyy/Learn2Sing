@@ -1021,14 +1021,14 @@ struct PlaybackView: View {
     @State private var pauseButtonBottom: CGFloat? = nil
     @State private var lastDrawnBeat = LastDrawnBeat()
     // Vertical centre of each repetition's pitch range, plus where the repetitions sit
-    // on the timeline — used by "follow notes vertically" to recentre once per
-    // repetition, and by the repetition counter badge.
+    // on the timeline — used to recentre the view once per repetition, and by the
+    // repetition counter badge.
     @State private var repetitionCenters: [Double] = []
     @State private var repeatLayout = RepeatLayout()
     // Largest semitone distance from a repetition's centre to its furthest content
     // (note or text label), above or below. Constant across reps since each is the
-    // same pattern transposed; used by "follow notes vertically" to zoom out when a
-    // repetition is too tall to fit inside the safe area.
+    // same pattern transposed; used to zoom out when a repetition is too tall to fit
+    // inside the safe area.
     @State private var repetitionMaxExtent: Double = 0
     @AppStorage(microphoneDelayKey) private var micDelayMs = 0.0
     /// How much of a note counts as hit, read here so the draw pass — which is where
@@ -1540,14 +1540,15 @@ struct PlaybackView: View {
         let pW: CGFloat = s.showKeyboard ? playbackKeyboardWidth : 0
         let playheadX = size.width / 3
 
-        // Vertical centre. Normally the whole keyboard's midpoint; when "follow notes
-        // vertically" is on, recentre once per repetition: take the centre of whichever
+        // Vertical centre. Recentre once per repetition: take the centre of whichever
         // repetition the playhead is currently in and ease toward it, so the view holds
-        // steady through a repetition and only moves when the next one begins.
+        // steady through a repetition and only moves when the next one begins. An
+        // exercise with no repetitions laid out yet falls back to the whole keyboard's
+        // midpoint.
         let defaultCenter = Double(hiPitch + loPitch) / 2
         let centerPitch: Double
         var centerY = size.height / 2
-        if s.followNotesVertically, repeatLayout.count > 0, !repetitionCenters.isEmpty {
+        if repeatLayout.count > 0, !repetitionCenters.isEmpty {
             let idx = min(repetitionCenters.count - 1, repeatLayout.index(at: beat))
             centerPitch = follower.step(target: repetitionCenters[idx], factor: 0.08)
             // Centre the content in the safe area — between the title/back bar at the

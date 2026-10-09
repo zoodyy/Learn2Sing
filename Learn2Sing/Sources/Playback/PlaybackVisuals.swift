@@ -110,7 +110,6 @@ enum VisualKeys {
     static let noteRoundness  = "vis_noteRoundness"
     static let verticalZoom   = "vis_verticalZoom"
     static let horizontalZoom = "vis_horizontalZoom"
-    static let followVertical = "vis_followVertical"
     static let showLines      = "vis_showHorizontalLines"
     static let background     = "vis_backgroundColor"
     static let showKeyboard   = "vis_showKeyboard"
@@ -134,7 +133,7 @@ enum VisualKeys {
     /// one by one. Add new keys here as well as above.
     static let all = [
         noteColor, playingNoteColor, noteRoundness, verticalZoom, horizontalZoom,
-        followVertical, showLines, background, showKeyboard, showPitches,
+        showLines, background, showKeyboard, showPitches,
         autoPitchNameColor, pitchNameColor,
         textColor, textFont, singerSize, singerInnerColor, singerOuterColor,
         singerLineColor, playheadColor, playheadStyle, hideUnusedDots,
@@ -151,7 +150,6 @@ nonisolated enum VisualDefaults {
     static let noteRoundness  = 0.2
     static let verticalZoom   = 1.0
     static let horizontalZoom = 1.0
-    static let followVertical = false
     static let showLines      = true
     static let background     = "#0E0E14"
     static let showKeyboard   = true
@@ -202,7 +200,6 @@ struct VisualSettings {
     var noteRoundness: Double
     var verticalZoom: Double
     var horizontalZoom: Double
-    var followNotesVertically: Bool
     var showHorizontalLines: Bool
     var backgroundColor: Color
     var showKeyboard: Bool
@@ -242,7 +239,6 @@ struct VisualSettings {
             noteRoundness: dbl(VisualKeys.noteRoundness, VisualDefaults.noteRoundness),
             verticalZoom: dbl(VisualKeys.verticalZoom, VisualDefaults.verticalZoom),
             horizontalZoom: dbl(VisualKeys.horizontalZoom, VisualDefaults.horizontalZoom),
-            followNotesVertically: bool(VisualKeys.followVertical, VisualDefaults.followVertical),
             showHorizontalLines: bool(VisualKeys.showLines, VisualDefaults.showLines),
             backgroundColor: Color(hex: str(VisualKeys.background, VisualDefaults.background)),
             showKeyboard: bool(VisualKeys.showKeyboard, VisualDefaults.showKeyboard),
@@ -285,7 +281,7 @@ struct PitchSample {
 /// Maps musical coordinates (a beat position, a MIDI pitch) to screen points for one
 /// rendered frame, encapsulating the keyboard width, per-semitone height (vertical
 /// zoom), per-beat width (horizontal zoom) and the pitch sitting at the vertical
-/// centre (which "follow notes vertically" moves).
+/// centre (which moves to follow the notes, one repetition at a time).
 struct SceneLayout {
     let size: CGSize
     let pianoW: CGFloat      // keyboard column width (0 when the keyboard is hidden)
@@ -319,8 +315,8 @@ struct SceneLayout {
     var bottomPitch: Int { max(0, Int((centerPitch - Double((size.height - centerY) / rowH)).rounded(.down))) }
 }
 
-/// Smoothly eases the vertical centre toward a target pitch so "follow notes
-/// vertically" recentres each repetition without jumping.
+/// Smoothly eases the vertical centre toward a target pitch so playback recentres
+/// on each repetition without jumping.
 final class VerticalFollower {
     private var shown: Double?
     var current: Double? { shown }
