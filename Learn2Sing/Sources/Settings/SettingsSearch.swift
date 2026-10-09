@@ -489,7 +489,7 @@ enum SettingsCatalog {
         heading(.audioScoring, .audio, L("Scoring"))
         add(.autoMicDelay, .audio, section: L("Scoring"),
             title: L("Automatically recognize microphone delay"),
-            help: L("Sets the delay below for you: every exercise you play to the end is scored at every delay it could have been sung at, and the one that scores highest is kept. Turn it off to measure the delay yourself and type it in."))
+            help: L("Sets the delay below for you: every exercise you play to the end is scored at every delay it could have been sung at, and you get the highest of those scores. The delay below is the average of your last 15 runs with the same microphone and speaker, leaving out any that are far off the rest. Turn it off to measure the delay yourself and type it in."))
         add(.microphoneDelay, .audio, section: L("Scoring"), title: L("Microphone delay"),
             help: L("Compensates for the lag between singing and pitch detection. Only the score is affected, playback and visuals are unchanged. While the setting above is on it is worked out for you and can't be edited here."))
         add(.delayTest, .audio, section: L("Scoring"), title: L("Test for Delay"),

@@ -252,6 +252,17 @@ final class AudioRouteManager: ObservableObject {
         applyInputRoute()
     }
 
+    /// The microphone and the speaker the session is routed through right now, as one
+    /// key: what the automatic microphone delay keeps its history under (see
+    /// `AutoMicDelay.record`), since the lag it measures belongs to that pair.
+    static func devicePairKey() -> String {
+        let route = AVAudioSession.sharedInstance().currentRoute
+        func port(_ port: AVAudioSessionPortDescription?) -> String {
+            port.map { "\($0.portType.rawValue):\($0.uid)" } ?? "none"
+        }
+        return port(route.inputs.first) + "|" + port(route.outputs.first)
+    }
+
     /// Anything that isn't the phone's own speaker or earpiece receiver.
     private nonisolated static func isExternalOutput(_ port: AVAudioSessionPortDescription) -> Bool {
         port.portType != .builtInSpeaker && port.portType != .builtInReceiver

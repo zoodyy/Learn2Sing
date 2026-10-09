@@ -1002,10 +1002,11 @@ struct PlaybackView: View {
     @State private var debugRecorder = DebugRunRecorder()
     @State private var debugRecording: DebugRunRecording? = nil
     @State private var delayResultMs: Double? = nil
-    /// The microphone delay the finished run was scored at when that isn't the
-    /// setting: a negative one, found for that run alone (see `recogniseDelay`). The
-    /// review screen draws the sung line at it, so it shows the line that earned the
-    /// score. nil when the run was scored at the setting.
+    /// The microphone delay the finished run was scored at when the recogniser found
+    /// one of its own (see `recogniseDelay`), which the setting only averages in, or
+    /// leaves out when it is far off the recent runs. The review screen draws the
+    /// sung line at it, so it shows the line that earned the score. nil when the run
+    /// was scored at the setting.
     @State private var runDelayMs: Double? = nil
     @State private var visuals = VisualSettings.current
     @State private var follower = VerticalFollower()
@@ -1209,6 +1210,14 @@ struct PlaybackView: View {
             // playback clock). This keeps audio and the animation in sync and stops
             // playback from starting partway through while the exercise is still loading.
             AudioRouteManager.shared.configureSession()
+            // While the delay is recognised, the setting is what the recent runs on
+            // these devices settled on, so a run on the speaker starts from the
+            // speaker's delay rather than from whatever the earphones last left.
+            if mode == .normal || mode == .pitchDetectionTrial, AutoMicDelay.isEnabled,
+               let settled = AutoMicDelay.settledDelay(route: AudioRouteManager.devicePairKey()),
+               settled != micDelayMs {
+                micDelayMs = settled
+            }
             // Pick up the latest visual settings and start the vertical follower fresh.
             visuals = VisualSettings.current
             follower.reset()
@@ -1319,6 +1328,9 @@ struct PlaybackView: View {
             teardownAudio()
             isCalibrating = true
         case .normal:
+            // The devices the run was heard and sung through, read while the
+            // session is still the run's own.
+            let devices = AudioRouteManager.devicePairKey()
             // Tear the audio down fully before revealing the score so it has no
             // engine running. Stopping both engines together (rather than only
             // the mic, leaving the synth rendering on the shared playAndRecord
@@ -1328,7 +1340,8 @@ struct PlaybackView: View {
             // the delay can be recognised from: one walked out of half way
             // never gets here, and its part-sung line would put the best offset
             // anywhere.
-            let score = recogniseDelay(scoring: scorer.score(notes: notes, bpm: bpm))
+            let score = recogniseDelay(scoring: scorer.score(notes: notes, bpm: bpm),
+                                       devices: devices)
             // DEBUG RECORDING — remove together with DebugRecording.swift.
             // After teardownAudio, so no more microphone hops can arrive.
             debugRecording = debugRecorder.finish(
@@ -1431,22 +1444,28 @@ struct PlaybackView: View {
     }
 
     /// Works the microphone delay out from the run that has just played and adopts it,
-    /// returning the score the singer is shown: the one at the delay this leaves set.
+    /// returning the score the singer is shown: the one at the delay adopted.
     /// `played` is what the run scored at the delay it was actually played under, and
     /// is what comes back whenever nothing is adopted.
     ///
-    /// The delay is only moved when the run says something about the microphone worth
-    /// hearing. That means a score above `AutoMicDelay.minimumScore` at the offset
-    /// found, except while no run has ever cleared that bar with this switch on: a
-    /// singer whose delay is badly wrong cannot score well until it is roughly right,
-    /// so the first runs take the best offset going and the bar takes over once there
-    /// is a delay worth keeping.
+    /// The delay is only adopted when the run says something about the microphone
+    /// worth hearing. That means a score above `AutoMicDelay.minimumScore` at the
+    /// offset found, except while no run has ever cleared that bar with this switch
+    /// on: a singer whose delay is badly wrong cannot score well until it is roughly
+    /// right, so the first runs take the best offset going and the bar takes over
+    /// once there is a delay worth keeping.
+    ///
+    /// An adopted delay is this run's: its score and its review (`runDelayMs`) are
+    /// both at it. The setting the next runs start from is the average of the recent
+    /// runs on `devices`, this one included unless it sits far off the rest (see
+    /// `AutoMicDelay.record`): now and then a whole run is heard late through
+    /// Bluetooth earphones, and that run's delay is the singer following the sound,
+    /// not the microphone.
     ///
     /// The search reaches below zero, to `AutoMicDelay.floorMs`, for a singer who
     /// slides into every note early. A delay down there is not the microphone's, so
-    /// it scores this run alone: the setting stays where it was, and `runDelayMs`
-    /// keeps the offset for the review screen.
-    private func recogniseDelay(scoring played: Int) -> Int {
+    /// it scores this run alone and never reaches the setting.
+    private func recogniseDelay(scoring played: Int, devices: String) -> Int {
         runDelayMs = nil
         guard AutoMicDelay.isEnabled else { return played }
         // The line trails the voice by the pitch detection's look-ahead on top of the
@@ -1466,12 +1485,15 @@ struct PlaybackView: View {
         // for; that one keeps the score it was played at.
         let adopt = found >= played
             && (found > AutoMicDelay.minimumScore || !AutoMicDelay.isEstablished)
-        let saves = adopt && delay >= 0
-        if saves { micDelayMs = delay }
-        if adopt && !saves { runDelayMs = delay }
-        // Established is about the delay left saved, so an early delay, which leaves
-        // the saved one alone, is judged on what the saved one scored.
-        if (saves ? found : played) > AutoMicDelay.minimumScore { AutoMicDelay.markEstablished() }
+        let records = adopt && delay >= 0
+        if adopt { runDelayMs = delay }
+        if records {
+            let settled = AutoMicDelay.record(delay, route: devices)
+            if settled != micDelayMs { micDelayMs = settled }
+        }
+        // Established is about the delays the setting is made of, so an early delay,
+        // which never joins them, is judged on what the setting scored.
+        if (records ? found : played) > AutoMicDelay.minimumScore { AutoMicDelay.markEstablished() }
         return adopt ? found : played
     }
 

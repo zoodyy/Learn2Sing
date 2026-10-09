@@ -11,9 +11,8 @@ import UIKit
 /// earlier by the microphone delay the run was scored at: scoring treats the notes
 /// as sounding that much later than they are drawn, which is the same comparison as
 /// putting the detected pitch that much further left (see `micDelayBeats`). That is
-/// the setting, unless the run was scored at a negative delay of its own, which
-/// shifts the line later instead (see `scoredDelayMs`), plus the look-ahead the pitch
-/// detection held the line back by (see `lookAheadMs`).
+/// the setting, unless the run was scored at a delay of its own (see `scoredDelayMs`),
+/// plus the look-ahead the pitch detection held the line back by (see `lookAheadMs`).
 ///
 /// The same screen is the last step of the sung microphone-delay test (Settings ▸
 /// Audio ▸ Test for delay). There `onCalibrationDone` is set: the shift is no
@@ -43,9 +42,10 @@ struct ExerciseReviewView: View {
     /// which, like the setting, is the microphone's part alone: the number the delay
     /// test shows and saves means the same whichever detection it was sung with.
     var lookAheadMs: Double = 0
-    /// The delay the run's score was worked out at when that isn't the saved
-    /// setting: a negative one, found for that run alone and never saved. nil draws
-    /// the line at the setting.
+    /// The delay the run's score was worked out at when the automatic recognition
+    /// found one for it, which the saved setting only averages in with the recent
+    /// runs, or never takes at all when it is negative or far off the rest. nil
+    /// draws the line at the setting.
     var scoredDelayMs: Double? = nil
     /// Set when this screen is a microphone-delay calibration rather than a look
     /// back: the offset controls appear along the bottom and Done hands the offset

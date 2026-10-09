@@ -151,13 +151,16 @@ enum ScoreTargetWindow {
 /// The delay is what lines a singer's voice up with the notes when the score is
 /// worked out, and a new singer has no reason to go looking for it in Settings — so
 /// with this on (which is how the app ships) every run that plays through to the end
-/// is re-scored at every delay it could have been sung at, and the one that scores
-/// highest becomes the setting. The score the singer is then shown is the one at that
-/// delay, so the number on the screen is the best the run was worth. The search
-/// reaches a little below zero for singers who slide into notes early; a delay found
-/// there scores that run but never becomes the setting (see `floorMs`). While it is on,
-/// the delay field is read-only and the tests are put away: there is nothing left for
-/// them to do.
+/// is re-scored at every delay it could have been sung at, and the run is scored, and
+/// reviewed, at the one that scores highest. The score the singer is then shown is the
+/// one at that delay, so the number on the screen is the best the run was worth. The
+/// setting the next runs start from is not that one run's delay but the average of the
+/// recent runs on the same microphone and speaker, with any run far off the rest left
+/// out (see `record(_:route:)`), so one odd run can't throw the following ones off. The
+/// search reaches a little below zero for singers who slide into notes early; a delay
+/// found there scores that run but never reaches the setting (see `floorMs`). While it
+/// is on, the delay field is read-only and the tests are put away: there is nothing
+/// left for them to do.
 enum AutoMicDelay {
     /// UserDefaults key for the switch in Settings ▸ Audio ▸ Scoring.
     static let enabledKey = "automaticMicrophoneDelay"
@@ -196,6 +199,50 @@ enum AutoMicDelay {
 
     static func markEstablished() {
         UserDefaults.standard.set(true, forKey: establishedKey)
+    }
+
+    /// UserDefaults key for the delays recent runs were scored at, newest last, per
+    /// microphone and speaker (see `AudioRouteManager.devicePairKey`). Local to the
+    /// install like `establishedKey`: it is what this device's hardware measured.
+    static let historyKey = "automaticMicrophoneDelayHistory"
+
+    /// How many of a microphone and speaker's most recent runs the setting averages.
+    static let historyLength = 15
+
+    /// How far a run's delay may sit from the typical one and still count towards
+    /// the setting, in milliseconds. Runs on the same devices land within a few tens
+    /// of milliseconds of each other, while the runs this keeps out sat around a
+    /// quarter of a second above the rest: through Bluetooth earphones, now and then
+    /// the whole run is heard that much late, and the singer follows the sound.
+    static let outlierToleranceMs: Double = 100
+
+    /// Adds a run's delay to `route`'s history and returns the setting that history
+    /// now gives, which is what the next run on those devices starts from.
+    static func record(_ delayMs: Double, route: String) -> Double {
+        let defaults = UserDefaults.standard
+        var all = defaults.dictionary(forKey: historyKey) as? [String: [Double]] ?? [:]
+        let recent = Array(((all[route] ?? []) + [delayMs]).suffix(historyLength))
+        all[route] = recent
+        defaults.set(all, forKey: historyKey)
+        return settled(recent) ?? delayMs
+    }
+
+    /// The setting `route`'s history gives, or nil before any run on those devices
+    /// has been recognised.
+    static func settledDelay(route: String) -> Double? {
+        let all = UserDefaults.standard.dictionary(forKey: historyKey) as? [String: [Double]]
+        return settled(all?[route] ?? [])
+    }
+
+    /// The average of `delays` once the ones far off the rest are left out, to the
+    /// millisecond. "The rest" is the lower of the two middle values: a real run's
+    /// delay rather than a point between two, and when the runs split into two even
+    /// groups, the lower group, since the runs this guards against sat high.
+    static func settled(_ delays: [Double]) -> Double? {
+        guard !delays.isEmpty else { return nil }
+        let typical = delays.sorted()[(delays.count - 1) / 2]
+        let kept = delays.filter { abs($0 - typical) <= outlierToleranceMs }
+        return (kept.reduce(0, +) / Double(kept.count)).rounded()
     }
 
     /// The largest delay any of this is allowed to arrive at, in milliseconds. Far

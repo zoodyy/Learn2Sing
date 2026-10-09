@@ -264,12 +264,14 @@ enum ResettableSettings: String, CaseIterable, Identifiable {
             // as the profile screen pushes a rename.
             ProfileSync.shared.scheduleUpload()
         case .audio:
-            // The automatic recogniser's "there is a delay worth keeping" flag goes
-            // with the delay it was about, so a reset install starts as an untouched
-            // one does and the next run's offset is taken whatever it scores.
+            // The automatic recogniser's "there is a delay worth keeping" flag and
+            // the recent runs the delay is averaged from go with the delay they were
+            // about, so a reset install starts as an untouched one does and the next
+            // run's offset is taken whatever it scores.
             for key in [AudioRouteManager.speakerKey, AudioRouteManager.micKey,
                         microphoneDelayKey, AutoMicDelay.enabledKey,
-                        AutoMicDelay.establishedKey, Instrument.storageKey] {
+                        AutoMicDelay.establishedKey, AutoMicDelay.historyKey,
+                        Instrument.storageKey] {
                 defaults.removeObject(forKey: key)
             }
         case .visuals:
