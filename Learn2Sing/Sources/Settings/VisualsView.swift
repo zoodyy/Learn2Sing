@@ -450,17 +450,14 @@ struct PlaybackVisualsView: View {
                     .setting(.noteColor)
                 ColorPicker("Playing note color", selection: colorBinding($playingNoteColor), supportsOpacity: false)
                     .setting(.playingNoteColor)
-                sliderRow(L("Note roundness"), value: $noteRoundness, range: 0...1)
-                    .setting(.noteRoundness)
+                PercentSliderRow(title: L("Note roundness"), setting: .noteRoundness, value: $noteRoundness, range: 0...1)
             } header: {
                 Text("Notes").settingSection(.playbackNotes)
             }
 
             Section {
-                sliderRow(L("Vertical zoom"), value: $verticalZoom, range: 0.5...3)
-                    .setting(.verticalZoom)
-                sliderRow(L("Horizontal zoom"), value: $horizontalZoom, range: 0.4...3)
-                    .setting(.horizontalZoom)
+                PercentSliderRow(title: L("Vertical zoom"), setting: .verticalZoom, value: $verticalZoom, range: 0.5...3)
+                PercentSliderRow(title: L("Horizontal zoom"), setting: .horizontalZoom, value: $horizontalZoom, range: 0.4...3)
             } header: {
                 Text("Zoom & Position").settingSection(.playbackZoom)
             }
@@ -504,8 +501,7 @@ struct PlaybackVisualsView: View {
             }
 
             Section {
-                sliderRow(L("Size"), value: $singerSize, range: 0.5...3)
-                    .setting(.singerSize)
+                PercentSliderRow(title: L("Size"), setting: .singerSize, value: $singerSize, range: 0.5...3)
                 ColorPicker("Inner color", selection: opacityColorBinding($singerInnerColor), supportsOpacity: true)
                     .setting(.singerInnerColor)
                 ColorPicker("Outer color", selection: opacityColorBinding($singerOuterColor), supportsOpacity: true)
@@ -749,14 +745,6 @@ struct PlaybackVisualsView: View {
 
     // MARK: - Helpers
 
-    private func sliderRow(_ title: String, value: Binding<Double>,
-                           range: ClosedRange<Double>) -> some View {
-        VStack(alignment: .leading, spacing: 4) {
-            Text(title)
-            Slider(value: value, in: range)
-        }
-    }
-
     /// Bridges a hex-string @AppStorage value to the `Color` a ColorPicker expects.
     private func colorBinding(_ raw: Binding<String>) -> Binding<Color> {
         Binding(get: { Color(hex: raw.wrappedValue) },
@@ -768,5 +756,152 @@ struct PlaybackVisualsView: View {
     private func opacityColorBinding(_ raw: Binding<String>) -> Binding<Color> {
         Binding(get: { Color(hex: raw.wrappedValue) },
                 set: { raw.wrappedValue = $0.hexStringWithAlpha })
+    }
+}
+
+/// A titled slider for one of the playback screen's proportions. While a finger is
+/// on it, the row shows the value as a percentage, 100% being the normal size, so a
+/// look can be matched by number: a roundness read off another template, say. The
+/// value moves in tenths of a percent for the same reason, so the same number is the
+/// same setting rather than one a hair either side of it.
+private struct PercentSliderRow: View {
+    let title: String
+    let setting: SettingKey
+    @Binding var value: Double
+    let range: ClosedRange<Double>
+
+    /// True while a finger is on the slider, which is when the percentage shows.
+    /// See `FingerTracker` for why the slider's own `onEditingChanged` can't say.
+    @State private var isTouched = false
+
+    /// Always one decimal, so the number keeps its width as it changes, and in the
+    /// app language's own way of writing it ("40.6%", "40,6 %").
+    private static let percentFormat = FloatingPointFormatStyle<Double>.Percent.percent
+        .precision(.fractionLength(1))
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            HStack {
+                Text(title)
+                Spacer()
+                // Always laid out and only faded, so the title never shifts when
+                // it appears. VoiceOver hears the number from the slider instead.
+                Text(value, format: Self.percentFormat)
+                    .monospacedDigit()
+                    .foregroundStyle(.secondary)
+                    .opacity(isTouched ? 1 : 0)
+                    .animation(.easeInOut(duration: 0.2), value: isTouched)
+                    .accessibilityHidden(true)
+            }
+            // The explanation goes on the title only. Holding the slider still is
+            // how a value is read without changing it, and a hold that brought the
+            // bubble up there would rebuild the row and take the number away.
+            .settingHelp(SettingsCatalog.help(for: setting))
+
+            Slider(value: snappedValue, in: range)
+                .accessibilityValue(Text(value, format: Self.percentFormat))
+                .background(FingerTracker { isTouched = $0 })
+        }
+        .settingAnchor(setting)
+    }
+
+    /// Snaps to tenths of a percent in the setter rather than with `step:`, which
+    /// can draw its ticks as a line under the track.
+    private var snappedValue: Binding<Double> {
+        Binding(get: { value },
+                set: { newValue in
+                    let snapped = (newValue * 1000).rounded() / 1000
+                    if snapped != value { value = snapped }
+                })
+    }
+}
+
+/// Reports a finger going down inside the view and lifting again, without taking
+/// part in what the touch does.
+///
+/// A Slider's `onEditingChanged` can't be asked: it reports a drag beginning again
+/// the instant one ends, and nothing at all for a finger resting on the thumb to
+/// read the number. Nor can a SwiftUI gesture: one that lasts as long as the finger
+/// (a press that never completes or gives up on movement) keeps the form from
+/// scrolling when a swipe starts on the slider, and a UIKit recognizer handed to
+/// SwiftUI with `.gesture` is dropped the moment the slider's drag takes over. So
+/// this is a plain UIKit recognizer on the window, out of SwiftUI's reach. It never
+/// recognizes, so it holds nothing up, and it lets go only for the scrolling and the
+/// back swipe, which do take the touch away from the slider.
+private struct FingerTracker: UIViewRepresentable {
+    let onChange: (Bool) -> Void
+
+    func makeUIView(context: Context) -> TrackedView {
+        let view = TrackedView()
+        view.isUserInteractionEnabled = false
+        return view
+    }
+
+    func updateUIView(_ view: TrackedView, context: Context) {
+        view.recognizer.onChange = onChange
+    }
+
+    final class TrackedView: UIView {
+        let recognizer = Recognizer()
+
+        override func didMoveToWindow() {
+            super.didMoveToWindow()
+            recognizer.view?.removeGestureRecognizer(recognizer)
+            recognizer.tracked = self
+            window?.addGestureRecognizer(recognizer)
+        }
+    }
+
+    final class Recognizer: UIGestureRecognizer {
+        var onChange: (Bool) -> Void = { _ in }
+        weak var tracked: UIView?
+        private var isDown = false
+
+        override init(target: Any?, action: Selector?) {
+            super.init(target: target, action: action)
+            cancelsTouchesInView = false
+            delaysTouchesEnded = false
+        }
+
+        override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent) {
+            guard !isDown else { return }
+            guard let tracked,
+                  touches.contains(where: { tracked.bounds.contains($0.location(in: tracked)) })
+            else {
+                state = .failed
+                return
+            }
+            isDown = true
+            onChange(true)
+        }
+
+        override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent) {
+            state = .failed
+        }
+
+        override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent) {
+            state = .failed
+        }
+
+        /// Called however the touch is over: lifted, cancelled, or taken by one of
+        /// the gestures below.
+        override func reset() {
+            super.reset()
+            guard isDown else { return }
+            isDown = false
+            onChange(false)
+        }
+
+        override func canPrevent(_ preventedGestureRecognizer: UIGestureRecognizer) -> Bool {
+            false
+        }
+
+        /// Only by what moves the slider away from under the finger: a scroll view
+        /// (the form scrolling) or the navigation controller's back swipe. The
+        /// slider's own drag must not, or the number would go the moment it moves.
+        override func canBePrevented(by preventingGestureRecognizer: UIGestureRecognizer) -> Bool {
+            let view = preventingGestureRecognizer.view
+            return view is UIScrollView || view?.next is UINavigationController
+        }
     }
 }
