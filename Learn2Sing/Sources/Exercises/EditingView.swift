@@ -263,14 +263,12 @@ struct EditingView: View {
     /// in the other's way.
     private enum NoteLayer {
         case melody, ghost
+    }
 
-        /// How many of the layer's notes may sound at the same moment.
-        var capacity: Int {
-            switch self {
-            case .melody: 1
-            case .ghost: maxGhostsAtOnce
-            }
-        }
+    /// One cap on how many notes may sound at the same moment: `capacity` of `notes`.
+    private struct SoundingLimit {
+        let notes: [MIDINote]
+        let capacity: Int
     }
 
     /// Which end of a note a drag is dragging: the start or the end of it.
@@ -985,7 +983,7 @@ struct EditingView: View {
     // MARK: Pen and ghost tools — create, move, resize notes (no delete)
     //
     // The two tools work exactly alike, each on its own `layer` of notes and under
-    // that layer's rule for how many of them may sound at once.
+    // that layer's rules for which of them may sound at once.
 
     private func noteChanged(_ v: DragGesture.Value, in layer: NoteLayer) {
         switch interaction {
@@ -1007,12 +1005,14 @@ struct EditingView: View {
                 // yet; it waits to see whether the drag leaves the taken stretch. The
                 // same goes for a ghost note where as many as there's room for sound.
                 let start = snappedBeat(v.startLocation.x)
-                guard !isOccupied(start, in: layer), spaceAfter(start, in: layer) >= minLength else {
-                    interaction = .pendingNote(pitch: pitchAt(v.startLocation.y), origin: start)
+                let pitch = pitchAt(v.startLocation.y)
+                guard !isOccupied(start, in: layer, pitch: pitch),
+                      spaceAfter(start, in: layer, pitch: pitch) >= minLength else {
+                    interaction = .pendingNote(pitch: pitch, origin: start)
                     break
                 }
                 let note = MIDINote(
-                    pitch: pitchAt(v.startLocation.y),
+                    pitch: pitch,
                     beat: start,
                     length: minLength
                 )
@@ -1025,12 +1025,12 @@ struct EditingView: View {
             // the blocking note as a note can start — on whichever side the drag went.
             let pointer = beatValue(v.location.x)
             let from = beatValue(v.startLocation.x)
-            if pointer > from, let anchor = nextFreeStart(atOrAfter: origin, in: layer),
+            if pointer > from, let anchor = nextFreeStart(atOrAfter: origin, in: layer, pitch: pitch),
                pointer >= anchor {
                 let note = MIDINote(pitch: pitch, beat: anchor, length: minLength)
                 interaction = .creating(note: grown(note, anchor: anchor, pointer: pointer, in: layer),
                                         anchor: anchor, layer: layer)
-            } else if pointer < from, let end = previousFreeEnd(atOrBefore: origin, in: layer),
+            } else if pointer < from, let end = previousFreeEnd(atOrBefore: origin, in: layer, pitch: pitch),
                       pointer <= end {
                 let anchor = end - minLength
                 let note = MIDINote(pitch: pitch, beat: anchor, length: minLength)
@@ -1049,11 +1049,12 @@ struct EditingView: View {
                 switch edge {
                 case .trailing:
                     note.length = min(max(minLength, snapped(pointer - note.beat)),
-                                      spaceAfter(note.beat, in: layer, excluding: id))
+                                      spaceAfter(note.beat, in: layer, pitch: note.pitch, excluding: id))
                 case .leading:
                     // Dragging the start of the note: the end of it stays put.
                     let rightEdge = note.beat + note.length
-                    let leftLimit = rightEdge - spaceBefore(rightEdge, in: layer, excluding: id)
+                    let leftLimit = rightEdge - spaceBefore(rightEdge, in: layer, pitch: note.pitch,
+                                                             excluding: id)
                     let beat = min(max(snapped(pointer), leftLimit), rightEdge - minLength)
                     note.beat = beat
                     note.length = rightEdge - beat
@@ -1064,11 +1065,13 @@ struct EditingView: View {
         case .movingNote(let id, let grabDX):
             if var note = layerNotes(layer).first(where: { $0.id == id }) {
                 let desired = max(0, snapped(beatValue(v.location.x) - grabDX))
+                // The row first: a ghost note's room depends on the pitch it lands on.
+                note.pitch = pitchAt(v.location.y)
                 note.beat = placement(desired: desired,
                                       length: note.length,
                                       in: layer,
+                                      pitch: note.pitch,
                                       excluding: id) ?? note.beat
-                note.pitch = pitchAt(v.location.y)
                 replace(note, in: layer)
             }
 
@@ -1087,7 +1090,10 @@ struct EditingView: View {
 
         case .pendingNote:
             // Never left the taken stretch, so nothing was drawn — say why, since the
-            // press looks like it should have worked.
+            // press looks like it should have worked. For a ghost note it's always that
+            // as many as may sound already do: one on the same pitch never turns a press
+            // away, since the press either lands on it and picks it up, or snaps down to
+            // a beat of the 1/4-beat grid that leaves room before it.
             switch layer {
             case .melody:
                 toasts.show(L("Notes Can't Overlap"), icon: "exclamationmark.triangle.fill")
@@ -1111,10 +1117,10 @@ struct EditingView: View {
         if pointer >= anchor {
             note.beat = anchor
             note.length = min(max(minLength, snapped(pointer - anchor)),
-                              spaceAfter(anchor, in: layer))
+                              spaceAfter(anchor, in: layer, pitch: note.pitch))
         } else {
             let rightEdge = anchor + minLength
-            let leftLimit = rightEdge - spaceBefore(rightEdge, in: layer)
+            let leftLimit = rightEdge - spaceBefore(rightEdge, in: layer, pitch: note.pitch)
             note.beat = min(max(snapped(pointer), leftLimit), anchor)
             note.length = rightEdge - note.beat
         }
@@ -1226,19 +1232,36 @@ struct EditingView: View {
     // are. Editing clamps every placement to keep that true; anything that slipped
     // through anyway (an older pattern, a downloaded one) is drawn red instead.
     //
-    // Ghost notes are held to the very same rules among themselves, only with room
-    // for `maxGhostsAtOnce` of them at any moment instead of one. The two layers
-    // never block each other: a ghost note sounding over a note is what it's for.
-    // So every rule below takes the layer it's about, and with room for one note
-    // comes down to the melody's rule as it has always been.
+    // Ghost notes are held to the very same rules among themselves, under two limits
+    // at once: room for `maxGhostsAtOnce` of them at any moment, and on any one pitch
+    // room for only one, just like notes. The two layers never block each other: a
+    // ghost note sounding over a note is what it's for. So every rule below takes the
+    // layer and pitch it's about and asks each of that note's limits, and with the
+    // melody's single limit of one note comes down to its rule as it has always been.
 
-    /// Free stretches of `layer`'s timeline, as `(start, end)` beat pairs, with `id`'s
-    /// own note left out: everywhere fewer of its notes sound than it has room for.
-    /// The last stretch runs to infinity.
-    private func freeGaps(in layer: NoteLayer, excluding id: UUID?) -> [(start: Double, end: Double)] {
+    /// The limits a note of `layer` on `pitch` is held to, with `id`'s own note left
+    /// out. The melody has room for one note at a time, whatever the pitches. Ghost
+    /// notes have room for `maxGhostsAtOnce`, but for only one on the same pitch:
+    /// two overlapping there would be heard as one note anyway.
+    private func limits(in layer: NoteLayer, pitch: Int, excluding id: UUID?) -> [SoundingLimit] {
+        let others = layerNotes(layer).filter { $0.id != id }
+        switch layer {
+        case .melody:
+            return [SoundingLimit(notes: others, capacity: 1)]
+        case .ghost:
+            return [SoundingLimit(notes: others, capacity: maxGhostsAtOnce),
+                    SoundingLimit(notes: others.filter { $0.pitch == pitch }, capacity: 1)]
+        }
+    }
+
+    /// Free stretches of the timeline for a note of `layer` on `pitch`, as `(start,
+    /// end)` beat pairs, with `id`'s own note left out: everywhere none of its limits
+    /// is full. The last stretch runs to infinity.
+    private func freeGaps(in layer: NoteLayer, pitch: Int,
+                          excluding id: UUID?) -> [(start: Double, end: Double)] {
         var gaps: [(start: Double, end: Double)] = []
         var cursor = 0.0
-        for span in fullSpans(in: layer, excluding: id) {
+        for span in fullSpans(in: layer, pitch: pitch, excluding: id) {
             if span.start > cursor + beatEpsilon { gaps.append((cursor, span.start)) }
             cursor = max(cursor, span.end)
         }
@@ -1246,41 +1269,45 @@ struct EditingView: View {
         return gaps
     }
 
-    /// The stretches over which `layer` has no room left — as many of its notes
-    /// sounding as it may hold — in the order they start, with `id`'s own note left
-    /// out. With room for a single note, that's every note.
-    private func fullSpans(in layer: NoteLayer, excluding id: UUID?) -> [(start: Double, end: Double)] {
-        let others = layerNotes(layer).filter { $0.id != id }
-        guard layer.capacity > 1 else {
-            return others.sorted { $0.beat < $1.beat }.map { ($0.beat, $0.beat + $0.length) }
+    /// The stretches over which a note of `layer` on `pitch` has no room left — one of
+    /// its limits with as many notes sounding as it may hold — in the order they
+    /// start, with `id`'s own note left out.
+    private func fullSpans(in layer: NoteLayer, pitch: Int,
+                           excluding id: UUID?) -> [(start: Double, end: Double)] {
+        limits(in: layer, pitch: pitch, excluding: id)
+            .flatMap(fullSpans(of:))
+            .sorted { $0.start < $1.start }
+    }
+
+    /// The stretches over which `limit` is full. With room for a single note, that's
+    /// every note it counts.
+    private func fullSpans(of limit: SoundingLimit) -> [(start: Double, end: Double)] {
+        guard limit.capacity > 1 else {
+            return limit.notes.map { ($0.beat, $0.beat + $0.length) }
         }
         // How many sound only changes where a note starts or ends, so between two of
         // those edges it's whatever it is halfway along.
-        let edges = Set(others.flatMap { [$0.beat, $0.beat + $0.length] }).sorted()
+        let edges = Set(limit.notes.flatMap { [$0.beat, $0.beat + $0.length] }).sorted()
         return zip(edges, edges.dropFirst()).compactMap { start, end in
             let middle = (start + end) / 2
-            let sounding = others.count { $0.beat < middle && $0.beat + $0.length > middle }
-            return sounding >= layer.capacity ? (start, end) : nil
+            let sounding = limit.notes.count { $0.beat < middle && $0.beat + $0.length > middle }
+            return sounding >= limit.capacity ? (start, end) : nil
         }
     }
 
-    /// How many of `layer`'s notes are sounding at `beat`, `id`'s own left out.
-    private func soundingCount(at beat: Double, in layer: NoteLayer,
-                               excluding id: UUID? = nil) -> Int {
-        layerNotes(layer).count { note in
-            note.id != id
-                && beat >= note.beat - beatEpsilon
+    /// How many of `notes` are sounding at `beat`.
+    private func soundingCount(at beat: Double, of notes: [MIDINote]) -> Int {
+        notes.count { note in
+            beat >= note.beat - beatEpsilon
                 && beat < note.beat + note.length - beatEpsilon
         }
     }
 
-    /// How many of `layer`'s notes are sounding just before `beat` — the ones still
-    /// going as it's reached, not the ones starting on it — `id`'s own left out.
-    private func soundingCount(before beat: Double, in layer: NoteLayer,
-                               excluding id: UUID? = nil) -> Int {
-        layerNotes(layer).count { note in
-            note.id != id
-                && note.beat < beat - beatEpsilon
+    /// How many of `notes` are sounding just before `beat` — the ones still going as
+    /// it's reached, not the ones starting on it.
+    private func soundingCount(before beat: Double, of notes: [MIDINote]) -> Int {
+        notes.count { note in
+            note.beat < beat - beatEpsilon
                 && note.beat + note.length > beat - beatEpsilon
         }
     }
@@ -1296,69 +1323,82 @@ struct EditingView: View {
         }
     }
 
-    /// Has `layer` no room left at `beat` — a note already sounding there, or for
-    /// ghost notes as many as may sound at once?
-    private func isOccupied(_ beat: Double, in layer: NoteLayer, excluding id: UUID? = nil) -> Bool {
-        soundingCount(at: beat, in: layer, excluding: id) >= layer.capacity
+    /// Is there no room at `beat` for a note of `layer` on `pitch` — a note already
+    /// sounding there, or for a ghost note as many as may sound at once, or one on
+    /// the same pitch?
+    private func isOccupied(_ beat: Double, in layer: NoteLayer, pitch: Int,
+                            excluding id: UUID? = nil) -> Bool {
+        limits(in: layer, pitch: pitch, excluding: id).contains {
+            soundingCount(at: beat, of: $0.notes) >= $0.capacity
+        }
     }
 
-    /// How long a note of `layer` starting at `beat` may grow before it runs into the
-    /// next one — for ghost notes, the next one to start where that leaves no room.
-    private func spaceAfter(_ beat: Double, in layer: NoteLayer, excluding id: UUID? = nil) -> Double {
-        let next = layerNotes(layer)
-            .filter {
-                $0.id != id && $0.beat > beat + beatEpsilon
-                    && soundingCount(at: $0.beat, in: layer, excluding: id) >= layer.capacity
+    /// How long a note of `layer` on `pitch` starting at `beat` may grow before it
+    /// runs into the next one — for a ghost note, the next one to start where that
+    /// leaves no room, or the next on the same pitch.
+    private func spaceAfter(_ beat: Double, in layer: NoteLayer, pitch: Int,
+                            excluding id: UUID? = nil) -> Double {
+        let next = limits(in: layer, pitch: pitch, excluding: id)
+            .flatMap { limit in
+                limit.notes.filter {
+                    $0.beat > beat + beatEpsilon
+                        && soundingCount(at: $0.beat, of: limit.notes) >= limit.capacity
+                }
             }
             .map(\.beat)
             .min()
         return (next ?? .infinity) - beat
     }
 
-    /// How far a note of `layer` ending at `beat` may grow leftwards before it runs
-    /// into the previous one — for ghost notes, the previous one to end where that
-    /// leaves no room — or the start of the timeline.
-    private func spaceBefore(_ beat: Double, in layer: NoteLayer, excluding id: UUID? = nil) -> Double {
-        let previousEnd = layerNotes(layer)
-            .filter {
-                let end = $0.beat + $0.length
-                return $0.id != id && end < beat + beatEpsilon
-                    && soundingCount(before: end, in: layer, excluding: id) >= layer.capacity
+    /// How far a note of `layer` on `pitch` ending at `beat` may grow leftwards before
+    /// it runs into the previous one — for a ghost note, the previous one to end where
+    /// that leaves no room, or the previous on the same pitch — or the start of the
+    /// timeline.
+    private func spaceBefore(_ beat: Double, in layer: NoteLayer, pitch: Int,
+                             excluding id: UUID? = nil) -> Double {
+        let previousEnd = limits(in: layer, pitch: pitch, excluding: id)
+            .flatMap { limit in
+                limit.notes.filter {
+                    let end = $0.beat + $0.length
+                    return end < beat + beatEpsilon
+                        && soundingCount(before: end, of: limit.notes) >= limit.capacity
+                }
             }
             .map { $0.beat + $0.length }
             .max()
         return beat - max(0, previousEnd ?? 0)
     }
 
-    /// The first beat from `origin` rightwards a new note of `layer` may start on:
-    /// `origin` itself when there's room, otherwise the end of whatever is in the way.
-    /// `nil` if nothing to the right can hold a note.
-    private func nextFreeStart(atOrAfter origin: Double, in layer: NoteLayer) -> Double? {
-        for gap in freeGaps(in: layer, excluding: nil) {
+    /// The first beat from `origin` rightwards a new note of `layer` on `pitch` may
+    /// start on: `origin` itself when there's room, otherwise the end of whatever is
+    /// in the way. `nil` if nothing to the right can hold a note.
+    private func nextFreeStart(atOrAfter origin: Double, in layer: NoteLayer, pitch: Int) -> Double? {
+        for gap in freeGaps(in: layer, pitch: pitch, excluding: nil) {
             let start = max(gap.start, origin)
             if gap.end - start >= minLength - beatEpsilon { return start }
         }
         return nil
     }
 
-    /// The last beat up to `origin` a new note of `layer` may end on: `origin` itself
-    /// when there's room in front of it, otherwise the start of whatever is in the way.
-    /// `nil` if nothing to the left can hold a note.
-    private func previousFreeEnd(atOrBefore origin: Double, in layer: NoteLayer) -> Double? {
+    /// The last beat up to `origin` a new note of `layer` on `pitch` may end on:
+    /// `origin` itself when there's room in front of it, otherwise the start of
+    /// whatever is in the way. `nil` if nothing to the left can hold a note.
+    private func previousFreeEnd(atOrBefore origin: Double, in layer: NoteLayer, pitch: Int) -> Double? {
         var result: Double? = nil
-        for gap in freeGaps(in: layer, excluding: nil) where gap.start <= origin + beatEpsilon {
+        for gap in freeGaps(in: layer, pitch: pitch, excluding: nil) where gap.start <= origin + beatEpsilon {
             let end = min(gap.end, origin)
             if end - gap.start >= minLength - beatEpsilon { result = end }
         }
         return result
     }
 
-    /// Where a note of `layer` and `length` dragged to `desired` may actually land:
-    /// inside the free gap the drag is centred on, or the nearest gap big enough if that
-    /// one is taken. `nil` when nothing on the timeline can hold it.
-    private func placement(desired: Double, length: Double, in layer: NoteLayer,
+    /// Where a note of `layer` on `pitch` and `length` dragged to `desired` may
+    /// actually land: inside the free gap the drag is centred on, or the nearest gap
+    /// big enough if that one is taken. `nil` when nothing on the timeline can hold it.
+    private func placement(desired: Double, length: Double, in layer: NoteLayer, pitch: Int,
                            excluding id: UUID?) -> Double? {
-        let fitting = freeGaps(in: layer, excluding: id).filter { $0.end - $0.start >= length - beatEpsilon }
+        let fitting = freeGaps(in: layer, pitch: pitch, excluding: id)
+            .filter { $0.end - $0.start >= length - beatEpsilon }
         guard !fitting.isEmpty else { return nil }
         let centre = desired + length / 2
         let gap = fitting.first { centre >= $0.start && centre <= $0.end }
