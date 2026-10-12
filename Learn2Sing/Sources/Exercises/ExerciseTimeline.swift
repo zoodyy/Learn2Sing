@@ -29,36 +29,24 @@ struct ExerciseTimeline {
     var maxExtent: Double = 0
 }
 
-/// How much clear room a label has either side of its middle, as a multiple of how
-/// far its own text reaches: 1 means the nearest note it doesn't already cover starts
-/// exactly where the text ends, 2 means twice that much daylight. `.infinity` when
-/// nothing is in its way.
+/// How far `label`'s middle is from each note of `pattern` it doesn't sit inside, in
+/// beats, nearest first: what a screen drawing the label in a squeezed repetition
+/// measures it against to keep it clear of those notes (see `MIDIText.noteFitScale`).
+/// A note the middle sits inside is the one the label was written on, and the text
+/// stays across it at every tempo.
 ///
-/// This is what a squeezed repetition spends. Squeezing by `scale` closes those gaps
-/// by exactly that factor while the text keeps the size it was written at, so a label
-/// may keep `headroom * scale` of that size and no more before it runs into a note it
-/// used to clear. The notes it already covers are not counted: the editor snaps a
-/// label onto a note, and text written across one belongs there at every tempo.
-///
-/// Measured across the whole pattern rather than the label's own row — the notes a
-/// spilling label runs into are the ones before and after the note it was written on,
-/// which are rarely at the same pitch, and how far apart two rows are drawn is a
+/// Taken across the whole pattern rather than the label's own row: the notes a
+/// spilling label runs into are the ones before and after the note it was written
+/// on, which are rarely at the same pitch, and how far apart two rows are drawn is a
 /// matter of the zoom the exercise is being played at.
-private func textHeadroom(of label: MIDIText, over pattern: [MIDINote]) -> Double {
+private func noteGaps(around label: MIDIText, in pattern: [MIDINote]) -> [Double] {
     let centre = label.centreBeat
-    let reach = midiTextReach(label.text)
-    guard reach > 0 else { return .infinity }
-
-    var headroom = Double.infinity
+    var gaps: [Double] = []
     for note in pattern {
-        let gap: Double
-        if note.beat + note.length <= centre { gap = centre - (note.beat + note.length) }
-        else if note.beat >= centre          { gap = note.beat - centre }
-        else { continue }                    // the label's middle sits inside this note
-        guard gap >= reach else { continue } // already covered at the written tempo
-        headroom = min(headroom, gap / reach)
+        if note.beat + note.length <= centre { gaps.append(centre - (note.beat + note.length)) }
+        else if note.beat >= centre          { gaps.append(note.beat - centre) }
     }
-    return headroom
+    return gaps.sorted()
 }
 
 extension Exercise {
@@ -108,11 +96,11 @@ extension Exercise {
         var expanded: [MIDINote] = []
         var expandedTexts: [MIDIText] = []
         var expandedGhosts: [MIDINote] = []
-        // How much clear room each label has around it, which is what says how far it
-        // may be shrunk in a squeezed repetition. Measured once: the room is the
+        // How far each label is from the notes around it, which is what says how far
+        // it has to shrink in a squeezed repetition. Measured once: the gaps are the
         // pattern's own, and every repetition draws the same labels over the same
-        // notes — only the scale it's held against changes.
-        let headroom = labels.map { textHeadroom(of: $0, over: pattern) }
+        // notes — only the tempo they're squeezed by changes.
+        let gaps = labels.map { noteGaps(around: $0, in: pattern) }
         for rep in 0..<repeats {
             let transpose = cumulativeTranspose(forRepetition: rep)
             let start = layout.starts[rep]
@@ -142,12 +130,12 @@ extension Exercise {
                 // centred on, by more the further the tempo strays from the written one.
                 t.centreBeat = start + label.centreBeat * scale
                 // Squeezing a repetition narrows its notes but not the text over them,
-                // so a label that cleared its neighbours stops clearing them. It gives
-                // back exactly what the squeeze took and no more: at `scale` it is the
-                // written picture shrunk whole, which is as small as this can ever make
-                // it — a label written across a note stays across it rather than being
-                // shrunk out of a clash that was there from the start.
-                t.fontScale = min(1, headroom[i] * scale)
+                // so a label that cleared its neighbours stops clearing them. How far
+                // it shrinks to keep clear depends on how many points the screen
+                // drawing it gives a beat, so that's left to the screen; the label
+                // carries what it needs to work it out.
+                t.noteGaps = gaps[i]
+                t.tempoScale = scale
                 expandedTexts.append(t)
             }
         }

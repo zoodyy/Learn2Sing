@@ -398,18 +398,49 @@ func repetitionPitches(notes: [MIDINote], beat: Double, repeatLayout: RepeatLayo
     return pitches
 }
 
-// MARK: - Text label width
+// MARK: - Text label sizes
 
-/// Half the width a text label takes on screen, in points: how far its middle — the
-/// `centreBeat` it's drawn on — may sit past an edge of the screen while part of it
-/// is still showing. The measurement is the editor's, taken at the semibold
-/// `midiTextFontSize` this screen draws at, widened by a third because a label may be
-/// shown in any of the `PlaybackFont` designs and monospaced lays out wider than the
-/// system font it was measured in. It only decides when a label starts being drawn, so
-/// erring wide costs nothing but a draw the clip throws away — which is also why a
-/// label shrunk by `fontScale`, and so narrower than this, needs no allowance here.
-private func labelHalfWidth(_ text: String) -> CGFloat {
-    midiTextChipWidth(text) / 2 * 1.3
+/// A text label as one frame places it: where its middle lands across the screen,
+/// and half the width its text takes there at the size it was written at, in the
+/// font the labels are drawn in.
+private struct PlacedLabel {
+    let label: MIDIText
+    let x: CGFloat
+    let halfWidth: CGFloat
+
+    /// Whether any of it reaches into the stretch between `left` and `right`.
+    func reaches(from left: CGFloat, to right: CGFloat) -> Bool {
+        x + halfWidth > left && x - halfWidth < right
+    }
+}
+
+/// The share of its written size each label `shown` picks out of `placed` is drawn
+/// at, in the same order: shrunk wherever it would otherwise come closer than
+/// `textLabelMargin` to a note a faster repetition squeezes in on it, or to another
+/// label.
+///
+/// A label is fitted against every neighbour within reach, on screen or not: one
+/// just past the edge crowds the label beside it all the same, and leaving it out
+/// would make that label change size as the neighbour scrolls in. None of this
+/// depends on where the playhead is, only on how far apart things are drawn, so a
+/// label keeps its size the whole way across the screen.
+private func labelScales(of shown: [Int], in placed: [PlacedLabel],
+                         layout: SceneLayout, font: PlaybackFont) -> [Double] {
+    guard let left = shown.map({ placed[$0].x - placed[$0].halfWidth }).min(),
+          let right = shown.map({ placed[$0].x + placed[$0].halfWidth }).max()
+    else { return [] }
+    let near = placed.indices.filter {
+        placed[$0].reaches(from: left - textLabelMargin, to: right + textLabelMargin)
+    }
+    let height = TextWidths.letterHeight(in: font)
+    let scales = fittedTextLabelScales(near.map { i in
+        let p = placed[i]
+        return TextLabelBox(centre: CGPoint(x: p.x, y: layout.y(Double(p.label.pitch))),
+                            size: CGSize(width: p.halfWidth * 2, height: height),
+                            limit: p.label.noteFitScale(halfWidth: p.halfWidth, beatPx: layout.beatPx))
+    })
+    let scaleOf = Dictionary(uniqueKeysWithValues: zip(near, scales))
+    return shown.map { scaleOf[$0] ?? 1 }
 }
 
 // MARK: - Shared scene renderer
@@ -608,26 +639,29 @@ func drawPlaybackScene(ctx: GraphicsContext, layout: SceneLayout, beat: Double,
     // would pop a long label into view whole, long after its front should have
     // scrolled in. What still hangs over an edge is the clip's problem.
     if !texts.isEmpty {
-        let shown = texts.filter { label in
-            let x = layout.x(label.centreBeat, beat: beat)
-            let half = labelHalfWidth(label.text)
-            return x + half > pianoW && x - half < size.width
+        let font = settings.textFont
+        let placed = texts.map { label in
+            PlacedLabel(label: label, x: layout.x(label.centreBeat, beat: beat),
+                        halfWidth: TextWidths.width(of: label.text, in: font) / 2)
         }
+        let shown = placed.indices.filter { placed[$0].reaches(from: pianoW, to: size.width) }
         if !shown.isEmpty {
+            // Drawn at the size it was written at, unless it has to shrink to keep
+            // clear of notes squeezed in by a faster repetition, or of other labels.
+            let scales = labelScales(of: shown, in: placed, layout: layout, font: font)
             ctx.drawLayer { layer in
                 layer.clip(to: Path(CGRect(x: pianoW, y: 0,
                                            width: size.width - pianoW, height: size.height)))
-                for label in shown {
+                for (i, scale) in zip(shown, scales) {
+                    let label = placed[i].label
                     let y = layout.y(Double(label.pitch))
                     guard y > -24, y < size.height + 24 else { continue }   // clear of the label's own height
-                    // Drawn at the size it was written at, unless the timeline has
-                    // shrunk it to stay clear of notes squeezed by a faster repetition.
                     layer.draw(
                         Text(label.text)
-                            .font(.system(size: midiTextFontSize * CGFloat(label.fontScale),
-                                          weight: .semibold, design: settings.textFont.design))
+                            .font(.system(size: midiTextFontSize * CGFloat(scale),
+                                          weight: .semibold, design: font.design))
                             .foregroundColor(settings.textColor),
-                        at: CGPoint(x: layout.x(label.centreBeat, beat: beat), y: y), anchor: .center)
+                        at: CGPoint(x: placed[i].x, y: y), anchor: .center)
                 }
             }
         }

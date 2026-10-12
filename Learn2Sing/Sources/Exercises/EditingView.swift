@@ -66,12 +66,17 @@ nonisolated struct MIDIText: Identifiable, Codable, Equatable {
     var text: String
     var pitch: Int      // row position (vertical)
     var beat: Double    // start position in beats (horizontal)
-    /// How far the text is shrunk when it's drawn, as a fraction of the size it was
-    /// written at. Set by `Exercise.timeline(...)` on a repetition whose notes have
-    /// been squeezed to a faster tempo — the notes get narrower, the text doesn't, so
-    /// a label that fitted between its neighbours stops fitting. Never stored: it
-    /// belongs to a laid-out timeline, not to the label the editor saved.
-    var fontScale: Double = 1
+    /// How far this label's middle is from each note around it, in beats at the tempo
+    /// the pattern was written at, nearest first, leaving out a note the middle sits
+    /// inside. Set by `Exercise.timeline(...)`, together with `tempoScale`, for a
+    /// screen to keep the text clear of notes a faster repetition squeezes in on it
+    /// (see `noteFitScale`). Never stored: it belongs to a laid-out timeline, not to
+    /// the label the editor saved.
+    var noteGaps: [Double] = []
+    /// How far the repetition this label is drawn in squeezes the written beats: 1 at
+    /// the written tempo, less on one sped up by "speed up per repetition". Set by
+    /// `Exercise.timeline(...)`; never stored either.
+    var tempoScale: Double = 1
 
     init(id: UUID = UUID(), text: String, pitch: Int, beat: Double) {
         self.id = id
@@ -121,8 +126,9 @@ func midiTextChipWidth(_ text: String) -> CGFloat {
     max(beatW * 0.5, TextWidths.width(of: text) + textChipPadding * 2)
 }
 
-/// The size the labels are written at, and the size a screen drawing one at its full
-/// `fontScale` draws it at — the size `midiTextChipWidth` measures against.
+/// The size the labels are written at, and the size a screen draws one at unless it's
+/// shrunk to keep clear of its neighbours (see TextLabelFit.swift) — the size
+/// `midiTextChipWidth` measures against.
 let midiTextFontSize: CGFloat = 12
 
 /// Half the room a label reading `text` takes, in beats: the same points-to-beats
@@ -130,16 +136,6 @@ let midiTextFontSize: CGFloat = 12
 /// where the middle lands.
 func midiTextHalfWidth(_ text: String) -> Double {
     Double(midiTextChipWidth(text) / beatW) / 2
-}
-
-/// How far `text` reaches either side of the middle it's drawn on, in beats: what it
-/// covers, with the chip's padding either side of it kept clear as well.
-///
-/// Not the same as `midiTextHalfWidth`, which is the half-width a label is *placed*
-/// by: that keeps a half-beat minimum so a label with nothing typed in it yet still
-/// has a chip to see and grab, and text that isn't there covers nothing.
-func midiTextReach(_ text: String) -> Double {
-    Double((TextWidths.width(of: text) + textChipPadding * 2) / beatW) / 2
 }
 
 /// The start beat — what's stored — that puts `text`'s middle on `centre`. A label
@@ -161,8 +157,8 @@ extension MIDIText {
     /// Settable, since a screen that lays the pattern out somewhere else — the
     /// timeline expansion moving a repetition to its own tempo — has to move the
     /// middle and let the stored left edge follow, not the other way round. The width
-    /// it converts is the written one: `fontScale` shrinks the drawn text about this
-    /// middle and leaves the label where it was placed.
+    /// it converts is the written one: a label shrunk to keep clear of its neighbours
+    /// shrinks about this middle and stays where it was placed.
     var centreBeat: Double {
         get { beat + midiTextHalfWidth(text) }
         set { beat = newValue - midiTextHalfWidth(text) }
@@ -812,6 +808,7 @@ struct EditingView: View {
         let shownGhosts = liveGhosts
         let overlaps = overlapSpans(in: shown)
         let ghostCovers = ghostCoverSpans(of: shown, by: shownGhosts)
+        let labelScales = textScales
         return Canvas { ctx, _ in
             // The dead margin: flat black, no rows and no lines, so it's plain that
             // nothing goes there. Only a label hanging off the front reaches over it —
@@ -939,15 +936,16 @@ struct EditingView: View {
                            style: StrokeStyle(lineWidth: 2, lineCap: .round))
             }
 
-            // Text labels
-            for label in texts {
-                let rect = textRect(for: label)
+            // Text labels, each shrunk as far as it has to be to keep clear of the
+            // others.
+            for (label, scale) in zip(texts, labelScales) {
+                let rect = drawnTextRect(for: label, scale: scale)
                 let chip = Path(roundedRect: rect.insetBy(dx: 1, dy: 3), cornerRadius: 3)
                 ctx.fill(chip, with: .color(.orange.opacity(0.22)))
                 ctx.stroke(chip, with: .color(.orange.opacity(0.6)), lineWidth: 1)
                 ctx.draw(
                     Text(label.text.isEmpty ? " " : label.text)
-                        .font(.system(size: midiTextFontSize, weight: .semibold))
+                        .font(.system(size: midiTextFontSize * CGFloat(scale), weight: .semibold))
                         .foregroundColor(.orange),
                     at: CGPoint(x: rect.midX, y: rect.midY),
                     anchor: .center
@@ -1487,6 +1485,30 @@ struct EditingView: View {
         )
     }
 
+    /// How far each of `texts` is shrunk where it's drawn, in the same order. Labels
+    /// whose chips would overlap, or come closer than `textLabelMargin`, shrink alike
+    /// until that margin is clear between them: the chip and the text in it, about
+    /// the label's middle. Chips on different rows always clear each other, so in
+    /// practice that's labels side by side on one row.
+    private var textScales: [Double] {
+        fittedTextLabelScales(texts.map { label in
+            let rect = textRect(for: label)
+            // The chip as it's drawn, inset from the label's rect (see `rollCanvas`).
+            return TextLabelBox(centre: CGPoint(x: rect.midX, y: rect.midY),
+                                size: CGSize(width: rect.width - 2, height: rect.height - 6))
+        })
+    }
+
+    /// `textRect` with the chip narrowed about its middle to `scale` of its width, the
+    /// way `textScales` shrinks it: what's drawn, and what a touch has to land in to
+    /// pick the label up. Still the full row high.
+    private func drawnTextRect(for label: MIDIText, scale: Double) -> CGRect {
+        let rect = textRect(for: label)
+        // The chip is drawn 1 pt in from either side of the rect, and it's the chip
+        // that's narrowed.
+        return rect.insetBy(dx: (rect.width - 2) * (1 - CGFloat(scale)) / 2, dy: 0)
+    }
+
     /// Where a label's middle lands when it's dropped at `centre`: on the middle of
     /// whatever note it's over — however many rows above or below that note it is,
     /// since only the sideways position is snapped — and otherwise on the 1/4-beat
@@ -1537,7 +1559,9 @@ struct EditingView: View {
 
     private func textAt(_ point: CGPoint) -> MIDIText? {
         let p = gridPoint(point)
-        return texts.last { textRect(for: $0).contains(p) }
+        let scales = textScales
+        return texts.indices.last { drawnTextRect(for: texts[$0], scale: scales[$0]).contains(p) }
+            .map { texts[$0] }
     }
 
     /// Which end of `note` a press at `x` takes hold of, or `nil` for the middle of it,
@@ -1645,22 +1669,5 @@ struct EditingView: View {
               let saved = try? JSONDecoder().decode([MIDINote].self, from: data)
         else { return }
         ghosts = saved
-    }
-}
-
-// MARK: - Text measurement
-
-/// The widths the label texts lay out at, measured once each. A string's width never
-/// changes, and the roll asks for every label's width on every redraw — which during
-/// a drag is every touch.
-private enum TextWidths {
-    private static let font = UIFont.systemFont(ofSize: midiTextFontSize, weight: .semibold)
-    private static var widths: [String: CGFloat] = [:]
-
-    static func width(of text: String) -> CGFloat {
-        if let known = widths[text] { return known }
-        let width = (text as NSString).size(withAttributes: [.font: font]).width
-        widths[text] = width
-        return width
     }
 }
