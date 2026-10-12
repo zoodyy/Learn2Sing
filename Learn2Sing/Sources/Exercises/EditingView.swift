@@ -219,7 +219,6 @@ struct EditingView: View {
     /// The exercise's dates as they were when the editor opened, which leaving
     /// without saving puts back along with the pattern (see ExerciseDates).
     @State private var savedDates: ExerciseTimestamps?
-    @State private var didLoad = false
     @State private var showOverlapWarning = false
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject private var toasts: ToastCenter
@@ -242,7 +241,30 @@ struct EditingView: View {
     // draw in grid coordinates and auto-follow knows what's visible.
     @State private var scrollGeom = CGRect.zero
     @State private var scrollPos = ScrollPosition(edge: .leading)
+    /// Where the roll is scrolled up and down: put where it opens (see
+    /// `openingOffset`) until `rollTouched`.
+    @State private var rollPos = ScrollPosition(edge: .top)
+    /// Set the first time the roll is scrolled up or down or drawn on. From then on
+    /// it stays where the user has it, whatever happens to its height.
+    @State private var rollTouched = false
     @Environment(\.scenePhase) private var scenePhase
+
+    init(exercise: Exercise? = nil) {
+        self.exercise = exercise
+        // Read here rather than on appear, so the roll's very first layout already
+        // has the pattern it opens scrolled to (see `openingOffset`). State only
+        // takes these the first time; a later init's are thrown away.
+        let notes = loadPattern([MIDINote].self, forKey: saveKey)
+        let texts = loadPattern([MIDIText].self, forKey: textSaveKey)
+        let ghosts = loadPattern([MIDINote].self, forKey: ghostSaveKey)
+        _notes = State(initialValue: notes)
+        _texts = State(initialValue: texts)
+        _ghosts = State(initialValue: ghosts)
+        _savedNotes = State(initialValue: notes)
+        _savedTexts = State(initialValue: texts)
+        _savedGhosts = State(initialValue: ghosts)
+        _savedDates = State(initialValue: exercise.flatMap { ExerciseDates.timestamps(for: $0.id) })
+    }
 
     private enum Tool {
         case pen    // create / move / resize notes
@@ -413,6 +435,48 @@ struct EditingView: View {
                 }
             }
         }
+        .scrollPosition($rollPos)
+        // The first layouts are provisional, taller than the roll ends up while the
+        // push sets the screen out, so until the roll is touched it's put where it
+        // opens each time its height changes. (A `defaultScrollAnchor` is taken from
+        // the first of those layouts and kept, which leaves it off centre.)
+        .onScrollGeometryChange(for: CGSize.self) { $0.containerSize } action: { _, size in
+            guard !rollTouched else { return }
+            rollPos.scrollTo(y: openingOffset(in: size))
+        }
+        .onScrollPhaseChange { _, phase in
+            if phase == .interacting { rollTouched = true }
+        }
+    }
+
+    /// How far down the roll opens scrolled: far enough that the notes (and ghost
+    /// notes) on the first screenful, the stretch it shows before it's scrolled
+    /// sideways, sit centred between the ruler and the transport bar. When they span
+    /// more rows than fit, it's as near that as it gets while the first note stays on
+    /// screen. With nothing on the first screenful it's the first note that's
+    /// centred, and with no notes at all the roll opens at the top.
+    ///
+    /// Read off the pattern as the editor opened it, so nothing drawn since moves it.
+    private func openingOffset(in viewport: CGSize) -> CGFloat {
+        let opened = savedNotes + savedGhosts
+        // The earliest note, a melody note on a tie: they're listed first.
+        guard let first = opened.min(by: { $0.beat < $1.beat }) else { return 0 }
+        let lead = savedTexts.reduce(0.0) { max($0, -min(0, $1.beat)) }
+        let screenEnd = Double(viewport.width - pianoW) / Double(beatW) - lead
+        let onScreen = opened.filter { $0.beat < screenEnd }
+        let rows = (onScreen.isEmpty ? [first] : onScreen).map { hiPitch - $0.pitch }
+        let top = CGFloat(rows.min() ?? 0) * rowH
+        let bottom = CGFloat((rows.max() ?? 0) + 1) * rowH
+
+        var offset = (top + bottom - viewport.height) / 2
+        if bottom - top > viewport.height {
+            // Too tall to centre whole: slide only as far as keeps the first note a
+            // row clear of the edges.
+            let firstTop = CGFloat(hiPitch - first.pitch) * rowH
+            let margin = min(rowH, max(0, (viewport.height - rowH) / 2))
+            offset = min(max(offset, firstTop + rowH + margin - viewport.height), firstTop - margin)
+        }
+        return min(max(offset, 0), max(0, gridH - viewport.height))
     }
 
     var body: some View {
@@ -470,17 +534,6 @@ struct EditingView: View {
                  Go back and fix the red sections, or leave and discard the changes you \
                  made in this editor.
                  """)
-        }
-        .onAppear {
-            guard !didLoad else { return }
-            didLoad = true
-            loadNotes()
-            loadTexts()
-            loadGhosts()
-            savedNotes = notes
-            savedTexts = texts
-            savedGhosts = ghosts
-            savedDates = exercise.flatMap { ExerciseDates.timestamps(for: $0.id) }
         }
         .onDisappear {
             isPlaying = false
@@ -959,6 +1012,7 @@ struct EditingView: View {
     private var rollGesture: some Gesture {
         DragGesture(minimumDistance: 0, coordinateSpace: .local)
             .onChanged { v in
+                if !rollTouched { rollTouched = true }
                 switch tool {
                 case .pen:   noteChanged(v, in: .melody)
                 case .ghost: noteChanged(v, in: .ghost)
@@ -1615,14 +1669,21 @@ struct EditingView: View {
         scheduleServerSync()
     }
 
-    private func loadNotes() {
-        guard let data = UserDefaults.standard.data(forKey: saveKey),
-              let saved = try? JSONDecoder().decode([MIDINote].self, from: data)
-        else { return }
-        notes = saved
+    /// Writes the labels through, all but one that's been placed and not typed yet:
+    /// that one only joins the pattern once its text is committed, so placing a label
+    /// and cancelling it (or committing it empty) leaves what's stored, the
+    /// exercise's dates and its server copies as they were. Nothing is written when
+    /// the stored labels wouldn't change, or the write would stamp the date afresh
+    /// over an earlier edit (see `recordEdit`).
+    private func saveTexts() {
+        let committed = texts.filter { $0.id != pendingTextID }
+        guard committed != loadPattern([MIDIText].self, forKey: textSaveKey) else { return }
+        writeTexts(committed)
     }
 
-    private func saveTexts() { writeTexts(texts) }
+    /// The label the text tool has just placed, while the alert asks for its text for
+    /// the first time.
+    private var pendingTextID: UUID? { isNewText ? editingTextID : nil }
 
     private func writeTexts(_ value: [MIDIText]) {
         guard let data = try? JSONEncoder().encode(value) else { return }
@@ -1632,8 +1693,8 @@ struct EditingView: View {
     }
 
     /// Stamps the exercise as just edited when a write leaves its pattern
-    /// different from how the editor found it. The editor writes back what it
-    /// loaded the moment it opens, and that isn't an edit.
+    /// different from how the editor found it. Leaving without saving writes back
+    /// what the editor opened with, and that isn't an edit.
     private func recordEdit(if changed: Bool) {
         guard changed, let exercise else { return }
         ExerciseDates.markEdited(exercise.id)
@@ -1648,13 +1709,6 @@ struct EditingView: View {
         CommunitySync.shared.scheduleUpload()
     }
 
-    private func loadTexts() {
-        guard let data = UserDefaults.standard.data(forKey: textSaveKey),
-              let saved = try? JSONDecoder().decode([MIDIText].self, from: data)
-        else { return }
-        texts = saved
-    }
-
     private func saveGhosts() { writeGhosts(ghosts) }
 
     private func writeGhosts(_ value: [MIDINote]) {
@@ -1664,10 +1718,11 @@ struct EditingView: View {
         scheduleServerSync()
     }
 
-    private func loadGhosts() {
-        guard let data = UserDefaults.standard.data(forKey: ghostSaveKey),
-              let saved = try? JSONDecoder().decode([MIDINote].self, from: data)
-        else { return }
-        ghosts = saved
+    /// What's stored under `key`, or nothing when there's nothing there yet.
+    private func loadPattern<Item: Decodable>(_ type: [Item].Type, forKey key: String) -> [Item] {
+        guard let data = UserDefaults.standard.data(forKey: key),
+              let saved = try? JSONDecoder().decode(type, from: data)
+        else { return [] }
+        return saved
     }
 }
