@@ -31,6 +31,10 @@ nonisolated struct Exercise: Identifiable, Hashable, Codable {
 
     init(name: String) { self.name = name }
 
+    /// The tempos `bpm` can be set to: the settings screen's Tempo slider and the
+    /// MIDI editor's both span this.
+    static let tempoRange: ClosedRange<Double> = 40...240
+
     private enum CodingKeys: String, CodingKey {
         case id, name, details, category, pitchShift, bpm, speed, repeatCount, transposePerRepeat, switchDirectionAfter, speedPerRepeat, beatsBetweenReps, visibility, uploaderName, downloadedFrom
     }

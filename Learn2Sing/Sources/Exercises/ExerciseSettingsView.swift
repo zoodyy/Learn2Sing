@@ -314,7 +314,7 @@ struct ExerciseSettingsView: View {
                 .settingHelp(L("How fast the exercise is played, in beats per minute."))
                 // Measured when the drag ends rather than as it moves: a tempo on
                 // its way past the limit isn't one the singer has settled on.
-                Slider(value: $exercise.bpm, in: 40...240, step: 1,
+                Slider(value: $exercise.bpm, in: Exercise.tempoRange, step: 1,
                        onEditingChanged: { editing in
                            if !editing { enforcePublicMinimumLength() }
                        })

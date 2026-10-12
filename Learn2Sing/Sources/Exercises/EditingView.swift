@@ -219,9 +219,16 @@ struct EditingView: View {
     /// The exercise's dates as they were when the editor opened, which leaving
     /// without saving puts back along with the pattern (see ExerciseDates).
     @State private var savedDates: ExerciseTimestamps?
+    /// The exercise's tempo as it was when the editor opened. The slider the BPM
+    /// readout opens changes it in here, so leaving without saving puts it back too.
+    @State private var savedBPM: Double?
     @State private var showOverlapWarning = false
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject private var toasts: ToastCenter
+    @EnvironmentObject private var store: ExerciseStore
+
+    /// Whether the tempo slider is out, opened and closed by tapping the BPM readout.
+    @State private var showsTempo = false
 
     // Text-entry sheet state.
     @State private var showTextEditor = false
@@ -264,6 +271,7 @@ struct EditingView: View {
         _savedTexts = State(initialValue: texts)
         _savedGhosts = State(initialValue: ghosts)
         _savedDates = State(initialValue: exercise.flatMap { ExerciseDates.timestamps(for: $0.id) })
+        _savedBPM = State(initialValue: exercise?.bpm)
     }
 
     private enum Tool {
@@ -413,7 +421,30 @@ struct EditingView: View {
     /// The whole scrollable width: the dead margin plus the grid itself.
     private var contentW: CGFloat { leadW + gridW }
 
-    private var bpm: Double { exercise?.bpm ?? 120 }
+    /// The exercise's tempo, read from the store rather than the copy this screen was
+    /// pushed with, so it follows the tempo slider (see `tempo`).
+    private var bpm: Double {
+        guard let exercise else { return 120 }
+        return store.exercises.first { $0.id == exercise.id }?.bpm ?? exercise.bpm
+    }
+
+    /// What the tempo slider sets: the exercise's own `bpm`, written through the store
+    /// exactly as the Tempo slider on its settings screen writes it, so the two are
+    /// one setting. Whole beats per minute, as that slider's steps are; rounded here
+    /// rather than stepped on the slider, which would draw its 200 tick marks as a
+    /// solid line under the track.
+    private var tempo: Binding<Double> {
+        Binding(
+            get: { bpm },
+            set: { value in
+                let newValue = value.rounded()
+                guard let exercise, newValue != bpm else { return }
+                // A run under way was scheduled at the old tempo, and the playhead is
+                // drawn from it, so stop it the way scrubbing the ruler does.
+                if isPlaying { stopPlayback() }
+                store.binding(for: exercise.id).wrappedValue.bpm = newValue
+            })
+    }
 
     /// The roll: the fixed piano-key column beside the grid, which scrolls sideways
     /// under it. Kept out of `body` so the compiler can still type-check that.
@@ -499,7 +530,13 @@ struct EditingView: View {
                 rollScroller
             }
             .environment(\.layoutDirection, .leftToRight)
+            if showsTempo {
+                tempoPanel
+                    .transition(.move(edge: .bottom).combined(with: .opacity))
+            }
+            // Over the tempo slider, which slides out from underneath it.
             transportBar
+                .zIndex(1)
         }
         .background(Color.black)
         .navigationTitle(exercise?.localizedName ?? L("Editing"))
@@ -655,6 +692,9 @@ struct EditingView: View {
         writeNotes(savedNotes)
         writeTexts(savedTexts)
         writeGhosts(savedGhosts)
+        if let exercise, let savedBPM {
+            store.binding(for: exercise.id).wrappedValue.bpm = savedBPM
+        }
         // The edits are gone, so the date they stamped goes with them.
         if let exercise { ExerciseDates.restore(savedDates, for: exercise.id) }
         toasts.suppressNext()
@@ -771,15 +811,55 @@ struct EditingView: View {
                     .explain(L("Where the playhead stands, as bar and beat."))
             }
             Spacer()
-            Text(L("%d BPM", Int(bpm)))
-                .font(.footnote)
-                .foregroundStyle(.secondary)
-                .explain(L("The exercise's tempo, which is set on its settings screen."))
+            Button {
+                withAnimation(.snappy(duration: 0.25)) { showsTempo.toggle() }
+            } label: {
+                Text(L("%d BPM", Int(bpm)))
+                    .font(.footnote)
+                    .foregroundStyle(showsTempo ? .primary : .secondary)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 6)
+                    .background(showsTempo ? Color.accentColor.opacity(0.2) : Color.clear,
+                                in: RoundedRectangle(cornerRadius: 6))
+                    .contentShape(Rectangle())
+                    // The highlight and the hit area reach past the text without
+                    // moving it or making the bar any taller.
+                    .padding(.horizontal, -8)
+                    .padding(.vertical, -6)
+            }
+            .buttonStyle(.plain)
+            .disabled(exercise == nil)
+            .explain(L("The exercise's tempo, in beats per minute. Tap it to show or hide a slider that changes it."))
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 10)
         .background(Color(white: 0.1))
         .foregroundStyle(.white)
+    }
+
+    /// The slider the BPM readout opens, along the bottom of the screen just above
+    /// the transport bar. It sets the same tempo as the Tempo slider on the
+    /// exercise's settings screen (see `tempo`).
+    private var tempoPanel: some View {
+        Slider(value: tempo, in: Exercise.tempoRange) {
+            Text("Tempo")
+        } minimumValueLabel: {
+            Image(systemName: "tortoise.fill")
+        } maximumValueLabel: {
+            Image(systemName: "hare.fill")
+        }
+        .foregroundStyle(.secondary)
+        // The editor is drawn dark whatever the app's appearance, so its track and
+        // the tortoise and hare are too. The bubble keeps the app's.
+        .environment(\.colorScheme, .dark)
+        .explain(L("How fast the exercise is played, in beats per minute."))
+        .padding(.horizontal, 16)
+        .padding(.vertical, 8)
+        .background(Color(white: 0.1))
+        .overlay(alignment: .bottom) {
+            // Kept apart from the transport bar under it, which is the same gray.
+            Rectangle().fill(Color(white: 0.2)).frame(height: 0.5)
+        }
     }
 
     /// "measure.beat" readout, 1-based, e.g. "3.2".
