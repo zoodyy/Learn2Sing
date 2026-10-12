@@ -18,6 +18,9 @@ import SwiftUI
 /// Like the preview on the Visuals ▸ Playback screen it is pinned rather than
 /// scrolled away: as the form beneath it moves it collapses, cropping empty canvas
 /// until only the strip the exercise is drawn in is left.
+///
+/// A tap on it opens the MIDI editor, the same as the "Edit MIDI" row below it: the
+/// notes it draws are the thing to change when it doesn't look right.
 struct ExercisePlaybackPreview: View {
     /// The exercise as the settings screen currently has it, so an edit to any of
     /// its settings is drawn on the next frame.
@@ -34,10 +37,16 @@ struct ExercisePlaybackPreview: View {
     /// How far the form under the preview has been scrolled (0 at rest, growing
     /// downward), which is what collapses it.
     let scrollOffset: CGFloat
+    /// Called when the preview is tapped rather than dragged.
+    let onTap: () -> Void
 
     /// Layout of the pinned preview above the form, matching the visuals screen's.
     static let sidePadding: CGFloat = 20
     static let verticalPadding: CGFloat = 6
+
+    /// How far a finger may wander and still have tapped, the same slop UIKit
+    /// gives a press before it counts as a drag.
+    private static let tapSlop: CGFloat = 10
 
     /// The playback look. Read once: nothing on this screen changes it.
     @State private var visuals = VisualSettings.current
@@ -70,7 +79,7 @@ struct ExercisePlaybackPreview: View {
             .overlay(RoundedRectangle(cornerRadius: 12).stroke(.white.opacity(0.15)))
             .contentShape(Rectangle())
             .gesture(drag)
-            .explain(L("This exercise as it will play, with the settings below already applied. Drag it sideways to look further along."))
+            .explain(L("This exercise as it will play, with the settings below already applied. Drag it sideways to look further along, or tap it to open the note editor."))
             .padding(.horizontal, Self.sidePadding)
             .padding(.vertical, Self.verticalPadding)
             .frame(maxWidth: .infinity)
@@ -106,6 +115,11 @@ struct ExercisePlaybackPreview: View {
     /// review screen. Measured from the beat the drag started at, so a drag that runs
     /// past an end of the exercise and comes back stays pinned there until the finger
     /// is back over the exercise.
+    ///
+    /// The same gesture tells a tap apart: one that ends where it began, so how far
+    /// counts as a drag is decided here and nowhere else. A press held long enough
+    /// for the explanation never ends here at all — the hold rebuilds the preview
+    /// and cancels it.
     private var drag: some Gesture {
         DragGesture(minimumDistance: 0)
             .onChanged { value in
@@ -113,7 +127,11 @@ struct ExercisePlaybackPreview: View {
                 dragAnchor = anchor
                 draggedBeat = clamped(anchor - Double(value.translation.width / beatPx))
             }
-            .onEnded { _ in dragAnchor = nil }
+            .onEnded { value in
+                dragAnchor = nil
+                let moved = hypot(value.translation.width, value.translation.height)
+                if moved < Self.tapSlop { onTap() }
+            }
     }
 
     private func rebuild() {

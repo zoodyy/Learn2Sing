@@ -7,6 +7,9 @@ struct ExerciseSettingsView: View {
     @ObservedObject private var appLanguage = LanguageManager.shared
 
     @Binding var exercise: Exercise
+    /// Pushes the MIDI editor for this exercise onto the tab's path, exactly as the
+    /// "Edit MIDI" row does; a tap on the preview at the top goes the same way.
+    let onEditMIDI: () -> Void
     @EnvironmentObject private var store: ExerciseStore
     @EnvironmentObject private var toasts: ToastCenter
     @Environment(\.dismiss) private var dismiss
@@ -129,7 +132,7 @@ struct ExerciseSettingsView: View {
                         ExercisePlaybackPreview(
                             exercise: exercise, pattern: pattern, labels: labels, ghosts: ghosts,
                             width: previewWidth, fullHeight: previewSize,
-                            scrollOffset: scrollOffset)
+                            scrollOffset: scrollOffset, onTap: onEditMIDI)
                     }
                 }
         }
@@ -302,17 +305,6 @@ struct ExerciseSettingsView: View {
                 .settingHelp(L("Opens the note editor, where you draw this exercise's notes and write labels on them."))
             }
 
-            Section("Pitch") {
-                Stepper(value: $exercise.pitchShift, in: -24...24) {
-                    HStack {
-                        Text("Transpose")
-                        Spacer()
-                        Text(pitchLabel).foregroundStyle(.secondary)
-                    }
-                }
-                .settingHelp(L("Moves every note of the exercise up or down by this many semitones. 12 is a whole octave."))
-            }
-
             Section("Tempo") {
                 HStack {
                     Text("Tempo")
@@ -410,6 +402,17 @@ struct ExerciseSettingsView: View {
                     .onTapGesture { focusedField = .betweenReps }
                     .settingHelp(L("Silent beats left between one repetition and the next, to breathe in."))
                 }
+            }
+
+            Section("Pitch") {
+                Stepper(value: $exercise.pitchShift, in: -24...24) {
+                    HStack {
+                        Text("Transpose")
+                        Spacer()
+                        Text(pitchLabel).foregroundStyle(.secondary)
+                    }
+                }
+                .settingHelp(L("Moves every note of the exercise up or down by this many semitones. 12 is a whole octave."))
             }
 
             // Bundled exercises can't be shared, so they get no visibility

@@ -1132,7 +1132,9 @@ struct HomeView: View {
             }
         case .settings(let id):
             if store.exercises.contains(where: { $0.id == id }) {
-                ExerciseSettingsView(exercise: store.binding(for: id))
+                ExerciseSettingsView(exercise: store.binding(for: id)) {
+                    navigationPath.append(ExerciseRoute.edit(id))
+                }
             }
         case .edit(let id):
             if let ex = store.exercises.first(where: { $0.id == id }) {

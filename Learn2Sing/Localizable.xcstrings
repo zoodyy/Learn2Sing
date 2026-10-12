@@ -78666,91 +78666,91 @@
         }
       }
     },
-    "This exercise as it will play, with the settings below already applied. Drag it sideways to look further along." : {
+    "This exercise as it will play, with the settings below already applied. Drag it sideways to look further along, or tap it to open the note editor." : {
       "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "هذا التمرين كما سيُشغَّل، مع تطبيق الإعدادات أدناه بالفعل. اسحبه جانبيًا لرؤية ما يليه."
+            "value" : "هذا التمرين كما سيُشغَّل، مع تطبيق الإعدادات أدناه بالفعل. اسحبه جانبيًا لرؤية ما يليه، أو اضغط عليه لفتح محرر النغمات."
           }
         },
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Diese Übung so, wie sie abgespielt wird, mit den Einstellungen von unten bereits angewendet. Ziehe sie zur Seite, um weiter nach vorn zu schauen."
+            "value" : "Diese Übung so, wie sie abgespielt wird, mit den Einstellungen von unten bereits angewendet. Ziehe sie zur Seite, um weiter nach vorn zu schauen, oder tippe darauf, um den Noteneditor zu öffnen."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Este ejercicio tal como sonará, con los ajustes de abajo ya aplicados. Arrástralo de lado para ver más adelante."
+            "value" : "Este ejercicio tal como sonará, con los ajustes de abajo ya aplicados. Arrástralo de lado para ver más adelante, o tócalo para abrir el editor de notas."
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Cet exercice tel qu’il sera joué, avec les réglages ci-dessous déjà appliqués. Faites-le glisser sur le côté pour voir plus loin."
+            "value" : "Cet exercice tel qu’il sera joué, avec les réglages ci-dessous déjà appliqués. Faites-le glisser sur le côté pour voir plus loin, ou touchez-le pour ouvrir l’éditeur de notes."
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Questo esercizio com’è quando viene riprodotto, con le impostazioni qui sotto già applicate. Trascinalo di lato per guardare più avanti."
+            "value" : "Questo esercizio com’è quando viene riprodotto, con le impostazioni qui sotto già applicate. Trascinalo di lato per guardare più avanti, o toccalo per aprire l’editor delle note."
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "下の設定を反映した、このエクササイズの再生イメージです。横にドラッグすると先を確認できます。"
+            "value" : "下の設定を反映した、このエクササイズの再生イメージです。横にドラッグすると先を確認でき、タップするとノートエディタが開きます。"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "아래 설정이 이미 반영된 이 연습의 재생 모습입니다. 옆으로 끌면 더 뒤쪽을 볼 수 있습니다."
+            "value" : "아래 설정이 이미 반영된 이 연습의 재생 모습입니다. 옆으로 끌면 더 뒤쪽을 볼 수 있고, 탭하면 음 편집기가 열립니다."
           }
         },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Deze oefening zoals hij zal klinken, met de instellingen hieronder al toegepast. Sleep opzij om verder vooruit te kijken."
+            "value" : "Deze oefening zoals hij zal klinken, met de instellingen hieronder al toegepast. Sleep opzij om verder vooruit te kijken, of tik erop om de noteneditor te openen."
           }
         },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "To ćwiczenie tak, jak zostanie odtworzone, z już zastosowanymi ustawieniami poniżej. Przeciągnij w bok, aby zajrzeć dalej."
+            "value" : "To ćwiczenie tak, jak zostanie odtworzone, z już zastosowanymi ustawieniami poniżej. Przeciągnij w bok, aby zajrzeć dalej, albo stuknij, aby otworzyć edytor nut."
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Este exercício como ele vai tocar, com os ajustes abaixo já aplicados. Arraste para o lado para ver mais adiante."
+            "value" : "Este exercício como ele vai tocar, com os ajustes abaixo já aplicados. Arraste para o lado para ver mais adiante, ou toque nele para abrir o editor de notas."
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Это упражнение так, как оно будет играть, с уже применёнными настройками ниже. Потяните вбок, чтобы посмотреть дальше."
+            "value" : "Это упражнение так, как оно будет играть, с уже применёнными настройками ниже. Потяните вбок, чтобы посмотреть дальше, или коснитесь, чтобы открыть редактор нот."
           }
         },
         "sv" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Den här övningen som den kommer att spelas, med inställningarna nedan redan tillämpade. Dra i sidled för att se längre fram."
+            "value" : "Den här övningen som den kommer att spelas, med inställningarna nedan redan tillämpade. Dra i sidled för att se längre fram, eller tryck på den för att öppna toneditorn."
           }
         },
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Bu egzersizin çalınacağı hâli; aşağıdaki ayarlar uygulanmış durumda. Daha ilerisini görmek için yana sürükleyin."
+            "value" : "Bu egzersizin çalınacağı hâli; aşağıdaki ayarlar uygulanmış durumda. Daha ilerisini görmek için yana sürükleyin veya nota düzenleyicisini açmak için dokunun."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "这个练习播放时的样子，已应用下方的设置。左右拖动可以看后面的部分。"
+            "value" : "这个练习播放时的样子，已应用下方的设置。左右拖动可以看后面的部分，轻点可以打开音符编辑器。"
           }
         }
       }
