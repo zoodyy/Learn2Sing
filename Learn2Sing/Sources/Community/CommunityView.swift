@@ -459,6 +459,12 @@ struct CommunityUserProfileView: View {
         CommunitySortRequest(sort: sort, reversed: reversed)
     }
 
+    /// Whether the search field has something in it — see the Community tab's
+    /// own, which this screen's spinner follows.
+    private var isSearching: Bool {
+        !searchText.trimmingCharacters(in: .whitespaces).isEmpty
+    }
+
     /// What the flag reports: this uploader's profile, by the id it is fetched
     /// under.
     private var report: CommunityReport {
@@ -502,7 +508,13 @@ struct CommunityUserProfileView: View {
                 },
                 onRefresh: { await list.refresh() },
                 onLoadMore: { Task { await list.loadNextPage() } },
-                loadMoreThreshold: CommunityFeed.pageSize
+                loadMoreThreshold: CommunityFeed.pageSize,
+                // The same spinner the Community tab puts under its last row,
+                // for as long as the server has more to give: this uploader's
+                // exercises can be anywhere in what it hands back, so until it
+                // has been read to the end more of them may still be on their
+                // way. Left out while searching, as on the tab.
+                showsLoadMoreSpinner: !isSearching && list.hasMorePages
             )
             // Span the width like a List and carry on under the tab bar — but
             // not under the navigation bar, the way the Community tab's own list
