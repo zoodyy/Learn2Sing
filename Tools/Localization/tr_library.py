@@ -169,6 +169,7 @@ T("Exercises on the Community tab are shown with the username of whoever shared 
 
 # --- Intro screen ---
 T("Difficulty:", "Schwierigkeit:", "Dificultad:", "Difficulté :", "Difficoltà:", "Dificuldade:", "Moeilijkheid:", "Сложность:", "Trudność:", "Zorluk:", "Svårighetsgrad:", "難易度:", "난이도:", "难度：", "الصعوبة:")
+T("Length", "Dauer", "Duración", "Durée", "Durata", "Duração", "Duur", "Длительность", "Czas trwania", "Süre", "Längd", "長さ", "길이", "时长", "المدة")
 T("Created by:", "Erstellt von:", "Creado por:", "Créé par :", "Creato da:", "Criado por:", "Gemaakt door:", "Автор:", "Autor:", "Oluşturan:", "Skapad av:", "作成者:", "만든 사람:", "创建者：", "أنشأه:")
 T("No description.", "Keine Beschreibung.", "Sin descripción.", "Aucune description.", "Nessuna descrizione.", "Sem descrição.", "Geen beschrijving.", "Нет описания.", "Brak opisu.", "Açıklama yok.", "Ingen beskrivning.", "説明はありません。", "설명이 없습니다.", "暂无说明。", "لا يوجد وصف.")
 T("See Score", "Punktzahl ansehen", "Ver la puntuación", "Voir la note", "Vedi punteggio", "Ver pontuação", "Score bekijken", "Показать оценку", "Zobacz wynik", "Puanı gör", "Visa poäng", "スコアを見る", "점수 보기", "查看得分", "عرض النتيجة")

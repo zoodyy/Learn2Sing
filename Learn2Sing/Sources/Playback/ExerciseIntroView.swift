@@ -92,6 +92,21 @@ struct ExerciseIntroView: View {
         showsDifficulty ? counts.difficulties[publicExerciseID] : nil
     }
 
+    /// How long a run of this exercise takes, in whole seconds: the run as
+    /// `PlaybackView` schedules it, every repetition at its own tempo, which is
+    /// also what singing it through adds to the Home tab's "Time Spent Singing"
+    /// and what the recommendation card adds up for its queue. A community
+    /// exercise's pattern is cached under the same keys a library one is kept
+    /// under, so this reads the same on every tab.
+    ///
+    /// nil for an exercise with no notes, a new one or the audio delay test's
+    /// stand-in (whose ticks aren't notes), where all there would be to time is
+    /// the lead-in.
+    private var practiceSeconds: Int? {
+        guard !store.notes(for: exercise.id).isEmpty else { return nil }
+        return store.practiceSeconds(of: exercise)
+    }
+
     /// Toggled by the "See Score" toolbar button to show/hide the score-history
     /// chart under the description.
     @State private var showScore = false
@@ -156,8 +171,23 @@ struct ExerciseIntroView: View {
                         uploaderRow(onSelectUploader)
                     }
 
-                    if let difficulty {
-                        difficultyRow(difficulty)
+                    // The length and the stars share a line, one at each edge,
+                    // so the length takes no room the screen didn't have spare.
+                    let seconds = practiceSeconds
+                    if seconds != nil || difficulty != nil {
+                        HStack(spacing: 12) {
+                            if let seconds {
+                                lengthRow(seconds)
+                            }
+                            Spacer(minLength: 0)
+                            if let difficulty {
+                                // Offered its width first: as an equal share
+                                // of the line, "Difficulty:" broke in two
+                                // while the length had room to spare.
+                                difficultyRow(difficulty)
+                                    .layoutPriority(1)
+                            }
+                        }
                     }
 
                     if trimmedDetails.isEmpty {
@@ -321,6 +351,33 @@ struct ExerciseIntroView: View {
         .explain(L("Who made this exercise. Tap to open their profile and see their other public exercises."))
     }
 
+    /// How long the exercise takes, on the leading edge of the line the stars
+    /// sit on. Lifted a little off that line toward the title, which it is
+    /// read with; the offset leaves the layout alone, so the description below
+    /// stays where it was. Written with its seconds, unlike the calendar's
+    /// whole minutes: one exercise is short enough that "1 min" would hide
+    /// most of a minute.
+    private func lengthRow(_ seconds: Int) -> some View {
+        let length = Duration.seconds(seconds).formatted(
+            Duration.UnitsFormatStyle(allowedUnits: [.hours, .minutes, .seconds],
+                                      width: .condensedAbbreviated)
+                .locale(appLanguage.language.locale))
+        // The recommendation card's clock, so the two times read as one kind
+        // of thing.
+        return HStack(spacing: 4) {
+            Image(systemName: "clock")
+            Text(verbatim: length)
+        }
+        .font(.subheadline)
+        .monospacedDigit()
+        .foregroundStyle(.secondary)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(L("Length"))
+        .accessibilityValue(length)
+        .explain(L("How long this exercise takes to sing through, every repetition included. A finished run adds this much to the Home tab's “Time Spent Singing”."))
+        .offset(y: -5)
+    }
+
     /// The exercise's difficulty as five stars, on the trailing edge so it sits
     /// opposite the title instead of reading as a second line of it.
     ///
@@ -336,22 +393,17 @@ struct ExerciseIntroView: View {
         }
         .font(.subheadline)
         .foregroundStyle(.secondary)
-        // The label and the stars answer the tap, and not the empty width the
-        // frame below stretches them across — a bubble pointing at nothing is
-        // the wrong answer to a tap out there.
+        // The label and the stars answer the tap, the gap between them too.
         .contentShape(Rectangle())
         .onTapGesture { showDifficultyNumber = true }
-        // Attached before the widening frame so the bubble's arrow finds the
-        // stars rather than the middle of the screen. A hold gets the row's
-        // explanation instead: `explain` rebuilds the row when it recognises
-        // one, which cancels the touch in flight so the release doesn't also
-        // land here as a tap.
+        // A hold gets the row's explanation instead: `explain` rebuilds the row
+        // when it recognises one, which cancels the touch in flight so the
+        // release doesn't also land here as a tap.
         .popover(isPresented: $showDifficultyNumber) {
             DifficultyNumberBubble(
                 rating: Int((min(max(hardness, 0), 1) * 100).rounded()),
                 tint: DifficultyStars.tint(for: hardness, colorScheme: colorScheme))
         }
-        .frame(maxWidth: .infinity, alignment: .trailing)
         .accessibilityElement(children: .ignore)
         .accessibilityLabel("Difficulty:")
         .accessibilityValue(Text(hardness, format: .percent.precision(.fractionLength(0))))

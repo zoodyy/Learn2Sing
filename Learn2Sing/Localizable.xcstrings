@@ -28689,6 +28689,95 @@
         }
       }
     },
+    "How long this exercise takes to sing through, every repetition included. A finished run adds this much to the Home tab's “Time Spent Singing”." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "المدة التي يستغرقها غناء هذا التمرين كاملًا، بكل تكراراته. عند إكماله يُضاف هذا القدر إلى «وقت الغناء» في تبويب الرئيسية."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wie lange es dauert, diese Übung durchzusingen, alle Wiederholungen eingerechnet. Ein zu Ende gesungener Durchgang trägt so viel zu „Gesungene Zeit“ im Start-Tab bei."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cuánto se tarda en cantar este ejercicio entero, con todas sus repeticiones. Una vez terminado, suma esto al «Tiempo cantado» de la pestaña Inicio."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le temps qu’il faut pour chanter cet exercice en entier, toutes les répétitions comprises. Une fois terminé, il ajoute autant au « Temps de chant » de l’onglet Accueil."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quanto dura cantare questo esercizio dall’inizio alla fine, ripetizioni comprese. Una volta finito, aggiunge altrettanto al “Tempo cantato” della scheda Home."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "このエクササイズを、すべての繰り返しを含めて最後まで歌うのにかかる時間です。最後まで歌うと、ホームタブの「歌った時間」にこの分が加わります。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "모든 반복을 포함해 이 연습을 끝까지 부르는 데 걸리는 시간입니다. 끝까지 부르면 홈 탭의 “노래한 시간”에 이만큼 더해집니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hoe lang het duurt om deze oefening helemaal te zingen, alle herhalingen meegerekend. Een afgemaakte ronde telt zoveel op bij de ‘Gezongen tijd’ op het tabblad Start."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ile trwa zaśpiewanie tego ćwiczenia od początku do końca, ze wszystkimi powtórzeniami. Ukończone dodaje tyle do „Czasu śpiewania” na karcie Start."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quanto tempo leva cantar este exercício do início ao fim, com todas as repetições. Ao terminar, ele soma isso ao “Tempo cantado” da aba Início."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сколько длится это упражнение от начала до конца, со всеми повторениями. Спетое до конца, оно добавляет столько же во «Время пения» на вкладке «Главная»."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hur lång tid det tar att sjunga igenom övningen, alla repetitioner inräknade. En genomförd körning lägger till så mycket i ”Sångtid” på fliken Hem."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bu egzersizi tüm tekrarlarıyla baştan sona söylemenin ne kadar sürdüğü. Tamamlanan bir tur, Ana Sayfa sekmesindeki “Şarkı söyleme süresi”ne bu kadar ekler."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "连同所有重复，把这个练习完整唱一遍所需的时间。唱完后，“首页”标签的“歌唱时长”会增加这么多。"
+          }
+        }
+      }
+    },
     "How long you mean to practice a day. The Home tab's “Recommended” category suggests exercises adding up to at least this long, pitched at your skill level and steering clear of the ones you've sung lately, above all the ones you've sung over and over. A day of the Home tab's “Time Spent Singing” is filled in and checked off once you have practiced this much." : {
       "extractionState" : "stale",
       "localizations" : {
@@ -34549,6 +34638,95 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "把这一课留到以后，打开下一课。"
+          }
+        }
+      }
+    },
+    "Length" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "المدة"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dauer"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Duración"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Durée"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Durata"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "長さ"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "길이"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Duur"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Czas trwania"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Duração"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Длительность"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Längd"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Süre"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "时长"
           }
         }
       }
