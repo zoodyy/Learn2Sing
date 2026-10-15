@@ -175,7 +175,7 @@ struct ExerciseIntroView: View {
                     // so the length takes no room the screen didn't have spare.
                     let seconds = practiceSeconds
                     if seconds != nil || difficulty != nil {
-                        HStack(spacing: 12) {
+                        HStack(alignment: .firstTextBaseline, spacing: 12) {
                             if let seconds {
                                 lengthRow(seconds)
                             }
@@ -352,11 +352,9 @@ struct ExerciseIntroView: View {
     }
 
     /// How long the exercise takes, on the leading edge of the line the stars
-    /// sit on. Lifted a little off that line toward the title, which it is
-    /// read with; the offset leaves the layout alone, so the description below
-    /// stays where it was. Written with its seconds, unlike the calendar's
-    /// whole minutes: one exercise is short enough that "1 min" would hide
-    /// most of a minute.
+    /// sit on, its text on the same baseline as "Difficulty:". Written with its
+    /// seconds, unlike the calendar's whole minutes: one exercise is short
+    /// enough that "1 min" would hide most of a minute.
     private func lengthRow(_ seconds: Int) -> some View {
         let length = Duration.seconds(seconds).formatted(
             Duration.UnitsFormatStyle(allowedUnits: [.hours, .minutes, .seconds],
@@ -375,7 +373,6 @@ struct ExerciseIntroView: View {
         .accessibilityLabel(L("Length"))
         .accessibilityValue(length)
         .explain(L("How long this exercise takes to sing through, every repetition included. A finished run adds this much to the Home tab's “Time Spent Singing”."))
-        .offset(y: -5)
     }
 
     /// The exercise's difficulty as five stars, on the trailing edge so it sits
