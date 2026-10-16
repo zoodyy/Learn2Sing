@@ -5,12 +5,15 @@ import UIKit
 // label: the notes around it, once a repetition sped up by "speed up per repetition"
 // squeezes them closer than they were written, and the other labels. Either way the
 // text shrinks about its middle, staying where it was placed, until there's
-// `textLabelMargin` between it and whatever it was running into. Playback, the
-// review screen, the exercise settings preview and the MIDI editor all fit their
-// labels through here, so they agree on when a label shrinks and how far.
+// `textLabelMargin` between it and whatever it was running into. Only something
+// the text would actually run into counts: a note or label drawn clear above or
+// below it never makes it shrink, however close it passes. Playback, the review
+// screen, the exercise settings preview and the MIDI editor all fit their labels
+// through here, so they agree on when a label shrinks and how far.
 
-/// The room kept clear between a label and a note it would otherwise run into, and
-/// between two labels, in points: enough for the two to read as separate things.
+/// The room kept clear to the side between a label and a note it would otherwise
+/// run into, and between two labels, in points: enough for the two to read as
+/// separate things.
 let textLabelMargin: CGFloat = 4
 
 /// The smallest share of its written size a label is ever shrunk to. Below about
@@ -44,7 +47,11 @@ struct TextLabelBox {
 /// another however the pairs chain together.
 ///
 /// Two labels can be cleared either side by side or one above the other, whichever
-/// takes less shrinking. Neither ever takes them under `minimumTextLabelScale`.
+/// takes less shrinking. Side by side they keep `textLabelMargin` apart; one above
+/// the other their letters only have to stop overlapping. Rows are what set labels
+/// apart vertically, and no tempo ever moves two of them closer that way, so two
+/// labels whose letters don't touch are left at full size however close they pass
+/// over one another. Neither way ever takes them under `minimumTextLabelScale`.
 func fittedTextLabelScales(_ boxes: [TextLabelBox]) -> [Double] {
     var scales = boxes.map { min(1, $0.limit) }
     let margin = Double(textLabelMargin)
@@ -55,11 +62,12 @@ func fittedTextLabelScales(_ boxes: [TextLabelBox]) -> [Double] {
             let dy = Double(abs(a.centre.y - b.centre.y))
             // At a common scale `s` the two reach `s` times half their summed sizes
             // towards each other; what's left of the distance between their middles
-            // has to cover the margin.
+            // has to cover the margin side by side, and only has to stay positive
+            // one above the other.
             let halfWidths = Double(a.size.width + b.size.width) / 2
             let halfHeights = Double(a.size.height + b.size.height) / 2
             let sideBySide = halfWidths > 0 ? (dx - margin) / halfWidths : .infinity
-            let stacked = halfHeights > 0 ? (dy - margin) / halfHeights : .infinity
+            let stacked = halfHeights > 0 ? dy / halfHeights : .infinity
             let fit = max(sideBySide, stacked)
             guard fit < 1 else { continue }
             scales[i] = min(scales[i], fit)
@@ -72,33 +80,49 @@ func fittedTextLabelScales(_ boxes: [TextLabelBox]) -> [Double] {
 extension MIDIText {
     /// The largest share of its written size this label may be drawn at and still keep
     /// clear of the notes around it, when its text reaches `halfWidth` points either
-    /// side of its middle on a screen giving a beat `beatPx` points. Always 1 at the
-    /// written tempo, where the label stands exactly as it was written.
+    /// side of its middle and its letters `reach` points above and below it, on a
+    /// screen giving a beat `beatPx` points and a row `rowH`. Always 1 at the written
+    /// tempo, where the label stands exactly as it was written.
     ///
     /// A repetition squeezed to a faster tempo (`tempoScale` below 1) narrows its
     /// notes but not the text over them, closing the gap between the text and every
-    /// note it used to clear. Each of those notes is kept `textLabelMargin` away — or
-    /// as far as it was at the written tempo, where the text was written closer than
-    /// that — by shrinking the text about its middle. A note the text already reached
-    /// over at the written tempo is left out: the label was written across it, and
-    /// belongs there at every tempo.
+    /// note it used to clear to the side. Only a note the letters would actually run
+    /// into is a reason to shrink: one in a row the letters reach into, above or below
+    /// as well as their own. A note drawn clear above or below them can pass over or
+    /// under the text however tightly it's squeezed, since no tempo moves it any
+    /// nearer that way. Each note the text would run into is kept `textLabelMargin`
+    /// away to the side — or as far as it was at the written tempo, where the text
+    /// was written closer than that — by shrinking the text about its middle, unless
+    /// shrinking it less already pulls the letters out of that note's row. A note the
+    /// text already reached over at the written tempo is left out: the label was
+    /// written across it, and belongs there at every tempo.
     ///
-    /// Worked out in points rather than beats because the text is drawn at a size of
-    /// its own, whatever the zoom: how many beats it covers, and so which notes it
-    /// runs into, depends on how many points the screen gives a beat.
-    func noteFitScale(halfWidth: CGFloat, beatPx: CGFloat) -> Double {
+    /// Worked out in points rather than beats or rows because the text is drawn at a
+    /// size of its own, whatever the zoom: how many beats and rows it covers, and so
+    /// which notes it runs into, depends on how many points the screen gives each.
+    func noteFitScale(halfWidth: CGFloat, reach: TextLetterReach,
+                      beatPx: CGFloat, rowH: CGFloat) -> Double {
         guard tempoScale < 1, halfWidth > 0, beatPx > 0 else { return 1 }
         let half = Double(halfWidth)
         let margin = Double(textLabelMargin)
+        // A note is drawn a row high, less a point above and below.
+        let noteHalfHeight = Double(max(1, rowH - 2)) / 2
         var fit = 1.0
-        for gap in noteGaps {                           // nearest first
-            let written = gap * Double(beatPx)          // the note's distance from the middle, as written
-            guard written >= half else { continue }     // the text reached over it as written
+        for gap in noteGaps {                                   // nearest first
+            let written = gap.beats * Double(beatPx)            // the note's distance from the middle, as written
             let squeezed = written * tempoScale
-            // Clear of this note at full size, and so of every note further out.
+            // Clear of this note to the side at full size, and so of every note further out.
             if squeezed - margin >= half { break }
+            // How far the near edge of the note's row is above or below the middle,
+            // and how far the letters reach that way. Negative on the label's own row.
+            let edge = Double(abs(gap.rows)) * Double(rowH) - noteHalfHeight
+            let towards = Double(gap.rows > 0 ? reach.above : reach.below)
+            guard edge < towards else { continue }              // the letters stop short of its row
+            guard written >= half else { continue }             // the text reached over it as written
             let clearance = min(margin, written - half)
-            fit = min(fit, (squeezed - clearance) / half)
+            let sideBySide = (squeezed - clearance) / half
+            let outOfItsRow = towards > 0 ? edge / towards : 0
+            fit = min(fit, max(sideBySide, outOfItsRow))
         }
         return fit
     }
@@ -151,4 +175,22 @@ enum TextWidths {
         let font = font(design)
         return font.capHeight - font.descender
     }
+
+    /// The same letters measured from the point a label is drawn at, the middle of
+    /// the line it's laid out in. They don't sit evenly about it: the line keeps
+    /// room above the capitals for accents, so the letters sit low in it, and a
+    /// note in the row below comes nearer them than one in the row above.
+    static func letterReach(in design: PlaybackFont = .system) -> TextLetterReach {
+        let font = font(design)
+        let baseline = (font.ascender + font.descender) / 2     // below the middle
+        return TextLetterReach(above: font.capHeight - baseline,
+                               below: baseline - font.descender)
+    }
+}
+
+/// How far a label's letters reach above and below the middle it's drawn at, at
+/// the size it was written at (see `TextWidths.letterReach`).
+struct TextLetterReach {
+    var above: CGFloat
+    var below: CGFloat
 }

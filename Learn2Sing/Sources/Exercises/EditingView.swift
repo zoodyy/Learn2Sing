@@ -66,13 +66,21 @@ nonisolated struct MIDIText: Identifiable, Codable, Equatable {
     var text: String
     var pitch: Int      // row position (vertical)
     var beat: Double    // start position in beats (horizontal)
-    /// How far this label's middle is from each note around it, in beats at the tempo
-    /// the pattern was written at, nearest first, leaving out a note the middle sits
-    /// inside. Set by `Exercise.timeline(...)`, together with `tempoScale`, for a
-    /// screen to keep the text clear of notes a faster repetition squeezes in on it
-    /// (see `noteFitScale`). Never stored: it belongs to a laid-out timeline, not to
-    /// the label the editor saved.
-    var noteGaps: [Double] = []
+    /// Where each note around this label lies from its middle, nearest first, leaving
+    /// out a note whose beats the middle sits in. Set by `Exercise.timeline(...)`,
+    /// together with `tempoScale`, for a screen to keep the text clear of notes a
+    /// faster repetition squeezes in on it (see `noteFitScale`). Never stored: it
+    /// belongs to a laid-out timeline, not to the label the editor saved.
+    var noteGaps: [NoteGap] = []
+    /// One note as `noteGaps` lists it.
+    nonisolated struct NoteGap: Equatable {
+        /// How far the note's nearer end is from the label's middle, to either side,
+        /// in beats at the tempo the pattern was written at.
+        var beats: Double
+        /// How many rows above the label's row the note is: negative below it, 0 on
+        /// the same row.
+        var rows: Int
+    }
     /// How far the repetition this label is drawn in squeezes the written beats: 1 at
     /// the written tempo, less on one sped up by "speed up per repetition". Set by
     /// `Exercise.timeline(...)`; never stored either.

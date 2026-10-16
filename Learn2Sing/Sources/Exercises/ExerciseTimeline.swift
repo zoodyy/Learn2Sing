@@ -29,24 +29,30 @@ struct ExerciseTimeline {
     var maxExtent: Double = 0
 }
 
-/// How far `label`'s middle is from each note of `pattern` it doesn't sit inside, in
-/// beats, nearest first: what a screen drawing the label in a squeezed repetition
-/// measures it against to keep it clear of those notes (see `MIDIText.noteFitScale`).
-/// A note the middle sits inside is the one the label was written on, and the text
-/// stays across it at every tempo.
+/// Where each note of `pattern` lies from `label`'s middle, nearest first: how many
+/// beats to its side and how many rows above or below. What a screen drawing the
+/// label in a squeezed repetition measures it against to keep it clear of those
+/// notes (see `MIDIText.noteFitScale`). A note whose beats the middle sits in is left
+/// out: squeezing never brings it any nearer, since it runs over or under the label
+/// just as far at every tempo, and on the label's own row it's the note the label
+/// was written on, which the text stays across at every tempo.
 ///
 /// Taken across the whole pattern rather than the label's own row: the notes a
 /// spilling label runs into are the ones before and after the note it was written
-/// on, which are rarely at the same pitch, and how far apart two rows are drawn is a
-/// matter of the zoom the exercise is being played at.
-private func noteGaps(around label: MIDIText, in pattern: [MIDINote]) -> [Double] {
+/// on, which are rarely at the same pitch. Whether one of those is near enough above
+/// or below to be run into at all is a matter of how far apart the screen draws two
+/// rows, so the rows are passed on rather than judged here.
+private func noteGaps(around label: MIDIText, in pattern: [MIDINote]) -> [MIDIText.NoteGap] {
     let centre = label.centreBeat
-    var gaps: [Double] = []
+    var gaps: [MIDIText.NoteGap] = []
     for note in pattern {
-        if note.beat + note.length <= centre { gaps.append(centre - (note.beat + note.length)) }
-        else if note.beat >= centre          { gaps.append(note.beat - centre) }
+        let beats: Double
+        if note.beat + note.length <= centre { beats = centre - (note.beat + note.length) }
+        else if note.beat >= centre          { beats = note.beat - centre }
+        else { continue }
+        gaps.append(MIDIText.NoteGap(beats: beats, rows: note.pitch - label.pitch))
     }
-    return gaps.sorted()
+    return gaps.sorted { $0.beats < $1.beats }
 }
 
 extension Exercise {

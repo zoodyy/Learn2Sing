@@ -433,11 +433,13 @@ private func labelScales(of shown: [Int], in placed: [PlacedLabel],
         placed[$0].reaches(from: left - textLabelMargin, to: right + textLabelMargin)
     }
     let height = TextWidths.letterHeight(in: font)
+    let reach = TextWidths.letterReach(in: font)
     let scales = fittedTextLabelScales(near.map { i in
         let p = placed[i]
         return TextLabelBox(centre: CGPoint(x: p.x, y: layout.y(Double(p.label.pitch))),
                             size: CGSize(width: p.halfWidth * 2, height: height),
-                            limit: p.label.noteFitScale(halfWidth: p.halfWidth, beatPx: layout.beatPx))
+                            limit: p.label.noteFitScale(halfWidth: p.halfWidth, reach: reach,
+                                                        beatPx: layout.beatPx, rowH: layout.rowH))
     })
     let scaleOf = Dictionary(uniqueKeysWithValues: zip(near, scales))
     return shown.map { scaleOf[$0] ?? 1 }
