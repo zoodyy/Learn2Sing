@@ -20,10 +20,13 @@ import tr_common, tr_settings, tr_visuals, tr_library, tr_community, tr_bundled,
 import tr_feedback, tr_tutorial, tr_help  # noqa: F401
 import tr_lessons, tr_lessons_voice, tr_lessons_breath, tr_lessons_warmup  # noqa: F401
 import tr_lessons_health, tr_lessons_ear  # noqa: F401
+import tr_infoplist  # noqa: F401
 
 HERE = pathlib.Path(__file__).resolve().parent
 APP = HERE.parents[1] / "Learn2Sing"
 OUT = APP / "Localizable.xcstrings"
+INFOPLIST_OUT = APP / "InfoPlist.xcstrings"
+PROJECT = HERE.parents[1] / "Learn2Sing.xcodeproj" / "project.pbxproj"
 
 # Keys the extractor finds in the Swift sources, and the subset of those Xcode's
 # own extractor finds too (the LocalizedStringKey call sites).
@@ -162,3 +165,62 @@ if xcformat.save(OUT, catalog):
           f"{len(deleted)} deleted, {len(after)} entries")
 else:
     print(f"\n{OUT} already up to date — {len(after)} entries")
+
+
+# --- InfoPlist.xcstrings ---------------------------------------------------
+# The strings the system shows for the app, the microphone permission prompt
+# among them, live in the Info.plist the target generates from its
+# INFOPLIST_KEY_* build settings. Their catalog is keyed by the Info.plist key,
+# and the build compiles it into <lang>.lproj/InfoPlist.strings.
+#
+# The English is the build setting's, so the check here is that it still says
+# what the table translated: a usage description reworded in Xcode would
+# otherwise keep showing the old sentence's translations.
+project = json.loads(subprocess.run(
+    ["plutil", "-convert", "json", "-o", "-", str(PROJECT)],
+    capture_output=True, text=True, check=True).stdout)
+settings = {}
+for obj in project["objects"].values():
+    if obj.get("isa") != "XCBuildConfiguration":
+        continue
+    for name, value in obj["buildSettings"].items():
+        if name.startswith("INFOPLIST_KEY_"):
+            settings.setdefault(name.removeprefix("INFOPLIST_KEY_"), set()).add(value)
+
+for key, values in settings.items():
+    if key.endswith("UsageDescription") and key not in trbase.INFOPLIST:
+        print(f"MISSING Info.plist key {key}: " + json.dumps(sorted(values), ensure_ascii=False))
+for key, translations in trbase.INFOPLIST.items():
+    if key not in settings:
+        print(f"UNUSED Info.plist key {key}: no INFOPLIST_KEY_{key} build setting")
+    elif settings[key] != {translations["en"]}:
+        print(f"CHANGED Info.plist key {key}: the build settings say "
+              + json.dumps(sorted(settings[key]), ensure_ascii=False)
+              + ", the table translates " + json.dumps(translations["en"], ensure_ascii=False))
+
+# The comment Xcode's extraction gives a key: its name in Xcode's Info editor.
+INFOPLIST_COMMENTS = {
+    "NSMicrophoneUsageDescription": "Privacy - Microphone Usage Description",
+}
+
+plist_catalog = xcformat.load(INFOPLIST_OUT)
+# Keys the table doesn't hold are Xcode's: it extracts every localizable key
+# of the generated Info.plist (CFBundleName and the like) into this file with
+# just its English, and they're carried through untouched.
+for key, translations in trbase.INFOPLIST.items():
+    entry = dict(plist_catalog["strings"].get(key, {}))
+    # What Xcode's own extraction writes for a key it finds in the Info.plist,
+    # so a build finds the entry already the way it wants it: its English as
+    # "new", since a source-language string is never translated.
+    entry.setdefault("comment", INFOPLIST_COMMENTS.get(key, key))
+    entry["extractionState"] = "extracted_with_value"
+    entry["localizations"] = {
+        lang: {"stringUnit": {"state": "new" if lang == "en" else "translated", "value": value}}
+        for lang, value in translations.items()
+    }
+    plist_catalog["strings"][key] = entry
+
+if xcformat.save(INFOPLIST_OUT, plist_catalog):
+    print(f"wrote {INFOPLIST_OUT} — {len(plist_catalog['strings'])} entries")
+else:
+    print(f"{INFOPLIST_OUT} already up to date — {len(plist_catalog['strings'])} entries")

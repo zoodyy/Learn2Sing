@@ -50,6 +50,24 @@ Strings that are deliberately the same in every language — the vowel syllables
 bundled exercises are named after ("Moo", "Nee Nay Nah"), and file names — are listed
 in `NOT_TRANSLATED` in `generate.py` so they don't show up as missing.
 
+## The system's prompts: `InfoPlist.xcstrings`
+
+The microphone permission prompt is drawn by the system from the Info.plist,
+which the target generates from its `INFOPLIST_KEY_*` build settings in
+`project.pbxproj`. `generate.py` writes its translations to
+`Learn2Sing/InfoPlist.xcstrings` (generated too, same rules), keyed by the
+Info.plist key, from `P()` rows in `tr_infoplist.py`; the build turns that into
+`<lang>.lproj/InfoPlist.strings`.
+
+The English stays in the build setting, and the `P()` row repeats it.
+`generate.py` reports a `CHANGED` key when the two no longer match (reword the
+row and its translations), and a `MISSING` one for any `…UsageDescription`
+setting the table doesn't translate. Entries in the file that aren't in the
+table, such as `CFBundleName`, are Xcode's own extraction and are left alone.
+
+The prompt follows the device's language, not the one picked in Settings ›
+Language: the system shows it before the app gets a say.
+
 ## Adding a language
 
 1. Add a case to `AppLanguage` in `Learn2Sing/Sources/Localization/Localization.swift`, with its

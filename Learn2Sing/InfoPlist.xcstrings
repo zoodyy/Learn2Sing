@@ -1,0 +1,102 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "NSMicrophoneUsageDescription" : {
+      "comment" : "Privacy - Microphone Usage Description",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "يستخدم Learn2Sing الميكروفون ليعرض لك مدى ارتفاع النغمة التي تغنيها الآن."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Learn2Sing nutzt das Mikrofon, um dir zu zeigen, wie hoch du gerade singst."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Learn2Sing uses the microphone to show how high you are currently singing."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Learn2Sing usa el micrófono para mostrarte en tiempo real lo agudo o grave que cantas."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Learn2Sing utilise le micro pour vous montrer en temps réel la hauteur de la note que vous chantez."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Learn2Sing usa il microfono per mostrarti in tempo reale l’altezza delle note che canti."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Learn2Singはマイクを使って、いま歌っている音の高さを表示します。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Learn2Sing은 마이크를 사용해 지금 부르고 있는 음의 높이를 보여줍니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Learn2Sing gebruikt de microfoon om je live te laten zien hoe hoog je zingt."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Learn2Sing korzysta z mikrofonu, żeby na bieżąco pokazywać, jak wysoko śpiewasz."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O Learn2Sing usa o microfone para mostrar em tempo real o quão agudo ou grave você está cantando."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Learn2Sing использует микрофон, чтобы показывать, насколько высоко вы сейчас поёте."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Learn2Sing använder mikrofonen för att visa vilken tonhöjd du sjunger på just nu."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Learn2Sing, o anda ne kadar ince ya da kalın söylediğinizi göstermek için mikrofonu kullanır."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Learn2Sing 使用麦克风实时显示你正在唱的音高。"
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.1"
+}
