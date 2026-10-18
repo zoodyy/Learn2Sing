@@ -147,6 +147,11 @@ struct ExerciseCollectionList: UIViewControllerRepresentable {
     var onHeaderLongPress: () -> Void = {}
     /// Tap on a section header's + button (sections with `showsAdd`).
     var onAdd: ((String) -> Void)? = nil
+    /// Double tap anywhere on a `.practiceCalendar` row's card: on its squares,
+    /// on the card around them, or one of each. Its two taps still do what they
+    /// do on their own (see `onCalendarSelect`). Also what VoiceOver's action on
+    /// the squares calls, since there a double tap means something else.
+    var onCalendarExpand: (() -> Void)? = nil
     /// Tap on a square of a `.practiceCalendar` row, or nil for one that landed
     /// on no square. The bubble it puts up is drawn over the list rather than
     /// inside the row, which would clip it — so the screen showing the list is
@@ -225,6 +230,7 @@ struct ExerciseCollectionList: UIViewControllerRepresentable {
         controller.onToggleCollapse = onToggleCollapse
         controller.onHeaderLongPress = onHeaderLongPress
         controller.onAdd = onAdd
+        controller.onCalendarExpand = onCalendarExpand
         controller.onCalendarSelect = onCalendarSelect
         controller.onMove = onMove
         controller.onDragChange = onDragChange
@@ -363,6 +369,7 @@ final class ExerciseListController: UIViewController {
     var onToggleCollapse: ((String) -> Void)?
     var onHeaderLongPress: (() -> Void)?
     var onAdd: ((String) -> Void)?
+    var onCalendarExpand: (() -> Void)?
     var onCalendarSelect: ((PracticeCalendarSelection?) -> Void)?
     var onMove: ((UUID, String, UUID?) -> Void)?
     var onDragChange: ((Bool) -> Void)?
@@ -627,11 +634,17 @@ final class ExerciseListController: UIViewController {
             cell.contentConfiguration = UIHostingConfiguration {
                 PracticeCalendarView(days: days, goalMinutes: goalMinutes) { [weak self] selection in
                     self?.onCalendarSelect?(selection)
+                } onExpand: { [weak self] in
+                    self?.onCalendarExpand?()
                 }
                 .environment(\.locale, locale)
-                .explain(L("One square per day, oldest first. The more you practiced, the fuller the color, and a day that reached your daily practice time gets a check mark. Tap a square to see that day."))
+                .explain(L("One square per day, oldest first. The more you practiced, the fuller the color, and a day that reached your daily practice time gets a check mark. Tap a square to see that day, or double-tap the card to see more days."))
             }
             cell.accessories = []
+            // On the cell rather than in the SwiftUI view, so the card's margin
+            // around the squares hears the taps too: it lies outside the hosted
+            // view altogether.
+            cell.watchDoubleTaps { [weak self] in self?.onCalendarExpand?() }
         }
         let recommendationRegistration = UICollectionView.CellRegistration<ExerciseListCell, ItemID> {
             [weak self] cell, _, itemID in
@@ -1595,6 +1608,21 @@ private final class ExerciseListCell: UICollectionViewListCell {
     private lazy var separatorAtMargin: NSLayoutConstraint = separatorLayoutGuide.leadingAnchor
         .constraint(equalTo: layoutMarginsGuide.leadingAnchor)
 
+    /// Hears a double tap anywhere on the cell; see `watchDoubleTaps`.
+    private var doubleTap: AnywhereDoubleTap?
+
+    /// Calls `action` on a double tap anywhere on this row, made by the
+    /// calendar's registration, the only one that wants it. Registrations
+    /// don't share cells, so no other row is left with it.
+    func watchDoubleTaps(_ action: @escaping () -> Void) {
+        let recognizer = doubleTap ?? AnywhereDoubleTap()
+        if doubleTap == nil {
+            addGestureRecognizer(recognizer)
+            doubleTap = recognizer
+        }
+        recognizer.action = action
+    }
+
     /// Where this row's separator starts. UIKit tucks it in behind whatever a
     /// leading accessory takes up, which is right for a list where every row has
     /// one and wrong here: only the favourites wear a star, and their separators
@@ -1604,6 +1632,67 @@ private final class ExerciseListCell: UICollectionViewListCell {
             guard keepsSeparatorAtMargin != oldValue else { return }
             separatorAtMargin.isActive = keepsSeparatorAtMargin
         }
+    }
+}
+
+/// Two taps in a row anywhere on the view it is on, wherever on it each one
+/// lands: one on a square of the Home tab's calendar and the next on the card
+/// around the squares count as much as two on the same square.
+///
+/// A single-tap recognizer that keeps the time of the last tap, because
+/// UIKit's own double tap fails when the second tap lands too far from the
+/// first. The timing is UIKit's, though. It only ever watches: it cancels and
+/// delays no touches and recognizes alongside everything else, so each tap
+/// still does what it does on its own (a square still puts its bubble up)
+/// rather than waiting to find out whether a second one follows.
+private final class AnywhereDoubleTap: UITapGestureRecognizer, UIGestureRecognizerDelegate {
+    var action: () -> Void = {}
+
+    /// The longest the finger may be up between the two taps, from the first
+    /// one lifting to the second one touching down: what UIKit's own double tap
+    /// allows, so this one takes the same speed of tapping.
+    private static let maximumGap: TimeInterval = 0.35
+
+    /// When the tap being made touched down and lifted, in the events' own
+    /// clock. Read once it has been recognized as a tap.
+    private var touchDown: TimeInterval = 0
+    private var lift: TimeInterval = 0
+
+    /// When the last tap that wasn't the second of a double tap lifted.
+    private var lastLift: TimeInterval?
+
+    init() {
+        super.init(target: nil, action: nil)
+        addTarget(self, action: #selector(tapped))
+        cancelsTouchesInView = false
+        delaysTouchesBegan = false
+        delaysTouchesEnded = false
+        delegate = self
+    }
+
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent) {
+        super.touchesBegan(touches, with: event)
+        touchDown = event.timestamp
+    }
+
+    override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent) {
+        lift = event.timestamp
+        super.touchesEnded(touches, with: event)
+    }
+
+    @objc private func tapped() {
+        if let lastLift, touchDown - lastLift <= Self.maximumGap {
+            // A third tap starts over rather than making a second double tap.
+            self.lastLift = nil
+            action()
+        } else {
+            lastLift = lift
+        }
+    }
+
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer,
+                           shouldRecognizeSimultaneouslyWith other: UIGestureRecognizer) -> Bool {
+        true
     }
 }
 

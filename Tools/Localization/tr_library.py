@@ -17,6 +17,18 @@ T("Time Spent Singing", "Gesungene Zeit", "Tiempo cantado", "Temps de chant", "T
 T("New for You", "Neu für dich", "Nuevo para ti", "Nouveautés pour vous", "Novità per te", "Novidades para você", "Nieuw voor jou", "Новое для вас", "Nowe dla Ciebie", "Sizin için yeni", "Nytt för dig", "あなたへの新着", "나를 위한 새 연습", "最新推荐", "جديد لك")
 # The tick a calendar square wears once its day reached the daily practice time.
 T("Goal reached", "Ziel erreicht", "Objetivo alcanzado", "Objectif atteint", "Obiettivo raggiunto", "Meta alcançada", "Doel bereikt", "Цель достигнута", "Cel osiągnięty", "Hedefe ulaşıldı", "Målet uppnått", "目標達成", "목표 달성", "已达成目标", "تم بلوغ الهدف")
+# The Time Spent Singing screen a double tap on the calendar card opens: the
+# VoiceOver action that opens it, its date range sheet and quick ranges, and its
+# chart's empty state (worded like the score chart's).
+T("Expand Calendar", "Kalender erweitern", "Ampliar calendario", "Agrandir le calendrier", "Espandi calendario", "Expandir calendário", "Kalender uitvouwen", "Развернуть календарь", "Rozwiń kalendarz", "Takvimi genişlet", "Visa hela kalendern", "カレンダーを広げる", "캘린더 펼치기", "展开日历", "توسيع التقويم")
+T("Date Range", "Zeitraum", "Intervalo de fechas", "Période", "Intervallo di date", "Período", "Periode", "Период", "Zakres dat", "Tarih aralığı", "Datumintervall", "期間", "기간", "日期范围", "النطاق الزمني")
+T("From", "Von", "Desde", "Du", "Dal", "De", "Van", "С", "Od", "Başlangıç", "Från", "開始日", "시작일", "开始日期", "من")
+T("To", "Bis", "Hasta", "Au", "Al", "Até", "Tot", "По", "Do", "Bitiş", "Till", "終了日", "종료일", "结束日期", "إلى")
+T("Past Week", "Letzte 7 Tage", "Últimos 7 días", "7 derniers jours", "Ultimi 7 giorni", "Últimos 7 dias", "Afgelopen 7 dagen", "За 7 дней", "Ostatnie 7 dni", "Son 7 gün", "Senaste 7 dagarna", "過去7日間", "최근 7일", "最近 7 天", "آخر 7 أيام")
+T("Past Month", "Letzte 30 Tage", "Últimos 30 días", "30 derniers jours", "Ultimi 30 giorni", "Últimos 30 dias", "Afgelopen 30 dagen", "За 30 дней", "Ostatnie 30 dni", "Son 30 gün", "Senaste 30 dagarna", "過去30日間", "최근 30일", "最近 30 天", "آخر 30 يومًا")
+T("Past Year", "Letzte 12 Monate", "Últimos 12 meses", "12 derniers mois", "Ultimi 12 mesi", "Últimos 12 meses", "Afgelopen 12 maanden", "За 12 месяцев", "Ostatnie 12 miesięcy", "Son 12 ay", "Senaste 12 månaderna", "過去12か月", "최근 12개월", "最近 12 个月", "آخر 12 شهرًا")
+T("All Time", "Gesamter Zeitraum", "Todo el tiempo", "Depuis le début", "Da sempre", "Desde o início", "Alles", "За всё время", "Cały okres", "Tüm zamanlar", "Hela tiden", "全期間", "전체 기간", "全部时间", "كل الوقت")
+T("No practice time in this period.", "Keine Übungszeit in diesem Zeitraum", "No hay tiempo de práctica en este periodo", "Aucun temps de pratique sur cette période", "Nessun tempo di pratica in questo periodo", "Nenhum tempo de prática neste período", "Geen oefentijd in deze periode", "За этот период занятий нет", "Brak czasu ćwiczeń w tym okresie", "Bu dönemde çalışma süresi yok", "Ingen övningstid under den här perioden", "この期間の練習時間はありません", "이 기간의 연습 시간이 없습니다", "此期间没有练习时间", "لا يوجد وقت تمرّن في هذه الفترة")
 
 # --- Exercises tab ---
 T("New Exercise", "Neue Übung", "Nuevo ejercicio", "Nouvel exercice", "Nuovo esercizio", "Novo exercício", "Nieuwe oefening", "Новое упражнение", "Nowe ćwiczenie", "Yeni egzersiz", "Ny övning", "新規エクササイズ", "새 연습", "新建练习", "تمرين جديد")

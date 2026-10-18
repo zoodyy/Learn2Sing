@@ -286,7 +286,8 @@ struct HomeCategoryEditView: View {
 /// ones pitched at the singer's own level, as many as Settings ▸ Home Tab asks
 /// for — see NewForYouFeed),
 /// "Time Spent Singing" (the last 30 days of practice as coloured squares — see
-/// PracticeCalendarView), "Routines" (the user's own ordered exercise lists,
+/// PracticeCalendarView — which a double tap opens out into PracticeHistoryView),
+/// "Routines" (the user's own ordered exercise lists,
 /// created via the + button, which opens the new one's edit screen the way "New
 /// Exercise" opens an exercise's settings; swipe right on one to edit it, swipe
 /// left to delete it after a confirmation), "Favorites" (every exercise starred
@@ -970,6 +971,12 @@ struct HomeView: View {
             // "Routines" is the only category with a + button left, so a tap on
             // one is always a new routine.
             onAdd: { _ in addRoutine() },
+            // A double tap anywhere on the calendar's card, on its squares or
+            // around them, opens the card out into a screen of its own.
+            onCalendarExpand: {
+                guard navigationPath.last != .practiceHistory else { return }
+                navigationPath.append(ExerciseRoute.practiceHistory)
+            },
             onCalendarSelect: { selection in
                 withAnimation(.snappy(duration: 0.2)) {
                     // Tapping the square the bubble already points at puts it
@@ -1313,6 +1320,8 @@ struct HomeView: View {
             }
         case .editCategories:
             HomeCategoryEditView()
+        case .practiceHistory:
+            PracticeHistoryView()
         case .user(let id, let name):
             // Reached from the "Created by" line on a "New for You" exercise's
             // intro screen — the same profile the Community tab pushes, and the

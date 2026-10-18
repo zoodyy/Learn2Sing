@@ -29,9 +29,9 @@ nonisolated struct PracticeDay: Equatable, Hashable {
 enum PracticeLog {
     nonisolated private static let key = "practiceSeconds"
 
-    /// How much history is kept. The calendar only ever draws the last 30 days;
-    /// the rest is held so a reinstall restores more than the current month —
-    /// but not for ever, since the whole log rides in the profile document.
+    /// How much history is kept, which is also as far back as the Time Spent
+    /// Singing screen can look; the Home tab's calendar only draws the last 30
+    /// days. Not for ever, since the whole log rides in the profile document.
     private static let keptDays = 400
 
     /// The day a date falls on, counted from 1 Jan 1970 in the user's own
@@ -78,6 +78,34 @@ enum PracticeLog {
             guard let date = calendar.date(byAdding: .day, value: -back, to: start) else { return nil }
             return PracticeDay(date: date, seconds: log[day(for: date, calendar: calendar)] ?? 0)
         }
+    }
+
+    /// Every day from `start` through `end`, oldest first — what the Time Spent
+    /// Singing screen draws for the range picked on it. Like `recentDays`, the
+    /// days nothing was practised on are in the list too.
+    static func days(from start: Date, through end: Date) -> [PracticeDay] {
+        let calendar = Calendar.current
+        let log = all()
+        let last = calendar.startOfDay(for: end)
+        var date = calendar.startOfDay(for: start)
+        var days: [PracticeDay] = []
+        while date <= last {
+            days.append(PracticeDay(date: date, seconds: log[day(for: date, calendar: calendar)] ?? 0))
+            guard let next = calendar.date(byAdding: .day, value: 1, to: date) else { break }
+            date = next
+        }
+        return days
+    }
+
+    /// The first day anything was practised on, or nil before the first run
+    /// has been finished: how far back the Time Spent Singing screen's range
+    /// can start, since there is nothing to show before it.
+    static func firstDay() -> Date? {
+        let calendar = Calendar.current
+        guard let first = all().filter({ $0.value > 0 }).keys.min() else { return nil }
+        // `day(for:)` the other way round: counted on from the same midnight.
+        return calendar.date(byAdding: .day, value: first,
+                             to: calendar.startOfDay(for: Date(timeIntervalSince1970: 0)))
     }
 
     /// Days older than `keptDays` are dropped on the way out, so the log stays
@@ -149,7 +177,10 @@ nonisolated struct PracticeCalendarSelection: Equatable {
 
 /// The Home tab's "Time Spent Singing" category: the last 30 days as one square each,
 /// oldest in the top-left corner and today in the bottom-right, with no numbers
-/// on them — a day is read off its colour. A day nothing was practised on is
+/// on them — a day is read off its colour. The Time Spent Singing screen draws
+/// the range picked on it the same way, a year by default; a range that doesn't
+/// fill its top row starts partway along it, so the newest day keeps the
+/// bottom-right corner. A day nothing was practised on is
 /// grey, and the only colour that goes over that grey is the app's own accent
 /// one: it fades in in step with the time spent on the day, covering the grey
 /// completely at `goalMinutes` — the daily practice goal from Settings ▸ Home
@@ -174,6 +205,12 @@ struct PracticeCalendarView: View {
     /// The square a tap landed on, or nil for a tap that landed on none — which
     /// is what the screen puts the bubble away on.
     var onSelect: (PracticeCalendarSelection?) -> Void
+
+    /// Opens the Time Spent Singing screen, offered to VoiceOver on every square:
+    /// on the Home tab a double tap on the card is how it is opened, and under
+    /// VoiceOver a double tap means something else. nil (that screen itself)
+    /// offers nothing.
+    var onExpand: (() -> Void)? = nil
 
     /// How many days the calendar shows, which is also how many
     /// `PracticeLog.recentDays` is asked for.
@@ -202,6 +239,11 @@ struct PracticeCalendarView: View {
     @Environment(\.layoutDirection) private var layoutDirection
 
     private var rows: Int { max(1, (days.count + Self.columns - 1) / Self.columns) }
+
+    /// Empty places the top row starts with, so that the newest day lands in
+    /// the bottom-right corner however many days there are. None for the Home
+    /// tab's 30, which fill their three rows exactly.
+    private var leadingGap: Int { (Self.columns - days.count % Self.columns) % Self.columns }
 
     /// The goal as the log counts practice, in seconds. Floored at a minute so a
     /// nonsense setting can't tick every square, empty days included.
@@ -264,6 +306,12 @@ struct PracticeCalendarView: View {
                         // what day it is.
                         .accessibilityElement()
                         .accessibilityLabel(label(for: day))
+                        .accessibilityActions {
+                            if let onExpand {
+                                // Localized by hand, like the label above.
+                                Button(L("Expand Calendar"), action: onExpand)
+                            }
+                        }
                         .position(centre(of: index, side: side, step: step))
                 }
             }
@@ -279,10 +327,12 @@ struct PracticeCalendarView: View {
     // MARK: - Geometry
 
     /// Where a day's square sits: filled row by row, so the oldest day is the
-    /// top-left one and today is the last of the bottom row.
+    /// top-left one (or as far left as `leadingGap` lets it) and the newest is
+    /// the last of the bottom row.
     private func centre(of index: Int, side: CGFloat, step: CGFloat) -> CGPoint {
-        CGPoint(x: CGFloat(index % Self.columns) * step + side / 2,
-                y: CGFloat(index / Self.columns) * step + side / 2)
+        let place = index + leadingGap
+        return CGPoint(x: CGFloat(place % Self.columns) * step + side / 2,
+                       y: CGFloat(place / Self.columns) * step + side / 2)
     }
 
     /// The square a tap landed on, in global coordinates, or nil for a tap
@@ -299,7 +349,7 @@ struct PracticeCalendarView: View {
         guard x >= 0, location.y >= 0, step > 0 else { return nil }
         let column = Int(x / step), row = Int(location.y / step)
         guard column < Self.columns else { return nil }
-        let index = row * Self.columns + column
+        let index = row * Self.columns + column - leadingGap
         guard days.indices.contains(index) else { return nil }
         let middle = centre(of: index, side: side, step: step)
         let midX = mirrored ? grid.maxX - middle.x : grid.minX + middle.x

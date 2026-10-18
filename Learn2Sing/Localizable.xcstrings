@@ -4365,6 +4365,95 @@
         }
       }
     },
+    "All Time" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "كل الوقت"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gesamter Zeitraum"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Todo el tiempo"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Depuis le début"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Da sempre"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "全期間"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "전체 기간"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alles"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cały okres"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Desde o início"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "За всё время"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hela tiden"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tüm zamanlar"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "全部时间"
+          }
+        }
+      }
+    },
     "Alphabetical" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -11374,6 +11463,95 @@
         }
       }
     },
+    "Closes this. The chart and the calendar already show the days you set." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "يغلق هذه النافذة. الرسم البياني والتقويم يعرضان الأيام التي حدّدتها بالفعل."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Schließt dieses Fenster. Diagramm und Kalender zeigen die eingestellten Tage bereits."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cierra esto. El gráfico y el calendario ya muestran los días que elegiste."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ferme ceci. Le graphique et le calendrier affichent déjà les jours choisis."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chiude questa finestra. Il grafico e il calendario mostrano già i giorni scelti."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "これを閉じます。グラフとカレンダーには、設定した日がすでに表示されています。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이 창을 닫습니다. 그래프와 캘린더에는 설정한 날이 이미 표시되어 있습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sluit dit. De grafiek en de kalender tonen de gekozen dagen al."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zamyka to okno. Wykres i kalendarz już pokazują wybrane dni."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fecha isto. O gráfico e o calendário já mostram os dias que você escolheu."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Закрывает это окно. График и календарь уже показывают выбранные дни."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stänger det här. Diagrammet och kalendern visar redan de dagar du valt."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bunu kapatır. Grafik ve takvim seçtiğiniz günleri zaten gösteriyor."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "关闭此窗口。图表和日历已经在显示你设置的日期。"
+          }
+        }
+      }
+    },
     "Color" : {
       "localizations" : {
         "ar" : {
@@ -13410,6 +13588,94 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "深色"
+          }
+        }
+      }
+    },
+    "Date Range" : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "النطاق الزمني"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zeitraum"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Intervalo de fechas"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Période"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Intervallo di date"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "期間"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "기간"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Periode"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zakres dat"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Período"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Период"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Datumintervall"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tarih aralığı"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "日期范围"
           }
         }
       }
@@ -22202,6 +22468,95 @@
         }
       }
     },
+    "Expand Calendar" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "توسيع التقويم"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kalender erweitern"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ampliar calendario"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Agrandir le calendrier"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Espandi calendario"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "カレンダーを広げる"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "캘린더 펼치기"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kalender uitvouwen"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rozwiń kalendarz"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Expandir calendário"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Развернуть календарь"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Visa hela kalendern"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Takvimi genişlet"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "展开日历"
+          }
+        }
+      }
+    },
     "Export" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -24775,6 +25130,94 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "持续音上的四度"
+          }
+        }
+      }
+    },
+    "From" : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "من"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Von"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Desde"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Du"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dal"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "開始日"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "시작일"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Van"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Od"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "De"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "С"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Från"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Başlangıç"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "开始日期"
           }
         }
       }
@@ -28863,6 +29306,184 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "你打算每天练习多长时间。“首页”标签中的“推荐”类别会按你的水平，建议加起来至少这么长的练习，并避开你最近唱过的练习，尤其是反复唱过很多次的。“首页”标签的“歌唱时长”中，某一天练满这么久后就会被填满并打上对勾。"
+          }
+        }
+      }
+    },
+    "How long you sang on each day, oldest on the left. Tap a point to see that day's time and date." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "المدة التي غنّيتها في كل يوم، الأقدم على اليسار. اضغط على نقطة لرؤية وقت ذلك اليوم وتاريخه."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wie lange du an jedem Tag gesungen hast, der älteste links. Tippe einen Punkt an, um Zeit und Datum dieses Tages zu sehen."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cuánto cantaste cada día, el más antiguo a la izquierda. Toca un punto para ver el tiempo y la fecha de ese día."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Combien de temps vous avez chanté chaque jour, le plus ancien à gauche. Touchez un point pour voir la durée et la date de ce jour."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quanto hai cantato ogni giorno, il più vecchio a sinistra. Tocca un punto per vedere tempo e data di quel giorno."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "毎日歌った時間です。左が古い日です。点をタップするとその日の時間と日付が見られます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "날마다 노래한 시간입니다. 왼쪽이 오래된 날입니다. 점을 탭하면 그날의 시간과 날짜를 볼 수 있습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hoe lang je elke dag zong, de oudste links. Tik op een punt om de tijd en datum van die dag te zien."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jak długo śpiewałeś każdego dnia, najstarsze po lewej. Dotknij punktu, aby zobaczyć czas i datę tego dnia."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quanto tempo você cantou em cada dia, o mais antigo à esquerda. Toque num ponto para ver o tempo e a data desse dia."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сколько вы пели в каждый день, самые ранние слева. Нажмите на точку, чтобы увидеть время и дату этого дня."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hur länge du sjöng varje dag, äldst till vänster. Tryck på en punkt för att se den dagens tid och datum."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Her gün ne kadar şarkı söylediğiniz; en eskisi solda. O günün süresini ve tarihini görmek için bir noktaya dokunun."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "你每天唱了多久，越靠左越早。点按某个点可查看当天的时长和日期。"
+          }
+        }
+      }
+    },
+    "How long you sang on each day. You didn't finish an exercise on any day in this range." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "المدة التي غنّيتها في كل يوم. لم تُنهِ أي تمرين في أي يوم من هذه الفترة."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wie lange du an jedem Tag gesungen hast. In diesem Zeitraum hast du an keinem Tag eine Übung beendet."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cuánto cantaste cada día. No terminaste ningún ejercicio en ningún día de este intervalo."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Combien de temps vous avez chanté chaque jour. Vous n’avez terminé aucun exercice pendant cette période."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quanto hai cantato ogni giorno. In questo intervallo non hai finito nessun esercizio."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "毎日歌った時間です。この期間にエクササイズを最後まで終えた日はありません。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "날마다 노래한 시간입니다. 이 기간에는 연습을 끝까지 마친 날이 없습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hoe lang je elke dag zong. In deze periode heb je op geen enkele dag een oefening afgemaakt."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jak długo śpiewałeś każdego dnia. W tym okresie nie ukończyłeś żadnego ćwiczenia."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quanto tempo você cantou em cada dia. Você não terminou nenhum exercício neste período."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сколько вы пели в каждый день. За этот период вы не завершили ни одного упражнения."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hur länge du sjöng varje dag. Du gjorde inte klart någon övning någon dag i det här intervallet."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Her gün ne kadar şarkı söylediğiniz. Bu aralıkta hiçbir gün bir egzersizi bitirmediniz."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "你每天唱了多久。在这段时间里，你没有在任何一天唱完过练习。"
           }
         }
       }
@@ -44848,6 +45469,94 @@
         }
       }
     },
+    "No practice time in this period." : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "لا يوجد وقت تمرّن في هذه الفترة"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keine Übungszeit in diesem Zeitraum"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No hay tiempo de práctica en este periodo"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aucun temps de pratique sur cette période"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nessun tempo di pratica in questo periodo"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "この期間の練習時間はありません"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이 기간의 연습 시간이 없습니다"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Geen oefentijd in deze periode"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Brak czasu ćwiczeń w tym okresie"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nenhum tempo de prática neste período"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "За этот период занятий нет"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ingen övningstid under den här perioden"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bu dönemde çalışma süresi yok"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "此期间没有练习时间"
+          }
+        }
+      }
+    },
     "No public exercise matches the selected filters." : {
       "localizations" : {
         "ar" : {
@@ -47153,6 +47862,95 @@
         }
       }
     },
+    "One square per day, oldest first. The more you practiced, the fuller the color, and a day that reached your daily practice time gets a check mark. Tap a square to see that day, or double-tap the card to see more days." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "مربع لكل يوم، الأقدم أولًا. كلما تمرّنت أكثر امتلأ اللون أكثر، واليوم الذي بلغ وقت تمرّنك اليومي يحصل على علامة. اضغط على مربع لرؤية ذلك اليوم، أو اضغط مرتين على البطاقة لرؤية أيام أكثر."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ein Quadrat je Tag, das älteste zuerst. Je länger du geübt hast, desto kräftiger die Farbe, und ein Tag, der deine tägliche Übungszeit erreicht hat, bekommt einen Haken. Tippe ein Quadrat an, um den Tag zu sehen, oder tippe doppelt auf die Karte, um mehr Tage zu sehen."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un cuadrado por día, el más antiguo primero. Cuanto más practicaste, más intenso es el color, y un día que alcanzó tu tiempo diario de práctica lleva una marca. Toca un cuadrado para ver ese día, o toca dos veces la tarjeta para ver más días."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un carré par jour, du plus ancien au plus récent. Plus vous avez travaillé, plus la couleur est vive, et un jour qui a atteint votre temps de pratique quotidien reçoit une coche. Touchez un carré pour voir ce jour, ou touchez deux fois la carte pour voir plus de jours."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un quadrato per giorno, dal più vecchio. Più ti sei esercitato, più il colore è pieno, e un giorno che ha raggiunto il tuo tempo di pratica quotidiano riceve una spunta. Tocca un quadrato per vedere quel giorno, o tocca due volte la scheda per vedere più giorni."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1 日につき 1 マス、古い順に並びます。練習が長いほど色が濃くなり、1 日の練習時間に届いた日にはチェックが付きます。マスをタップするとその日の詳細が見られ、カードをダブルタップするとさらに多くの日が見られます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "하루에 한 칸씩, 오래된 날부터 나열됩니다. 오래 연습할수록 색이 진해지고, 하루 연습 시간을 채운 날에는 체크가 붙습니다. 칸을 탭하면 그날을 볼 수 있고, 카드를 두 번 탭하면 더 많은 날을 볼 수 있습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eén vakje per dag, oudste eerst. Hoe langer je oefende, hoe voller de kleur, en een dag die je dagelijkse oefentijd haalde krijgt een vinkje. Tik op een vakje om die dag te zien, of tik twee keer op de kaart om meer dagen te zien."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jeden kwadrat na dzień, od najstarszego. Im dłużej ćwiczyłeś, tym pełniejszy kolor, a dzień, w którym osiągnąłeś dzienny czas ćwiczeń, dostaje ptaszek. Dotknij kwadratu, aby zobaczyć ten dzień, albo dotknij karty dwukrotnie, aby zobaczyć więcej dni."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Um quadrado por dia, do mais antigo em diante. Quanto mais você praticou, mais cheia é a cor, e um dia que atingiu seu tempo diário de prática ganha um visto. Toque num quadrado para ver esse dia, ou toque duas vezes no cartão para ver mais dias."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "По квадрату на день, начиная с самого раннего. Чем дольше вы занимались, тем насыщеннее цвет, а день, в который вы набрали дневное время занятий, отмечается галочкой. Нажмите на квадрат, чтобы увидеть этот день, или дважды нажмите на карточку, чтобы увидеть больше дней."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "En ruta per dag, äldst först. Ju mer du övat, desto fylligare färg, och en dag som nådde din dagliga övningstid får en bock. Tryck på en ruta för att se den dagen, eller dubbeltryck på kortet för att se fler dagar."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Her gün için bir kare, en eskisi başta. Ne kadar çok çalıştıysanız renk o kadar dolgun olur; günlük çalışma sürenize ulaşan gün onay işareti alır. Bir günü görmek için karesine dokunun; daha fazla gün görmek için karta iki kez dokunun."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "每天一格，从最早的一天开始。练得越久颜色越满，达到每日练习时长的那天会打勾。点按方格可查看当天详情，连点两下卡片可查看更多天。"
+          }
+        }
+      }
+    },
     "One square per day, oldest first. The more you practiced, the fuller the color, and a day that reached your daily practice time gets a check mark. Tap a square to see that day." : {
       "extractionState" : "stale",
       "localizations" : {
@@ -49014,6 +49812,273 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "平行五度"
+          }
+        }
+      }
+    },
+    "Past Month" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "آخر 30 يومًا"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Letzte 30 Tage"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Últimos 30 días"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "30 derniers jours"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ultimi 30 giorni"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "過去30日間"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "최근 30일"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Afgelopen 30 dagen"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ostatnie 30 dni"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Últimos 30 dias"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "За 30 дней"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Senaste 30 dagarna"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Son 30 gün"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "最近 30 天"
+          }
+        }
+      }
+    },
+    "Past Week" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "آخر 7 أيام"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Letzte 7 Tage"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Últimos 7 días"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "7 derniers jours"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ultimi 7 giorni"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "過去7日間"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "최근 7일"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Afgelopen 7 dagen"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ostatnie 7 dni"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Últimos 7 dias"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "За 7 дней"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Senaste 7 dagarna"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Son 7 gün"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "最近 7 天"
+          }
+        }
+      }
+    },
+    "Past Year" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "آخر 12 شهرًا"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Letzte 12 Monate"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Últimos 12 meses"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "12 derniers mois"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ultimi 12 mesi"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "過去12か月"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "최근 12개월"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Afgelopen 12 maanden"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ostatnie 12 miesięcy"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Últimos 12 meses"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "За 12 месяцев"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Senaste 12 månaderna"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Son 12 ay"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "最近 12 个月"
           }
         }
       }
@@ -61080,6 +62145,95 @@
         }
       }
     },
+    "Sets both dates at once. Each range ends today, and “All Time” starts on the first day you sang." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "يضبط التاريخين معًا. كل نطاق ينتهي اليوم، و«كل الوقت» يبدأ من أول يوم غنّيت فيه."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Setzt beide Daten auf einmal. Jeder Zeitraum endet heute, und „Gesamter Zeitraum“ beginnt am ersten Tag, an dem du gesungen hast."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fija las dos fechas a la vez. Cada intervalo termina hoy, y «Todo el tiempo» empieza el primer día en que cantaste."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Règle les deux dates d’un coup. Chaque période se termine aujourd’hui, et « Depuis le début » commence le premier jour où vous avez chanté."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Imposta entrambe le date in una volta. Ogni intervallo finisce oggi, e “Da sempre” inizia dal primo giorno in cui hai cantato."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "両方の日付を一度に設定します。どの期間も今日で終わり、「全期間」は初めて歌った日から始まります。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "두 날짜를 한 번에 설정합니다. 모든 기간은 오늘 끝나며, “전체 기간”은 처음 노래한 날부터 시작합니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zet beide datums in één keer. Elke periode eindigt vandaag, en ‘Alles’ begint op de eerste dag waarop je zong."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ustawia obie daty naraz. Każdy zakres kończy się dzisiaj, a „Cały okres” zaczyna się od pierwszego dnia, w którym śpiewałeś."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Define as duas datas de uma vez. Cada período termina hoje, e “Desde o início” começa no primeiro dia em que você cantou."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Задаёт обе даты сразу. Каждый период заканчивается сегодня, а «За всё время» начинается с первого дня, когда вы пели."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ställer in båda datumen på en gång. Varje intervall slutar i dag, och ”Hela tiden” börjar den första dagen du sjöng."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "İki tarihi birden ayarlar. Her aralık bugün biter; “Tüm zamanlar” ise şarkı söylediğiniz ilk günde başlar."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "一次设置两个日期。每个范围都截止到今天，“全部时间”从你第一次唱歌的那天开始。"
+          }
+        }
+      }
+    },
     "Sets the app's appearance. “System” matches your device's light or dark setting." : {
       "extractionState" : "stale",
       "localizations" : {
@@ -61788,6 +62942,95 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "设置练习的排列顺序。“倒序”会把所选顺序反过来。"
+          }
+        }
+      }
+    },
+    "Sets which days the chart and the calendar show: a start and an end date of your own, or one of the quick ranges." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "يحدّد الأيام التي يعرضها الرسم البياني والتقويم: تاريخ بداية ونهاية من اختيارك، أو أحد النطاقات السريعة."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Legt fest, welche Tage Diagramm und Kalender zeigen: ein eigenes Start- und Enddatum oder einer der Schnellzeiträume."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elige qué días muestran el gráfico y el calendario: una fecha de inicio y de fin propias, o uno de los intervalos rápidos."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choisit les jours affichés par le graphique et le calendrier : une date de début et de fin de votre choix, ou l’une des périodes rapides."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sceglie quali giorni mostrano il grafico e il calendario: una data di inizio e di fine a tua scelta, o uno degli intervalli rapidi."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "グラフとカレンダーに表示する日を設定します。開始日と終了日を自分で選ぶか、クイック期間のどれかを選びます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "그래프와 캘린더에 표시할 날을 정합니다. 시작일과 종료일을 직접 고르거나 빠른 기간 중 하나를 고릅니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bepaalt welke dagen de grafiek en de kalender tonen: een eigen begin- en einddatum, of een van de snelle periodes."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ustala, które dni pokazują wykres i kalendarz: własna data początkowa i końcowa albo jeden z szybkich zakresów."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Define quais dias o gráfico e o calendário mostram: datas de início e fim à sua escolha, ou um dos períodos rápidos."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Задаёт, какие дни показывают график и календарь: свои даты начала и конца или один из быстрых периодов."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Väljer vilka dagar diagrammet och kalendern visar: ett eget start- och slutdatum, eller ett av snabbintervallen."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Grafiğin ve takvimin hangi günleri göstereceğini belirler: kendi başlangıç ve bitiş tarihiniz ya da hızlı aralıklardan biri."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "设置图表和日历显示哪些天：自己选择开始和结束日期，或使用某个快捷范围。"
           }
         }
       }
@@ -73951,6 +75194,95 @@
         }
       }
     },
+    "The first day the chart and the calendar show. It can't be earlier than the first day you sang." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "أول يوم يعرضه الرسم البياني والتقويم. لا يمكن أن يسبق أول يوم غنّيت فيه."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Der erste Tag, den Diagramm und Kalender zeigen. Er kann nicht vor dem ersten Tag liegen, an dem du gesungen hast."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El primer día que muestran el gráfico y el calendario. No puede ser anterior al primer día en que cantaste."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le premier jour affiché par le graphique et le calendrier. Il ne peut pas précéder le premier jour où vous avez chanté."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il primo giorno mostrato dal grafico e dal calendario. Non può precedere il primo giorno in cui hai cantato."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "グラフとカレンダーに表示する最初の日です。初めて歌った日より前にはできません。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "그래프와 캘린더에 표시되는 첫날입니다. 처음 노래한 날보다 앞설 수 없습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "De eerste dag die de grafiek en de kalender tonen. Die kan niet vóór de eerste dag liggen waarop je zong."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pierwszy dzień, który pokazują wykres i kalendarz. Nie może być wcześniejszy niż pierwszy dzień, w którym śpiewałeś."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O primeiro dia que o gráfico e o calendário mostram. Não pode ser anterior ao primeiro dia em que você cantou."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Первый день, который показывают график и календарь. Он не может быть раньше первого дня, когда вы пели."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Den första dagen diagrammet och kalendern visar. Den kan inte ligga före den första dagen du sjöng."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Grafiğin ve takvimin gösterdiği ilk gün. Şarkı söylediğiniz ilk günden önce olamaz."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "图表和日历显示的第一天。不能早于你第一次唱歌的那天。"
+          }
+        }
+      }
+    },
     "The fourth sounds open but a little unsettled over the drone. Hold it steady without drifting toward the notes next to it." : {
       "extractionState" : "stale",
       "localizations" : {
@@ -74303,6 +75635,95 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "应用显示所用的语言。仅保存在本设备上。"
+          }
+        }
+      }
+    },
+    "The last day the chart and the calendar show. It can't be later than today." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "آخر يوم يعرضه الرسم البياني والتقويم. لا يمكن أن يكون بعد اليوم."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Der letzte Tag, den Diagramm und Kalender zeigen. Er kann nicht nach heute liegen."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El último día que muestran el gráfico y el calendario. No puede ser posterior a hoy."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le dernier jour affiché par le graphique et le calendrier. Il ne peut pas dépasser aujourd’hui."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "L’ultimo giorno mostrato dal grafico e dal calendario. Non può essere successivo a oggi."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "グラフとカレンダーに表示する最後の日です。今日より後にはできません。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "그래프와 캘린더에 표시되는 마지막 날입니다. 오늘보다 뒤일 수 없습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "De laatste dag die de grafiek en de kalender tonen. Die kan niet na vandaag liggen."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ostatni dzień, który pokazują wykres i kalendarz. Nie może być późniejszy niż dzisiaj."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O último dia que o gráfico e o calendário mostram. Não pode ser depois de hoje."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Последний день, который показывают график и календарь. Он не может быть позже сегодняшнего."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Den sista dagen diagrammet och kalendern visar. Den kan inte ligga efter i dag."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Grafiğin ve takvimin gösterdiği son gün. Bugünden sonra olamaz."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "图表和日历显示的最后一天。不能晚于今天。"
           }
         }
       }
@@ -80443,6 +81864,94 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "舌尖、舌根、舌尖：三个音节要均匀清脆，让气流持续贯穿其中。"
+          }
+        }
+      }
+    },
+    "To" : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "إلى"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bis"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hasta"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Au"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Al"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "終了日"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "종료일"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tot"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Do"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Até"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "По"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Till"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bitiş"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "结束日期"
           }
         }
       }

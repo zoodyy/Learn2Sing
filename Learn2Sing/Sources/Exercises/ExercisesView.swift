@@ -216,6 +216,9 @@ enum ExerciseRoute: Hashable {
     // rather than a pushed screen looking them up in state set on the same tap.
     case bookLessons               // the recommended lesson, the topic tabs and their lessons
     case bookLesson([String], Int) // the lesson at #index of those ids
+    // What a double tap on the Home tab's "Time Spent Singing" card opens: the
+    // time sung per day as a chart, over a year of the card's calendar.
+    case practiceHistory
 }
 
 /// The inline-editable category name on the edit-categories screen. Edits are
@@ -1019,10 +1022,11 @@ struct ExercisesView: View {
                 case .user, .routine, .routineIntro, .routinePicker, .routinePlay, .routinePlayback,
                      .recommendationIntro, .recommendationPlay, .recommendationPlayback,
                      .homeTabSettings, .recommendationWhitelist,
-                     .communityPlay, .communityPlayback, .bookLessons, .bookLesson:
+                     .communityPlay, .communityPlayback, .bookLessons, .bookLesson, .practiceHistory:
                     // Never appended from this tab; usernames only show in
                     // Community, and routines, recommendations, the community
-                    // suggestions and the book lessons live on the Home tab.
+                    // suggestions, the book lessons and the practice history
+                    // live on the Home tab.
                     EmptyView()
                 }
             }

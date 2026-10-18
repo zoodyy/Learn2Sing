@@ -2184,6 +2184,113 @@ final class Learn2SingUITests: XCTestCase {
         sleep(1)
     }
 
+    /// A double tap anywhere on the "Time Spent Singing" card opens the Time
+    /// Spent Singing screen: on a square, on the card's margin around the
+    /// squares, or one tap on each. A single tap only puts the day's bubble up.
+    ///
+    /// The calendar is put first through the argument domain, as the routine
+    /// tests put "Routines" first (see `launchForRoutineTest`), so it is on the
+    /// first screen whatever else Home shows.
+    func testCalendarDoubleTapOpensTimeSpentSinging() throws {
+        let app = XCUIApplication()
+        app.launchArguments = ["-\(homeOrderKey)", "Time Spent Singing",
+                               "-\(homeCollapsedKey)", "",
+                               "-\(homeHiddenKey)", ""]
+        app.launch()
+        XCTAssertTrue(app.navigationBars["Home"].waitForExistence(timeout: 5))
+        sleep(2)
+
+        // The squares are the only elements read out as a date with its year,
+        // followed by that day's practice time.
+        let squares = app.descendants(matching: .any)
+            .matching(NSPredicate(format: "label MATCHES %@", ".*[0-9]{4}, .*"))
+        XCTAssertTrue(squares.firstMatch.waitForExistence(timeout: 5), "calendar squares not found")
+        let grid = squares.allElementsBoundByIndex.map(\.frame)
+            .reduce(CGRect.null) { $0.union($1) }
+        let origin = app.coordinate(withNormalizedOffset: .zero)
+        let square = origin.withOffset(CGVector(dx: grid.minX + grid.width * 0.55,
+                                                dy: grid.minY + 10))
+        // Below the bottom row, inside the card's margin.
+        let margin = origin.withOffset(CGVector(dx: grid.midX, dy: grid.maxY + 7))
+        let screen = app.navigationBars["Time Spent Singing"]
+
+        func goBack() {
+            app.buttons["BackButton"].tap()
+            XCTAssertTrue(app.navigationBars["Home"].waitForExistence(timeout: 5))
+            sleep(1)
+        }
+
+        square.tap()
+        sleep(1)
+        XCTAssertFalse(screen.exists, "a single tap on a square should only show its day")
+        margin.tap()
+        sleep(1)
+        XCTAssertFalse(screen.exists, "a single tap on the margin should do nothing")
+
+        square.doubleTap()
+        XCTAssertTrue(screen.waitForExistence(timeout: 3),
+                      "a double tap on a square should open Time Spent Singing")
+        saveScreenshot("time-spent-singing")
+        goBack()
+
+        margin.doubleTap()
+        XCTAssertTrue(screen.waitForExistence(timeout: 3),
+                      "a double tap on the card's margin should open Time Spent Singing")
+        goBack()
+
+        // One tap on each can't be made here: two separate `tap()`s leave
+        // about 0.4 s between the first lifting and the second touching down,
+        // past the 0.35 s a double tap allows (measured 2026-10-17). The
+        // recognizer takes no notice of where a tap lands, though, so the two
+        // above cover it: one tap of each kind, twice.
+    }
+
+    /// The Time Spent Singing screen opens on the past year, and the quick
+    /// ranges in its date range sheet change how many days the calendar draws.
+    /// None of them starts before the first day sung, so on a device with a
+    /// short history several can come out the same length: the counts are
+    /// checked against their limits and against each other rather than exactly.
+    func testTimeSpentSingingDateRange() throws {
+        let app = XCUIApplication()
+        app.launchArguments = ["-\(homeOrderKey)", "Time Spent Singing",
+                               "-\(homeCollapsedKey)", "",
+                               "-\(homeHiddenKey)", ""]
+        app.launch()
+        XCTAssertTrue(app.navigationBars["Home"].waitForExistence(timeout: 5))
+        sleep(2)
+
+        // As in testCalendarDoubleTapOpensTimeSpentSinging.
+        let squares = app.descendants(matching: .any)
+            .matching(NSPredicate(format: "label MATCHES %@", ".*[0-9]{4}, .*"))
+        XCTAssertTrue(squares.firstMatch.waitForExistence(timeout: 5), "calendar squares not found")
+        XCTAssertEqual(squares.count, 30, "the Home card draws 30 days")
+        squares.element(boundBy: 15).doubleTap()
+        XCTAssertTrue(app.navigationBars["Time Spent Singing"].waitForExistence(timeout: 3))
+        sleep(1)
+        let opening = squares.count
+        XCTAssertTrue((1...365).contains(opening), "opens on at most a year, got \(opening) days")
+        saveScreenshot("time-spent-singing-year")
+
+        var counts: [String: Int] = [:]
+        for preset in ["Past Week", "Past Month", "All Time", "Past Year"] {
+            app.buttons["Date Range"].tap()
+            XCTAssertTrue(app.navigationBars["Date Range"].waitForExistence(timeout: 3))
+            app.buttons[preset].tap()
+            if preset == "Past Week" { saveScreenshot("date-range-sheet") }
+            app.buttons["Done"].tap()
+            XCTAssertTrue(app.navigationBars["Time Spent Singing"].waitForExistence(timeout: 3))
+            sleep(1)
+            counts[preset] = squares.count
+        }
+        let week = counts["Past Week"] ?? 0, month = counts["Past Month"] ?? 0
+        let year = counts["Past Year"] ?? 0, all = counts["All Time"] ?? 0
+        XCTAssertTrue((1...7).contains(week), "Past Week drew \(week) days")
+        XCTAssertTrue((week...30).contains(month), "Past Month drew \(month) days")
+        XCTAssertTrue((month...365).contains(year), "Past Year drew \(year) days")
+        XCTAssertGreaterThanOrEqual(all, year, "All Time drew fewer days than Past Year")
+        XCTAssertEqual(year, opening, "the screen should open on Past Year")
+    }
+
     /// Must match RecommendedExercises.asListKey in the app target.
     private let recommendationsAsListKey = "recommendationsAsList"
 
