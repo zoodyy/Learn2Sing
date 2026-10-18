@@ -20,6 +20,10 @@ struct HistoryChartPoint {
     let x: Double
     let value: Double
     let valueText: String
+    /// What the bubble and VoiceOver say in place of `date` written in the
+    /// chart's `dateStyle`, for a point that stands for a stretch of time rather
+    /// than one moment: the practice chart's runs of several days.
+    var dateText: String? = nil
 }
 
 /// The chart itself, without anything around it: the line through `points`,
@@ -43,7 +47,8 @@ struct HistoryLineChart: View {
     /// Where the y axis is labelled, and what it says there.
     let yTicks: [Double]
     let yLabel: (Double) -> String
-    /// How a point's date is written in its bubble, and read out by VoiceOver.
+    /// How a point's date is written in its bubble, and read out by VoiceOver,
+    /// unless the point brings its own `dateText`.
     let dateStyle: Date.FormatStyle
     /// Whether the x axis may count in hours and minutes. False for a chart of
     /// whole days, where a tick between two of them would stand for nothing.
@@ -93,7 +98,7 @@ struct HistoryLineChart: View {
                 .lineStyle(StrokeStyle(lineWidth: 2, lineCap: .round))
                 // The x value is a plotting position rather than a date, so the
                 // point's own date is spelled out for VoiceOver instead.
-                .accessibilityLabel(Text(p.date, format: dateStyle))
+                .accessibilityLabel(dateText(p))
                 .accessibilityValue(Text(verbatim: p.valueText))
             if showsDots {
                 PointMark(x: .value("Time", p.x), y: .value(valueName, p.value))
@@ -299,6 +304,15 @@ struct HistoryLineChart: View {
         }
     }
 
+    /// A point's date as its bubble writes it and VoiceOver reads it.
+    private func dateText(_ point: HistoryChartPoint) -> Text {
+        if let text = point.dateText {
+            Text(verbatim: text)
+        } else {
+            Text(point.date, format: dateStyle)
+        }
+    }
+
     /// The nearest point to a tap, or nil when the tap landed near none of them.
     private func nearestMark(to location: CGPoint, among marks: [MarkPosition]) -> MarkPosition? {
         marks
@@ -339,7 +353,7 @@ struct HistoryLineChart: View {
             Text(verbatim: point.valueText)
                 .font(.subheadline.weight(.semibold))
                 .foregroundStyle(tint)
-            Text(point.date, format: dateStyle)
+            dateText(point)
                 .font(.caption2)
                 .foregroundStyle(ink.opacity(0.7))
         }

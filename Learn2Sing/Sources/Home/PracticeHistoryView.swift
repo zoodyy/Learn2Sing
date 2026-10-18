@@ -74,32 +74,39 @@ enum PracticeRangeSelection: Equatable {
 /// draws an exercise's scores: the same chart, with the day's practice time in
 /// place of the score, and no window picker above it, since the screen it is on
 /// sets the range for its calendar too.
+///
+/// Like the score chart it plots at most `maxPoints` points. A longer range is
+/// split into that many runs of consecutive days, each drawn at the average
+/// time a day across it, so the y axis measures a day whichever way the range
+/// is drawn. Such a point's bubble says so, and names the days it covers.
 struct PracticeTimeChart: View {
     /// Oldest first, one per day, the days nothing was sung on included.
     let days: [PracticeDay]
 
-    /// The tapped day (see `HistoryLineChart.selectedDate`), held by the screen,
-    /// which puts it away when the range changes.
+    /// The tapped point (see `HistoryLineChart.selectedDate`), held by the
+    /// screen, which puts it away when the range changes.
     @Binding var selectedDate: Date?
 
     @Environment(\.colorScheme) private var colorScheme
 
     /// The app's chosen language, which the axis and the bubble write their
-    /// times in.
+    /// times and dates in.
     @Environment(\.locale) private var locale
 
     /// The empty range's message, in the chart's own ink.
     private var ink: Color { colorScheme == .dark ? .white : .black }
 
+    /// Upper bound on plotted points, the score chart's own.
+    private static let maxPoints = 60
+
     /// What the y axis can count in, in seconds: the closest of these that fits
-    /// the longest day into four steps. Each is a round number of minutes or of
-    /// hours, so every label on the axis comes out in one unit.
+    /// the highest point into four steps. Each is a round number of minutes or
+    /// of hours, so every label on the axis comes out in one unit.
     private static let steps = [60, 120, 300, 600, 900, 1_200, 1_800,
                                 3_600, 7_200, 10_800, 14_400, 21_600]
 
     var body: some View {
-        let longest = days.map(\.seconds).max() ?? 0
-        if longest == 0 {
+        if days.allSatisfy({ $0.seconds == 0 }) {
             Text("No practice time in this period.")
                 .font(.subheadline)
                 .foregroundStyle(ink.opacity(0.5))
@@ -107,25 +114,21 @@ struct PracticeTimeChart: View {
                 .frame(minHeight: 120)
                 .explain(L("How long you sang on each day. You didn't finish an exercise on any day in this range."))
         } else {
-            let step = Self.steps.first { $0 * 4 >= longest } ?? Self.steps[Self.steps.count - 1]
-            let axisStyle = Duration.UnitsFormatStyle(
-                allowedUnits: step % 3_600 == 0 ? [.hours] : [.minutes],
-                width: .abbreviated
-            ).locale(locale)
             // A single day has no span to lay out along time, so it sits in the
             // middle of an arbitrary window with nothing written under it, the
             // way the score chart draws a lone run.
             let window = days.count > 1 ? days[0].date...days[days.count - 1].date : nil
+            let points = points(alongTime: window != nil)
+            // Fitted to what is plotted rather than to the longest single day,
+            // which an average can sit far below.
+            let highest = points.map(\.value).max() ?? 0
+            let step = Self.steps.first { Double($0 * 4) >= highest } ?? Self.steps[Self.steps.count - 1]
+            let axisStyle = Duration.UnitsFormatStyle(
+                allowedUnits: step % 3_600 == 0 ? [.hours] : [.minutes],
+                width: .abbreviated
+            ).locale(locale)
             HistoryLineChart(
-                points: days.map { day in
-                    HistoryChartPoint(
-                        date: day.date,
-                        x: window == nil ? 0 : day.date.timeIntervalSinceReferenceDate,
-                        value: Double(day.seconds),
-                        // Written as the calendar's bubble writes the same day.
-                        valueText: Duration.seconds(day.seconds)
-                            .formatted(PracticeCalendarView.durationStyle(day.seconds, locale: locale)))
-                },
+                points: points,
                 xDomain: window.map {
                     $0.lowerBound.timeIntervalSinceReferenceDate
                         ... $0.upperBound.timeIntervalSinceReferenceDate
@@ -142,7 +145,38 @@ struct PracticeTimeChart: View {
             )
             // Left to right in every language, like the score chart.
             .environment(\.layoutDirection, .leftToRight)
-            .explain(L("How long you sang on each day, oldest on the left. Tap a point to see that day's time and date."))
+            .explain(L("How long you sang on each day, oldest on the left. Over long ranges, each point averages a few days. Tap a point to see its time and date."))
+        }
+    }
+
+    /// The points drawn: one a day while there are no more than `maxPoints`
+    /// days, and otherwise `maxPoints` runs of consecutive days, as even in
+    /// length as they divide, each placed in the middle of its days. Laid out
+    /// `alongTime` at their dates, or else at a plain 0 (a single day).
+    private func points(alongTime: Bool) -> [HistoryChartPoint] {
+        let runs: [ArraySlice<PracticeDay>] = days.count <= Self.maxPoints
+            ? days.indices.map { days[$0...$0] }
+            : (0..<Self.maxPoints).map { i in
+                // Never empty: there are more days than runs.
+                days[(i * days.count / Self.maxPoints) ..< ((i + 1) * days.count / Self.maxPoints)]
+            }
+        return runs.compactMap { run in
+            guard let first = run.first?.date, let last = run.last?.date else { return nil }
+            let average = Double(run.reduce(0) { $0 + $1.seconds }) / Double(run.count)
+            let middle = first.addingTimeInterval(last.timeIntervalSince(first) / 2)
+            let seconds = Int(average.rounded())
+            // Written as the calendar's bubble writes a day's time.
+            let time = Duration.seconds(seconds)
+                .formatted(PracticeCalendarView.durationStyle(seconds, locale: locale))
+            return HistoryChartPoint(
+                date: middle,
+                x: alongTime ? middle.timeIntervalSinceReferenceDate : 0,
+                value: average,
+                valueText: run.count == 1 ? time : L("%@ a day", time),
+                dateText: run.count == 1
+                    ? nil
+                    : (first..<last).formatted(.interval.day().month(.abbreviated).year()
+                                                .locale(locale)))
         }
     }
 }
@@ -171,7 +205,7 @@ struct PracticeHistoryView: View {
 
     @State private var isPickingRange = false
 
-    /// The chart's tapped day, if any.
+    /// The chart's tapped point, if any.
     @State private var chartSelection: Date?
 
     /// The calendar square the bubble is pointing at, if any. Drawn over the

@@ -29,6 +29,9 @@ T("Past Month", "Letzte 30 Tage", "Últimos 30 días", "30 derniers jours", "Ult
 T("Past Year", "Letzte 12 Monate", "Últimos 12 meses", "12 derniers mois", "Ultimi 12 mesi", "Últimos 12 meses", "Afgelopen 12 maanden", "За 12 месяцев", "Ostatnie 12 miesięcy", "Son 12 ay", "Senaste 12 månaderna", "過去12か月", "최근 12개월", "最近 12 个月", "آخر 12 شهرًا")
 T("All Time", "Gesamter Zeitraum", "Todo el tiempo", "Depuis le début", "Da sempre", "Desde o início", "Alles", "За всё время", "Cały okres", "Tüm zamanlar", "Hela tiden", "全期間", "전체 기간", "全部时间", "كل الوقت")
 T("No practice time in this period.", "Keine Übungszeit in diesem Zeitraum", "No hay tiempo de práctica en este periodo", "Aucun temps de pratique sur cette période", "Nessun tempo di pratica in questo periodo", "Nenhum tempo de prática neste período", "Geen oefentijd in deze periode", "За этот период занятий нет", "Brak czasu ćwiczeń w tym okresie", "Bu dönemde çalışma süresi yok", "Ingen övningstid under den här perioden", "この期間の練習時間はありません", "이 기간의 연습 시간이 없습니다", "此期间没有练习时间", "لا يوجد وقت تمرّن في هذه الفترة")
+# A point of the Time Spent Singing chart that averages several days: the time
+# a day across them (the duration is already formatted).
+T("%@ a day", "%@ pro Tag", "%@ al día", "%@ par jour", "%@ al giorno", "%@ por dia", "%@ per dag", "%@ в день", "%@ dziennie", "günde %@", "%@ per dag", "1日あたり%@", "하루 %@", "每天 %@", "%@ يوميًا")
 
 # --- Exercises tab ---
 T("New Exercise", "Neue Übung", "Nuevo ejercicio", "Nouvel exercice", "Nuovo esercizio", "Novo exercício", "Nieuwe oefening", "Новое упражнение", "Nowe ćwiczenie", "Yeni egzersiz", "Ny övning", "新規エクササイズ", "새 연습", "新建练习", "تمرين جديد")

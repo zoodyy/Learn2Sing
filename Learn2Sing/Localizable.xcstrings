@@ -624,6 +624,95 @@
         }
       }
     },
+    "%@ a day" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ يوميًا"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ pro Tag"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ al día"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ par jour"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ al giorno"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1日あたり%@"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "하루 %@"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ per dag"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ dziennie"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ por dia"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ в день"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ per dag"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "günde %@"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "每天 %@"
+          }
+        }
+      }
+    },
     "%@ has no public exercises right now." : {
       "extractionState" : "stale",
       "localizations" : {
@@ -29310,91 +29399,91 @@
         }
       }
     },
-    "How long you sang on each day, oldest on the left. Tap a point to see that day's time and date." : {
+    "How long you sang on each day, oldest on the left. Over long ranges, each point averages a few days. Tap a point to see its time and date." : {
       "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "المدة التي غنّيتها في كل يوم، الأقدم على اليسار. اضغط على نقطة لرؤية وقت ذلك اليوم وتاريخه."
+            "value" : "المدة التي غنّيتها في كل يوم، الأقدم على اليسار. في النطاقات الطويلة، كل نقطة هي متوسط بضعة أيام. اضغط على نقطة لرؤية الوقت والتاريخ."
           }
         },
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Wie lange du an jedem Tag gesungen hast, der älteste links. Tippe einen Punkt an, um Zeit und Datum dieses Tages zu sehen."
+            "value" : "Wie lange du an jedem Tag gesungen hast, der älteste links. Bei langen Zeiträumen ist jeder Punkt der Durchschnitt einiger Tage. Tippe einen Punkt an, um Zeit und Datum zu sehen."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Cuánto cantaste cada día, el más antiguo a la izquierda. Toca un punto para ver el tiempo y la fecha de ese día."
+            "value" : "Cuánto cantaste cada día, el más antiguo a la izquierda. En intervalos largos, cada punto es la media de unos pocos días. Toca un punto para ver su tiempo y su fecha."
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Combien de temps vous avez chanté chaque jour, le plus ancien à gauche. Touchez un point pour voir la durée et la date de ce jour."
+            "value" : "Combien de temps vous avez chanté chaque jour, le plus ancien à gauche. Sur une longue période, chaque point est la moyenne de quelques jours. Touchez un point pour voir sa durée et sa date."
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Quanto hai cantato ogni giorno, il più vecchio a sinistra. Tocca un punto per vedere tempo e data di quel giorno."
+            "value" : "Quanto hai cantato ogni giorno, il più vecchio a sinistra. Negli intervalli lunghi ogni punto è la media di alcuni giorni. Tocca un punto per vederne tempo e data."
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "毎日歌った時間です。左が古い日です。点をタップするとその日の時間と日付が見られます。"
+            "value" : "毎日歌った時間です。左が古い日です。長い期間では、各点は数日間の平均です。点をタップすると時間と日付が見られます。"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "날마다 노래한 시간입니다. 왼쪽이 오래된 날입니다. 점을 탭하면 그날의 시간과 날짜를 볼 수 있습니다."
+            "value" : "날마다 노래한 시간입니다. 왼쪽이 오래된 날입니다. 기간이 길면 각 점은 며칠의 평균입니다. 점을 탭하면 시간과 날짜를 볼 수 있습니다."
           }
         },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Hoe lang je elke dag zong, de oudste links. Tik op een punt om de tijd en datum van die dag te zien."
+            "value" : "Hoe lang je elke dag zong, de oudste links. Bij lange periodes is elk punt het gemiddelde van een paar dagen. Tik op een punt om de tijd en datum te zien."
           }
         },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Jak długo śpiewałeś każdego dnia, najstarsze po lewej. Dotknij punktu, aby zobaczyć czas i datę tego dnia."
+            "value" : "Jak długo śpiewałeś każdego dnia, najstarsze po lewej. W długich zakresach każdy punkt to średnia z kilku dni. Dotknij punktu, aby zobaczyć czas i datę."
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Quanto tempo você cantou em cada dia, o mais antigo à esquerda. Toque num ponto para ver o tempo e a data desse dia."
+            "value" : "Quanto tempo você cantou em cada dia, o mais antigo à esquerda. Em períodos longos, cada ponto é a média de alguns dias. Toque num ponto para ver o tempo e a data."
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Сколько вы пели в каждый день, самые ранние слева. Нажмите на точку, чтобы увидеть время и дату этого дня."
+            "value" : "Сколько вы пели в каждый день, самые ранние слева. На длинных периодах каждая точка показывает среднее за несколько дней. Нажмите на точку, чтобы увидеть время и дату."
           }
         },
         "sv" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Hur länge du sjöng varje dag, äldst till vänster. Tryck på en punkt för att se den dagens tid och datum."
+            "value" : "Hur länge du sjöng varje dag, äldst till vänster. Över långa intervall är varje punkt ett genomsnitt av några dagar. Tryck på en punkt för att se tid och datum."
           }
         },
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Her gün ne kadar şarkı söylediğiniz; en eskisi solda. O günün süresini ve tarihini görmek için bir noktaya dokunun."
+            "value" : "Her gün ne kadar şarkı söylediğiniz; en eskisi solda. Uzun aralıklarda her nokta birkaç günün ortalamasıdır. Süreyi ve tarihi görmek için bir noktaya dokunun."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "你每天唱了多久，越靠左越早。点按某个点可查看当天的时长和日期。"
+            "value" : "你每天唱了多久，越靠左越早。范围较长时，每个点是几天的平均值。点按某个点可查看时长和日期。"
           }
         }
       }
