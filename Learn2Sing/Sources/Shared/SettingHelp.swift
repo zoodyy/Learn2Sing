@@ -87,7 +87,7 @@ private struct SettingHelpModifier: ViewModifier {
             // (opening a picker, following a link, toggling a switch); the hold
             // is distinguished from a tap by the minimum duration.
             .simultaneousGesture(
-                LongPressGesture(minimumDuration: 0.4).onEnded { _ in
+                LongPressGesture(minimumDuration: SettingHelpBubble.holdDuration).onEnded { _ in
                     UIImpactFeedbackGenerator(style: .light).impactOccurred()
                     resetToken += 1
                     // A beat after the rebuild, not during it. A `Menu` opens on
@@ -193,6 +193,13 @@ private struct SettingHelpText: View {
 /// ExerciseCollectionList). Presented as a real popover anchored to the control,
 /// the way `.popover` anchors to its row.
 enum SettingHelpBubble {
+    /// How long a press has to be held for its help to go up, wherever the
+    /// help hangs: `explain`, `settingHelp` and the navigation bar's buttons.
+    /// Whatever tells a tap from a hold by how long it lasted goes by this too,
+    /// so the hold that put the help up is never also taken for a tap (see
+    /// AnywhereDoubleTap).
+    static let holdDuration: TimeInterval = 0.4
+
     /// A popover adapts to a full-height sheet on iPhone unless something says
     /// otherwise; SwiftUI's `.presentationCompactAdaptation(.popover)` is what
     /// says it on the other side, and this is the UIKit spelling of it.
@@ -450,7 +457,7 @@ private final class BarButtonHelpGesture: UILongPressGestureRecognizer, UIGestur
         super.init(target: nil, action: nil)
         addTarget(self, action: #selector(recognized))
         // The same hold as `explain`'s LongPressGesture.
-        minimumPressDuration = 0.4
+        minimumPressDuration = SettingHelpBubble.holdDuration
         delegate = self
     }
 

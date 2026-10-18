@@ -1681,6 +1681,13 @@ private final class AnywhereDoubleTap: UITapGestureRecognizer, UIGestureRecogniz
     }
 
     @objc private func tapped() {
+        // UIKit takes a touch held up to 1.5 s for a tap, but one held as long
+        // as the press-and-hold help takes put that help up instead. It is no
+        // tap here: it neither finishes a double tap nor starts one.
+        guard lift - touchDown < SettingHelpBubble.holdDuration else {
+            lastLift = nil
+            return
+        }
         if let lastLift, touchDown - lastLift <= Self.maximumGap {
             // A third tap starts over rather than making a second double tap.
             self.lastLift = nil

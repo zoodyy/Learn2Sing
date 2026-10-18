@@ -251,6 +251,10 @@ struct PracticeHistoryView: View {
                         // Tapping the square the bubble already points at puts
                         // it away, as on the Home tab.
                         calendarSelection = (square?.day == calendarSelection?.day) ? nil : square
+                        // One bubble at a time: the chart's goes, the way the
+                        // calendar's goes on a tap on the chart (the window-wide
+                        // watcher below sees to that one).
+                        chartSelection = nil
                     }
                 }
                 .explain(L("One square per day, oldest first. The more you practiced, the fuller the color, and a day that reached your daily practice time gets a check mark. Tap a square to see that day."))
