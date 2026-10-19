@@ -20425,6 +20425,95 @@
         }
       }
     },
+    "Essential features rely on things like your vocal range. Press and hold almost anything for a short explanation. You can watch it again in Settings." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "تعتمد الميزات الأساسية على أشياء مثل مداك الصوتي. اضغط مطولًا على أي عنصر تقريبًا لترى شرحًا قصيرًا. يمكنك مشاهدتها مرة أخرى في الإعدادات."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wichtige Funktionen hängen von Dingen wie deinem Stimmumfang ab. Halte fast alles gedrückt, um eine kurze Erklärung zu sehen. Du kannst sie jederzeit in den Einstellungen erneut ansehen."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Las funciones esenciales dependen de cosas como tu tesitura. Mantén pulsado casi cualquier elemento para ver una breve explicación. Puedes volver a verlo en Ajustes."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Des fonctions essentielles dépendent d’éléments comme votre tessiture. Appuyez longuement sur presque n’importe quel élément pour voir une courte explication. Vous pouvez le revoir dans les Réglages."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alcune funzioni essenziali dipendono da cose come la tua estensione vocale. Tieni premuto quasi qualsiasi elemento per una breve spiegazione. Puoi rivederlo nelle Impostazioni."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "主な機能は声域などの情報をもとに動作します。ほとんどの項目は長押しすると短い説明が表示されます。「設定」からいつでも見直せます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "주요 기능은 음역대 같은 정보를 바탕으로 작동합니다. 대부분의 요소를 길게 누르면 짧은 설명이 나옵니다. 설정에서 다시 볼 수 있습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Belangrijke functies hangen af van dingen zoals je stembereik. Houd bijna alles ingedrukt voor een korte uitleg. Je kunt hem opnieuw bekijken in Instellingen."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kluczowe funkcje zależą od takich rzeczy jak twoja skala głosu. Przytrzymaj prawie dowolny element, aby zobaczyć krótkie wyjaśnienie. Możesz obejrzeć go ponownie w Ustawieniach."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Recursos essenciais dependem de coisas como sua extensão vocal. Toque e segure quase qualquer item para ver uma breve explicação. Você pode assistir de novo nos Ajustes."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Важные функции зависят от таких вещей, как ваш диапазон голоса. Нажмите и удерживайте почти любой элемент, чтобы увидеть короткое пояснение. Его можно посмотреть снова в настройках."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Viktiga funktioner bygger på saker som ditt röstomfång. Håll in nästan vad som helst för en kort förklaring. Du kan se den igen under Inställningar."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Temel özellikler ses aralığınız gibi bilgilere dayanır. Kısa bir açıklama görmek için neredeyse her şeye basılı tutun. Ayarlar’dan tekrar izleyebilirsiniz."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "核心功能依赖于你的音域等信息。长按几乎任何项目即可查看简短说明。你可以在“设置”中再次观看。"
+          }
+        }
+      }
+    },
     "Even though the pitch moves up and down, listeners tend to hear the average pitch as the note. Solo singers usually move less than a semitone to either side of the note, while choir singers typically use a much narrower vibrato." : {
       "extractionState" : "stale",
       "localizations" : {
@@ -33748,6 +33837,95 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "元音从“Nee”打开到“Nah”时，让声音保持在面部前方。不要让“Nah”落回喉咙里。"
+          }
+        }
+      }
+    },
+    "Keep Watching" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "متابعة المشاهدة"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Weiter ansehen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Seguir viendo"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Continuer"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Continua"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "続ける"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "계속 보기"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verder kijken"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Oglądaj dalej"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Continuar"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Смотреть дальше"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fortsätt titta"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Devam et"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "继续观看"
           }
         }
       }
@@ -67205,6 +67383,94 @@
         }
       }
     },
+    "Skip Tutorial?" : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "تخطي الجولة التعريفية؟"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Einführung überspringen?"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¿Omitir el tutorial?"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Passer le tutoriel ?"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Saltare il tutorial?"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "チュートリアルをスキップしますか？"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "튜토리얼을 건너뛸까요?"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rondleiding overslaan?"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pominąć samouczek?"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pular o tutorial?"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Пропустить обучение?"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hoppa över introduktionen?"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tanıtım atlansın mı?"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "跳过使用教程？"
+          }
+        }
+      }
+    },
     "Slowest" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -83375,6 +83641,7 @@
       }
     },
     "Tutorial" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -90739,95 +91006,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "几乎任何姿势都能唱歌，但基本功最容易在中立姿势下学会：挺拔而放松地站立，不驼背、不倾斜、不紧绷，也不过度塌腰。双脚分开大约与肩同宽，能给你稳定的支撑。"
-          }
-        }
-      }
-    },
-    "You can watch it again in Settings." : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "ar" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "يمكنك مشاهدتها مرة أخرى في الإعدادات."
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Du kannst sie jederzeit in den Einstellungen erneut ansehen."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Puedes volver a verlo en Ajustes."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Vous pouvez le revoir dans les Réglages."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Puoi rivederlo nelle Impostazioni."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "「設定」からいつでも見直せます。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "설정에서 다시 볼 수 있습니다."
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Je kunt hem opnieuw bekijken in Instellingen."
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Możesz obejrzeć go ponownie w Ustawieniach."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Você pode assistir de novo nos Ajustes."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Его можно посмотреть снова в настройках."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Du kan se den igen under Inställningar."
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ayarlar’dan tekrar izleyebilirsiniz."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "你可以在“设置”中再次观看。"
           }
         }
       }

@@ -85,7 +85,7 @@ struct IntroTutorialView: View {
     /// instead of always the one way the buttons send it.
     @State private var isMovingBack = false
 
-    /// Drives the "you can watch it again" note the ✕ puts up.
+    /// Drives the "skip the tutorial?" question the ✕ puts up.
     @State private var isLeaving = false
 
     /// How long a day the singer has dialled in, in minutes. Held here and written
@@ -139,10 +139,11 @@ struct IntroTutorialView: View {
         // `L(_:)` inside the alert, per the localization notes: its buttons and its
         // message are built in the alert's own environment, which the locale set
         // above doesn't reach — only the title resolves against this view's.
-        .alert("Tutorial", isPresented: $isLeaving) {
-            Button(L("OK")) { IntroTutorial.shared.finish() }
+        .alert("Skip Tutorial?", isPresented: $isLeaving) {
+            Button(L("Keep Watching"), role: .cancel) {}
+            Button(L("Skip")) { IntroTutorial.shared.finish() }
         } message: {
-            Text(L("You can watch it again in Settings."))
+            Text(L("Essential features rely on things like your vocal range. Press and hold almost anything for a short explanation. You can watch it again in Settings."))
         }
     }
 
