@@ -45,9 +45,17 @@ nonisolated struct RatedExercise {
 ///
 /// Readings are averaged **per exercise, not per run**, so grinding one easy
 /// exercise fifty times can't anchor the singer to it, and each one counts for
-/// how recently it was last sung: a level earned two years ago is not the level
-/// of today. What the readings don't account for goes to `starting`, so a singer
-/// with nothing on record is treated as a beginner and their first few runs move
+/// how recently it was last sung (`ageWeights`): the last two weeks nearly
+/// evenly, so one good or bad day is averaged in with everything else sung in
+/// that time, and anything past two months next to nothing, so the level is the
+/// singer of today rather than of their history.
+///
+/// Those older runs aren't thrown away, though. What they read on their own is
+/// the background the recent exercises are held against, worth
+/// `startingWeight` exercises: a singer back after a break keeps their level
+/// until they have sung a few exercises, and has a new one once they have sung a
+/// lot of them. A singer with nothing older on record has `starting` as their
+/// background, so they are treated as a beginner and their first few runs move
 /// them a long way.
 ///
 /// The one thing an average of readings can't be trusted with is a run that ran
@@ -60,14 +68,19 @@ nonisolated struct RatedExercise {
 /// and a bottomed-out one the reverse. Which runs those are depends on where the
 /// level lands, and the level on which runs count, so it is settled by repeating
 /// the pass a handful of times.
-enum SkillLevel {
+nonisolated enum SkillLevel {
     /// Where a singer with no rated runs sits: low, so the first suggestions
     /// are the easy end of the library rather than the middle of it.
     static let starting: Double = 25
 
-    /// What that starting point weighs, counted in exercises. Two rated
+    /// What that starting point weighs, counted in exercises, and what the
+    /// background a singer's older runs make weighs too (see `estimate`). Two
     /// exercises pull the level half of the way to what they say; a dozen leave
     /// it barely felt.
+    ///
+    /// Counted in exercises however long ago they were sung, not in what their
+    /// runs weigh: a singer who stops for a month has sung no less than they
+    /// had, and shouldn't slide back towards a beginner for it.
     static let startingWeight: Double = 2
 
     /// The score that says an exercise is pitched exactly at the singer: a clean
@@ -115,14 +128,28 @@ enum SkillLevel {
     /// early once it stops moving.
     static let settlingPasses = 5
 
-    /// How long a run keeps half its say. Singers improve and skills fade, so
-    /// what was sung this month counts for about twice what last quarter's did.
-    static let halfLifeDays: Double = 60
+    /// What a run counts for by how many calendar days ago it was sung, each step
+    /// up to and including its day: in full today, nearly in full for two weeks,
+    /// a quarter up to two months, and next to nothing after that.
+    ///
+    /// The steps are wide on purpose. Within one, everything counts the same, so
+    /// the level doesn't creep a little every day a run ages, only when one is
+    /// sung or crosses a step; and two flat weeks are long enough that a day
+    /// that went unusually well or badly is one day among many.
+    static let ageWeights: [(days: Int, weight: Double)] = [
+        (0, 1),
+        (14, 0.95),
+        (60, 0.25),
+        (120, 0.002),
+    ]
 
-    /// What a run never falls below, however old it is. Someone coming back
-    /// after a year away has to sing their way back up, but they don't start
-    /// again from nothing.
-    static let oldestSay: Double = 0.05
+    /// What a run older than the last of `ageWeights` counts for.
+    static let oldestWeight: Double = 0.001
+
+    /// How many days back a run counts as recent: where `ageWeights` drops to
+    /// next to nothing. An exercise sung since is one the level is read from;
+    /// runs from before go into the background it is held against.
+    static let recentDays = 60
 
     /// How far the suggested difficulties spread either side of the level (see
     /// `ExerciseStore.recommendedExercises`): most of a batch lands within this
@@ -143,13 +170,30 @@ enum SkillLevel {
         return min(max(reading, 0), 100)
     }
 
-    /// What a run sung at `date` still counts for: 1 the moment it finished,
-    /// halving every `halfLifeDays` and never dropping past `oldestSay`. A run
-    /// dated in the future — a device whose clock was wrong when it was sung —
-    /// counts as fresh rather than as more than fresh.
-    nonisolated static func recency(of date: Date, now: Date) -> Double {
-        let days = max(0, now.timeIntervalSince(date) / 86_400)
-        return max(pow(0.5, days / halfLifeDays), oldestSay)
+    /// The calendar days `ageWeights` counts in, turned into moments once per
+    /// estimate, so each of the thousands of runs is weighed by a comparison
+    /// rather than a calendar sum.
+    private nonisolated struct RunAges {
+        private let steps: [(start: Date, weight: Double)]
+        private let recentStart: Date
+
+        init(now: Date, calendar: Calendar) {
+            let today = calendar.startOfDay(for: now)
+            func start(daysAgo days: Int) -> Date {
+                calendar.date(byAdding: .day, value: -days, to: today) ?? today
+            }
+            steps = SkillLevel.ageWeights.map { (start(daysAgo: $0.days), $0.weight) }
+            recentStart = start(daysAgo: SkillLevel.recentDays)
+        }
+
+        /// What a run sung at `date` counts for. One dated in the future — a
+        /// device whose clock was wrong when it was sung — counts as today's.
+        func weight(of date: Date) -> Double {
+            steps.first { date >= $0.start }?.weight ?? SkillLevel.oldestWeight
+        }
+
+        /// Whether a run sung at `date` is within the last `recentDays`.
+        func isRecent(_ date: Date) -> Bool { date >= recentStart }
     }
 
     /// One exercise's say: what it reads the singer at, the score that reading
@@ -163,11 +207,37 @@ enum SkillLevel {
 
     /// The singer's level over every exercise they have both a score and a
     /// rating for. Each exercise contributes its own reading once, weighted by
-    /// how recently it was last sung, against `starting` at `startingWeight`.
-    nonisolated static func estimate(_ rated: [RatedExercise], now: Date = Date()) -> Double {
-        var readings: [Reading] = []
-        var total = 0.0
-        for exercise in rated {
+    /// how recently it was last sung, and the lot is held against what the
+    /// singer's runs from before the last `recentDays` say, or against
+    /// `starting` if there are none, at `startingWeight`.
+    nonisolated static func estimate(_ rated: [RatedExercise], now: Date = Date(),
+                                     calendar: Calendar = .current) -> Double {
+        let ages = RunAges(now: now, calendar: calendar)
+
+        // What the app knew of the singer before the last `recentDays`: their
+        // runs from back then, read the same way, held against a beginner's
+        // level by how many exercises they cover.
+        let older = rated.map { exercise in
+            RatedExercise(difficulty: exercise.difficulty,
+                          runs: exercise.runs.filter { !ages.isRecent($0.date) })
+        }
+        let olderReadings = readings(older, ages: ages)
+        let background = blend(prior: starting, settled(olderReadings), count: olderReadings.count)
+
+        // And every exercise sung since, held against that. Counted in
+        // exercises, not in what their runs weigh: the weights decide which
+        // of them the level leans towards, not how sure of it the app is.
+        let recent = rated.filter { $0.runs.contains { ages.isRecent($0.date) } }.count
+        let level = blend(prior: background, settled(readings(rated, ages: ages)), count: recent)
+
+        // Rounded to a tenth, which is finer than anything drawn from it can
+        // show and keeps rounding dust out of the profile document's diff.
+        return (level * 10).rounded() / 10
+    }
+
+    /// Each exercise's reading, skipping any without runs.
+    private nonisolated static func readings(_ rated: [RatedExercise], ages: RunAges) -> [Reading] {
+        rated.compactMap { exercise in
             // The singer's result on this exercise lately: an average over its
             // runs, so a one-off doesn't stand for the lot, weighted towards the
             // recent ones, so improvement shows up rather than being averaged
@@ -178,18 +248,23 @@ enum SkillLevel {
             var scoreWeight = 0.0
             var newest = 0.0
             for run in exercise.runs {
-                let weight = recency(of: run.date, now: now)
+                let weight = ages.weight(of: run.date)
                 scoreSum += Double(run.score) * weight
                 scoreWeight += weight
                 newest = max(newest, weight)
             }
-            guard scoreWeight > 0 else { continue }
+            guard scoreWeight > 0 else { return nil }
             let score = scoreSum / scoreWeight
-            readings.append(Reading(level: level(difficulty: exercise.difficulty, score: score),
-                                    score: score, weight: newest))
-            total += newest
+            return Reading(level: level(difficulty: exercise.difficulty, score: score),
+                           score: score, weight: newest)
         }
-        guard total > 0 else { return starting }
+    }
+
+    /// The weighted average of `readings`, with the runs that ran out of scale
+    /// taken as the bounds they are. Nil when there is nothing to average.
+    private nonisolated static func settled(_ readings: [Reading]) -> Double? {
+        let total = readings.reduce(0) { $0 + $1.weight }
+        guard total > 0 else { return nil }
 
         var settled = readings.reduce(0) { $0 + $1.level * $1.weight } / total
         for _ in 0..<settlingPasses {
@@ -208,16 +283,16 @@ enum SkillLevel {
             settled = sum / weight
             if moved < 0.05 { break }
         }
+        return settled
+    }
 
-        // Blended against `starting` at what *every* reading weighs, not only
-        // what the surviving ones do: a reading set aside above says this
-        // exercise couldn't place the singer, not that they have less practice
-        // behind them than they do.
-        //
-        // Rounded to a tenth, which is finer than anything drawn from it can
-        // show and keeps rounding dust out of the profile document's diff.
-        return ((starting * startingWeight + settled * total)
-                / (startingWeight + total) * 10).rounded() / 10
+    /// `level`, read from `count` exercises, held against `prior` at
+    /// `startingWeight`. The count is of *every* exercise, not only the ones
+    /// `settled` kept: a reading set aside there says the exercise couldn't
+    /// place the singer, not that they have less practice behind them.
+    private nonisolated static func blend(prior: Double, _ level: Double?, count: Int) -> Double {
+        guard let level, count > 0 else { return prior }
+        return (prior * startingWeight + level * Double(count)) / (startingWeight + Double(count))
     }
 }
 
