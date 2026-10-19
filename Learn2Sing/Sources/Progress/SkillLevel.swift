@@ -87,7 +87,7 @@ enum SkillLevel {
     /// exercise was within the singer's reach without saying by how much, so it
     /// counts only towards a higher level, never a lower one.
     ///
-    /// Set well below the top of the scale, because that is where the singing
+    /// Set below the top of the scale, because that is where the singing
     /// runs out rather than where the numbers do. A score is the share of each
     /// note the voice spent on pitch (see `PlaybackView.Scorer`), and the voice
     /// takes time to travel between notes — time spent on the note being arrived
@@ -102,7 +102,7 @@ enum SkillLevel {
     /// `ExerciseDifficulty`) than about the singer. The line is drawn instead at
     /// what a very good run looks like wherever it is sung: comfortably clear of
     /// `cleanRun`, and past it the points that are left are not worth reading.
-    static let ceilingScore: Double = 85
+    static let ceilingScore: Double = 92
 
     /// And at or below this, out of room at the bottom: the exercise was over
     /// the singer's head, which likewise says nothing about how far. (A run that
