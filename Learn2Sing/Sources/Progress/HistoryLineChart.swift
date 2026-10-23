@@ -139,7 +139,11 @@ struct HistoryLineChart: View {
                         // These are already spaced to clear each other, and the
                         // chart's own collision handling would only slide the
                         // outermost label sideways off the tick it belongs to.
-                        AxisValueLabel(collisionResolution: .disabled) {
+                        // The placement is the chart's own default, spelled out
+                        // because `AxisTick` measures the label as drawn there.
+                        AxisValueLabel(anchor: .topLeading,
+                                       collisionResolution: .disabled,
+                                       horizontalSpacing: Self.labelInset) {
                             Text(verbatim: ticks[value.index].label)
                         }
                         .font(Self.axisLabelStyle)
@@ -172,6 +176,11 @@ struct HistoryLineChart: View {
     /// Smallest gap left between two neighbouring x axis labels.
     private static let labelGap: CGFloat = 10
 
+    /// How far after its tick an x axis label starts: the 4 points the chart
+    /// leaves by default (measured on iOS 26.2), passed to every label so the
+    /// one number decides both where it is drawn and where it is measured.
+    private static let labelInset: CGFloat = 4
+
     /// A tick on the x axis: what it says, and where it and its label land along
     /// the plot.
     private struct AxisTick {
@@ -179,11 +188,14 @@ struct HistoryLineChart: View {
         /// are plotted at.
         let x: Double
         let label: String
-        let center: CGFloat
+        /// Where the tick lands across the plot, from its leading edge.
+        let position: CGFloat
         let width: CGFloat
 
-        var leading: CGFloat { center - width / 2 }
-        var trailing: CGFloat { center + width / 2 }
+        /// The chart writes a label after its tick rather than centred under
+        /// it, so the whole of the label's width lies to the right of the tick.
+        var leading: CGFloat { position + HistoryLineChart.labelInset }
+        var trailing: CGFloat { leading + width }
     }
 
     /// Spacings the x axis picks its ticks from, closest together first.
@@ -228,7 +240,7 @@ struct HistoryLineChart: View {
                 return AxisTick(
                     x: date.timeIntervalSinceReferenceDate,
                     label: label,
-                    center: plotWidth * date.timeIntervalSince(domain.lowerBound) / span,
+                    position: plotWidth * date.timeIntervalSince(domain.lowerBound) / span,
                     width: label.size(withAttributes: [.font: font]).width)
             }
             if let fitted = fitted(ticks), !fitted.isEmpty { return fitted }
@@ -246,11 +258,13 @@ struct HistoryLineChart: View {
         return []
     }
 
-    /// `ticks` with any whose label would hang over an edge of the plot dropped —
-    /// only the outermost ever can — or nil when what is left still crowds
-    /// together.
+    /// `ticks` with any whose label would hang over the plot's trailing edge
+    /// dropped — only those at the right-hand end can, since every label runs
+    /// on to the right of its tick — or nil when what is left still crowds
+    /// together. A label hanging over would be cut off wherever the chart's
+    /// surroundings clip, as the Time Spent Singing screen's list row does.
     private func fitted(_ ticks: [AxisTick]) -> [AxisTick]? {
-        let inside = ticks.filter { $0.leading >= 0 && $0.trailing <= plotWidth }
+        let inside = ticks.filter { $0.trailing <= plotWidth }
         for (left, right) in zip(inside, inside.dropFirst())
         where right.leading - left.trailing < Self.labelGap {
             return nil
