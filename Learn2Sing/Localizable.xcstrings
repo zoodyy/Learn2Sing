@@ -29310,6 +29310,95 @@
         }
       }
     },
+    "How long the exercises below take. Tap to choose another time, and a new list is put together to fill it. Your daily practice goal stays as it is." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "المدة التي تستغرقها التمارين أدناه. اضغط لاختيار مدة أخرى، فتُعَدّ قائمة جديدة تملؤها. يبقى هدف التمرّن اليومي كما هو."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wie lange die Übungen unten dauern. Tippe darauf, um eine andere Zeit zu wählen, dann wird eine neue Liste zusammengestellt, die sie füllt. Dein tägliches Übungsziel bleibt, wie es ist."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cuánto duran los ejercicios de abajo. Toca para elegir otro tiempo y se preparará una lista nueva que lo llene. Tu objetivo diario de práctica se queda como está."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La durée des exercices ci-dessous. Touchez pour choisir une autre durée : une nouvelle liste est composée pour la remplir. Votre objectif de pratique quotidien reste tel quel."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quanto durano gli esercizi qui sotto. Tocca per scegliere un altro tempo e verrà preparato un nuovo elenco che lo riempia. Il tuo obiettivo di pratica giornaliero resta com’è."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "下のエクササイズにかかる時間です。タップして別の時間を選ぶと、その時間を満たす新しいリストが作られます。1日の練習目標はそのままです。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "아래 연습에 걸리는 시간입니다. 탭해서 다른 시간을 고르면 그 시간을 채우는 새 목록이 만들어집니다. 하루 연습 목표는 그대로입니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hoe lang de oefeningen hieronder duren. Tik om een andere tijd te kiezen, dan wordt er een nieuwe lijst samengesteld die die tijd vult. Je dagelijkse oefendoel blijft zoals het is."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ile trwają ćwiczenia poniżej. Dotknij, aby wybrać inny czas, a zostanie ułożona nowa lista, która go wypełni. Twój dzienny cel ćwiczeń pozostaje bez zmian."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quanto tempo duram os exercícios abaixo. Toque para escolher outro tempo, e uma nova lista é montada para preenchê-lo. Sua meta diária de prática fica como está."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сколько длятся упражнения ниже. Нажмите, чтобы выбрать другое время, и будет составлен новый список на это время. Ваша ежедневная цель занятий не меняется."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hur lång tid övningarna nedan tar. Tryck för att välja en annan tid, så sätts en ny lista ihop som fyller den. Ditt dagliga övningsmål förblir som det är."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aşağıdaki egzersizlerin ne kadar sürdüğü. Başka bir süre seçmek için dokunun; o süreyi dolduran yeni bir liste hazırlanır. Günlük çalışma hedefiniz olduğu gibi kalır."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "下面这些练习需要的时间。点按可选择另一个时长，并重新组成一份填满该时长的列表。你每天的练习目标保持不变。"
+          }
+        }
+      }
+    },
     "How long this exercise takes to sing through, every repetition included. A finished run adds this much to the Home tab's “Time Spent Singing”." : {
       "extractionState" : "stale",
       "localizations" : {
@@ -55765,6 +55854,95 @@
         }
       }
     },
+    "Queue Length" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "مدة قائمة الانتظار"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gesamtdauer"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Duración de la cola"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Durée de la file"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Durata della coda"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "合計時間"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "총 시간"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Duur van de rij"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Czas trwania kolejki"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Duração da fila"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Длительность очереди"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Köns längd"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sıra süresi"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "队列时长"
+          }
+        }
+      }
+    },
     "Range" : {
       "localizations" : {
         "ar" : {
@@ -72266,6 +72444,95 @@
         }
       }
     },
+    "Target Time" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "المدة المستهدفة"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zielzeit"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tiempo objetivo"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Durée cible"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Durata obiettivo"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "目標時間"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "목표 시간"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Streeftijd"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Czas docelowy"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tempo-alvo"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Целевое время"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tidsmål"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hedef süre"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "目标时长"
+          }
+        }
+      }
+    },
     "Target window size" : {
       "localizations" : {
         "ar" : {
@@ -83458,6 +83725,95 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "试试这样做：舒服地站好，想象脊柱在拉长，仿佛身体是从头顶被吊起来的，而不是从下面撑起来的。不要刻意摆姿势，只需留意哪里感觉不平衡或紧张。目的是觉察身体在做什么，而不是僵硬地站着不动。"
+          }
+        }
+      }
+    },
+    "Turn the wheel and a new list is put together to fill that time. It only applies to the list on this screen, and your daily practice goal stays as it is." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "أدِر العجلة فتُعَدّ قائمة جديدة تملأ تلك المدة. ينطبق هذا على القائمة في هذه الشاشة فقط، ويبقى هدف التمرّن اليومي كما هو."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dreh am Rad, und eine neue Liste wird zusammengestellt, die diese Zeit füllt. Das gilt nur für die Liste auf diesem Bildschirm; dein tägliches Übungsziel bleibt, wie es ist."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gira la rueda y se preparará una lista nueva que llene ese tiempo. Solo afecta a la lista de esta pantalla, y tu objetivo diario de práctica se queda como está."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Faites tourner la roue : une nouvelle liste est composée pour remplir cette durée. Cela ne vaut que pour la liste de cet écran, et votre objectif de pratique quotidien reste tel quel."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gira la rotella e verrà preparato un nuovo elenco che riempia quel tempo. Vale solo per l’elenco di questa schermata, e il tuo obiettivo di pratica giornaliero resta com’è."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ホイールを回すと、その時間を満たす新しいリストが作られます。これはこの画面のリストだけに適用され、1日の練習目標はそのままです。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "휠을 돌리면 그 시간을 채우는 새 목록이 만들어집니다. 이 화면의 목록에만 적용되며 하루 연습 목표는 그대로입니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Draai aan het wiel en er wordt een nieuwe lijst samengesteld die die tijd vult. Dit geldt alleen voor de lijst op dit scherm, en je dagelijkse oefendoel blijft zoals het is."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Obróć kółko, a zostanie ułożona nowa lista, która wypełni ten czas. Dotyczy to tylko listy na tym ekranie, a twój dzienny cel ćwiczeń pozostaje bez zmian."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gire a roda e uma nova lista é montada para preencher esse tempo. Isso vale só para a lista desta tela, e sua meta diária de prática fica como está."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Прокрутите колесо, и будет составлен новый список на это время. Это касается только списка на этом экране, а ваша ежедневная цель занятий не меняется."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vrid på hjulet så sätts en ny lista ihop som fyller den tiden. Det gäller bara listan på den här skärmen, och ditt dagliga övningsmål förblir som det är."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Çarkı çevirin; o süreyi dolduran yeni bir liste hazırlanır. Bu yalnızca bu ekrandaki liste için geçerlidir ve günlük çalışma hedefiniz olduğu gibi kalır."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "转动滚轮，就会重新组成一份填满该时长的列表。这只对本屏幕上的列表有效，你每天的练习目标保持不变。"
           }
         }
       }

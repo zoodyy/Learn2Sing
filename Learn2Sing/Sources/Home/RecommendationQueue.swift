@@ -31,6 +31,11 @@ import UIKit
 /// once it is closed, and so does taking one of its exercises off the
 /// whitelist: those are the singer asking for a different batch. Kept on the
 /// device only, like the play history it was drawn from.
+///
+/// A batch the queue screen's time button put together to fill a time of its
+/// own keeps that time for as long as it is held, so the reload button keeps
+/// to it too. Letting go of the batch lets go of the time with it: the next
+/// batch drawn by itself fills the daily practice time again.
 @MainActor
 final class RecommendationQueue: ObservableObject {
     static let shared = RecommendationQueue()
@@ -59,6 +64,13 @@ final class RecommendationQueue: ObservableObject {
     /// The daily practice time and scale limit the batch was drawn under.
     private var minutes = 0
     private var limitScales = false
+    /// The time the queue screen's time button put the batch together to
+    /// fill, in minutes, or nil for a batch filling the daily practice time.
+    @Published private(set) var targetMinutes: Int?
+
+    /// The time the batch was put together to fill, in minutes: the one its
+    /// time button picked, or else the daily practice time it was drawn under.
+    var drawnMinutes: Int { targetMinutes ?? minutes }
 
     /// Wakes up as the hold runs out, so the card changes over while it is on
     /// screen rather than on its next redraw.
@@ -71,6 +83,9 @@ final class RecommendationQueue: ObservableObject {
         var leftForegroundAt: Date?
         var minutes: Int
         var limitScales: Bool
+        /// Absent from what versions before the time button stored, which
+        /// decodes as nil: the daily practice time.
+        var targetMinutes: Int?
     }
 
     private init() {
@@ -82,6 +97,7 @@ final class RecommendationQueue: ObservableObject {
             leftForegroundAt = stored.leftForegroundAt
             minutes = stored.minutes
             limitScales = stored.limitScales
+            targetMinutes = stored.targetMinutes
         }
         // A screen still open at launch is one the app was closed on, and no
         // launch starts on it again: closed as of the moment the app was last
@@ -123,12 +139,14 @@ final class RecommendationQueue: ObservableObject {
         return order
     }
 
-    /// Hold on to `batch`, drawn under `minutes` and `limitScales`: what the
-    /// category showed as it was opened, or the new batch the reload button
-    /// asked for.
-    func hold(_ batch: [UUID], minutes: Int, limitScales: Bool) {
+    /// Hold on to `batch`, drawn under `minutes` and `limitScales` and put
+    /// together to fill `targetMinutes` (nil: `minutes` itself): what the
+    /// category showed as it was opened, or the new batch the reload or the
+    /// time button asked for.
+    func hold(_ batch: [UUID], minutes: Int, limitScales: Bool, targetMinutes: Int?) {
         self.minutes = minutes
         self.limitScales = limitScales
+        self.targetMinutes = targetMinutes
         if order != batch {
             order = batch
         } else {
@@ -150,6 +168,7 @@ final class RecommendationQueue: ObservableObject {
     func forget() {
         isOpen = false
         closedAt = nil
+        targetMinutes = nil
         order = []
         scheduleExpiry()
     }
@@ -186,13 +205,15 @@ final class RecommendationQueue: ObservableObject {
               Date.now >= closedAt + Self.holdDuration
         else { return }
         self.closedAt = nil
+        targetMinutes = nil
         order = []
     }
 
     private func save() {
         let stored = Stored(order: order, isOpen: isOpen, closedAt: closedAt,
                             leftForegroundAt: leftForegroundAt,
-                            minutes: minutes, limitScales: limitScales)
+                            minutes: minutes, limitScales: limitScales,
+                            targetMinutes: targetMinutes)
         guard let data = try? JSONEncoder().encode(stored) else { return }
         UserDefaults.standard.set(data, forKey: Self.storageKey)
     }

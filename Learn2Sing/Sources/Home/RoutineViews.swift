@@ -234,6 +234,11 @@ struct ExerciseQueueIntroView: View {
     /// What the button along the bottom reads. Already translated, since it is
     /// a value rather than a literal SwiftUI resolves itself.
     var startTitle = L("Start Routine")
+    /// The time button beside the queue's heading: how long the queue takes,
+    /// and a different time to put it together to fill. Only the
+    /// recommendation card's screen has one, since a routine is the length
+    /// its exercises make it; nil leaves the heading on its own.
+    var time: QueueTime? = nil
     /// Tap on a queued exercise: start the play-through from that one. nil makes
     /// the rows display-only.
     var onSelect: ((UUID) -> Void)? = nil
@@ -290,6 +295,12 @@ struct ExerciseQueueIntroView: View {
     private var exercisesHeader: some View {
         HStack {
             Text("Exercise Queue")
+            // Beside the heading it belongs to rather than with the shuffle
+            // button: it says something about the queue, and only then
+            // offers to change it.
+            if let time {
+                QueueTimeButton(time: time)
+            }
             Spacer()
             Button {
                 withAnimation { order.shuffle() }
@@ -363,6 +374,113 @@ struct ExerciseQueueIntroView: View {
         }
         .navigationTitle(title)
         .navigationBarTitleDisplayMode(.inline)
+    }
+}
+
+/// What the time button on the recommendation card's queue screen works with:
+/// see `ExerciseQueueIntroView.time`.
+struct QueueTime {
+    /// How long singing the queue through once takes, in seconds: the time the
+    /// Home tab's recommendation card shows for it.
+    let seconds: Int
+    /// The time the queue was put together to fill, in minutes, which the
+    /// button's wheel starts out on.
+    let targetMinutes: Int
+    /// Put a new queue together to fill this many minutes.
+    let onRetarget: (Int) -> Void
+}
+
+/// The button beside the recommendation queue's heading: how long the queue
+/// takes, written exactly as the Home tab's card writes it, so it reads as the
+/// same queue at a glance. Tapping it opens a wheel of other times to put the
+/// queue together to fill instead — see QueueTargetPicker.
+private struct QueueTimeButton: View {
+    let time: QueueTime
+
+    /// The app's chosen language, which the time is written out in by hand
+    /// like the card's.
+    @Environment(\.locale) private var locale
+
+    @State private var isPicking = false
+
+    var body: some View {
+        let length = RecommendationCard.formattedTime(time.seconds, locale: locale)
+        Button {
+            isPicking = true
+        } label: {
+            // The card's clock and time, followed by the chevrons a picker
+            // shows beside its value. A stack rather than a Label, which a
+            // section header gives the wide icon column of a list row.
+            HStack(spacing: 4) {
+                Image(systemName: "clock")
+                Text(verbatim: length)
+                    .monospacedDigit()
+                Image(systemName: "chevron.up.chevron.down")
+                    .imageScale(.small)
+            }
+        }
+        .buttonStyle(.borderless)
+        .accessibilityLabel(L("Queue Length"))
+        .accessibilityValue(length)
+        .explain(L("How long the exercises below take. Tap to choose another time, and a new list is put together to fill it. Your daily practice goal stays as it is."))
+        // Outside the hold's own popover, which rebuilds what it is attached
+        // to whenever it recognises a hold.
+        .popover(isPresented: $isPicking) {
+            QueueTargetPicker(minutes: time.targetMinutes, onChange: time.onRetarget)
+        }
+    }
+}
+
+/// The wheel the queue screen's time button opens: the time to put the queue
+/// together to fill, a whole number of minutes up to three hours. The queue is
+/// put together anew each time the wheel comes to rest, so there is nothing to
+/// confirm: by the time the wheel is put away, the button it points at already
+/// says how long the new queue takes.
+private struct QueueTargetPicker: View {
+    /// A presentation takes neither the language nor the appearance from the
+    /// screen it is presented over (see IntroTutorialView), so both are read
+    /// here and handed on.
+    @ObservedObject private var appLanguage = LanguageManager.shared
+    @AppStorage(AppTheme.storageKey) private var themeRaw = AppTheme.system.rawValue
+
+    @State private var minutes: Int
+    let onChange: (Int) -> Void
+
+    init(minutes: Int, onChange: @escaping (Int) -> Void) {
+        let range = RecommendedExercises.queueMinutesRange
+        // A wheel left on a value none of its rows has shows the first row
+        // while meaning another.
+        _minutes = State(initialValue: min(max(minutes, range.lowerBound), range.upperBound))
+        self.onChange = onChange
+    }
+
+    var body: some View {
+        let locale = appLanguage.language.locale
+        VStack(spacing: 0) {
+            Text(L("Target Time"))
+                .font(.headline)
+                .padding(.top)
+                // On the title rather than on the wheel, whose own touch is
+                // its turning: a finger resting on it before it moves would
+                // put the bubble up and stop the wheel.
+                .explain(L("Turn the wheel and a new list is put together to fill that time. It only applies to the list on this screen, and your daily practice goal stays as it is."))
+            Picker(L("Target Time"), selection: $minutes) {
+                // Minutes alone, even past the hour: a wheel read a row at a
+                // time is easier to follow counting up in one unit.
+                ForEach(RecommendedExercises.queueMinutesRange, id: \.self) { option in
+                    Text(verbatim: Duration.seconds(option * 60).formatted(
+                        Duration.UnitsFormatStyle(allowedUnits: [.minutes], width: .abbreviated)
+                            .locale(locale)))
+                }
+            }
+            .pickerStyle(.wheel)
+        }
+        .frame(width: 240)
+        .onChange(of: minutes) { onChange(minutes) }
+        .presentationSizing(.fitted)
+        .presentationCompactAdaptation(.popover)
+        .environment(\.locale, locale)
+        .preferredColorScheme((AppTheme(rawValue: themeRaw) ?? .system).colorScheme)
     }
 }
 

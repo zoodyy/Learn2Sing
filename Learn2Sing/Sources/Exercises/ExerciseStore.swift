@@ -1694,11 +1694,17 @@ enum RecommendedExercises {
     /// The daily practice time when the user hasn't chosen — a warm-up's worth,
     /// which on the exercises the app ships with is around ten of them.
     static let defaultMinutes = 10
-    static let minutesRange = 5...120
+    static let minutesRange = 5...180
     /// What one press of the Settings stepper — or of the tutorial's ± buttons,
     /// which don't repeat while held — moves it by. The setting is a round
     /// intention rather than a measurement, so it moves in round steps.
     static let minutesStep = 5
+
+    /// The times the recommendation queue screen's time button can put one
+    /// queue together to fill instead, up to the same limit. A minute at a
+    /// time: that is a choice for the session about to be sung, which has no
+    /// reason to be round.
+    static let queueMinutesRange = 1...minutesRange.upperBound
 
     /// The stored practice time, for the places that read it outside a view.
     static var minutes: Int {

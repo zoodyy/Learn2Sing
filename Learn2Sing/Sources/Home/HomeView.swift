@@ -131,6 +131,14 @@ struct RecommendationCard: View {
     /// time is written out here rather than by a `Text` that would pick it up.
     @Environment(\.locale) private var locale
 
+    /// `seconds` the way the card writes it: the way the calendar's bubble
+    /// writes a day, part minutes dropped, so it is what that day's bubble
+    /// goes up by once the queue has been sung through. The queue screen's
+    /// time button writes its time with this too, so the two always agree.
+    static func formattedTime(_ seconds: Int, locale: Locale) -> String {
+        Duration.seconds(seconds).formatted(PracticeCalendarView.durationStyle(seconds, locale: locale))
+    }
+
     var body: some View {
         GeometryReader { geo in
             // No spacing between the two: the name is centred in everything the
@@ -157,15 +165,12 @@ struct RecommendationCard: View {
                         // calendar's size.
                         .minimumScaleFactor(0.5)
 
-                    // Written the way the calendar's bubble writes a day, part
-                    // minutes dropped, so it is what that day's bubble goes up
-                    // by once the queue has been sung through. A stack rather
-                    // than a Label, whose own gap between the clock and the
-                    // time doesn't scale down with the type.
+                    // See `formattedTime`. A stack rather than a Label, whose
+                    // own gap between the clock and the time doesn't scale
+                    // down with the type.
                     HStack(spacing: geo.size.height * 0.03) {
                         Image(systemName: "clock")
-                        Text(verbatim: Duration.seconds(seconds)
-                            .formatted(PracticeCalendarView.durationStyle(seconds, locale: locale)))
+                        Text(verbatim: Self.formattedTime(seconds, locale: locale))
                     }
                     .font(.system(size: geo.size.height * 0.11, weight: .semibold))
                     .monospacedDigit()
@@ -460,26 +465,39 @@ struct HomeView: View {
         store.favourites.compactMap { id in store.exercises.first { $0.id == id } }
     }
 
-    /// The exercises to suggest, easiest first: enough of them to fill the daily
-    /// practice time, drawn from the whitelist away from what was sung lately and
-    /// towards the singer's level — see `recommendedExercises`.
-    private var recommendedExercises: [Exercise] {
-        store.recommendedExercises(minutes: practiceMinutes,
+    /// The exercises to suggest, easiest first: enough of them to fill `minutes`
+    /// of practice — the daily practice time, unless the queue screen's time
+    /// button asked for another — drawn from the whitelist away from what was
+    /// sung lately and towards the singer's level. See `recommendedExercises`.
+    private func recommendedExercises(minutes: Int) -> [Exercise] {
+        store.recommendedExercises(minutes: minutes,
                                    skill: skill.level, hardness: skill.hardness,
                                    limitScales: limitScales)
     }
 
-    /// What "Recommended" shows: the batch held since it was last opened, in the
-    /// order its queue screen left it, while RecommendationQueue still holds one
-    /// — and otherwise the draw as it stands now.
+    /// The batch held since "Recommended" was last opened, in the order its
+    /// queue screen left it, while RecommendationQueue still holds one.
+    private var heldRecommendation: [Exercise]? {
+        guard let held = recommendationQueue.held(minutes: practiceMinutes,
+                                                  limitScales: limitScales,
+                                                  whitelist: store.recommendationWhitelist)
+        else { return nil }
+        let exercises = held.compactMap { id in store.exercises.first { $0.id == id } }
+        return exercises.isEmpty ? nil : exercises
+    }
+
+    /// What "Recommended" shows: the batch it is holding on to, and otherwise
+    /// the draw as it stands now.
     private var recommendation: [Exercise] {
-        if let held = recommendationQueue.held(minutes: practiceMinutes,
-                                               limitScales: limitScales,
-                                               whitelist: store.recommendationWhitelist) {
-            let exercises = held.compactMap { id in store.exercises.first { $0.id == id } }
-            if !exercises.isEmpty { return exercises }
-        }
-        return recommendedExercises
+        heldRecommendation ?? recommendedExercises(minutes: practiceMinutes)
+    }
+
+    /// What singing `exercises` through once adds to today's square in "Time
+    /// Spent Singing": every run's length, worked out and rounded the way a
+    /// finished run files it. The time the recommendation card shows, and the
+    /// one its queue screen's time button shows too.
+    private func practiceSeconds(of exercises: [Exercise]) -> Int {
+        exercises.reduce(0) { $0 + store.practiceSeconds(of: $1) }
     }
 
     /// The category most of `exercises` belong to — what the recommendation
@@ -566,12 +584,11 @@ struct HomeView: View {
     /// to suggest, which leaves the category as empty as the list would.
     ///
     /// The time on it is what singing the whole queue through once adds to
-    /// today's square in "Time Spent Singing": every run's length, worked out
-    /// and rounded the way a finished run files it.
+    /// today's square in "Time Spent Singing" — see `practiceSeconds(of:)`.
     private var recommendationCardRow: ExerciseListRow? {
         let exercises = recommendation
         guard let category = recommendedCategory(of: exercises) else { return nil }
-        let seconds = exercises.reduce(0) { $0 + store.practiceSeconds(of: $1) }
+        let seconds = practiceSeconds(of: exercises)
         return placeholderRow(HomeCategories.recommendationRowID,
                               content: .recommendation(category: category, seconds: seconds,
                                                        skill: skill.level))
@@ -776,11 +793,14 @@ struct HomeView: View {
     }
 
     /// Hold on to what "Recommended" is showing, as it is opened: the batch
-    /// already held, dragged and shuffled as it was left, or the draw that
-    /// replaced it once it was let go of.
+    /// already held, dragged and shuffled as it was left and still filling
+    /// whatever time its queue screen's time button picked, or the draw that
+    /// replaced it once it was let go of, which fills the daily practice time.
     private func holdRecommendation() {
-        recommendationQueue.hold(recommendation.map(\.id),
-                                 minutes: practiceMinutes, limitScales: limitScales)
+        let held = heldRecommendation
+        recommendationQueue.hold((held ?? recommendedExercises(minutes: practiceMinutes)).map(\.id),
+                                 minutes: practiceMinutes, limitScales: limitScales,
+                                 targetMinutes: held == nil ? nil : recommendationQueue.targetMinutes)
     }
 
     /// Tap on the recommendation card: open the suggestion as one queue, where
@@ -803,12 +823,29 @@ struct HomeView: View {
     /// been sung, in the queue's order, which both reseeds the draw and weighs
     /// against those same exercises in it, so the new batch mostly holds others.
     /// One that does come back only gets less likely with every reload, since
-    /// each one records it again.
+    /// each one records it again. The new batch fills the same time as the
+    /// one it replaces, picked with the time button or not.
     private func reloadRecommendations() {
         store.markPassedOver(recommendationExercises.map(\.id))
+        let target = recommendationQueue.targetMinutes
         withAnimation {
-            recommendationQueue.hold(recommendedExercises.map(\.id),
-                                     minutes: practiceMinutes, limitScales: limitScales)
+            recommendationQueue.hold(recommendedExercises(minutes: target ?? practiceMinutes).map(\.id),
+                                     minutes: practiceMinutes, limitScales: limitScales,
+                                     targetMinutes: target)
+        }
+    }
+
+    /// The time button on that screen: the singer wants a session of another
+    /// length. A new batch is drawn to fill `minutes` and held along with that
+    /// time, which is this batch's alone: the daily practice time stays as it
+    /// is, and so does what the next batch drawn by itself fills. Unlike a
+    /// reload, nothing counts as sung: the batch being replaced was turned
+    /// down for its length, not for its exercises.
+    private func retargetRecommendations(to minutes: Int) {
+        withAnimation {
+            recommendationQueue.hold(recommendedExercises(minutes: minutes).map(\.id),
+                                     minutes: practiceMinutes, limitScales: limitScales,
+                                     targetMinutes: minutes)
         }
     }
 
@@ -1206,6 +1243,9 @@ struct HomeView: View {
                 order: $recommendationQueue.order,
                 title: ExerciseCategoryName.localized(HomeCategories.recommended),
                 startTitle: L("Play Recommended Exercises"),
+                time: QueueTime(seconds: practiceSeconds(of: recommendationExercises),
+                                targetMinutes: recommendationQueue.drawnMinutes,
+                                onRetarget: retargetRecommendations),
                 onSelect: { exerciseID in
                     guard let index = recommendationExercises
                         .firstIndex(where: { $0.id == exerciseID }) else { return }
