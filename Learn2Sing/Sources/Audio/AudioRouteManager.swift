@@ -128,6 +128,107 @@ final class AudioRouteManager: ObservableObject {
         applyInputRoute()
     }
 
+    /// The longest `configureSession(whenSettled:)` waits for the route before calling
+    /// back anyway. The walk to AirPods takes about a quarter of a second.
+    private static let settleTimeout: TimeInterval = 1.0
+
+    /// `configureSession`, and then `ready` once iOS has actually moved the output to
+    /// where that configuration sends it. Whatever starts a run's engines goes through
+    /// here rather than starting them straight after `configureSession`.
+    ///
+    /// Activating the session comes back before the route has got there: with AirPods
+    /// connected, iOS walks the output from the receiver to the speaker to the AirPods
+    /// over the next quarter of a second or so. An engine started during that walk
+    /// opens its Bluetooth stream while the route is still being switched under it.
+    /// Usually that does no harm, and it is the likeliest reason why, now and then, the
+    /// earphones come out of their start holding far more audio than iOS reports: every
+    /// note is then heard late for the whole run, and nothing the app can read shows it
+    /// (2026-10-26: after such a run the AirPods reported a 336 ms delay, against 156 ms
+    /// after the run before it, while iOS gave 177 ms for both). Starting once the
+    /// route has arrived keeps every start clear of the switch.
+    ///
+    /// `ready` runs on the main queue, once: straight away when the route is already
+    /// where it is going, and at the latest after `settleTimeout`, so a device that
+    /// drops out half way can't hold a run up. Cancelling the wait drops it instead.
+    func configureSession(whenSettled ready: @escaping () -> Void) -> RouteWait {
+        let destination = expectedOutput()
+        let wait = RouteWait(arrived: { [weak self] in self?.output(reaches: destination) ?? true },
+                             ready: ready)
+        // Listening before configuring, so a step of the walk that lands while
+        // `configureSession` is still running can't be missed.
+        wait.listen(timeout: Self.settleTimeout)
+        configureSession()
+        DispatchQueue.main.async { wait.check() }
+        return wait
+    }
+
+    /// A `configureSession(whenSettled:)` that hasn't called back yet.
+    final class RouteWait {
+        private let arrived: () -> Bool
+        private var ready: (() -> Void)?
+        private var observer: NSObjectProtocol?
+        private var timeout: DispatchWorkItem?
+
+        fileprivate init(arrived: @escaping () -> Bool, ready: @escaping () -> Void) {
+            self.arrived = arrived
+            self.ready = ready
+        }
+
+        /// Look at the route on every change, and stop waiting for it after `seconds`.
+        /// Both hold on to the wait, so it lasts until it has called back or been
+        /// cancelled whether or not the caller keeps it.
+        fileprivate func listen(timeout seconds: TimeInterval) {
+            observer = NotificationCenter.default.addObserver(
+                forName: AVAudioSession.routeChangeNotification, object: nil, queue: .main
+            ) { _ in self.check() }
+            let giveUp = DispatchWorkItem { self.finish(callingBack: true) }
+            timeout = giveUp
+            DispatchQueue.main.asyncAfter(deadline: .now() + seconds, execute: giveUp)
+        }
+
+        fileprivate func check() {
+            if arrived() { finish(callingBack: true) }
+        }
+
+        /// Drop the wait without calling back.
+        func cancel() {
+            finish(callingBack: false)
+        }
+
+        private func finish(callingBack: Bool) {
+            if let observer { NotificationCenter.default.removeObserver(observer) }
+            observer = nil
+            timeout?.cancel()
+            timeout = nil
+            let ready = self.ready
+            self.ready = nil
+            if callingBack { ready?() }
+        }
+    }
+
+    /// Where a route can end up, as far as waiting for it goes.
+    private enum Destination {
+        case speaker
+        case external
+    }
+
+    /// Where `configureSession` will leave the output, read before it runs: the
+    /// phone's speaker when the user pinned it, otherwise an external device if the
+    /// route reaches one already (iOS hands the output back to it once the new
+    /// category is in place), and the speaker when there is none.
+    private func expectedOutput() -> Destination {
+        if selectedSpeaker == Self.builtInSpeaker { return .speaker }
+        return session.currentRoute.outputs.contains(where: Self.isExternalOutput) ? .external : .speaker
+    }
+
+    private func output(reaches destination: Destination) -> Bool {
+        let outputs = session.currentRoute.outputs
+        switch destination {
+        case .speaker: return outputs.contains { $0.portType == .builtInSpeaker }
+        case .external: return outputs.contains(where: Self.isExternalOutput)
+        }
+    }
+
     /// Configure the shared session for sound that never records — the instrument
     /// samples in Settings. Activating the recording category would ask a user who
     /// hasn't granted microphone access for it, which has nothing to do with

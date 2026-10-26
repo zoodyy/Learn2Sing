@@ -57,7 +57,8 @@ private extension Instrument {
 
 final class ExercisePlayer {
     private let engine = AVAudioEngine()
-    private var sourceNode: AVAudioSourceNode!
+    /// The synthesiser's way into the engine; nil until `buildGraph` (see there).
+    private var sourceNode: AVAudioSourceNode?
 
     private static let renderRate: Double = 44100
     private let sampleRate = renderRate
@@ -161,17 +162,11 @@ final class ExercisePlayer {
     init() {
         mach_timebase_info(&timebase)
 
-        let format = AVAudioFormat(standardFormatWithSampleRate: sampleRate, channels: 2)!
-        sourceNode = AVAudioSourceNode { [weak self] _, timestamp, frameCount, ablPointer -> OSStatus in
-            self?.render(frameCount: Int(frameCount), hostTime: timestamp.pointee.mHostTime, abl: ablPointer)
-            return noErr
-        }
-        engine.attach(sourceNode)
-        engine.connect(sourceNode, to: engine.mainMixerNode, format: format)
-        // The engine is *not* started here. It's started in begin() after the audio
-        // route has been configured, so the very first rendered sample already targets
-        // the final output (e.g. AirPods). Starting it earlier and then switching the
-        // route mid-stream is what delayed the audio, glitched timing and stuttered.
+        // The engine is *not* started here, and not even wired up (see `buildGraph`).
+        // It's started in begin() once the audio route has settled, so the very first
+        // rendered sample already targets the final output (e.g. AirPods). Starting it
+        // earlier and then switching the route mid-stream is what delayed the audio,
+        // glitched timing and stuttered.
 
         // iOS stops the engine when the audio IO is reconfigured — most notably when
         // the pitch detector's input engine starts a moment after this one. Without
@@ -198,9 +193,33 @@ final class ExercisePlayer {
         shouldRun = true
         isSuspended = false
         refreshOutputLatency()
+        buildGraph()
         guard !engine.isRunning else { return }
         engine.prepare()
         try? engine.start()
+    }
+
+    /// Wire the synthesiser into the engine, the first time it is about to play.
+    ///
+    /// Not done in `init`, because connecting to the mixer is what creates the
+    /// engine's audio I/O unit, and that is anything but free: under the record-and-play
+    /// session it builds the microphone-and-earphones device and wakes the Bluetooth
+    /// link. SwiftUI runs `@State private var player = ExercisePlayer()` every time it
+    /// rebuilds the struct of a screen holding one and keeps only the first player, so
+    /// wiring up in `init` did all that again and again for players that never play:
+    /// after every run, on leaving for the background and on coming back — on
+    /// 2026-10-26 two seconds before the run whose AirPods came out of their start
+    /// holding extra audio (see `AudioRouteManager.configureSession(whenSettled:)`).
+    private func buildGraph() {
+        guard sourceNode == nil else { return }
+        let format = AVAudioFormat(standardFormatWithSampleRate: sampleRate, channels: 2)!
+        let node = AVAudioSourceNode { [weak self] _, timestamp, frameCount, ablPointer -> OSStatus in
+            self?.render(frameCount: Int(frameCount), hostTime: timestamp.pointee.mHostTime, abl: ablPointer)
+            return noErr
+        }
+        engine.attach(node)
+        engine.connect(node, to: engine.mainMixerNode, format: format)
+        sourceNode = node
     }
 
     /// Stop rendering while the app is backgrounded. The playhead is preserved so the
@@ -208,6 +227,13 @@ final class ExercisePlayer {
     /// observer and resume() can bring the engine back.
     func pauseForBackground() {
         isSuspended = true
+        // The anchor goes now rather than at the resume: a resume waits for the route
+        // to settle before the engine starts again, and an anchor still standing in
+        // that wait would read the whole pause as elapsed and run the notes ahead.
+        // Without one `currentBeat` is nil and the view holds its last frame.
+        os_unfair_lock_lock(&clockLock)
+        startCaptured = false
+        os_unfair_lock_unlock(&clockLock)
         if engine.isRunning { engine.pause() }
     }
 
@@ -931,6 +957,25 @@ private final class LastDrawnBeat {
     var value: Double? = nil
 }
 
+/// The run's audio on its way up: the route settling before the engine starts, then
+/// the microphone a moment after it. A class (reference type) so a pause, the app
+/// leaving for the background or the screen going away can cancel whatever is still
+/// pending without mutating SwiftUI `@State` during a view update.
+private final class AudioStartup {
+    var routeWait: AudioRouteManager.RouteWait?
+    var microphone: DispatchWorkItem?
+    /// Whether the run's engine has been started and its notes scheduled, which is
+    /// what tells a resume to pick the run up rather than start it.
+    var hasStarted = false
+
+    func cancel() {
+        routeWait?.cancel()
+        routeWait = nil
+        microphone?.cancel()
+        microphone = nil
+    }
+}
+
 struct PlaybackView: View {
     /// Re-renders this screen when the language is changed in Settings; the
     /// strings are resolved when the body runs, so SwiftUI needs telling.
@@ -1020,6 +1065,7 @@ struct PlaybackView: View {
     /// line can stop level with the bar's buttons instead of at the screen edge.
     @State private var pauseButtonBottom: CGFloat? = nil
     @State private var lastDrawnBeat = LastDrawnBeat()
+    @State private var audioStartup = AudioStartup()
     // Vertical centre of each repetition's pitch range, plus where the repetitions sit
     // on the timeline — used to recentre the view once per repetition, and by the
     // repetition counter badge.
@@ -1205,53 +1251,18 @@ struct PlaybackView: View {
             // A new run's clock is unanchored until its first render pass; start from
             // the lead-in again rather than holding the previous run's final beat.
             lastDrawnBeat.value = nil
-            // Order matters: configure the route first, load the notes, start the
-            // engine on that settled route, and only then schedule (which anchors the
-            // playback clock). This keeps audio and the animation in sync and stops
-            // playback from starting partway through while the exercise is still loading.
-            AudioRouteManager.shared.configureSession()
-            // While the delay is recognised, the setting is what the recent runs on
-            // these devices settled on, so a run on the speaker starts from the
-            // speaker's delay rather than from whatever the earphones last left.
-            if mode == .normal || mode == .pitchDetectionTrial, AutoMicDelay.isEnabled,
-               let settled = AutoMicDelay.settledDelay(route: AudioRouteManager.devicePairKey()),
-               settled != micDelayMs {
-                micDelayMs = settled
-            }
             // Pick up the latest visual settings and start the vertical follower fresh.
             visuals = VisualSettings.current
             follower.reset()
             if playsExercise { loadNotes() } else { loadDelayTestNotes() }
-            player.begin()
-            // The clap test plays a metronome sample on every tick (in sync with the
-            // engine clock) instead of a synthesised note; exercises use the user's
-            // chosen instrument.
-            if playsExercise {
-                player.setClickMode(false)
-                player.setInstrument(Instrument.current)
-            } else {
-                player.loadClick(named: "metronome")
-                player.setClickMode(true)
-            }
             scorer.reset()
             claps.reset()
-            pitchDetector.detectClaps = (mode == .clapDelayTest)
-            // DEBUG RECORDING — remove together with DebugRecording.swift.
-            // The allowlist is checked here rather than at the button: an install
-            // that isn't on it never arms the recorder, so it does none of the
-            // capture work either, and `debugRecording` stays nil - which is what
-            // keeps the export button off its score screen.
-            if mode == .normal, DebugRecordingAccess.isAllowed {
-                debugRecording = nil
-                let clock = player
-                debugRecorder.start(bpm: bpm) { host in
-                    clock.beat(forHostTime: host, bpm: bpm, leadIn: leadIn)
-                }
-                pitchDetector.debugSink = debugRecorder
-            }
-            scheduleRun()
-            if mode == .pitchDetectionTrial { pitchDetector.use(trialDetection) }
-            pitchDetector.start()
+            // Order matters: configure the route and let it settle, start the engine
+            // on that settled route, and only then schedule (which anchors the playback
+            // clock). This keeps audio and the animation in sync and stops playback
+            // from starting partway through while the exercise is still loading.
+            audioStartup.hasStarted = false
+            startAudio()
         }
         .onChange(of: trialDetection) { _, detection in
             pitchDetector.use(detection)
@@ -1273,10 +1284,9 @@ struct PlaybackView: View {
             switch phase {
             case .active:
                 guard !isPaused else { break }   // stay paused if the user paused before leaving
-                AudioRouteManager.shared.configureSession()
-                player.resumeFromBackground()
-                pitchDetector.start()
+                startAudio()
             case .background:
+                audioStartup.cancel()
                 player.pauseForBackground()
                 pitchDetector.stop()
             default:
@@ -1290,6 +1300,81 @@ struct PlaybackView: View {
                   AVAudioSession.InterruptionType(rawValue: raw) == .began else { return }
             pauseForInterruption()
         }
+    }
+
+    // MARK: - Starting the audio
+
+    /// How long after the engine the microphone comes on (see `startMicrophone`).
+    private static let microphoneStartDelay: TimeInterval = 0.5
+
+    /// Set the run's audio going: configure the session and, once its route has
+    /// settled (see `AudioRouteManager.configureSession(whenSettled:)`), start the run,
+    /// or pick it up where a pause or the background left it, then the microphone.
+    private func startAudio() {
+        audioStartup.cancel()
+        audioStartup.routeWait = AudioRouteManager.shared.configureSession(whenSettled: {
+            audioStartup.routeWait = nil
+            if audioStartup.hasStarted {
+                player.resumeFromBackground()
+            } else {
+                beginRun()
+            }
+            startMicrophone()
+        })
+    }
+
+    /// Starting a run, once the route has settled: the engine, what it plays, and the
+    /// schedule, which anchors the clock.
+    private func beginRun() {
+        // While the delay is recognised, the setting is what the recent runs on
+        // these devices settled on, so a run on the speaker starts from the
+        // speaker's delay rather than from whatever the earphones last left. Only
+        // read once the route has settled: half way there it names the receiver.
+        if mode == .normal || mode == .pitchDetectionTrial, AutoMicDelay.isEnabled,
+           let settled = AutoMicDelay.settledDelay(route: AudioRouteManager.devicePairKey()),
+           settled != micDelayMs {
+            micDelayMs = settled
+        }
+        player.begin()
+        // The clap test plays a metronome sample on every tick (in sync with the
+        // engine clock) instead of a synthesised note; exercises use the user's
+        // chosen instrument.
+        if playsExercise {
+            player.setClickMode(false)
+            player.setInstrument(Instrument.current)
+        } else {
+            player.loadClick(named: "metronome")
+            player.setClickMode(true)
+        }
+        pitchDetector.detectClaps = (mode == .clapDelayTest)
+        // DEBUG RECORDING — remove together with DebugRecording.swift.
+        // The allowlist is checked here rather than at the button: an install
+        // that isn't on it never arms the recorder, so it does none of the
+        // capture work either, and `debugRecording` stays nil - which is what
+        // keeps the export button off its score screen.
+        if mode == .normal, DebugRecordingAccess.isAllowed {
+            debugRecording = nil
+            let clock = player
+            debugRecorder.start(bpm: bpm) { host in
+                clock.beat(forHostTime: host, bpm: bpm, leadIn: leadIn)
+            }
+            pitchDetector.debugSink = debugRecorder
+        }
+        scheduleRun()
+        if mode == .pitchDetectionTrial { pitchDetector.use(trialDetection) }
+        audioStartup.hasStarted = true
+    }
+
+    /// Start listening a moment after the engine, once its Bluetooth stream to the
+    /// earphones is up (130–300 ms after the engine on AirPods). Turning the microphone
+    /// on reconfigures the audio device that stream runs through, and in the run whose
+    /// AirPods came out of their start holding extra audio it did so the very moment
+    /// the route reached them. The six-beat lead-in leaves the wait time to spare.
+    private func startMicrophone() {
+        audioStartup.microphone?.cancel()
+        let start = DispatchWorkItem { pitchDetector.start() }
+        audioStartup.microphone = start
+        DispatchQueue.main.asyncAfter(deadline: .now() + Self.microphoneStartDelay, execute: start)
     }
 
     // MARK: - Scheduling a run
@@ -1633,11 +1718,10 @@ struct PlaybackView: View {
     /// clock to it so audio and animation stay in sync across the gap.
     private func togglePause() {
         if isPaused {
-            AudioRouteManager.shared.configureSession()
-            player.resumeFromBackground()
-            pitchDetector.start()
+            startAudio()
             isPaused = false
         } else {
+            audioStartup.cancel()
             player.pauseForBackground()
             pitchDetector.stop()
             isPaused = true
@@ -1652,6 +1736,7 @@ struct PlaybackView: View {
     /// from where it stopped, the same as any other pause.
     private func pauseForInterruption() {
         guard finalScore == nil, delayResultMs == nil, !isCalibrating, !isPaused else { return }
+        audioStartup.cancel()
         player.pauseForBackground()
         pitchDetector.stop()
         isPaused = true
@@ -1676,6 +1761,7 @@ struct PlaybackView: View {
     }
 
     private func teardownAudio() {
+        audioStartup.cancel()
         player.stop()
         pitchDetector.stop()
         AudioRouteManager.shared.deactivateSession()
