@@ -231,6 +231,8 @@ extension SettingKey {
     static let showRepetitionCounter = SettingKey("playback.showRepetitions")
     static let repetitionPosition   = SettingKey("playback.repetitionPosition")
     static let hideTabBar           = SettingKey("playback.hideTabBar")
+    static let showTimeline         = SettingKey("playback.showTimeline")
+    static let timelineColor        = SettingKey("playback.timelineColor")
     static let saveTemplate         = SettingKey("playback.saveTemplate")
     static let exportTemplate       = SettingKey("playback.exportTemplate")
     static let importTemplate       = SettingKey("playback.importTemplate")
@@ -408,6 +410,9 @@ enum SettingsCatalog {
     }
     private static var countsRepetitions: Bool {
         flag(VisualKeys.showRepetitionCounter, default: VisualDefaults.showRepetitionCounter)
+    }
+    private static var showsTimeline: Bool {
+        flag(VisualKeys.showTimeline, default: VisualDefaults.showTimeline)
     }
     private static var hasCustomVocalRange: Bool {
         UserDefaults.standard.string(forKey: VocalRange.storageKey) == VocalRange.custom.rawValue
@@ -598,6 +603,11 @@ enum SettingsCatalog {
         heading(.playbackScreen, .playback, L("Screen"))
         add(.hideTabBar, .playback, section: L("Screen"), title: L("Hide tab bar"),
             help: L("Hides the Home, Exercises, Community and Settings tabs at the bottom of the screen while an exercise plays."))
+        add(.showTimeline, .playback, section: L("Screen"), title: L("Timeline"),
+            help: L("Shows a bar along the bottom of the playback screen that fills up as the exercise plays, so you can see how far through it you are."))
+        add(.timelineColor, .playback, section: L("Screen"), title: L("Timeline color"),
+            help: L("Sets the color of the timeline, both while an exercise plays and on the screen the Review button opens."),
+            available: { showsTimeline })
 
         heading(.playbackTemplates, .playback, L("Templates"))
         add(.saveTemplate, .playback, section: L("Templates"), title: L("Save Current as Template"),

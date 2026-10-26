@@ -7,6 +7,11 @@ import UIKit
 /// sounds — the playhead is a fixed cursor that the content is dragged past.
 /// One finger scrolls; a pinch zooms the axis the fingers are arranged along.
 ///
+/// A timeline along the bottom shows how far into the run the playhead is, as the
+/// playback screen's does when it is switched on, and doubles as a scroll bar: a
+/// finger put down anywhere on it takes the view straight to that point of the run,
+/// and up or down to wherever playback had the notes at that point.
+///
 /// The line drawn is the one the score was computed from, so it is shifted
 /// earlier by the microphone delay the run was scored at: scoring treats the notes
 /// as sounding that much later than they are drawn, which is the same comparison as
@@ -37,6 +42,9 @@ struct ExerciseReviewView: View {
     let bpm: Double
     /// Where the repetitions sit on the timeline, for the repetition counter badge.
     let repeatLayout: RepeatLayout
+    /// The pitch each repetition was centred on during the run, which a drag along
+    /// the timeline moves the view up and down by (see `PlaybackCenterTrack`).
+    var repetitionCenters: [Double] = []
     /// How much later than the fastest pitch detection's the run's line was drawn
     /// (see `PitchDetection`). The line is shifted back by it on top of the delay,
     /// which, like the setting, is the microphone's part alone: the number the delay
@@ -95,6 +103,17 @@ struct ExerciseReviewView: View {
     /// the gesture handlers read this copy.
     @State private var safeArea = EdgeInsets()
 
+    /// Set while a finger is on the timeline, which is the only time its handle shows.
+    @State private var isScrubbing = false
+
+    /// The run's vertical centre all the way along it, kept once a drag along the
+    /// timeline has first needed it (see `playbackCenters`).
+    @State private var centerTrack = CenterTrackHolder()
+
+    /// Whether the timeline is drawn: on a look back at a run, not on the delay
+    /// test, which has its offset controls along the bottom instead.
+    private var showsTimeline: Bool { onCalibrationDone == nil }
+
     // Navigation-bar metrics for placing the top of the playhead line, matching
     // the playback screen's.
     private let navBarHeight: CGFloat = 54
@@ -114,14 +133,25 @@ struct ExerciseReviewView: View {
                 width: geo.size.width + geo.safeAreaInsets.leading + geo.safeAreaInsets.trailing,
                 height: geo.size.height + geo.safeAreaInsets.top + geo.safeAreaInsets.bottom)
             ZStack {
-                Canvas { ctx, size in
-                    draw(ctx: ctx, size: size,
-                         safeTop: geo.safeAreaInsets.top, safeBottom: geo.safeAreaInsets.bottom)
+                ZStack {
+                    Canvas { ctx, size in
+                        draw(ctx: ctx, size: size,
+                             safeTop: geo.safeAreaInsets.top, safeBottom: geo.safeAreaInsets.bottom)
+                    }
+                    PanZoomSurface(onPan: pan(by:), onPinch: zoom(by:axis:around:))
                 }
-                PanZoomSurface(onPan: pan(by:), onPinch: zoom(by:axis:around:))
+                .explain(showsTimeline
+                         ? L("The whole exercise with the pitch you sang drawn over it. Drag to move around, pinch to zoom, or drag along the timeline at the bottom to jump to any point.")
+                         : L("The whole exercise with the pitch you sang drawn over it. Drag to move around, pinch to zoom."))
+                // Beside the drawing rather than inside it, so a finger on the bar is
+                // the bar's alone: the drawing's own drag doesn't get it, and neither
+                // does the hold that explains the drawing, which would otherwise go
+                // up under a finger resting on the handle.
+                if showsTimeline {
+                    timelineStrip(safeBottom: geo.safeAreaInsets.bottom)
+                }
             }
             .ignoresSafeArea()
-            .explain(L("The whole exercise with the pitch you sang drawn over it. Drag to move around, pinch to zoom."))
             .onAppear {
                 canvasSize = canvas
                 safeArea = geo.safeAreaInsets
@@ -279,7 +309,8 @@ struct ExerciseReviewView: View {
     // MARK: - Drawing
 
     private func draw(ctx: GraphicsContext, size: CGSize, safeTop: CGFloat, safeBottom: CGFloat) {
-        let cam = resolvedCamera(size: size)
+        let content = measureContent()
+        let cam = resolvedCamera(size: size, content: content)
         let layout = sceneLayout(size: size, camera: cam, safeTop: safeTop, safeBottom: safeBottom)
         let beat = cam.playheadBeat
         let delay = lineShift
@@ -316,11 +347,17 @@ struct ExerciseReviewView: View {
             repetition = (current: idx + 1, total: totalReps)
         }
 
+        let timeline = showsTimeline
+            ? PlaybackTimelineMark(progress: PlaybackTimeline.progress(at: beat, in: content.beats),
+                                   showsHandle: isScrubbing)
+            : nil
+
         drawPlaybackScene(ctx: ctx, layout: layout, beat: beat, notes: notes, texts: texts,
                           ghosts: ghosts,
                           trailPath: trailPath, singerPitch: pitch(at: beat), settings: visuals,
                           repetition: repetition, safeTop: safeTop, safeBottom: safeBottom,
-                          playheadTop: playheadTop(safeTop: safeTop), repeatLayout: repeatLayout)
+                          playheadTop: playheadTop(safeTop: safeTop), repeatLayout: repeatLayout,
+                          timeline: timeline)
     }
 
     /// The pitch recorded at `beat`, so the singer indicator sits on the line right
@@ -353,10 +390,6 @@ struct ExerciseReviewView: View {
     /// The camera to draw with: whatever the singer has scrolled to, or the
     /// opening framing, and either way kept over the content — so a rotation that
     /// changes what fits on screen can't leave the view stranded off the end.
-    private func resolvedCamera(size: CGSize) -> Camera {
-        resolvedCamera(size: size, content: measureContent())
-    }
-
     private func resolvedCamera(size: CGSize, content: Content) -> Camera {
         var cam = camera ?? framedCamera(size: size, content: content)
         clamp(&cam, content: content)
@@ -506,6 +539,85 @@ struct ExerciseReviewView: View {
         cam.centerPitch = min(max(cam.centerPitch, content.pitches.lowerBound),
                               content.pitches.upperBound)
     }
+
+    // MARK: - Timeline
+
+    /// The strip a drag along the timeline starts in. As wide as the screen, so the
+    /// finger's position across it is its position across the canvas as well, and a
+    /// drag begun beyond either end of the bar takes the view to that end.
+    private func timelineStrip(safeBottom: CGFloat) -> some View {
+        VStack(spacing: 0) {
+            Spacer(minLength: 0)
+            TimelineScrubSurface(onScrub: scrub(toX:), onEnd: { isScrubbing = false })
+                .frame(height: PlaybackTimeline.touchHeight)
+                .accessibilityElement()
+                .accessibilityLabel(L("Timeline"))
+                .accessibilityValue(Text(timelineProgress, format: .percent.precision(.fractionLength(0))))
+                .accessibilityAdjustableAction { direction in
+                    switch direction {
+                    case .increment: jump(to: timelineProgress + 0.1)
+                    case .decrement: jump(to: timelineProgress - 0.1)
+                    @unknown default: break
+                    }
+                }
+                .padding(.bottom, safeBottom)
+        }
+    }
+
+    /// How far along the timeline the view is: the playhead's place in the stretch
+    /// it can travel, which is everything the bar stands for here.
+    private var timelineProgress: Double {
+        let content = measureContent()
+        let cam = resolvedCamera(size: canvasSize, content: content)
+        return PlaybackTimeline.progress(at: cam.playheadBeat, in: content.beats)
+    }
+
+    /// A finger landing on the timeline, or moving along it, at `x` across the
+    /// canvas: the handle goes under it and the view straight to that point of the
+    /// run.
+    private func scrub(toX x: CGFloat) {
+        let ends = PlaybackTimeline.ends(width: canvasSize.width, pianoW: keyboardWidth)
+        guard ends.end > ends.start else { return }
+        isScrubbing = true
+        jump(to: Double((x - ends.start) / (ends.end - ends.start)))
+    }
+
+    /// Puts the playhead `fraction` of the way along the timeline, and the notes as
+    /// high or low on the screen as playback had them when its playhead was there:
+    /// the drag only ever moves the view across, and the view goes up and down by
+    /// itself, exactly where and how far the run did.
+    private func jump(to fraction: Double) {
+        let size = canvasSize
+        guard size.width > 0, size.height > 0 else { return }
+        let content = measureContent()
+        var cam = resolvedCamera(size: size, content: content)
+        let beats = content.beats
+        cam.playheadBeat = beats.lowerBound
+            + min(max(fraction, 0), 1) * (beats.upperBound - beats.lowerBound)
+        if let center = playbackCenters.center(at: cam.playheadBeat) {
+            cam.centerPitch = center
+        }
+        clamp(&cam, content: content)
+        camera = cam
+    }
+
+    /// The vertical centre playback drew the run at, frame by frame. Worked out on
+    /// the first drag along the timeline rather than with the screen, since a long
+    /// run recorded tens of thousands of frames and the singer may never drag it.
+    private var playbackCenters: PlaybackCenterTrack {
+        if let track = centerTrack.track { return track }
+        let track = PlaybackCenterTrack(frames: samples, repeatLayout: repeatLayout,
+                                        repetitionCenters: repetitionCenters)
+        centerTrack.track = track
+        return track
+    }
+}
+
+/// Keeps the review screen's `PlaybackCenterTrack` once it has been worked out. A
+/// class, so filling it in from inside a drag isn't a change of state for SwiftUI to
+/// redraw the screen over.
+private final class CenterTrackHolder {
+    var track: PlaybackCenterTrack?
 }
 
 // MARK: - Delay-test offset button
@@ -674,6 +786,60 @@ private struct PanZoomSurface: UIViewRepresentable {
         func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer,
                                shouldRecognizeSimultaneouslyWith other: UIGestureRecognizer) -> Bool {
             true
+        }
+    }
+}
+
+// MARK: - Timeline input
+
+/// Picks up a finger on the review screen's timeline. A press that needs no time
+/// and allows any movement, rather than a pan, so the handle is under the finger the
+/// moment it lands instead of once it has travelled a little; and UIKit's rather
+/// than a SwiftUI drag, so the finger is reported in points from the strip's left
+/// edge in a mirrored app too, which is where the canvas measures from.
+private struct TimelineScrubSurface: UIViewRepresentable {
+    /// The finger's position across the strip, when it lands and as it moves.
+    let onScrub: (CGFloat) -> Void
+    /// The finger has lifted, or the touch was taken away.
+    let onEnd: () -> Void
+
+    func makeUIView(context: Context) -> UIView {
+        let view = UIView()
+        view.backgroundColor = .clear
+        let press = UILongPressGestureRecognizer(target: context.coordinator,
+                                                 action: #selector(Coordinator.handlePress(_:)))
+        press.minimumPressDuration = 0
+        press.allowableMovement = .greatestFiniteMagnitude
+        view.addGestureRecognizer(press)
+        return view
+    }
+
+    func updateUIView(_ uiView: UIView, context: Context) {
+        context.coordinator.onScrub = onScrub
+        context.coordinator.onEnd = onEnd
+    }
+
+    func makeCoordinator() -> Coordinator { Coordinator(onScrub: onScrub, onEnd: onEnd) }
+
+    final class Coordinator: NSObject {
+        var onScrub: (CGFloat) -> Void
+        var onEnd: () -> Void
+
+        init(onScrub: @escaping (CGFloat) -> Void, onEnd: @escaping () -> Void) {
+            self.onScrub = onScrub
+            self.onEnd = onEnd
+        }
+
+        @objc func handlePress(_ recognizer: UILongPressGestureRecognizer) {
+            guard let view = recognizer.view else { return }
+            switch recognizer.state {
+            case .began, .changed:
+                onScrub(recognizer.location(in: view).x)
+            case .ended, .cancelled, .failed:
+                onEnd()
+            default:
+                break
+            }
         }
     }
 }

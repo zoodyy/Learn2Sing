@@ -17,11 +17,13 @@
   "showLines" : false,
   "showPitches" : false,
   "showRepetitionCounter" : false,
+  "showTimeline" : false,
   "singerInnerColor" : "#EE6C4DFF",
   "singerLineColor" : "#EE6C4DD9",
   "singerOuterColor" : "#FFFFFFFF",
   "singerSize" : 1.1,
   "textColor" : "#293241",
   "textFont" : "Serif",
+  "timelineColor" : "#3D5A80FF",
   "verticalZoom" : 2.6
 }

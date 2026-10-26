@@ -128,6 +128,8 @@ enum VisualKeys {
     static let showRepetitionCounter    = "vis_showRepetitionCounter"
     static let repetitionCounterPosition = "vis_repetitionCounterPosition"
     static let hideTabBar     = "vis_hideTabBar"
+    static let showTimeline   = "vis_showTimeline"
+    static let timelineColor  = "vis_timelineColor"
 
     /// Every key above, so Settings ▸ Reset can clear the lot without naming them
     /// one by one. Add new keys here as well as above.
@@ -138,6 +140,7 @@ enum VisualKeys {
         textColor, textFont, singerSize, singerInnerColor, singerOuterColor,
         singerLineColor, playheadColor, playheadStyle, hideUnusedDots,
         showRepetitionCounter, repetitionCounterPosition, hideTabBar,
+        showTimeline, timelineColor,
     ]
 }
 
@@ -170,6 +173,11 @@ nonisolated enum VisualDefaults {
     static let showRepetitionCounter    = false
     static let repetitionCounterPosition = RepetitionCounterPosition.bottomRight.rawValue
     static let hideTabBar     = false
+    static let showTimeline   = false
+    /// The app's accent colour, which stands out on a light look and a dark one
+    /// alike: the review screen draws the timeline whether or not playback does,
+    /// so a template saved before the setting existed still needs one that shows.
+    static let timelineColor  = "#CD49FDFF"
 }
 
 // MARK: - Menu visuals
@@ -222,6 +230,11 @@ struct VisualSettings {
     var hideUnusedDots: Bool
     var showRepetitionCounter: Bool
     var repetitionCounterPosition: RepetitionCounterPosition
+    /// Draw the bar along the foot of the playback screen that shows how far through
+    /// the exercise the playhead is. The review screen draws it either way, in
+    /// `timelineColor`, since there it is how the singer gets around the run.
+    var showTimeline: Bool
+    var timelineColor: Color
     // Hides the tab bar while an exercise plays. Not part of the drawn scene (so the
     // visuals preview ignores it), which is why it defaults here: the preview's
     // memberwise construction doesn't need to mention it.
@@ -258,6 +271,8 @@ struct VisualSettings {
             showRepetitionCounter: bool(VisualKeys.showRepetitionCounter, VisualDefaults.showRepetitionCounter),
             repetitionCounterPosition: RepetitionCounterPosition(
                 rawValue: str(VisualKeys.repetitionCounterPosition, VisualDefaults.repetitionCounterPosition)) ?? .bottomRight,
+            showTimeline: bool(VisualKeys.showTimeline, VisualDefaults.showTimeline),
+            timelineColor: Color(hex: str(VisualKeys.timelineColor, VisualDefaults.timelineColor)),
             hideTabBar: bool(VisualKeys.hideTabBar, VisualDefaults.hideTabBar))
     }
 }
@@ -318,6 +333,11 @@ struct SceneLayout {
 /// Smoothly eases the vertical centre toward a target pitch so playback recentres
 /// on each repetition without jumping.
 final class VerticalFollower {
+    /// The share of the gap to the repetition's centre the playback screen closes on
+    /// each frame it draws. Shared with the review screen, which replays the run's
+    /// frames through it (see `PlaybackCenterTrack`).
+    static let playbackFactor = 0.08
+
     private var shown: Double?
     var current: Double? { shown }
 
@@ -327,6 +347,59 @@ final class VerticalFollower {
     }
 
     func reset() { shown = nil }
+}
+
+/// The pitch a finished run had at the vertical centre of the screen, all the way
+/// through it, so the review screen can move up and down exactly as playback did
+/// while the singer drags along its timeline.
+///
+/// Worked out by replaying the run rather than by imitating it: the recording holds
+/// one sample per frame the playback screen drew, at the very beat that frame was
+/// drawn at, and that screen stepped its `VerticalFollower` once on each of those
+/// frames. Stepping a fresh one over the same beats lands on the same value frame
+/// for frame, at whatever rate the device drew, pauses included.
+struct PlaybackCenterTrack {
+    private var beats: [Double] = []
+    private var centers: [Double] = []
+
+    /// A track with nothing on it, for content that never moved up or down.
+    init() {}
+
+    /// `frames` is the run's recording, oldest first; `repetitionCenters` and
+    /// `repeatLayout` are what the run was recentred on.
+    init(frames: [PitchSample], repeatLayout: RepeatLayout, repetitionCenters: [Double]) {
+        guard repeatLayout.count > 0, !repetitionCenters.isEmpty else { return }
+        let follower = VerticalFollower()
+        beats.reserveCapacity(frames.count)
+        centers.reserveCapacity(frames.count)
+        for frame in frames {
+            let index = min(repetitionCenters.count - 1, repeatLayout.index(at: frame.beat))
+            beats.append(frame.beat)
+            centers.append(follower.step(target: repetitionCenters[index],
+                                         factor: VerticalFollower.playbackFactor))
+        }
+    }
+
+    /// The centre playback showed when the playhead was at `beat`, eased between the
+    /// two frames either side of it; held at the first or the last frame's outside
+    /// the run. nil for an empty track.
+    func center(at beat: Double) -> Double? {
+        guard let first = beats.first, let last = beats.last else { return nil }
+        if beat <= first { return centers[0] }
+        if beat >= last { return centers[centers.count - 1] }
+        // The playback clock never runs backwards, so the frames are in beat order.
+        var low = 0
+        var high = beats.count - 1
+        while low < high {
+            let mid = (low + high) / 2
+            if beats[mid] < beat { low = mid + 1 } else { high = mid }
+        }
+        let before = max(0, low - 1)
+        let span = beats[low] - beats[before]
+        guard span > 0 else { return centers[low] }
+        let t = (beat - beats[before]) / span
+        return centers[before] + (centers[low] - centers[before]) * t
+    }
 }
 
 // MARK: - Collapsing preview
@@ -445,6 +518,116 @@ private func labelScales(of shown: [Int], in placed: [PlacedLabel],
     return shown.map { scaleOf[$0] ?? 1 }
 }
 
+// MARK: - Timeline
+
+/// Where the playhead is along the exercise, for the timeline drawn across the foot
+/// of the scene: during playback when Settings ▸ Visuals ▸ Playback ▸ Timeline is
+/// on, and always on the review screen, where it is also dragged to get around.
+struct PlaybackTimelineMark {
+    /// How far through, from 0 at the start of the bar to 1 at its end.
+    var progress: Double
+    /// Whether the handle is drawn at `progress`. Only while a finger is dragging
+    /// along the review screen's bar: there is nothing to grab until then.
+    var showsHandle = false
+}
+
+/// The timeline's geometry, shared by everything that draws it and by the review
+/// screen, which has to know where it is to tell a drag along it from one across
+/// the notes.
+enum PlaybackTimeline {
+    /// Thickness of the bar.
+    static let thickness: CGFloat = 4
+    /// From the foot of what the bars leave visible up to the middle of the bar.
+    static let bottomInset: CGFloat = 14
+    /// From each side of the note area in to the bar's rounded ends.
+    static let sideInset: CGFloat = 16
+    /// The handle a drag along the bar shows, and the glow around it.
+    static let handleRadius: CGFloat = 9
+    static let handleGlow: CGFloat = 6
+    /// How much higher the repetition badge sits while the bar is drawn under it,
+    /// so the two never touch, handle and glow included.
+    static let clearance: CGFloat = 26
+    /// From the middle of the bar up to where the pitch names and the playhead
+    /// stop, so that the bar reads as the foot of the screen rather than as a line
+    /// struck through whatever row it happens to cross.
+    static let headroom: CGFloat = 10
+    /// The room it all takes up above the foot of what is visible: what a preview
+    /// that collapses onto the notes keeps free under them while the bar is on.
+    static let footprint: CGFloat = bottomInset + headroom
+    /// Height of the strip along the bar that a drag can start in, its foot level
+    /// with the foot of what the bars leave visible: tall enough to land a finger
+    /// on, and clear of the home indicator below it.
+    static let touchHeight: CGFloat = 40
+
+    /// Height of the middle of the bar, on a scene `height` points tall with
+    /// `safeBottom` of it covered at the foot.
+    static func y(height: CGFloat, safeBottom: CGFloat) -> CGFloat {
+        height - safeBottom - bottomInset
+    }
+
+    /// Where the bar starts and ends across a scene `width` points wide: inside the
+    /// note area, like everything else that moves with the exercise.
+    static func ends(width: CGFloat, pianoW: CGFloat) -> (start: CGFloat, end: CGFloat) {
+        let start = pianoW + sideInset
+        return (start, max(start, width - sideInset))
+    }
+
+    /// The stretch of the playback timeline the bar stands for: from the first note
+    /// to the end of the last, ghost notes included, since the run plays those out
+    /// too. The lead-in before it leaves the bar empty and the beat after it leaves
+    /// it full. nil when there is nothing to play.
+    static func span(notes: [MIDINote], ghosts: [MIDINote]) -> ClosedRange<Double>? {
+        var first = Double.infinity
+        var last = -Double.infinity
+        for note in [notes, ghosts].joined() {
+            first = min(first, note.beat)
+            last = max(last, note.beat + note.length)
+        }
+        return first <= last ? first...last : nil
+    }
+
+    /// How far through `span` the playhead at `beat` is, held between 0 and 1.
+    static func progress(at beat: Double, in span: ClosedRange<Double>?) -> Double {
+        guard let span, span.upperBound > span.lowerBound else { return 0 }
+        return min(max((beat - span.lowerBound) / (span.upperBound - span.lowerBound), 0), 1)
+    }
+}
+
+/// The timeline itself: the whole bar faintly, the part already played in full,
+/// and the handle while one is being dragged.
+private func drawTimeline(ctx: GraphicsContext, mark: PlaybackTimelineMark, size: CGSize,
+                          pianoW: CGFloat, safeBottom: CGFloat, color: Color) {
+    let ends = PlaybackTimeline.ends(width: size.width, pianoW: pianoW)
+    guard ends.end > ends.start else { return }
+    let y = PlaybackTimeline.y(height: size.height, safeBottom: safeBottom)
+    let progress = min(max(mark.progress, 0), 1)
+    let x = ends.start + (ends.end - ends.start) * CGFloat(progress)
+    let style = StrokeStyle(lineWidth: PlaybackTimeline.thickness, lineCap: .round)
+
+    var bar = Path()
+    bar.move(to: CGPoint(x: ends.start, y: y))
+    bar.addLine(to: CGPoint(x: ends.end, y: y))
+    ctx.stroke(bar, with: .color(color.opacity(0.3)), style: style)
+
+    // Nothing played yet draws nothing, rather than the dot a round cap would put
+    // at the start.
+    if progress > 0 {
+        var played = Path()
+        played.move(to: CGPoint(x: ends.start, y: y))
+        played.addLine(to: CGPoint(x: x, y: y))
+        ctx.stroke(played, with: .color(color), style: style)
+    }
+
+    if mark.showsHandle {
+        let r = PlaybackTimeline.handleRadius
+        let glow = r + PlaybackTimeline.handleGlow
+        ctx.fill(Path(ellipseIn: CGRect(x: x - glow, y: y - glow, width: 2 * glow, height: 2 * glow)),
+                 with: .color(color.opacity(0.2)))
+        ctx.fill(Path(ellipseIn: CGRect(x: x - r, y: y - r, width: 2 * r, height: 2 * r)),
+                 with: .color(color))
+    }
+}
+
 // MARK: - Shared scene renderer
 
 /// How strongly a ghost note is drawn, as a share of an ordinary note's colour:
@@ -468,6 +651,10 @@ private let ghostNoteOpacity = 0.22
 /// copies of them underneath; nothing else here — the keyboard's lit keys, the
 /// dotted playhead's rows — takes any notice of them, since those point the singer
 /// at what to sing.
+/// `timeline` draws the timeline across the foot of the scene, in the settings'
+/// colour, and lifts a badge at the bottom clear of it; nil leaves it off. Whether
+/// it is on is the caller's to say rather than the settings', since the review
+/// screen draws it whatever they say.
 func drawPlaybackScene(ctx: GraphicsContext, layout: SceneLayout, beat: Double,
                        notes: [MIDINote], texts: [MIDIText], ghosts: [MIDINote] = [],
                        trailPath: Path, singerPitch: Double?,
@@ -475,7 +662,8 @@ func drawPlaybackScene(ctx: GraphicsContext, layout: SceneLayout, beat: Double,
                        repetition: (current: Int, total: Int)? = nil,
                        safeTop: CGFloat = 0, safeBottom: CGFloat = 0,
                        playheadTop: CGFloat = 0,
-                       repeatLayout: RepeatLayout = RepeatLayout()) {
+                       repeatLayout: RepeatLayout = RepeatLayout(),
+                       timeline: PlaybackTimelineMark? = nil) {
     let size = layout.size
     let pianoW = layout.pianoW
     let rowH = layout.rowH
@@ -543,15 +731,20 @@ func drawPlaybackScene(ctx: GraphicsContext, layout: SceneLayout, beat: Double,
 
     // ── Vertical extent shared by the pitch names and the playhead ─────────
     // A row only counts as visible when everything belonging to it fits between the
-    // top of the playhead line (clear of the toolbar buttons) and the bottom edge:
-    // the whole row band, from the horizontal separator above it to the one below,
-    // plus the name drawn on it when that text is taller than the row. Names go on
-    // exactly those rows; the dotted playhead puts one dot on each of them, so its
-    // last dot is level with the last name; and the continuous line runs from the
-    // separator above the first row to the separator below the last. With names
-    // hidden (or rows too short for legible text) there is nothing to align to, so
-    // the line spans everything below the toolbar as before.
+    // top of the playhead line (clear of the toolbar buttons) and the foot — the
+    // bottom edge, or a little above the timeline while that is drawn: the whole row
+    // band, from the horizontal separator above it to the one below, plus the name
+    // drawn on it when that text is taller than the row. Names go on exactly those
+    // rows; the dotted playhead puts one dot on each of them, so its last dot is
+    // level with the last name; and the continuous line runs from the separator
+    // above the first row to the separator below the last. With names hidden (or
+    // rows too short for legible text) there is nothing to align to, so the line
+    // spans everything from the toolbar down to the foot.
     let headTop = min(max(0, playheadTop), size.height)
+    let headFoot = timeline != nil
+        ? max(headTop, PlaybackTimeline.y(height: size.height, safeBottom: safeBottom)
+                       - PlaybackTimeline.headroom)
+        : size.height
     let nameFontSize = min(rowH * 0.55, 11)
     // Clearance a row needs either side of its centre: half a row, or half the name's
     // text height where that overflows the row.
@@ -559,12 +752,12 @@ func drawPlaybackScene(ctx: GraphicsContext, layout: SceneLayout, beat: Double,
     let namePitches: [Int] = (settings.showPitches && rowH >= 9)
         ? (lo...hi).filter { pitch in
               let y = layout.y(Double(pitch))
-              return y - rowMargin >= headTop && y + rowMargin <= size.height
+              return y - rowMargin >= headTop && y + rowMargin <= headFoot
           }
         : []
     // `namePitches` runs low → high pitch, i.e. bottom → top of the screen.
     let headLineTop = namePitches.last.map { layout.y(Double($0)) - rowH / 2 } ?? headTop
-    let headBottom = namePitches.first.map { layout.y(Double($0)) + rowH / 2 } ?? size.height
+    let headBottom = namePitches.first.map { layout.y(Double($0)) + rowH / 2 } ?? headFoot
 
     // ── Pitch names ───────────────────────────────────────────────────────
     // Drawn on the keys when the keyboard is shown, otherwise along the left edge
@@ -693,9 +886,9 @@ func drawPlaybackScene(ctx: GraphicsContext, layout: SceneLayout, beat: Double,
         var dots = Path()
         var glow = Path()
         // One dot per named row; with names hidden, every row between the toolbar
-        // and the bottom edge gets one.
+        // and the foot gets one.
         var dotPitches = namePitches.isEmpty
-            ? (lo...hi).filter { (headTop...size.height).contains(layout.y(Double($0))) }
+            ? (lo...hi).filter { (headTop...headFoot).contains(layout.y(Double($0))) }
             : namePitches
         // "Hide dots in unused pitches": keep only the rows a note of the repetition
         // being sung passes through, so the dots spell out the coming pattern.
@@ -742,7 +935,8 @@ func drawPlaybackScene(ctx: GraphicsContext, layout: SceneLayout, beat: Double,
         let badge = CGSize(width: textSize.width + 2 * padH, height: textSize.height + 2 * padV)
         let margin: CGFloat = 10
         let topY = safeTop + margin
-        let bottomY = size.height - safeBottom - margin - badge.height
+        let belowBadge = safeBottom + (timeline != nil ? PlaybackTimeline.clearance : 0)
+        let bottomY = size.height - belowBadge - margin - badge.height
         let origin: CGPoint
         switch settings.repetitionCounterPosition {
         case .topRight:     origin = CGPoint(x: size.width - margin - badge.width, y: topY)
@@ -754,5 +948,13 @@ func drawPlaybackScene(ctx: GraphicsContext, layout: SceneLayout, beat: Double,
         ctx.fill(pill, with: .color(.black.opacity(0.55)))
         ctx.draw(resolved, at: CGPoint(x: origin.x + badge.width / 2, y: origin.y + badge.height / 2),
                  anchor: .center)
+    }
+
+    // ── Timeline ──────────────────────────────────────────────────────────────
+    // Last of all, so neither the notes nor a singing indicator pinned to the foot
+    // of the screen can cover it.
+    if let timeline {
+        drawTimeline(ctx: ctx, mark: timeline, size: size, pianoW: pianoW,
+                     safeBottom: safeBottom, color: settings.timelineColor)
     }
 }

@@ -39,6 +39,8 @@ nonisolated struct VisualTemplate: Codable, Identifiable, Hashable {
     var showRepetitionCounter: Bool
     var repetitionCounterPosition: String
     var hideTabBar: Bool
+    var showTimeline: Bool
+    var timelineColor: String
 
     init(id: UUID = UUID(), name: String,
          noteColor: String, playingNoteColor: String, noteRoundness: Double,
@@ -50,7 +52,7 @@ nonisolated struct VisualTemplate: Codable, Identifiable, Hashable {
          singerOuterColor: String, singerLineColor: String,
          playheadColor: String, playheadStyle: String, hideUnusedDots: Bool,
          showRepetitionCounter: Bool, repetitionCounterPosition: String,
-         hideTabBar: Bool) {
+         hideTabBar: Bool, showTimeline: Bool, timelineColor: String) {
         self.id = id
         self.name = name
         self.noteColor = noteColor
@@ -76,6 +78,8 @@ nonisolated struct VisualTemplate: Codable, Identifiable, Hashable {
         self.showRepetitionCounter = showRepetitionCounter
         self.repetitionCounterPosition = repetitionCounterPosition
         self.hideTabBar = hideTabBar
+        self.showTimeline = showTimeline
+        self.timelineColor = timelineColor
     }
 
     /// Custom decoding so templates saved (or bundled) before a setting existed still
@@ -109,6 +113,8 @@ nonisolated struct VisualTemplate: Codable, Identifiable, Hashable {
         showRepetitionCounter = try c.decodeIfPresent(Bool.self, forKey: .showRepetitionCounter) ?? VisualDefaults.showRepetitionCounter
         repetitionCounterPosition = try c.decodeIfPresent(String.self, forKey: .repetitionCounterPosition) ?? VisualDefaults.repetitionCounterPosition
         hideTabBar = try c.decodeIfPresent(Bool.self, forKey: .hideTabBar) ?? VisualDefaults.hideTabBar
+        showTimeline = try c.decodeIfPresent(Bool.self, forKey: .showTimeline) ?? VisualDefaults.showTimeline
+        timelineColor = try c.decodeIfPresent(String.self, forKey: .timelineColor) ?? VisualDefaults.timelineColor
     }
 
     /// Captures the settings currently stored in UserDefaults into a new template,
@@ -144,7 +150,9 @@ nonisolated struct VisualTemplate: Codable, Identifiable, Hashable {
             hideUnusedDots: bool(VisualKeys.hideUnusedDots, VisualDefaults.hideUnusedDots),
             showRepetitionCounter: bool(VisualKeys.showRepetitionCounter, VisualDefaults.showRepetitionCounter),
             repetitionCounterPosition: str(VisualKeys.repetitionCounterPosition, VisualDefaults.repetitionCounterPosition),
-            hideTabBar: bool(VisualKeys.hideTabBar, VisualDefaults.hideTabBar))
+            hideTabBar: bool(VisualKeys.hideTabBar, VisualDefaults.hideTabBar),
+            showTimeline: bool(VisualKeys.showTimeline, VisualDefaults.showTimeline),
+            timelineColor: str(VisualKeys.timelineColor, VisualDefaults.timelineColor))
     }
 
     /// Writes this template's values into UserDefaults under the `VisualKeys`. The
@@ -176,6 +184,8 @@ nonisolated struct VisualTemplate: Codable, Identifiable, Hashable {
         d.set(showRepetitionCounter, forKey: VisualKeys.showRepetitionCounter)
         d.set(repetitionCounterPosition, forKey: VisualKeys.repetitionCounterPosition)
         d.set(hideTabBar, forKey: VisualKeys.hideTabBar)
+        d.set(showTimeline, forKey: VisualKeys.showTimeline)
+        d.set(timelineColor, forKey: VisualKeys.timelineColor)
     }
 
     /// This template's look as the scene renderer takes it, without going through
@@ -207,6 +217,8 @@ nonisolated struct VisualTemplate: Codable, Identifiable, Hashable {
             hideUnusedDots: hideUnusedDots,
             showRepetitionCounter: showRepetitionCounter,
             repetitionCounterPosition: RepetitionCounterPosition(rawValue: repetitionCounterPosition) ?? .bottomRight,
+            showTimeline: showTimeline,
+            timelineColor: Color(hex: timelineColor),
             hideTabBar: hideTabBar)
     }
 

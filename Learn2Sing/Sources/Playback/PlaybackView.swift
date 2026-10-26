@@ -1076,6 +1076,9 @@ struct PlaybackView: View {
     // same pattern transposed; used to zoom out when a repetition is too tall to fit
     // inside the safe area.
     @State private var repetitionMaxExtent: Double = 0
+    /// The stretch of the timeline the bar along the foot of the screen stands for,
+    /// when Settings ▸ Visuals ▸ Playback ▸ Timeline is on: see `PlaybackTimeline.span`.
+    @State private var timelineSpan: ClosedRange<Double>? = nil
     @AppStorage(microphoneDelayKey) private var micDelayMs = 0.0
     /// How much of a note counts as hit, read here so the draw pass — which is where
     /// the score is integrated — picks a change up without going back to UserDefaults
@@ -1154,6 +1157,7 @@ struct PlaybackView: View {
                                        ghosts: ghosts,
                                        samples: trail.recording, bpm: bpm,
                                        repeatLayout: repeatLayout,
+                                       repetitionCenters: repetitionCenters,
                                        lookAheadMs: pitchDetector.lookAheadMs,
                                        scoredDelayMs: runDelayMs) {
                         isReviewing = false
@@ -1482,6 +1486,16 @@ struct PlaybackView: View {
                 .ignoresSafeArea()
             }
         }
+        // The bar is drawn in the canvas, which takes no touches; this is the strip
+        // over it that answers a hold with what it is. Its foot is the foot of what
+        // the bars leave visible, which is what the bar is drawn up from.
+        .overlay(alignment: .bottom) {
+            if visuals.showTimeline {
+                Color.clear
+                    .frame(height: PlaybackTimeline.touchHeight)
+                    .explain(L("Shows how far through the exercise you are. You can turn it off in Settings under Visuals."))
+            }
+        }
     }
 
     // MARK: - Finishing a run
@@ -1635,7 +1649,8 @@ struct PlaybackView: View {
         var centerY = size.height / 2
         if repeatLayout.count > 0, !repetitionCenters.isEmpty {
             let idx = min(repetitionCenters.count - 1, repeatLayout.index(at: beat))
-            centerPitch = follower.step(target: repetitionCenters[idx], factor: 0.08)
+            centerPitch = follower.step(target: repetitionCenters[idx],
+                                        factor: VerticalFollower.playbackFactor)
             // Centre the content in the safe area — between the title/back bar at the
             // top and the menu at the bottom — and, if a repetition is too tall to fit
             // there at the chosen zoom, zoom out (never in) just enough that no note or
@@ -1701,11 +1716,16 @@ struct PlaybackView: View {
             repetition = (current: idx + 1, total: totalReps)
         }
 
+        let timeline = s.showTimeline
+            ? PlaybackTimelineMark(progress: PlaybackTimeline.progress(at: beat, in: timelineSpan))
+            : nil
+
         drawPlaybackScene(ctx: ctx, layout: layout, beat: beat, notes: notes, texts: texts,
                           ghosts: ghosts,
                           trailPath: trailPath, singerPitch: singerPitch, settings: s,
                           repetition: repetition, safeTop: safeTop, safeBottom: safeBottom,
-                          playheadTop: playheadTop, repeatLayout: repeatLayout)
+                          playheadTop: playheadTop, repeatLayout: repeatLayout,
+                          timeline: timeline)
     }
 
     // MARK: - Teardown
@@ -1783,6 +1803,7 @@ struct PlaybackView: View {
         notes = ns
         texts = ts
         ghosts = []
+        timelineSpan = PlaybackTimeline.span(notes: ns, ghosts: [])
     }
 
     /// Average lag between each counted clap and the metronome tick that prompted it.
@@ -1845,6 +1866,7 @@ struct PlaybackView: View {
         repeatLayout = timeline.repeats
         repetitionCenters = timeline.centers
         repetitionMaxExtent = timeline.maxExtent
+        timelineSpan = PlaybackTimeline.span(notes: timeline.notes, ghosts: timeline.ghosts)
     }
 }
 

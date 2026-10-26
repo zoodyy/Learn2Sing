@@ -261,6 +261,8 @@ struct PlaybackVisualsView: View {
     @AppStorage(VisualKeys.showRepetitionCounter)     private var showRepetitionCounter     = VisualDefaults.showRepetitionCounter
     @AppStorage(VisualKeys.repetitionCounterPosition) private var repetitionCounterPosition = VisualDefaults.repetitionCounterPosition
     @AppStorage(VisualKeys.hideTabBar)     private var hideTabBar     = VisualDefaults.hideTabBar
+    @AppStorage(VisualKeys.showTimeline)   private var showTimeline   = VisualDefaults.showTimeline
+    @AppStorage(VisualKeys.timelineColor)  private var timelineColor  = VisualDefaults.timelineColor
 
     /// Saved named templates the user can switch between. Created at app launch and
     /// injected, so the bundled default is seeded before any playback.
@@ -315,7 +317,9 @@ struct PlaybackVisualsView: View {
             playheadStyle: PlayheadStyle(rawValue: playheadStyle) ?? .line,
             hideUnusedDots: hideUnusedDots,
             showRepetitionCounter: showRepetitionCounter,
-            repetitionCounterPosition: RepetitionCounterPosition(rawValue: repetitionCounterPosition) ?? .bottomRight)
+            repetitionCounterPosition: RepetitionCounterPosition(rawValue: repetitionCounterPosition) ?? .bottomRight,
+            showTimeline: showTimeline,
+            timelineColor: Color(hex: timelineColor))
     }
 
     // Demo content. A short three-note motif repeated many times so the preview can
@@ -547,6 +551,13 @@ struct PlaybackVisualsView: View {
             Section {
                 Toggle("Hide tab bar", isOn: $hideTabBar)
                     .setting(.hideTabBar)
+                Toggle("Timeline", isOn: $showTimeline)
+                    .setting(.showTimeline)
+                if showTimeline {
+                    ColorPicker("Timeline color", selection: opacityColorBinding($timelineColor),
+                                supportsOpacity: true)
+                    .setting(.timelineColor)
+                }
             } header: {
                 Text("Screen").settingSection(.playbackScreen)
             }
@@ -669,11 +680,13 @@ struct PlaybackVisualsView: View {
             fullHeight / 2 - CGFloat(pitch - demoCenter) * rowH
         }
         // Top edge of the row one above the highest demo element and bottom edge of
-        // the row one below the lowest.
+        // the row one below the lowest, with the timeline's room under that while it
+        // is on, so the collapsed preview doesn't draw it over the lowest notes.
         let crop = collapsingPreviewCrop(
             fullHeight: fullHeight,
             band: (top: y(Double(Self.demoTopPitch) + 1.5),
-                   bottom: y(Double(Self.demoLowestPitch) - 1.5)),
+                   bottom: y(Double(Self.demoLowestPitch) - 1.5)
+                       + (showTimeline ? PlaybackTimeline.footprint : 0)),
             scrollOffset: scrollOffset)
 
         return previewCanvas(topCrop: crop.top, bottomCrop: crop.bottom)
@@ -730,15 +743,21 @@ struct PlaybackVisualsView: View {
                     if i == 0 { trailPath.move(to: pt) } else { trailPath.addLine(to: pt) }
                 }
 
-                // Cycle a demo counter (1/4 … 4/4) so the badge previews live.
+                // Cycle a demo counter (1/4 … 4/4) so the badge previews live, and
+                // fill the timeline over the same four repetitions, so the two
+                // start over together.
                 let demoTotal = 4
                 let demoCurrent = min(demoTotal, Int(beat / 4) % demoTotal + 1)
+                let demoLength = Self.demoRepeatSpan * Double(demoTotal)
+                let timeline = settings.showTimeline
+                    ? PlaybackTimelineMark(progress: beat.truncatingRemainder(dividingBy: demoLength) / demoLength)
+                    : nil
                 drawPlaybackScene(ctx: ctx, layout: layout, beat: beat,
                                   notes: demoNotes, texts: demoTexts,
                                   trailPath: trailPath, singerPitch: singer, settings: settings,
                                   repetition: (current: demoCurrent, total: demoTotal),
                                   safeTop: topCrop, safeBottom: bottomCrop,
-                                  repeatLayout: Self.demoRepeatLayout)
+                                  repeatLayout: Self.demoRepeatLayout, timeline: timeline)
             }
         }
     }

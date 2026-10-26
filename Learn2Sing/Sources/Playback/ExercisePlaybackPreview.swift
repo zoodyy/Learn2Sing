@@ -100,14 +100,15 @@ struct ExercisePlaybackPreview: View {
                                      centerPitch: centerPitch(at: beat))
             // No sung pitch: no dot at the playhead and no line trailing behind it.
             // The crop is passed on as the scene's safe area so the repetition badge
-            // stays inside the visible strip as the preview collapses.
+            // and the timeline stay inside the visible strip as the preview collapses.
             drawPlaybackScene(ctx: ctx, layout: layout, beat: beat,
                               notes: timeline.notes, texts: timeline.texts,
                               ghosts: timeline.ghosts,
                               trailPath: Path(), singerPitch: nil, settings: settings,
                               repetition: repetition(at: beat),
                               safeTop: crop.top, safeBottom: crop.bottom,
-                              repeatLayout: timeline.repeats)
+                              repeatLayout: timeline.repeats,
+                              timeline: timelineMark(at: beat))
         }
     }
 
@@ -185,14 +186,16 @@ struct ExercisePlaybackPreview: View {
     }
 
     /// The strip of canvas the exercise is drawn in, plus a one-row margin either
-    /// side — what the preview collapses down to. Taken from the framing rather than
-    /// from what is on screen, so it holds still while the exercise is dragged past.
+    /// side — what the preview collapses down to — and the timeline's room under it
+    /// while that is on. Taken from the framing rather than from what is on screen,
+    /// so it holds still while the exercise is dragged past.
     private var contentBand: (top: CGFloat, bottom: CGFloat) {
         let rowH = rowHeight
+        let below = settings.showTimeline ? PlaybackTimeline.footprint : 0
         if !timeline.centers.isEmpty {
             // Every repetition is drawn around the middle, so one band covers them all.
             let half = CGFloat(timeline.maxExtent + 1.5) * rowH
-            return (fullHeight / 2 - half, fullHeight / 2 + half)
+            return (fullHeight / 2 - half, fullHeight / 2 + half + below)
         }
         let center = Double(hiPitch + loPitch) / 2
         func y(_ pitch: Double) -> CGFloat { fullHeight / 2 - CGFloat(pitch - center) * rowH }
@@ -200,7 +203,7 @@ struct ExercisePlaybackPreview: View {
             + timeline.texts.map { Double($0.pitch) }
             + timeline.ghosts.map { Double($0.pitch) }
         guard let low = pitches.min(), let high = pitches.max() else { return (0, fullHeight) }
-        return (y(high + 1.5), y(low - 1.5))
+        return (y(high + 1.5), y(low - 1.5) + below)
     }
 
     // MARK: - Position
@@ -236,6 +239,14 @@ struct ExercisePlaybackPreview: View {
     private func clamped(_ beat: Double) -> Double {
         let range = contentBeats
         return min(max(beat, range.lowerBound), range.upperBound)
+    }
+
+    /// The timeline, where playback draws one: at the point the playhead has been
+    /// dragged to, measured against the same stretch of the exercise.
+    private func timelineMark(at beat: Double) -> PlaybackTimelineMark? {
+        guard settings.showTimeline else { return nil }
+        let span = PlaybackTimeline.span(notes: timeline.notes, ghosts: timeline.ghosts)
+        return PlaybackTimelineMark(progress: PlaybackTimeline.progress(at: beat, in: span))
     }
 
     /// Which repetition the playhead is sitting in, for the badge — the same rule the

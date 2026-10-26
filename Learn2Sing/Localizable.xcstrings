@@ -63655,6 +63655,95 @@
         }
       }
     },
+    "Sets the color of the timeline, both while an exercise plays and on the screen the Review button opens." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "يحدد لون الخط الزمني، أثناء تشغيل التمرين وفي الشاشة التي يفتحها زر «مراجعة» على حد سواء."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Legt die Farbe der Zeitleiste fest, sowohl während eine Übung läuft als auch auf dem Bildschirm, den die Taste „Auswerten“ öffnet."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Define el color de la línea de tiempo, tanto mientras suena un ejercicio como en la pantalla que abre el botón «Revisar»."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Définit la couleur de la chronologie, pendant la lecture d’un exercice comme sur l’écran qu’ouvre le bouton « Revoir »."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Imposta il colore della linea temporale, sia durante la riproduzione di un esercizio sia nella schermata che apre il pulsante “Rivedi”."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "タイムラインの色を設定します。エクササイズの再生中と、「振り返り」ボタンで開く画面の両方に使われます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "타임라인의 색을 설정합니다. 연습이 재생되는 동안과 “다시 보기” 버튼으로 여는 화면 모두에 적용됩니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bepaalt de kleur van de tijdlijn, zowel terwijl een oefening speelt als op het scherm dat de knop ‘Terugkijken’ opent."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ustawia kolor osi czasu, zarówno podczas odtwarzania ćwiczenia, jak i na ekranie, który otwiera przycisk „Przejrzyj”."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Define a cor da linha do tempo, tanto enquanto um exercício toca quanto na tela que o botão “Revisar” abre."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Задаёт цвет шкалы времени: и во время упражнения, и на экране, который открывает кнопка «Разбор»."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Anger färgen på tidslinjen, både medan en övning spelas och på skärmen som knappen ”Granska” öppnar."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zaman çizelgesinin rengini belirler; hem bir egzersiz çalarken hem de “İncele” düğmesinin açtığı ekranda."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "设置时间线的颜色，练习播放时和“回看”按钮打开的界面都会使用。"
+          }
+        }
+      }
+    },
     "Sets the color of the vertical line the singing indicator runs along." : {
       "extractionState" : "stale",
       "localizations" : {
@@ -65244,6 +65333,184 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "在训练组开始前显示"
+          }
+        }
+      }
+    },
+    "Shows a bar along the bottom of the playback screen that fills up as the exercise plays, so you can see how far through it you are." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "يعرض شريطًا أسفل شاشة التشغيل يمتلئ مع تقدّم التمرين، لترى إلى أين وصلت."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zeigt am unteren Rand des Wiedergabebildschirms einen Balken, der sich füllt, während die Übung läuft, damit du siehst, wie weit du schon bist."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Muestra una barra en la parte inferior de la pantalla de reproducción que se va llenando mientras suena el ejercicio, para que veas cuánto llevas."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Affiche en bas de l’écran de lecture une barre qui se remplit au fil de l’exercice, pour que vous voyiez où vous en êtes."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mostra in fondo alla schermata di riproduzione una barra che si riempie mentre l’esercizio procede, così vedi a che punto sei."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "再生画面の下部に、エクササイズの進行に合わせて伸びるバーを表示し、どこまで進んだかがわかるようにします。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "재생 화면 하단에 연습이 진행될수록 채워지는 막대를 표시해, 얼마나 진행했는지 알 수 있게 합니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Toont onderaan het afspeelscherm een balk die volloopt terwijl de oefening speelt, zodat je ziet hoe ver je bent."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pokazuje na dole ekranu odtwarzania pasek, który zapełnia się w trakcie ćwiczenia, żeby było widać, ile już za tobą."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mostra na parte inferior da tela de reprodução uma barra que vai se enchendo enquanto o exercício toca, para você ver em que ponto está."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Показывает внизу экрана воспроизведения полосу, которая заполняется по ходу упражнения, чтобы было видно, какая часть уже пройдена."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Visar en stapel längst ned på uppspelningsskärmen som fylls i takt med övningen, så att du ser hur långt du har kommit."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Çalma ekranının altında, egzersiz ilerledikçe dolan bir çubuk gösterir; böylece ne kadarını tamamladığınızı görürsünüz."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在播放界面底部显示一条随练习进行而填满的进度条，让你看到已经进行到哪里。"
+          }
+        }
+      }
+    },
+    "Shows how far through the exercise you are. You can turn it off in Settings under Visuals." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "يُظهر إلى أين وصلت في التمرين. يمكنك إيقاف الخط الزمني في الإعدادات ضمن «المرئيات»."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zeigt, wie weit du in der Übung schon bist. Du kannst die Zeitleiste in den Einstellungen unter Darstellung ausschalten."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Muestra cuánto llevas del ejercicio. Puedes desactivar la línea de tiempo en Ajustes, en Apariencia."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Montre où vous en êtes dans l’exercice. Vous pouvez désactiver la chronologie dans Réglages, sous Apparence."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mostra a che punto dell’esercizio sei. Puoi disattivare la linea temporale in Impostazioni, sotto Aspetto."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "エクササイズのどこまで進んだかを示します。タイムラインは設定の表示でオフにできます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "연습을 얼마나 진행했는지 보여 줍니다. 타임라인은 설정의 화면에서 끌 수 있습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Toont hoe ver je in de oefening bent. Je kunt de tijdlijn uitzetten in Instellingen onder Weergave."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pokazuje, ile ćwiczenia już za tobą. Oś czasu wyłączysz w Ustawieniach w sekcji Wygląd."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mostra em que ponto do exercício você está. Você pode desativar a linha do tempo em Ajustes, em Aparência."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Показывает, какая часть упражнения уже пройдена. Отключить шкалу времени можно в настройках, в разделе «Оформление»."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Visar hur långt du har kommit i övningen. Du kan stänga av tidslinjen i Inställningar under Utseende."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Egzersizin ne kadarını tamamladığınızı gösterir. Zaman çizelgesini Ayarlar’daki Görünüm bölümünden kapatabilirsiniz."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "显示你在练习中进行到哪里。你可以在“设置”的视觉里关闭时间线。"
           }
         }
       }
@@ -80529,6 +80796,95 @@
         }
       }
     },
+    "The whole exercise with the pitch you sang drawn over it. Drag to move around, pinch to zoom, or drag along the timeline at the bottom to jump to any point." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "التمرين كاملًا مع درجة الصوت التي غنيتها مرسومة فوقه. اسحب للتنقل، وقرّب أو بعّد بإصبعين للتكبير، أو اسحب على الخط الزمني في الأسفل للانتقال إلى أي نقطة."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die ganze Übung mit der von dir gesungenen Tonhöhe darüber gezeichnet. Ziehen zum Verschieben, Zusammenziehen zum Zoomen, oder entlang der Zeitleiste unten ziehen, um zu jeder Stelle zu springen."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El ejercicio entero con el tono que cantaste dibujado encima. Arrastra para moverte, pellizca para acercar o arrastra por la línea de tiempo de abajo para saltar a cualquier punto."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "L’exercice entier avec la hauteur que vous avez chantée tracée par-dessus. Faites glisser pour vous déplacer, pincez pour zoomer, ou faites glisser le long de la chronologie en bas pour aller à n’importe quel endroit."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "L’intero esercizio con l’intonazione che hai cantato disegnata sopra. Trascina per spostarti, pizzica per ingrandire, oppure trascina lungo la linea temporale in basso per saltare in qualsiasi punto."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "エクササイズ全体に、あなたが歌った音程が重ねて描かれています。ドラッグで移動、ピンチで拡大縮小、下のタイムラインに沿ってドラッグすると好きな位置へ移動できます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "연습 전체 위에 당신이 부른 음정이 겹쳐 그려집니다. 드래그로 이동하고 손가락을 모아 확대하며, 아래 타임라인을 따라 드래그하면 원하는 지점으로 이동합니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "De hele oefening met de toonhoogte die je zong eroverheen getekend. Sleep om te bewegen, knijp om te zoomen, of sleep langs de tijdlijn onderaan om naar elk punt te springen."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Całe ćwiczenie z narysowaną na wierzchu wysokością twojego głosu. Przeciągaj, aby się poruszać, szczypnij, aby przybliżyć, albo przeciągnij wzdłuż osi czasu na dole, aby przejść w dowolne miejsce."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O exercício inteiro com a altura que você cantou desenhada por cima. Arraste para se mover, use a pinça para ampliar ou arraste pela linha do tempo embaixo para ir a qualquer ponto."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Всё упражнение целиком с наложенной линией высоты вашего голоса. Тяните, чтобы перемещаться, сводите пальцы, чтобы приблизить, или ведите по шкале времени внизу, чтобы перейти к любому месту."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hela övningen med tonhöjden du sjöng ritad ovanpå. Dra för att flytta dig, nyp för att zooma, eller dra längs tidslinjen längst ned för att hoppa till valfri punkt."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Söylediğiniz perde üzerine çizilmiş hâliyle egzersizin tamamı. Gezinmek için sürükleyin, yakınlaştırmak için parmaklarınızı kıstırın ya da herhangi bir noktaya atlamak için alttaki zaman çizelgesi boyunca sürükleyin."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "整个练习，上面叠加着你演唱的音高。拖动可平移，捏合可缩放，沿底部的时间线拖动可跳到任意位置。"
+          }
+        }
+      }
+    },
     "The whole exercise with the pitch you sang drawn over it. Drag to move around, pinch to zoom." : {
       "extractionState" : "stale",
       "localizations" : {
@@ -83106,6 +83462,182 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "次"
+          }
+        }
+      }
+    },
+    "Timeline" : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "الخط الزمني"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zeitleiste"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Línea de tiempo"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chronologie"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Linea temporale"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "タイムライン"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "타임라인"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tijdlijn"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Oś czasu"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Linha do tempo"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Шкала времени"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tidslinje"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zaman çizelgesi"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "时间线"
+          }
+        }
+      }
+    },
+    "Timeline color" : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "لون الخط الزمني"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Farbe der Zeitleiste"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Color de la línea de tiempo"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couleur de la chronologie"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Colore della linea temporale"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "タイムラインの色"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "타임라인 색상"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kleur van tijdlijn"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kolor osi czasu"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cor da linha do tempo"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Цвет шкалы времени"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Färg på tidslinje"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zaman çizelgesi rengi"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "时间线颜色"
           }
         }
       }
