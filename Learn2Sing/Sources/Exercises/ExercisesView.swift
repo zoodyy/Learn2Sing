@@ -512,6 +512,27 @@ struct ExercisesView: View {
     /// relaunch would look like exercises had gone missing.
     @State private var activeFilters: Set<ExerciseFilter> = []
 
+    /// The length filter: the shortest and the longest an exercise may be and
+    /// stay listed, in the seconds its intro screen shows under the title. nil
+    /// (the default) lets every length through. Set on a sheet of its own
+    /// rather than picked in the filter menu, and not persisted, for the same
+    /// reason as the filters above.
+    @State private var lengthRange: ClosedRange<Int>?
+
+    /// Puts up the sheet `lengthRange` is set on, from the filter menu.
+    @State private var isPickingLength = false
+
+    /// Whether anything in the filter menu narrows the list.
+    private var isFilterOn: Bool {
+        !activeFilters.isEmpty || lengthRange != nil
+    }
+
+    /// Turn every filter in the filter menu off, the length filter included.
+    private func clearFilters() {
+        activeFilters.removeAll()
+        lengthRange = nil
+    }
+
     /// The order the list is shown in, picked from the toolbar's sort menu.
     /// Persisted, like the Community tab's order and unlike the filters above:
     /// an order hides nothing, so one that outlives a relaunch can't make
@@ -566,12 +587,30 @@ struct ExercisesView: View {
     /// search is applied per category on top of this, since a category whose own
     /// name matches keeps all of its exercises.
     private var filteredExercises: [Exercise] {
-        guard !activeFilters.isEmpty else { return store.exercises }
+        guard isFilterOn else { return store.exercises }
         let favourites = Set(store.favourites)
         return store.exercises.filter {
             activeFilters.matches($0, isBundled: store.isBundled($0.id),
                                   isFavourite: favourites.contains($0.id))
+                && matchesLength($0)
         }
+    }
+
+    /// Whether the exercise is as long as the length filter asks. One with no
+    /// notes has no length to be in range, so it is only listed while the
+    /// filter is off.
+    private func matchesLength(_ exercise: Exercise) -> Bool {
+        guard let lengthRange else { return true }
+        return store.shownLength(of: exercise).map(lengthRange.contains) ?? false
+    }
+
+    /// The shortest and the longest exercise in the library, in the seconds
+    /// their intro screens show, which the length sheet's wheels start out on.
+    /// 0...0 for a library with nothing in it to time.
+    private var lengthSpan: ClosedRange<Int> {
+        let lengths = store.exercises.compactMap { store.shownLength(of: $0) }
+        guard let shortest = lengths.min(), let longest = lengths.max() else { return 0...0 }
+        return shortest...longest
     }
 
     /// Does this exercise match the search text? Bundled exercises are shown
@@ -623,10 +662,11 @@ struct ExercisesView: View {
         // the picked order within itself and the single list in it across the
         // whole library.
         let exercises = sort.ordered(filteredExercises, reversed: isReversed,
-                                     hardness: skillLevels.hardness)
+                                     hardness: skillLevels.hardness,
+                                     length: store.shownLength(of:))
         let query = self.query
         let isSearching = !query.isEmpty
-        let isFiltering = !activeFilters.isEmpty || isSearching
+        let isFiltering = isFilterOn || isSearching
 
         if ignoresCategories {
             // Listed by exactly the rule the categorised list uses, so switching
@@ -761,7 +801,7 @@ struct ExercisesView: View {
     private func addExercise() {
         // A filter (or search) the new exercise doesn't match would hide it the
         // moment the user came back from its settings, so adding one drops both.
-        activeFilters.removeAll()
+        clearFilters()
         searchText = ""
         let exercise = store.add(name: L("New Exercise"))
         pendingNewExercise = exercise
@@ -796,13 +836,13 @@ struct ExercisesView: View {
                                 .frame(width: geo.size.width, height: geo.size.height)
                         }
                     }
-                } else if sections.isEmpty && !activeFilters.isEmpty {
+                } else if sections.isEmpty && isFilterOn {
                     ContentUnavailableView {
                         Label("No Matching Exercises", systemImage: "line.3.horizontal.decrease.circle")
                     } description: {
                         Text("No exercise matches the selected filters.")
                     } actions: {
-                        Button("Clear Filters") { activeFilters.removeAll() }
+                        Button("Clear Filters") { clearFilters() }
                     }
                 } else {
                     ExerciseCollectionList(
@@ -911,23 +951,38 @@ struct ExercisesView: View {
                                 }
                             }
                         }
-                        if !activeFilters.isEmpty {
+                        // A range rather than a pick, so it opens a sheet to be
+                        // set on. While it narrows the list, the range it is
+                        // set to reads under its name.
+                        Section {
+                            Button {
+                                isPickingLength = true
+                            } label: {
+                                Text("Length")
+                                if let lengthRange {
+                                    Text(verbatim: ExerciseLength.text(lengthRange,
+                                                                       locale: appLanguage.language.locale))
+                                }
+                                Image(systemName: "timer")
+                            }
+                        }
+                        if isFilterOn {
                             Section {
                                 Button(role: .destructive) {
-                                    activeFilters.removeAll()
+                                    clearFilters()
                                 } label: {
                                     Label("Clear Filters", systemImage: "xmark.circle")
                                 }
                             }
                         }
                     } label: {
-                        Image(systemName: activeFilters.isEmpty
-                              ? "line.3.horizontal.decrease.circle"
-                              : "line.3.horizontal.decrease.circle.fill")
+                        Image(systemName: isFilterOn
+                              ? "line.3.horizontal.decrease.circle.fill"
+                              : "line.3.horizontal.decrease.circle")
                             .toolbarHitArea()
                     }
                     .accessibilityLabel("Filter")
-                    .explain(L("Narrows the list to where the exercises came from, to the ones you have shared, or to your favorites. The button is filled in while a filter is on."))
+                    .explain(L("Narrows the list to where the exercises came from, to the ones you have shared, to your favorites, or to a range of lengths. The button is filled in while a filter is on."))
                 }
                 // After the filter, where the Community tab has its own.
                 ToolbarItem(placement: .topBarTrailing) {
@@ -936,6 +991,10 @@ struct ExercisesView: View {
                                      favouritesOnTop: FavouriteDisplay.holdsOnTop(
                                         marks: marksFavourites, onTop: favouritesOnTop))
                 }
+            }
+            .sheet(isPresented: $isPickingLength) {
+                ExerciseLengthSheet(range: $lengthRange, span: lengthSpan,
+                                    matchCount: sections.reduce(0) { $0 + $1.totalCount })
             }
             // On the list itself rather than on the tab, so the tab being opened
             // and a pushed screen being left both ask for the hint.

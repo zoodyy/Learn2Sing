@@ -19,6 +19,8 @@ enum ExerciseSort: String, CaseIterable, Identifiable {
     case difficulty
     /// Best sung first, by the average of the user's most recent scores.
     case easiestForMe
+    /// Longest first, by the length an intro screen shows under the title.
+    case longest
     /// Most recently added to the library first.
     case newest
     /// Most recently changed first.
@@ -45,6 +47,7 @@ enum ExerciseSort: String, CaseIterable, Identifiable {
         case .own: L("Own Sorting")
         case .difficulty: L("Difficulty")
         case .easiestForMe: L("Easiest for Me")
+        case .longest: L("Longest")
         case .newest: L("Newest First")
         case .recentlyUpdated: L("Recently Updated")
         case .alphabetical: L("Alphabetical")
@@ -56,6 +59,7 @@ enum ExerciseSort: String, CaseIterable, Identifiable {
         case .own: "line.3.horizontal"
         case .difficulty: "chart.bar"
         case .easiestForMe: "chart.line.uptrend.xyaxis"
+        case .longest: "timer"
         case .newest: "clock"
         case .recentlyUpdated: "arrow.triangle.2.circlepath"
         case .alphabetical: "textformat.abc"
@@ -70,7 +74,7 @@ enum ExerciseSort: String, CaseIterable, Identifiable {
     var isReversible: Bool {
         switch self {
         case .own: false
-        case .difficulty, .easiestForMe, .newest, .recentlyUpdated, .alphabetical: true
+        case .difficulty, .easiestForMe, .longest, .newest, .recentlyUpdated, .alphabetical: true
         }
     }
 
@@ -80,7 +84,7 @@ enum ExerciseSort: String, CaseIterable, Identifiable {
     var canIgnoreCategories: Bool {
         switch self {
         case .own: false
-        case .difficulty, .easiestForMe, .newest, .recentlyUpdated, .alphabetical: true
+        case .difficulty, .easiestForMe, .longest, .newest, .recentlyUpdated, .alphabetical: true
         }
     }
 }
@@ -93,16 +97,20 @@ extension ExerciseSort {
     /// what every tie falls back to: two exercises the order can't tell apart stay
     /// the way round the user has them.
     ///
-    /// An exercise the order knows nothing about — nobody has rated it, or the
-    /// user has never finished it — goes after every one it does know about, in
-    /// either direction: reversed, "Difficulty" is hardest first, and an unrated
-    /// exercise isn't that. Exercises without a date are the exception. Having
+    /// An exercise the order knows nothing about — nobody has rated it, the
+    /// user has never finished it, or it has no notes to time — goes after
+    /// every one it does know about, in either direction: reversed,
+    /// "Difficulty" is hardest first, and an unrated exercise isn't that.
+    /// Exercises without a date are the exception. Having
     /// none says they were in the library before dates were recorded, which
     /// makes them the oldest, so a reversed date order puts them first.
     ///
     /// `hardness` is SkillLevelStore's, handed in so the screen calling this is
-    /// the one observing it.
-    func ordered(_ exercises: [Exercise], reversed: Bool, hardness: [UUID: Double]) -> [Exercise] {
+    /// the one observing it. `length` is the store's `shownLength(of:)`, asked
+    /// only by "Longest", which is the one order that needs every exercise's
+    /// pattern read.
+    func ordered(_ exercises: [Exercise], reversed: Bool, hardness: [UUID: Double],
+                 length: (Exercise) -> Int?) -> [Exercise] {
         let flipped = reversed && isReversible
         switch self {
         case .own:
@@ -112,6 +120,9 @@ extension ExerciseSort {
                                  smallestFirst: !flipped)
         case .easiestForMe:
             return Self.arranged(exercises, by: exercises.map { Self.recentAverageScore(of: $0.id) },
+                                 smallestFirst: flipped)
+        case .longest:
+            return Self.arranged(exercises, by: exercises.map { length($0).map(Double.init) },
                                  smallestFirst: flipped)
         case .newest, .recentlyUpdated:
             let dates = ExerciseDates.all()

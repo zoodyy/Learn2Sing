@@ -5698,6 +5698,184 @@
         }
       }
     },
+    "At least" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "على الأقل"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mindestens"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Como mínimo"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Au moins"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Almeno"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "最短"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "최소"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Minstens"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Co najmniej"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No mínimo"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не короче"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Minst"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "En az"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "最短"
+          }
+        }
+      }
+    },
+    "At most" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "على الأكثر"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Höchstens"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Como máximo"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Au plus"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Al massimo"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "最長"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "최대"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hoogstens"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Najwyżej"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No máximo"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не длиннее"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Högst"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "En fazla"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "最长"
+          }
+        }
+      }
+    },
     "At most a third of the exercises the Home tab's “Recommended” category suggests are from the “Scales” category. More scales are only added when there aren't enough other whitelisted exercises to reach your daily practice goal." : {
       "extractionState" : "stale",
       "localizations" : {
@@ -11637,6 +11815,95 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "关闭此窗口。图表和日历已经在显示你设置的日期。"
+          }
+        }
+      }
+    },
+    "Closes this. The list already shows only the exercises in the range you set." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "يغلق هذه النافذة. القائمة تعرض بالفعل التمارين الواقعة في النطاق الذي حدّدته فقط."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Schließt dieses Fenster. Die Liste zeigt bereits nur die Übungen im eingestellten Bereich."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cierra esto. La lista ya muestra solo los ejercicios del rango que elegiste."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ferme ceci. La liste n’affiche déjà que les exercices de la plage choisie."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chiude questa finestra. L’elenco mostra già solo gli esercizi nell’intervallo scelto."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "これを閉じます。リストには、設定した範囲のエクササイズだけがすでに表示されています。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이 창을 닫습니다. 목록에는 설정한 범위의 연습만 이미 표시되어 있습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sluit dit. De lijst toont al alleen de oefeningen binnen het gekozen bereik."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zamyka to okno. Lista już pokazuje tylko ćwiczenia z wybranego zakresu."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fecha isto. A lista já mostra só os exercícios no intervalo que você escolheu."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Закрывает это окно. Список уже показывает только упражнения из выбранного диапазона."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stänger det här. Listan visar redan bara övningarna inom det intervall du valt."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bunu kapatır. Liste, yalnızca seçtiğiniz aralıktaki egzersizleri zaten gösteriyor."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "关闭此窗口。列表已经只显示你设置的范围内的练习。"
           }
         }
       }
@@ -22201,6 +22468,95 @@
         }
       }
     },
+    "Exercises longer than this are hidden. Turning it below “At least” moves that down too." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "تُخفى التمارين الأطول من ذلك. إذا أدرته إلى ما دون «على الأقل» ينخفض ذلك معه."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Längere Übungen werden ausgeblendet. Drehst du es unter „Mindestens“, sinkt „Mindestens“ mit."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Los ejercicios más largos se ocultan. Si lo bajas por debajo de «Como mínimo», ese valor baja también."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Les exercices plus longs sont masqués. Si vous le descendez sous « Au moins », celui-ci descend aussi."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gli esercizi più lunghi vengono nascosti. Se lo porti sotto “Almeno”, anche quello scende."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "これより長いエクササイズは表示されません。「最短」より短くすると、「最短」も一緒に下がります。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이보다 긴 연습은 숨겨집니다. “최소”보다 낮게 돌리면 “최소”도 함께 내려갑니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Langere oefeningen worden verborgen. Draai je het onder ‘Minstens’, dan gaat dat mee omlaag."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dłuższe ćwiczenia są ukrywane. Ustawienie poniżej „Co najmniej” obniża też tamtą wartość."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Os exercícios mais longos ficam ocultos. Se você o girar para baixo de “No mínimo”, esse valor desce junto."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Более длинные упражнения скрываются. Если сделать его меньше «Не короче», то «Не короче» уменьшится вместе с ним."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Längre övningar döljs. Vrider du det under ”Minst” följer det med ner."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Daha uzun egzersizler gizlenir. “En az” değerinin altına çevrilirse o değer de onunla birlikte iner."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "比这更长的练习会被隐藏。调到低于“最短”时，“最短”也会随之降低。"
+          }
+        }
+      }
+    },
     "Exercises Made Private" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -22375,6 +22731,95 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "“社区”标签中的练习会显示分享者的用户名，因此你需要先有一个用户名，才能把练习设为公开。在此之前，这个练习将保持私有。"
+          }
+        }
+      }
+    },
+    "Exercises shorter than this are hidden. An exercise's length is the time shown under its name when you open it." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "تُخفى التمارين الأقصر من ذلك. مدة التمرين هي الوقت الظاهر تحت اسمه عند فتحه."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kürzere Übungen werden ausgeblendet. Die Dauer einer Übung ist die Zeit, die beim Öffnen unter ihrem Namen steht."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Los ejercicios más cortos se ocultan. La duración de un ejercicio es el tiempo que aparece bajo su nombre al abrirlo."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Les exercices plus courts sont masqués. La durée d’un exercice est le temps affiché sous son nom quand vous l’ouvrez."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gli esercizi più brevi vengono nascosti. La durata di un esercizio è il tempo indicato sotto il nome quando lo apri."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "これより短いエクササイズは表示されません。エクササイズの長さは、開いたときに名前の下に表示される時間です。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이보다 짧은 연습은 숨겨집니다. 연습의 길이는 연습을 열었을 때 이름 아래에 표시되는 시간입니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kortere oefeningen worden verborgen. De duur van een oefening is de tijd die onder de naam staat als je haar opent."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Krótsze ćwiczenia są ukrywane. Czas trwania ćwiczenia to czas widoczny pod jego nazwą po otwarciu."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Os exercícios mais curtos ficam ocultos. A duração de um exercício é o tempo mostrado sob o nome quando você o abre."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Более короткие упражнения скрываются. Длительность упражнения указана под его названием, когда вы его открываете."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kortare övningar döljs. En övnings längd är tiden som står under namnet när du öppnar den."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Daha kısa egzersizler gizlenir. Bir egzersizin süresi, onu açtığınızda adının altında gösterilen süredir."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "比这更短的练习会被隐藏。练习的时长是打开它时名称下方显示的时间。"
           }
         }
       }
@@ -30022,6 +30467,95 @@
         }
       }
     },
+    "How many exercises the list shows with these lengths, your other filters and the search." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "عدد التمارين التي تعرضها القائمة مع هذه المدة وعوامل التصفية الأخرى والبحث."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wie viele Übungen die Liste mit dieser Dauer, deinen anderen Filtern und der Suche zeigt."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cuántos ejercicios muestra la lista con esta duración, tus otros filtros y la búsqueda."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le nombre d’exercices que la liste affiche avec cette durée, vos autres filtres et la recherche."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quanti esercizi mostra l’elenco con questa durata, gli altri filtri e la ricerca."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "この長さと他のフィルタ、検索を合わせて、リストに表示されるエクササイズの数です。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이 길이와 다른 필터, 검색을 모두 적용했을 때 목록에 보이는 연습 수입니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hoeveel oefeningen de lijst toont met deze duur, je andere filters en de zoekopdracht."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ile ćwiczeń pokazuje lista przy tym czasie trwania, pozostałych filtrach i wyszukiwaniu."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quantos exercícios a lista mostra com esta duração, seus outros filtros e a busca."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сколько упражнений показывает список с этой длительностью, другими фильтрами и поиском."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hur många övningar listan visar med den här längden, dina andra filter och sökningen."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bu süre, diğer filtreleriniz ve arama ile listenin kaç egzersiz gösterdiği."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "按此时长、其他筛选条件和搜索，列表中显示的练习数量。"
+          }
+        }
+      }
+    },
     "How many times the pattern is played in a row." : {
       "extractionState" : "stale",
       "localizations" : {
@@ -35620,7 +36154,6 @@
       }
     },
     "Length" : {
-      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -37212,6 +37745,95 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "洛克里亚调式下行"
+          }
+        }
+      }
+    },
+    "Longest" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "الأطول أولًا"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Längste zuerst"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Más largos primero"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Les plus longs d’abord"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Prima i più lunghi"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "長い順"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "길이가 긴 순"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Langste eerst"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Najpierw najdłuższe"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mais longos primeiro"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сначала длинные"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Längst först"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Önce en uzunlar"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "最长优先"
           }
         }
       }
@@ -40143,6 +40765,94 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "准确唱准持续的音，并与它融为一体。音准对了，声音里的拍音就会消失。换元音时也要保持稳定。"
+          }
+        }
+      }
+    },
+    "Matching exercises" : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "التمارين المطابقة"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Passende Übungen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ejercicios que coinciden"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Exercices correspondants"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Esercizi corrispondenti"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "一致するエクササイズ"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "일치하는 연습"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Overeenkomende oefeningen"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pasujące ćwiczenia"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Exercícios correspondentes"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Подходящие упражнения"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Matchande övningar"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eşleşen egzersizler"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "匹配的练习"
           }
         }
       }
@@ -43875,91 +44585,91 @@
         }
       }
     },
-    "Narrows the list to where the exercises came from, to the ones you have shared, or to your favorites. The button is filled in while a filter is on." : {
+    "Narrows the list to where the exercises came from, to the ones you have shared, to your favorites, or to a range of lengths. The button is filled in while a filter is on." : {
       "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "يقصر القائمة على مصدر التمارين، أو على التي شاركتها، أو على المفضلة. يكون الزر ممتلئًا أثناء تفعيل عامل تصفية."
+            "value" : "يقصر القائمة على مصدر التمارين، أو على التي شاركتها، أو على المفضلة، أو على نطاق من المدد. يكون الزر ممتلئًا أثناء تفعيل عامل تصفية."
           }
         },
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Schränkt die Liste darauf ein, woher die Übungen stammen, auf die von dir geteilten oder auf deine Favoriten. Der Knopf ist ausgefüllt, solange ein Filter aktiv ist."
+            "value" : "Schränkt die Liste darauf ein, woher die Übungen stammen, auf die von dir geteilten, auf deine Favoriten oder auf Übungen einer bestimmten Dauer. Der Knopf ist ausgefüllt, solange ein Filter aktiv ist."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Limita la lista según de dónde vienen los ejercicios, a los que has compartido o a tus favoritos. El botón se rellena mientras hay un filtro activo."
+            "value" : "Limita la lista según de dónde vienen los ejercicios, a los que has compartido, a tus favoritos o a un rango de duración. El botón se rellena mientras hay un filtro activo."
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Limite la liste selon la provenance des exercices, à ceux que vous avez partagés ou à vos favoris. Le bouton est rempli tant qu’un filtre est actif."
+            "value" : "Limite la liste selon la provenance des exercices, à ceux que vous avez partagés, à vos favoris ou à une plage de durées. Le bouton est rempli tant qu’un filtre est actif."
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Restringe l’elenco in base alla provenienza degli esercizi, a quelli che hai condiviso o ai tuoi preferiti. Il pulsante è pieno finché un filtro è attivo."
+            "value" : "Restringe l’elenco in base alla provenienza degli esercizi, a quelli che hai condiviso, ai tuoi preferiti o a un intervallo di durata. Il pulsante è pieno finché un filtro è attivo."
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "エクササイズの入手元、自分が公開したもの、またはお気に入りだけに絞り込みます。フィルタが有効な間、ボタンは塗りつぶされます。"
+            "value" : "エクササイズの入手元、自分が公開したもの、お気に入り、または長さの範囲で絞り込みます。フィルタが有効な間、ボタンは塗りつぶされます。"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "연습의 출처별로, 내가 공유한 것만, 또는 즐겨찾기만 보이도록 좁힙니다. 필터가 켜져 있는 동안 버튼이 채워집니다."
+            "value" : "연습의 출처별로, 내가 공유한 것만, 즐겨찾기만, 또는 길이 범위로 좁힙니다. 필터가 켜져 있는 동안 버튼이 채워집니다."
           }
         },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Beperkt de lijst tot waar de oefeningen vandaan komen, tot die je hebt gedeeld of tot je favorieten. De knop is gevuld zolang er een filter aanstaat."
+            "value" : "Beperkt de lijst tot waar de oefeningen vandaan komen, tot die je hebt gedeeld, tot je favorieten of tot oefeningen van een bepaalde duur. De knop is gevuld zolang er een filter aanstaat."
           }
         },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Zawęża listę według tego, skąd pochodzą ćwiczenia, do tych, które udostępniłeś, albo do ulubionych. Przycisk jest wypełniony, dopóki filtr działa."
+            "value" : "Zawęża listę według tego, skąd pochodzą ćwiczenia, do tych, które udostępniłeś, do ulubionych albo do zakresu czasu trwania. Przycisk jest wypełniony, dopóki filtr działa."
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Restringe a lista conforme a origem dos exercícios, aos que você compartilhou ou aos seus favoritos. O botão fica preenchido enquanto há um filtro ativo."
+            "value" : "Restringe a lista conforme a origem dos exercícios, aos que você compartilhou, aos seus favoritos ou a uma faixa de duração. O botão fica preenchido enquanto há um filtro ativo."
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Сужает список по происхождению упражнений, до тех, которыми вы поделились, или до избранных. Пока фильтр включён, кнопка залита."
+            "value" : "Сужает список по происхождению упражнений, до тех, которыми вы поделились, до избранных или до диапазона длительности. Пока фильтр включён, кнопка залита."
           }
         },
         "sv" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Begränsar listan efter var övningarna kommer ifrån, till dem du delat eller till dina favoriter. Knappen är ifylld så länge ett filter är på."
+            "value" : "Begränsar listan efter var övningarna kommer ifrån, till dem du delat, till dina favoriter eller till ett intervall av längder. Knappen är ifylld så länge ett filter är på."
           }
         },
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Listeyi egzersizlerin nereden geldiğine, paylaştıklarınıza ya da favorilerinize göre daraltır. Bir filtre açıkken düğme dolu görünür."
+            "value" : "Listeyi egzersizlerin nereden geldiğine, paylaştıklarınıza, favorilerinize ya da bir süre aralığına göre daraltır. Bir filtre açıkken düğme dolu görünür."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "按练习的来源筛选，或只显示你分享过的或收藏的。筛选开启时按钮为实心。"
+            "value" : "按练习的来源筛选，或只显示你分享过的、收藏的，或某个时长范围内的。筛选开启时按钮为实心。"
           }
         }
       }
@@ -58512,7 +59222,6 @@
       }
     },
     "Reset" : {
-      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -83992,6 +84701,95 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "把输入框里的数字在正负之间切换，因为数字键盘没有减号键。"
+          }
+        }
+      }
+    },
+    "Turns the wheels back to your shortest and your longest exercise, so no exercise is hidden for its length." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "يعيد العجلات إلى أقصر تمارينك وأطولها، فلا يُخفى أي تمرين بسبب مدته."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dreht die Räder zurück auf deine kürzeste und deine längste Übung, sodass keine Übung wegen ihrer Dauer ausgeblendet wird."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Devuelve las ruedas a tu ejercicio más corto y al más largo, para que ningún ejercicio se oculte por su duración."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Remet les roues sur votre exercice le plus court et le plus long, pour qu’aucun exercice ne soit masqué à cause de sa durée."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Riporta le rotelle sul tuo esercizio più breve e su quello più lungo, così nessun esercizio viene nascosto per la sua durata."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ホイールを最も短いエクササイズと最も長いエクササイズに戻し、長さによって非表示になるエクササイズをなくします。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "휠을 가장 짧은 연습과 가장 긴 연습으로 되돌려, 길이 때문에 숨겨지는 연습이 없게 합니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zet de wielen terug op je kortste en je langste oefening, zodat geen oefening om haar duur wordt verborgen."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Przywraca kółka do najkrótszego i najdłuższego ćwiczenia, aby żadne ćwiczenie nie było ukryte z powodu czasu trwania."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Volta as rodas para o seu exercício mais curto e o mais longo, para que nenhum exercício fique oculto pela duração."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Возвращает колёса к вашему самому короткому и самому длинному упражнению, чтобы ни одно упражнение не скрывалось из-за длительности."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vrider tillbaka hjulen till din kortaste och din längsta övning, så att ingen övning döljs för sin längd."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Çarkları en kısa ve en uzun egzersizinize geri döndürür, böylece hiçbir egzersiz süresi yüzünden gizlenmez."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "把滚轮调回你最短和最长的练习，不再因时长隐藏任何练习。"
           }
         }
       }

@@ -698,6 +698,43 @@ final class ExerciseStore: ObservableObject {
                                           bpm: exercise.bpm))
     }
 
+    /// The length an exercise's intro screen shows under its title, in seconds:
+    /// `practiceSeconds(of:)`, or nil for an exercise with no notes, where all
+    /// there would be to time is the lead-in. The Exercises tab's "Longest"
+    /// order and its length filter go by it too, so the list and the intro
+    /// screen agree to the second.
+    ///
+    /// Remembered per exercise along with what it was worked out from, since
+    /// the tab asks for the whole library's lengths on every redraw while it
+    /// sorts or filters by them, and expanding every timeline each time would
+    /// cost frames. Checked against the exercise and its stored notes and ghost
+    /// notes rather than cleared on a change, because the MIDI editor writes
+    /// its strokes straight to UserDefaults without the store hearing of them.
+    func shownLength(of exercise: Exercise) -> Int? {
+        let defaults = UserDefaults.standard
+        let notes = defaults.data(forKey: Self.midiKey(exercise.id))
+        let ghosts = defaults.data(forKey: Self.midiGhostKey(exercise.id))
+        if let known = shownLengths[exercise.id], known.exercise == exercise,
+           known.notes == notes, known.ghosts == ghosts {
+            return known.seconds
+        }
+        let seconds = self.notes(for: exercise.id).isEmpty ? nil : practiceSeconds(of: exercise)
+        shownLengths[exercise.id] = ShownLength(exercise: exercise, notes: notes,
+                                                ghosts: ghosts, seconds: seconds)
+        return seconds
+    }
+
+    /// `shownLength(of:)`'s answers, each with the exercise and the stored
+    /// pattern it was worked out from.
+    private var shownLengths: [UUID: ShownLength] = [:]
+
+    private struct ShownLength {
+        let exercise: Exercise
+        let notes: Data?
+        let ghosts: Data?
+        let seconds: Int?
+    }
+
     /// A batch in the order the category shows it: easiest first, hardest last.
     /// An unrated exercise takes the singer's own level, which puts it in the
     /// middle of the ramp rather than at one end of it by accident.

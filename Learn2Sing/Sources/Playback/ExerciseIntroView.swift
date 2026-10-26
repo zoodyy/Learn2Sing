@@ -101,10 +101,9 @@ struct ExerciseIntroView: View {
     ///
     /// nil for an exercise with no notes, a new one or the audio delay test's
     /// stand-in (whose ticks aren't notes), where all there would be to time is
-    /// the lead-in.
+    /// the lead-in. The Exercises tab sorts and filters by the same number.
     private var practiceSeconds: Int? {
-        guard !store.notes(for: exercise.id).isEmpty else { return nil }
-        return store.practiceSeconds(of: exercise)
+        store.shownLength(of: exercise)
     }
 
     /// Toggled by the "See Score" toolbar button to show/hide the score-history
@@ -353,13 +352,10 @@ struct ExerciseIntroView: View {
 
     /// How long the exercise takes, on the leading edge of the line the stars
     /// sit on, its text on the same baseline as "Difficulty:". Written with its
-    /// seconds, unlike the calendar's whole minutes: one exercise is short
-    /// enough that "1 min" would hide most of a minute.
+    /// seconds, unlike the calendar's whole minutes (see `ExerciseLength`),
+    /// and the same way the Exercises tab's length filter writes it.
     private func lengthRow(_ seconds: Int) -> some View {
-        let length = Duration.seconds(seconds).formatted(
-            Duration.UnitsFormatStyle(allowedUnits: [.hours, .minutes, .seconds],
-                                      width: .condensedAbbreviated)
-                .locale(appLanguage.language.locale))
+        let length = ExerciseLength.text(seconds, locale: appLanguage.language.locale)
         // The recommendation card's clock, so the two times read as one kind
         // of thing.
         return HStack(spacing: 4) {
