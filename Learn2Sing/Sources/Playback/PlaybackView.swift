@@ -1195,7 +1195,7 @@ struct PlaybackView: View {
         // Attached out here rather than inside the branches so there is one
         // toolbar modifier that stays put across them, rather than one appearing
         // as another goes and the bar animating on whichever wins.
-        .toolbar(visuals.hideTabBar && showsRunCanvas ? .hidden : .automatic, for: .tabBar)
+        .toolbar(showsRunCanvas ? .hidden : .automatic, for: .tabBar)
         // Out here too, so a notice still being read when the clap test (which can't
         // pause) plays out stays up over its result rather than vanishing with the run.
         .microphoneNotice(isDenied: pitchDetector.isMicrophoneDenied,

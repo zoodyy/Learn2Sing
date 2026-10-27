@@ -127,7 +127,6 @@ enum VisualKeys {
     static let hideUnusedDots = "vis_hideUnusedDots"
     static let showRepetitionCounter    = "vis_showRepetitionCounter"
     static let repetitionCounterPosition = "vis_repetitionCounterPosition"
-    static let hideTabBar     = "vis_hideTabBar"
     static let showTimeline   = "vis_showTimeline"
     static let timelineColor  = "vis_timelineColor"
 
@@ -139,7 +138,7 @@ enum VisualKeys {
         autoPitchNameColor, pitchNameColor,
         textColor, textFont, singerSize, singerInnerColor, singerOuterColor,
         singerLineColor, playheadColor, playheadStyle, hideUnusedDots,
-        showRepetitionCounter, repetitionCounterPosition, hideTabBar,
+        showRepetitionCounter, repetitionCounterPosition,
         showTimeline, timelineColor,
     ]
 }
@@ -172,7 +171,6 @@ nonisolated enum VisualDefaults {
     static let hideUnusedDots = false
     static let showRepetitionCounter    = false
     static let repetitionCounterPosition = RepetitionCounterPosition.bottomRight.rawValue
-    static let hideTabBar     = false
     static let showTimeline   = false
     /// The app's accent colour, which stands out on a light look and a dark one
     /// alike: the review screen draws the timeline whether or not playback does,
@@ -235,10 +233,6 @@ struct VisualSettings {
     /// `timelineColor`, since there it is how the singer gets around the run.
     var showTimeline: Bool
     var timelineColor: Color
-    // Hides the tab bar while an exercise plays. Not part of the drawn scene (so the
-    // visuals preview ignores it), which is why it defaults here: the preview's
-    // memberwise construction doesn't need to mention it.
-    var hideTabBar: Bool = false
 
     /// The current settings read straight from UserDefaults (used by PlaybackView).
     static var current: VisualSettings {
@@ -272,8 +266,7 @@ struct VisualSettings {
             repetitionCounterPosition: RepetitionCounterPosition(
                 rawValue: str(VisualKeys.repetitionCounterPosition, VisualDefaults.repetitionCounterPosition)) ?? .bottomRight,
             showTimeline: bool(VisualKeys.showTimeline, VisualDefaults.showTimeline),
-            timelineColor: Color(hex: str(VisualKeys.timelineColor, VisualDefaults.timelineColor)),
-            hideTabBar: bool(VisualKeys.hideTabBar, VisualDefaults.hideTabBar))
+            timelineColor: Color(hex: str(VisualKeys.timelineColor, VisualDefaults.timelineColor)))
     }
 }
 

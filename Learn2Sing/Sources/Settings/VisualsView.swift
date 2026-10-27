@@ -260,7 +260,6 @@ struct PlaybackVisualsView: View {
     @AppStorage(VisualKeys.hideUnusedDots) private var hideUnusedDots = VisualDefaults.hideUnusedDots
     @AppStorage(VisualKeys.showRepetitionCounter)     private var showRepetitionCounter     = VisualDefaults.showRepetitionCounter
     @AppStorage(VisualKeys.repetitionCounterPosition) private var repetitionCounterPosition = VisualDefaults.repetitionCounterPosition
-    @AppStorage(VisualKeys.hideTabBar)     private var hideTabBar     = VisualDefaults.hideTabBar
     @AppStorage(VisualKeys.showTimeline)   private var showTimeline   = VisualDefaults.showTimeline
     @AppStorage(VisualKeys.timelineColor)  private var timelineColor  = VisualDefaults.timelineColor
 
@@ -549,8 +548,6 @@ struct PlaybackVisualsView: View {
             }
 
             Section {
-                Toggle("Hide tab bar", isOn: $hideTabBar)
-                    .setting(.hideTabBar)
                 Toggle("Timeline", isOn: $showTimeline)
                     .setting(.showTimeline)
                 if showTimeline {

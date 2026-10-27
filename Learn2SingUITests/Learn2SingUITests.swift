@@ -2890,67 +2890,39 @@ final class Learn2SingUITests: XCTestCase {
                       "Exit after the last exercise should return to Home")
     }
 
-    // MARK: - Hide tab bar during playback
+    // MARK: - Tab bar during playback
 
-    /// The Visuals → Playback screen offers the "Hide tab bar" toggle.
-    func testHideTabBarToggleExists() throws {
+    /// The tab bar disappears while an exercise plays, whatever an older version
+    /// stored for the "Hide tab bar" setting it used to offer: the value is forced
+    /// off through the argument domain, which leaves the simulator's persistent
+    /// defaults untouched, and the bar has to go anyway.
+    func testTabBarHiddenDuringPlayback() throws {
         let app = XCUIApplication()
+        app.launchArguments = ["-\(legacyHideTabBarKey)", "NO"]
         app.launch()
-        app.buttons["Settings"].firstMatch.tap()
-        let visuals = app.buttons["Visuals"].firstMatch
-        XCTAssertTrue(visuals.waitForExistence(timeout: 5))
-        visuals.tap()
-        let playback = app.buttons["Playback"].firstMatch
-        XCTAssertTrue(playback.waitForExistence(timeout: 5))
-        playback.tap()
-        // The form renders lazily; scroll until the toggle near the bottom exists.
-        let toggle = app.switches["Hide tab bar"].firstMatch
-        for _ in 0..<8 where !toggle.exists {
-            scrollSettingsForm(app)
-        }
-        XCTAssertTrue(toggle.waitForExistence(timeout: 5),
-                      "Visuals → Playback should offer the Hide tab bar toggle")
+        let tab = app.buttons["Exercises"]
+        XCTAssertTrue(tab.waitForExistence(timeout: 5))
+        tab.tap()
+        XCTAssertTrue(app.navigationBars["Exercises"].waitForExistence(timeout: 5))
+
+        // Open the first exercise's intro and start playback.
+        let firstCell = app.cells.firstMatch
+        XCTAssertTrue(firstCell.waitForExistence(timeout: 5))
+        firstCell.tap()
+        let start = app.buttons["Start"].firstMatch
+        XCTAssertTrue(start.waitForExistence(timeout: 5), "intro Start button not found")
+        start.tap()
+        XCTAssertTrue(start.waitForNonExistence(timeout: 5), "playback did not start")
+
+        XCTAssertTrue(app.tabBars.firstMatch.waitForNonExistence(timeout: 5),
+                      "tab bar should be hidden during playback")
+        saveScreenshot("playback-tabbar-hidden")
+        app.terminate()
     }
 
-    /// With the setting on, the tab bar disappears while an exercise plays; with
-    /// it off, it stays. The setting is forced through the argument domain so the
-    /// simulator's persistent defaults are untouched.
-    func testHideTabBarDuringPlayback() throws {
-        for (value, expectHidden) in [("YES", true), ("NO", false)] {
-            let app = XCUIApplication()
-            app.launchArguments = ["-\(hideTabBarKey)", value]
-            app.launch()
-            let tab = app.buttons["Exercises"]
-            XCTAssertTrue(tab.waitForExistence(timeout: 5))
-            tab.tap()
-            XCTAssertTrue(app.navigationBars["Exercises"].waitForExistence(timeout: 5))
-
-            // Open the first exercise's intro and start playback.
-            let firstCell = app.cells.firstMatch
-            XCTAssertTrue(firstCell.waitForExistence(timeout: 5))
-            firstCell.tap()
-            let start = app.buttons["Start"].firstMatch
-            XCTAssertTrue(start.waitForExistence(timeout: 5), "intro Start button not found")
-            start.tap()
-            XCTAssertTrue(start.waitForNonExistence(timeout: 5), "playback did not start")
-
-            let tabBar = app.tabBars.firstMatch
-            if expectHidden {
-                XCTAssertTrue(tabBar.waitForNonExistence(timeout: 5),
-                              "tab bar should be hidden during playback")
-                saveScreenshot("playback-tabbar-hidden")
-            } else {
-                sleep(2)
-                XCTAssertTrue(tabBar.exists && tabBar.isHittable,
-                              "tab bar should stay visible during playback")
-                saveScreenshot("playback-tabbar-visible")
-            }
-            app.terminate()
-        }
-    }
-
-    /// Must match VisualKeys.hideTabBar in the app target.
-    private let hideTabBarKey = "vis_hideTabBar"
+    /// Where the removed "Hide tab bar" setting was stored. Installs updated from
+    /// an older version, and the profiles they uploaded, can still carry it.
+    private let legacyHideTabBarKey = "vis_hideTabBar"
 
     // MARK: - Playhead (the vertical line under the singing indicator)
 
@@ -3358,21 +3330,23 @@ final class Learn2SingUITests: XCTestCase {
         app.buttons["Playback"].firstMatch.tap()
         XCTAssertTrue(app.navigationBars["Playback"].waitForExistence(timeout: 5))
 
-        // Both the "Screen" toggle and the template rows sit at the bottom of the form.
+        // Both the repetition counter's toggle and the template rows sit near the
+        // bottom of the form.
         for _ in 0..<4 { scrollSettingsForm(app) }
 
         // Both bundled templates — the standard look for each appearance — are seeded
-        // on a fresh install, and both turn the tab bar off. The app is in the dark
-        // appearance, so the dark one is the standard look here.
+        // on a fresh install, and both turn the repetition counter on. The app is in
+        // the dark appearance, so the dark one is the standard look here.
         func isSelected(_ row: XCUIElement) -> Bool { row.isSelected }
         let bundled = app.buttons["Simplest - dark"].firstMatch
         let light = app.buttons["Simplest - light"].firstMatch
         XCTAssertTrue(bundled.waitForExistence(timeout: 5), "bundled dark template row not found")
         XCTAssertTrue(light.exists, "bundled light template row not found")
         let bundledLabel = bundled.label
-        let hideTabBar = app.switches.matching(
-            NSPredicate(format: "label BEGINSWITH %@", "Hide tab bar")).firstMatch
-        XCTAssertTrue(hideTabBar.waitForExistence(timeout: 5), "Hide tab bar toggle not found")
+        let repetitionCounter = app.switches.matching(
+            NSPredicate(format: "label BEGINSWITH %@", "Show repetition counter")).firstMatch
+        XCTAssertTrue(repetitionCounter.waitForExistence(timeout: 5),
+                      "Show repetition counter toggle not found")
 
         // The app puts its own looks on screen without selecting them, and a selection
         // persists, so nothing is assumed about the one an earlier run left behind:
@@ -3390,8 +3364,8 @@ final class Learn2SingUITests: XCTestCase {
         }
         XCTAssertTrue(isSelected(bundled), "selecting the standard look didn't select it")
         XCTAssertFalse(isSelected(light), "two templates are selected at once")
-        XCTAssertEqual(hideTabBar.value as? String, "1",
-                       "the bundled template should hide the tab bar")
+        XCTAssertEqual(repetitionCounter.value as? String, "1",
+                       "the bundled template should show the repetition counter")
 
         // Saving the current look adds a third template and moves the selection to
         // it — one checkmark, not two.
@@ -3413,7 +3387,7 @@ final class Learn2SingUITests: XCTestCase {
         XCTAssertFalse(isSelected(copy))
         bundled.tap()
         XCTAssertFalse(isSelected(bundled), "the selected template didn't deselect")
-        XCTAssertEqual(hideTabBar.value as? String, "1", "deselecting changed the settings")
+        XCTAssertEqual(repetitionCounter.value as? String, "1", "deselecting changed the settings")
 
         // With nothing selected but the look still stored in a template, selecting one
         // needs no warning.
@@ -3429,7 +3403,7 @@ final class Learn2SingUITests: XCTestCase {
         delete.tap()
         XCTAssertFalse(copy.exists, "the template wasn't deleted")
         XCTAssertFalse(isSelected(bundled), "deleting moved the selection elsewhere")
-        XCTAssertEqual(hideTabBar.value as? String, "1", "deleting changed the settings")
+        XCTAssertEqual(repetitionCounter.value as? String, "1", "deleting changed the settings")
 
         // The selection survives a relaunch.
         bundled.tap()

@@ -38,7 +38,6 @@ nonisolated struct VisualTemplate: Codable, Identifiable, Hashable {
     var hideUnusedDots: Bool
     var showRepetitionCounter: Bool
     var repetitionCounterPosition: String
-    var hideTabBar: Bool
     var showTimeline: Bool
     var timelineColor: String
 
@@ -52,7 +51,7 @@ nonisolated struct VisualTemplate: Codable, Identifiable, Hashable {
          singerOuterColor: String, singerLineColor: String,
          playheadColor: String, playheadStyle: String, hideUnusedDots: Bool,
          showRepetitionCounter: Bool, repetitionCounterPosition: String,
-         hideTabBar: Bool, showTimeline: Bool, timelineColor: String) {
+         showTimeline: Bool, timelineColor: String) {
         self.id = id
         self.name = name
         self.noteColor = noteColor
@@ -77,15 +76,14 @@ nonisolated struct VisualTemplate: Codable, Identifiable, Hashable {
         self.hideUnusedDots = hideUnusedDots
         self.showRepetitionCounter = showRepetitionCounter
         self.repetitionCounterPosition = repetitionCounterPosition
-        self.hideTabBar = hideTabBar
         self.showTimeline = showTimeline
         self.timelineColor = timelineColor
     }
 
     /// Custom decoding so templates saved (or bundled) before a setting existed still
     /// load: any missing key falls back to its `VisualDefaults` value rather than
-    /// failing the whole decode. A key for a setting since removed (`followVertical`,
-    /// now always on) is simply ignored.
+    /// failing the whole decode. A key for a setting since removed (`followVertical`
+    /// and `hideTabBar`, both now always on) is simply ignored.
     init(from decoder: Decoder) throws {
         let c = try decoder.container(keyedBy: CodingKeys.self)
         id = try c.decodeIfPresent(UUID.self, forKey: .id) ?? UUID()
@@ -112,7 +110,6 @@ nonisolated struct VisualTemplate: Codable, Identifiable, Hashable {
         hideUnusedDots = try c.decodeIfPresent(Bool.self, forKey: .hideUnusedDots) ?? VisualDefaults.hideUnusedDots
         showRepetitionCounter = try c.decodeIfPresent(Bool.self, forKey: .showRepetitionCounter) ?? VisualDefaults.showRepetitionCounter
         repetitionCounterPosition = try c.decodeIfPresent(String.self, forKey: .repetitionCounterPosition) ?? VisualDefaults.repetitionCounterPosition
-        hideTabBar = try c.decodeIfPresent(Bool.self, forKey: .hideTabBar) ?? VisualDefaults.hideTabBar
         showTimeline = try c.decodeIfPresent(Bool.self, forKey: .showTimeline) ?? VisualDefaults.showTimeline
         timelineColor = try c.decodeIfPresent(String.self, forKey: .timelineColor) ?? VisualDefaults.timelineColor
     }
@@ -150,7 +147,6 @@ nonisolated struct VisualTemplate: Codable, Identifiable, Hashable {
             hideUnusedDots: bool(VisualKeys.hideUnusedDots, VisualDefaults.hideUnusedDots),
             showRepetitionCounter: bool(VisualKeys.showRepetitionCounter, VisualDefaults.showRepetitionCounter),
             repetitionCounterPosition: str(VisualKeys.repetitionCounterPosition, VisualDefaults.repetitionCounterPosition),
-            hideTabBar: bool(VisualKeys.hideTabBar, VisualDefaults.hideTabBar),
             showTimeline: bool(VisualKeys.showTimeline, VisualDefaults.showTimeline),
             timelineColor: str(VisualKeys.timelineColor, VisualDefaults.timelineColor))
     }
@@ -183,7 +179,6 @@ nonisolated struct VisualTemplate: Codable, Identifiable, Hashable {
         d.set(hideUnusedDots, forKey: VisualKeys.hideUnusedDots)
         d.set(showRepetitionCounter, forKey: VisualKeys.showRepetitionCounter)
         d.set(repetitionCounterPosition, forKey: VisualKeys.repetitionCounterPosition)
-        d.set(hideTabBar, forKey: VisualKeys.hideTabBar)
         d.set(showTimeline, forKey: VisualKeys.showTimeline)
         d.set(timelineColor, forKey: VisualKeys.timelineColor)
     }
@@ -218,8 +213,7 @@ nonisolated struct VisualTemplate: Codable, Identifiable, Hashable {
             showRepetitionCounter: showRepetitionCounter,
             repetitionCounterPosition: RepetitionCounterPosition(rawValue: repetitionCounterPosition) ?? .bottomRight,
             showTimeline: showTimeline,
-            timelineColor: Color(hex: timelineColor),
-            hideTabBar: hideTabBar)
+            timelineColor: Color(hex: timelineColor))
     }
 
     /// True when this template's stored values match what is currently in UserDefaults,
