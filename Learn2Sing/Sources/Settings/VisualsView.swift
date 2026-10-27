@@ -548,7 +548,7 @@ struct PlaybackVisualsView: View {
             }
 
             Section {
-                Toggle("Timeline", isOn: $showTimeline)
+                Toggle("Timeline", isOn: timelineSwitch)
                     .setting(.showTimeline)
                 if showTimeline {
                     ColorPicker("Timeline color", selection: opacityColorBinding($timelineColor),
@@ -772,6 +772,21 @@ struct PlaybackVisualsView: View {
     private func opacityColorBinding(_ raw: Binding<String>) -> Binding<Color> {
         Binding(get: { Color(hex: raw.wrappedValue) },
                 set: { raw.wrappedValue = $0.hexStringWithAlpha })
+    }
+
+    /// The Timeline switch. Switching it on gives the timeline the note colour of
+    /// that moment, so it starts out matching the notes, and the colour row that
+    /// appears under it changes it from there. Done in the switch rather than on any
+    /// change to the stored value, as selecting a template turns the timeline on too
+    /// and brings its own colour with it.
+    private var timelineSwitch: Binding<Bool> {
+        Binding(get: { showTimeline },
+                set: { isOn in
+                    if isOn && !showTimeline {
+                        timelineColor = Color(hex: noteColor).hexStringWithAlpha
+                    }
+                    showTimeline = isOn
+                })
     }
 }
 
