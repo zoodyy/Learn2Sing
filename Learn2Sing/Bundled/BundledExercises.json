@@ -1664,104 +1664,104 @@
       {
         "pitch" : 48,
         "id" : "ae990c3d-eb79-4e8a-8e2d-3be15cfc1137",
-        "beat" : 0,
-        "length" : 1
+        "beat" : 0.777778,
+        "length" : 0.222222
       },
       {
         "pitch" : 48,
         "id" : "cdc6976a-f7fa-4419-8407-78b4969b6936",
-        "beat" : 1,
-        "length" : 1
+        "beat" : 1.777778,
+        "length" : 0.222222
       },
       {
         "pitch" : 48,
         "id" : "541619f3-d0d3-4a6e-9713-cd1264914143",
-        "beat" : 2,
-        "length" : 1
+        "beat" : 2.777778,
+        "length" : 0.222222
       },
       {
         "pitch" : 48,
         "id" : "efa15fe2-1586-466f-8d81-e748a374019a",
-        "beat" : 3,
-        "length" : 1
+        "beat" : 3.777778,
+        "length" : 0.222222
       },
       {
         "pitch" : 50,
         "id" : "4713995a-bad7-4c98-95c9-a3ea9ff7de5a",
-        "beat" : 4,
-        "length" : 1
+        "beat" : 4.777778,
+        "length" : 0.222222
       },
       {
         "pitch" : 50,
         "id" : "85146a20-e34f-4a29-acab-ded6ec5e259a",
-        "beat" : 5,
-        "length" : 1
+        "beat" : 5.777778,
+        "length" : 0.222222
       },
       {
         "pitch" : 50,
         "id" : "8af3b1f0-4f20-4e0d-bced-e7517ee147ae",
-        "beat" : 6,
-        "length" : 1
+        "beat" : 6.777778,
+        "length" : 0.222222
       },
       {
         "pitch" : 50,
         "id" : "73563593-f8d2-483f-8e31-746f7c734704",
-        "beat" : 7,
-        "length" : 1
+        "beat" : 7.777778,
+        "length" : 0.222222
       },
       {
         "pitch" : 52,
         "id" : "f08634c7-3965-44a5-8791-b4f8542985ff",
-        "beat" : 8,
-        "length" : 1
+        "beat" : 8.777778,
+        "length" : 0.222222
       },
       {
         "pitch" : 52,
         "id" : "574adf1a-1942-422a-ac9b-a317c73e7e65",
-        "beat" : 9,
-        "length" : 1
+        "beat" : 9.777778,
+        "length" : 0.222222
       },
       {
         "pitch" : 52,
         "id" : "176e236f-50a4-40a8-af50-c7e6c7262a68",
-        "beat" : 10,
-        "length" : 1
+        "beat" : 10.777778,
+        "length" : 0.222222
       },
       {
         "pitch" : 52,
         "id" : "7f914f43-48d3-49c0-a504-5f85b6f74113",
-        "beat" : 11,
-        "length" : 1
+        "beat" : 11.777778,
+        "length" : 0.222222
       },
       {
         "pitch" : 50,
         "id" : "91816f34-822a-444b-a2d8-f612d6acc911",
-        "beat" : 12,
-        "length" : 1
+        "beat" : 12.777778,
+        "length" : 0.222222
       },
       {
         "pitch" : 50,
         "id" : "e47ba5aa-ba53-4662-9317-b6628475f42e",
-        "beat" : 13,
-        "length" : 1
+        "beat" : 13.777778,
+        "length" : 0.222222
       },
       {
         "pitch" : 50,
         "id" : "c918588e-1b39-4488-aede-f6411e68e2d3",
-        "beat" : 14,
-        "length" : 1
+        "beat" : 14.777778,
+        "length" : 0.222222
       },
       {
         "pitch" : 50,
         "id" : "518b16ac-6efa-4fa5-b5ca-83fb3b10a8c9",
-        "beat" : 15,
-        "length" : 1
+        "beat" : 15.777778,
+        "length" : 0.222222
       },
       {
         "pitch" : 48,
         "id" : "7b800a06-d7ee-4b08-9b78-aa491a14324b",
-        "beat" : 16,
-        "length" : 2
+        "beat" : 16.777778,
+        "length" : 1.222222
       }
     ],
     "C7AFD618-085D-477B-9920-52F0A419F8F5" : [
@@ -1812,116 +1812,116 @@
       {
         "pitch" : 48,
         "id" : "54c830b2-9e5c-4dae-8e39-52e50ffe6e51",
-        "beat" : 0,
-        "length" : 1
+        "beat" : 0.766667,
+        "length" : 0.233333
       },
       {
         "pitch" : 48,
         "id" : "f0071b56-f663-4b63-8314-b36b2bb4f47a",
-        "beat" : 1,
-        "length" : 1
+        "beat" : 1.766667,
+        "length" : 0.233333
       },
       {
         "pitch" : 48,
         "id" : "4bdf9dd1-bf44-4fec-bfa5-27d621333e1e",
-        "beat" : 2,
-        "length" : 1
+        "beat" : 2.766667,
+        "length" : 0.233333
       },
       {
         "pitch" : 50,
         "id" : "a47a9650-29a3-464c-9387-f07d0f94bf87",
-        "beat" : 3,
-        "length" : 1
+        "beat" : 3.766667,
+        "length" : 0.233333
       },
       {
         "pitch" : 50,
         "id" : "efc1b99c-15b6-4175-9cd2-9e5e69ac425f",
-        "beat" : 4,
-        "length" : 1
+        "beat" : 4.766667,
+        "length" : 0.233333
       },
       {
         "pitch" : 50,
         "id" : "97144ed3-5fdf-47d1-9203-fabf17417086",
-        "beat" : 5,
-        "length" : 1
+        "beat" : 5.766667,
+        "length" : 0.233333
       },
       {
         "pitch" : 52,
         "id" : "b71fa3f3-ba0a-42d3-8564-b36c09ffc0f8",
-        "beat" : 6,
-        "length" : 1
+        "beat" : 6.766667,
+        "length" : 0.233333
       },
       {
         "pitch" : 52,
         "id" : "1fc021ea-ee71-4e20-af79-ca7593dbb75c",
-        "beat" : 7,
-        "length" : 1
+        "beat" : 7.766667,
+        "length" : 0.233333
       },
       {
         "pitch" : 52,
         "id" : "8dea043c-6db6-460f-80a8-ae17875b2bfb",
-        "beat" : 8,
-        "length" : 1
+        "beat" : 8.766667,
+        "length" : 0.233333
       },
       {
         "pitch" : 53,
         "id" : "f110f515-d040-4083-bde3-20f395871676",
-        "beat" : 9,
-        "length" : 1
+        "beat" : 9.766667,
+        "length" : 0.233333
       },
       {
         "pitch" : 53,
         "id" : "199790fe-f85d-4d7f-802c-cf1d4124088a",
-        "beat" : 10,
-        "length" : 1
+        "beat" : 10.766667,
+        "length" : 0.233333
       },
       {
         "pitch" : 53,
         "id" : "965929fa-19b7-4e7d-b5e5-44a127a8a34e",
-        "beat" : 11,
-        "length" : 1
+        "beat" : 11.766667,
+        "length" : 0.233333
       },
       {
         "pitch" : 55,
         "id" : "3343d19d-cd54-4f84-a190-a39dccfaec96",
-        "beat" : 12,
-        "length" : 1
+        "beat" : 12.766667,
+        "length" : 0.233333
       },
       {
         "pitch" : 55,
         "id" : "041d2b90-b412-4a04-9907-94e30f4c0e00",
-        "beat" : 13,
-        "length" : 1
+        "beat" : 13.766667,
+        "length" : 0.233333
       },
       {
         "pitch" : 55,
         "id" : "fc7fd516-90da-416a-b768-91324c168553",
-        "beat" : 14,
-        "length" : 1
+        "beat" : 14.766667,
+        "length" : 0.233333
       },
       {
         "pitch" : 52,
         "id" : "35e465a4-646d-4098-abf6-a57488dde8c9",
-        "beat" : 15,
-        "length" : 1
+        "beat" : 15.766667,
+        "length" : 0.233333
       },
       {
         "pitch" : 52,
         "id" : "cc50015b-9237-4828-8632-9adbef086002",
-        "beat" : 16,
-        "length" : 1
+        "beat" : 16.766667,
+        "length" : 0.233333
       },
       {
         "pitch" : 52,
         "id" : "789032d7-c94a-4d94-8d4e-131ed2e033e5",
-        "beat" : 17,
-        "length" : 1
+        "beat" : 17.766667,
+        "length" : 0.233333
       },
       {
         "pitch" : 48,
         "id" : "4f39c288-66a9-4464-bf73-4abcf3142c97",
-        "beat" : 18,
-        "length" : 2
+        "beat" : 18.766667,
+        "length" : 1.233333
       }
     ],
     "4BF681BB-81B9-4B83-904C-23D39003BAF7" : [
@@ -2350,92 +2350,92 @@
       {
         "pitch" : 45,
         "id" : "b25954ef-874d-49fe-be9a-f4358f916386",
-        "beat" : 0,
-        "length" : 1
+        "beat" : 0.755556,
+        "length" : 0.244444
       },
       {
         "pitch" : 47,
         "id" : "f9c8e60d-40b6-4223-a60e-b52152ca1517",
-        "beat" : 1,
-        "length" : 1
+        "beat" : 1.755556,
+        "length" : 0.244444
       },
       {
         "pitch" : 49,
         "id" : "430da83b-6095-4434-bb5f-a838072d7372",
-        "beat" : 2,
-        "length" : 1
+        "beat" : 2.755556,
+        "length" : 0.244444
       },
       {
         "pitch" : 50,
         "id" : "8a05d0e4-9327-4d47-89f7-6cb7e18aef27",
-        "beat" : 3,
-        "length" : 1
+        "beat" : 3.755556,
+        "length" : 0.244444
       },
       {
         "pitch" : 52,
         "id" : "45f75de1-d124-4ee1-8792-7abf9af2afc6",
-        "beat" : 4,
-        "length" : 1
+        "beat" : 4.755556,
+        "length" : 0.244444
       },
       {
         "pitch" : 54,
         "id" : "4fe0d2c5-3e10-443c-b99f-11f76a7a841d",
-        "beat" : 5,
-        "length" : 1
+        "beat" : 5.755556,
+        "length" : 0.244444
       },
       {
         "pitch" : 56,
         "id" : "ec6c0ac7-e7f3-4654-9bca-3df560037440",
-        "beat" : 6,
-        "length" : 1
+        "beat" : 6.755556,
+        "length" : 0.244444
       },
       {
         "pitch" : 57,
         "id" : "bc384b87-0789-4537-bfbd-b9957bf710c7",
-        "beat" : 7,
-        "length" : 1
+        "beat" : 7.755556,
+        "length" : 0.244444
       },
       {
         "pitch" : 56,
         "id" : "16be136c-54cf-4954-b947-886e70d125cd",
-        "beat" : 8,
-        "length" : 1
+        "beat" : 8.755556,
+        "length" : 0.244444
       },
       {
         "pitch" : 54,
         "id" : "ad7878a5-d936-46fc-bf6e-7856a661cec3",
-        "beat" : 9,
-        "length" : 1
+        "beat" : 9.755556,
+        "length" : 0.244444
       },
       {
         "pitch" : 52,
         "id" : "cd18623a-9277-402f-a9c7-d6e42a4dbae6",
-        "beat" : 10,
-        "length" : 1
+        "beat" : 10.755556,
+        "length" : 0.244444
       },
       {
         "pitch" : 50,
         "id" : "3928a3eb-7ca8-42ee-8b48-05046b1c78d8",
-        "beat" : 11,
-        "length" : 1
+        "beat" : 11.755556,
+        "length" : 0.244444
       },
       {
         "pitch" : 49,
         "id" : "57a09dd1-5fbd-46e9-984b-5a5ccd36d4b6",
-        "beat" : 12,
-        "length" : 1
+        "beat" : 12.755556,
+        "length" : 0.244444
       },
       {
         "pitch" : 47,
         "id" : "f248e462-eed1-4a2e-8a75-4e1f1ae5a2c7",
-        "beat" : 13,
-        "length" : 1
+        "beat" : 13.755556,
+        "length" : 0.244444
       },
       {
         "pitch" : 45,
         "id" : "c85cc487-7723-4bea-a98e-fa55f87701a1",
-        "beat" : 14,
-        "length" : 2
+        "beat" : 14.755556,
+        "length" : 1.244444
       }
     ],
     "AA855D4A-4571-4AA4-AE69-FECC0BFBE44D" : [
@@ -15752,6 +15752,318 @@
     ]
   },
   "ghosts" : {
+    "EF2741FE-B0DD-413C-9971-F1B9AEEAA666" : [
+      {
+        "pitch" : 48,
+        "id" : "5083092d-892b-548a-a627-85babdbf1068",
+        "beat" : 0,
+        "length" : 1
+      },
+      {
+        "pitch" : 48,
+        "id" : "ae6526c5-2051-5167-b334-100d4fe1ec9b",
+        "beat" : 1,
+        "length" : 1
+      },
+      {
+        "pitch" : 48,
+        "id" : "f7cbb5ad-f48f-5379-b7c8-18457a4d4cb4",
+        "beat" : 2,
+        "length" : 1
+      },
+      {
+        "pitch" : 48,
+        "id" : "097e9b9f-944c-59d3-9493-686cb2e0c90d",
+        "beat" : 3,
+        "length" : 1
+      },
+      {
+        "pitch" : 50,
+        "id" : "004c9d47-9a2e-5c20-a470-0ed0ea2eeb99",
+        "beat" : 4,
+        "length" : 1
+      },
+      {
+        "pitch" : 50,
+        "id" : "3123e9af-3683-57c9-96fa-6b14c84e1a02",
+        "beat" : 5,
+        "length" : 1
+      },
+      {
+        "pitch" : 50,
+        "id" : "5b25138f-9929-5a2b-a821-5e636ed81e5c",
+        "beat" : 6,
+        "length" : 1
+      },
+      {
+        "pitch" : 50,
+        "id" : "0e36bd16-46ad-57f5-8d28-59ed42794010",
+        "beat" : 7,
+        "length" : 1
+      },
+      {
+        "pitch" : 52,
+        "id" : "16a860f6-f2ac-5a32-a437-f758055b402d",
+        "beat" : 8,
+        "length" : 1
+      },
+      {
+        "pitch" : 52,
+        "id" : "72c7274f-caff-52cb-a00d-e5b37b1e1d1b",
+        "beat" : 9,
+        "length" : 1
+      },
+      {
+        "pitch" : 52,
+        "id" : "64924e8a-3320-566c-97e4-30b0329a4294",
+        "beat" : 10,
+        "length" : 1
+      },
+      {
+        "pitch" : 52,
+        "id" : "e35e62b2-af13-53ef-a62a-4eb7537ffa25",
+        "beat" : 11,
+        "length" : 1
+      },
+      {
+        "pitch" : 50,
+        "id" : "ab451e34-65b4-5b11-8dd0-67037e551c76",
+        "beat" : 12,
+        "length" : 1
+      },
+      {
+        "pitch" : 50,
+        "id" : "70ce3e0e-d8ce-50bc-8bda-3072dde4c70d",
+        "beat" : 13,
+        "length" : 1
+      },
+      {
+        "pitch" : 50,
+        "id" : "1596b594-a36f-557a-b25a-340f71828972",
+        "beat" : 14,
+        "length" : 1
+      },
+      {
+        "pitch" : 50,
+        "id" : "93cbdf23-a098-5b35-895e-7c7e2eb53f07",
+        "beat" : 15,
+        "length" : 1
+      },
+      {
+        "pitch" : 48,
+        "id" : "ca7e3d90-cf37-5903-95f9-f85d4ca11706",
+        "beat" : 16,
+        "length" : 2
+      }
+    ],
+    "639C0601-A63B-40C4-ADFE-1AC066F5F486" : [
+      {
+        "pitch" : 48,
+        "id" : "b6513fab-fe25-5cd2-af9f-768e97444c57",
+        "beat" : 0,
+        "length" : 1
+      },
+      {
+        "pitch" : 48,
+        "id" : "ae46577b-e146-5497-b771-f17ce424ced7",
+        "beat" : 1,
+        "length" : 1
+      },
+      {
+        "pitch" : 48,
+        "id" : "16f90268-02b1-5546-99a1-955932de9089",
+        "beat" : 2,
+        "length" : 1
+      },
+      {
+        "pitch" : 50,
+        "id" : "0d174c85-d73f-54aa-afcb-a237b42c24db",
+        "beat" : 3,
+        "length" : 1
+      },
+      {
+        "pitch" : 50,
+        "id" : "37fa14e5-3e0e-5630-b7d3-188574e068fc",
+        "beat" : 4,
+        "length" : 1
+      },
+      {
+        "pitch" : 50,
+        "id" : "67455bd0-13e4-5e22-bba8-1725cd56ed6a",
+        "beat" : 5,
+        "length" : 1
+      },
+      {
+        "pitch" : 52,
+        "id" : "13c15c8b-6ad7-5e62-9be9-7463b0cd1389",
+        "beat" : 6,
+        "length" : 1
+      },
+      {
+        "pitch" : 52,
+        "id" : "d0035e3f-de0d-593c-ac32-ad63225ed311",
+        "beat" : 7,
+        "length" : 1
+      },
+      {
+        "pitch" : 52,
+        "id" : "6643ec4a-84b1-5e62-8aa2-a6e43749fd45",
+        "beat" : 8,
+        "length" : 1
+      },
+      {
+        "pitch" : 53,
+        "id" : "b1853f14-1f4b-55ce-8e6e-4e35b6315443",
+        "beat" : 9,
+        "length" : 1
+      },
+      {
+        "pitch" : 53,
+        "id" : "162c3859-53da-50d7-947c-009618aaff03",
+        "beat" : 10,
+        "length" : 1
+      },
+      {
+        "pitch" : 53,
+        "id" : "0b3f17ab-87d7-5115-9f76-02ed1206cf85",
+        "beat" : 11,
+        "length" : 1
+      },
+      {
+        "pitch" : 55,
+        "id" : "48dd39a6-0579-5159-adb6-32f1c57d8be3",
+        "beat" : 12,
+        "length" : 1
+      },
+      {
+        "pitch" : 55,
+        "id" : "f58eb30c-b47b-539c-ab8e-de9fd44019d0",
+        "beat" : 13,
+        "length" : 1
+      },
+      {
+        "pitch" : 55,
+        "id" : "1cd48d23-40fb-5297-bfe4-7f1e1f45d7b4",
+        "beat" : 14,
+        "length" : 1
+      },
+      {
+        "pitch" : 52,
+        "id" : "b8c47529-1880-502e-a384-ae1b0737ac82",
+        "beat" : 15,
+        "length" : 1
+      },
+      {
+        "pitch" : 52,
+        "id" : "4301cf7e-e4b4-5a82-8a54-fd82fab196ca",
+        "beat" : 16,
+        "length" : 1
+      },
+      {
+        "pitch" : 52,
+        "id" : "b30fbc94-5946-5757-a241-1a600461f69c",
+        "beat" : 17,
+        "length" : 1
+      },
+      {
+        "pitch" : 48,
+        "id" : "d6f45b34-6bc2-5026-b236-ace2719e3118",
+        "beat" : 18,
+        "length" : 2
+      }
+    ],
+    "33636A4D-1574-4B4D-9769-AF199C971263" : [
+      {
+        "pitch" : 45,
+        "id" : "cc08c097-951d-5cb0-9ffd-0b03d5b01c87",
+        "beat" : 0,
+        "length" : 1
+      },
+      {
+        "pitch" : 47,
+        "id" : "ab764921-fafc-5526-908f-61372f8e645e",
+        "beat" : 1,
+        "length" : 1
+      },
+      {
+        "pitch" : 49,
+        "id" : "5ff3f58c-d56c-578f-b61d-fc857ba45cbb",
+        "beat" : 2,
+        "length" : 1
+      },
+      {
+        "pitch" : 50,
+        "id" : "89061575-3181-53b8-9b49-3573d24d0660",
+        "beat" : 3,
+        "length" : 1
+      },
+      {
+        "pitch" : 52,
+        "id" : "cc04ed91-ad63-52d9-ba8d-3140c29eece6",
+        "beat" : 4,
+        "length" : 1
+      },
+      {
+        "pitch" : 54,
+        "id" : "3a2f7434-b757-5095-b7f3-3b8187d45130",
+        "beat" : 5,
+        "length" : 1
+      },
+      {
+        "pitch" : 56,
+        "id" : "54a7c46c-0a51-5231-b98e-07154af07ec6",
+        "beat" : 6,
+        "length" : 1
+      },
+      {
+        "pitch" : 57,
+        "id" : "0d6c5572-c6b8-555c-9f62-b131de540d0a",
+        "beat" : 7,
+        "length" : 1
+      },
+      {
+        "pitch" : 56,
+        "id" : "b78a7a62-25fa-5759-96f2-95846f3cc206",
+        "beat" : 8,
+        "length" : 1
+      },
+      {
+        "pitch" : 54,
+        "id" : "e2336cd9-d5da-51e0-8017-37506b5177f6",
+        "beat" : 9,
+        "length" : 1
+      },
+      {
+        "pitch" : 52,
+        "id" : "aeae405c-1171-53e9-a024-fcacb461b799",
+        "beat" : 10,
+        "length" : 1
+      },
+      {
+        "pitch" : 50,
+        "id" : "75ce3eb1-667a-52d0-b0a8-ae44304a6143",
+        "beat" : 11,
+        "length" : 1
+      },
+      {
+        "pitch" : 49,
+        "id" : "8e3538af-3ff4-5733-8d01-3bfb4ea4d5ba",
+        "beat" : 12,
+        "length" : 1
+      },
+      {
+        "pitch" : 47,
+        "id" : "30ea5477-908b-5787-b35a-8ef1c49317a9",
+        "beat" : 13,
+        "length" : 1
+      },
+      {
+        "pitch" : 45,
+        "id" : "0d2f19ad-2f76-55c8-bf40-eb952b187651",
+        "beat" : 14,
+        "length" : 2
+      }
+    ],
     "3BB3BC46-1C2B-5D16-AA8A-A058113D0CB9" : [
       {
         "pitch" : 36,
@@ -20976,7 +21288,7 @@
       "switchDirectionAfter" : 0,
       "transposePerRepeat" : 1,
       "name" : "Ta Ka",
-      "details" : "Alternate the tip and the back of your tongue, like double tonguing on a flute. Keep the notes crisp and the air steady.",
+      "details" : "Alternate the tip and the back of your tongue, like double tonguing on a flute. Keep the notes crisp and the air steady. The translucent start of each note is played but not scored, because its consonant has no pitch the app can hear.",
       "speedPerRepeat" : 0,
       "bpm" : 200,
       "uploaderName" : "",
@@ -21006,7 +21318,7 @@
       "switchDirectionAfter" : 0,
       "transposePerRepeat" : 1,
       "name" : "Ti Ki Ta",
-      "details" : "Tip, back, tip: keep the three syllables even and crisp, and let the air flow through them.",
+      "details" : "Tip, back, tip: keep the three syllables even and crisp, and let the air flow through them. The translucent start of each note is played but not scored, because its consonant has no pitch the app can hear.",
       "speedPerRepeat" : 0,
       "bpm" : 210,
       "uploaderName" : "",
@@ -21126,7 +21438,7 @@
       "switchDirectionAfter" : 0,
       "transposePerRepeat" : 1,
       "name" : "Pa Ta Ka",
-      "details" : "Keep \"Pa Ta Ka\" crisp and quick, like a patter song. Let the air keep flowing so the notes don't get choppy.",
+      "details" : "Keep \"Pa Ta Ka\" crisp and quick, like a patter song. Let the air keep flowing so the notes don't get choppy. The translucent start of each note is played but not scored, because its consonant has no pitch the app can hear.",
       "speedPerRepeat" : 0,
       "bpm" : 220,
       "uploaderName" : "",

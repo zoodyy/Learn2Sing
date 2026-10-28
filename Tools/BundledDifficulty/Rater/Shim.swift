@@ -145,6 +145,13 @@ struct MIDIText: Identifiable, Codable {
     var pitch: Int
     var beat: Double
     var fontScale: Double = 1
+    /// Set by `Exercise.timeline(...)` for the screens' label fitting; never rated.
+    var noteGaps: [NoteGap] = []
+    struct NoteGap {
+        var beats: Double
+        var rows: Int
+    }
+    var tempoScale: Double = 1
 
     private enum CodingKeys: String, CodingKey { case id, text, pitch, beat }
 

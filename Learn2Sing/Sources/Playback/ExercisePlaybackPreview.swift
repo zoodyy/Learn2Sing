@@ -212,10 +212,11 @@ struct ExercisePlaybackPreview: View {
     /// framing, and either way kept over the exercise.
     private var beat: Double { clamped(draggedBeat ?? framedBeat) }
 
-    /// The opening framing: the exercise's first note against the left-hand edge of
-    /// the note area, so as much of it as fits is in view from the start.
+    /// The opening framing: the exercise's first note, or a ghost note that comes in
+    /// ahead of it, against the left-hand edge of the note area, so as much of it as
+    /// fits is in view from the start.
     private var framedBeat: Double {
-        let first = timeline.notes.map(\.beat).min() ?? contentBeats.lowerBound
+        let first = [timeline.notes, timeline.ghosts].joined().map(\.beat).min() ?? contentBeats.lowerBound
         return first + Double((playheadX - keyboardWidth) / beatPx)
     }
 

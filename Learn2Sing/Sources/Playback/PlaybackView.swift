@@ -579,7 +579,9 @@ final class ExercisePlayer {
         // the silence without colliding with the previous repetition.
         //
         // A first note with ghost notes sounding over its start isn't heard there
-        // itself, so what is previewed is what is: those ghost notes, together.
+        // itself, so what is previewed is what is: those ghost notes, together. And a
+        // repetition whose ghost notes come in before its first note begins with
+        // them, so that is where the preview's pause ends.
         if preview {
             // Earliest note of each repetition. Each repetition's first note already
             // carries that rep's transposition, so its pitch is the right one to
@@ -590,11 +592,18 @@ final class ExercisePlayer {
                 if let existing = firstByRep[rep], existing.beat <= note.beat { continue }
                 firstByRep[rep] = note
             }
+            // Where each repetition starts to sound: its first note, or a ghost note
+            // that comes in ahead of it.
+            var startByRep = firstByRep.mapValues(\.beat)
+            for ghost in ghosts {
+                let rep = repeatLayout.index(at: ghost.beat)
+                if let start = startByRep[rep], ghost.beat < start { startByRep[rep] = ghost.beat }
+            }
             for (rep, firstNote) in firstByRep {
                 if rep >= 1 && betweenReps < 3 { continue }
                 // Measured in the beats of the silence the preview sits in, so it
                 // stays inside that gap however the repetitions are sped up.
-                let firstBeat = firstNote.beat + leadIn
+                let firstBeat = (startByRep[rep] ?? firstNote.beat) + leadIn
                 let previewOn  = repeatLayout.beat(3.0, before: rep, startingAt: firstBeat)
                 let previewOff = repeatLayout.beat(1.0, before: rep, startingAt: firstBeat)
                 let over = ghosts.filter {

@@ -397,9 +397,10 @@ struct ExerciseReviewView: View {
     }
 
     /// The opening view: the first note against the left edge of the note area
-    /// (rather than the silent lead-in the recording also covers), centred on the
-    /// notes' own pitch range — a stray label or a stray detected pitch shouldn't
-    /// be what decides where the review starts.
+    /// (rather than the silent lead-in the recording also covers), or the first ghost
+    /// note where one comes in ahead of it, centred on the notes' own pitch range — a
+    /// stray label or a stray detected pitch shouldn't be what decides where the
+    /// review starts.
     private func framedCamera(size: CGSize, content: Content) -> Camera {
         let pitches = notes.map(\.pitch)
         let center: Double
@@ -408,7 +409,7 @@ struct ExerciseReviewView: View {
         } else {
             center = (content.pitches.lowerBound + content.pitches.upperBound) / 2
         }
-        let firstNote = notes.map(\.beat).min() ?? content.beats.lowerBound
+        let firstNote = [notes, ghosts].joined().map(\.beat).min() ?? content.beats.lowerBound
         let playhead = firstNote
             + Double((playheadX(size: size) - keyboardWidth) / beatWidth(zoom: 1))
         return Camera(playheadBeat: playhead, centerPitch: center)
