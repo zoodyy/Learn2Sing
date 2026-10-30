@@ -87,6 +87,7 @@ final class AudioRouteManager: ObservableObject {
         if probingDevices && !sessionActive {
             try? session.setCategory(.playAndRecord, mode: .default,
                                      options: categoryOptions(allowingEveryDevice: true))
+            AudioDebugLog.event("route.probeDevices", extra: AudioDebugLog.sessionSnapshot())  // AUDIO DEBUG LOG
         }
 
         let availableInputs = session.availableInputs ?? []
@@ -120,12 +121,14 @@ final class AudioRouteManager: ObservableObject {
     /// Configure the shared session for simultaneous record + playback, honouring the
     /// user's speaker / microphone preferences. Call before starting the engine or mic tap.
     func configureSession() {
+        AudioDebugLog.event("route.configure.begin", ["speaker": selectedSpeaker, "mic": selectedMic, "available": (session.availableInputs ?? []).map(AudioDebugLog.portString).joined(separator: " + ")], extra: AudioDebugLog.sessionSnapshot())  // AUDIO DEBUG LOG
         playbackOnly = false
-        try? session.setCategory(.playAndRecord, mode: .default, options: categoryOptions())
-        try? session.setActive(true)
+        AudioDebugLog.attempt("session.setCategory", ["cat": "playAndRecord", "opts": AudioDebugLog.optionsString(categoryOptions())]) { try session.setCategory(.playAndRecord, mode: .default, options: categoryOptions()) }  // AUDIO DEBUG LOG restore: try? session.setCategory(.playAndRecord, mode: .default, options: categoryOptions())
+        AudioDebugLog.attempt("session.setActive", ["active": true]) { try session.setActive(true) }  // AUDIO DEBUG LOG restore: try? session.setActive(true)
         sessionActive = true
         applyOutputRoute()
         applyInputRoute()
+        AudioDebugLog.event("route.configure.end", extra: AudioDebugLog.sessionSnapshot())  // AUDIO DEBUG LOG
     }
 
     /// The longest `configureSession(whenSettled:)` waits for the route before calling
@@ -152,6 +155,7 @@ final class AudioRouteManager: ObservableObject {
     /// drops out half way can't hold a run up. Cancelling the wait drops it instead.
     func configureSession(whenSettled ready: @escaping () -> Void) -> RouteWait {
         let destination = expectedOutput()
+        AudioDebugLog.event("route.wait.begin", ["expect": "\(destination)", "timeout": Self.settleTimeout, "route": AudioDebugLog.routeString(session.currentRoute)])  // AUDIO DEBUG LOG
         let wait = RouteWait(arrived: { [weak self] in self?.output(reaches: destination) ?? true },
                              ready: ready)
         // Listening before configuring, so a step of the walk that lands while
@@ -168,6 +172,7 @@ final class AudioRouteManager: ObservableObject {
         private var ready: (() -> Void)?
         private var observer: NSObjectProtocol?
         private var timeout: DispatchWorkItem?
+        private let audioDebugStart = mach_absolute_time()  // AUDIO DEBUG LOG
 
         fileprivate init(arrived: @escaping () -> Bool, ready: @escaping () -> Void) {
             self.arrived = arrived
@@ -187,6 +192,7 @@ final class AudioRouteManager: ObservableObject {
         }
 
         fileprivate func check() {
+            AudioDebugLog.event("route.wait.check", ["arrived": arrived(), "ms": AudioDebugLog.milliseconds(since: audioDebugStart), "route": AudioDebugLog.routeString(AVAudioSession.sharedInstance().currentRoute)])  // AUDIO DEBUG LOG
             if arrived() { finish(callingBack: true) }
         }
 
@@ -196,6 +202,7 @@ final class AudioRouteManager: ObservableObject {
         }
 
         private func finish(callingBack: Bool) {
+            AudioDebugLog.event("route.wait.end", ["callBack": callingBack, "waiting": ready != nil, "arrived": arrived(), "ms": AudioDebugLog.milliseconds(since: audioDebugStart)])  // AUDIO DEBUG LOG
             if let observer { NotificationCenter.default.removeObserver(observer) }
             observer = nil
             timeout?.cancel()
@@ -236,8 +243,8 @@ final class AudioRouteManager: ObservableObject {
     /// `deactivateSession` like `configureSession` does.
     func configurePlaybackSession() {
         playbackOnly = true
-        try? session.setCategory(.playback, mode: .default)
-        try? session.setActive(true)
+        AudioDebugLog.attempt("session.setCategory", ["cat": "playback"]) { try session.setCategory(.playback, mode: .default) }  // AUDIO DEBUG LOG restore: try? session.setCategory(.playback, mode: .default)
+        AudioDebugLog.attempt("session.setActive", ["active": true, "playbackOnly": true]) { try session.setActive(true) }  // AUDIO DEBUG LOG restore: try? session.setActive(true)
         sessionActive = true
     }
 
@@ -247,7 +254,7 @@ final class AudioRouteManager: ObservableObject {
     func deactivateSession() {
         sessionActive = false
         playbackOnly = false
-        try? session.setActive(false, options: .notifyOthersOnDeactivation)
+        AudioDebugLog.attempt("session.setActive", ["active": false]) { try session.setActive(false, options: .notifyOthersOnDeactivation) }  // AUDIO DEBUG LOG restore: try? session.setActive(false, options: .notifyOthersOnDeactivation)
     }
 
     /// The category options that match the current preferences.
@@ -299,18 +306,19 @@ final class AudioRouteManager: ObservableObject {
             // wired accessory (or a Bluetooth headset still in the route because its mic
             // is in use). Those need the explicit override — the "speakerphone" path,
             // used only in this case as it's quieter than the default speaker.
-            try? session.overrideOutputAudioPort(.speaker)
+            AudioDebugLog.attempt("session.overrideOutput", ["port": "speaker"]) { try session.overrideOutputAudioPort(.speaker) }  // AUDIO DEBUG LOG restore: try? session.overrideOutputAudioPort(.speaker)
         } else {
             // Clear any override and let `.defaultToSpeaker` decide: a connected accessory
             // (AirPods etc.) takes priority, otherwise it routes to the built-in speaker at
             // full media volume — never the quiet earpiece receiver. Covers Automatic, a
             // specific chosen output, and the plain built-in-speaker (no accessory) case.
-            try? session.overrideOutputAudioPort(.none)
+            AudioDebugLog.attempt("session.overrideOutput", ["port": "none"]) { try session.overrideOutputAudioPort(.none) }  // AUDIO DEBUG LOG restore: try? session.overrideOutputAudioPort(.none)
         }
     }
 
     private func applyInputRoute() {
-        if let preferred = preferredInput() { try? session.setPreferredInput(preferred) }
+        if let preferred = preferredInput() { AudioDebugLog.attempt("session.setPreferredInput", ["port": AudioDebugLog.portString(preferred)]) { try session.setPreferredInput(preferred) } }  // AUDIO DEBUG LOG restore: if let preferred = preferredInput() { try? session.setPreferredInput(preferred) }
+        if preferredInput() == nil { AudioDebugLog.event("route.noPreferredInput", ["mic": selectedMic]) }  // AUDIO DEBUG LOG
     }
 
     /// The input port matching the user's choice, falling back to the built-in mic
@@ -344,11 +352,12 @@ final class AudioRouteManager: ObservableObject {
             !session.currentRoute.inputs.contains { $0.uid == port.uid }
         } ?? false
         guard outputWrong || inputWrong else { return }
+        AudioDebugLog.event("route.reapply", ["outputWrong": outputWrong, "inputWrong": inputWrong, "wanted": wanted.map(AudioDebugLog.portString), "route": AudioDebugLog.routeString(session.currentRoute)])  // AUDIO DEBUG LOG
 
         // A device that appeared after `configureSession` may need different options
         // (a newly connected headset has to be shut out again when the speaker is
         // pinned), so re-derive them rather than only re-applying the routes.
-        try? session.setCategory(.playAndRecord, mode: .default, options: categoryOptions())
+        AudioDebugLog.attempt("session.setCategory", ["cat": "playAndRecord", "reapply": true, "opts": AudioDebugLog.optionsString(categoryOptions())]) { try session.setCategory(.playAndRecord, mode: .default, options: categoryOptions()) }  // AUDIO DEBUG LOG restore: try? session.setCategory(.playAndRecord, mode: .default, options: categoryOptions())
         applyOutputRoute()
         applyInputRoute()
     }
