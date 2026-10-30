@@ -280,8 +280,9 @@ let playbackBeatWidth: CGFloat = 40
 
 /// One estimate from the pitch detector: the musical beat it was heard at, and the
 /// (fractional) MIDI pitch — `nil` where nothing was detected, which breaks the
-/// drawn line instead of jumping it across the gap.
-struct PitchSample {
+/// drawn line instead of jumping it across the gap. Nonisolated so a finished run's
+/// line can be worked through off the main actor (see `RunStatistics`).
+nonisolated struct PitchSample {
     let beat: Double
     let pitch: Double?
 }

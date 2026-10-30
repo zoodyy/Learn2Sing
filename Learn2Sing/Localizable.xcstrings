@@ -713,6 +713,95 @@
         }
       }
     },
+    "%@ ct" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ سنت"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ ct"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ ct"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ ct"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ ct"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ セント"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@센트"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ ct"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ ct"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ ct"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ ц"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ ct"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ sent"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ 音分"
+          }
+        }
+      }
+    },
     "%@ has no public exercises right now." : {
       "extractionState" : "stale",
       "localizations" : {
@@ -798,6 +887,95 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%@ 目前没有公开的练习。"
+          }
+        }
+      }
+    },
+    "%@ semitones/s" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ نصف نغمة/ث"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ Halbtöne/s"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ semitonos/s"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ demi-tons/s"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ semitoni/s"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ 半音/秒"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ 반음/초"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ halve tonen/s"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ półtonów/s"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ semitons/s"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ полутонов/с"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ halvtoner/s"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ yarım ses/sn"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ 半音/秒"
           }
         }
       }
@@ -2940,6 +3118,95 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "练声曲是一种没有歌词的发声练习，用一个或多个元音来唱。练声曲可以训练气息控制、咬字、声音融合与平衡。"
+          }
+        }
+      }
+    },
+    "About %d ms per note change." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "نحو %d مللي ث لكل تغيير نغمة."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Etwa %d ms pro Notenwechsel."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unos %d ms por cambio de nota."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Environ %d ms par changement de note."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Circa %d ms per cambio di nota."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "音符の切り替えごとに約 %d ミリ秒。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "음표를 바꿀 때마다 약 %d밀리초."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ongeveer %d ms per nootwisseling."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Około %d ms na zmianę nuty."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cerca de %d ms por troca de nota."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Около %d мс на смену ноты."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ungefär %d ms per tonbyte."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nota değişimi başına yaklaşık %d ms."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "每次换音约 %d 毫秒。"
           }
         }
       }
@@ -6403,6 +6670,95 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "自动列入的练习"
+          }
+        }
+      }
+    },
+    "Average pitch line across a note" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "متوسط خط درجة الصوت على النغمة"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Durchschnittliche Tonhöhenlinie über eine Note"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Línea de tono media a lo largo de una nota"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ligne de hauteur moyenne sur une note"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Linea di intonazione media lungo una nota"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "音符全体での平均の音程線"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "음표 전체의 평균 음정 선"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gemiddelde toonhoogtelijn over een noot"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Średnia linia wysokości dźwięku na nucie"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Linha de altura média ao longo de uma nota"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Средняя линия высоты тона на ноте"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Genomsnittlig tonhöjdslinje över en ton"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bir nota boyunca ortalama perde çizgisi"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "音符上的平均音高线"
           }
         }
       }
@@ -26378,6 +26734,182 @@
         }
       }
     },
+    "Going down" : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "نزولًا"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Abwärts"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hacia abajo"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "En descendant"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scendendo"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "下行"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "내려갈 때"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Omlaag"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "W dół"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Descendo"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Вниз"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nedåt"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aşağı"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "下行"
+          }
+        }
+      }
+    },
+    "Going up" : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "صعودًا"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aufwärts"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hacia arriba"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "En montant"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Salendo"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "上行"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "올라갈 때"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Omhoog"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "W górę"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Subindo"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Вверх"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Uppåt"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Yukarı"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "上行"
+          }
+        }
+      }
+    },
     "Guide Tones High" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -29308,6 +29840,95 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "练习的播放速度，以每分钟拍数计。"
+          }
+        }
+      }
+    },
+    "How fast your voice moved from one note to the next, measured on the changes you sang without a break. Going up and going down are shown separately when the exercise has both." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "مدى سرعة انتقال صوتك من نغمة إلى التالية، مقيسةً على الانتقالات التي غنيتها دون انقطاع. يُعرض الصعود والنزول كلٌّ على حدة عندما يتضمن التمرين كليهما."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wie schnell deine Stimme von einer Note zur nächsten gewechselt ist, gemessen an den Wechseln, die du ohne Unterbrechung gesungen hast. Aufwärts und abwärts werden getrennt gezeigt, wenn die Übung beides hat."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lo rápido que pasó tu voz de una nota a la siguiente, medido en los cambios que cantaste sin pausa. Las subidas y las bajadas se muestran por separado cuando el ejercicio tiene ambas."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La vitesse à laquelle votre voix est passée d’une note à la suivante, mesurée sur les changements chantés sans interruption. Les montées et les descentes sont affichées séparément quand l’exercice comporte les deux."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quanto velocemente la tua voce è passata da una nota alla successiva, misurato sui cambi cantati senza interruzioni. Salite e discese sono mostrate separatamente quando l’esercizio le contiene entrambe."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "声がある音符から次の音符へどれだけ速く移ったか。途切れずに歌った切り替えで測定します。エクササイズに上行と下行の両方がある場合は分けて表示します。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "목소리가 한 음표에서 다음 음표로 얼마나 빨리 옮겨 갔는지입니다. 끊김 없이 부른 전환으로 측정합니다. 연습에 올라가는 부분과 내려가는 부분이 모두 있으면 따로 보여 줍니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hoe snel je stem van de ene noot naar de volgende ging, gemeten op de wisselingen die je zonder onderbreking zong. Omhoog en omlaag worden apart getoond als de oefening beide heeft."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jak szybko twój głos przechodził od jednej nuty do następnej, mierzone na zmianach zaśpiewanych bez przerwy. Ruch w górę i w dół jest pokazywany osobno, gdy ćwiczenie ma oba."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Com que rapidez sua voz passou de uma nota para a seguinte, medido nas trocas que você cantou sem pausa. Subidas e descidas aparecem separadas quando o exercício tem as duas."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Как быстро ваш голос переходил от одной ноты к следующей, по переходам, спетым без перерыва. Движение вверх и вниз показывается отдельно, если в упражнении есть и то и другое."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hur snabbt din röst gick från en ton till nästa, mätt på bytena du sjöng utan avbrott. Uppåt och nedåt visas var för sig när övningen har båda."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sesinizin bir notadan diğerine ne kadar hızlı geçtiği; ara vermeden söylediğiniz geçişlerde ölçülür. Egzersizde ikisi de varsa yukarı ve aşağı geçişler ayrı gösterilir."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "你的声音从一个音符移到下一个音符有多快，按你不间断唱出的换音测量。练习中既有上行又有下行时，会分开显示。"
           }
         }
       }
@@ -40680,6 +41301,95 @@
         }
       }
     },
+    "Measured on %d of %d notes." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "قيس على %d من أصل %d نغمة."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gemessen an %d von %d Noten."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Medido en %d de %d notas."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mesuré sur %d des %d notes."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Misurato su %d delle %d note."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "測定した音符: %d / %d。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "측정한 음표: %d / %d."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gemeten op %d van de %d noten."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zmierzono na %d z %d nut."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Medido em %d de %d notas."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Измерено по %d из %d нот."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mätt på %d av %d toner."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ölçülen notalar: %d / %d."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "测量的音符：%d / %d。"
+          }
+        }
+      }
+    },
     "Melodic Minor Ascending" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -46358,6 +47068,182 @@
         }
       }
     },
+    "No note changes could be measured in this run." : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "تعذّر قياس أي تغيير في النغمات في هذه المحاولة."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "In diesem Durchgang konnten keine Notenwechsel gemessen werden."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "En esta ejecución no se pudo medir ningún cambio de nota."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aucun changement de note n’a pu être mesuré dans cette session."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "In questa esecuzione non è stato possibile misurare nessun cambio di nota."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "この回では音符の切り替えを測定できませんでした。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이번 회차에서는 음표 전환을 측정할 수 없었습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "In deze ronde konden geen nootwisselingen worden gemeten."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "W tym przebiegu nie udało się zmierzyć żadnej zmiany nuty."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nenhuma troca de nota pôde ser medida nesta execução."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "В этом проходе не удалось измерить ни одной смены ноты."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Inga tonbyten kunde mätas i den här omgången."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bu turda hiçbir nota değişimi ölçülemedi."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "这一次没有可以测量的换音。"
+          }
+        }
+      }
+    },
+    "No note was sung clearly enough to measure." : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "لم تُغنَّ أي نغمة بوضوح كافٍ لقياسها."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keine Note wurde deutlich genug gesungen, um sie zu messen."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ninguna nota se cantó con suficiente claridad para medirla."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aucune note n’a été chantée assez nettement pour être mesurée."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nessuna nota è stata cantata in modo abbastanza chiaro da poterla misurare."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "測定できるほどはっきり歌えた音符がありませんでした。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "측정할 수 있을 만큼 분명하게 부른 음표가 없습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Geen enkele noot werd duidelijk genoeg gezongen om te meten."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Żadna nuta nie została zaśpiewana wystarczająco wyraźnie, by ją zmierzyć."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nenhuma nota foi cantada com clareza suficiente para ser medida."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ни одна нота не была спета достаточно чётко, чтобы её измерить."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ingen ton sjöngs tydligt nog för att mätas."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hiçbir nota ölçülebilecek kadar net söylenmedi."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "没有唱得足够清晰、可以测量的音符。"
+          }
+        }
+      }
+    },
     "No practice time in this period." : {
       "localizations" : {
         "ar" : {
@@ -48658,6 +49544,273 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "好"
+          }
+        }
+      }
+    },
+    "On average, you sang above the center of the notes." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "في المتوسط، غنيت أعلى من مركز النغمات."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Im Durchschnitt hast du über der Mitte der Noten gesungen."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "De media, cantaste por encima del centro de las notas."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "En moyenne, vous avez chanté au-dessus du centre des notes."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "In media hai cantato sopra il centro delle note."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "平均すると、音符の中心より高く歌っていました。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "평균적으로 음표의 중심보다 높게 불렀습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gemiddeld zong je boven het midden van de noten."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Średnio twój głos był powyżej środka nut."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Em média, você cantou acima do centro das notas."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "В среднем вы пели выше центра нот."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "I genomsnitt sjöng du över tonernas mitt."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ortalama olarak notaların merkezinin üstünde söylediniz."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "平均而言，你唱得比音符中心高。"
+          }
+        }
+      }
+    },
+    "On average, you sang below the center of the notes." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "في المتوسط، غنيت أدنى من مركز النغمات."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Im Durchschnitt hast du unter der Mitte der Noten gesungen."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "De media, cantaste por debajo del centro de las notas."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "En moyenne, vous avez chanté en dessous du centre des notes."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "In media hai cantato sotto il centro delle note."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "平均すると、音符の中心より低く歌っていました。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "평균적으로 음표의 중심보다 낮게 불렀습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gemiddeld zong je onder het midden van de noten."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Średnio twój głos był poniżej środka nut."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Em média, você cantou abaixo do centro das notas."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "В среднем вы пели ниже центра нот."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "I genomsnitt sjöng du under tonernas mitt."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ortalama olarak notaların merkezinin altında söylediniz."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "平均而言，你唱得比音符中心低。"
+          }
+        }
+      }
+    },
+    "On average, you sang right on the center of the notes." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "في المتوسط، غنيت في مركز النغمات تمامًا."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Im Durchschnitt hast du genau in der Mitte der Noten gesungen."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "De media, cantaste justo en el centro de las notas."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "En moyenne, vous avez chanté pile au centre des notes."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "In media hai cantato proprio al centro delle note."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "平均すると、音符のちょうど中心で歌っていました。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "평균적으로 음표의 정중앙에서 불렀습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gemiddeld zong je precies in het midden van de noten."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Średnio twój głos był dokładnie na środku nut."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Em média, você cantou bem no centro das notas."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "В среднем вы пели точно в центре нот."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "I genomsnitt sjöng du precis i tonernas mitt."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ortalama olarak tam notaların merkezinde söylediniz."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "平均而言，你正好唱在音符中心。"
           }
         }
       }
@@ -60374,6 +61527,94 @@
         }
       }
     },
+    "Run Details" : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "تفاصيل المحاولة"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Details zum Durchgang"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Detalles de la ejecución"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Détails de la session"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dettagli dell’esecuzione"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "この回の詳細"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "회차 상세 정보"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Details van de ronde"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Szczegóły przebiegu"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Detalhes da execução"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Подробности прохода"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Detaljer om omgången"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tur ayrıntıları"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "本次详情"
+          }
+        }
+      }
+    },
     "Save" : {
       "localizations" : {
         "ar" : {
@@ -61880,6 +63121,95 @@
         }
       }
     },
+    "Scrolls down to the details of the run you just sang. They are not kept once you leave this screen." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ينتقل إلى الأسفل حيث تفاصيل المحاولة التي غنيتها للتو. لا تُحفظ هذه التفاصيل بعد مغادرة هذه الشاشة."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scrollt nach unten zu den Details des eben gesungenen Durchgangs. Sie verschwinden, sobald du diesen Bildschirm verlässt."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Desplaza hacia abajo hasta los detalles de la ejecución que acabas de cantar. No se guardan cuando sales de esta pantalla."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fait défiler jusqu’aux détails de la session que vous venez de chanter. Ils ne sont pas conservés une fois que vous quittez cet écran."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scorre in basso fino ai dettagli dell’esecuzione appena cantata. Non vengono conservati quando lasci questa schermata."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "いま歌った回の詳細までスクロールします。この画面を離れると詳細は残りません。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "방금 부른 회차의 상세 정보로 스크롤합니다. 이 화면을 나가면 상세 정보는 남지 않습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scrolt omlaag naar de details van de ronde die je net zong. Ze worden niet bewaard zodra je dit scherm verlaat."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Przewija w dół do szczegółów właśnie zaśpiewanego przebiegu. Nie są zachowywane po opuszczeniu tego ekranu."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rola para baixo até os detalhes da execução que você acabou de cantar. Eles não são guardados depois que você sai desta tela."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Прокручивает вниз к подробностям только что спетого прохода. Они не сохраняются после того, как вы покинете этот экран."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rullar ner till detaljerna om omgången du just sjöng. De sparas inte när du lämnar den här skärmen."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Az önce söylediğiniz turun ayrıntılarına kaydırır. Bu ekrandan çıktığınızda saklanmazlar."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "向下滚动到你刚才唱的这一次的详情。离开此界面后，这些详情不会保留。"
+          }
+        }
+      }
+    },
     "Search %@" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -62763,6 +64093,94 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "半音"
+          }
+        }
+      }
+    },
+    "semitones per second" : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "نصف نغمة في الثانية"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Halbtöne pro Sekunde"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "semitonos por segundo"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "demi-tons par seconde"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "semitoni al secondo"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "半音/秒"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "반음/초"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "halve tonen per seconde"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "półtonów na sekundę"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "semitons por segundo"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "полутонов в секунду"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "halvtoner per sekund"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "yarım ses/saniye"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "半音/秒"
           }
         }
       }
@@ -69330,6 +70748,94 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "扬声器"
+          }
+        }
+      }
+    },
+    "Speed Between Notes" : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "السرعة بين النغمات"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Geschwindigkeit zwischen den Noten"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Velocidad entre notas"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vitesse entre les notes"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Velocità tra le note"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "音符間の移動速度"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "음표 사이 이동 속도"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Snelheid tussen noten"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Szybkość między nutami"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Velocidade entre notas"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Скорость перехода между нотами"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hastighet mellan toner"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Notalar arası hız"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "音符间移动速度"
           }
         }
       }
@@ -90299,6 +91805,183 @@
         }
       }
     },
+    "Where You Sang on the Notes" : {
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "أين غنيت على النغمات"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wo du auf den Noten lagst"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dónde cantaste en las notas"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Où vous étiez sur les notes"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dove eri sulle note"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "音符のどこで歌ったか"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "음표의 어디에서 불렀는지"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Waar je op de noten zat"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Położenie głosu na nutach"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Onde você ficou nas notas"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Положение голоса на нотах"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Var du låg på tonerna"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Notaların neresinde söylediniz"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "你唱在音符的哪个位置"
+          }
+        }
+      }
+    },
+    "Where your voice sat on the notes while you held them, on average. A cent (ct) is a hundredth of a semitone: plus is above the center of the note, minus below it." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "أين كان صوتك في المتوسط على النغمات أثناء إطالتها. السنت جزء من مئة من نصف النغمة: الموجب يعني فوق مركز النغمة، والسالب تحته."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wo deine Stimme im Durchschnitt auf den Noten lag, während du sie gehalten hast. Ein Cent (ct) ist ein Hundertstel eines Halbtons: Plus liegt über der Mitte der Note, Minus darunter."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dónde estuvo tu voz en las notas mientras las sostenías, de media. Un cent (ct) es la centésima parte de un semitono: más es por encima del centro de la nota y menos, por debajo."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Où votre voix se situait sur les notes pendant que vous les teniez, en moyenne. Un cent (ct) est un centième de demi-ton : plus signifie au-dessus du centre de la note, moins en dessous."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dove si trovava in media la tua voce sulle note mentre le tenevi. Un cent (ct) è un centesimo di semitono: più indica sopra il centro della nota, meno sotto."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "音符を伸ばしている間、声が平均して音符のどこにあったか。1セントは半音の100分の1です。プラスは音符の中心より上、マイナスは下です。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "음표를 유지하는 동안 목소리가 평균적으로 음표의 어디에 있었는지입니다. 1센트는 반음의 100분의 1이며, 플러스는 음표 중심보다 위, 마이너스는 아래입니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Waar je stem gemiddeld op de noten zat terwijl je ze aanhield. Een cent (ct) is een honderdste van een halve toon: plus is boven het midden van de noot, min eronder."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gdzie średnio był twój głos na nutach podczas ich trzymania. Cent (ct) to setna część półtonu: plus oznacza powyżej środka nuty, minus poniżej."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Onde sua voz ficou nas notas enquanto você as sustentava, em média. Um cent (ct) é um centésimo de semitom: mais é acima do centro da nota, menos é abaixo."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Где в среднем находился ваш голос на нотах, пока вы их тянули. Цент (ц) равен сотой части полутона: плюс означает выше центра ноты, минус означает ниже."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Var din röst i genomsnitt låg på tonerna medan du höll dem. En cent (ct) är en hundradels halvton: plus är över tonens mitt, minus under den."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Notaları tutarken sesinizin ortalama olarak notaların neresinde durduğu. Sent, yarım sesin yüzde biridir: artı notanın merkezinin üstü, eksi altı demektir."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "你在保持音符时，声音平均落在音符的什么位置。1 音分是半音的百分之一：正数表示高于音符中心，负数表示低于中心。"
+          }
+        }
+      }
+    },
     "Which categories the Exercises tab has, their names and the order they come in. The same screen opens by pressing and holding a category name on the Exercises tab." : {
       "extractionState" : "stale",
       "localizations" : {
@@ -94200,6 +95883,95 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "周围的和弦在变化，你的音始终不变。感受它在每个和弦中的不同味道，并保持音准分毫不差。"
+          }
+        }
+      }
+    },
+    "Your pitch line averaged over all the notes you sang, from the start of a note on the left to its end on the right. The dashed line is the exact pitch." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "خط درجة صوتك بمتوسط كل النغمات التي غنيتها، من بداية النغمة على اليسار إلى نهايتها على اليمين. الخط المتقطع هو الدرجة الدقيقة."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deine Tonhöhenlinie, gemittelt über alle Noten, die du gesungen hast, vom Anfang einer Note links bis zu ihrem Ende rechts. Die gestrichelte Linie ist die genaue Tonhöhe."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tu línea de tono promediada sobre todas las notas que cantaste, desde el inicio de una nota a la izquierda hasta su final a la derecha. La línea discontinua es el tono exacto."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Votre ligne de hauteur moyennée sur toutes les notes chantées, du début d’une note à gauche jusqu’à sa fin à droite. La ligne pointillée est la hauteur exacte."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La tua linea di intonazione mediata su tutte le note che hai cantato, dall’inizio di una nota a sinistra fino alla sua fine a destra. La linea tratteggiata è l’altezza esatta."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "歌ったすべての音符で平均した音程の線です。左が音符の始まり、右が終わりです。破線は正確な音程です。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "부른 모든 음표에 대해 평균한 음정 선입니다. 왼쪽이 음표의 시작, 오른쪽이 끝입니다. 점선은 정확한 음정입니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Je toonhoogtelijn gemiddeld over alle noten die je zong, van het begin van een noot links tot het einde rechts. De stippellijn is de exacte toonhoogte."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Twoja linia wysokości dźwięku uśredniona ze wszystkich zaśpiewanych nut, od początku nuty po lewej do jej końca po prawej. Linia przerywana to dokładna wysokość."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sua linha de altura em média sobre todas as notas que você cantou, do início de uma nota à esquerda até o fim à direita. A linha tracejada é a altura exata."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ваша линия высоты тона, усреднённая по всем спетым нотам, от начала ноты слева до её конца справа. Пунктирная линия показывает точную высоту."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Din tonhöjdslinje i genomsnitt över alla toner du sjöng, från tonens början till vänster till dess slut till höger. Den streckade linjen är den exakta tonhöjden."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Söylediğiniz tüm notalar üzerinden ortalaması alınmış perde çizginiz; solda notanın başından sağda sonuna kadar. Kesikli çizgi tam perdedir."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "你唱过的所有音符平均后的音高线，左边是音符的开头，右边是结尾。虚线是准确的音高。"
           }
         }
       }

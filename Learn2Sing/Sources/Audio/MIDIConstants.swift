@@ -55,7 +55,10 @@ func micDelayBeats(_ ms: Double, bpm: Double) -> Double { ms / 1000.0 * bpm / 60
 /// distance covered. It is also measured at maximum effort, which is the point: it is
 /// meant to be the most a good singer could possibly need, so that what is left of a
 /// note is time they really were expected to be on pitch.
-enum PitchTravel {
+///
+/// Nonisolated, as the score screen's statistics measure a run against it off the
+/// main actor (see `RunStatistics`).
+nonisolated enum PitchTravel {
     /// The fixed part: what it costs to get the voice moving and settled again,
     /// whatever the interval.
     static let onsetSeconds = 0.0896

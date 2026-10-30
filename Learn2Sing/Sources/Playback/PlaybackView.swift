@@ -1039,6 +1039,10 @@ struct PlaybackView: View {
     /// Set while the score screen's Review button has the finished run's notes and
     /// pitch line open in place of the score.
     @State private var isReviewing = false
+    /// What the score screen shows under its chart about the finished run, once it
+    /// has been worked out (see `workOutRunStatistics`). Held for as long as the
+    /// score screen is, review included, and dropped with it: never saved.
+    @State private var runStatistics: RunStatistics? = nil
     /// Set when a run has played out and the microphone delay is what comes next:
     /// the same review screen takes over from playback, with the controls that dial
     /// the delay in. That is the whole point of the sung delay test, and nothing else
@@ -1175,6 +1179,7 @@ struct PlaybackView: View {
                     ScoreView(score: finalScore,
                               history: ScoreHistory.entries(for: exercise.id),
                               isPersonalRecord: isPersonalRecord,
+                              statistics: runStatistics,
                               exitTitle: scoreExitTitle,
                               // DEBUG RECORDING — remove with DebugRecording.swift
                               debugRecording: debugRecording,
@@ -1187,11 +1192,13 @@ struct PlaybackView: View {
                                   // onAppear restarts audio and scoring from scratch.
                                   trail = PitchTrail()
                                   indicator = SingerIndicator()
+                                  runStatistics = nil
                                   self.finalScore = nil
                               }) {
                         if let onScoreExit { onScoreExit() } else { dismiss() }
                     }
                     .task { await askForPitchDetectionIfDue() }
+                    .task(priority: .utility) { await workOutRunStatistics() }
                 }
             } else {
                 playback
@@ -1535,7 +1542,28 @@ struct PlaybackView: View {
         // `ExerciseStore.ratingID(for:)`).
         CommunitySync.shared.registerPlay(
             for: communityID ?? store.ratingID(for: exercise.id), score: score)
+        // Whatever an earlier run left is not this one's; the score screen works this
+        // run's out once it is up.
+        runStatistics = nil
         finalScore = score
+    }
+
+    /// Works out the statistics the score screen shows under its chart, once that
+    /// screen is up. Off the main actor, so the score is never held up by them,
+    /// and only the first time the screen appears for a run: back from the review
+    /// screen, they are already there.
+    ///
+    /// They are measured the way the run was scored, with the line moved back by the
+    /// same microphone delay and look-ahead (see `ExerciseReviewView.lineShift`).
+    private func workOutRunStatistics() async {
+        guard mode == .normal, runStatistics == nil else { return }
+        let shift = micDelayBeats((runDelayMs ?? micDelayMs) + pitchDetector.lookAheadMs, bpm: bpm)
+        let statistics = await RunStatistics.analyze(samples: trail.recording, notes: notes,
+                                                     bpm: bpm, noteShift: shift)
+        // The score screen went (Review, Play Again) before they were ready: the
+        // review comes back and asks again, and another run has its own.
+        guard !Task.isCancelled else { return }
+        runStatistics = statistics
     }
 
     /// Puts the one-off pitch detection question up over the score screen, when this
@@ -1886,6 +1914,10 @@ struct PlaybackView: View {
 /// (low) through to green (high) so the result reads at a glance. In landscape
 /// the score sits beside the chart instead of above it so everything stays on
 /// screen.
+///
+/// The score and the chart fill the screen above the buttons as they always have,
+/// and scroll: below them are the run's statistics (see `RunStatisticsView`), which
+/// the "Run Details" button at the foot of the first screen points at.
 private struct ScoreView: View {
     let score: Int
     let history: [ScoreEntry]
@@ -1893,6 +1925,9 @@ private struct ScoreView: View {
     /// screen says between the score and the chart. Worked out before the run was
     /// recorded, so `history` — which already includes it — can't be used for it.
     let isPersonalRecord: Bool
+    /// The run's statistics, shown below the chart; nil while they are still being
+    /// worked out, which goes on after this screen is already up.
+    let statistics: RunStatistics?
     var exitTitle = L("Exit")
     /// DEBUG RECORDING — remove together with DebugRecording.swift.
     /// The run's microphone capture, notes and pitch estimates, packaged for the
@@ -2086,28 +2121,108 @@ private struct ScoreView: View {
         .explain(L("Sings this exercise again from the beginning."))
     }
 
+    /// The score and the chart of the earlier ones: the first screen, laid out as the
+    /// whole screen was before there was anything to scroll to.
+    @ViewBuilder
+    private var summary: some View {
+        if verticalSizeClass == .compact {
+            HStack(spacing: 24) {
+                // Landscape has no room for a row of its own, so the record
+                // line goes under the score, still between it and the chart.
+                VStack(spacing: 8) {
+                    scoreLabel
+                    if isPersonalRecord { personalRecordLabel }
+                }
+                chart
+            }
+            .padding(.horizontal, 24)
+            .padding(.top, 12)
+        } else {
+            Spacer()
+            scoreLabel
+            if isPersonalRecord { personalRecordLabel }
+            chart
+                .padding(.horizontal, 24)
+                .padding(.top, 16)
+            Spacer()
+        }
+    }
+
+    /// What the statistics are scrolled to by.
+    private let statisticsID = "runStatistics"
+
+    /// The screen's surface, which the scrolling content fades into at both ends.
+    private var surface: Color { ScoreHistoryChart.surface(colorScheme) }
+
+    /// Scrolled up, the content runs on under the status bar, which here has no
+    /// navigation bar under it to soften it the way the system does: this fades it
+    /// out over the status bar alone, so nothing is touched while the screen is at
+    /// rest.
+    private var statusBarFade: some View {
+        GeometryReader { geo in
+            LinearGradient(stops: [.init(color: surface, location: 0),
+                                   .init(color: surface.opacity(0.95), location: 0.55),
+                                   .init(color: surface.opacity(0), location: 1)],
+                           startPoint: .top, endPoint: .bottom)
+                .frame(height: geo.safeAreaInsets.top)
+                .offset(y: -geo.safeAreaInsets.top)
+        }
+        .allowsHitTesting(false)
+    }
+
+    /// Where the scroll view stops above the buttons, a short fade instead of a cut.
+    private let bottomFadeHeight: CGFloat = 12
+
+    /// At the foot of the first screen, where it says there is more below and takes
+    /// the singer there; scrolled up, it heads the statistics it points at.
+    private func detailsButton(action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            HStack(spacing: 6) {
+                Text("Run Details")
+                Image(systemName: "chevron.down")
+                    .imageScale(.small)
+            }
+            .font(.subheadline.weight(.semibold))
+            .foregroundStyle(.secondary)
+            .padding(.horizontal, 14)
+            .padding(.vertical, 6)
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .explain(L("Scrolls down to the details of the run you just sang. They are not kept once you leave this screen."))
+        // Clear of the fade at the foot of the scroll view it rests on.
+        .padding(.bottom, bottomFadeHeight / 2)
+    }
+
     var body: some View {
         VStack(spacing: 16) {
-            if verticalSizeClass == .compact {
-                HStack(spacing: 24) {
-                    // Landscape has no room for a row of its own, so the record
-                    // line goes under the score, still between it and the chart.
-                    VStack(spacing: 8) {
-                        scoreLabel
-                        if isPersonalRecord { personalRecordLabel }
+            ScrollViewReader { scroller in
+                ScrollView {
+                    VStack(spacing: 0) {
+                        VStack(spacing: 16) {
+                            summary
+                            detailsButton {
+                                withAnimation { scroller.scrollTo(statisticsID, anchor: .top) }
+                            }
+                        }
+                        // Exactly as tall as the scroll view shows, so the first screen
+                        // is the score and the chart at the size they always had, and
+                        // the statistics wait below it.
+                        .containerRelativeFrame(.vertical)
+
+                        RunStatisticsView(statistics: statistics)
+                            .padding(.horizontal, 24)
+                            .padding(.vertical, 16)
+                            .id(statisticsID)
                     }
-                    chart
                 }
-                .padding(.horizontal, 24)
-                .padding(.top, 12)
-            } else {
-                Spacer()
-                scoreLabel
-                if isPersonalRecord { personalRecordLabel }
-                chart
-                    .padding(.horizontal, 24)
-                    .padding(.top, 16)
-                Spacer()
+                .overlay(alignment: .top) { statusBarFade }
+                .overlay(alignment: .bottom) {
+                    LinearGradient(colors: [surface.opacity(0), surface],
+                                   startPoint: .top, endPoint: .bottom)
+                        .frame(height: bottomFadeHeight)
+                        .allowsHitTesting(false)
+                }
             }
 
             if verticalSizeClass != .compact {
