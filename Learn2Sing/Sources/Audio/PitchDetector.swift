@@ -277,7 +277,20 @@ final class PitchDetector: ObservableObject {
         capture.accept(rate: rate)
         captureStarting = false
         running = true
+        confirmCaptureQueues(after: startCount)
         reportListening()
+    }
+
+    /// Buffers that arrive but never reach the queue (a format the copy can't read,
+    /// say) leave the singer without a line just the same, so after a moment the
+    /// engine takes over from them too.
+    private func confirmCaptureQueues(after start: Int) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) { [weak self] in
+            guard let self, self.startCount == start, self.usingCapture, self.running,
+                  !self.listener.queue.hasReceivedAudio else { return }
+            AudioDebugLog.event("mic.capture.nothingQueued")  // AUDIO DEBUG LOG
+            self.captureFailed(permanently: true)
+        }
     }
 
     /// A capture session that starts but delivers nothing is no microphone at all.
@@ -471,6 +484,7 @@ nonisolated final class MicrophoneCapture: NSObject, AVCaptureAudioDataOutputSam
     /// new rate) has been.
     private var reported = false
     private var framesQueued = 0.0
+    private var audioDebugUnreadable = 0  // AUDIO DEBUG LOG
     private var clock: CMClock?
     private static let maxBuffers = 8
     private let bufferList = AudioBufferList.allocate(maximumBuffers: MicrophoneCapture.maxBuffers)
@@ -615,12 +629,23 @@ nonisolated final class MicrophoneCapture: NSObject, AVCaptureAudioDataOutputSam
     private func queueSamples(of sampleBuffer: CMSampleBuffer, description: AudioStreamBasicDescription) {
         let frames = min(CMSampleBufferGetNumSamples(sampleBuffer), Self.scratchCapacity)
         guard frames > 0 else { return }
+        // The list has to be handed over at exactly the size this buffer needs. Any
+        // larger and the call fails (kCMSampleBufferError_ArrayTooSmall, of all
+        // things), which is what left the first version of this without a line at all.
+        var needed = 0
         var block: CMBlockBuffer?
-        let status = CMSampleBufferGetAudioBufferListWithRetainedBlockBuffer(
-            sampleBuffer, bufferListSizeNeededOut: nil, bufferListOut: bufferList.unsafeMutablePointer,
-            bufferListSize: AudioBufferList.sizeInBytes(maximumBuffers: Self.maxBuffers),
-            blockBufferAllocator: nil, blockBufferMemoryAllocator: nil,
-            flags: kCMSampleBufferFlag_AudioBufferList_Assure16ByteAlignment, blockBufferOut: &block)
+        var status = CMSampleBufferGetAudioBufferListWithRetainedBlockBuffer(
+            sampleBuffer, bufferListSizeNeededOut: &needed, bufferListOut: nil, bufferListSize: 0,
+            blockBufferAllocator: nil, blockBufferMemoryAllocator: nil, flags: 0, blockBufferOut: nil)
+        if status == noErr {
+            status = needed <= AudioBufferList.sizeInBytes(maximumBuffers: Self.maxBuffers)
+                ? CMSampleBufferGetAudioBufferListWithRetainedBlockBuffer(
+                    sampleBuffer, bufferListSizeNeededOut: nil, bufferListOut: bufferList.unsafeMutablePointer,
+                    bufferListSize: needed, blockBufferAllocator: nil, blockBufferMemoryAllocator: nil,
+                    flags: kCMSampleBufferFlag_AudioBufferList_Assure16ByteAlignment, blockBufferOut: &block)
+                : kCMSampleBufferError_ArrayTooSmall
+        }
+        if status != noErr { audioDebugUnreadable += 1; if audioDebugUnreadable == 1 || audioDebugUnreadable % 100 == 0 { AudioDebugLog.event("mic.capture.unreadable", ["status": status, "needed": needed, "times": audioDebugUnreadable]) } }  // AUDIO DEBUG LOG
         guard status == noErr, bufferList.count > 0, let data = bufferList[0].mData else { return }
 
         // Interleaved, the first channel is every `stride`th sample of the first

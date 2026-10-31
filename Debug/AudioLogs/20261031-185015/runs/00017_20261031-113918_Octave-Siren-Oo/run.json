@@ -1,0 +1,173 @@
+{
+  "bpm" : 90,
+  "closed" : "2026-10-31T10:40:04.607Z",
+  "closeReason" : "finished",
+  "exercise" : "Octave Siren Oo",
+  "exerciseID" : "7BE8CE22-43F6-46FE-A8DF-BD0B3D1EEA61",
+  "flags" : [
+
+  ],
+  "ghosts" : [
+
+  ],
+  "launch" : 3,
+  "leadInBeats" : 6,
+  "mode" : "normal",
+  "notes" : [
+    {
+      "beat" : 0,
+      "id" : "4eb7aba5-0058-4d3a-9148-9658f087db3f",
+      "length" : 2,
+      "pitch" : 43
+    },
+    {
+      "beat" : 2,
+      "id" : "032a1f42-c4d4-4634-878a-4e0172ad7c48",
+      "length" : 2,
+      "pitch" : 55
+    },
+    {
+      "beat" : 4,
+      "id" : "4aa4db7f-0881-4448-b4ae-50ba68309e71",
+      "length" : 2,
+      "pitch" : 43
+    },
+    {
+      "beat" : 8,
+      "id" : "41034ff9-549e-4404-a2d3-32d730f6bc18",
+      "length" : 2,
+      "pitch" : 44
+    },
+    {
+      "beat" : 10,
+      "id" : "b12dbae1-da6d-4b31-863f-cd5347e544b4",
+      "length" : 2,
+      "pitch" : 56
+    },
+    {
+      "beat" : 12,
+      "id" : "b751690a-0f3b-46a2-9154-05f705220369",
+      "length" : 2,
+      "pitch" : 44
+    },
+    {
+      "beat" : 16,
+      "id" : "4a641726-72dd-4ad7-8650-860fd83a0699",
+      "length" : 2,
+      "pitch" : 45
+    },
+    {
+      "beat" : 18,
+      "id" : "542ffb8d-6948-4d95-88a9-f79c49dd7282",
+      "length" : 2,
+      "pitch" : 57
+    },
+    {
+      "beat" : 20,
+      "id" : "746c9692-dda5-4f88-b190-209e8e4e8fdc",
+      "length" : 2,
+      "pitch" : 45
+    },
+    {
+      "beat" : 24,
+      "id" : "79f7a436-69d6-4266-baf1-a1ec7a4a914c",
+      "length" : 2,
+      "pitch" : 46
+    },
+    {
+      "beat" : 26,
+      "id" : "c2477eb9-4d9d-4f16-9e24-e1b5c9dbaed6",
+      "length" : 2,
+      "pitch" : 58
+    },
+    {
+      "beat" : 28,
+      "id" : "c6b24278-d9fe-4ff2-b32b-ab22bb829a6d",
+      "length" : 2,
+      "pitch" : 46
+    },
+    {
+      "beat" : 32,
+      "id" : "d55e0304-81e5-44b5-96db-48776219bd48",
+      "length" : 2,
+      "pitch" : 47
+    },
+    {
+      "beat" : 34,
+      "id" : "7a006a7d-42c8-4415-8647-177b21d6a343",
+      "length" : 2,
+      "pitch" : 59
+    },
+    {
+      "beat" : 36,
+      "id" : "d79441a4-2d9e-4cc2-afad-397847a9f3d0",
+      "length" : 2,
+      "pitch" : 47
+    },
+    {
+      "beat" : 40,
+      "id" : "ff18437e-62ba-417c-8213-22497fedf482",
+      "length" : 2,
+      "pitch" : 48
+    },
+    {
+      "beat" : 42,
+      "id" : "77ed66ef-91c8-4f34-bd80-8f86086c8f10",
+      "length" : 2,
+      "pitch" : 60
+    },
+    {
+      "beat" : 44,
+      "id" : "421dca48-90dd-4c01-a871-04ff1b74730f",
+      "length" : 2,
+      "pitch" : 48
+    },
+    {
+      "beat" : 48,
+      "id" : "e9ba35f8-501e-4e16-ab2e-3f752fbe1a78",
+      "length" : 2,
+      "pitch" : 49
+    },
+    {
+      "beat" : 50,
+      "id" : "4701e60d-82c3-4d55-b67b-c0f4db2c17bc",
+      "length" : 2,
+      "pitch" : 61
+    },
+    {
+      "beat" : 52,
+      "id" : "1f4c139c-c14d-4adc-8945-afd5162e7665",
+      "length" : 2,
+      "pitch" : 49
+    },
+    {
+      "beat" : 56,
+      "id" : "2ff7aa26-cc0e-4598-8409-03aaa840eec4",
+      "length" : 2,
+      "pitch" : 50
+    },
+    {
+      "beat" : 58,
+      "id" : "70ee5f7e-7db2-4498-9135-5bf09b4b8037",
+      "length" : 2,
+      "pitch" : 62
+    },
+    {
+      "beat" : 60,
+      "id" : "8d4cb91d-4e8e-49fa-914a-59003820080c",
+      "length" : 2,
+      "pitch" : 50
+    }
+  ],
+  "opened" : "2026-10-31T10:39:18.132Z",
+  "originMachSeconds" : 224824.12319791663,
+  "repeats" : 8,
+  "results" : [
+    "run.delay bestMs=59 lookAheadMs=20 delayMs=39 found=85 played=85 adopt=1 records=1 settingMs=37 devices=\"MicrophoneBuiltIn:Built-In Microphone|BluetoothA2DPOutput:9C:A9:C5:73:3B:7C-tacl\"",
+    "run.score score=85 runDelayMs=39 micDelayMs=37"
+  ],
+  "run" : 17,
+  "sessionAtOpen" : "cat=PlayAndRecord mode=Default opts=0x68(defaultToSpeaker,btA2DP,airPlay) sr=48000 io=0.01 outLat=0.1765 inLat=0 vol=1 muted=0 outCh=2 inCh=0 otherAudio=0 silenceHint=0 route=\"out: BluetoothA2DPOutput 'AirPods #2' ch2 spatial uid=9C:A9:C5:73:3B:7C-tacl | in: none\"",
+  "settings" : "micDelayMs=36 scoreWindow=100 instrument=Piano detection=balanced autoDelay=1 speaker=Automatic mic=\"iPhone Microphone\" playersMade=65",
+  "summary" : "reason=finished score=85 exercise=\"Octave Siren Oo\" seconds=46.4754 firstRenderMs=272.457 renders=4600 renderGaps=0 maxRenderGapMs=10.3125 slowRenders=1 overruns=0 maxRenderMs=5.1417 nonFiniteBuffers=0 hotBuffers=0 catchUps=0 catchUpMs=0 timeJumps=0 droppedRows=0 micChunks=4547 micGaps=0 maxMicGapMs=10.0029 micJumps=0 frames=2762 drawHitches=1 maxFrameGapMs=191.3893 flags=nil events=main.hang:1,mic.capture:1,mic.confirm:1,mic.engine.start:1,mic.permission:1,mic.start:1,mic.stop:2,player.begin:1,player.engine.start:1,player.graphBuilt:1,player.outputLatency:16,player.schedule:1,player.stop:2,route.configure.begin:1,route.configure.end:1,route.wait.begin:1,route.wait.check:2,route.wait.end:2,run.begin:1,run.begun:1,run.delay:1,run.micScheduled:1,run.playedOut:1,run.routeSettled:1,run.score:1,run.startAudio:1,run.teardown:2,session.overrideOutput:1,session.routeChange:1,session.setActive:3,session.setCategory:1,session.setPreferredInput:1"
+}
