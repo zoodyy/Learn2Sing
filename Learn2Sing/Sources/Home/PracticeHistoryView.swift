@@ -257,7 +257,7 @@ struct PracticeHistoryView: View {
                         chartSelection = nil
                     }
                 }
-                .explain(L("One square per day, oldest first. The more you practiced, the fuller the color, and a day that reached your daily practice time gets a check mark. Tap a square to see that day."))
+                .explain(L("One square per day, newest first. The more you practiced, the fuller the color, and a day that reached your daily practice time gets a check mark. Tap a square to see that day."))
             }
         }
         .listStyle(.insetGrouped)

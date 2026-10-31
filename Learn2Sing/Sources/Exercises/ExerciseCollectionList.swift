@@ -638,7 +638,7 @@ final class ExerciseListController: UIViewController {
                     self?.onCalendarExpand?()
                 }
                 .environment(\.locale, locale)
-                .explain(L("One square per day, oldest first. The more you practiced, the fuller the color, and a day that reached your daily practice time gets a check mark. Tap a square to see that day, or double-tap the card to see more days."))
+                .explain(L("One square per day, newest first. The more you practiced, the fuller the color, and a day that reached your daily practice time gets a check mark. Tap a square to see that day, or double-tap the card to see more days."))
             }
             cell.accessories = []
             // On the cell rather than in the SwiftUI view, so the card's margin

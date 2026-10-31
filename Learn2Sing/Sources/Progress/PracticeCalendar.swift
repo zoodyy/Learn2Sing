@@ -176,17 +176,20 @@ nonisolated struct PracticeCalendarSelection: Equatable {
 }
 
 /// The Home tab's "Time Spent Singing" category: the last 30 days as one square each,
-/// oldest in the top-left corner and today in the bottom-right, with no numbers
-/// on them — a day is read off its colour. The Time Spent Singing screen draws
-/// the range picked on it the same way, a year by default; a range that doesn't
-/// fill its top row starts partway along it, so the newest day keeps the
-/// bottom-right corner. A day nothing was practised on is
-/// grey, and the only colour that goes over that grey is the app's own accent
-/// one: it fades in in step with the time spent on the day, covering the grey
-/// completely at `goalMinutes` — the daily practice goal from Settings ▸ Home
-/// Tab, the same one the "Recommended" category fills — and staying there
-/// beyond it. A day that reached it is ticked, so the days that count can be
-/// picked out at a glance rather than judged off the end of a fade.
+/// today in the top-left corner and going back a day at a time along each row
+/// and then on down the rows, so the day under today's is ten days ago and the
+/// oldest is in the bottom-right. There are no numbers on them — a day is read
+/// off its colour. The Time Spent Singing screen draws the range picked on it
+/// the same way, a year by default; a range that doesn't fill its bottom row
+/// ends partway along it, so the newest day keeps the top-left corner.
+///
+/// A day nothing was practised on is grey, and the only colour that goes over
+/// that grey is the app's own accent one: it fades in in step with the time
+/// spent on the day, covering the grey completely at `goalMinutes` — the daily
+/// practice goal from Settings ▸ Home Tab, the same one the "Recommended"
+/// category fills — and staying there beyond it. A day that reached it is
+/// ticked, so the days that count can be picked out at a glance rather than
+/// judged off the end of a fade.
 ///
 /// Tapping a square reports it, and the screen it went up on draws the bubble —
 /// the same one the score chart shows for a data point — over the list. The
@@ -195,7 +198,8 @@ nonisolated struct PracticeCalendarSelection: Equatable {
 /// nowhere near enough room inside three rows of squares: it has to reach past
 /// the card, onto the list's own background.
 struct PracticeCalendarView: View {
-    /// The days to draw, oldest first — `dayCount` of them.
+    /// The days to draw, oldest first — `dayCount` of them. The grid lays them
+    /// out the other way round, newest first (see `place(of:)`).
     let days: [PracticeDay]
 
     /// The practice time a day needs for its square to reach the accent colour
@@ -240,11 +244,6 @@ struct PracticeCalendarView: View {
 
     private var rows: Int { max(1, (days.count + Self.columns - 1) / Self.columns) }
 
-    /// Empty places the top row starts with, so that the newest day lands in
-    /// the bottom-right corner however many days there are. None for the Home
-    /// tab's 30, which fill their three rows exactly.
-    private var leadingGap: Int { (Self.columns - days.count % Self.columns) % Self.columns }
-
     /// The goal as the log counts practice, in seconds. Floored at a minute so a
     /// nonsense setting can't tick every square, empty days included.
     private var goalSeconds: Double { Double(max(1, goalMinutes)) * 60 }
@@ -277,7 +276,9 @@ struct PracticeCalendarView: View {
                 / (CGFloat(Self.columns) + CGFloat(Self.columns - 1) * Self.gapRatio)
             let step = side * (1 + Self.gapRatio)
             ZStack {
-                ForEach(Array(days.enumerated()), id: \.element.date) { index, day in
+                // Newest first, the order the grid is read in, so VoiceOver
+                // reads the squares in that order too.
+                ForEach(Array(days.enumerated().reversed()), id: \.element.date) { index, day in
                     let square = RoundedRectangle(cornerRadius: side * 0.24, style: .continuous)
                     square
                         .fill(emptyDay)
@@ -326,11 +327,15 @@ struct PracticeCalendarView: View {
 
     // MARK: - Geometry
 
-    /// Where a day's square sits: filled row by row, so the oldest day is the
-    /// top-left one (or as far left as `leadingGap` lets it) and the newest is
-    /// the last of the bottom row.
+    /// Where in the grid the day at `index` goes, counted along the rows from
+    /// the top-left corner: the newest day first and the oldest last, so a
+    /// range that doesn't fill its bottom row leaves that row's end empty.
+    private func place(of index: Int) -> Int { days.count - 1 - index }
+
+    /// Where a day's square sits: filled row by row, so the newest day is the
+    /// top-left one and the oldest is the last of the bottom row.
     private func centre(of index: Int, side: CGFloat, step: CGFloat) -> CGPoint {
-        let place = index + leadingGap
+        let place = place(of: index)
         return CGPoint(x: CGFloat(place % Self.columns) * step + side / 2,
                        y: CGFloat(place / Self.columns) * step + side / 2)
     }
@@ -349,7 +354,8 @@ struct PracticeCalendarView: View {
         guard x >= 0, location.y >= 0, step > 0 else { return nil }
         let column = Int(x / step), row = Int(location.y / step)
         guard column < Self.columns else { return nil }
-        let index = row * Self.columns + column - leadingGap
+        // `place(of:)` the other way round.
+        let index = days.count - 1 - (row * Self.columns + column)
         guard days.indices.contains(index) else { return nil }
         let middle = centre(of: index, side: side, step: step)
         let midX = mirrored ? grid.maxX - middle.x : grid.minX + middle.x

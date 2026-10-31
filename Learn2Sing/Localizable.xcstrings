@@ -49904,180 +49904,180 @@
         }
       }
     },
-    "One square per day, oldest first. The more you practiced, the fuller the color, and a day that reached your daily practice time gets a check mark. Tap a square to see that day, or double-tap the card to see more days." : {
+    "One square per day, newest first. The more you practiced, the fuller the color, and a day that reached your daily practice time gets a check mark. Tap a square to see that day, or double-tap the card to see more days." : {
       "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "مربع لكل يوم، الأقدم أولًا. كلما تمرّنت أكثر امتلأ اللون أكثر، واليوم الذي بلغ وقت تمرّنك اليومي يحصل على علامة. اضغط على مربع لرؤية ذلك اليوم، أو اضغط مرتين على البطاقة لرؤية أيام أكثر."
+            "value" : "مربع لكل يوم، الأحدث أولًا. كلما تمرّنت أكثر امتلأ اللون أكثر، واليوم الذي بلغ وقت تمرّنك اليومي يحصل على علامة. اضغط على مربع لرؤية ذلك اليوم، أو اضغط مرتين على البطاقة لرؤية أيام أكثر."
           }
         },
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ein Quadrat je Tag, das älteste zuerst. Je länger du geübt hast, desto kräftiger die Farbe, und ein Tag, der deine tägliche Übungszeit erreicht hat, bekommt einen Haken. Tippe ein Quadrat an, um den Tag zu sehen, oder tippe doppelt auf die Karte, um mehr Tage zu sehen."
+            "value" : "Ein Quadrat je Tag, das neueste zuerst. Je länger du geübt hast, desto kräftiger die Farbe, und ein Tag, der deine tägliche Übungszeit erreicht hat, bekommt einen Haken. Tippe ein Quadrat an, um den Tag zu sehen, oder tippe doppelt auf die Karte, um mehr Tage zu sehen."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Un cuadrado por día, el más antiguo primero. Cuanto más practicaste, más intenso es el color, y un día que alcanzó tu tiempo diario de práctica lleva una marca. Toca un cuadrado para ver ese día, o toca dos veces la tarjeta para ver más días."
+            "value" : "Un cuadrado por día, el más reciente primero. Cuanto más practicaste, más intenso es el color, y un día que alcanzó tu tiempo diario de práctica lleva una marca. Toca un cuadrado para ver ese día, o toca dos veces la tarjeta para ver más días."
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Un carré par jour, du plus ancien au plus récent. Plus vous avez travaillé, plus la couleur est vive, et un jour qui a atteint votre temps de pratique quotidien reçoit une coche. Touchez un carré pour voir ce jour, ou touchez deux fois la carte pour voir plus de jours."
+            "value" : "Un carré par jour, du plus récent au plus ancien. Plus vous avez travaillé, plus la couleur est vive, et un jour qui a atteint votre temps de pratique quotidien reçoit une coche. Touchez un carré pour voir ce jour, ou touchez deux fois la carte pour voir plus de jours."
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Un quadrato per giorno, dal più vecchio. Più ti sei esercitato, più il colore è pieno, e un giorno che ha raggiunto il tuo tempo di pratica quotidiano riceve una spunta. Tocca un quadrato per vedere quel giorno, o tocca due volte la scheda per vedere più giorni."
+            "value" : "Un quadrato per giorno, dal più recente. Più ti sei esercitato, più il colore è pieno, e un giorno che ha raggiunto il tuo tempo di pratica quotidiano riceve una spunta. Tocca un quadrato per vedere quel giorno, o tocca due volte la scheda per vedere più giorni."
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "1 日につき 1 マス、古い順に並びます。練習が長いほど色が濃くなり、1 日の練習時間に届いた日にはチェックが付きます。マスをタップするとその日の詳細が見られ、カードをダブルタップするとさらに多くの日が見られます。"
+            "value" : "1 日につき 1 マス、新しい順に並びます。練習が長いほど色が濃くなり、1 日の練習時間に届いた日にはチェックが付きます。マスをタップするとその日の詳細が見られ、カードをダブルタップするとさらに多くの日が見られます。"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "하루에 한 칸씩, 오래된 날부터 나열됩니다. 오래 연습할수록 색이 진해지고, 하루 연습 시간을 채운 날에는 체크가 붙습니다. 칸을 탭하면 그날을 볼 수 있고, 카드를 두 번 탭하면 더 많은 날을 볼 수 있습니다."
+            "value" : "하루에 한 칸씩, 가장 최근 날부터 나열됩니다. 오래 연습할수록 색이 진해지고, 하루 연습 시간을 채운 날에는 체크가 붙습니다. 칸을 탭하면 그날을 볼 수 있고, 카드를 두 번 탭하면 더 많은 날을 볼 수 있습니다."
           }
         },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Eén vakje per dag, oudste eerst. Hoe langer je oefende, hoe voller de kleur, en een dag die je dagelijkse oefentijd haalde krijgt een vinkje. Tik op een vakje om die dag te zien, of tik twee keer op de kaart om meer dagen te zien."
+            "value" : "Eén vakje per dag, nieuwste eerst. Hoe langer je oefende, hoe voller de kleur, en een dag die je dagelijkse oefentijd haalde krijgt een vinkje. Tik op een vakje om die dag te zien, of tik twee keer op de kaart om meer dagen te zien."
           }
         },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Jeden kwadrat na dzień, od najstarszego. Im dłużej ćwiczyłeś, tym pełniejszy kolor, a dzień, w którym osiągnąłeś dzienny czas ćwiczeń, dostaje ptaszek. Dotknij kwadratu, aby zobaczyć ten dzień, albo dotknij karty dwukrotnie, aby zobaczyć więcej dni."
+            "value" : "Jeden kwadrat na dzień, od najnowszego. Im dłużej ćwiczyłeś, tym pełniejszy kolor, a dzień, w którym osiągnąłeś dzienny czas ćwiczeń, dostaje ptaszek. Dotknij kwadratu, aby zobaczyć ten dzień, albo dotknij karty dwukrotnie, aby zobaczyć więcej dni."
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Um quadrado por dia, do mais antigo em diante. Quanto mais você praticou, mais cheia é a cor, e um dia que atingiu seu tempo diário de prática ganha um visto. Toque num quadrado para ver esse dia, ou toque duas vezes no cartão para ver mais dias."
+            "value" : "Um quadrado por dia, do mais recente ao mais antigo. Quanto mais você praticou, mais cheia é a cor, e um dia que atingiu seu tempo diário de prática ganha um visto. Toque num quadrado para ver esse dia, ou toque duas vezes no cartão para ver mais dias."
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "По квадрату на день, начиная с самого раннего. Чем дольше вы занимались, тем насыщеннее цвет, а день, в который вы набрали дневное время занятий, отмечается галочкой. Нажмите на квадрат, чтобы увидеть этот день, или дважды нажмите на карточку, чтобы увидеть больше дней."
+            "value" : "По квадрату на день, начиная с самого недавнего. Чем дольше вы занимались, тем насыщеннее цвет, а день, в который вы набрали дневное время занятий, отмечается галочкой. Нажмите на квадрат, чтобы увидеть этот день, или дважды нажмите на карточку, чтобы увидеть больше дней."
           }
         },
         "sv" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "En ruta per dag, äldst först. Ju mer du övat, desto fylligare färg, och en dag som nådde din dagliga övningstid får en bock. Tryck på en ruta för att se den dagen, eller dubbeltryck på kortet för att se fler dagar."
+            "value" : "En ruta per dag, nyast först. Ju mer du övat, desto fylligare färg, och en dag som nådde din dagliga övningstid får en bock. Tryck på en ruta för att se den dagen, eller dubbeltryck på kortet för att se fler dagar."
           }
         },
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Her gün için bir kare, en eskisi başta. Ne kadar çok çalıştıysanız renk o kadar dolgun olur; günlük çalışma sürenize ulaşan gün onay işareti alır. Bir günü görmek için karesine dokunun; daha fazla gün görmek için karta iki kez dokunun."
+            "value" : "Her gün için bir kare, en yenisi başta. Ne kadar çok çalıştıysanız renk o kadar dolgun olur; günlük çalışma sürenize ulaşan gün onay işareti alır. Bir günü görmek için karesine dokunun; daha fazla gün görmek için karta iki kez dokunun."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "每天一格，从最早的一天开始。练得越久颜色越满，达到每日练习时长的那天会打勾。点按方格可查看当天详情，连点两下卡片可查看更多天。"
+            "value" : "每天一格，从最近的一天开始。练得越久颜色越满，达到每日练习时长的那天会打勾。点按方格可查看当天详情，连点两下卡片可查看更多天。"
           }
         }
       }
     },
-    "One square per day, oldest first. The more you practiced, the fuller the color, and a day that reached your daily practice time gets a check mark. Tap a square to see that day." : {
+    "One square per day, newest first. The more you practiced, the fuller the color, and a day that reached your daily practice time gets a check mark. Tap a square to see that day." : {
       "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "مربع لكل يوم، الأقدم أولًا. كلما تمرّنت أكثر امتلأ اللون أكثر، واليوم الذي بلغ وقت تمرّنك اليومي يحصل على علامة. اضغط على مربع لرؤية ذلك اليوم."
+            "value" : "مربع لكل يوم، الأحدث أولًا. كلما تمرّنت أكثر امتلأ اللون أكثر، واليوم الذي بلغ وقت تمرّنك اليومي يحصل على علامة. اضغط على مربع لرؤية ذلك اليوم."
           }
         },
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ein Quadrat je Tag, das älteste zuerst. Je länger du geübt hast, desto kräftiger die Farbe, und ein Tag, der deine tägliche Übungszeit erreicht hat, bekommt einen Haken. Tippe ein Quadrat an, um den Tag zu sehen."
+            "value" : "Ein Quadrat je Tag, das neueste zuerst. Je länger du geübt hast, desto kräftiger die Farbe, und ein Tag, der deine tägliche Übungszeit erreicht hat, bekommt einen Haken. Tippe ein Quadrat an, um den Tag zu sehen."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Un cuadrado por día, el más antiguo primero. Cuanto más practicaste, más intenso es el color, y un día que alcanzó tu tiempo diario de práctica lleva una marca. Toca un cuadrado para ver ese día."
+            "value" : "Un cuadrado por día, el más reciente primero. Cuanto más practicaste, más intenso es el color, y un día que alcanzó tu tiempo diario de práctica lleva una marca. Toca un cuadrado para ver ese día."
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Un carré par jour, du plus ancien au plus récent. Plus vous avez travaillé, plus la couleur est vive, et un jour qui a atteint votre temps de pratique quotidien reçoit une coche. Touchez un carré pour voir ce jour."
+            "value" : "Un carré par jour, du plus récent au plus ancien. Plus vous avez travaillé, plus la couleur est vive, et un jour qui a atteint votre temps de pratique quotidien reçoit une coche. Touchez un carré pour voir ce jour."
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Un quadrato per giorno, dal più vecchio. Più ti sei esercitato, più il colore è pieno, e un giorno che ha raggiunto il tuo tempo di pratica quotidiano riceve una spunta. Tocca un quadrato per vedere quel giorno."
+            "value" : "Un quadrato per giorno, dal più recente. Più ti sei esercitato, più il colore è pieno, e un giorno che ha raggiunto il tuo tempo di pratica quotidiano riceve una spunta. Tocca un quadrato per vedere quel giorno."
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "1 日につき 1 マス、古い順に並びます。練習が長いほど色が濃くなり、1 日の練習時間に届いた日にはチェックが付きます。マスをタップするとその日の詳細が見られます。"
+            "value" : "1 日につき 1 マス、新しい順に並びます。練習が長いほど色が濃くなり、1 日の練習時間に届いた日にはチェックが付きます。マスをタップするとその日の詳細が見られます。"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "하루에 한 칸씩, 오래된 날부터 나열됩니다. 오래 연습할수록 색이 진해지고, 하루 연습 시간을 채운 날에는 체크가 붙습니다. 칸을 탭하면 그날을 볼 수 있습니다."
+            "value" : "하루에 한 칸씩, 가장 최근 날부터 나열됩니다. 오래 연습할수록 색이 진해지고, 하루 연습 시간을 채운 날에는 체크가 붙습니다. 칸을 탭하면 그날을 볼 수 있습니다."
           }
         },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Eén vakje per dag, oudste eerst. Hoe langer je oefende, hoe voller de kleur, en een dag die je dagelijkse oefentijd haalde krijgt een vinkje. Tik op een vakje om die dag te zien."
+            "value" : "Eén vakje per dag, nieuwste eerst. Hoe langer je oefende, hoe voller de kleur, en een dag die je dagelijkse oefentijd haalde krijgt een vinkje. Tik op een vakje om die dag te zien."
           }
         },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Jeden kwadrat na dzień, od najstarszego. Im dłużej ćwiczyłeś, tym pełniejszy kolor, a dzień, w którym osiągnąłeś dzienny czas ćwiczeń, dostaje ptaszek. Dotknij kwadratu, aby zobaczyć ten dzień."
+            "value" : "Jeden kwadrat na dzień, od najnowszego. Im dłużej ćwiczyłeś, tym pełniejszy kolor, a dzień, w którym osiągnąłeś dzienny czas ćwiczeń, dostaje ptaszek. Dotknij kwadratu, aby zobaczyć ten dzień."
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Um quadrado por dia, do mais antigo em diante. Quanto mais você praticou, mais cheia é a cor, e um dia que atingiu seu tempo diário de prática ganha um visto. Toque num quadrado para ver esse dia."
+            "value" : "Um quadrado por dia, do mais recente ao mais antigo. Quanto mais você praticou, mais cheia é a cor, e um dia que atingiu seu tempo diário de prática ganha um visto. Toque num quadrado para ver esse dia."
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "По квадрату на день, начиная с самого раннего. Чем дольше вы занимались, тем насыщеннее цвет, а день, в который вы набрали дневное время занятий, отмечается галочкой. Нажмите на квадрат, чтобы увидеть этот день."
+            "value" : "По квадрату на день, начиная с самого недавнего. Чем дольше вы занимались, тем насыщеннее цвет, а день, в который вы набрали дневное время занятий, отмечается галочкой. Нажмите на квадрат, чтобы увидеть этот день."
           }
         },
         "sv" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "En ruta per dag, äldst först. Ju mer du övat, desto fylligare färg, och en dag som nådde din dagliga övningstid får en bock. Tryck på en ruta för att se den dagen."
+            "value" : "En ruta per dag, nyast först. Ju mer du övat, desto fylligare färg, och en dag som nådde din dagliga övningstid får en bock. Tryck på en ruta för att se den dagen."
           }
         },
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Her gün için bir kare, en eskisi başta. Ne kadar çok çalıştıysanız renk o kadar dolgun olur; günlük çalışma sürenize ulaşan gün onay işareti alır. Bir günü görmek için karesine dokunun."
+            "value" : "Her gün için bir kare, en yenisi başta. Ne kadar çok çalıştıysanız renk o kadar dolgun olur; günlük çalışma sürenize ulaşan gün onay işareti alır. Bir günü görmek için karesine dokunun."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "每天一格，从最早的一天开始。练得越久颜色越满，达到每日练习时长的那天会打勾。点按方格可查看当天详情。"
+            "value" : "每天一格，从最近的一天开始。练得越久颜色越满，达到每日练习时长的那天会打勾。点按方格可查看当天详情。"
           }
         }
       }

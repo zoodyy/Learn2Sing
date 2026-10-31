@@ -2291,6 +2291,114 @@ final class Learn2SingUITests: XCTestCase {
         XCTAssertEqual(year, opening, "the screen should open on Past Year")
     }
 
+    /// The calendar reads like a page, from today backwards: today's square in
+    /// the top-left corner, the next one to the right a day further back, the
+    /// one under it ten days further back, and the oldest last in the bottom
+    /// row. Checked on the Home card's 30 days and on the Time Spent Singing
+    /// screen's opening year, whose bottom row, when the days don't fill it,
+    /// ends partway along rather than starting partway.
+    func testCalendarStartsWithTodayTopLeft() throws {
+        let app = XCUIApplication()
+        app.launchArguments = ["-\(homeOrderKey)", "Time Spent Singing",
+                               "-\(homeCollapsedKey)", "",
+                               "-\(homeHiddenKey)", ""]
+        app.launch()
+        XCTAssertTrue(app.navigationBars["Home"].waitForExistence(timeout: 5))
+        sleep(2)
+
+        // As in testCalendarDoubleTapOpensTimeSpentSinging.
+        let squareQuery = app.descendants(matching: .any)
+            .matching(NSPredicate(format: "label MATCHES %@", ".*[0-9]{4}, .*"))
+        XCTAssertTrue(squareQuery.firstMatch.waitForExistence(timeout: 5), "calendar squares not found")
+
+        func nearest(_ value: CGFloat, in positions: [CGFloat]) -> Int {
+            positions.indices.min { abs(positions[$0] - value) < abs(positions[$1] - value) } ?? 0
+        }
+        func lines(_ positions: [CGFloat]) -> [CGFloat] {
+            Set(positions.map { ($0 * 2).rounded() / 2 }).sorted()
+        }
+
+        let home = try calendarSquares(app)
+        XCTAssertEqual(home.count, 30, "the Home card draws 30 days")
+        XCTAssertEqual(home.map(\.daysBack), Array(0..<home.count),
+                       "VoiceOver should read the Home card from today back")
+        let columns = lines(home.map(\.frame.midX)), rows = lines(home.map(\.frame.midY))
+        XCTAssertEqual(columns.count, 10, "the Home card has ten columns")
+        XCTAssertEqual(rows.count, 3, "the Home card has three rows")
+        for square in home {
+            let row = nearest(square.frame.midY, in: rows)
+            let column = nearest(square.frame.midX, in: columns)
+            XCTAssertEqual(square.daysBack, row * 10 + column,
+                           "Home card, row \(row + 1), column \(column + 1)")
+        }
+        saveScreenshot("calendar-today-first")
+
+        // A tap puts up the bubble of the day the square stands for, written
+        // "Oct 30, 2026".
+        if let yesterday = home.first(where: { $0.daysBack == 1 })?.frame,
+           let date = Calendar.current.date(byAdding: .day, value: -1,
+                                            to: Calendar.current.startOfDay(for: Date())) {
+            app.coordinate(withNormalizedOffset: .zero)
+                .withOffset(CGVector(dx: yesterday.midX, dy: yesterday.midY))
+                .tap()
+            let label = date.formatted(.dateTime.day().month(.abbreviated).year()
+                                        .locale(Locale(identifier: "en")))
+            XCTAssertTrue(app.staticTexts[label].waitForExistence(timeout: 2),
+                          "a tap on the second square should show yesterday, \(label)")
+        }
+
+        guard let today = home.first(where: { $0.daysBack == 0 })?.frame else { return }
+        app.coordinate(withNormalizedOffset: .zero)
+            .withOffset(CGVector(dx: today.midX, dy: today.midY))
+            .doubleTap()
+        XCTAssertTrue(app.navigationBars["Time Spent Singing"].waitForExistence(timeout: 3))
+        sleep(1)
+
+        // The screen's calendar sits in the Home card's own card, so its
+        // columns are where the Home card's are.
+        let screen = try calendarSquares(app)
+        XCTAssertFalse(screen.isEmpty, "the screen's calendar squares not found")
+        XCTAssertEqual(screen.map(\.daysBack), Array(0..<screen.count),
+                       "VoiceOver should read the screen's calendar from today back")
+        XCTAssertEqual(screen.first { $0.daysBack == 0 }?.frame.midX ?? 0, columns[0], accuracy: 1,
+                       "today's square should be in the left-hand column")
+        let screenRows = lines(screen.map(\.frame.midY))
+        for square in screen {
+            let row = nearest(square.frame.midY, in: screenRows)
+            let column = nearest(square.frame.midX, in: columns)
+            XCTAssertEqual(square.daysBack, row * 10 + column,
+                           "Time Spent Singing, row \(row + 1), column \(column + 1)")
+        }
+        saveScreenshot("time-spent-singing-today-first")
+    }
+
+    /// The calendar squares on screen in the order VoiceOver reads them, with
+    /// how many days before today each one stands for. That is read off its
+    /// label, where the app's English writes the date as "October 31, 2026"
+    /// ahead of the day's practice time. Taken from one snapshot rather than a
+    /// query per square, which a year of squares makes slow.
+    private func calendarSquares(_ app: XCUIApplication) throws -> [(daysBack: Int, frame: CGRect)] {
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: Date())
+        let style = Date.FormatStyle.dateTime.day().month(.wide).year()
+            .locale(Locale(identifier: "en"))
+        var daysBack: [String: Int] = [:]
+        for back in 0...400 {
+            guard let date = calendar.date(byAdding: .day, value: -back, to: today) else { continue }
+            daysBack[date.formatted(style)] = back
+        }
+        var squares: [(daysBack: Int, frame: CGRect)] = []
+        func collect(_ element: XCUIElementSnapshot) {
+            if let date = element.label.range(of: "^.*?[0-9]{4}(?=, )", options: .regularExpression),
+               let back = daysBack[String(element.label[date])] {
+                squares.append((back, element.frame))
+            }
+            element.children.forEach(collect)
+        }
+        collect(try app.snapshot())
+        return squares
+    }
+
     /// Must match RecommendedExercises.asListKey in the app target.
     private let recommendationsAsListKey = "recommendationsAsList"
 
