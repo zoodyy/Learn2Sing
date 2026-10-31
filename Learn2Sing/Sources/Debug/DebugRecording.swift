@@ -45,9 +45,6 @@ import os
 /// dashes still matches. Both ids of the install this is running on are printed
 /// to the console the first time a run starts, so a tester can read theirs off
 /// the Xcode log and send it over.
-///  // AUDIO DEBUG LOG
-/// The same installs, and no others, get the "Playback debug logging" switch  // AUDIO DEBUG LOG
-/// in Settings ▸ Audio and can log anything (see AudioDebugLog.swift).  // AUDIO DEBUG LOG
 enum DebugRecordingAccess {
     /// Who may record and export. One id per line; an empty list switches the
     /// feature off for everybody.

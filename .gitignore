@@ -7,5 +7,5 @@ Tools/PitchBench/.build/
 Tools/PitchBench/.work/
 Tools/PitchBench/.venv/
 
-# System logs pulled from the phone (Tools/AudioDebugLog), hundreds of MB each
+# System logs pulled from the phone with `log collect`, hundreds of MB each
 *.logarchive/

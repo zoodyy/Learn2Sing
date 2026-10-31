@@ -59,7 +59,6 @@ final class ExercisePlayer {
     private let engine = AVAudioEngine()
     /// The synthesiser's way into the engine; nil until `buildGraph` (see there).
     private var sourceNode: AVAudioSourceNode?
-    private var audioDebugProbe: AudioDebugRenderProbe?  // AUDIO DEBUG LOG
 
     private static let renderRate: Double = 44100
     private let sampleRate = renderRate
@@ -162,7 +161,6 @@ final class ExercisePlayer {
 
     init() {
         mach_timebase_info(&timebase)
-        AudioDebugLog.playerCreated()  // AUDIO DEBUG LOG
 
         // The engine is *not* started here, and not even wired up (see `buildGraph`).
         // It's started in begin() once the audio route has settled, so the very first
@@ -178,9 +176,8 @@ final class ExercisePlayer {
         configObserver = NotificationCenter.default.addObserver(
             forName: .AVAudioEngineConfigurationChange, object: engine, queue: .main
         ) { [weak self] _ in
-            self?.audioDebugConfigChange()  // AUDIO DEBUG LOG
             guard let self, self.shouldRun, !self.isSuspended, !self.engine.isRunning else { return }
-            AudioDebugLog.attempt("player.engine.restart", ["p": self.audioDebugName]) { try self.engine.start() }  // AUDIO DEBUG LOG restore: try? self.engine.start()
+            try? self.engine.start()
         }
 
         routeObserver = NotificationCenter.default.addObserver(
@@ -193,14 +190,13 @@ final class ExercisePlayer {
     /// Start the audio engine. Call only after the session/route is configured so the
     /// output clock anchors to the correct route from the first buffer onward.
     func begin() {
-        AudioDebugLog.event("player.begin", ["p": audioDebugName, "graph": sourceNode != nil, "running": engine.isRunning])  // AUDIO DEBUG LOG
         shouldRun = true
         isSuspended = false
         refreshOutputLatency()
         buildGraph()
         guard !engine.isRunning else { return }
         engine.prepare()
-        AudioDebugLog.attempt("player.engine.start", ["p": audioDebugName]) { try engine.start() }  // AUDIO DEBUG LOG restore: try? engine.start()
+        try? engine.start()
     }
 
     /// Wire the synthesiser into the engine, the first time it is about to play.
@@ -217,25 +213,19 @@ final class ExercisePlayer {
     private func buildGraph() {
         guard sourceNode == nil else { return }
         let format = AVAudioFormat(standardFormatWithSampleRate: sampleRate, channels: 2)!
-        let audioDebugProbe = AudioDebugLog.renderProbe(for: engine, sampleRate: sampleRate)  // AUDIO DEBUG LOG
-        self.audioDebugProbe = audioDebugProbe  // AUDIO DEBUG LOG
         let node = AVAudioSourceNode { [weak self] _, timestamp, frameCount, ablPointer -> OSStatus in
-            audioDebugProbe?.begin(timestamp.pointee, frames: frameCount)  // AUDIO DEBUG LOG
             self?.render(frameCount: Int(frameCount), hostTime: timestamp.pointee.mHostTime, abl: ablPointer)
-            audioDebugProbe?.end(ablPointer)  // AUDIO DEBUG LOG
             return noErr
         }
         engine.attach(node)
         engine.connect(node, to: engine.mainMixerNode, format: format)
         sourceNode = node
-        AudioDebugLog.graphBuilt(engine, format: format)  // AUDIO DEBUG LOG
     }
 
     /// Stop rendering while the app is backgrounded. The playhead is preserved so the
     /// exercise resumes from the same spot; `shouldRun` stays set so the config-change
     /// observer and resume() can bring the engine back.
     func pauseForBackground() {
-        AudioDebugLog.event("player.pause", ["p": audioDebugName, "running": engine.isRunning])  // AUDIO DEBUG LOG
         isSuspended = true
         // The anchor goes now rather than at the resume: a resume waits for the route
         // to settle before the engine starts again, and an anchor still standing in
@@ -251,7 +241,6 @@ final class ExercisePlayer {
     /// to the audio's current playhead so the two don't drift apart by the time spent
     /// away. Safe to call only between begin() and stop().
     func resumeFromBackground() {
-        AudioDebugLog.event("player.resume", ["p": audioDebugName, "should": shouldRun, "running": engine.isRunning])  // AUDIO DEBUG LOG
         guard shouldRun else { return }
         isSuspended = false
         refreshOutputLatency()
@@ -265,7 +254,7 @@ final class ExercisePlayer {
         os_unfair_lock_unlock(&clockLock)
         if !engine.isRunning {
             engine.prepare()
-            AudioDebugLog.attempt("player.engine.start", ["p": audioDebugName, "resume": true]) { try engine.start() }  // AUDIO DEBUG LOG restore: try? engine.start()
+            try? engine.start()
         }
     }
 
@@ -325,7 +314,6 @@ final class ExercisePlayer {
         } else {
             lateRenders = 0
         }
-        let audioDebugAnchor = startCaptured ? startHostTime : 0  // AUDIO DEBUG LOG
         os_unfair_lock_unlock(&clockLock)
         if catchUpSamples > 0 { catchUpScheduleLocked(by: catchUpSamples) }
         let spec = self.spec
@@ -333,7 +321,6 @@ final class ExercisePlayer {
         let invHarm = 1.0 / harmonics.reduce(0, +)
         let gain = spec.gain
 
-        var audioDebugPreClip = 0.0, audioDebugNonFinite = 0; let audioDebugOn = audioDebugProbe != nil && AudioDebugLog.isEnabled  // AUDIO DEBUG LOG
         for frame in 0..<frameCount {
             // Fire any note-on/off events due at this exact sample.
             let currentSample = playhead + frame
@@ -416,7 +403,6 @@ final class ExercisePlayer {
                 out += clickMix * clickGain
             }
 
-            if audioDebugOn { if out.isFinite { audioDebugPreClip = max(audioDebugPreClip, abs(out)) } else { audioDebugNonFinite += 1 } }  // AUDIO DEBUG LOG
             let sample = Float(tanh(out))   // soft-clip the summed output
             left?[frame] = sample
             right?[frame] = sample
@@ -435,7 +421,6 @@ final class ExercisePlayer {
             onFinish = nil
             if let callback { DispatchQueue.main.async(execute: callback) }
         }
-        if audioDebugOn, let audioDebugProbe { let voices = audioDebugVoices(); audioDebugProbe.state(playhead: playhead - frameCount, eventIndex: eventIndex, eventCount: events.count, voices: voices.count, strings: voices.strings, pitches: voices.pitches, catchUp: catchUpSamples, anchor: audioDebugAnchor, preClip: audioDebugPreClip, nonFinite: audioDebugNonFinite) }  // AUDIO DEBUG LOG
         os_unfair_lock_unlock(&lock)
     }
 
@@ -503,9 +488,7 @@ final class ExercisePlayer {
     /// Re-read the route's output latency. Called when the engine starts, when it
     /// resumes and whenever the route changes — the only times it can differ.
     private func refreshOutputLatency() {
-        let audioDebugOld = cachedOutputLatency  // AUDIO DEBUG LOG
         cachedOutputLatency = AVAudioSession.sharedInstance().outputLatency
-        if sourceNode != nil { AudioDebugLog.latencyRefreshed(engine, old: audioDebugOld, new: cachedOutputLatency) }  // AUDIO DEBUG LOG
     }
 
     /// The musical beat currently being *heard*, anchored to the audio engine's own
@@ -657,7 +640,6 @@ final class ExercisePlayer {
         os_unfair_lock_unlock(&clockLock)
         for i in 0..<voices.count { voices[i].active = false }
         os_unfair_lock_unlock(&lock)
-        AudioDebugLog.scheduled(engine, events: events.map { (sample: $0.sample, pitch: $0.pitch, on: $0.on) }, finishSample: finishSample, sampleRate: sampleRate, bpm: bpm, leadIn: leadIn)  // AUDIO DEBUG LOG
     }
 
     func cancelAll() {
@@ -679,72 +661,17 @@ final class ExercisePlayer {
     /// isn't running is skipped so repeated teardown calls (finish, then onDisappear,
     /// then deinit) are harmless and never block on an already-stopped engine.
     func stop() {
-        if sourceNode != nil { AudioDebugLog.event("player.stop", ["p": audioDebugName, "running": engine.isRunning, "should": shouldRun]) }  // AUDIO DEBUG LOG
         shouldRun = false
         cancelAll()
         if engine.isRunning { engine.stop() }
     }
 
     deinit {
-        if sourceNode != nil { AudioDebugLog.event("player.deinit", ["p": AudioDebugLog.engineName(engine)]) }  // AUDIO DEBUG LOG
         if let configObserver { NotificationCenter.default.removeObserver(configObserver) }
         if let routeObserver { NotificationCenter.default.removeObserver(routeObserver) }
         stop()
     }
 }
-
-// AUDIO DEBUG LOG BEGIN
-extension ExercisePlayer {
-    /// The engine's name in the audio debug log, given the first time it is asked.
-    var audioDebugName: String { AudioDebugLog.nameEngine(engine, "player") }
-
-    /// The player's side of the audio debug log's heartbeat.
-    var audioDebugState: String {
-        os_unfair_lock_lock(&clockLock)
-        let anchored = startCaptured
-        os_unfair_lock_unlock(&clockLock)
-        var fields: [(String, Any?)] = [
-            ("p", audioDebugName), ("p.run", engine.isRunning), ("p.should", shouldRun),
-            ("p.susp", isSuspended), ("p.anch", anchored), ("p.lat", cachedOutputLatency),
-        ]
-        // Only once the graph is wired: asking for the output node any earlier builds
-        // the I/O unit, which is what `buildGraph` holds back from doing.
-        if sourceNode != nil {
-            fields.append(("p.hw", AudioDebugLog.formatString(engine.outputNode.outputFormat(forBus: 0))))
-            fields.append(("p.pres", engine.outputNode.presentationLatency))
-        }
-        return AudioDebugLog.format(fields)
-    }
-
-    /// Logs a configuration change of the player's engine, before the observer
-    /// decides what to do about it.
-    func audioDebugConfigChange() {
-        guard sourceNode != nil else { return }
-        AudioDebugLog.event("player.configChange", [
-            "p": audioDebugName, "running": engine.isRunning, "should": shouldRun, "susp": isSuspended,
-            "hw": AudioDebugLog.formatString(engine.outputNode.outputFormat(forBus: 0)),
-        ])
-    }
-
-    /// How many voices are sounding, how many of them are strings, and up to eight of
-    /// their pitches, one per byte. On the render thread with the lock held; it only
-    /// reads.
-    func audioDebugVoices() -> (count: Int, strings: Int, pitches: UInt64) {
-        var count = 0
-        var strings = 0
-        var pitches = UInt64.max
-        for index in 0..<voices.count where voices[index].active {
-            if voices[index].isString { strings += 1 }
-            if count < 8 {
-                let shift = UInt64(8 * count)
-                pitches = (pitches & ~(UInt64(0xFF) << shift)) | (UInt64(UInt8(clamping: voices[index].pitch)) << shift)
-            }
-            count += 1
-        }
-        return (count, strings, pitches)
-    }
-}
-// AUDIO DEBUG LOG END
 
 // MARK: - PlaybackView
 
@@ -1299,7 +1226,6 @@ struct PlaybackView: View {
         // toolbar modifier that stays put across them, rather than one appearing
         // as another goes and the bar animating on whichever wins.
         .toolbar(showsRunCanvas ? .hidden : .automatic, for: .tabBar)
-        .audioDebugFlagButton()  // AUDIO DEBUG LOG
         // Out here too, so a notice still being read when the clap test (which can't
         // pause) plays out stays up over its result rather than vanishing with the run.
         .microphoneNotice(isDenied: pitchDetector.isMicrophoneDenied,
@@ -1369,19 +1295,6 @@ struct PlaybackView: View {
             // on that settled route, and only then schedule (which anchors the playback
             // clock). This keeps audio and the animation in sync and stops playback
             // from starting partway through while the exercise is still loading.
-            // AUDIO DEBUG LOG BEGIN
-            if AudioDebugLog.isEnabled {
-                AudioDebugLog.runOpened(exercise: exercise.name, exerciseID: exercise.id, mode: "\(mode)", bpm: bpm,
-                                        leadIn: leadIn, repeats: exercise.repeatCount, notes: notes, ghosts: ghosts,
-                                        player: player, detector: pitchDetector,
-                                        settings: ["micDelayMs": micDelayMs, "scoreWindow": scoreTargetWindow,
-                                                   "instrument": Instrument.current.rawValue,
-                                                   "detection": PitchDetection.current.rawValue,
-                                                   "autoDelay": AutoMicDelay.isEnabled,
-                                                   "speaker": AudioRouteManager.shared.selectedSpeaker,
-                                                   "mic": AudioRouteManager.shared.selectedMic])
-            }
-            // AUDIO DEBUG LOG END
             audioStartup.hasStarted = false
             startAudio()
         }
@@ -1390,7 +1303,6 @@ struct PlaybackView: View {
         }
         .onDisappear {
             teardownAudio()
-            AudioDebugLog.runClosed(finalScore: finalScore, delayResult: delayResultMs, calibrating: isCalibrating)  // AUDIO DEBUG LOG
             // DEBUG RECORDING — remove together with DebugRecording.swift.
             // A no-op once the run finished and handed its recording over; this
             // is what throws away a run the singer walked out of.
@@ -1398,7 +1310,6 @@ struct PlaybackView: View {
             debugRecorder.cancel()
         }
         .onChange(of: scenePhase) { _, phase in
-            AudioDebugLog.event("run.scenePhase", ["phase": "\(phase)", "paused": isPaused, "finished": finalScore != nil])  // AUDIO DEBUG LOG
             // The audio engine stops while the app is backgrounded but the on-screen
             // clock is wall-clock based, so without this they'd drift apart. Pause on
             // the way out and, on return, reconfigure the route and resume — which
@@ -1436,10 +1347,8 @@ struct PlaybackView: View {
     /// microphone, and then the run, or the run picked up where a pause or the
     /// background left it.
     private func startAudio() {
-        AudioDebugLog.event("run.startAudio", ["resume": audioStartup.hasStarted])  // AUDIO DEBUG LOG
         audioStartup.cancel()
         audioStartup.routeWait = AudioRouteManager.shared.configureSession(whenSettled: {
-            AudioDebugLog.event("run.routeSettled", ["resume": audioStartup.hasStarted], extra: AudioDebugLog.sessionSnapshot())  // AUDIO DEBUG LOG
             audioStartup.routeWait = nil
             if !audioStartup.hasStarted { prepareRun() }
             startMicrophone {
@@ -1455,7 +1364,6 @@ struct PlaybackView: View {
     /// What a run needs before anything sounds, once the route has settled: the
     /// delay it is scored at, what the player plays, and what the microphone feeds.
     private func prepareRun() {
-        AudioDebugLog.event("run.begin", ["micDelayMs": micDelayMs, "devices": AudioRouteManager.devicePairKey()])  // AUDIO DEBUG LOG
         // While the delay is recognised, the setting is what the recent runs on
         // these devices settled on, so a run on the speaker starts from the
         // speaker's delay rather than from whatever the earphones last left. Only
@@ -1501,7 +1409,6 @@ struct PlaybackView: View {
         player.begin()
         scheduleRun()
         audioStartup.hasStarted = true
-        AudioDebugLog.event("run.begun", ["micDelayMs": micDelayMs, "instrument": Instrument.current.rawValue])  // AUDIO DEBUG LOG
     }
 
     /// Start listening, and `then` start the sound, once the microphone is listening.
@@ -1516,12 +1423,8 @@ struct PlaybackView: View {
     /// run goes ahead after `microphoneStartTimeout` anyway; the six-beat lead-in
     /// covers the wait either way.
     private func startMicrophone(then next: @escaping () -> Void) {
-        AudioDebugLog.event("run.micStart", ["timeoutSec": Self.microphoneStartTimeout])  // AUDIO DEBUG LOG
         audioStartup.whenListening = next
-        let timeout = DispatchWorkItem {
-            AudioDebugLog.event("run.micTimeout")  // AUDIO DEBUG LOG
-            audioStartup.microphoneIsListening()
-        }
+        let timeout = DispatchWorkItem { audioStartup.microphoneIsListening() }
         audioStartup.microphoneTimeout = timeout
         DispatchQueue.main.asyncAfter(deadline: .now() + Self.microphoneStartTimeout, execute: timeout)
         pitchDetector.start { audioStartup.microphoneIsListening() }
@@ -1541,7 +1444,6 @@ struct PlaybackView: View {
 
     /// What the end of the notes leads to, which is what each mode is for.
     private func runPlayedOut() {
-        AudioDebugLog.event("run.playedOut", ["mode": "\(mode)"])  // AUDIO DEBUG LOG
         switch mode {
         case .clapDelayTest:
             // Convert the detected claps to beat positions *before* tearing
@@ -1626,7 +1528,6 @@ struct PlaybackView: View {
 
                 Canvas { ctx, size in
                     lastDrawnBeat.value = beat
-                    AudioDebugLog.frame(beat: beat, target: pitchDetector.currentPitch, shown: singerPitch)  // AUDIO DEBUG LOG
                     drawScene(ctx: ctx, size: size, beat: beat, singerPitch: singerPitch,
                               safeTop: geo.safeAreaInsets.top, safeBottom: geo.safeAreaInsets.bottom,
                               playheadTop: playheadTop(safeTop: geo.safeAreaInsets.top))
@@ -1677,7 +1578,6 @@ struct PlaybackView: View {
         // Whatever an earlier run left is not this one's; the score screen works this
         // run's out once it is up.
         runStatistics = nil
-        AudioDebugLog.runResult("run.score", ["score": score, "runDelayMs": runDelayMs, "micDelayMs": micDelayMs])  // AUDIO DEBUG LOG
         finalScore = score
     }
 
@@ -1736,7 +1636,6 @@ struct PlaybackView: View {
     /// it scores this run alone and never reaches the setting.
     private func recogniseDelay(scoring played: Int, devices: String) -> Int {
         runDelayMs = nil
-        if !AutoMicDelay.isEnabled { AudioDebugLog.runResult("run.delay", ["auto": false, "played": played]) }  // AUDIO DEBUG LOG
         guard AutoMicDelay.isEnabled else { return played }
         // The line trails the voice by the pitch detection's look-ahead on top of the
         // microphone, so the offsets are searched with it added and the setting keeps
@@ -1764,7 +1663,6 @@ struct PlaybackView: View {
         // Established is about the delays the setting is made of, so an early delay,
         // which never joins them, is judged on what the setting scored.
         if (records ? found : played) > AutoMicDelay.minimumScore { AutoMicDelay.markEstablished() }
-        AudioDebugLog.runResult("run.delay", ["bestMs": best, "lookAheadMs": lookAhead, "delayMs": delay, "found": found, "played": played, "adopt": adopt, "records": records, "settingMs": micDelayMs, "devices": devices])  // AUDIO DEBUG LOG
         return adopt ? found : played
     }
 
@@ -1909,7 +1807,6 @@ struct PlaybackView: View {
     /// engine keeps its playhead while paused, and resuming re-anchors the on-screen
     /// clock to it so audio and animation stay in sync across the gap.
     private func togglePause() {
-        AudioDebugLog.event("run.togglePause", ["wasPaused": isPaused])  // AUDIO DEBUG LOG
         if isPaused {
             startAudio()
             isPaused = false
@@ -1928,7 +1825,6 @@ struct PlaybackView: View {
     /// to the singer: the toolbar's play button reconfigures the session and resumes
     /// from where it stopped, the same as any other pause.
     private func pauseForInterruption() {
-        AudioDebugLog.event("run.pauseForInterruption", ["finished": finalScore != nil, "paused": isPaused])  // AUDIO DEBUG LOG
         guard finalScore == nil, delayResultMs == nil, !isCalibrating, !isPaused else { return }
         audioStartup.cancel()
         player.pauseForBackground()
@@ -1940,7 +1836,6 @@ struct PlaybackView: View {
     /// button would. The clap test has no pause to borrow (see the toolbar), so it
     /// plays on underneath.
     private func pauseForMicrophoneNotice() {
-        AudioDebugLog.event("run.microphoneNotice", ["paused": isPaused])  // AUDIO DEBUG LOG
         guard playsExercise, finalScore == nil, delayResultMs == nil, !isCalibrating, !isPaused else { return }
         togglePause()
         isPausedForMicrophoneNotice = true
@@ -1956,7 +1851,6 @@ struct PlaybackView: View {
     }
 
     private func teardownAudio() {
-        AudioDebugLog.event("run.teardown")  // AUDIO DEBUG LOG
         audioStartup.cancel()
         player.stop()
         pitchDetector.stop()

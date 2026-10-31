@@ -111,7 +111,6 @@ final class PitchDetector: ObservableObject {
     private var onListening: (() -> Void)?
 
     init() {
-        AudioDebugLog.nameEngine(engine, "mic")  // AUDIO DEBUG LOG
         // iOS stops the engine whenever the audio IO is reconfigured — a route
         // change, an interruption ending, the playback engine starting — and nothing
         // brings it back on its own. Without this the capture is gone for the rest of
@@ -120,7 +119,6 @@ final class PitchDetector: ObservableObject {
         configObserver = NotificationCenter.default.addObserver(
             forName: .AVAudioEngineConfigurationChange, object: engine, queue: .main
         ) { [weak self] _ in
-            self?.audioDebugConfigChange()  // AUDIO DEBUG LOG
             guard let self, self.shouldRun, !self.usingCapture, !self.engine.isRunning else { return }
             self.running = false   // the system stopped it; the capture it left behind is dead
             self.listenThroughSink()
@@ -128,7 +126,6 @@ final class PitchDetector: ObservableObject {
     }
 
     deinit {
-        AudioDebugLog.event("mic.deinit", ["m": AudioDebugLog.engineName(engine)])  // AUDIO DEBUG LOG
         if let configObserver { NotificationCenter.default.removeObserver(configObserver) }
         capture?.close()
         // The analysis thread holds on to the listener; let it go.
@@ -145,7 +142,6 @@ final class PitchDetector: ObservableObject {
     /// with), so whatever waits on it can carry on either way. A `stop()` that comes
     /// first drops it.
     func start(onListening: (() -> Void)? = nil) {
-        AudioDebugLog.event("mic.start", ["m": AudioDebugLog.engineName(engine), "running": running, "engine": engine.isRunning, "capture": usingCapture, "starting": captureStarting])  // AUDIO DEBUG LOG
         shouldRun = true
         self.onListening = onListening
         // Heal a capture the system stopped without telling us, so resuming after an
@@ -164,7 +160,6 @@ final class PitchDetector: ObservableObject {
         AVAudioSession.sharedInstance().requestRecordPermission { [weak self] granted in
             DispatchQueue.main.async {
                 guard let self else { return }
-                AudioDebugLog.event("mic.permission", ["granted": granted, "shouldRun": self.shouldRun])  // AUDIO DEBUG LOG
                 guard granted else {
                     // Nothing to listen to, but whatever asked carries on without
                     // it; telling the singer is up to the screen (`microphoneNotice`).
@@ -197,13 +192,10 @@ final class PitchDetector: ObservableObject {
     }
 
     func stop() {
-        AudioDebugLog.event("mic.stop", ["running": running, "tap": usingTap, "engine": engine.isRunning, "capture": usingCapture, "starting": captureStarting])  // AUDIO DEBUG LOG
         shouldRun = false
         onListening = nil
         if usingCapture {
-            let audioDebugStart = mach_absolute_time()  // AUDIO DEBUG LOG
             capture?.stop()
-            AudioDebugLog.event("mic.capture.stopped", ["ms": AudioDebugLog.milliseconds(since: audioDebugStart)])  // AUDIO DEBUG LOG
             usingCapture = false
             captureStarting = false
             // Whatever the capture had on its way back to the main thread belongs to
@@ -251,10 +243,8 @@ final class PitchDetector: ObservableObject {
         let start = startCount
         usingCapture = true
         captureStarting = true
-        let audioDebugStart = mach_absolute_time()  // AUDIO DEBUG LOG
         capture.start { [weak self] isRunning in
             DispatchQueue.main.async {
-                AudioDebugLog.event("mic.capture.startRunning", ["running": isRunning, "ms": AudioDebugLog.milliseconds(since: audioDebugStart), "sameStart": self?.startCount == start])  // AUDIO DEBUG LOG
                 guard let self, self.startCount == start, self.usingCapture else { return }
                 guard isRunning else {
                     self.captureFailed(permanently: true)
@@ -271,7 +261,6 @@ final class PitchDetector: ObservableObject {
     private func captureDelivered(rate: Double) {
         guard usingCapture, shouldRun, let capture,
               let format = AVAudioFormat(standardFormatWithSampleRate: rate, channels: 1) else { return }
-        AudioDebugLog.micCaptureStarting(format, via: "capture", ["restart": running])  // AUDIO DEBUG LOG
         debugSink?.begin(format: format)   // DEBUG RECORDING — remove with DebugRecording.swift
         listener.start(sampleRate: rate, detection: detection)
         capture.accept(rate: rate)
@@ -288,7 +277,6 @@ final class PitchDetector: ObservableObject {
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) { [weak self] in
             guard let self, self.startCount == start, self.usingCapture, self.running,
                   !self.listener.queue.hasReceivedAudio else { return }
-            AudioDebugLog.event("mic.capture.nothingQueued")  // AUDIO DEBUG LOG
             self.captureFailed(permanently: true)
         }
     }
@@ -298,7 +286,6 @@ final class PitchDetector: ObservableObject {
     private func confirmCaptureDelivers(after start: Int) {
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) { [weak self] in
             guard let self, self.startCount == start, self.usingCapture, self.captureStarting else { return }
-            AudioDebugLog.event("mic.capture.silent")  // AUDIO DEBUG LOG
             self.captureFailed(permanently: true)
         }
     }
@@ -308,7 +295,6 @@ final class PitchDetector: ObservableObject {
     /// on for good; one that failed half way through gets another go next time.
     private func captureFailed(permanently: Bool) {
         guard usingCapture else { return }
-        AudioDebugLog.event("mic.capture.failed", ["permanently": permanently, "running": running, "should": shouldRun])  // AUDIO DEBUG LOG
         capture?.stop()
         usingCapture = false
         captureStarting = false
@@ -328,7 +314,6 @@ final class PitchDetector: ObservableObject {
         guard !running else { return }
         let input = engine.inputNode
         let format = input.outputFormat(forBus: 0)
-        AudioDebugLog.micCaptureStarting(format, via: "sink", ["engine": engine.isRunning, "starts": startCount])  // AUDIO DEBUG LOG
         guard format.sampleRate > 0, format.channelCount > 0 else {
             reportListening()
             return
@@ -351,16 +336,13 @@ final class PitchDetector: ObservableObject {
             sinkNode = sink
         }
         engine.connect(input, to: sink, format: format)
-        let audioDebugStart = mach_absolute_time()  // AUDIO DEBUG LOG
         engine.prepare()
         do {
             try engine.start()
             running = true
-            AudioDebugLog.event("mic.engine.start", ["ok": true, "via": "sink", "ms": AudioDebugLog.milliseconds(since: audioDebugStart)])  // AUDIO DEBUG LOG
             confirmAudioArrives(after: startCount)
             reportListening()
         } catch {
-            AudioDebugLog.event("mic.engine.start", ["ok": false, "via": "sink", "error": error])  // AUDIO DEBUG LOG
             listenThroughTap(format: format)
         }
     }
@@ -372,17 +354,14 @@ final class PitchDetector: ObservableObject {
     /// start delivering; an exercise's lead-in is longer than it.
     private func confirmAudioArrives(after start: Int) {
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) { [weak self] in
-            AudioDebugLog.event("mic.confirm", ["received": self?.listener.queue.hasReceivedAudio, "running": self?.running, "tap": self?.usingTap, "sameStart": self?.startCount == start])  // AUDIO DEBUG LOG
             guard let self, self.running, !self.usingTap, self.startCount == start,
                   !self.listener.queue.hasReceivedAudio else { return }
-            AudioDebugLog.event("mic.fallbackToTap")  // AUDIO DEBUG LOG
             self.engine.stop()
             self.listenThroughTap(format: self.engine.inputNode.outputFormat(forBus: 0))
         }
     }
 
     private func listenThroughTap(format: AVAudioFormat) {
-        AudioDebugLog.micCaptureStarting(format, via: "tap")  // AUDIO DEBUG LOG
         if let sink = sinkNode { engine.disconnectNodeInput(sink) }
         running = false
         guard format.sampleRate > 0, format.channelCount > 0 else {
@@ -397,9 +376,7 @@ final class PitchDetector: ObservableObject {
         do {
             try engine.start()
             running = true
-            AudioDebugLog.event("mic.engine.start", ["ok": true, "via": "tap"])  // AUDIO DEBUG LOG
         } catch {
-            AudioDebugLog.event("mic.engine.start", ["ok": false, "via": "tap", "error": error])  // AUDIO DEBUG LOG
             input.removeTap(onBus: 0)
             usingTap = false
             listener.stop()
@@ -407,33 +384,6 @@ final class PitchDetector: ObservableObject {
         reportListening()
     }
 }
-
-// AUDIO DEBUG LOG BEGIN
-extension PitchDetector {
-    /// The microphone's side of the audio debug log's heartbeat.
-    var audioDebugState: String {
-        var fields: [(String, Any?)] = [
-            ("m", AudioDebugLog.engineName(engine)), ("m.run", running), ("m.should", shouldRun),
-            ("m.eng", engine.isRunning), ("m.tap", usingTap), ("m.recv", listener.queue.hasReceivedAudio),
-            ("m.det", detection.rawValue), ("m.starts", startCount), ("m.denied", isMicrophoneDenied),
-        ]
-        fields.append(("m.capture", usingCapture))
-        // Only while the engine listens: asking for the input node otherwise builds it.
-        if running && !usingCapture {
-            fields.append(("m.fmt", AudioDebugLog.formatString(engine.inputNode.outputFormat(forBus: 0))))
-            fields.append(("m.pres", engine.inputNode.presentationLatency))
-        }
-        return AudioDebugLog.format(fields)
-    }
-
-    /// Logs a configuration change of the microphone's engine, before the observer
-    /// decides what to do about it.
-    func audioDebugConfigChange() {
-        AudioDebugLog.event("mic.configChange", ["m": AudioDebugLog.engineName(engine), "engine": engine.isRunning,
-                                                 "running": running, "should": shouldRun, "tap": usingTap])
-    }
-}
-// AUDIO DEBUG LOG END
 
 // MARK: - The capture session
 
@@ -484,7 +434,6 @@ nonisolated final class MicrophoneCapture: NSObject, AVCaptureAudioDataOutputSam
     /// new rate) has been.
     private var reported = false
     private var framesQueued = 0.0
-    private var audioDebugUnreadable = 0  // AUDIO DEBUG LOG
     private var clock: CMClock?
     private static let maxBuffers = 8
     private let bufferList = AudioBufferList.allocate(maximumBuffers: MicrophoneCapture.maxBuffers)
@@ -500,22 +449,9 @@ nonisolated final class MicrophoneCapture: NSObject, AVCaptureAudioDataOutputSam
         scratch.initialize(repeating: 0, count: Self.scratchCapacity)
         observers.append(NotificationCenter.default.addObserver(
             forName: AVCaptureSession.runtimeErrorNotification, object: session, queue: nil
-        ) { [weak self] note in
-            AudioDebugLog.event("mic.capture.runtimeError", ["error": note.userInfo?[AVCaptureSessionErrorKey] as? Error])  // AUDIO DEBUG LOG
+        ) { [weak self] _ in
             self?.onFailure()
         })
-        // AUDIO DEBUG LOG BEGIN
-        observers.append(NotificationCenter.default.addObserver(
-            forName: AVCaptureSession.wasInterruptedNotification, object: session, queue: nil
-        ) { note in
-            AudioDebugLog.event("mic.capture.interrupted", ["reason": note.userInfo?[AVCaptureSessionInterruptionReasonKey] as? Int])
-        })
-        observers.append(NotificationCenter.default.addObserver(
-            forName: AVCaptureSession.interruptionEndedNotification, object: session, queue: nil
-        ) { _ in
-            AudioDebugLog.event("mic.capture.interruptionEnded")
-        })
-        // AUDIO DEBUG LOG END
     }
 
     deinit {
@@ -587,7 +523,6 @@ nonisolated final class MicrophoneCapture: NSObject, AVCaptureAudioDataOutputSam
             }
             session.commitConfiguration()
         }
-        AudioDebugLog.event("mic.capture.configure", ["ok": ok, "device": AVCaptureDevice.default(for: .audio)?.localizedName])  // AUDIO DEBUG LOG
         configured = ok
         return ok
     }
@@ -609,20 +544,12 @@ nonisolated final class MicrophoneCapture: NSObject, AVCaptureAudioDataOutputSam
             }
             if !reported {
                 reported = true
-                AudioDebugLog.event("mic.capture.format", ["rate": rate, "channels": description.mChannelsPerFrame, "bits": description.mBitsPerChannel, "float": description.mFormatFlags & kAudioFormatFlagIsFloat != 0, "interleaved": description.mFormatFlags & kAudioFormatFlagIsNonInterleaved == 0, "frames": CMSampleBufferGetNumSamples(sampleBuffer)])  // AUDIO DEBUG LOG
                 onFormat(rate)
             }
             return
         }
         queueSamples(of: sampleBuffer, description: description)
     }
-
-    // AUDIO DEBUG LOG BEGIN
-    func captureOutput(_ output: AVCaptureOutput, didDrop sampleBuffer: CMSampleBuffer,
-                       from connection: AVCaptureConnection) {
-        AudioDebugLog.event("mic.capture.dropped")
-    }
-    // AUDIO DEBUG LOG END
 
     /// Copies the first channel of `sampleBuffer` into the queue as float samples,
     /// stamped with the host time it was recorded at.
@@ -645,7 +572,6 @@ nonisolated final class MicrophoneCapture: NSObject, AVCaptureAudioDataOutputSam
                     flags: kCMSampleBufferFlag_AudioBufferList_Assure16ByteAlignment, blockBufferOut: &block)
                 : kCMSampleBufferError_ArrayTooSmall
         }
-        if status != noErr { audioDebugUnreadable += 1; if audioDebugUnreadable == 1 || audioDebugUnreadable % 100 == 0 { AudioDebugLog.event("mic.capture.unreadable", ["status": status, "needed": needed, "times": audioDebugUnreadable]) } }  // AUDIO DEBUG LOG
         guard status == noErr, bufferList.count > 0, let data = bufferList[0].mData else { return }
 
         // Interleaved, the first channel is every `stride`th sample of the first
@@ -932,7 +858,6 @@ nonisolated final class MicrophoneListener: @unchecked Sendable {
         analyzer.process(scratch, count: count)
         let value = analyzer.pitch
         pitchValue.withLock { $0 = value }
-        AudioDebugLog.micChunk(chunk.time, samples: scratch, count: count, pitch: value)  // AUDIO DEBUG LOG
     }
 
     // MARK: Debug recording (DEBUG RECORDING — remove with DebugRecording.swift)

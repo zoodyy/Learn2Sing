@@ -12,7 +12,6 @@ struct Learn2SingApp: App {
     @Environment(\.scenePhase) private var scenePhase
 
     init() {
-        AudioDebugLog.launch()  // AUDIO DEBUG LOG
         // Before the profile backup first reads the instrument.
         Instrument.removeUploadedInstruments()
     }
