@@ -1,0 +1,239 @@
+{
+  "bpm" : 96,
+  "closed" : "2026-10-31T10:53:34.383Z",
+  "closeReason" : "finished",
+  "exercise" : "Octave Jumps Ha",
+  "exerciseID" : "9D293BBC-BE9A-406B-8CAF-9FAB37934B97",
+  "flags" : [
+
+  ],
+  "ghosts" : [
+
+  ],
+  "launch" : 3,
+  "leadInBeats" : 6,
+  "mode" : "normal",
+  "notes" : [
+    {
+      "beat" : 0,
+      "id" : "a2302d8b-f32b-4999-91c1-abfd13898d31",
+      "length" : 0.5,
+      "pitch" : 43
+    },
+    {
+      "beat" : 1,
+      "id" : "ae90e953-86ed-4114-8cef-a246599e92a7",
+      "length" : 0.5,
+      "pitch" : 55
+    },
+    {
+      "beat" : 2,
+      "id" : "9a40c9a8-1683-4369-826a-c7afc6df635f",
+      "length" : 0.5,
+      "pitch" : 43
+    },
+    {
+      "beat" : 3,
+      "id" : "94837ec3-d41b-4c92-bcfb-e304fdef920d",
+      "length" : 0.5,
+      "pitch" : 55
+    },
+    {
+      "beat" : 4,
+      "id" : "25902216-b556-4473-bf04-9a661e72b883",
+      "length" : 0.5,
+      "pitch" : 43
+    },
+    {
+      "beat" : 9,
+      "id" : "fd91897a-52a2-4658-8eee-287e39dfe18f",
+      "length" : 0.5,
+      "pitch" : 44
+    },
+    {
+      "beat" : 10,
+      "id" : "cc416b13-00f8-4430-b5a3-a095c8c8f8c2",
+      "length" : 0.5,
+      "pitch" : 56
+    },
+    {
+      "beat" : 11,
+      "id" : "854e1a45-3a7e-49d9-b8a8-b7d9600f5b54",
+      "length" : 0.5,
+      "pitch" : 44
+    },
+    {
+      "beat" : 12,
+      "id" : "18544f3b-106f-482c-afdb-4d816f063d1f",
+      "length" : 0.5,
+      "pitch" : 56
+    },
+    {
+      "beat" : 13,
+      "id" : "a5330359-d0cf-4fa5-a452-6e5fe3f8c81c",
+      "length" : 0.5,
+      "pitch" : 44
+    },
+    {
+      "beat" : 18,
+      "id" : "3bf11074-79d0-42ee-88b8-d56b15d1c36b",
+      "length" : 0.5,
+      "pitch" : 45
+    },
+    {
+      "beat" : 19,
+      "id" : "fb79568e-8575-4045-bdcd-f4707a686135",
+      "length" : 0.5,
+      "pitch" : 57
+    },
+    {
+      "beat" : 20,
+      "id" : "83f565ed-5141-4934-aec3-5d1e7d93ba95",
+      "length" : 0.5,
+      "pitch" : 45
+    },
+    {
+      "beat" : 21,
+      "id" : "13c560da-5f47-4ff9-8cfa-2d573538ba33",
+      "length" : 0.5,
+      "pitch" : 57
+    },
+    {
+      "beat" : 22,
+      "id" : "7c27c66c-0883-44f6-92ef-e9065daa3632",
+      "length" : 0.5,
+      "pitch" : 45
+    },
+    {
+      "beat" : 27,
+      "id" : "6397fba1-0f58-4c38-9392-d6c788091d45",
+      "length" : 0.5,
+      "pitch" : 46
+    },
+    {
+      "beat" : 28,
+      "id" : "37a49616-bbc7-4ece-ad8a-9d0ae49389c2",
+      "length" : 0.5,
+      "pitch" : 58
+    },
+    {
+      "beat" : 29,
+      "id" : "ebb85f31-8cec-4e46-bcfd-c3dca80aa3dc",
+      "length" : 0.5,
+      "pitch" : 46
+    },
+    {
+      "beat" : 30,
+      "id" : "b9259490-8480-4220-b8e4-49dc4768e81e",
+      "length" : 0.5,
+      "pitch" : 58
+    },
+    {
+      "beat" : 31,
+      "id" : "a0954e7d-72c2-4fa3-a862-2e6300789c23",
+      "length" : 0.5,
+      "pitch" : 46
+    },
+    {
+      "beat" : 36,
+      "id" : "67571c57-609c-4abc-991c-174edff7a3fe",
+      "length" : 0.5,
+      "pitch" : 47
+    },
+    {
+      "beat" : 37,
+      "id" : "26206b90-921d-4b5a-a679-14d1386c88c3",
+      "length" : 0.5,
+      "pitch" : 59
+    },
+    {
+      "beat" : 38,
+      "id" : "40e27675-f9d5-4c4e-9371-c2367ebe20b5",
+      "length" : 0.5,
+      "pitch" : 47
+    },
+    {
+      "beat" : 39,
+      "id" : "47165e4b-7048-4f26-8b57-a9b860a01bac",
+      "length" : 0.5,
+      "pitch" : 59
+    },
+    {
+      "beat" : 40,
+      "id" : "0cdc43d3-5a58-417a-b714-003d40a8dc04",
+      "length" : 0.5,
+      "pitch" : 47
+    },
+    {
+      "beat" : 45,
+      "id" : "cb7cdc82-b941-45b0-a034-f33c1e981f42",
+      "length" : 0.5,
+      "pitch" : 48
+    },
+    {
+      "beat" : 46,
+      "id" : "4eeda4a6-26c0-4f9f-8b95-4c97e44adc0b",
+      "length" : 0.5,
+      "pitch" : 60
+    },
+    {
+      "beat" : 47,
+      "id" : "ea1961f7-ea7a-435d-aa4f-3e9905022826",
+      "length" : 0.5,
+      "pitch" : 48
+    },
+    {
+      "beat" : 48,
+      "id" : "925e5a88-36bc-432a-b37e-e523aa31f8cb",
+      "length" : 0.5,
+      "pitch" : 60
+    },
+    {
+      "beat" : 49,
+      "id" : "569bd69b-233d-460f-a0ce-c7ed50f2f580",
+      "length" : 0.5,
+      "pitch" : 48
+    },
+    {
+      "beat" : 54,
+      "id" : "79b99ba6-17a5-4894-aab1-72940e6a731f",
+      "length" : 0.5,
+      "pitch" : 49
+    },
+    {
+      "beat" : 55,
+      "id" : "7de55bf4-010e-47b6-9965-1a36f778bd83",
+      "length" : 0.5,
+      "pitch" : 61
+    },
+    {
+      "beat" : 56,
+      "id" : "bcc094d1-1779-4778-91ee-6a6689e185f2",
+      "length" : 0.5,
+      "pitch" : 49
+    },
+    {
+      "beat" : 57,
+      "id" : "bdc3f490-f642-4348-b15b-828ce47c8b1f",
+      "length" : 0.5,
+      "pitch" : 61
+    },
+    {
+      "beat" : 58,
+      "id" : "7985dfc2-f31d-4021-982b-fb1e4203ca59",
+      "length" : 0.5,
+      "pitch" : 49
+    }
+  ],
+  "opened" : "2026-10-31T10:52:52.923Z",
+  "originMachSeconds" : 225638.92228929166,
+  "repeats" : 7,
+  "results" : [
+    "run.delay bestMs=226 lookAheadMs=20 delayMs=206 found=70 played=46 adopt=1 records=1 settingMs=41 devices=\"MicrophoneBuiltIn:Built-In Microphone|BluetoothA2DPOutput:9C:A9:C5:73:3B:7C-tacl\"",
+    "run.score score=70 runDelayMs=206 micDelayMs=41"
+  ],
+  "run" : 32,
+  "sessionAtOpen" : "cat=PlayAndRecord mode=Default opts=0x68(defaultToSpeaker,btA2DP,airPlay) sr=48000 io=0.01 outLat=0.1765 inLat=0 vol=1 muted=0 outCh=2 inCh=0 otherAudio=0 silenceHint=0 route=\"out: BluetoothA2DPOutput 'AirPods #2' ch2 spatial uid=9C:A9:C5:73:3B:7C-tacl | in: none\"",
+  "settings" : "micDelayMs=45 scoreWindow=100 instrument=Piano detection=balanced autoDelay=1 speaker=Automatic mic=\"iPhone Microphone\" playersMade=114",
+  "summary" : "reason=finished score=70 exercise=\"Octave Jumps Ha\" seconds=41.4605 firstRenderMs=284.255 renders=4094 renderGaps=0 maxRenderGapMs=10.2792 slowRenders=1 overruns=0 maxRenderMs=5.2827 nonFiniteBuffers=0 hotBuffers=0 catchUps=0 catchUpMs=0 timeJumps=0 droppedRows=0 micChunks=4041 micGaps=0 maxMicGapMs=10.0029 micJumps=0 frames=2462 drawHitches=1 maxFrameGapMs=199.7654 flags=nil events=main.hang:2,mic.capture:1,mic.confirm:1,mic.engine.start:1,mic.permission:1,mic.start:1,mic.stop:2,player.begin:1,player.engine.start:1,player.graphBuilt:1,player.outputLatency:61,player.schedule:1,player.stop:2,route.configure.begin:1,route.configure.end:1,route.wait.begin:1,route.wait.check:2,route.wait.end:2,run.begin:1,run.begun:1,run.delay:1,run.micScheduled:1,run.playedOut:1,run.routeSettled:1,run.score:1,run.startAudio:1,run.teardown:2,session.overrideOutput:1,session.routeChange:2,session.setActive:3,session.setCategory:1,session.setPreferredInput:1"
+}

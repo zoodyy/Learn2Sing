@@ -9,11 +9,18 @@ DIR is a folder pulled by pull_audio_logs.sh (or the AudioDebugLog folder itself
 A run is marked LATE? when its recognised microphone delay sits more than 100 ms
 above the median of the runs on the same microphone and speaker: through Bluetooth
 earphones, a run heard late shows up as the singer following the sound.
+
+With a system.logarchive next to the log (pull_audio_logs.sh prints the command),
+each Bluetooth run also shows how bluetoothd started its stream (bt=supported is
+the timed mode other apps get, bt=NOT the untimed one) and the delay the earphones
+reported when it ended (airpods=…ms; about 150-165 is what iOS assumes).
 """
 import argparse
+import datetime
 import pathlib
 import re
 import statistics
+import subprocess
 import sys
 from collections import defaultdict
 
@@ -49,6 +56,37 @@ def read_lines(folder):
     return lines
 
 
+def bluetooth_events(folder, lines):
+    """bluetoothd's stream starts and delay reports from a system.logarchive beside the log."""
+    archive = next((a for a in (folder / "system.logarchive", folder.parent / "system.logarchive") if a.exists()), None)
+    if archive is None or not lines:
+        return []
+    start, end = lines[0]["wall"][:19], lines[-1]["wall"][:19]
+    out = subprocess.run(
+        ["/usr/bin/log", "show", "--archive", str(archive), "--start", start, "--end", end, "--style", "compact",
+         "--predicate", 'process == "bluetoothd" AND (eventMessage CONTAINS "delay in 1/10th" '
+                        'OR eventMessage CONTAINS "music playback is started with")'],
+        capture_output=True, text=True).stdout
+    events = []
+    for line in out.splitlines():
+        m = re.match(r"^(\d{4}-\d\d-\d\d \d\d:\d\d:\d\d\.\d+) ", line)
+        if not m:
+            continue
+        t = datetime.datetime.strptime(m.group(1)[:23], "%Y-%m-%d %H:%M:%S.%f")
+        report = re.search(r"milliseconds (\d+)", line)
+        if report:
+            events.append((t, "report", int(report.group(1)) / 10))
+        elif "latency not supported" in line:
+            events.append((t, "mode", "NOT"))
+        elif "latency supported" in line:
+            events.append((t, "mode", "supported"))
+    return events
+
+
+def wall(text):
+    return datetime.datetime.strptime(text[:23], "%Y-%m-%d %H:%M:%S.%f")
+
+
 def output_of(route):
     m = re.search(r"out: (\S+)", route or "")
     return m.group(1) if m else "?"
@@ -65,10 +103,23 @@ def summarise(lines, folder):
         elif line["run"] is not None:
             runs[line["run"]].append(line)
 
+    bluetooth = bluetooth_events(folder, lines)
     rows = []
     for number in sorted(runs):
         entries = sorted(runs[number], key=lambda l: l["mach"])
         row = {"run": number, "flags": [], "notes": defaultdict(int)}
+        # The stream this run started, and the delay the earphones reported when
+        # the run stopped it.
+        if bluetooth:
+            opened = wall(entries[0]["wall"])
+            stops = [wall(e["wall"]) for e in entries if e["name"] == "player.stop" and "running=1" in e["text"]]
+            closed = stops[-1] if stops else wall(entries[-1]["wall"])
+            mode = next((v for t, k, v in bluetooth if k == "mode" and opened <= t <= closed), None)
+            report = next((v for t, k, v in bluetooth if k == "report" and closed <= t <= closed + datetime.timedelta(seconds=3)), None)
+            if mode:
+                row["bt"] = mode
+            if report is not None:
+                row["airpods"] = report
         for e in entries:
             f = fields(e["text"])
             name = e["name"]
@@ -82,8 +133,13 @@ def summarise(lines, folder):
                 row["wait"] = f"{float(f.get('ms', 0)):.0f}ms" + ("" if f.get("arrived") == "1" else "(TIMEOUT)")
             elif name == "render.first":
                 row["firstRender"] = e["t"]
-            elif name == "mic.engine.start" and "mic" not in row:
-                row["mic"] = e["t"] if f.get("ok") == "1" else "FAILED"
+            elif name == "mic.capture" and "mic" not in row:
+                # The first capture of the run: through the capture session, the
+                # engine's sink node, or its tap.
+                row["mic"] = e["t"]
+                row["micvia"] = f.get("via", "?")
+            elif name == "mic.capture.failed":
+                row["notes"]["captureFailed"] += 1
             elif name == "run.delay":
                 row["delay"] = f.get("delayMs")
                 row["best"] = f.get("bestMs")
@@ -129,11 +185,15 @@ def summarise(lines, folder):
         if "firstRender" in row:
             parts.append(f"render@{row['firstRender']:+.2f}")
         if "mic" in row:
-            parts.append(f"mic@{row['mic']:+.2f}" if isinstance(row["mic"], float) else "mic=FAILED")
+            parts.append(f"mic={row.get('micvia', '?')}@{row['mic']:+.2f}")
         if "score" in row:
             parts.append(f"score={row['score']}")
         if "delay" in row:
             parts.append(f"delay={row['delay']}ms")
+        if "bt" in row:
+            parts.append(f"bt={row['bt']}")
+        if "airpods" in row:
+            parts.append(f"airpods={row['airpods']:.0f}ms")
         parts.append(f"[{row.get('reason', 'open')}]")
         if row.get("late"):
             parts.append("LATE?")

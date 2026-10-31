@@ -1,0 +1,365 @@
+{
+  "bpm" : 125,
+  "closed" : "2026-10-31T10:37:19.506Z",
+  "closeReason" : "finished",
+  "exercise" : "Ukrainian Dorian Descending",
+  "exerciseID" : "0A233AE4-ED2F-42A3-83E4-50CD354B7B00",
+  "flags" : [
+
+  ],
+  "ghosts" : [
+
+  ],
+  "launch" : 3,
+  "leadInBeats" : 6,
+  "mode" : "normal",
+  "notes" : [
+    {
+      "beat" : 0,
+      "id" : "14dfc056-7ee5-41d7-9555-beae368904b2",
+      "length" : 1,
+      "pitch" : 55
+    },
+    {
+      "beat" : 1,
+      "id" : "297ea8e8-762e-4557-abce-b88ae91f1511",
+      "length" : 1,
+      "pitch" : 53
+    },
+    {
+      "beat" : 2,
+      "id" : "0d36c71b-91eb-4784-9b25-2f82ee050081",
+      "length" : 1,
+      "pitch" : 52
+    },
+    {
+      "beat" : 3,
+      "id" : "08a36cf3-e284-453b-8478-f16084b5b44d",
+      "length" : 1,
+      "pitch" : 50
+    },
+    {
+      "beat" : 4,
+      "id" : "9a797024-0219-4712-9a8d-896430e4d3f5",
+      "length" : 1,
+      "pitch" : 49
+    },
+    {
+      "beat" : 5,
+      "id" : "5284bfc2-fb40-45c5-8837-c31247216405",
+      "length" : 1,
+      "pitch" : 46
+    },
+    {
+      "beat" : 6,
+      "id" : "707d703d-4095-437a-9921-1c325ad78a45",
+      "length" : 1,
+      "pitch" : 45
+    },
+    {
+      "beat" : 7,
+      "id" : "36878dad-d480-4565-b28f-f12ff6c29554",
+      "length" : 1,
+      "pitch" : 43
+    },
+    {
+      "beat" : 12,
+      "id" : "0906177e-63b1-4195-92c9-d63ce39baa7f",
+      "length" : 1,
+      "pitch" : 56
+    },
+    {
+      "beat" : 13,
+      "id" : "cdfae79e-a737-4b82-a29e-a1044e953175",
+      "length" : 1,
+      "pitch" : 54
+    },
+    {
+      "beat" : 14,
+      "id" : "a481a61c-7653-47a1-82ac-403126b31290",
+      "length" : 1,
+      "pitch" : 53
+    },
+    {
+      "beat" : 15,
+      "id" : "6d4ce3f7-bec8-4b3a-9ac7-aaa38f7fa7cb",
+      "length" : 1,
+      "pitch" : 51
+    },
+    {
+      "beat" : 16,
+      "id" : "6a41c399-accc-4702-921c-e0d3d818d65e",
+      "length" : 1,
+      "pitch" : 50
+    },
+    {
+      "beat" : 17,
+      "id" : "603232b5-5613-47b6-b37c-59ed152907ba",
+      "length" : 1,
+      "pitch" : 47
+    },
+    {
+      "beat" : 18,
+      "id" : "de8705fa-e7b2-4f44-8a6b-9a62dbc5cb0b",
+      "length" : 1,
+      "pitch" : 46
+    },
+    {
+      "beat" : 19,
+      "id" : "a8101a2f-6c7e-4a38-9f2a-5d959152fb65",
+      "length" : 1,
+      "pitch" : 44
+    },
+    {
+      "beat" : 24,
+      "id" : "173e9d20-531a-4119-9074-4cb4fba875ae",
+      "length" : 1,
+      "pitch" : 57
+    },
+    {
+      "beat" : 25,
+      "id" : "71429afb-b134-46cc-9473-e263a082d53b",
+      "length" : 1,
+      "pitch" : 55
+    },
+    {
+      "beat" : 26,
+      "id" : "dde54e17-df6c-4cd9-acb0-5a1e85a7f8a3",
+      "length" : 1,
+      "pitch" : 54
+    },
+    {
+      "beat" : 27,
+      "id" : "e5b10588-73aa-489c-9eeb-aa1464c49744",
+      "length" : 1,
+      "pitch" : 52
+    },
+    {
+      "beat" : 28,
+      "id" : "8106b118-a107-4b5f-9ca7-48a967d07c08",
+      "length" : 1,
+      "pitch" : 51
+    },
+    {
+      "beat" : 29,
+      "id" : "97611a6d-135c-4c6a-8a5a-3c42eec1a824",
+      "length" : 1,
+      "pitch" : 48
+    },
+    {
+      "beat" : 30,
+      "id" : "a16761c8-ba05-48b7-96db-1a341736c6ac",
+      "length" : 1,
+      "pitch" : 47
+    },
+    {
+      "beat" : 31,
+      "id" : "522a72dd-6957-4e5b-9b38-27cda1227455",
+      "length" : 1,
+      "pitch" : 45
+    },
+    {
+      "beat" : 36,
+      "id" : "b11b005a-7a0a-4698-aee6-123f117715b6",
+      "length" : 1,
+      "pitch" : 58
+    },
+    {
+      "beat" : 37,
+      "id" : "07963c1c-341d-450e-99d4-47b98abb2745",
+      "length" : 1,
+      "pitch" : 56
+    },
+    {
+      "beat" : 38,
+      "id" : "b24269be-ecef-404f-b734-241a8e1a0de4",
+      "length" : 1,
+      "pitch" : 55
+    },
+    {
+      "beat" : 39,
+      "id" : "3973259e-4cc8-449a-adfd-dfb01b06f03c",
+      "length" : 1,
+      "pitch" : 53
+    },
+    {
+      "beat" : 40,
+      "id" : "0f00093c-015d-430b-bd2e-d33f45d6c2eb",
+      "length" : 1,
+      "pitch" : 52
+    },
+    {
+      "beat" : 41,
+      "id" : "94843164-9ee7-48c3-8773-6046422e32d6",
+      "length" : 1,
+      "pitch" : 49
+    },
+    {
+      "beat" : 42,
+      "id" : "36f1b48a-46a9-4e61-ad9f-48d7d6423a4e",
+      "length" : 1,
+      "pitch" : 48
+    },
+    {
+      "beat" : 43,
+      "id" : "5a64383f-bf8c-4776-b1c7-e33aa0f25aad",
+      "length" : 1,
+      "pitch" : 46
+    },
+    {
+      "beat" : 48,
+      "id" : "16fe45c5-c5e7-475f-990e-d6b5422e06bb",
+      "length" : 1,
+      "pitch" : 59
+    },
+    {
+      "beat" : 49,
+      "id" : "5653cf41-5419-4aa6-9407-c9b24a64bea2",
+      "length" : 1,
+      "pitch" : 57
+    },
+    {
+      "beat" : 50,
+      "id" : "0dd8e2a2-3929-47e5-823a-a12bbfe27c51",
+      "length" : 1,
+      "pitch" : 56
+    },
+    {
+      "beat" : 51,
+      "id" : "193eb07d-888e-4fcf-966e-bd8491903e84",
+      "length" : 1,
+      "pitch" : 54
+    },
+    {
+      "beat" : 52,
+      "id" : "edfaec8f-0c8a-47f7-b0fd-1f2171c3e710",
+      "length" : 1,
+      "pitch" : 53
+    },
+    {
+      "beat" : 53,
+      "id" : "730cf8b6-4ebc-4f5b-bb01-d46fe0e2e597",
+      "length" : 1,
+      "pitch" : 50
+    },
+    {
+      "beat" : 54,
+      "id" : "eb7e5aa0-47af-40cb-b1e7-ff3c03082fbb",
+      "length" : 1,
+      "pitch" : 49
+    },
+    {
+      "beat" : 55,
+      "id" : "ce16ff9b-9fdf-44ca-a070-cbe4b5e47266",
+      "length" : 1,
+      "pitch" : 47
+    },
+    {
+      "beat" : 60,
+      "id" : "7eb25b29-26b1-4653-92f9-b508629e5edc",
+      "length" : 1,
+      "pitch" : 60
+    },
+    {
+      "beat" : 61,
+      "id" : "46cf20ad-b71a-48c8-b234-4b18c3bd095a",
+      "length" : 1,
+      "pitch" : 58
+    },
+    {
+      "beat" : 62,
+      "id" : "e2bc70e5-d535-49de-a0a4-1a655324a8b5",
+      "length" : 1,
+      "pitch" : 57
+    },
+    {
+      "beat" : 63,
+      "id" : "01eca5ea-6a5f-4703-8c50-f0a4044caae4",
+      "length" : 1,
+      "pitch" : 55
+    },
+    {
+      "beat" : 64,
+      "id" : "759ac990-388f-49bc-a16e-ae1dc5dac7a2",
+      "length" : 1,
+      "pitch" : 54
+    },
+    {
+      "beat" : 65,
+      "id" : "b7f18244-1c1e-4753-92ba-4a20407870de",
+      "length" : 1,
+      "pitch" : 51
+    },
+    {
+      "beat" : 66,
+      "id" : "3d0bc7f0-5c9a-4a55-9b6b-91cfbc3679de",
+      "length" : 1,
+      "pitch" : 50
+    },
+    {
+      "beat" : 67,
+      "id" : "40b70201-df00-4fe1-8e78-6b9e53562ad8",
+      "length" : 1,
+      "pitch" : 48
+    },
+    {
+      "beat" : 72,
+      "id" : "2958913e-a461-4933-837d-391c9f6272f1",
+      "length" : 1,
+      "pitch" : 61
+    },
+    {
+      "beat" : 73,
+      "id" : "164500e5-fa71-4c70-9c64-e9a46206e964",
+      "length" : 1,
+      "pitch" : 59
+    },
+    {
+      "beat" : 74,
+      "id" : "0684814a-7089-4d81-aa48-a44d78d8645c",
+      "length" : 1,
+      "pitch" : 58
+    },
+    {
+      "beat" : 75,
+      "id" : "3937ce2b-eedb-415d-b4a6-f6362320e789",
+      "length" : 1,
+      "pitch" : 56
+    },
+    {
+      "beat" : 76,
+      "id" : "dee75840-22b8-4162-9af1-1ae6397c9f05",
+      "length" : 1,
+      "pitch" : 55
+    },
+    {
+      "beat" : 77,
+      "id" : "5026870c-6c2f-4bac-9378-69af731b87c0",
+      "length" : 1,
+      "pitch" : 52
+    },
+    {
+      "beat" : 78,
+      "id" : "e102c2b9-adb9-4281-b063-c1aa15c183a0",
+      "length" : 1,
+      "pitch" : 51
+    },
+    {
+      "beat" : 79,
+      "id" : "e45296d2-05f3-4aaa-8b02-ca2906e7da8b",
+      "length" : 1,
+      "pitch" : 49
+    }
+  ],
+  "opened" : "2026-10-31T10:36:37.271Z",
+  "originMachSeconds" : 224663.26051529165,
+  "repeats" : 7,
+  "results" : [
+    "run.delay bestMs=38 lookAheadMs=20 delayMs=18 found=86 played=86 adopt=1 records=1 settingMs=34 devices=\"MicrophoneBuiltIn:Built-In Microphone|BluetoothA2DPOutput:9C:A9:C5:73:3B:7C-tacl\"",
+    "run.score score=86 runDelayMs=18 micDelayMs=34"
+  ],
+  "run" : 15,
+  "sessionAtOpen" : "cat=PlayAndRecord mode=Default opts=0x68(defaultToSpeaker,btA2DP,airPlay) sr=48000 io=0.01 outLat=0.1765 inLat=0 vol=1 muted=0 outCh=2 inCh=0 otherAudio=0 silenceHint=0 route=\"out: BluetoothA2DPOutput 'AirPods #2' ch2 spatial uid=9C:A9:C5:73:3B:7C-tacl | in: none\"",
+  "settings" : "micDelayMs=36 scoreWindow=100 instrument=Piano detection=balanced autoDelay=1 speaker=Automatic mic=\"iPhone Microphone\" playersMade=57",
+  "summary" : "reason=finished score=86 exercise=\"Ukrainian Dorian Descending\" seconds=42.2358 firstRenderMs=274.145 renders=4176 renderGaps=0 maxRenderGapMs=10.6154 slowRenders=0 overruns=0 maxRenderMs=4.8151 nonFiniteBuffers=0 hotBuffers=0 catchUps=0 catchUpMs=0 timeJumps=0 droppedRows=0 micChunks=4122 micGaps=0 maxMicGapMs=10.0027 micJumps=0 frames=2510 drawHitches=1 maxFrameGapMs=195.319 flags=nil events=main.hang:1,mic.capture:1,mic.confirm:1,mic.engine.start:1,mic.permission:1,mic.start:1,mic.stop:2,player.begin:1,player.engine.start:1,player.graphBuilt:1,player.outputLatency:14,player.schedule:1,player.stop:2,route.configure.begin:1,route.configure.end:1,route.wait.begin:1,route.wait.check:2,route.wait.end:2,run.begin:1,run.begun:1,run.delay:1,run.micScheduled:1,run.playedOut:1,run.routeSettled:1,run.score:1,run.startAudio:1,run.teardown:2,session.overrideOutput:1,session.routeChange:1,session.setActive:3,session.setCategory:1,session.setPreferredInput:1"
+}

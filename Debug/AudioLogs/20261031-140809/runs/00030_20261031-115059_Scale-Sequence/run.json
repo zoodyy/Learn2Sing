@@ -1,0 +1,659 @@
+{
+  "bpm" : 230,
+  "closed" : "2026-10-31T10:51:35.144Z",
+  "closeReason" : "finished",
+  "exercise" : "Scale Sequence",
+  "exerciseID" : "61234658-D174-410B-96FB-2075EF48082A",
+  "flags" : [
+
+  ],
+  "ghosts" : [
+
+  ],
+  "launch" : 3,
+  "leadInBeats" : 6,
+  "mode" : "normal",
+  "notes" : [
+    {
+      "beat" : 0,
+      "id" : "2e98e82d-0feb-485a-aac7-ac9f8bc36910",
+      "length" : 1,
+      "pitch" : 43
+    },
+    {
+      "beat" : 1,
+      "id" : "17e12d62-9260-4d61-be7b-c0119b2b9be1",
+      "length" : 1,
+      "pitch" : 45
+    },
+    {
+      "beat" : 2,
+      "id" : "82afcd34-4184-47ea-bfe3-97fb7be5fd7c",
+      "length" : 1,
+      "pitch" : 47
+    },
+    {
+      "beat" : 3,
+      "id" : "803b2cd3-7bb4-4cee-9f00-61aaa65f038f",
+      "length" : 1,
+      "pitch" : 43
+    },
+    {
+      "beat" : 4,
+      "id" : "37a3a4cd-8f37-42c4-ba4d-db6c06420549",
+      "length" : 1,
+      "pitch" : 45
+    },
+    {
+      "beat" : 5,
+      "id" : "29ee9925-d496-4323-8139-6996beae6878",
+      "length" : 1,
+      "pitch" : 47
+    },
+    {
+      "beat" : 6,
+      "id" : "b183a78f-3d3a-4926-9437-1481f41d6050",
+      "length" : 1,
+      "pitch" : 48
+    },
+    {
+      "beat" : 7,
+      "id" : "b22fbf0f-723c-4d9f-b5e9-9599f9a66e0e",
+      "length" : 1,
+      "pitch" : 45
+    },
+    {
+      "beat" : 8,
+      "id" : "aa4cfd75-df19-441e-8971-3572b4e2df42",
+      "length" : 1,
+      "pitch" : 47
+    },
+    {
+      "beat" : 9,
+      "id" : "783d5079-2515-4776-a43b-7d8c6920a666",
+      "length" : 1,
+      "pitch" : 48
+    },
+    {
+      "beat" : 10,
+      "id" : "28b6806a-18e4-4ac8-b75d-36109105ed6a",
+      "length" : 1,
+      "pitch" : 50
+    },
+    {
+      "beat" : 11,
+      "id" : "478a9adc-02a2-4adf-b590-c7b0399cd119",
+      "length" : 1,
+      "pitch" : 47
+    },
+    {
+      "beat" : 12,
+      "id" : "247d8f2c-65a3-4b47-bc24-37ba10d80e07",
+      "length" : 1,
+      "pitch" : 48
+    },
+    {
+      "beat" : 13,
+      "id" : "b47cb7da-8ae2-4d04-9cc1-f4c6979abb8d",
+      "length" : 1,
+      "pitch" : 50
+    },
+    {
+      "beat" : 14,
+      "id" : "a9ee0be3-c050-40d6-b9e8-8730e5752344",
+      "length" : 1,
+      "pitch" : 52
+    },
+    {
+      "beat" : 15,
+      "id" : "d5477711-1676-4829-b01f-62d1f156bd90",
+      "length" : 1,
+      "pitch" : 48
+    },
+    {
+      "beat" : 16,
+      "id" : "61d5f35e-1520-40e5-b53e-c2cb73cbfbd0",
+      "length" : 1,
+      "pitch" : 50
+    },
+    {
+      "beat" : 17,
+      "id" : "90cf5c0c-dc5b-4c4c-9adf-471be4b04a41",
+      "length" : 1,
+      "pitch" : 48
+    },
+    {
+      "beat" : 18,
+      "id" : "3192aa37-f99d-4f18-95c9-833a907070ae",
+      "length" : 1,
+      "pitch" : 47
+    },
+    {
+      "beat" : 19,
+      "id" : "6dd5a171-c052-47db-8b2d-b57504b7df01",
+      "length" : 1,
+      "pitch" : 45
+    },
+    {
+      "beat" : 20,
+      "id" : "35b86964-c8a6-41f4-b9b7-12cf17b661b8",
+      "length" : 2,
+      "pitch" : 43
+    },
+    {
+      "beat" : 26,
+      "id" : "a24608d4-8cc8-43d0-806e-8545c8d3d7d2",
+      "length" : 1,
+      "pitch" : 44
+    },
+    {
+      "beat" : 27,
+      "id" : "467cdc94-8727-451e-aa70-9f2a18c35ee0",
+      "length" : 1,
+      "pitch" : 46
+    },
+    {
+      "beat" : 28,
+      "id" : "59a2d82e-02fc-471a-99b2-5e6c699bf7d6",
+      "length" : 1,
+      "pitch" : 48
+    },
+    {
+      "beat" : 29,
+      "id" : "f9a4ac4d-7894-4b38-901f-117fca9b5214",
+      "length" : 1,
+      "pitch" : 44
+    },
+    {
+      "beat" : 30,
+      "id" : "606a2140-39b7-4d89-a6ce-7b95ea20e182",
+      "length" : 1,
+      "pitch" : 46
+    },
+    {
+      "beat" : 31,
+      "id" : "27c12815-1456-4aae-a506-6da1b2cc7ba1",
+      "length" : 1,
+      "pitch" : 48
+    },
+    {
+      "beat" : 32,
+      "id" : "0d9d2f10-f27f-4c6d-9492-54905da50a71",
+      "length" : 1,
+      "pitch" : 49
+    },
+    {
+      "beat" : 33,
+      "id" : "d973fb67-9196-47f7-98e3-0c4724d78a69",
+      "length" : 1,
+      "pitch" : 46
+    },
+    {
+      "beat" : 34,
+      "id" : "a3846993-74d7-4bb3-b0cd-1de470b68a88",
+      "length" : 1,
+      "pitch" : 48
+    },
+    {
+      "beat" : 35,
+      "id" : "f1707b95-6d96-4726-85e9-ad981ab145ed",
+      "length" : 1,
+      "pitch" : 49
+    },
+    {
+      "beat" : 36,
+      "id" : "d7796722-c7da-4c0d-a9d5-fa6b34719bb9",
+      "length" : 1,
+      "pitch" : 51
+    },
+    {
+      "beat" : 37,
+      "id" : "e9de1702-9f27-400c-b46f-521e4ca30e3f",
+      "length" : 1,
+      "pitch" : 48
+    },
+    {
+      "beat" : 38,
+      "id" : "b9c0b98f-e5f8-43b5-8ec2-270e12c6b75c",
+      "length" : 1,
+      "pitch" : 49
+    },
+    {
+      "beat" : 39,
+      "id" : "55717488-248d-4049-a786-38dc720570eb",
+      "length" : 1,
+      "pitch" : 51
+    },
+    {
+      "beat" : 40,
+      "id" : "98cee786-e975-46ba-b49e-6ee83a2939cd",
+      "length" : 1,
+      "pitch" : 53
+    },
+    {
+      "beat" : 41,
+      "id" : "0100ee1b-346d-4427-85d8-7a518c557e50",
+      "length" : 1,
+      "pitch" : 49
+    },
+    {
+      "beat" : 42,
+      "id" : "5630b7cf-23a4-4c6b-b879-6e33a64ed5bf",
+      "length" : 1,
+      "pitch" : 51
+    },
+    {
+      "beat" : 43,
+      "id" : "1cf20c09-3681-4761-b8e3-aa1394d23d77",
+      "length" : 1,
+      "pitch" : 49
+    },
+    {
+      "beat" : 44,
+      "id" : "41f1c324-f78f-46b8-8b49-f8acd921334a",
+      "length" : 1,
+      "pitch" : 48
+    },
+    {
+      "beat" : 45,
+      "id" : "851e21d1-e701-4e1c-b5de-71f1edee64c7",
+      "length" : 1,
+      "pitch" : 46
+    },
+    {
+      "beat" : 46,
+      "id" : "13795328-fdd5-473f-9f23-5d93d39eb876",
+      "length" : 2,
+      "pitch" : 44
+    },
+    {
+      "beat" : 52,
+      "id" : "a3d26583-baa9-49f9-a233-bf19f391431c",
+      "length" : 1,
+      "pitch" : 45
+    },
+    {
+      "beat" : 53,
+      "id" : "4f268b7a-79ae-4d63-a6bf-0171239c436a",
+      "length" : 1,
+      "pitch" : 47
+    },
+    {
+      "beat" : 54,
+      "id" : "f49a723a-6f81-468f-b76d-ff9e20ebc8cb",
+      "length" : 1,
+      "pitch" : 49
+    },
+    {
+      "beat" : 55,
+      "id" : "e6ba6cec-5a2f-4600-803b-ac6ef700e320",
+      "length" : 1,
+      "pitch" : 45
+    },
+    {
+      "beat" : 56,
+      "id" : "ddbf891f-59f5-4b27-8026-df057a89908d",
+      "length" : 1,
+      "pitch" : 47
+    },
+    {
+      "beat" : 57,
+      "id" : "6a53d449-703d-481e-8979-9d2af905dcdf",
+      "length" : 1,
+      "pitch" : 49
+    },
+    {
+      "beat" : 58,
+      "id" : "1bd4bbb0-2928-4d23-b09b-32ff655f10d3",
+      "length" : 1,
+      "pitch" : 50
+    },
+    {
+      "beat" : 59,
+      "id" : "f483d590-201f-452f-9ced-f27a276de4eb",
+      "length" : 1,
+      "pitch" : 47
+    },
+    {
+      "beat" : 60,
+      "id" : "0a7f5609-2589-417f-81e8-c68226f150ef",
+      "length" : 1,
+      "pitch" : 49
+    },
+    {
+      "beat" : 61,
+      "id" : "800d36ff-d862-4709-ae27-825398081292",
+      "length" : 1,
+      "pitch" : 50
+    },
+    {
+      "beat" : 62,
+      "id" : "b09cbc7a-a05d-47e9-a6c4-cc7f7818f120",
+      "length" : 1,
+      "pitch" : 52
+    },
+    {
+      "beat" : 63,
+      "id" : "651931e0-4d8c-4390-af04-379a4a47a036",
+      "length" : 1,
+      "pitch" : 49
+    },
+    {
+      "beat" : 64,
+      "id" : "a81fa124-c892-4b3a-83d1-a320a699e2ff",
+      "length" : 1,
+      "pitch" : 50
+    },
+    {
+      "beat" : 65,
+      "id" : "a67e7e97-a59c-473f-aa2f-c8d659bd07c0",
+      "length" : 1,
+      "pitch" : 52
+    },
+    {
+      "beat" : 66,
+      "id" : "c004838c-5aa6-49b2-90b5-b7c594099194",
+      "length" : 1,
+      "pitch" : 54
+    },
+    {
+      "beat" : 67,
+      "id" : "7cff8cdf-fc47-4bb0-8773-96a69551ee01",
+      "length" : 1,
+      "pitch" : 50
+    },
+    {
+      "beat" : 68,
+      "id" : "916a2868-52ce-4025-a0ee-3d4738c07a24",
+      "length" : 1,
+      "pitch" : 52
+    },
+    {
+      "beat" : 69,
+      "id" : "62b88c62-1d43-4eda-953b-fcf2b68fa274",
+      "length" : 1,
+      "pitch" : 50
+    },
+    {
+      "beat" : 70,
+      "id" : "80dd605f-aba6-4db5-a28d-1215c8a26a70",
+      "length" : 1,
+      "pitch" : 49
+    },
+    {
+      "beat" : 71,
+      "id" : "882eee31-c613-4787-8ff0-986fa0fc7f52",
+      "length" : 1,
+      "pitch" : 47
+    },
+    {
+      "beat" : 72,
+      "id" : "3fe6ee69-639b-40fc-9968-65169bed81a9",
+      "length" : 2,
+      "pitch" : 45
+    },
+    {
+      "beat" : 78,
+      "id" : "916dcad9-4ae2-4b2d-8a27-6e24c3f5275e",
+      "length" : 1,
+      "pitch" : 46
+    },
+    {
+      "beat" : 79,
+      "id" : "34f12a13-bbe3-4c27-8a1d-f4de0fba3676",
+      "length" : 1,
+      "pitch" : 48
+    },
+    {
+      "beat" : 80,
+      "id" : "319faf8c-5bbe-4c8e-93de-7c1e6f4feb6a",
+      "length" : 1,
+      "pitch" : 50
+    },
+    {
+      "beat" : 81,
+      "id" : "9d39b973-f441-48f1-85d4-89cfad9c9478",
+      "length" : 1,
+      "pitch" : 46
+    },
+    {
+      "beat" : 82,
+      "id" : "e2c8520e-4d68-43ab-ad2a-ae776f9c5355",
+      "length" : 1,
+      "pitch" : 48
+    },
+    {
+      "beat" : 83,
+      "id" : "fb9ef9c7-1160-4124-9ad0-a5ee169b4c6e",
+      "length" : 1,
+      "pitch" : 50
+    },
+    {
+      "beat" : 84,
+      "id" : "85839e9b-f922-43fa-af04-77a2adedb0ed",
+      "length" : 1,
+      "pitch" : 51
+    },
+    {
+      "beat" : 85,
+      "id" : "28855a81-c178-4d97-9ad7-94267b60c954",
+      "length" : 1,
+      "pitch" : 48
+    },
+    {
+      "beat" : 86,
+      "id" : "2a4a9618-b219-47bb-9d05-e9f768db0708",
+      "length" : 1,
+      "pitch" : 50
+    },
+    {
+      "beat" : 87,
+      "id" : "24867d69-9b5d-4816-a234-125c41a383c1",
+      "length" : 1,
+      "pitch" : 51
+    },
+    {
+      "beat" : 88,
+      "id" : "2f19b7e5-5e47-495f-99e9-eea36e42ce4d",
+      "length" : 1,
+      "pitch" : 53
+    },
+    {
+      "beat" : 89,
+      "id" : "d97cb738-c02e-45e5-bc18-1db731ab00db",
+      "length" : 1,
+      "pitch" : 50
+    },
+    {
+      "beat" : 90,
+      "id" : "14a4c9be-827c-420d-aeeb-29bda16e3052",
+      "length" : 1,
+      "pitch" : 51
+    },
+    {
+      "beat" : 91,
+      "id" : "712f87fa-c12f-4e2b-9ded-7557d8e056fe",
+      "length" : 1,
+      "pitch" : 53
+    },
+    {
+      "beat" : 92,
+      "id" : "04f9d2b2-e982-4b1b-bc30-08c493afcef6",
+      "length" : 1,
+      "pitch" : 55
+    },
+    {
+      "beat" : 93,
+      "id" : "a8c37d16-1563-4a96-a6c6-240d69c5735a",
+      "length" : 1,
+      "pitch" : 51
+    },
+    {
+      "beat" : 94,
+      "id" : "70e91984-7ac3-46b8-99bb-ebf8c359d1cb",
+      "length" : 1,
+      "pitch" : 53
+    },
+    {
+      "beat" : 95,
+      "id" : "2201a2e0-728f-4f0f-a5df-c5cf289aa4f8",
+      "length" : 1,
+      "pitch" : 51
+    },
+    {
+      "beat" : 96,
+      "id" : "a5a5b9d7-3f55-4315-84b7-c55147d62127",
+      "length" : 1,
+      "pitch" : 50
+    },
+    {
+      "beat" : 97,
+      "id" : "6de0950d-f679-47d9-839c-da40cb05f6ec",
+      "length" : 1,
+      "pitch" : 48
+    },
+    {
+      "beat" : 98,
+      "id" : "5ef0e0f1-5083-4680-9716-0f1c7637d69a",
+      "length" : 2,
+      "pitch" : 46
+    },
+    {
+      "beat" : 104,
+      "id" : "5cf3854a-2da8-4b2d-906e-a38852ab1610",
+      "length" : 1,
+      "pitch" : 47
+    },
+    {
+      "beat" : 105,
+      "id" : "d923c695-75e0-4918-ba11-aa5fb07fd601",
+      "length" : 1,
+      "pitch" : 49
+    },
+    {
+      "beat" : 106,
+      "id" : "6f1d8896-efb7-49ca-b6d1-ba49e00a4da4",
+      "length" : 1,
+      "pitch" : 51
+    },
+    {
+      "beat" : 107,
+      "id" : "5a3791f4-8499-4f1e-af5d-6e72aaa8b8c8",
+      "length" : 1,
+      "pitch" : 47
+    },
+    {
+      "beat" : 108,
+      "id" : "ff4d78d7-4cda-4dbc-9b2b-f1ead0b8ecdc",
+      "length" : 1,
+      "pitch" : 49
+    },
+    {
+      "beat" : 109,
+      "id" : "7bbaeb45-7d6c-47f8-b22b-e0a330bff2d2",
+      "length" : 1,
+      "pitch" : 51
+    },
+    {
+      "beat" : 110,
+      "id" : "95f03c14-e652-41b3-a9b7-3e8be9041bfd",
+      "length" : 1,
+      "pitch" : 52
+    },
+    {
+      "beat" : 111,
+      "id" : "56f6c2de-62fc-4b61-b5a9-5c0f494f1c0b",
+      "length" : 1,
+      "pitch" : 49
+    },
+    {
+      "beat" : 112,
+      "id" : "7af12fa9-291c-469b-be0a-c3de4065f46f",
+      "length" : 1,
+      "pitch" : 51
+    },
+    {
+      "beat" : 113,
+      "id" : "e55c5df7-f468-47d2-bd60-97ec19f3483b",
+      "length" : 1,
+      "pitch" : 52
+    },
+    {
+      "beat" : 114,
+      "id" : "49c17919-69e9-4d79-b6ab-67a3cbbf25f0",
+      "length" : 1,
+      "pitch" : 54
+    },
+    {
+      "beat" : 115,
+      "id" : "dd0d0974-12bf-42ac-87d8-c13381aa2fad",
+      "length" : 1,
+      "pitch" : 51
+    },
+    {
+      "beat" : 116,
+      "id" : "ca14eb50-da34-434b-997d-c61c28f994c7",
+      "length" : 1,
+      "pitch" : 52
+    },
+    {
+      "beat" : 117,
+      "id" : "138c3730-5a81-43ca-bddf-64770e56ca70",
+      "length" : 1,
+      "pitch" : 54
+    },
+    {
+      "beat" : 118,
+      "id" : "01fb3e38-d9ba-4b03-8b76-ea8ebd8dab17",
+      "length" : 1,
+      "pitch" : 56
+    },
+    {
+      "beat" : 119,
+      "id" : "b61f4cfc-1617-4fa7-b039-c84f64fa0a4c",
+      "length" : 1,
+      "pitch" : 52
+    },
+    {
+      "beat" : 120,
+      "id" : "169985e5-a3bf-43b7-b618-4b3bf58a77ed",
+      "length" : 1,
+      "pitch" : 54
+    },
+    {
+      "beat" : 121,
+      "id" : "7ebcb019-b23e-45c5-86ca-36d4bf07c349",
+      "length" : 1,
+      "pitch" : 52
+    },
+    {
+      "beat" : 122,
+      "id" : "a124bda6-a8b1-4a13-aedc-12e8addc07f9",
+      "length" : 1,
+      "pitch" : 51
+    },
+    {
+      "beat" : 123,
+      "id" : "a93b0777-59c4-464c-977c-7c30b81eb170",
+      "length" : 1,
+      "pitch" : 49
+    },
+    {
+      "beat" : 124,
+      "id" : "6c6a242b-da10-4215-ba03-f5b02076882d",
+      "length" : 2,
+      "pitch" : 47
+    }
+  ],
+  "opened" : "2026-10-31T10:50:59.914Z",
+  "originMachSeconds" : 225525.91205433331,
+  "repeats" : 5,
+  "results" : [
+    "run.delay bestMs=57 lookAheadMs=20 delayMs=37 found=81 played=81 adopt=1 records=1 settingMs=43 devices=\"MicrophoneBuiltIn:Built-In Microphone|BluetoothA2DPOutput:9C:A9:C5:73:3B:7C-tacl\"",
+    "run.score score=81 runDelayMs=37 micDelayMs=43"
+  ],
+  "run" : 30,
+  "sessionAtOpen" : "cat=PlayAndRecord mode=Default opts=0x68(defaultToSpeaker,btA2DP,airPlay) sr=48000 io=0.01 outLat=0.1765 inLat=0 vol=1 muted=0 outCh=2 inCh=0 otherAudio=0 silenceHint=0 route=\"out: BluetoothA2DPOutput 'AirPods #2' ch2 spatial uid=9C:A9:C5:73:3B:7C-tacl | in: none\"",
+  "settings" : "micDelayMs=43 scoreWindow=100 instrument=Piano detection=balanced autoDelay=1 speaker=Automatic mic=\"iPhone Microphone\" playersMade=107",
+  "summary" : "reason=finished score=81 exercise=\"Scale Sequence\" seconds=35.2305 firstRenderMs=296.413 renders=3470 renderGaps=0 maxRenderGapMs=10.2886 slowRenders=0 overruns=0 maxRenderMs=4.7537 nonFiniteBuffers=0 hotBuffers=0 catchUps=0 catchUpMs=0 timeJumps=0 droppedRows=0 micChunks=3419 micGaps=0 maxMicGapMs=10.0027 micJumps=0 frames=2089 drawHitches=1 maxFrameGapMs=203.4424 flags=nil events=main.hang:1,mic.capture:1,mic.confirm:1,mic.engine.start:1,mic.permission:1,mic.start:1,mic.stop:2,player.begin:1,player.engine.start:1,player.outputLatency:30,player.schedule:1,player.stop:2,route.configure.begin:1,route.configure.end:1,route.wait.begin:1,route.wait.check:2,route.wait.end:2,run.begin:1,run.begun:1,run.delay:1,run.micScheduled:1,run.playedOut:1,run.routeSettled:1,run.score:1,run.startAudio:1,run.teardown:2,session.overrideOutput:1,session.routeChange:1,session.setActive:3,session.setCategory:1,session.setPreferredInput:1"
+}

@@ -1,0 +1,407 @@
+{
+  "bpm" : 132,
+  "closed" : "2026-10-31T10:42:50.365Z",
+  "closeReason" : "finished",
+  "exercise" : "Octave Leap and Scale",
+  "exerciseID" : "785B11D3-EC86-4A25-9E13-BF34781E9D38",
+  "flags" : [
+
+  ],
+  "ghosts" : [
+
+  ],
+  "launch" : 3,
+  "leadInBeats" : 6,
+  "mode" : "normal",
+  "notes" : [
+    {
+      "beat" : 0,
+      "id" : "9f268e22-d38f-4130-baaf-ad8bf9bd6f3f",
+      "length" : 1,
+      "pitch" : 43
+    },
+    {
+      "beat" : 1,
+      "id" : "b9a7a160-b513-4524-b368-365e78e6250b",
+      "length" : 1,
+      "pitch" : 55
+    },
+    {
+      "beat" : 2,
+      "id" : "cf776f1e-79ec-41d0-bbc3-2f26e29bb86c",
+      "length" : 1,
+      "pitch" : 54
+    },
+    {
+      "beat" : 3,
+      "id" : "b8df54d7-5e6d-4949-88b5-8e0940571dbe",
+      "length" : 1,
+      "pitch" : 52
+    },
+    {
+      "beat" : 4,
+      "id" : "2ad311d2-aa45-4cfd-9ec3-2e67809b1623",
+      "length" : 1,
+      "pitch" : 50
+    },
+    {
+      "beat" : 5,
+      "id" : "fc05b9d8-34a7-4215-9f26-5dd2cd796b15",
+      "length" : 1,
+      "pitch" : 48
+    },
+    {
+      "beat" : 6,
+      "id" : "7772ef41-7c7a-4377-b48f-fc485d383f5f",
+      "length" : 1,
+      "pitch" : 47
+    },
+    {
+      "beat" : 7,
+      "id" : "3f3786d4-de03-47af-b746-b163267e9136",
+      "length" : 1,
+      "pitch" : 45
+    },
+    {
+      "beat" : 8,
+      "id" : "bf953967-a838-4baf-88c3-0342362f9d2b",
+      "length" : 2,
+      "pitch" : 43
+    },
+    {
+      "beat" : 14,
+      "id" : "807cb434-408a-48b5-9d3f-c83b70119195",
+      "length" : 1,
+      "pitch" : 44
+    },
+    {
+      "beat" : 15,
+      "id" : "4f9f3bd3-5865-4672-bc2d-3e1aa932f10c",
+      "length" : 1,
+      "pitch" : 56
+    },
+    {
+      "beat" : 16,
+      "id" : "133fc403-67af-448b-a960-7ef2ead0cdce",
+      "length" : 1,
+      "pitch" : 55
+    },
+    {
+      "beat" : 17,
+      "id" : "a7ff0f33-dbc4-4666-9460-fe8a12150afd",
+      "length" : 1,
+      "pitch" : 53
+    },
+    {
+      "beat" : 18,
+      "id" : "57aff791-1b61-4db2-a9c4-b0abc47cb4a2",
+      "length" : 1,
+      "pitch" : 51
+    },
+    {
+      "beat" : 19,
+      "id" : "4407731c-9349-4d70-a25c-11ac92672493",
+      "length" : 1,
+      "pitch" : 49
+    },
+    {
+      "beat" : 20,
+      "id" : "c6288203-a59b-41c6-8c96-d7a09617003c",
+      "length" : 1,
+      "pitch" : 48
+    },
+    {
+      "beat" : 21,
+      "id" : "9881abb7-b00b-43c7-a4df-a61cf874e3d3",
+      "length" : 1,
+      "pitch" : 46
+    },
+    {
+      "beat" : 22,
+      "id" : "e56a6193-9c3f-4d54-b065-3abed5af66cd",
+      "length" : 2,
+      "pitch" : 44
+    },
+    {
+      "beat" : 28,
+      "id" : "0412f8f2-b9d1-499a-ad4b-597867715b83",
+      "length" : 1,
+      "pitch" : 45
+    },
+    {
+      "beat" : 29,
+      "id" : "31e0a882-482f-4a8c-a901-77dcbd903dec",
+      "length" : 1,
+      "pitch" : 57
+    },
+    {
+      "beat" : 30,
+      "id" : "d5250e42-2927-4d28-8308-5eaf16c584bb",
+      "length" : 1,
+      "pitch" : 56
+    },
+    {
+      "beat" : 31,
+      "id" : "595f9c94-81ce-4fc6-a010-c68100abc117",
+      "length" : 1,
+      "pitch" : 54
+    },
+    {
+      "beat" : 32,
+      "id" : "65fb983e-b1c8-4402-baa5-a45d91df4725",
+      "length" : 1,
+      "pitch" : 52
+    },
+    {
+      "beat" : 33,
+      "id" : "5ffc6372-0d72-4b61-9c14-67c914800d77",
+      "length" : 1,
+      "pitch" : 50
+    },
+    {
+      "beat" : 34,
+      "id" : "c8bf21e7-bf0d-4e13-8c6a-6400b9e41373",
+      "length" : 1,
+      "pitch" : 49
+    },
+    {
+      "beat" : 35,
+      "id" : "b7a38050-6ec7-42f0-9ff2-17159da5e838",
+      "length" : 1,
+      "pitch" : 47
+    },
+    {
+      "beat" : 36,
+      "id" : "e77a7d92-ed97-4c33-a0ed-a1f228ba305a",
+      "length" : 2,
+      "pitch" : 45
+    },
+    {
+      "beat" : 42,
+      "id" : "a2ef78fa-f592-42a5-a15e-8669abec3c32",
+      "length" : 1,
+      "pitch" : 46
+    },
+    {
+      "beat" : 43,
+      "id" : "c20fa8f1-67e6-4b78-b056-e61adfdfbff1",
+      "length" : 1,
+      "pitch" : 58
+    },
+    {
+      "beat" : 44,
+      "id" : "3e6373b4-7bc4-42e7-bfc3-77066ccfa9a8",
+      "length" : 1,
+      "pitch" : 57
+    },
+    {
+      "beat" : 45,
+      "id" : "98c35660-dcbc-4d38-b835-46b8b1f7b5ea",
+      "length" : 1,
+      "pitch" : 55
+    },
+    {
+      "beat" : 46,
+      "id" : "0186b155-ca0b-42a9-9fdd-d7bc1036f6f8",
+      "length" : 1,
+      "pitch" : 53
+    },
+    {
+      "beat" : 47,
+      "id" : "8220693c-3ee8-457b-8b88-1089810c91fd",
+      "length" : 1,
+      "pitch" : 51
+    },
+    {
+      "beat" : 48,
+      "id" : "7dfce81a-6cd3-44e3-858a-ce46d48d42c3",
+      "length" : 1,
+      "pitch" : 50
+    },
+    {
+      "beat" : 49,
+      "id" : "de76444c-a193-4566-a1d4-9f94b2b79824",
+      "length" : 1,
+      "pitch" : 48
+    },
+    {
+      "beat" : 50,
+      "id" : "eaf517a1-b24e-44e6-8498-574d545b3c05",
+      "length" : 2,
+      "pitch" : 46
+    },
+    {
+      "beat" : 56,
+      "id" : "094b302b-c95f-45ad-9fb4-bd685b38990b",
+      "length" : 1,
+      "pitch" : 47
+    },
+    {
+      "beat" : 57,
+      "id" : "a2bb75c1-d542-4f10-a854-0b7dcb8de292",
+      "length" : 1,
+      "pitch" : 59
+    },
+    {
+      "beat" : 58,
+      "id" : "acea40f0-a7ce-4ca0-8e2a-da5d6dd36cfd",
+      "length" : 1,
+      "pitch" : 58
+    },
+    {
+      "beat" : 59,
+      "id" : "8db7c9d8-2554-45cc-af0e-2f23619cd6d3",
+      "length" : 1,
+      "pitch" : 56
+    },
+    {
+      "beat" : 60,
+      "id" : "0c6fb555-eec6-4047-aabd-a57aead3453a",
+      "length" : 1,
+      "pitch" : 54
+    },
+    {
+      "beat" : 61,
+      "id" : "75670705-59cf-4315-a316-b62752920d23",
+      "length" : 1,
+      "pitch" : 52
+    },
+    {
+      "beat" : 62,
+      "id" : "e168aa0b-dcae-4e2d-81be-d5147ff41132",
+      "length" : 1,
+      "pitch" : 51
+    },
+    {
+      "beat" : 63,
+      "id" : "c9c3b1ab-acda-4701-ad20-5b003348080b",
+      "length" : 1,
+      "pitch" : 49
+    },
+    {
+      "beat" : 64,
+      "id" : "eaf2720c-c0ce-4607-94c6-a9317e513e56",
+      "length" : 2,
+      "pitch" : 47
+    },
+    {
+      "beat" : 70,
+      "id" : "b089ef1d-0798-4acd-85a3-697d2b4e0138",
+      "length" : 1,
+      "pitch" : 48
+    },
+    {
+      "beat" : 71,
+      "id" : "46f8b2e5-2a68-4171-a22d-e71c91aabbfb",
+      "length" : 1,
+      "pitch" : 60
+    },
+    {
+      "beat" : 72,
+      "id" : "bc41488c-520e-4f46-aa0e-549a7d24fe8c",
+      "length" : 1,
+      "pitch" : 59
+    },
+    {
+      "beat" : 73,
+      "id" : "d312242d-95b2-4b8d-8b43-254c98cdc037",
+      "length" : 1,
+      "pitch" : 57
+    },
+    {
+      "beat" : 74,
+      "id" : "ac6fa7e4-c991-48bd-9284-a16d0fb3ac72",
+      "length" : 1,
+      "pitch" : 55
+    },
+    {
+      "beat" : 75,
+      "id" : "31031c7c-5d5d-46ed-b32b-50c5e7e07626",
+      "length" : 1,
+      "pitch" : 53
+    },
+    {
+      "beat" : 76,
+      "id" : "a97d7f40-223e-4930-90c4-5def75f6803d",
+      "length" : 1,
+      "pitch" : 52
+    },
+    {
+      "beat" : 77,
+      "id" : "e9eb9cde-04ef-4bd8-af51-e0509d5571d0",
+      "length" : 1,
+      "pitch" : 50
+    },
+    {
+      "beat" : 78,
+      "id" : "e2b26b96-9e66-434f-afcc-f3666336e569",
+      "length" : 2,
+      "pitch" : 48
+    },
+    {
+      "beat" : 84,
+      "id" : "e04b3285-06cc-4809-a0c3-aced07301415",
+      "length" : 1,
+      "pitch" : 49
+    },
+    {
+      "beat" : 85,
+      "id" : "d5df20d7-ef35-450f-a1d9-210002c3da2b",
+      "length" : 1,
+      "pitch" : 61
+    },
+    {
+      "beat" : 86,
+      "id" : "dc59a0e3-0c52-4851-b130-f7b2c034a30b",
+      "length" : 1,
+      "pitch" : 60
+    },
+    {
+      "beat" : 87,
+      "id" : "03eb7dfb-26b2-4a28-a9e5-2c92addee22c",
+      "length" : 1,
+      "pitch" : 58
+    },
+    {
+      "beat" : 88,
+      "id" : "5c5ade20-5fa7-45b7-8377-4651b4452c16",
+      "length" : 1,
+      "pitch" : 56
+    },
+    {
+      "beat" : 89,
+      "id" : "05e144bb-865f-40b9-8aca-06617da29540",
+      "length" : 1,
+      "pitch" : 54
+    },
+    {
+      "beat" : 90,
+      "id" : "c0273da4-1116-4f89-9601-b22abb177840",
+      "length" : 1,
+      "pitch" : 53
+    },
+    {
+      "beat" : 91,
+      "id" : "ca937ffc-9f7f-403d-801d-aed04c318eff",
+      "length" : 1,
+      "pitch" : 51
+    },
+    {
+      "beat" : 92,
+      "id" : "11285f77-aa39-49c9-976a-2f90cb5fe8da",
+      "length" : 2,
+      "pitch" : 49
+    }
+  ],
+  "opened" : "2026-10-31T10:42:03.951Z",
+  "originMachSeconds" : 224989.94426820832,
+  "repeats" : 7,
+  "results" : [
+    "run.delay bestMs=71 lookAheadMs=20 delayMs=51 found=86 played=86 adopt=1 records=1 settingMs=40 devices=\"MicrophoneBuiltIn:Built-In Microphone|BluetoothA2DPOutput:9C:A9:C5:73:3B:7C-tacl\"",
+    "run.score score=86 runDelayMs=51 micDelayMs=40"
+  ],
+  "run" : 21,
+  "sessionAtOpen" : "cat=PlayAndRecord mode=Default opts=0x68(defaultToSpeaker,btA2DP,airPlay) sr=48000 io=0.01 outLat=0.1765 inLat=0 vol=1 muted=0 outCh=2 inCh=0 otherAudio=0 silenceHint=0 route=\"out: BluetoothA2DPOutput 'AirPods #2' ch2 spatial uid=9C:A9:C5:73:3B:7C-tacl | in: none\"",
+  "settings" : "micDelayMs=37 scoreWindow=100 instrument=Piano detection=balanced autoDelay=1 speaker=Automatic mic=\"iPhone Microphone\" playersMade=78",
+  "summary" : "reason=finished score=86 exercise=\"Octave Leap and Scale\" seconds=46.4147 firstRenderMs=277.645 renders=4591 renderGaps=0 maxRenderGapMs=10.2294 slowRenders=0 overruns=0 maxRenderMs=4.8143 nonFiniteBuffers=0 hotBuffers=0 catchUps=0 catchUpMs=0 timeJumps=0 droppedRows=0 micChunks=4537 micGaps=0 maxMicGapMs=10.0029 micJumps=0 frames=2762 drawHitches=1 maxFrameGapMs=197.5168 flags=nil events=main.hang:1,mic.capture:1,mic.confirm:1,mic.engine.start:1,mic.permission:1,mic.start:1,mic.stop:2,player.begin:1,player.engine.start:1,player.graphBuilt:1,player.outputLatency:20,player.schedule:1,player.stop:2,route.configure.begin:1,route.configure.end:1,route.wait.begin:1,route.wait.check:2,route.wait.end:2,run.begin:1,run.begun:1,run.delay:1,run.micScheduled:1,run.playedOut:1,run.routeSettled:1,run.score:1,run.startAudio:1,run.teardown:2,session.overrideOutput:1,session.routeChange:1,session.setActive:3,session.setCategory:1,session.setPreferredInput:1"
+}

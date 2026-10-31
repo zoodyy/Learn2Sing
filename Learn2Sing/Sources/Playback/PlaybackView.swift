@@ -686,6 +686,7 @@ final class ExercisePlayer {
     }
 
     deinit {
+        if sourceNode != nil { AudioDebugLog.event("player.deinit", ["p": AudioDebugLog.engineName(engine)]) }  // AUDIO DEBUG LOG
         if let configObserver { NotificationCenter.default.removeObserver(configObserver) }
         if let routeObserver { NotificationCenter.default.removeObserver(routeObserver) }
         stop()
@@ -1038,13 +1039,16 @@ private final class LastDrawnBeat {
     var value: Double? = nil
 }
 
-/// The run's audio on its way up: the route settling before the engine starts, then
-/// the microphone a moment after it. A class (reference type) so a pause, the app
-/// leaving for the background or the screen going away can cancel whatever is still
-/// pending without mutating SwiftUI `@State` during a view update.
+/// The run's audio on its way up: the route settling, then the microphone, then the
+/// engine. A class (reference type) so a pause, the app leaving for the background or
+/// the screen going away can cancel whatever is still pending without mutating
+/// SwiftUI `@State` during a view update.
 private final class AudioStartup {
     var routeWait: AudioRouteManager.RouteWait?
-    var microphone: DispatchWorkItem?
+    /// What starts once the microphone is listening (see `PlaybackView.startMicrophone`).
+    var whenListening: (() -> Void)?
+    /// Starts it anyway if the microphone takes too long.
+    var microphoneTimeout: DispatchWorkItem?
     /// Whether the run's engine has been started and its notes scheduled, which is
     /// what tells a resume to pick the run up rather than start it.
     var hasStarted = false
@@ -1052,8 +1056,19 @@ private final class AudioStartup {
     func cancel() {
         routeWait?.cancel()
         routeWait = nil
-        microphone?.cancel()
-        microphone = nil
+        whenListening = nil
+        microphoneTimeout?.cancel()
+        microphoneTimeout = nil
+    }
+
+    /// The microphone is listening, or has had long enough: whatever waits for it
+    /// goes ahead, once.
+    func microphoneIsListening() {
+        microphoneTimeout?.cancel()
+        microphoneTimeout = nil
+        let next = whenListening
+        whenListening = nil
+        next?()
     }
 }
 
@@ -1410,30 +1425,34 @@ struct PlaybackView: View {
 
     // MARK: - Starting the audio
 
-    /// How long after the engine the microphone comes on (see `startMicrophone`).
-    private static let microphoneStartDelay: TimeInterval = 0.5
+    /// The longest a run waits for the microphone before it starts without it (see
+    /// `startMicrophone`).
+    private static let microphoneStartTimeout: TimeInterval = 1.0
 
     /// Set the run's audio going: configure the session and, once its route has
-    /// settled (see `AudioRouteManager.configureSession(whenSettled:)`), start the run,
-    /// or pick it up where a pause or the background left it, then the microphone.
+    /// settled (see `AudioRouteManager.configureSession(whenSettled:)`), the
+    /// microphone, and then the run, or the run picked up where a pause or the
+    /// background left it.
     private func startAudio() {
         AudioDebugLog.event("run.startAudio", ["resume": audioStartup.hasStarted])  // AUDIO DEBUG LOG
         audioStartup.cancel()
         audioStartup.routeWait = AudioRouteManager.shared.configureSession(whenSettled: {
             AudioDebugLog.event("run.routeSettled", ["resume": audioStartup.hasStarted], extra: AudioDebugLog.sessionSnapshot())  // AUDIO DEBUG LOG
             audioStartup.routeWait = nil
-            if audioStartup.hasStarted {
-                player.resumeFromBackground()
-            } else {
-                beginRun()
+            if !audioStartup.hasStarted { prepareRun() }
+            startMicrophone {
+                if audioStartup.hasStarted {
+                    player.resumeFromBackground()
+                } else {
+                    beginRun()
+                }
             }
-            startMicrophone()
         })
     }
 
-    /// Starting a run, once the route has settled: the engine, what it plays, and the
-    /// schedule, which anchors the clock.
-    private func beginRun() {
+    /// What a run needs before anything sounds, once the route has settled: the
+    /// delay it is scored at, what the player plays, and what the microphone feeds.
+    private func prepareRun() {
         AudioDebugLog.event("run.begin", ["micDelayMs": micDelayMs, "devices": AudioRouteManager.devicePairKey()])  // AUDIO DEBUG LOG
         // While the delay is recognised, the setting is what the recent runs on
         // these devices settled on, so a run on the speaker starts from the
@@ -1444,7 +1463,6 @@ struct PlaybackView: View {
            settled != micDelayMs {
             micDelayMs = settled
         }
-        player.begin()
         // The clap test plays a metronome sample on every tick (in sync with the
         // engine clock) instead of a synthesised note; exercises use the user's
         // chosen instrument.
@@ -1463,29 +1481,48 @@ struct PlaybackView: View {
         // keeps the export button off its score screen.
         if mode == .normal, DebugRecordingAccess.isAllowed {
             debugRecording = nil
-            let clock = player
+            // Values, not the view: the recorder keeps this closure for as long as
+            // it lives, and a closure holding the view holds the view's state, the
+            // recorder included, which kept every run's player and microphone alive.
+            let clock = player, bpm = bpm, leadIn = leadIn
             debugRecorder.start(bpm: bpm) { host in
                 clock.beat(forHostTime: host, bpm: bpm, leadIn: leadIn)
             }
             pitchDetector.debugSink = debugRecorder
         }
-        scheduleRun()
         if mode == .pitchDetectionTrial { pitchDetector.use(trialDetection) }
+    }
+
+    /// Starting a run once the microphone is listening: the engine, and the
+    /// schedule, which anchors the clock.
+    private func beginRun() {
+        player.begin()
+        scheduleRun()
         audioStartup.hasStarted = true
         AudioDebugLog.event("run.begun", ["micDelayMs": micDelayMs, "instrument": Instrument.current.rawValue])  // AUDIO DEBUG LOG
     }
 
-    /// Start listening a moment after the engine, once its Bluetooth stream to the
-    /// earphones is up (130–300 ms after the engine on AirPods). Turning the microphone
-    /// on reconfigures the audio device that stream runs through, and in the run whose
-    /// AirPods came out of their start holding extra audio it did so the very moment
-    /// the route reached them. The six-beat lead-in leaves the wait time to spare.
-    private func startMicrophone() {
-        AudioDebugLog.event("run.micScheduled", ["afterSec": Self.microphoneStartDelay])  // AUDIO DEBUG LOG
-        audioStartup.microphone?.cancel()
-        let start = DispatchWorkItem { pitchDetector.start() }
-        audioStartup.microphone = start
-        DispatchQueue.main.asyncAfter(deadline: .now() + Self.microphoneStartDelay, execute: start)
+    /// Start listening, and `then` start the sound, once the microphone is listening.
+    ///
+    /// The microphone comes first because of what it does to Bluetooth earphones. The
+    /// detector listens through a capture session, which keeps the microphone apart
+    /// from the output (see `MicrophoneCapture`), and the stream to the earphones is
+    /// set up for what the output is joined to at the moment it starts. Started under
+    /// a microphone the old way, it ran the earphones untimed, on a buffer that landed
+    /// anywhere between 61 and 729 ms. So the stream starts only after the microphone
+    /// has, and never has it come on underneath. Should the microphone be slow, the
+    /// run goes ahead after `microphoneStartTimeout` anyway; the six-beat lead-in
+    /// covers the wait either way.
+    private func startMicrophone(then next: @escaping () -> Void) {
+        AudioDebugLog.event("run.micStart", ["timeoutSec": Self.microphoneStartTimeout])  // AUDIO DEBUG LOG
+        audioStartup.whenListening = next
+        let timeout = DispatchWorkItem {
+            AudioDebugLog.event("run.micTimeout")  // AUDIO DEBUG LOG
+            audioStartup.microphoneIsListening()
+        }
+        audioStartup.microphoneTimeout = timeout
+        DispatchQueue.main.asyncAfter(deadline: .now() + Self.microphoneStartTimeout, execute: timeout)
+        pitchDetector.start { audioStartup.microphoneIsListening() }
     }
 
     // MARK: - Scheduling a run

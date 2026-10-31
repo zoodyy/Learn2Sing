@@ -6,3 +6,6 @@ __pycache__/
 Tools/PitchBench/.build/
 Tools/PitchBench/.work/
 Tools/PitchBench/.venv/
+
+# System logs pulled from the phone (Tools/AudioDebugLog), hundreds of MB each
+*.logarchive/

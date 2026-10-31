@@ -1,6 +1,7 @@
 import AVFoundation
 import Accelerate
 import Combine
+import CoreMedia
 import Synchronization
 import os
 
@@ -17,6 +18,11 @@ import os
 /// or allocate, so all the node does is copy the buffer into a lock-free queue and
 /// wake a thread of its own that does the rest: clap detection, the debug recording
 /// and the analysis all run there, off the audio thread, as they did under the tap.
+///
+/// The microphone is first listened to through a capture session, though, not the
+/// engine (see `MicrophoneCapture` for why: it keeps Bluetooth earphones in time).
+/// Its buffers go into the same queue. The engine's sink node, and then the tap,
+/// are what is left when a capture session can't be had.
 final class PitchDetector: ObservableObject {
     /// Detected pitch as a fractional MIDI note number, or `nil` when silent / unsure.
     // Stored behind a lock rather than published: the view already redraws every
@@ -32,7 +38,11 @@ final class PitchDetector: ObservableObject {
     /// `detection` holds the line back by its look-ahead on top of this; that part is
     /// added wherever the delay is used rather than saved in it, so the setting means
     /// the same whichever detection it was measured with.
-    var lineLatencyMs: Double { usingTap ? 60 : 15 }
+    ///
+    /// The capture session's buffers are about twice the sink node's, so its line
+    /// waits a little longer for each one on average; that one is an estimate from
+    /// the buffer length rather than a measurement.
+    var lineLatencyMs: Double { usingTap ? 60 : usingCapture ? 20 : 15 }
 
     /// The pitch detection this capture runs with: the setting as it stood when the
     /// microphone was last started, so it can't change under a run. Only `use(_:)`
@@ -85,6 +95,21 @@ final class PitchDetector: ObservableObject {
     /// overtaken by the next.
     private var startCount = 0
 
+    /// The microphone through a capture session (see `MicrophoneCapture`), made the
+    /// first time it is needed.
+    private var capture: MicrophoneCapture?
+    /// Set once the capture session has turned out not to work here (the simulator,
+    /// a device without an audio capture device): every later start goes straight to
+    /// the engine.
+    private var captureUnavailable = false
+    /// Listening, or about to, through `capture` rather than the engine.
+    private var usingCapture = false
+    /// Between asking the capture session to start and its first buffer.
+    private var captureStarting = false
+    /// What whoever started the microphone wants to hear once it is listening (see
+    /// `start(onListening:)`).
+    private var onListening: (() -> Void)?
+
     init() {
         AudioDebugLog.nameEngine(engine, "mic")  // AUDIO DEBUG LOG
         // iOS stops the engine whenever the audio IO is reconfigured — a route
@@ -96,14 +121,16 @@ final class PitchDetector: ObservableObject {
             forName: .AVAudioEngineConfigurationChange, object: engine, queue: .main
         ) { [weak self] _ in
             self?.audioDebugConfigChange()  // AUDIO DEBUG LOG
-            guard let self, self.shouldRun, !self.engine.isRunning else { return }
+            guard let self, self.shouldRun, !self.usingCapture, !self.engine.isRunning else { return }
             self.running = false   // the system stopped it; the capture it left behind is dead
-            self.beginListening()
+            self.listenThroughSink()
         }
     }
 
     deinit {
+        AudioDebugLog.event("mic.deinit", ["m": AudioDebugLog.engineName(engine)])  // AUDIO DEBUG LOG
         if let configObserver { NotificationCenter.default.removeObserver(configObserver) }
+        capture?.close()
         // The analysis thread holds on to the listener; let it go.
         listener.stop()
     }
@@ -113,13 +140,23 @@ final class PitchDetector: ObservableObject {
         listener.drainClaps()
     }
 
-    func start() {
-        AudioDebugLog.event("mic.start", ["m": AudioDebugLog.engineName(engine), "running": running, "engine": engine.isRunning])  // AUDIO DEBUG LOG
+    /// Start listening. `onListening` is called once the microphone is listening, or
+    /// as soon as it is clear that it won't be (no permission, nothing to capture
+    /// with), so whatever waits on it can carry on either way. A `stop()` that comes
+    /// first drops it.
+    func start(onListening: (() -> Void)? = nil) {
+        AudioDebugLog.event("mic.start", ["m": AudioDebugLog.engineName(engine), "running": running, "engine": engine.isRunning, "capture": usingCapture, "starting": captureStarting])  // AUDIO DEBUG LOG
         shouldRun = true
+        self.onListening = onListening
         // Heal a capture the system stopped without telling us, so resuming after an
         // interruption isn't mistaken for "already listening" and skipped.
-        if running && !engine.isRunning { running = false }
-        guard !running else { return }
+        if running && !isCapturing { running = false }
+        guard !running else {
+            reportListening()
+            return
+        }
+        // A capture session already on its way up reports when it gets there.
+        guard !captureStarting else { return }
         detection = chosenDetection ?? PitchDetection.current
         // The audio session / route is configured once by PlaybackView before this
         // is called, so we must not reconfigure it here — doing so would switch the
@@ -132,6 +169,7 @@ final class PitchDetector: ObservableObject {
                     // Nothing to listen to, but whatever asked carries on without
                     // it; telling the singer is up to the screen (`microphoneNotice`).
                     self.isMicrophoneDenied = true
+                    self.reportListening()
                     return
                 }
                 // A `stop()` that came in while the answer was on its way — a pause
@@ -159,21 +197,129 @@ final class PitchDetector: ObservableObject {
     }
 
     func stop() {
-        AudioDebugLog.event("mic.stop", ["running": running, "tap": usingTap, "engine": engine.isRunning])  // AUDIO DEBUG LOG
+        AudioDebugLog.event("mic.stop", ["running": running, "tap": usingTap, "engine": engine.isRunning, "capture": usingCapture, "starting": captureStarting])  // AUDIO DEBUG LOG
         shouldRun = false
+        onListening = nil
+        if usingCapture {
+            let audioDebugStart = mach_absolute_time()  // AUDIO DEBUG LOG
+            capture?.stop()
+            AudioDebugLog.event("mic.capture.stopped", ["ms": AudioDebugLog.milliseconds(since: audioDebugStart)])  // AUDIO DEBUG LOG
+            usingCapture = false
+            captureStarting = false
+            // Whatever the capture had on its way back to the main thread belongs to
+            // the start that has just ended.
+            startCount += 1
+        }
         guard running else { return }
         if usingTap { engine.inputNode.removeTap(onBus: 0) }
-        engine.stop()
+        if engine.isRunning { engine.stop() }
         running = false
         listener.stop()
     }
 
+    /// Whether the capture that `running` stands for is still going.
+    private var isCapturing: Bool {
+        usingCapture ? capture?.isRunning == true : engine.isRunning
+    }
+
+    /// Hands whoever started the microphone the news that it is listening, or won't
+    /// be, once.
+    private func reportListening() {
+        let waiting = onListening
+        onListening = nil
+        waiting?()
+    }
+
     private func beginListening() {
+        guard !running else { return }
+        if !captureUnavailable {
+            listenThroughCapture()
+        } else {
+            listenThroughSink()
+        }
+    }
+
+    // MARK: Through the capture session
+
+    private func listenThroughCapture() {
+        let capture = self.capture ?? MicrophoneCapture(
+            queue: listener.queue,
+            onFormat: { [weak self] rate in DispatchQueue.main.async { self?.captureDelivered(rate: rate) } },
+            onFailure: { [weak self] in DispatchQueue.main.async { self?.captureFailed(permanently: false) } })
+        self.capture = capture
+        startCount += 1
+        let start = startCount
+        usingCapture = true
+        captureStarting = true
+        let audioDebugStart = mach_absolute_time()  // AUDIO DEBUG LOG
+        capture.start { [weak self] isRunning in
+            DispatchQueue.main.async {
+                AudioDebugLog.event("mic.capture.startRunning", ["running": isRunning, "ms": AudioDebugLog.milliseconds(since: audioDebugStart), "sameStart": self?.startCount == start])  // AUDIO DEBUG LOG
+                guard let self, self.startCount == start, self.usingCapture else { return }
+                guard isRunning else {
+                    self.captureFailed(permanently: true)
+                    return
+                }
+                self.confirmCaptureDelivers(after: start)
+            }
+        }
+    }
+
+    /// The capture's first buffer since it started, or since its sample rate changed:
+    /// the analysis starts afresh at that rate, and from the next buffer on the
+    /// capture queues what it records.
+    private func captureDelivered(rate: Double) {
+        guard usingCapture, shouldRun, let capture,
+              let format = AVAudioFormat(standardFormatWithSampleRate: rate, channels: 1) else { return }
+        AudioDebugLog.micCaptureStarting(format, via: "capture", ["restart": running])  // AUDIO DEBUG LOG
+        debugSink?.begin(format: format)   // DEBUG RECORDING — remove with DebugRecording.swift
+        listener.start(sampleRate: rate, detection: detection)
+        capture.accept(rate: rate)
+        captureStarting = false
+        running = true
+        reportListening()
+    }
+
+    /// A capture session that starts but delivers nothing is no microphone at all.
+    /// After a moment the engine takes over, as it does from a silent sink node.
+    private func confirmCaptureDelivers(after start: Int) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) { [weak self] in
+            guard let self, self.startCount == start, self.usingCapture, self.captureStarting else { return }
+            AudioDebugLog.event("mic.capture.silent")  // AUDIO DEBUG LOG
+            self.captureFailed(permanently: true)
+        }
+    }
+
+    /// The capture session didn't start, stayed silent, or stopped with an error:
+    /// the engine listens instead. Only a capture that never got going is given up
+    /// on for good; one that failed half way through gets another go next time.
+    private func captureFailed(permanently: Bool) {
+        guard usingCapture else { return }
+        AudioDebugLog.event("mic.capture.failed", ["permanently": permanently, "running": running, "should": shouldRun])  // AUDIO DEBUG LOG
+        capture?.stop()
+        usingCapture = false
+        captureStarting = false
+        startCount += 1
+        if permanently { captureUnavailable = true }
+        if running {
+            running = false
+            listener.stop()
+        }
+        guard shouldRun else { return }
+        listenThroughSink()
+    }
+
+    // MARK: Through the engine
+
+    private func listenThroughSink() {
         guard !running else { return }
         let input = engine.inputNode
         let format = input.outputFormat(forBus: 0)
         AudioDebugLog.micCaptureStarting(format, via: "sink", ["engine": engine.isRunning, "starts": startCount])  // AUDIO DEBUG LOG
-        guard format.sampleRate > 0, format.channelCount > 0 else { return }
+        guard format.sampleRate > 0, format.channelCount > 0 else {
+            reportListening()
+            return
+        }
 
         debugSink?.begin(format: format)   // DEBUG RECORDING — remove with DebugRecording.swift
         startCount += 1
@@ -199,6 +345,7 @@ final class PitchDetector: ObservableObject {
             running = true
             AudioDebugLog.event("mic.engine.start", ["ok": true, "via": "sink", "ms": AudioDebugLog.milliseconds(since: audioDebugStart)])  // AUDIO DEBUG LOG
             confirmAudioArrives(after: startCount)
+            reportListening()
         } catch {
             AudioDebugLog.event("mic.engine.start", ["ok": false, "via": "sink", "error": error])  // AUDIO DEBUG LOG
             listenThroughTap(format: format)
@@ -225,7 +372,10 @@ final class PitchDetector: ObservableObject {
         AudioDebugLog.micCaptureStarting(format, via: "tap")  // AUDIO DEBUG LOG
         if let sink = sinkNode { engine.disconnectNodeInput(sink) }
         running = false
-        guard format.sampleRate > 0, format.channelCount > 0 else { return }
+        guard format.sampleRate > 0, format.channelCount > 0 else {
+            reportListening()
+            return
+        }
         listener.start(sampleRate: format.sampleRate, detection: detection)
         usingTap = true
         let input = engine.inputNode
@@ -241,6 +391,7 @@ final class PitchDetector: ObservableObject {
             usingTap = false
             listener.stop()
         }
+        reportListening()
     }
 }
 
@@ -253,8 +404,9 @@ extension PitchDetector {
             ("m.eng", engine.isRunning), ("m.tap", usingTap), ("m.recv", listener.queue.hasReceivedAudio),
             ("m.det", detection.rawValue), ("m.starts", startCount), ("m.denied", isMicrophoneDenied),
         ]
-        // Only while capturing: asking for the input node any earlier builds it.
-        if running {
+        fields.append(("m.capture", usingCapture))
+        // Only while the engine listens: asking for the input node otherwise builds it.
+        if running && !usingCapture {
             fields.append(("m.fmt", AudioDebugLog.formatString(engine.inputNode.outputFormat(forBus: 0))))
             fields.append(("m.pres", engine.inputNode.presentationLatency))
         }
@@ -269,6 +421,244 @@ extension PitchDetector {
     }
 }
 // AUDIO DEBUG LOG END
+
+// MARK: - The capture session
+
+/// The microphone through `AVCaptureSession`, the one way to have iOS keep it apart
+/// from the output.
+///
+/// An app that records through an audio engine under the play-and-record category
+/// gets aggregated I/O: the microphone and the output run as one device, on one
+/// clock. With Bluetooth earphones that decides whether the sound stays in time.
+/// While their output is aggregated with an input, bluetoothd starts every stream to
+/// them "with latency not supported", and the earphones keep whatever buffer they
+/// happen to settle on. On 2026-10-31 that was anywhere from 61 to 353 ms from one
+/// run to the next on the same AirPods, while iOS gave 177 ms for every one of them,
+/// so the notes on screen were up to 180 ms off the sound; and once 729 ms, with
+/// nothing heard after the first note. Streams to the same AirPods from an app that
+/// doesn't record started "with latency supported" and ended at 153 to 161 ms each
+/// time. An app that records through a capture session gets non-aggregated I/O
+/// instead (see `AVAudioSessionIOType`): the input on a device and a thread of its
+/// own, and the output to the earphones on its own, as any other app's is.
+///
+/// The session uses the app's audio session as `AudioRouteManager` configured it,
+/// and hands over about 20 ms of audio per sample buffer on `bufferQueue`. Each one
+/// goes into the queue the engine's sink node fills, so the analysis can't tell the
+/// difference. The first buffer after a start, and the first after the sample rate
+/// changes, is only reported (`onFormat`): nothing is queued until the detector has
+/// started the analysis at that rate and called `accept`.
+nonisolated final class MicrophoneCapture: NSObject, AVCaptureAudioDataOutputSampleBufferDelegate,
+                                           @unchecked Sendable {
+    private let session = AVCaptureSession()
+    private let output = AVCaptureAudioDataOutput()
+    /// Starting and stopping a session block, so they happen here rather than on the
+    /// main thread.
+    private let sessionQueue = DispatchQueue(label: "Learn2Sing microphone session")
+    private let bufferQueue = DispatchQueue(label: "Learn2Sing microphone buffers", qos: .userInteractive)
+    private let queue: MicrophoneQueue
+    private let onFormat: @Sendable (Double) -> Void
+    private let onFailure: @Sendable () -> Void
+    private var observers: [NSObjectProtocol] = []
+
+    /// Whether the session has its microphone and its output; nil until first tried.
+    /// The session queue's.
+    private var configured: Bool?
+
+    // The buffer queue's.
+    private var accepting = false
+    private var acceptedRate = 0.0
+    /// Whether the buffer that needs reporting (a start's first, or the first at a
+    /// new rate) has been.
+    private var reported = false
+    private var framesQueued = 0.0
+    private var clock: CMClock?
+    private static let maxBuffers = 8
+    private let bufferList = AudioBufferList.allocate(maximumBuffers: MicrophoneCapture.maxBuffers)
+    private static let scratchCapacity = 16_384
+    private let scratch = UnsafeMutablePointer<Float>.allocate(capacity: MicrophoneCapture.scratchCapacity)
+
+    init(queue: MicrophoneQueue, onFormat: @escaping @Sendable (Double) -> Void,
+         onFailure: @escaping @Sendable () -> Void) {
+        self.queue = queue
+        self.onFormat = onFormat
+        self.onFailure = onFailure
+        super.init()
+        scratch.initialize(repeating: 0, count: Self.scratchCapacity)
+        observers.append(NotificationCenter.default.addObserver(
+            forName: AVCaptureSession.runtimeErrorNotification, object: session, queue: nil
+        ) { [weak self] note in
+            AudioDebugLog.event("mic.capture.runtimeError", ["error": note.userInfo?[AVCaptureSessionErrorKey] as? Error])  // AUDIO DEBUG LOG
+            self?.onFailure()
+        })
+        // AUDIO DEBUG LOG BEGIN
+        observers.append(NotificationCenter.default.addObserver(
+            forName: AVCaptureSession.wasInterruptedNotification, object: session, queue: nil
+        ) { note in
+            AudioDebugLog.event("mic.capture.interrupted", ["reason": note.userInfo?[AVCaptureSessionInterruptionReasonKey] as? Int])
+        })
+        observers.append(NotificationCenter.default.addObserver(
+            forName: AVCaptureSession.interruptionEndedNotification, object: session, queue: nil
+        ) { _ in
+            AudioDebugLog.event("mic.capture.interruptionEnded")
+        })
+        // AUDIO DEBUG LOG END
+    }
+
+    deinit {
+        for observer in observers { NotificationCenter.default.removeObserver(observer) }
+        free(bufferList.unsafeMutablePointer)
+        scratch.deinitialize(count: Self.scratchCapacity)
+        scratch.deallocate()
+    }
+
+    var isRunning: Bool { session.isRunning }
+
+    /// Starts the session; `completion`, on the session queue, says whether it runs.
+    func start(completion: @escaping @Sendable (Bool) -> Void) {
+        bufferQueue.sync {
+            accepting = false
+            reported = false
+            framesQueued = 0
+        }
+        sessionQueue.async { [self] in
+            guard configure() else {
+                completion(false)
+                return
+            }
+            if !session.isRunning { session.startRunning() }
+            completion(session.isRunning)
+        }
+    }
+
+    /// Stops the session, and returns once nothing more can be queued.
+    func stop() {
+        bufferQueue.sync { accepting = false }
+        sessionQueue.sync {
+            if session.isRunning { session.stopRunning() }
+        }
+    }
+
+    /// Stops the session for good, and lets go of it: the output holds on to its
+    /// delegate, which is this.
+    func close() {
+        stop()
+        sessionQueue.sync { output.setSampleBufferDelegate(nil, queue: nil) }
+    }
+
+    /// Starts queuing what the session records at `rate`.
+    func accept(rate: Double) {
+        bufferQueue.sync {
+            acceptedRate = rate
+            accepting = true
+            reported = true
+        }
+    }
+
+    /// Gives the session the microphone and an output for its buffers, once.
+    private func configure() -> Bool {
+        if let configured { return configured }
+        // The app's own audio session, as `AudioRouteManager` left it: the category,
+        // the route and the microphone the singer chose all stay theirs.
+        session.usesApplicationAudioSession = true
+        session.automaticallyConfiguresApplicationAudioSession = false
+        var ok = false
+        if let device = AVCaptureDevice.default(for: .audio),
+           let input = try? AVCaptureDeviceInput(device: device) {
+            session.beginConfiguration()
+            if session.canAddInput(input), session.canAddOutput(output) {
+                session.addInput(input)
+                output.setSampleBufferDelegate(self, queue: bufferQueue)
+                session.addOutput(output)
+                ok = true
+            }
+            session.commitConfiguration()
+        }
+        AudioDebugLog.event("mic.capture.configure", ["ok": ok, "device": AVCaptureDevice.default(for: .audio)?.localizedName])  // AUDIO DEBUG LOG
+        configured = ok
+        return ok
+    }
+
+    // MARK: Buffers
+
+    func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer,
+                       from connection: AVCaptureConnection) {
+        guard let format = CMSampleBufferGetFormatDescription(sampleBuffer),
+              let description = CMAudioFormatDescriptionGetStreamBasicDescription(format)?.pointee
+        else { return }
+        let rate = description.mSampleRate
+        guard accepting, rate == acceptedRate else {
+            // A rate the analysis wasn't started at: nothing more is queued until it
+            // has been started again at this one.
+            if accepting {
+                accepting = false
+                reported = false
+            }
+            if !reported {
+                reported = true
+                AudioDebugLog.event("mic.capture.format", ["rate": rate, "channels": description.mChannelsPerFrame, "bits": description.mBitsPerChannel, "float": description.mFormatFlags & kAudioFormatFlagIsFloat != 0, "interleaved": description.mFormatFlags & kAudioFormatFlagIsNonInterleaved == 0, "frames": CMSampleBufferGetNumSamples(sampleBuffer)])  // AUDIO DEBUG LOG
+                onFormat(rate)
+            }
+            return
+        }
+        queueSamples(of: sampleBuffer, description: description)
+    }
+
+    // AUDIO DEBUG LOG BEGIN
+    func captureOutput(_ output: AVCaptureOutput, didDrop sampleBuffer: CMSampleBuffer,
+                       from connection: AVCaptureConnection) {
+        AudioDebugLog.event("mic.capture.dropped")
+    }
+    // AUDIO DEBUG LOG END
+
+    /// Copies the first channel of `sampleBuffer` into the queue as float samples,
+    /// stamped with the host time it was recorded at.
+    private func queueSamples(of sampleBuffer: CMSampleBuffer, description: AudioStreamBasicDescription) {
+        let frames = min(CMSampleBufferGetNumSamples(sampleBuffer), Self.scratchCapacity)
+        guard frames > 0 else { return }
+        var block: CMBlockBuffer?
+        let status = CMSampleBufferGetAudioBufferListWithRetainedBlockBuffer(
+            sampleBuffer, bufferListSizeNeededOut: nil, bufferListOut: bufferList.unsafeMutablePointer,
+            bufferListSize: AudioBufferList.sizeInBytes(maximumBuffers: Self.maxBuffers),
+            blockBufferAllocator: nil, blockBufferMemoryAllocator: nil,
+            flags: kCMSampleBufferFlag_AudioBufferList_Assure16ByteAlignment, blockBufferOut: &block)
+        guard status == noErr, bufferList.count > 0, let data = bufferList[0].mData else { return }
+
+        // Interleaved, the first channel is every `stride`th sample of the first
+        // buffer; not interleaved, the first buffer holds it alone.
+        let stride = max(1, Int(bufferList[0].mNumberChannels))
+        let bytes = max(1, Int(description.mBitsPerChannel) / 8)
+        let count = min(frames, Int(bufferList[0].mDataByteSize) / bytes / stride)
+        guard count > 0 else { return }
+        switch (description.mFormatFlags & kAudioFormatFlagIsFloat != 0, description.mBitsPerChannel) {
+        case (true, 32):
+            let source = data.assumingMemoryBound(to: Float.self)
+            for i in 0..<count { scratch[i] = source[i * stride] }
+        case (false, 16):
+            let source = data.assumingMemoryBound(to: Int16.self)
+            for i in 0..<count { scratch[i] = Float(source[i * stride]) / 32_768 }
+        case (false, 32):
+            let source = data.assumingMemoryBound(to: Int32.self)
+            for i in 0..<count { scratch[i] = Float(source[i * stride]) / 2_147_483_648 }
+        default:
+            return
+        }
+
+        var stamp = AudioTimeStamp()
+        stamp.mSampleTime = framesQueued
+        stamp.mFlags = .sampleTimeValid
+        // The session's own clock, which is the host clock unless something has
+        // given it another; the clap test and the debug recording want host time.
+        if clock == nil { clock = session.synchronizationClock }
+        var time = CMSampleBufferGetPresentationTimeStamp(sampleBuffer)
+        if let clock { time = CMSyncConvertTime(time, from: clock, to: CMClockGetHostTimeClock()) }
+        if time.isValid {
+            stamp.mHostTime = CMClockConvertHostTimeToSystemUnits(time)
+            stamp.mFlags.insert(.hostTimeValid)
+        }
+        framesQueued += Double(count)
+        queue.push(scratch, count: count, stride: 1, time: stamp)
+    }
+}
 
 // MARK: - From the audio thread to the analysis thread
 
