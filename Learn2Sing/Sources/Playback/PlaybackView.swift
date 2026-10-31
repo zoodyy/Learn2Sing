@@ -333,7 +333,7 @@ final class ExercisePlayer {
         let invHarm = 1.0 / harmonics.reduce(0, +)
         let gain = spec.gain
 
-        var audioDebugPreClip = 0.0, audioDebugNonFinite = 0  // AUDIO DEBUG LOG
+        var audioDebugPreClip = 0.0, audioDebugNonFinite = 0; let audioDebugOn = audioDebugProbe != nil && AudioDebugLog.isEnabled  // AUDIO DEBUG LOG
         for frame in 0..<frameCount {
             // Fire any note-on/off events due at this exact sample.
             let currentSample = playhead + frame
@@ -416,7 +416,7 @@ final class ExercisePlayer {
                 out += clickMix * clickGain
             }
 
-            if out.isFinite { audioDebugPreClip = max(audioDebugPreClip, abs(out)) } else { audioDebugNonFinite += 1 }  // AUDIO DEBUG LOG
+            if audioDebugOn { if out.isFinite { audioDebugPreClip = max(audioDebugPreClip, abs(out)) } else { audioDebugNonFinite += 1 } }  // AUDIO DEBUG LOG
             let sample = Float(tanh(out))   // soft-clip the summed output
             left?[frame] = sample
             right?[frame] = sample
@@ -435,7 +435,7 @@ final class ExercisePlayer {
             onFinish = nil
             if let callback { DispatchQueue.main.async(execute: callback) }
         }
-        if let audioDebugProbe { let voices = audioDebugVoices(); audioDebugProbe.state(playhead: playhead - frameCount, eventIndex: eventIndex, eventCount: events.count, voices: voices.count, strings: voices.strings, pitches: voices.pitches, catchUp: catchUpSamples, anchor: audioDebugAnchor, preClip: audioDebugPreClip, nonFinite: audioDebugNonFinite) }  // AUDIO DEBUG LOG
+        if audioDebugOn, let audioDebugProbe { let voices = audioDebugVoices(); audioDebugProbe.state(playhead: playhead - frameCount, eventIndex: eventIndex, eventCount: events.count, voices: voices.count, strings: voices.strings, pitches: voices.pitches, catchUp: catchUpSamples, anchor: audioDebugAnchor, preClip: audioDebugPreClip, nonFinite: audioDebugNonFinite) }  // AUDIO DEBUG LOG
         os_unfair_lock_unlock(&lock)
     }
 
@@ -1370,15 +1370,17 @@ struct PlaybackView: View {
             // clock). This keeps audio and the animation in sync and stops playback
             // from starting partway through while the exercise is still loading.
             // AUDIO DEBUG LOG BEGIN
-            AudioDebugLog.runOpened(exercise: exercise.name, exerciseID: exercise.id, mode: "\(mode)", bpm: bpm,
-                                    leadIn: leadIn, repeats: exercise.repeatCount, notes: notes, ghosts: ghosts,
-                                    player: player, detector: pitchDetector,
-                                    settings: ["micDelayMs": micDelayMs, "scoreWindow": scoreTargetWindow,
-                                               "instrument": Instrument.current.rawValue,
-                                               "detection": PitchDetection.current.rawValue,
-                                               "autoDelay": AutoMicDelay.isEnabled,
-                                               "speaker": AudioRouteManager.shared.selectedSpeaker,
-                                               "mic": AudioRouteManager.shared.selectedMic])
+            if AudioDebugLog.isEnabled {
+                AudioDebugLog.runOpened(exercise: exercise.name, exerciseID: exercise.id, mode: "\(mode)", bpm: bpm,
+                                        leadIn: leadIn, repeats: exercise.repeatCount, notes: notes, ghosts: ghosts,
+                                        player: player, detector: pitchDetector,
+                                        settings: ["micDelayMs": micDelayMs, "scoreWindow": scoreTargetWindow,
+                                                   "instrument": Instrument.current.rawValue,
+                                                   "detection": PitchDetection.current.rawValue,
+                                                   "autoDelay": AutoMicDelay.isEnabled,
+                                                   "speaker": AudioRouteManager.shared.selectedSpeaker,
+                                                   "mic": AudioRouteManager.shared.selectedMic])
+            }
             // AUDIO DEBUG LOG END
             audioStartup.hasStarted = false
             startAudio()

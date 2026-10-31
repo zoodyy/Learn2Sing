@@ -9,6 +9,11 @@
 //  │   1. a whole run heard late against the notes (seen with AirPods), and     │
 //  │   2. a run that plays one broken sound at its start and then nothing.      │
 //  │                                                                            │
+//  │ It logs only while "Playback debug logging" is on in Settings ▸ Audio,     │
+//  │ which is off to begin with and shown on the developer's install alone      │
+//  │ (`DebugRecordingAccess`). On every other install the switch is hidden and  │
+//  │ every hook returns before it does anything.                                │
+//  │                                                                            │
 //  │ Everything goes to Library/Application Support/AudioDebugLog in the app's  │
 //  │ container:                                                                 │
 //  │   audio.log     every audio event as one line, and a heartbeat once a      │
@@ -28,8 +33,9 @@
 //  │ tagged `AUDIO DEBUG LOG` in the other sources: a tagged line is deleted,   │
 //  │ a BEGIN…END block is deleted, and a line tagged `restore:` gets back the   │
 //  │ code written after that word. Its strings are all `Text(verbatim:)` or     │
-//  │ plain, so there is nothing in the string catalog to undo, and it writes no │
-//  │ UserDefaults keys (which the profile backup would upload).                 │
+//  │ plain, so there is nothing in the string catalog to undo. Its only         │
+//  │ UserDefaults key is the switch's, which the profile backup doesn't carry   │
+//  │ (it uploads `UserSettings` alone).                                         │
 //  └────────────────────────────────────────────────────────────────────────────┘
 //
 
@@ -43,34 +49,60 @@ import os
 // MARK: - The calls the hooks make
 
 nonisolated enum AudioDebugLog {
-    /// The installs a Release build logs on: the developer's iPhone, by its public
-    /// user id. Compared by hex digits, as `DebugRecordingAccess` does. A Debug
-    /// build, which is what running from Xcode makes, logs on every device.
-    private static let allowed: Set<String> = [
-        "e5a93d58-38d8-5f6a-821e-2bff0ea9d398",   // Artjom's iPhone
-    ]
+    /// UserDefaults key of the switch in Settings ▸ Audio. The profile backup only
+    /// carries `UserSettings`, so it stays on this install.
+    static let settingKey = "playbackDebugLogging"
 
-    /// Set once by `launch()`, on the main thread before any audio has run, and only
-    /// read after that.
+    /// Whether this install may log at all, and so shows the switch: the developer's
+    /// own, by the ids `DebugRecordingAccess` lets record. Set once by `launch()`.
+    nonisolated(unsafe) private(set) static var isAvailable = false
+
+    /// Whether anything is being logged: available, and switched on. Every hook reads
+    /// it first, from whichever thread it is on, and does nothing else while it's
+    /// false. Only `launch()` and `setSwitchedOn(_:)` change it, on the main thread.
     nonisolated(unsafe) private(set) static var isEnabled = false
 
-    /// Called first thing at launch: decides whether this install logs and, if it
-    /// does, opens the log and starts listening to the audio session.
+    /// Called first thing at launch: works out whether this install may log, and
+    /// starts logging if the switch was left on.
     @MainActor
     static func launch() {
-        #if DEBUG
+        isAvailable = DebugRecordingAccess.isAllowed
+        guard isAvailable, UserDefaults.standard.bool(forKey: settingKey) else { return }
+        activate(reason: "launch")
+    }
+
+    /// The switch in Settings ▸ Audio was flipped: logging starts or stops at once.
+    @MainActor
+    static func setSwitchedOn(_ on: Bool) {
+        guard isAvailable else { return }
+        if on {
+            activate(reason: "switched on")
+        } else {
+            deactivate()
+        }
+    }
+
+    @MainActor
+    private static func activate(reason: String) {
+        guard !isEnabled else { return }
         isEnabled = true
-        #else
-        let list = Set(allowed.map(hexKey))
-        isEnabled = [PublicIdentifier.user, DeviceIdentifier.uuidString].contains { list.contains(hexKey($0)) }
-        #endif
-        guard isEnabled else { return }
-        AudioDebugCore.shared.start(header: launchHeader())
+        AudioDebugCore.shared.start(header: launchHeader(), reason: reason)
         AudioDebugObservers.install()
     }
 
-    private static func hexKey(_ id: String) -> String {
-        id.lowercased().filter(\.isHexDigit)
+    /// Stops everything: the observers, the run on screen if any, the files and the
+    /// timers. Players made while it was on keep their probe, which checks
+    /// `isEnabled` on every buffer and does nothing more while it's false.
+    @MainActor
+    private static func deactivate() {
+        guard isEnabled else { return }
+        if let monitor = AudioDebugRunMonitor.current {
+            AudioDebugCore.shared.closeRun(reason: "loggingOff", score: nil, frames: monitor.stop(), stamp: .now())
+            AudioDebugRunMonitor.current = nil
+        }
+        AudioDebugObservers.uninstall()
+        isEnabled = false
+        AudioDebugCore.shared.stop()
     }
 
     // MARK: Events
@@ -88,10 +120,14 @@ nonisolated enum AudioDebugLog {
 
     /// One line in the log. Safe from any thread but the audio render thread, which
     /// goes through `AudioDebugRenderProbe` instead.
-    static func event(_ name: String, _ fields: KeyValuePairs<String, Any?> = [:], extra: String? = nil) {
+    ///
+    /// The fields and the extra text are only worked out while logging, so a hook
+    /// costs nothing but the check when it's off.
+    static func event(_ name: String, _ fields: @autoclosure () -> KeyValuePairs<String, Any?> = [:],
+                      extra: @autoclosure () -> String? = nil) {
         guard isEnabled else { return }
-        var text = format(fields)
-        if let extra, !extra.isEmpty { text += text.isEmpty ? extra : " " + extra }
+        var text = format(fields())
+        if let extra = extra(), !extra.isEmpty { text += text.isEmpty ? extra : " " + extra }
         if !Thread.isMainThread { text += " ~bg" }
         AudioDebugCore.shared.log(.now(), name, text)
     }
@@ -99,17 +135,17 @@ nonisolated enum AudioDebugLog {
     /// Runs `body` as the `try?` it replaces would, and logs how long it took and the
     /// error it threw, if any.
     @discardableResult
-    static func attempt(_ name: String, _ fields: KeyValuePairs<String, Any?> = [:],
+    static func attempt(_ name: String, _ fields: @autoclosure () -> KeyValuePairs<String, Any?> = [:],
                         _ body: () throws -> Void) -> Bool {
         guard isEnabled else { return (try? body()) != nil }
         let start = mach_absolute_time()
         do {
             try body()
-            event(name, ["ok": true, "ms": milliseconds(since: start)], extra: format(fields))
+            event(name, ["ok": true, "ms": milliseconds(since: start)], extra: format(fields()))
             return true
         } catch {
             event(name, ["ok": false, "ms": milliseconds(since: start), "error": error],
-                  extra: format(fields))
+                  extra: format(fields()))
             return false
         }
     }
@@ -119,7 +155,8 @@ nonisolated enum AudioDebugLog {
     /// Gives `engine` a name the log calls it by from then on: "player#3", "mic#1".
     @discardableResult
     static func nameEngine(_ engine: AVAudioEngine, _ role: String) -> String {
-        AudioDebugEngineNames.shared.name(engine, role: role)
+        guard isEnabled else { return "" }
+        return AudioDebugEngineNames.shared.name(engine, role: role)
     }
 
     static func engineName(_ engine: AVAudioEngine) -> String {
@@ -166,9 +203,10 @@ nonisolated enum AudioDebugLog {
     }
 
     /// The note events the player has just been handed, as it will play them.
-    static func scheduled(_ engine: AVAudioEngine, events: [(sample: Int, pitch: Int, on: Bool)],
+    static func scheduled(_ engine: AVAudioEngine, events makeEvents: @autoclosure () -> [(sample: Int, pitch: Int, on: Bool)],
                           finishSample: Int, sampleRate: Double, bpm: Double, leadIn: Double) {
         guard isEnabled else { return }
+        let events = makeEvents()
         event("player.schedule", ["p": engineName(engine), "events": events.count,
                                   "finishSample": finishSample,
                                   "finishSec": Double(finishSample) / sampleRate,
@@ -180,10 +218,10 @@ nonisolated enum AudioDebugLog {
     /// the tap. Called before its engine starts, so the marker it leaves in the
     /// microphone's trace comes ahead of the capture's first buffer.
     static func micCaptureStarting(_ format: AVAudioFormat, via route: String,
-                                   _ fields: KeyValuePairs<String, Any?> = [:]) {
+                                   _ fields: @autoclosure () -> KeyValuePairs<String, Any?> = [:]) {
         guard isEnabled else { return }
         AudioDebugMicProbe.shared.captureStarted(sampleRate: format.sampleRate)
-        event("mic.capture", ["fmt": formatString(format), "via": route], extra: Self.format(fields))
+        event("mic.capture", ["fmt": formatString(format), "via": route], extra: Self.format(fields()))
     }
 
     /// One microphone buffer, from the detector's analysis thread.
@@ -219,10 +257,10 @@ nonisolated enum AudioDebugLog {
     }
 
     /// What a finished run came to, for the run's summary as well as the log.
-    static func runResult(_ name: String, _ fields: KeyValuePairs<String, Any?>) {
+    static func runResult(_ name: String, _ fields: @autoclosure () -> KeyValuePairs<String, Any?>) {
         guard isEnabled else { return }
-        let text = format(fields)
-        event(name, fields)
+        let text = format(fields())
+        event(name, extra: text)
         AudioDebugCore.shared.result(name, text)
     }
 
@@ -242,9 +280,9 @@ nonisolated enum AudioDebugLog {
 
     /// One frame of the run being drawn: the beat it shows and the singer's pitch.
     @MainActor
-    static func frame(beat: Double, target: Double?, shown: Double?) {
+    static func frame(beat: Double, target: @autoclosure () -> Double?, shown: Double?) {
         guard isEnabled else { return }
-        AudioDebugRunMonitor.current?.addFrame(beat: beat, target: target, shown: shown)
+        AudioDebugRunMonitor.current?.addFrame(beat: beat, target: target(), shown: shown)
     }
 
     /// The ladybug button: marks what went wrong, with everything about the audio
@@ -523,6 +561,13 @@ nonisolated enum AudioDebugObservers {
     nonisolated(unsafe) private static var tokens: [NSObjectProtocol] = []
     nonisolated(unsafe) private static var volume: NSKeyValueObservation?
 
+    static func uninstall() {
+        for token in tokens { NotificationCenter.default.removeObserver(token) }
+        tokens = []
+        volume?.invalidate()
+        volume = nil
+    }
+
     static func install() {
         let center = NotificationCenter.default
         let session = AVAudioSession.sharedInstance()
@@ -689,14 +734,30 @@ nonisolated final class AudioDebugCore: @unchecked Sendable {
         weak var probe: AudioDebugRenderProbe?
     }
 
-    func start(header: [(String, String)]) {
+    /// Opens the log and starts the timer that empties the audio threads' buffers.
+    /// `reason` says why: the app launched with logging on, or it was switched on.
+    func start(header: [(String, String)], reason: String) {
         let stamp = AudioDebugLog.Stamp.now()
         queue.async {
             self.openFiles()
-            self.write(self.line(stamp, "==== launch", "L\(self.launchNumber) ===="))
+            self.write(self.line(stamp, "==== launch", "L\(self.launchNumber) (\(reason)) ===="))
             for (name, text) in header { self.write(self.line(stamp, name, text)) }
             self.trimRuns()
             self.startIdleTimer()
+        }
+    }
+
+    /// Closes the log, after whatever is still queued for it, and stops the timer.
+    func stop() {
+        let stamp = AudioDebugLog.Stamp.now()
+        queue.async {
+            self.write(self.line(stamp, "==== logging switched off", "===="))
+            self.idleTimer?.cancel()
+            self.idleTimer = nil
+            self.probes.removeAll()
+            _ = AudioDebugMicProbe.shared.drain()
+            try? self.handle?.close()
+            self.handle = nil
         }
     }
 

@@ -64,8 +64,11 @@ nonisolated final class AudioDebugRenderProbe: @unchecked Sendable {
     private let written = Atomic<Int>(0)
     private let taken = Atomic<Int>(0)
     private let dropped = Atomic<Int>(0)
-    /// The buffer being rendered. The render thread's alone.
+    /// The buffer being rendered, and whether it is being recorded at all (logging
+    /// can be switched off under a player that made this probe). The render
+    /// thread's alone.
     private var current = Row()
+    private var active = false
 
     init(name: String, sampleRate: Double) {
         self.name = name
@@ -83,6 +86,8 @@ nonisolated final class AudioDebugRenderProbe: @unchecked Sendable {
 
     /// Before the player renders a buffer.
     func begin(_ time: AudioTimeStamp, frames: UInt32) {
+        active = AudioDebugLog.isEnabled
+        guard active else { return }
         current = Row()
         current.now = mach_absolute_time()
         current.host = time.mHostTime
@@ -94,6 +99,7 @@ nonisolated final class AudioDebugRenderProbe: @unchecked Sendable {
     /// From inside the render, with the player's lock held: where the schedule is.
     func state(playhead: Int, eventIndex: Int, eventCount: Int, voices: Int, strings: Int,
                pitches: UInt64, catchUp: Int, anchor: UInt64, preClip: Double, nonFinite: Int) {
+        guard active else { return }
         current.playhead = playhead
         current.eventIndex = Int32(clamping: eventIndex)
         current.eventCount = Int32(clamping: eventCount)
@@ -109,6 +115,7 @@ nonisolated final class AudioDebugRenderProbe: @unchecked Sendable {
     /// After the player has rendered the buffer: measures what it wrote and files
     /// the record.
     func end(_ buffers: UnsafeMutablePointer<AudioBufferList>) {
+        guard active else { return }
         let list = UnsafeMutableAudioBufferListPointer(buffers)
         if list.count > 0, let data = list[0].mData?.assumingMemoryBound(to: Float.self) {
             let count = min(Int(current.frames), Int(list[0].mDataByteSize) / MemoryLayout<Float>.size)

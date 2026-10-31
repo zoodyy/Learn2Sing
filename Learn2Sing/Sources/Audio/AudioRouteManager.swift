@@ -318,7 +318,7 @@ final class AudioRouteManager: ObservableObject {
 
     private func applyInputRoute() {
         if let preferred = preferredInput() { AudioDebugLog.attempt("session.setPreferredInput", ["port": AudioDebugLog.portString(preferred)]) { try session.setPreferredInput(preferred) } }  // AUDIO DEBUG LOG restore: if let preferred = preferredInput() { try? session.setPreferredInput(preferred) }
-        if preferredInput() == nil { AudioDebugLog.event("route.noPreferredInput", ["mic": selectedMic]) }  // AUDIO DEBUG LOG
+        if AudioDebugLog.isEnabled, preferredInput() == nil { AudioDebugLog.event("route.noPreferredInput", ["mic": selectedMic]) }  // AUDIO DEBUG LOG
     }
 
     /// The input port matching the user's choice, falling back to the built-in mic

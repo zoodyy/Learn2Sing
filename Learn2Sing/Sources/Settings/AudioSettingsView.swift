@@ -17,6 +17,7 @@ struct AudioSettingsView: View {
     @AppStorage(AudioRouteManager.micKey) private var microphone = AudioRouteManager.builtInMic
     @AppStorage(microphoneDelayKey) private var micDelayMs = 0.0
     @AppStorage(AutoMicDelay.enabledKey) private var autoMicDelay = AutoMicDelay.defaultEnabled
+    @AppStorage(AudioDebugLog.settingKey) private var playbackDebugLogging = false  // AUDIO DEBUG LOG
     @FocusState private var micDelayFocused: Bool
     @ObservedObject private var routes = AudioRouteManager.shared
 
@@ -92,6 +93,23 @@ struct AudioSettingsView: View {
             } header: {
                 Text("Scoring").settingSection(.audioScoring)
             }
+            // AUDIO DEBUG LOG BEGIN
+
+            // The audio debug log's switch (see AudioDebugLog.swift). Shown on the
+            // developer's install alone: everywhere else this section doesn't exist,
+            // and nothing is ever logged. Its words are verbatim and its help a plain
+            // string, so the string catalog never sees either.
+            if AudioDebugLog.isAvailable {
+                Section {
+                    Toggle(isOn: $playbackDebugLogging) {
+                        Text(verbatim: "Playback debug logging")
+                    }
+                    .settingHelp("Logs what the audio does during every exercise, so playback bugs can be found afterwards. Only on this iPhone, and only while it's on.")
+                } header: {
+                    Text(verbatim: "Debug")
+                }
+            }
+            // AUDIO DEBUG LOG END
         }
         .navigationTitle(L("Audio"))
         .navigationBarTitleDisplayMode(.inline)
@@ -107,6 +125,7 @@ struct AudioSettingsView: View {
         .onChange(of: autoMicDelay) { _, isOn in
             if isOn { micDelayFocused = false }
         }
+        .onChange(of: playbackDebugLogging) { _, isOn in AudioDebugLog.setSwitchedOn(isOn) }  // AUDIO DEBUG LOG
         // Probe for devices the playback configuration hides (a Bluetooth microphone
         // is only visible while the Hands-Free Profile is allowed), so everything
         // that's connected can be picked here.
