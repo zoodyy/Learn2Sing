@@ -410,6 +410,11 @@ final class PitchDetector: ObservableObject {
 /// difference. The first buffer after a start, and the first after the sample rate
 /// changes, is only reported (`onFormat`): nothing is queued until the detector has
 /// started the analysis at that rate and called `accept`.
+///
+/// These are the capture classes cameras use too, so App Store Connect turns a build
+/// down without a camera purpose string (ITMS-90683), though the camera is never asked
+/// for. `INFOPLIST_KEY_NSCameraUsageDescription` is there for that alone, and can go
+/// with this class.
 nonisolated final class MicrophoneCapture: NSObject, AVCaptureAudioDataOutputSampleBufferDelegate,
                                            @unchecked Sendable {
     private let session = AVCaptureSession()

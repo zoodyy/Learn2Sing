@@ -200,6 +200,7 @@ for key, translations in trbase.INFOPLIST.items():
 
 # The comment Xcode's extraction gives a key: its name in Xcode's Info editor.
 INFOPLIST_COMMENTS = {
+    "NSCameraUsageDescription": "Privacy - Camera Usage Description",
     "NSMicrophoneUsageDescription": "Privacy - Microphone Usage Description",
 }
 
