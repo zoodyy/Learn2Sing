@@ -1,0 +1,20 @@
+# folder	language	1 See Your Pitch	2 Create Your Own Exercises	3 Over 100 Bundled Exercises	4 And Share Them With The Community	5 Customise Your Experience	[style]
+# \n is a line break. Folder names are App Store Connect's language names. Uncomment the English row to
+# check the pipeline against the originals (it lands in "_English check", which verify skips).
+#_English check	en	See Your\nPitch	Create\nYour Own\nExercises	Over 100\nBundled\nExercises	And Share\nThem\nWith The\nCommunity	Customise\nYour\nExperience
+German	de	Sieh deine\nTonhöhe	Erstelle\neigene\nÜbungen	Über 100\nÜbungen\ninklusive	Und teile\nsie mit der\nCommunity	Ganz nach\ndeinem\nGeschmack
+Spanish (Spain)	es	Mira tu\nafinación	Crea tus\npropios\nejercicios	Más de 100\nejercicios\nincluidos	Y compártelos\ncon la\ncomunidad	Personaliza\ntu\nexperiencia
+Spanish (Mexico)	es	Mira tu\nafinación	Crea tus\npropios\nejercicios	Más de 100\nejercicios\nincluidos	Y compártelos\ncon la\ncomunidad	Personaliza\ntu\nexperiencia
+French	fr	Visualisez\nvotre\njustesse	Créez vos\npropres\nexercices	Plus de 100\nexercices\ninclus	Et partagez-les\navec la\ncommunauté	Personnalisez\nvotre\nexpérience
+French (Canada)	fr	Visualisez\nvotre\njustesse	Créez vos\npropres\nexercices	Plus de 100\nexercices\ninclus	Et partagez-les\navec la\ncommunauté	Personnalisez\nvotre\nexpérience
+Italian	it	Guarda\nla tua\nintonazione	Crea i tuoi\nesercizi	Oltre 100\nesercizi\ninclusi	E condividili\ncon la\ncomunità	Personalizza\nla tua\nesperienza
+Portuguese (Brazil)	pt-BR	Veja sua\nafinação	Crie seus\npróprios\nexercícios	Mais de 100\nexercícios\nincluídos	E compartilhe\ncom a\ncomunidade	Personalize\nsua\nexperiência
+Dutch	nl	Bekijk je\ntoonhoogte	Maak je\neigen\noefeningen	Ruim 100\noefeningen\ninbegrepen	En deel ze\nmet de\ncommunity	Personaliseer\nje ervaring
+Russian	ru	Следите\nза высотой\nтона	Создавайте\nсвои\nупражнения	Более 100\nвстроенных\nупражнений	И делитесь\nими\nс сообществом	Настройте\nвсё\nпод себя
+Polish	pl	Zobacz\nswoją\nintonację	Twórz\nwłasne\nćwiczenia	Ponad 100\ngotowych\nćwiczeń	I dziel się\nnimi ze\nspołecznością	Dostosuj\naplikację\ndo siebie
+Turkish	tr	Ses\nperdenizi\ngörün	Kendi\negzersizlerinizi\noluşturun	100’den\nfazla hazır\negzersiz	Ve toplulukla\npaylaşın	Deneyiminizi\nkişiselleştirin
+Swedish	sv	Se din\ntonhöjd	Skapa\negna\növningar	Över 100\nfärdiga\növningar	Och dela\ndem med\ncommunityn	Anpassa\ndin\nupplevelse
+Japanese	ja	音程が\n見える	自分だけの\nエクササイズを\n作ろう	100 種類以上の\nエクササイズを\n収録	コミュニティで\nシェアしよう	自分好みに\nカスタマイズ	cjk=HiraginoSans-W8;palt
+Korean	ko	음정을\n눈으로\n확인하세요	나만의 연습을\n만들어 보세요	100개 이상의\n기본 제공\n연습	커뮤니티와\n공유하세요	원하는 대로\n꾸며 보세요	cjk=AppleSDGothicNeo-ExtraBold
+Chinese (Simplified)	zh-Hans	实时看见\n你的音高	创建\n你自己的\n练习	超过 100 个\n自带练习	并与社区\n分享	随心定制\n你的体验
+Arabic	ar	شاهد درجة\nصوتك	أنشئ تمارينك\nالخاصة	أكثر من 100\nتمرين جاهز	وشاركها\nمع المجتمع	خصّص\nتجربتك	boost=1.3
