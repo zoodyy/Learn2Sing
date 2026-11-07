@@ -299,6 +299,8 @@ extension SettingKey {
     static func appLanguage(_ language: AppLanguage) -> SettingKey {
         SettingKey("language.\(language.rawValue)")
     }
+    /// The Language screen's Automatic row, above the languages.
+    static let appLanguageAutomatic = SettingKey("language.automatic")
 
     // Feedback
     static let feedbackType     = SettingKey("feedback.type")
@@ -341,7 +343,8 @@ struct SettingsSearchEntry: Identifiable {
 /// as well as on every keystroke in the search field.
 @MainActor
 enum SettingsCatalog {
-    private static var cachedLanguage: AppLanguage?
+    /// The app's language and the one Automatic stands for, which names a row too.
+    private static var cachedLanguages: [AppLanguage]?
     private static var cached: [SettingsSearchEntry] = []
     private static var cachedByKey: [SettingKey: SettingsSearchEntry] = [:]
 
@@ -386,9 +389,9 @@ enum SettingsCatalog {
     }
 
     private static func rebuildIfNeeded() {
-        let language = LanguageManager.shared.language
-        guard cachedLanguage != language else { return }
-        cachedLanguage = language
+        let languages = [LanguageManager.shared.language, LanguageManager.shared.deviceLanguage]
+        guard cachedLanguages != languages else { return }
+        cachedLanguages = languages
         cached = build()
         cachedByKey = Dictionary(uniqueKeysWithValues: cached.map { ($0.key, $0) })
     }
@@ -459,7 +462,9 @@ enum SettingsCatalog {
             help: L("Delete your scores, exercises and Home tab lists, or put your settings back to how the app started out."))
         add(.backup, .root, title: L("Backup"),
             help: L("Export your exercise library to a file, or import one."))
-        add(.language, .root, title: L("Language"),
+        // Titled as the row reads, English word and all outside English, so
+        // searching for "Language" finds it from any language.
+        add(.language, .root, title: LanguageSettingsView.rowTitle,
             help: L("The language the app is displayed in. Kept on this device only."))
         add(.tutorial, .root, title: L("Tutorial"),
             help: L("Play the introduction the app opens with on its first launch again."))
@@ -729,6 +734,9 @@ enum SettingsCatalog {
         // Both names are searched, so the list answers to "German" as readily as
         // to "Deutsch" whichever language the app is currently in.
         heading(.languageAppLanguage, .language, L("App Language"))
+        add(.appLanguageAutomatic, .language, section: L("App Language"),
+            title: LanguageSettingsView.automaticTitle(for: LanguageManager.shared.deviceLanguage),
+            help: L("Shows the app in the language your device is set to, or in English if the app isn't available in that language. When you change your device's language, the app changes with it."))
         for language in AppLanguage.allCases {
             add(.appLanguage(language), .language, section: L("App Language"),
                 title: language.nativeName, help: language.englishName)

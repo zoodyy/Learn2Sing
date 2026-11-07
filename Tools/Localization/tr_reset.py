@@ -320,21 +320,21 @@ T("Marks your favorites on the Exercises tab with a star again and puts them bac
   "연습 탭의 즐겨찾기에 다시 별을 표시하고, 각 분류의 맨 위로 되돌립니다. 분류와 탭의 정렬 순서는 그대로 남습니다.",
   "重新在“练习”标签中用星星标记你的收藏，并把它们放回所属分类的最上面。你的分类和标签的排序方式保持不变。",
   "يعيد تمييز مفضلتك بنجمة في تبويب التمارين ويعيدها إلى أعلى فئاتها. تبقى فئاتك والترتيب الذي اخترته للتبويب كما هي.")
-T("Puts the app's language back to English.",
-  "Setzt die Sprache der App wieder auf Englisch.",
-  "Devuelve el idioma de la app al inglés.",
-  "Remet la langue de l’app en anglais.",
-  "Riporta la lingua dell’app all’inglese.",
-  "Volta o idioma do app para o inglês.",
-  "Zet de taal van de app terug op Engels.",
-  "Возвращает язык приложения на английский.",
-  "Przywraca język aplikacji na angielski.",
-  "Uygulamanın dilini yeniden İngilizceye ayarlar.",
-  "Ställer tillbaka appens språk till engelska.",
-  "アプリの言語を英語に戻します。",
-  "앱의 언어를 영어로 되돌립니다.",
-  "将应用语言恢复为英语。",
-  "يعيد لغة التطبيق إلى الإنجليزية.")
+T("Puts the app's language back to “Automatic”, which follows the language your device is set to.",
+  "Setzt die Sprache der App wieder auf „Automatisch“, sodass sie der Sprache deines Geräts folgt.",
+  "Devuelve el idioma de la app a «Automático», que sigue el idioma configurado en tu dispositivo.",
+  "Remet la langue de l’app sur « Automatique », qui suit la langue de votre appareil.",
+  "Riporta la lingua dell’app su “Automatico”, che segue la lingua impostata sul tuo dispositivo.",
+  "Volta o idioma do app para “Automático”, que segue o idioma configurado no seu dispositivo.",
+  "Zet de taal van de app terug op ‘Automatisch’, dat de taal van je apparaat volgt.",
+  "Возвращает для языка приложения вариант «Автоматически», при котором используется язык вашего устройства.",
+  "Przywraca język aplikacji na „Automatycznie”, czyli język ustawiony na twoim urządzeniu.",
+  "Uygulamanın dilini yeniden “Otomatik” olarak ayarlar; bu seçenek cihazınızın dilini izler.",
+  "Ställer tillbaka appens språk till ”Automatiskt”, som följer språket som din enhet är inställd på.",
+  "アプリの言語を、端末に設定されている言語に合わせる「自動」に戻します。",
+  "앱의 언어를 기기에 설정된 언어를 따르는 “자동”으로 되돌립니다.",
+  "将应用语言恢复为跟随设备语言的“自动”。",
+  "يعيد لغة التطبيق إلى «تلقائي»، الذي يتبع اللغة المضبوط عليها جهازك.")
 
 # --- Reset ▸ Exercises ---
 T("Your Exercises", "Deine Übungen", "Tus ejercicios", "Vos exercices", "I tuoi esercizi", "Seus exercícios", "Jouw oefeningen", "Ваши упражнения", "Twoje ćwiczenia", "Egzersizleriniz", "Dina övningar", "自分のエクササイズ", "내 연습", "你的练习", "تمارينك")

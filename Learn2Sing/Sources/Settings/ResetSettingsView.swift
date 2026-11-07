@@ -239,7 +239,7 @@ enum ResettableSettings: String, CaseIterable, Identifiable {
         case .exercisesTab:
             L("Marks your favorites on the Exercises tab with a star again and puts them back at the top of their categories. Your categories and the order you sorted the tab in are left as they are.")
         case .language:
-            L("Puts the app's language back to English.")
+            L("Puts the app's language back to “Automatic”, which follows the language your device is set to.")
         }
     }
 
@@ -307,8 +307,8 @@ enum ResettableSettings: String, CaseIterable, Identifiable {
             defaults.removeObject(forKey: FavouriteDisplay.marksKey)
             defaults.removeObject(forKey: FavouriteDisplay.onTopKey)
         case .language:
-            LanguageManager.shared.language = .english
-            defaults.removeObject(forKey: LanguageManager.storageKey)
+            // Automatic is the default, and choosing it removes the stored value.
+            LanguageManager.shared.choice = .automatic
         }
     }
 }

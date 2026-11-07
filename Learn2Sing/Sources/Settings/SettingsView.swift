@@ -64,7 +64,9 @@ struct SettingsView: View {
                     hubLink(L("Backup"), systemImage: "externaldrive", route: .backup)
                         .setting(.backup)
 
-                    hubLink(L("Language"), systemImage: "globe", route: .language)
+                    // "Sprache (Language)" outside English, so the way back is
+                    // there to find from a language picked by mistake.
+                    hubLink(LanguageSettingsView.rowTitle, systemImage: "globe", route: .language)
                         .setting(.language)
 
                     // No chevron: it opens over the whole app rather than pushing

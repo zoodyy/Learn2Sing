@@ -148,7 +148,7 @@ enum DeleteEverything {
     /// takes.
     private static func wipeDevice(store: ExerciseStore, templates: VisualTemplateStore) {
         templates.deselect()
-        LanguageManager.shared.language = .english
+        LanguageManager.shared.choice = .automatic
         RecommendationQueue.shared.forget()
         BookLessonProgress.shared.clear()
         BlockedUsers.shared.forget()

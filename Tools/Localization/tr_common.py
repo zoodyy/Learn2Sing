@@ -14,6 +14,7 @@ T("Exercises Tab", "Übungen-Tab", "Pestaña Ejercicios", "Onglet Exercices", "S
 T("Backup", "Sicherung", "Copia de seguridad", "Sauvegarde", "Backup", "Backup", "Back-up", "Резервная копия", "Kopia zapasowa", "Yedekleme", "Säkerhetskopia", "バックアップ", "백업", "备份", "النسخ الاحتياطي")
 T("Language", "Sprache", "Idioma", "Langue", "Lingua", "Idioma", "Taal", "Язык", "Język", "Dil", "Språk", "言語", "언어", "语言", "اللغة")
 T("App Language", "App-Sprache", "Idioma de la app", "Langue de l’app", "Lingua dell’app", "Idioma do app", "App-taal", "Язык приложения", "Język aplikacji", "Uygulama dili", "Appspråk", "アプリの言語", "앱 언어", "应用语言", "لغة التطبيق")
+T("Automatic (%@)", "Automatisch (%@)", "Automático (%@)", "Automatique (%@)", "Automatico (%@)", "Automático (%@)", "Automatisch (%@)", "Автоматически (%@)", "Automatycznie (%@)", "Otomatik (%@)", "Automatiskt (%@)", "自動（%@）", "자동 (%@)", "自动（%@）", "تلقائي (%@)")
 
 T("OK", "OK", "OK", "OK", "OK", "OK", "OK", "OK", "OK", "Tamam", "OK", "OK", "확인", "好", "حسنًا")
 T("Cancel", "Abbrechen", "Cancelar", "Annuler", "Annulla", "Cancelar", "Annuleren", "Отмена", "Anuluj", "İptal", "Avbryt", "キャンセル", "취소", "取消", "إلغاء")
@@ -104,21 +105,21 @@ T("That photo could not be used.", "Dieses Foto konnte nicht verwendet werden.",
 T("Drag and pinch to choose what shows in the circle.", "Ziehen und zoomen, um zu wählen, was im Kreis zu sehen ist.", "Arrastra y pellizca para elegir lo que se ve en el círculo.", "Faites glisser et pincez pour choisir ce qui apparaît dans le cercle.", "Trascina e pizzica per scegliere cosa si vede nel cerchio.", "Arraste e use o gesto de pinça para escolher o que aparece no círculo.", "Sleep en knijp om te kiezen wat er in de cirkel te zien is.", "Перетаскивайте и сводите пальцы, чтобы выбрать, что видно в круге.", "Przeciągaj i szczypnij, aby wybrać, co widać w kole.", "Dairede ne görüneceğini seçmek için sürükleyin ve parmaklarınızı kıstırın.", "Dra och nyp för att välja vad som syns i cirkeln.", "ドラッグとピンチで、円の中に表示する部分を選びます。", "드래그하고 손가락을 오므려 원 안에 보일 부분을 선택하세요.", "拖动并捏合以选择圆形中显示的部分。", "اسحب وقرّب أو بعّد بإصبعين لتختار ما يظهر داخل الدائرة.")
 T("Close", "Schließen", "Cerrar", "Fermer", "Chiudi", "Fechar", "Sluiten", "Закрыть", "Zamknij", "Kapat", "Stäng", "閉じる", "닫기", "关闭", "إغلاق")
 
-T("Applies to the app's own screens and the exercises it came with. Your own exercise names and notes are left as you wrote them. This setting is kept on this device only, so reinstalling the app returns it to English.",
-  "Gilt für die Bildschirme der App und die mitgelieferten Übungen. Eigene Übungsnamen und Notizen bleiben so, wie du sie geschrieben hast. Diese Einstellung wird nur auf diesem Gerät gespeichert; nach einer Neuinstallation ist wieder Englisch eingestellt.",
-  "Se aplica a las pantallas de la app y a los ejercicios incluidos. Los nombres y las notas de tus propios ejercicios se conservan tal como los escribiste. Este ajuste solo se guarda en este dispositivo, así que al reinstalar la app vuelve al inglés.",
-  "S’applique aux écrans de l’app et aux exercices fournis. Les noms et notes de vos propres exercices restent tels que vous les avez écrits. Ce réglage est conservé uniquement sur cet appareil : après une réinstallation, l’app revient à l’anglais.",
-  "Vale per le schermate dell’app e per gli esercizi inclusi. I nomi e le note dei tuoi esercizi restano come li hai scritti. Questa impostazione è salvata solo su questo dispositivo, quindi reinstallando l’app si torna all’inglese.",
-  "Aplica-se às telas do app e aos exercícios que vieram com ele. Os nomes e as anotações dos seus próprios exercícios permanecem como você escreveu. Esta configuração fica apenas neste dispositivo, então reinstalar o app volta para o inglês.",
-  "Geldt voor de schermen van de app en de meegeleverde oefeningen. Namen en notities van je eigen oefeningen blijven zoals je ze hebt geschreven. Deze instelling staat alleen op dit apparaat, dus na opnieuw installeren staat de app weer op Engels.",
-  "Применяется к экранам приложения и к упражнениям, которые входят в комплект. Названия и заметки ваших собственных упражнений остаются такими, как вы их написали. Эта настройка хранится только на этом устройстве, поэтому после переустановки приложение снова будет на английском.",
-  "Dotyczy ekranów aplikacji i dołączonych ćwiczeń. Nazwy i notatki twoich własnych ćwiczeń pozostają takie, jak je zapisałeś. To ustawienie jest przechowywane tylko na tym urządzeniu, więc po ponownej instalacji aplikacja wróci do angielskiego.",
-  "Uygulamanın kendi ekranları ve uygulamayla gelen egzersizler için geçerlidir. Kendi egzersiz adlarınız ve notlarınız yazdığınız gibi kalır. Bu ayar yalnızca bu cihazda tutulur; uygulamayı yeniden yüklediğinizde İngilizceye döner.",
-  "Gäller appens egna skärmar och de övningar som följde med. Namn och anteckningar på dina egna övningar lämnas som du skrev dem. Inställningen sparas bara på den här enheten, så om du installerar om appen återgår den till engelska.",
-  "アプリの画面と、アプリに付属するエクササイズに適用されます。自分で作成したエクササイズ名やメモは、書いたままの状態で残ります。この設定はこの端末にのみ保存されるため、アプリを再インストールすると英語に戻ります。",
-  "앱의 화면과 앱에 포함된 연습에 적용됩니다. 직접 만든 연습 이름과 메모는 작성한 그대로 유지됩니다. 이 설정은 이 기기에만 저장되므로 앱을 다시 설치하면 영어로 돌아갑니다.",
-  "适用于应用自身的界面以及随应用附带的练习。你自己的练习名称和备注会保持你写下的原样。此设置仅保存在本设备上，因此重新安装应用后会恢复为英语。",
-  "ينطبق على شاشات التطبيق نفسه والتمارين المرفقة معه. تبقى أسماء تمارينك وملاحظاتك كما كتبتها. يُحفظ هذا الإعداد على هذا الجهاز فقط، لذلك تعود اللغة إلى الإنجليزية عند إعادة تثبيت التطبيق.")
+T("Applies to the app's own screens and the exercises it came with. Your own exercise names and notes are left as you wrote them. This setting is kept on this device only, so reinstalling the app returns it to “Automatic”.",
+  "Gilt für die Bildschirme der App und die mitgelieferten Übungen. Eigene Übungsnamen und Notizen bleiben so, wie du sie geschrieben hast. Diese Einstellung wird nur auf diesem Gerät gespeichert; nach einer Neuinstallation ist wieder „Automatisch“ eingestellt.",
+  "Se aplica a las pantallas de la app y a los ejercicios incluidos. Los nombres y las notas de tus propios ejercicios se conservan tal como los escribiste. Este ajuste solo se guarda en este dispositivo, así que al reinstalar la app vuelve a «Automático».",
+  "S’applique aux écrans de l’app et aux exercices fournis. Les noms et notes de vos propres exercices restent tels que vous les avez écrits. Ce réglage est conservé uniquement sur cet appareil : après une réinstallation, il revient sur « Automatique ».",
+  "Vale per le schermate dell’app e per gli esercizi inclusi. I nomi e le note dei tuoi esercizi restano come li hai scritti. Questa impostazione è salvata solo su questo dispositivo, quindi reinstallando l’app si torna ad “Automatico”.",
+  "Aplica-se às telas do app e aos exercícios que vieram com ele. Os nomes e as anotações dos seus próprios exercícios permanecem como você escreveu. Esta configuração fica apenas neste dispositivo, então reinstalar o app volta para “Automático”.",
+  "Geldt voor de schermen van de app en de meegeleverde oefeningen. Namen en notities van je eigen oefeningen blijven zoals je ze hebt geschreven. Deze instelling staat alleen op dit apparaat, dus na opnieuw installeren staat deze weer op ‘Automatisch’.",
+  "Применяется к экранам приложения и к упражнениям, которые входят в комплект. Названия и заметки ваших собственных упражнений остаются такими, как вы их написали. Эта настройка хранится только на этом устройстве, поэтому после переустановки приложения снова будет выбрано «Автоматически».",
+  "Dotyczy ekranów aplikacji i dołączonych ćwiczeń. Nazwy i notatki twoich własnych ćwiczeń pozostają takie, jak je zapisałeś. To ustawienie jest przechowywane tylko na tym urządzeniu, więc po ponownej instalacji aplikacji wróci do opcji „Automatycznie”.",
+  "Uygulamanın kendi ekranları ve uygulamayla gelen egzersizler için geçerlidir. Kendi egzersiz adlarınız ve notlarınız yazdığınız gibi kalır. Bu ayar yalnızca bu cihazda tutulur; uygulamayı yeniden yüklediğinizde “Otomatik” seçeneğine döner.",
+  "Gäller appens egna skärmar och de övningar som följde med. Namn och anteckningar på dina egna övningar lämnas som du skrev dem. Inställningen sparas bara på den här enheten, så om du installerar om appen återgår den till ”Automatiskt”.",
+  "アプリの画面と、アプリに付属するエクササイズに適用されます。自分で作成したエクササイズ名やメモは、書いたままの状態で残ります。この設定はこの端末にのみ保存されるため、アプリを再インストールすると「自動」に戻ります。",
+  "앱의 화면과 앱에 포함된 연습에 적용됩니다. 직접 만든 연습 이름과 메모는 작성한 그대로 유지됩니다. 이 설정은 이 기기에만 저장되므로 앱을 다시 설치하면 “자동”으로 돌아갑니다.",
+  "适用于应用自身的界面以及随应用附带的练习。你自己的练习名称和备注会保持你写下的原样。此设置仅保存在本设备上，因此重新安装应用后会恢复为“自动”。",
+  "ينطبق على شاشات التطبيق نفسه والتمارين المرفقة معه. تبقى أسماء تمارينك وملاحظاتك كما كتبتها. يُحفظ هذا الإعداد على هذا الجهاز فقط، لذلك يعود إلى «تلقائي» عند إعادة تثبيت التطبيق.")
 T("The language the app is displayed in. Kept on this device only.",
   "Die Sprache, in der die App angezeigt wird. Wird nur auf diesem Gerät gespeichert.",
   "El idioma en el que se muestra la app. Solo se guarda en este dispositivo.",
@@ -134,3 +135,18 @@ T("The language the app is displayed in. Kept on this device only.",
   "앱이 표시되는 언어입니다. 이 기기에만 저장됩니다.",
   "应用显示所用的语言。仅保存在本设备上。",
   "اللغة التي يُعرض بها التطبيق. تُحفظ على هذا الجهاز فقط.")
+T("Shows the app in the language your device is set to, or in English if the app isn't available in that language. When you change your device's language, the app changes with it.",
+  "Zeigt die App in der Sprache an, auf die dein Gerät eingestellt ist, oder auf Englisch, wenn es die App in dieser Sprache nicht gibt. Wenn du die Sprache deines Geräts änderst, wechselt die App mit.",
+  "Muestra la app en el idioma configurado en tu dispositivo, o en inglés si la app no está disponible en ese idioma. Si cambias el idioma de tu dispositivo, la app cambia con él.",
+  "Affiche l’app dans la langue de votre appareil, ou en anglais si l’app n’est pas disponible dans cette langue. Si vous changez la langue de votre appareil, l’app suit le changement.",
+  "Mostra l’app nella lingua impostata sul tuo dispositivo, oppure in inglese se l’app non è disponibile in quella lingua. Se cambi la lingua del dispositivo, l’app si adegua.",
+  "Mostra o app no idioma configurado no seu dispositivo, ou em inglês se o app não estiver disponível nesse idioma. Se você mudar o idioma do dispositivo, o app muda junto.",
+  "Toont de app in de taal waarop je apparaat is ingesteld, of in het Engels als de app niet in die taal beschikbaar is. Als je de taal van je apparaat wijzigt, verandert de app mee.",
+  "Показывает приложение на языке, который выбран на вашем устройстве, или на английском, если приложение недоступно на этом языке. Если вы смените язык устройства, язык приложения сменится вместе с ним.",
+  "Wyświetla aplikację w języku ustawionym na twoim urządzeniu albo po angielsku, jeśli aplikacja nie jest dostępna w tym języku. Gdy zmienisz język urządzenia, język aplikacji zmieni się razem z nim.",
+  "Uygulamayı cihazınızın ayarlı olduğu dilde gösterir; uygulama o dilde mevcut değilse İngilizce gösterir. Cihazınızın dilini değiştirdiğinizde uygulamanın dili de onunla birlikte değişir.",
+  "Visar appen på det språk som din enhet är inställd på, eller på engelska om appen inte finns på det språket. När du byter språk på enheten följer appen med.",
+  "端末に設定されている言語でアプリを表示します。アプリがその言語に対応していない場合は英語で表示します。端末の言語を変更すると、アプリの言語も合わせて変わります。",
+  "기기에 설정된 언어로 앱을 표시하고, 앱이 그 언어를 지원하지 않으면 영어로 표시합니다. 기기의 언어를 바꾸면 앱의 언어도 함께 바뀝니다.",
+  "以你设备设置的语言显示应用；如果应用不提供该语言，则以英语显示。更改设备语言后，应用语言也会随之改变。",
+  "يعرض التطبيق باللغة المضبوط عليها جهازك، أو بالإنجليزية إذا لم يكن التطبيق متوفرًا بتلك اللغة. عندما تغيّر لغة جهازك، تتغير لغة التطبيق معها.")

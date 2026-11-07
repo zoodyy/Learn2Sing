@@ -2,10 +2,12 @@
 //  Localization.swift
 //  Learn2Sing
 //
-//  The app's language is chosen in Settings › Language rather than following the
-//  device, so it lives entirely in UserDefaults: it is deliberately absent from
-//  `UserProfile`, which is what ProfileSync mirrors to the server. UserDefaults is
-//  wiped when the app is deleted, so a reinstall always comes back up in English.
+//  The app's language is chosen in Settings › Language: "Automatic", the default,
+//  follows the device's language (English where the app doesn't have it), and
+//  every other row fixes one language whatever the device is set to. The choice
+//  lives entirely in UserDefaults: it is deliberately absent from `UserProfile`,
+//  which is what ProfileSync mirrors to the server. UserDefaults is wiped when the
+//  app is deleted, so a reinstall always comes back up on Automatic.
 //
 
 import Foundation
@@ -80,6 +82,22 @@ enum AppLanguage: String, CaseIterable, Identifiable, Hashable {
         }
     }
 
+    /// `nativeName` and `englishName` as they read inside a parenthesis of their
+    /// own, on the Language screen's Automatic row: the two names that carry one
+    /// already are said another way there, so the row never reads
+    /// "Automático (Português (Brasil))".
+    var nativeNameInline: String {
+        self == .portuguese ? "Português do Brasil" : nativeName
+    }
+
+    var englishNameInline: String {
+        switch self {
+        case .portuguese: return "Brazilian Portuguese"
+        case .chinese:    return "Simplified Chinese"
+        default:          return englishName
+        }
+    }
+
     /// Drives SwiftUI's own resolution of `LocalizedStringKey` as well as number
     /// and date formatting, and is what makes a language change repaint the
     /// screens that are already on screen.
@@ -95,32 +113,99 @@ enum AppLanguage: String, CaseIterable, Identifiable, Hashable {
 
     /// The `.lproj` the strings are read from. English is resolved explicitly
     /// rather than left to the main bundle's own lookup, which would follow the
-    /// device's preferred languages — the app is English until the user picks
-    /// otherwise, whatever the device is set to.
+    /// device's preferred languages on its own terms — the app shows the language
+    /// picked in Settings, and even Automatic decides for itself (see `device`).
     var bundle: Bundle? {
         guard let path = Bundle.main.path(forResource: rawValue, ofType: "lproj")
         else { return nil }
         return Bundle(path: path)
     }
+
+    /// The language Automatic shows the app in: the one the device is set to,
+    /// when the app has it, and English when it doesn't. Only the device's first
+    /// language counts, not the fallbacks listed under it in the system settings,
+    /// so a device set to a language the app lacks gets English even if one of
+    /// the app's languages is further down that list. Which of the app's
+    /// languages the device's one comes out as is left to Apple's own matching,
+    /// the rule iOS picks an app's localization by: a device in Portuguese
+    /// (Portugal) gets Portuguese (Brazil), one in Spanish (Mexico) gets Spanish,
+    /// and one in Traditional Chinese gets English rather than the Simplified
+    /// script. Where nothing matches, that matching answers English.
+    static var device: AppLanguage {
+        guard let preferred = Locale.preferredLanguages.first,
+              let match = Bundle.preferredLocalizations(
+                  from: allCases.map(\.rawValue), forPreferences: [preferred]).first
+        else { return .english }
+        return AppLanguage(rawValue: match) ?? .english
+    }
 }
 
-/// Holds the selected language and republishes it so the view tree repaints.
-/// A singleton because `L(_:)` — used from plain-`String` call sites that have no
-/// access to the environment — has to be able to read it synchronously.
+/// The row checked in Settings › Language: one of the app's languages, or
+/// Automatic, which stands for whichever of them the device's language is.
+enum LanguageChoice: Hashable {
+    case automatic
+    case specific(AppLanguage)
+}
+
+/// Holds the chosen language and the one the app is displayed in, and republishes
+/// them so the view tree repaints. A singleton because `L(_:)` — used from
+/// plain-`String` call sites that have no access to the environment — has to be
+/// able to read it synchronously.
 final class LanguageManager: ObservableObject {
     static let shared = LanguageManager()
 
     /// Local only, and never added to `UserProfile`: deleting the app resets the
-    /// choice to English, which is the intended behaviour.
+    /// choice to Automatic, which is the intended behaviour. Holds the code of a
+    /// language picked on the Language screen; Automatic is the key's absence, so
+    /// a new install follows the device, and so does an install from before
+    /// Automatic existed whose user never picked a language (English was only the
+    /// default then, and nothing was stored for it).
     static let storageKey = "appLanguage"
 
-    @Published var language: AppLanguage {
+    /// The row checked on the Language screen. The only thing anything sets: the
+    /// language the app is displayed in follows from it.
+    @Published var choice: LanguageChoice {
         didSet {
-            guard language != oldValue else { return }
-            UserDefaults.standard.set(language.rawValue, forKey: Self.storageKey)
-            Self.current = language
-            applyLayoutDirection()
+            guard choice != oldValue else { return }
+            switch choice {
+            case .automatic:
+                UserDefaults.standard.removeObject(forKey: Self.storageKey)
+            case .specific(let picked):
+                UserDefaults.standard.set(picked.rawValue, forKey: Self.storageKey)
+            }
+            resolve()
         }
+    }
+
+    /// The language the app is displayed in: the chosen one, or the device's for
+    /// Automatic. What every screen reads, its locale and its strings both.
+    @Published private(set) var language: AppLanguage
+
+    /// What Automatic stands for, which the Language screen shows beside it whether
+    /// or not it is the row checked. Worked out at launch: changing the device's
+    /// language quits every app, so the next launch is where the change arrives,
+    /// and an app on Automatic simply comes up in the new language. Asked again
+    /// should the system announce a locale change to the running app.
+    @Published private(set) var deviceLanguage: AppLanguage
+
+    /// Brings `language` in line with the choice and the device.
+    private func resolve() {
+        let resolved: AppLanguage
+        switch choice {
+        case .automatic: resolved = deviceLanguage
+        case .specific(let picked): resolved = picked
+        }
+        guard resolved != language else { return }
+        language = resolved
+        Self.current = resolved
+        applyLayoutDirection()
+    }
+
+    private func refreshDeviceLanguage() {
+        let device = AppLanguage.device
+        guard device != deviceLanguage else { return }
+        deviceLanguage = device
+        resolve()
     }
 
     /// Mirrors the whole app for a right-to-left language. The window scene's trait
@@ -147,12 +232,24 @@ final class LanguageManager: ObservableObject {
     fileprivate static var current: AppLanguage = .english
 
     private init() {
-        // No fallback to the device language: unset means English, always.
+        // Unset means Automatic, and so does a code the app has no language for.
         let stored = UserDefaults.standard.string(forKey: Self.storageKey)
-        let initial = stored.flatMap(AppLanguage.init(rawValue:)) ?? .english
+            .flatMap(AppLanguage.init(rawValue:))
+        let device = AppLanguage.device
+        let initial = stored ?? device
+        choice = stored.map(LanguageChoice.specific) ?? .automatic
+        deviceLanguage = device
         language = initial
         Self.current = initial
         Bundle.installLanguageOverride()
+        // The device's language can't change under a running app (the change
+        // quits it), but its locale can, and this is how the system says so: worth
+        // asking again, in case a change of language ever arrives this way.
+        _ = NotificationCenter.default.addObserver(
+            forName: NSLocale.currentLocaleDidChangeNotification, object: nil, queue: .main
+        ) { _ in
+            MainActor.assumeIsolated { LanguageManager.shared.refreshDeviceLanguage() }
+        }
         // A scene is turned the right way round as it connects, before any of its
         // views exist, so nothing is built one way and then flipped. The app
         // delegate creates this manager at launch so the observer is in place.
