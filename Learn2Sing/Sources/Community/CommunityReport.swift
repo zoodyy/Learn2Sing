@@ -203,7 +203,7 @@ private struct CommunityReportView: View {
     var body: some View {
         NavigationStack {
             Form {
-                TextField(report.prompt, text: $message, axis: .vertical)
+                TextField(report.prompt, text: $message.limited(to: TextLimit.reportMessage), axis: .vertical)
                     .lineLimit(5...15)
                     .focused($isWriting)
                     .settingHelp(L("Why you're reporting it. The more exactly you say what's wrong, the easier it is to do something about it."))

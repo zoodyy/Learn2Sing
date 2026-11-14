@@ -62,20 +62,25 @@ extension Exercise {
     /// the untransposed first repetition — then keeps going the new way for the rest.
     /// E.g. step +1, switchAfter 1 over 5 reps gives 0, -1, -2, -3, -4 (one up step is
     /// "spent" on the first repetition, so the switch lands immediately after it).
+    ///
+    /// Counted out rather than walked: asked once per repetition, a walk to each
+    /// one is a walk over every repetition squared. The settings are held inside
+    /// their limits first, so the product can't overflow whatever the exercise
+    /// was built from (see ExerciseLimits).
     func cumulativeTranspose(forRepetition rep: Int) -> Int {
-        let step = transposePerRepeat
-        let switchAfter = switchDirectionAfter
+        let step = transposePerRepeat.clamped(to: ExerciseLimits.transposePerRepeat)
+        let switchAfter = max(0, switchDirectionAfter)
+        let rep = min(rep, ExerciseLimits.repeatCount.upperBound)
         guard rep > 0 else { return 0 }
         guard switchAfter > 0 else { return rep * step }   // never switches
 
-        var offset = 0
-        for r in 1...rep {
-            // The first `switchAfter` repetitions (including the untransposed one at
-            // r == 0) go in the initial direction; from there on it's reversed.
-            let direction = r >= switchAfter ? -1 : 1
-            offset += direction * step
-        }
-        return offset
+        // The first `switchAfter` repetitions (including the untransposed one at
+        // r == 0) go in the initial direction; from there on it's reversed. So of
+        // the steps taken by repetitions 1...rep, those before `switchAfter` go
+        // up and the rest come back down.
+        let forward = min(rep, switchAfter - 1)
+        let back = rep - forward
+        return (forward - back) * step
     }
 
     /// Expand `pattern` (and the `labels` written over it, and the `ghosts` played
@@ -93,8 +98,11 @@ extension Exercise {
         // next one doesn't start on top of it.
         let patternEnd = (pattern + ghosts).map { $0.beat + $0.length }.max() ?? 0
         let span = patternEnd.rounded(.up) + max(0, beatsBetweenReps)
-        let layout = repeatLayout(span: span)
+        // Never more repetitions than keep the whole run inside
+        // `ExerciseLimits.timelineItems`, however many the exercise asks for.
+        let layout = repeatLayout(span: span, items: pattern.count + ghosts.count + labels.count)
         let repeats = layout.count
+        let shift = pitchShift.clamped(to: ExerciseLimits.pitchShift)
 
         // Expand the pattern: each repetition is shifted later in time, scaled to its
         // own tempo and transposed by `transposePerRepeat` semitones. Applying the
@@ -114,7 +122,7 @@ extension Exercise {
             func placed(_ note: MIDINote) -> MIDINote {
                 var n = note
                 n.id = UUID()
-                n.pitch += pitchShift + transpose
+                n.pitch += shift + transpose
                 n.beat = start + note.beat * scale
                 n.length = note.length * scale
                 return n
@@ -127,7 +135,7 @@ extension Exercise {
             for (i, label) in labels.enumerated() {
                 var t = label
                 t.id = UUID()
-                t.pitch += pitchShift + transpose
+                t.pitch += shift + transpose
                 // A label is placed — and drawn — by its middle, not by the `beat`
                 // that stores it, which is its left edge at the width the text
                 // happens to lay out at. So it's the middle that moves with the
@@ -164,17 +172,30 @@ extension Exercise {
             }
         }
 
+        // Last, everything is kept on a MIDI note. Settings well inside their own
+        // limits can still carry a run off the keyboard (two octaves up per
+        // repetition, twenty repetitions on), and a note number past 127 or below
+        // 0 is one the synthesiser and the screens can't place. Such a run plays
+        // its far end at the edge of the keyboard rather than not at all.
+        let keyboard = ExerciseLimits.pitch
+        for i in expanded.indices { expanded[i].pitch = expanded[i].pitch.clamped(to: keyboard) }
+        for i in expandedTexts.indices { expandedTexts[i].pitch = expandedTexts[i].pitch.clamped(to: keyboard) }
+        for i in expandedGhosts.indices { expandedGhosts[i].pitch = expandedGhosts[i].pitch.clamped(to: keyboard) }
+
         var timeline = ExerciseTimeline(notes: expanded, texts: expandedTexts,
                                         ghosts: expandedGhosts, repeats: layout)
 
         // The vertical centre of each repetition (the midpoint of its pitch range) so
         // playback can recentre once per repetition. Each repetition's range is the
         // pattern's range shifted by that repetition's cumulative transpose, plus the
-        // global pitch- and vocal-range shifts.
+        // global pitch- and vocal-range shifts — on the keyboard, like the notes.
         if let pMin = pattern.map(\.pitch).min(), let pMax = pattern.map(\.pitch).max() {
             let baseMid = Double(pMin + pMax) / 2
+            let lowest = Double(keyboard.lowerBound)
+            let highest = Double(keyboard.upperBound)
             timeline.centers = (0..<repeats).map { rep in
-                baseMid + Double(pitchShift + cumulativeTranspose(forRepetition: rep) + vocalShift)
+                (baseMid + Double(shift + cumulativeTranspose(forRepetition: rep) + vocalShift))
+                    .clamped(to: lowest...highest)
             }
             let others = labels.map { Double($0.pitch) } + ghosts.map { Double($0.pitch) }
             let contentMax = max(Double(pMax), others.max() ?? -.infinity)
@@ -281,12 +302,28 @@ nonisolated func soundingNotes(melody: [MIDINote], ghosts: [MIDINote]) -> [MIDIN
         guard end - start > slack else { return }
         heard.append(MIDINote(pitch: note.pitch, beat: start, length: end - start))
     }
+    // The covered stretches are in order and apart from each other, so their ends
+    // are in order too: the first one a note can meet is found by bisection, and
+    // the walk stops at the first that starts after the note ends. Walking all of
+    // them for every note costs a whole run's notes times its ghost notes, which a
+    // half-hour exercise full of chords turns into minutes.
+    func firstSpan(endingAfter beat: Double) -> Int {
+        var low = 0
+        var high = covered.count
+        while low < high {
+            let middle = (low + high) / 2
+            if covered[middle].end > beat { high = middle } else { low = middle + 1 }
+        }
+        return low
+    }
     for note in melody {
         var start = note.beat
         let end = note.beat + note.length
-        for span in covered where span.end > start && span.start < end {
-            play(note, from: start, to: span.start)
-            start = span.end
+        var index = firstSpan(endingAfter: start)
+        while index < covered.count, covered[index].start < end {
+            play(note, from: start, to: covered[index].start)
+            start = covered[index].end
+            index += 1
         }
         play(note, from: start, to: end)
     }

@@ -209,7 +209,8 @@ struct FeedbackView: View {
             }
 
             Section {
-                TextField("What would you like to say?", text: $message, axis: .vertical)
+                TextField("What would you like to say?",
+                          text: $message.limited(to: TextLimit.feedbackMessage), axis: .vertical)
                     .lineLimit(5...15)
                     .focused($isWriting)
                     .setting(.feedbackMessage)
@@ -222,7 +223,7 @@ struct FeedbackView: View {
                 // over as a literal: a `LocalizedStringKey` is parsed as
                 // markdown, which turns anything shaped like an address into an
                 // autolink — the placeholder came out as blue link text.
-                TextField(L("name@example.com"), text: $email)
+                TextField(L("name@example.com"), text: $email.limited(to: TextLimit.email))
                     .keyboardType(.emailAddress)
                     .textContentType(.emailAddress)
                     .textInputAutocapitalization(.never)

@@ -69,7 +69,7 @@ struct AudioSettingsView: View {
                 HStack {
                     Text("Microphone delay")
                     Spacer()
-                    TextField("0", value: $micDelayMs, format: .number)
+                    TextField("0", value: micDelayBinding, format: .number)
                         .multilineTextAlignment(.trailing)
                         .keyboardType(.decimalPad)
                         .focused($micDelayFocused)
@@ -111,6 +111,15 @@ struct AudioSettingsView: View {
         // is only visible while the Hands-Free Profile is allowed), so everything
         // that's connected can be picked here.
         .onAppear { routes.refreshOptions(probingDevices: true) }
+    }
+
+    /// The delay as the field types it, held to what the setting may be (see
+    /// `AutoMicDelay.settingRange`) as each digit goes in: a score is worked out
+    /// with it, and a number past any microphone's round trip is nothing a run
+    /// could be scored against.
+    private var micDelayBinding: Binding<Double> {
+        Binding(get: { micDelayMs },
+                set: { micDelayMs = $0.isFinite ? $0.clamped(to: AutoMicDelay.settingRange) : 0 })
     }
 
     /// The device list to show in a picker, guaranteeing the current selection is

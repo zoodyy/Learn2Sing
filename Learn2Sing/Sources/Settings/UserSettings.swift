@@ -192,7 +192,13 @@ nonisolated struct UserSettings: Codable {
 
         if let speaker { d.set(speaker, forKey: AudioRouteManager.speakerKey) }
         if let microphone { d.set(microphone, forKey: AudioRouteManager.micKey) }
-        if let microphoneDelayMs { d.set(microphoneDelayMs, forKey: microphoneDelayKey) }
+        // The numbers below are held to the ranges their controls offer, as the
+        // score window always was: a profile is a document like any other, and a
+        // delay of a trillion milliseconds or a vocal range off the keyboard is
+        // nothing any screen could have set.
+        if let microphoneDelayMs, microphoneDelayMs.isFinite {
+            d.set(microphoneDelayMs.clamped(to: AutoMicDelay.settingRange), forKey: microphoneDelayKey)
+        }
         if let automaticMicrophoneDelay {
             d.set(automaticMicrophoneDelay, forKey: AutoMicDelay.enabledKey)
         }
@@ -223,8 +229,12 @@ nonisolated struct UserSettings: Codable {
         }
 
         if let vocalRange { d.set(vocalRange, forKey: VocalRange.storageKey) }
-        if let vocalRangeCustomLow { d.set(vocalRangeCustomLow, forKey: VocalRange.customLowKey) }
-        if let vocalRangeCustomHigh { d.set(vocalRangeCustomHigh, forKey: VocalRange.customHighKey) }
+        if let vocalRangeCustomLow {
+            d.set(vocalRangeCustomLow.clamped(to: loPitch...hiPitch), forKey: VocalRange.customLowKey)
+        }
+        if let vocalRangeCustomHigh {
+            d.set(vocalRangeCustomHigh.clamped(to: loPitch...hiPitch), forKey: VocalRange.customHighKey)
+        }
         if let scoreTargetWindow {
             d.set(ScoreTargetWindow.clamped(scoreTargetWindow), forKey: ScoreTargetWindow.storageKey)
         }
@@ -234,7 +244,8 @@ nonisolated struct UserSettings: Codable {
         }
 
         if let recommendedPracticeMinutes {
-            d.set(recommendedPracticeMinutes, forKey: RecommendedExercises.minutesKey)
+            d.set(recommendedPracticeMinutes.clamped(to: RecommendedExercises.minutesRange),
+                  forKey: RecommendedExercises.minutesKey)
         }
         if let recommendationsAsList {
             d.set(recommendationsAsList, forKey: RecommendedExercises.asListKey)

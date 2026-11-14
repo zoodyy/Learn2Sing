@@ -72,6 +72,15 @@ nonisolated struct ProfilePictureDoc: Codable, Equatable {
     /// after a reinstall. Optional so a document written before it existed still
     /// decodes.
     var alignment: ProfilePictureAlignment? = nil
+
+    /// Whether both renditions are no bigger than this app ever makes them, with
+    /// room to spare (see `ProfilePictureCodec.fullBudget`). A picture in another
+    /// user's public profile that is bigger was not made by this app, and isn't
+    /// decoded.
+    var isWithinLimits: Bool {
+        full.utf8.count <= 2 * ProfilePictureCodec.fullBudget
+            && thumb.utf8.count <= 2 * ProfilePictureCodec.thumbBudget
+    }
 }
 
 /// Turns a picked photo into the two renditions that go on the server, and back
@@ -100,8 +109,8 @@ nonisolated enum ProfilePictureCodec {
     /// `fetch-private` endpoint down for every user, so this stays well clear of
     /// the ceiling rather than close to it. 42KB of picture leaves the username,
     /// the description and the join date all the room they could want.
-    private static let fullBudget = 34_000
-    private static let thumbBudget = 8_000
+    static let fullBudget = 34_000
+    static let thumbBudget = 8_000
 
     /// Qualities to try, in order, until one fits the budget. AVIF holds up
     /// remarkably well at the bottom of this range — a 1024px photo lands around
@@ -112,6 +121,17 @@ nonisolated enum ProfilePictureCodec {
     /// The pixel sizes to fall back through when even the lowest quality at the
     /// size before it won't fit.
     private static let fullSizes = [1024, 896, 768, 640, 512]
+
+    /// A rendition stored as Base64, decoded for the screen: never at more than
+    /// `fullMaxPixels` on its longest side, however big the image inside claims
+    /// to be, so a picture somebody else made can't take more memory than one
+    /// this app made. nil when it isn't a picture.
+    static func image(fromBase64 text: String, maxPixels: Int = fullMaxPixels) -> UIImage? {
+        guard let data = Data(base64Encoded: text),
+              let image = decode(data, maxPixels: maxPixels)
+        else { return nil }
+        return UIImage(cgImage: image)
+    }
 
     /// Decodes picked photo data and scales it down so its longest side is at
     /// most `maxPixels`, applying whatever orientation the file was tagged with
@@ -416,6 +436,6 @@ final class ProfilePictureStore: ObservableObject {
     }
 
     private static func image(fromBase64 text: String) -> UIImage? {
-        Data(base64Encoded: text).flatMap(UIImage.init(data:))
+        ProfilePictureCodec.image(fromBase64: text)
     }
 }

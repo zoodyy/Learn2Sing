@@ -488,7 +488,8 @@ struct ProfileView: View {
         Section {
             // The placeholder asks for a name, so an empty field can't be read as
             // one already set to "Username"; the title stays the field's label.
-            TextField("Username", text: $typedUsername, prompt: Text("Enter a username"))
+            TextField("Username", text: $typedUsername.limited(to: TextLimit.username),
+                      prompt: Text("Enter a username"))
                 .autocorrectionDisabled()
                 .focused($isEditingUsername)
                 .onSubmit { commitUsername() }
@@ -510,7 +511,8 @@ struct ProfileView: View {
     /// profile on the Community tab.
     private var descriptionSection: some View {
         Section("Profile Description") {
-            TextField("Write something about yourself", text: $typedDescription, axis: .vertical)
+            TextField("Write something about yourself",
+                      text: $typedDescription.limited(to: TextLimit.profileDescription), axis: .vertical)
                 .lineLimit(3...8)
                 .focused($isEditingDescription)
                 .setting(.profileDescription)

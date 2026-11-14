@@ -100,7 +100,9 @@ struct ExerciseSettingsView: View {
     private var signToggle: (() -> Void)? {
         switch focusedField {
         case .transpose: return { exercise.transposePerRepeat.negate() }
-        case .speed: return { exercise.speedPerRepeat.negate() }
+        // Through the length check like a typed value: a speed-up turned into a
+        // slow-down makes the exercise longer.
+        case .speed: return { setSpeedPerRepeat(-exercise.speedPerRepeat) }
         default: return nil
         }
     }
@@ -216,10 +218,7 @@ struct ExerciseSettingsView: View {
             switch old {
             case .name:
                 demoteIfNameTaken()
-            case .speed:
-                clampSpeedPerRepeat()
-                enforcePublicMinimumLength()
-            case .repeatCount, .betweenReps:
+            case .repeatCount, .betweenReps, .speed:
                 enforcePublicMinimumLength()
             default:
                 break
@@ -285,14 +284,15 @@ struct ExerciseSettingsView: View {
     private var settingsForm: some View {
         Form {
             Section("Name") {
-                TextField("Name", text: $exercise.name)
+                TextField("Name", text: $exercise.name.limited(to: TextLimit.exerciseName))
                     .focused($focusedField, equals: .name)
                     .onSubmit { demoteIfNameTaken() }
                     .settingHelp(L("What this exercise is called in your lists."))
             }
 
             Section("Description") {
-                TextField("Shown before the exercise starts", text: $exercise.details, axis: .vertical)
+                TextField("Shown before the exercise starts",
+                          text: $exercise.details.limited(to: TextLimit.exerciseDetails), axis: .vertical)
                     .lineLimit(3...8)
                     .focused($focusedField, equals: .details)
                     .settingHelp(L("Your note on what to do, shown on the screen before the exercise starts."))
@@ -313,8 +313,11 @@ struct ExerciseSettingsView: View {
                 }
                 .settingHelp(L("How fast the exercise is played, in beats per minute."))
                 // Measured when the drag ends rather than as it moves: a tempo on
-                // its way past the limit isn't one the singer has settled on.
-                Slider(value: $exercise.bpm, in: Exercise.tempoRange, step: 1,
+                // its way past the limit isn't one the singer has settled on. The
+                // half-hour limit is the other way round: a slower tempo makes a
+                // longer exercise, and the thumb stops at the slowest one that
+                // keeps it within the limit, as the drag reaches it.
+                Slider(value: tempoBinding, in: Exercise.tempoRange, step: 1,
                        onEditingChanged: { editing in
                            if !editing { enforcePublicMinimumLength() }
                        })
@@ -325,7 +328,7 @@ struct ExerciseSettingsView: View {
                 HStack {
                     Text("Repeat")
                     Spacer()
-                    TextField("1", value: $exercise.repeatCount, format: .number)
+                    TextField("1", value: repeatCountBinding, format: .number)
                         .multilineTextAlignment(.trailing)
                         .keyboardType(.numberPad)
                         .focused($focusedField, equals: .repeatCount)
@@ -344,7 +347,7 @@ struct ExerciseSettingsView: View {
                     HStack {
                         Text("Transpose per repetition")
                         Spacer()
-                        TextField("0", value: $exercise.transposePerRepeat, format: .number)
+                        TextField("0", value: transposeBinding, format: .number)
                             .multilineTextAlignment(.trailing)
                             .keyboardType(.numberPad)
                             .focused($focusedField, equals: .transpose)
@@ -377,7 +380,7 @@ struct ExerciseSettingsView: View {
                     HStack {
                         Text("Speed up per repetition")
                         Spacer()
-                        TextField("0", value: $exercise.speedPerRepeat, format: .number)
+                        TextField("0", value: speedBinding, format: .number)
                             .multilineTextAlignment(.trailing)
                             .keyboardType(.numberPad)
                             .focused($focusedField, equals: .speed)
@@ -391,7 +394,7 @@ struct ExerciseSettingsView: View {
                     HStack {
                         Text("Time between reps")
                         Spacer()
-                        TextField("0", value: $exercise.beatsBetweenReps, format: .number)
+                        TextField("0", value: betweenRepsBinding, format: .number)
                             .multilineTextAlignment(.trailing)
                             .keyboardType(.decimalPad)
                             .focused($focusedField, equals: .betweenReps)
@@ -405,7 +408,7 @@ struct ExerciseSettingsView: View {
             }
 
             Section("Pitch") {
-                Stepper(value: $exercise.pitchShift, in: -24...24) {
+                Stepper(value: $exercise.pitchShift, in: ExerciseLimits.pitchShift) {
                     HStack {
                         Text("Transpose")
                         Spacer()
@@ -579,14 +582,138 @@ struct ExerciseSettingsView: View {
         isWarningDuplicateName = true
     }
 
-    /// Keep "speed up per repetition" within ±`Exercise.maxSpeedPerRepeat` BPM.
-    /// Applied when the field is done being edited (the keyboard's "Done" button, or
-    /// focus moving on) rather than per keystroke, so a value typed digit by digit
-    /// isn't cut short on its way to the one the singer meant.
-    private func clampSpeedPerRepeat() {
-        let limit = Exercise.maxSpeedPerRepeat
-        exercise.speedPerRepeat = min(max(exercise.speedPerRepeat, -limit), limit)
+    // MARK: - Limits
+    //
+    // Every value the repetition fields and the tempo slider set is held inside
+    // its limit (see ExerciseLimits) as it is typed or dragged, not when the field
+    // is left: the preview at the top lays out whatever the exercise holds on
+    // every keystroke, and leaving the screen with the keyboard still up must not
+    // be a way past any of it. Typing a number digit by digit only ever makes it
+    // bigger, so cutting it off per keystroke never cuts short a value the limit
+    // would have let through.
+    //
+    // On top of that, the exercise may last at most half an hour. A change that
+    // would take it past that goes only as far as keeps it within, and a toast
+    // says why. An exercise already longer than that — made before the limit, or
+    // brought in from a file — may still be changed, but not made any longer.
+
+    /// What the pattern this screen holds asks of a run: where its notes end and
+    /// how many things one repetition lays out.
+    private var extent: PatternExtent {
+        PatternExtent(notes: pattern, ghosts: ghosts, labels: labels)
     }
+
+    private var repeatCountBinding: Binding<Int> {
+        Binding(get: { exercise.repeatCount }, set: { setRepeatCount($0) })
+    }
+
+    private var transposeBinding: Binding<Int> {
+        Binding(get: { exercise.transposePerRepeat },
+                set: { exercise.transposePerRepeat = $0.clamped(to: ExerciseLimits.transposePerRepeat) })
+    }
+
+    private var speedBinding: Binding<Int> {
+        Binding(get: { exercise.speedPerRepeat }, set: { setSpeedPerRepeat($0) })
+    }
+
+    private var betweenRepsBinding: Binding<Double> {
+        Binding(get: { exercise.beatsBetweenReps }, set: { setBeatsBetweenReps($0) })
+    }
+
+    private var tempoBinding: Binding<Double> {
+        Binding(get: { exercise.bpm }, set: { setTempo($0) })
+    }
+
+    /// More repetitions make a longer run with more notes in it, so both limits
+    /// apply: as many as `ExerciseLimits.timelineItems` lets the pattern be
+    /// repeated, and as many as fit in the half hour.
+    private func setRepeatCount(_ proposed: Int) {
+        var target = proposed.clamped(to: ExerciseLimits.repeatCount)
+        let most = Exercise.mostRepeats(items: extent.items)
+        if target > most, target > exercise.repeatCount {
+            target = max(exercise.repeatCount, most)
+            toasts.show(L("Too Many Notes"), icon: Self.limitIcon)
+        }
+        exercise.repeatCount = fittingLength(\.repeatCount, from: exercise.repeatCount, to: target)
+    }
+
+    /// A slow-down stretches every repetition after the first, so the half-hour
+    /// limit stops it at the slowest that still fits.
+    private func setSpeedPerRepeat(_ proposed: Int) {
+        let target = proposed.clamped(to: ExerciseLimits.speedPerRepeat)
+        exercise.speedPerRepeat = fittingLength(\.speedPerRepeat, from: exercise.speedPerRepeat, to: target)
+    }
+
+    /// Searched in hundredths of a beat, which is finer than anyone types it.
+    private func setBeatsBetweenReps(_ proposed: Double) {
+        let target = proposed.isFinite ? proposed.clamped(to: ExerciseLimits.beatsBetweenReps) : 0
+        var trial = exercise
+        trial.beatsBetweenReps = target
+        let allowance = exercise.lengthAllowance(over: extent)
+        guard !trial.fitsLength(over: extent, allowance: allowance) else {
+            exercise.beatsBetweenReps = target
+            return
+        }
+        let current = exercise
+        let hundredths = ExerciseLimits.furthest(from: Int((current.beatsBetweenReps * 100).rounded(.down)),
+                                                 to: Int((target * 100).rounded(.down))) { value in
+            var trial = current
+            trial.beatsBetweenReps = Double(value) / 100
+            return trial.fitsLength(over: extent, allowance: allowance)
+        }
+        // Only a longer gap can fail to fit, so the search went upwards from the
+        // current one; never let rounding to hundredths shorten it instead.
+        exercise.beatsBetweenReps = max(current.beatsBetweenReps, Double(hundredths) / 100)
+        showLengthLimit()
+    }
+
+    /// A slower tempo makes a longer run, so the slider stops at the slowest whole
+    /// BPM that fits.
+    private func setTempo(_ proposed: Double) {
+        let target = proposed.isFinite ? proposed.clamped(to: Exercise.tempoRange) : exercise.bpm
+        var trial = exercise
+        trial.bpm = target
+        let allowance = exercise.lengthAllowance(over: extent)
+        guard !trial.fitsLength(over: extent, allowance: allowance) else {
+            exercise.bpm = target
+            return
+        }
+        let current = exercise
+        let slowest = ExerciseLimits.furthest(from: Int(current.bpm.rounded(.up)),
+                                              to: Int(target.rounded(.down))) { value in
+            var trial = current
+            trial.bpm = Double(value)
+            return trial.fitsLength(over: extent, allowance: allowance)
+        }
+        // Only a slower tempo can fail to fit, so the search went downwards from
+        // the current one; never let rounding to a whole BPM speed it up instead.
+        exercise.bpm = min(current.bpm, Double(slowest))
+        showLengthLimit()
+    }
+
+    /// The value of the setting at `keyPath` furthest from `current` towards
+    /// `target` that keeps the run within the length allowance, putting up the
+    /// toast when that falls short of `target`.
+    private func fittingLength(_ keyPath: WritableKeyPath<Exercise, Int>, from current: Int,
+                               to target: Int) -> Int {
+        let base = exercise
+        let allowance = base.lengthAllowance(over: extent)
+        let fitted = ExerciseLimits.furthest(from: current, to: target) { value in
+            var trial = base
+            trial[keyPath: keyPath] = value
+            return trial.fitsLength(over: extent, allowance: allowance)
+        }
+        if fitted != target { showLengthLimit() }
+        return fitted
+    }
+
+    private func showLengthLimit() {
+        toasts.show(L("Exercises Can Last Up to %d Minutes", ExerciseLimits.maxDurationMinutes),
+                    icon: Self.limitIcon)
+    }
+
+    /// The symbol the limit toasts wear, the one the MIDI editor's refusals do.
+    static let limitIcon = "exclamationmark.triangle.fill"
 
     /// Keep "switch transposing direction after" within range: never larger than one
     /// less than the number of repetitions, and never negative.

@@ -37,6 +37,42 @@ struct SharedExerciseDoc: Codable {
     /// shared before this field existed have no date until their next upload, and
     /// sort as the oldest.
     var createdAt: Double? = nil
+
+    /// This document held to what a pattern may hold (see ExerciseLimits): no
+    /// more notes, ghost notes and labels than one repetition takes, and no more
+    /// repetitions than keep the whole run inside `ExerciseLimits.timelineItems`
+    /// and inside the half hour. The exercise's settings and every note's numbers
+    /// were held to theirs as they were decoded. Whoever wrote the document — an
+    /// older version, from before the limits, or somebody posting to the server
+    /// by hand — the exercise that comes out of this is one this version lets
+    /// people make.
+    ///
+    /// A run that is too long loses repetitions from the end, the one change that
+    /// leaves what is sung otherwise as it was written. A single repetition that
+    /// is longer than the limit by itself is left at one.
+    func withinLimits() -> SharedExerciseDoc {
+        var doc = self
+        doc.midi = midi.capped(at: ExerciseLimits.notesPerRepetition)
+        doc.texts = texts?.capped(at: ExerciseLimits.labelsPerRepetition)
+        doc.ghosts = ghosts?.capped(at: ExerciseLimits.ghostsPerRepetition)
+        if var exercise = doc.exercise {
+            let extent = PatternExtent(notes: doc.midi, ghosts: doc.ghosts ?? [], labels: doc.texts ?? [])
+            if !exercise.fitsTimeline(items: extent.items) {
+                exercise.repeatCount = Exercise.mostRepeats(items: extent.items)
+            }
+            if !exercise.fitsLength(over: extent, allowance: ExerciseLimits.maxDuration) {
+                let base = exercise
+                exercise.repeatCount = ExerciseLimits.furthest(from: 1, to: base.repeatCount) { repeats in
+                    var trial = base
+                    trial.repeatCount = repeats
+                    return trial.fitsLength(over: extent, allowance: ExerciseLimits.maxDuration)
+                }
+            }
+            doc.exercise = exercise.withinLimits()
+        }
+        if let createdAt, !createdAt.isFinite { doc.createdAt = nil }
+        return doc
+    }
 }
 
 /// The document each user keeps on the server under PUBLIC_PROFILE (called
@@ -70,6 +106,18 @@ nonisolated struct PublicProfileDoc: Codable {
     /// because most documents on the server predate it and because plenty of
     /// users won't have set one.
     var picture: ProfilePictureDoc? = nil
+
+    /// This document as another user's profile screen may show it: the texts cut
+    /// to what the profile screen takes (see TextLimit), a join date that is a
+    /// date, and a picture only if it is no bigger than this app ever makes one.
+    func withinLimits() -> PublicProfileDoc {
+        var doc = self
+        doc.username = username.limited(to: TextLimit.username)
+        doc.description = description?.limited(to: TextLimit.profileDescription)
+        if let joinedAt, !joinedAt.isFinite { doc.joinedAt = nil }
+        if let picture, !picture.isWithinLimits { doc.picture = nil }
+        return doc
+    }
 }
 
 /// What the server made of a posted username.
@@ -307,6 +355,10 @@ final class CommunitySync: ObservableObject {
     /// document in a TEXT column and answers 500 to anything much over 64KB, so
     /// this leaves a margin rather than sitting on the edge.
     private static let maxProfileBytes = 60_000
+    /// The largest public profile another user's profile screen decodes: well
+    /// over what this app posts (`maxProfileBytes`), so only a document written
+    /// by hand is turned away.
+    static let maxPublicProfileBytes = 200_000
 
     /// The whole community, as the Community tab lists it. Its own object, like
     /// the per-uploader lists `profileFeed(for:)` hands out — see CommunityFeed.
@@ -720,7 +772,11 @@ final class CommunitySync: ObservableObject {
         components?.queryItems = [
             URLQueryItem(name: "customId1", value: userID),
             URLQueryItem(name: "customName", value: exerciseName),
-            URLQueryItem(name: "description", value: description),
+            // Only the start of a long description: all of it is in the body, and
+            // this copy, for the server's search, has to fit in the request's first
+            // line (see `TextLimit.uploadedDescriptionBytes`).
+            URLQueryItem(name: "description",
+                         value: description.limited(toUTF8Bytes: TextLimit.uploadedDescriptionBytes)),
             URLQueryItem(name: "customId2", value: publicExerciseID),
         ]
         guard let url = components?.url else { return false }
@@ -1171,8 +1227,9 @@ final class CommunitySync: ObservableObject {
         guard let url = URL(string: "\(Self.baseURL)/fetch-private/\(userID)/\(Self.publicProfileType)")
         else { return .failed }
         do {
-            let (data, response) = try await URLSession.shared.data(from: url)
-            guard let http = response as? HTTPURLResponse else { return .failed }
+            // Another user's document: read no more of it than a profile weighs.
+            let result = try await BoundedFetch.data(from: url, maxBytes: BoundedFetch.maxProfileBytes)
+            guard case .answered(let data, let http) = result else { return .failed }
             guard (200...299).contains(http.statusCode) else {
                 print("CommunitySync: profile fetch failed with status \(http.statusCode)")
                 return .failed
@@ -1183,8 +1240,12 @@ final class CommunitySync: ObservableObject {
             // list; that is an answer, and it means there is no profile.
             guard let record = records.first(where: { $0.storageType == Self.publicProfileType })
             else { return .answered(nil) }
-            return .answered(try? JSONDecoder().decode(PublicProfileDoc.self,
-                                                       from: Data(record.jsonData.utf8)))
+            // Held to what the profile screen lets anybody write (see TextLimit):
+            // this is shown to every user who opens the profile.
+            guard record.jsonData.utf8.count <= Self.maxPublicProfileBytes else { return .answered(nil) }
+            return .answered((try? JSONDecoder().decode(PublicProfileDoc.self,
+                                                        from: Data(record.jsonData.utf8)))?
+                .withinLimits())
         } catch {
             print("CommunitySync: profile fetch failed: \(error)")
             return .failed
@@ -1894,14 +1955,23 @@ final class CommunitySync: ObservableObject {
                 docs.append(FetchedDoc(doc: cached.doc, source: source))
                 continue
             }
-            guard let doc = try? decoder.decode(SharedExerciseDoc.self,
-                                                from: Data(record.jsonData.utf8))
+            // A document bigger than any this app could write isn't decoded at
+            // all: whatever is in it, it was put there by hand.
+            guard record.jsonData.utf8.count <= Self.maxSharedExerciseBytes,
+                  let decoded = try? decoder.decode(SharedExerciseDoc.self,
+                                                    from: Data(record.jsonData.utf8))
             else { continue }
+            let doc = decoded.withinLimits()
             decodedDocs[record.entityId] = (source, doc)
             docs.append(FetchedDoc(doc: doc, source: source))
         }
         return docs
     }
+
+    /// The largest shared-exercise document a list decodes, in bytes. A pattern
+    /// at every one of `ExerciseLimits`' per-repetition limits comes to about half
+    /// of this, so it only turns away a document this app didn't write.
+    static let maxSharedExerciseBytes = 1_000_000
 
     /// Turns the documents a feed has loaded into the exercises it lists —
     /// relabelled with each uploader's current PUBLIC_PROFILE name where one is known —

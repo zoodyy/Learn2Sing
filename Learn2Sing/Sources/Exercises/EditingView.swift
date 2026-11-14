@@ -55,6 +55,10 @@ nonisolated struct MIDINote: Identifiable, Codable, Equatable {
         pitch = try c.decode(Int.self, forKey: .pitch)
         beat = try c.decode(Double.self, forKey: .beat)
         length = try c.decode(Double.self, forKey: .length)
+        // Held to a MIDI note and a place in the pattern whatever the document
+        // says (see ExerciseLimits): a pitch far outside the keyboard overflows
+        // the arithmetic that draws and plays it.
+        self = withinLimits()
     }
 }
 
@@ -115,6 +119,9 @@ nonisolated struct MIDIText: Identifiable, Codable, Equatable {
         text = try c.decode(String.self, forKey: .text)
         pitch = try c.decode(Int.self, forKey: .pitch)
         beat = try c.decode(Double.self, forKey: .beat)
+        // The same as a note's, and the text cut to a label's length: a label is
+        // drawn as wide as what it says.
+        self = withinLimits()
     }
 }
 
@@ -238,6 +245,11 @@ struct EditingView: View {
     /// Whether the tempo slider is out, opened and closed by tapping the BPM readout.
     @State private var showsTempo = false
 
+    /// Set when the note under the finger stopped short of where it was dragged
+    /// because the run would have lasted longer than the limit allows, so the toast
+    /// saying so goes up when the finger lifts rather than on every move.
+    @State private var hitLengthLimit = false
+
     // Text-entry sheet state.
     @State private var showTextEditor = false
     @State private var textInput = ""
@@ -269,9 +281,15 @@ struct EditingView: View {
         // Read here rather than on appear, so the roll's very first layout already
         // has the pattern it opens scrolled to (see `openingOffset`). State only
         // takes these the first time; a later init's are thrown away.
+        // No more of each than a pattern may hold (see ExerciseLimits), as the
+        // store reads them everywhere else: a pattern downloaded before the limits
+        // existed is whatever its document held.
         let notes = loadPattern([MIDINote].self, forKey: saveKey)
+            .capped(at: ExerciseLimits.notesPerRepetition)
         let texts = loadPattern([MIDIText].self, forKey: textSaveKey)
+            .capped(at: ExerciseLimits.labelsPerRepetition)
         let ghosts = loadPattern([MIDINote].self, forKey: ghostSaveKey)
+            .capped(at: ExerciseLimits.ghostsPerRepetition)
         _notes = State(initialValue: notes)
         _texts = State(initialValue: texts)
         _ghosts = State(initialValue: ghosts)
@@ -330,7 +348,20 @@ struct EditingView: View {
         // A press that landed on the black margin before the first beat, where nothing
         // can be placed. It does nothing until the finger lifts.
         case deadSpace
+        // A press that would add more than the exercise may hold (see `Refusal`).
+        // Nothing is drawn; the finger lifting puts up a toast saying why.
+        case refused(Refusal)
         case erasing
+    }
+
+    /// Why a press drew nothing although it landed on free timeline.
+    private enum Refusal {
+        /// The note would reach past the point where the run lasts half an hour.
+        case tooLong
+        /// One more note or ghost note than the pattern, or the whole run, may hold.
+        case tooManyNotes
+        /// The same for a label.
+        case tooManyLabels
     }
 
     // Notes visible during an in-progress drag
@@ -445,8 +476,9 @@ struct EditingView: View {
         Binding(
             get: { bpm },
             set: { value in
-                let newValue = value.rounded()
-                guard let exercise, newValue != bpm else { return }
+                guard let exercise else { return }
+                let newValue = slowestFittingTempo(value.rounded())
+                guard newValue != bpm else { return }
                 // A run under way was scheduled at the old tempo, and the playhead is
                 // drawn from it, so stop it the way scrubbing the ruler does.
                 if isPlaying { stopPlayback() }
@@ -561,7 +593,7 @@ struct EditingView: View {
         }
         .explainBarButton(L("Back"), L("Saves what you drew and goes back to the exercise's settings."))
         .alert("Text", isPresented: $showTextEditor) {
-            TextField("Label", text: $textInput)
+            TextField("Label", text: $textInput.limited(to: TextLimit.label))
             Button("OK") { commitText() }
             Button("Cancel", role: .cancel) { cancelText() }
         } message: {
@@ -1146,6 +1178,12 @@ struct EditingView: View {
                 // same goes for a ghost note where as many as there's room for sound.
                 let start = snappedBeat(v.startLocation.x)
                 let pitch = pitchAt(v.startLocation.y)
+                // Before any of that, whether the exercise has room for another note
+                // at all, and for one starting this far along.
+                if let refusal = refusalOfNewNote(in: layer, startingAt: start) {
+                    interaction = .refused(refusal)
+                    break
+                }
                 guard !isOccupied(start, in: layer, pitch: pitch),
                       spaceAfter(start, in: layer, pitch: pitch) >= minLength else {
                     interaction = .pendingNote(pitch: pitch, origin: start)
@@ -1167,11 +1205,20 @@ struct EditingView: View {
             let from = beatValue(v.startLocation.x)
             if pointer > from, let anchor = nextFreeStart(atOrAfter: origin, in: layer, pitch: pitch),
                pointer >= anchor {
+                // The free timeline the drag reached may lie past the length limit.
+                guard anchor + minLength <= noteEndLimit + beatEpsilon else {
+                    interaction = .refused(.tooLong)
+                    break
+                }
                 let note = MIDINote(pitch: pitch, beat: anchor, length: minLength)
                 interaction = .creating(note: grown(note, anchor: anchor, pointer: pointer, in: layer),
                                         anchor: anchor, layer: layer)
             } else if pointer < from, let end = previousFreeEnd(atOrBefore: origin, in: layer, pitch: pitch),
                       pointer <= end {
+                guard end <= noteEndLimit + beatEpsilon else {
+                    interaction = .refused(.tooLong)
+                    break
+                }
                 let anchor = end - minLength
                 let note = MIDINote(pitch: pitch, beat: anchor, length: minLength)
                 interaction = .creating(note: grown(note, anchor: anchor, pointer: pointer, in: layer),
@@ -1188,7 +1235,11 @@ struct EditingView: View {
                 let pointer = beatValue(v.location.x)
                 switch edge {
                 case .trailing:
-                    note.length = min(max(minLength, snapped(pointer - note.beat)),
+                    // Never past the length limit: the end is what makes a run longer.
+                    let wanted = max(minLength, snapped(pointer - note.beat))
+                    let room = max(minLength, noteEndLimit - note.beat)
+                    if wanted > room + beatEpsilon { hitLengthLimit = true }
+                    note.length = min(wanted, room,
                                       spaceAfter(note.beat, in: layer, pitch: note.pitch, excluding: id))
                 case .leading:
                     // Dragging the start of the note: the end of it stays put.
@@ -1204,14 +1255,28 @@ struct EditingView: View {
 
         case .movingNote(let id, let grabDX):
             if var note = layerNotes(layer).first(where: { $0.id == id }) {
-                let desired = max(0, snapped(beatValue(v.location.x) - grabDX))
+                var desired = max(0, snapped(beatValue(v.location.x) - grabDX))
+                // Held short of the length limit: a note moved later makes the run
+                // longer just as one drawn there would.
+                let limit = noteEndLimit
+                if desired + note.length > limit + beatEpsilon {
+                    desired = max(0, limit - note.length)
+                    hitLengthLimit = true
+                }
                 // The row first: a ghost note's room depends on the pitch it lands on.
                 note.pitch = pitchAt(v.location.y)
-                note.beat = placement(desired: desired,
-                                      length: note.length,
-                                      in: layer,
-                                      pitch: note.pitch,
-                                      excluding: id) ?? note.beat
+                let landing = placement(desired: desired,
+                                        length: note.length,
+                                        in: layer,
+                                        pitch: note.pitch,
+                                        excluding: id) ?? note.beat
+                // The nearest free gap can lie further on than the limit; then the
+                // note stays where it is.
+                guard landing + note.length <= limit + beatEpsilon else {
+                    hitLengthLimit = true
+                    break
+                }
+                note.beat = landing
                 replace(note, in: layer)
             }
 
@@ -1221,12 +1286,20 @@ struct EditingView: View {
     }
 
     private func noteEnded(_ v: DragGesture.Value, in layer: NoteLayer) {
+        // Said once, as the finger lifts, however many moves ran into it.
+        if hitLengthLimit {
+            hitLengthLimit = false
+            showRefusal(.tooLong)
+        }
         switch interaction {
         case .creating(let note, _, .melody):
             notes.append(note)
 
         case .creating(let note, _, .ghost):
             ghosts.append(note)
+
+        case .refused(let refusal):
+            showRefusal(refusal)
 
         case .pendingNote:
             // Never left the taken stretch, so nothing was drawn — say why, since the
@@ -1256,8 +1329,11 @@ struct EditingView: View {
         var note = note
         if pointer >= anchor {
             note.beat = anchor
-            note.length = min(max(minLength, snapped(pointer - anchor)),
-                              spaceAfter(anchor, in: layer, pitch: note.pitch))
+            // Stopped at the length limit as well as at the next note.
+            let wanted = max(minLength, snapped(pointer - anchor))
+            let room = max(minLength, noteEndLimit - anchor)
+            if wanted > room + beatEpsilon { hitLengthLimit = true }
+            note.length = min(wanted, room, spaceAfter(anchor, in: layer, pitch: note.pitch))
         } else {
             let rightEdge = anchor + minLength
             let leftLimit = rightEdge - spaceBefore(rightEdge, in: layer, pitch: note.pitch)
@@ -1286,7 +1362,9 @@ struct EditingView: View {
         case .movingText(let id, let grabDX, _):
             let moved = hypot(v.translation.width, v.translation.height) > 6
             if moved, let i = texts.firstIndex(where: { $0.id == id }) {
-                let centre = snappedTextCentre(beatValue(v.location.x) - grabDX)
+                // No further along than a stored label may sit (see ExerciseLimits).
+                let centre = min(snappedTextCentre(beatValue(v.location.x) - grabDX),
+                                 ExerciseLimits.patternBeats)
                 texts[i].beat = midiTextBeat(centring: texts[i].text, at: centre,
                                              firstNoteCentre: firstNoteCentre)
                 texts[i].pitch = pitchAt(v.location.y)
@@ -1301,9 +1379,13 @@ struct EditingView: View {
     private func textEnded(_ v: DragGesture.Value) {
         switch interaction {
         case .pendingText(let p):
+            guard hasRoomForLabel else {
+                showRefusal(.tooManyLabels)
+                break
+            }
             // The press marks where the middle of the label goes; it's empty for now, so
             // it sits there half a beat wide until the typed text is committed.
-            let centre = snappedTextCentre(beatValue(p.x))
+            let centre = min(snappedTextCentre(beatValue(p.x)), ExerciseLimits.patternBeats)
             let label = MIDIText(text: "", pitch: pitchAt(p.y),
                                  beat: midiTextBeat(centring: "", at: centre,
                                                     firstNoteCentre: firstNoteCentre))
@@ -1329,7 +1411,11 @@ struct EditingView: View {
 
     private func commitText() {
         guard let id = editingTextID else { return }
-        let trimmed = textInput.trimmingCharacters(in: .whitespacesAndNewlines)
+        // Cut to a label's length before trimming, so a cut landing on a space
+        // doesn't leave one hanging at the end. The alert's field shows whatever
+        // was typed past the limit, so this is where the limit really bites.
+        let trimmed = textInput.limited(to: TextLimit.label)
+            .trimmingCharacters(in: .whitespacesAndNewlines)
         if trimmed.isEmpty {
             texts.removeAll { $0.id == id }
         } else if let i = texts.firstIndex(where: { $0.id == id }) {
@@ -1363,6 +1449,99 @@ struct EditingView: View {
             texts.removeAll { $0.id == t.id }
         }
         interaction = .erasing
+    }
+
+    // MARK: - Limits
+    //
+    // What the pattern may hold (see ExerciseLimits): a run of at most half an
+    // hour, and no more notes, ghost notes and labels than the app can lay out at
+    // once. A press that would break one draws nothing, and a drag that would is
+    // stopped where it still keeps it; either way a toast says why when the finger
+    // lifts. The settings screen holds the repetitions and the tempo to the same
+    // limits, and the tempo slider here does too.
+
+    /// The exercise as the store holds it now, which the tempo slider writes
+    /// through, so the limits go by the tempo it has been dragged to.
+    private var limitedExercise: Exercise {
+        guard let exercise else { return Exercise(name: "") }
+        return store.exercises.first { $0.id == exercise.id } ?? exercise
+    }
+
+    /// What the pattern on the roll asks of a run: where it ends, and how many
+    /// things each repetition lays out.
+    private var patternExtent: PatternExtent {
+        PatternExtent(notes: notes, ghosts: ghosts, labels: texts)
+    }
+
+    /// The furthest beat a note or ghost note may reach: as far along the 1/4-beat
+    /// grid as keeps the run within half an hour at the exercise's tempo and
+    /// repetitions. An exercise already longer than that, from before the limit,
+    /// keeps what it has: the limit is wherever its furthest note already reaches.
+    private var noteEndLimit: Double {
+        let exercise = limitedExercise
+        let current = patternExtent
+        let currentEnd = current.end ?? 0
+        let allowance = exercise.lengthAllowance(over: current)
+        let quarters = ExerciseLimits.furthest(from: Int((currentEnd * 4).rounded(.down)),
+                                               to: Int(ExerciseLimits.patternBeats * 4)) { quarter in
+            exercise.fitsLength(over: PatternExtent(end: Double(quarter) / 4, items: current.items),
+                                allowance: allowance)
+        }
+        return max(currentEnd, Double(quarters) / 4)
+    }
+
+    /// Why a note or ghost note pressed at `start` can't be drawn, or nil when it
+    /// can be: the pattern, or the run with every repetition, already holds as
+    /// many as it may, or a note there would reach past the length limit.
+    private func refusalOfNewNote(in layer: NoteLayer, startingAt start: Double) -> Refusal? {
+        let held = layer == .melody ? notes.count : ghosts.count
+        let limit = layer == .melody ? ExerciseLimits.notesPerRepetition : ExerciseLimits.ghostsPerRepetition
+        guard held < limit, limitedExercise.fitsTimeline(items: patternExtent.items + 1) else {
+            return .tooManyNotes
+        }
+        guard start + minLength <= noteEndLimit + beatEpsilon else { return .tooLong }
+        return nil
+    }
+
+    /// Whether another label fits: in the pattern, and in the run with every
+    /// repetition.
+    private var hasRoomForLabel: Bool {
+        texts.count < ExerciseLimits.labelsPerRepetition
+            && limitedExercise.fitsTimeline(items: patternExtent.items + 1)
+    }
+
+    /// `proposed`, or the slowest whole BPM between it and the current tempo that
+    /// keeps the run within the length limit when it doesn't, with the toast that
+    /// says why the slider stops there.
+    private func slowestFittingTempo(_ proposed: Double) -> Double {
+        let base = limitedExercise
+        let target = proposed.clamped(to: Exercise.tempoRange)
+        let current = patternExtent
+        let allowance = base.lengthAllowance(over: current)
+        var trial = base
+        trial.bpm = target
+        guard !trial.fitsLength(over: current, allowance: allowance) else { return target }
+        let slowest = ExerciseLimits.furthest(from: Int(base.bpm.rounded(.up)),
+                                              to: Int(target.rounded(.down))) { value in
+            var trial = base
+            trial.bpm = Double(value)
+            return trial.fitsLength(over: current, allowance: allowance)
+        }
+        showRefusal(.tooLong)
+        return min(base.bpm, Double(slowest))
+    }
+
+    private func showRefusal(_ refusal: Refusal) {
+        let message: String
+        switch refusal {
+        case .tooLong:
+            message = L("Exercises Can Last Up to %d Minutes", ExerciseLimits.maxDurationMinutes)
+        case .tooManyNotes:
+            message = L("Too Many Notes")
+        case .tooManyLabels:
+            message = L("Too Many Labels")
+        }
+        toasts.show(message, icon: "exclamationmark.triangle.fill")
     }
 
     // MARK: - Overlap rules

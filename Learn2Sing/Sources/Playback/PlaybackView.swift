@@ -1779,7 +1779,10 @@ struct PlaybackView: View {
         // Which repetition is playing, 1-based, for the optional on-screen counter.
         // Only supplied for exercises that actually repeat (repeat count > 1) and never
         // in the clap test; the renderer hides the badge when it's nil.
-        let totalReps = max(1, exercise.repeatCount)
+        // Counted off the layout the run was built from, which holds the
+        // exercise's repetitions unless there were more than a run may (see
+        // ExerciseLimits).
+        let totalReps = max(1, repeatLayout.count)
         var repetition: (current: Int, total: Int)? = nil
         if playsExercise, totalReps > 1, repeatLayout.count > 0 {
             let idx = min(totalReps - 1, repeatLayout.index(at: beat))
@@ -1912,16 +1915,12 @@ struct PlaybackView: View {
             savedTexts = ExerciseStore.bundledTexts(exercise.id)
             savedGhosts = ExerciseStore.bundledGhosts(exercise.id)
         } else {
-            let key = "midi_\(exercise.id.uuidString)"
-            guard let data = UserDefaults.standard.data(forKey: key),
-                  let decoded = try? JSONDecoder().decode([MIDINote].self, from: data)
+            // Through the store, which reads no more of each than a pattern may
+            // hold (see ExerciseLimits).
+            guard UserDefaults.standard.data(forKey: ExerciseStore.midiKey(exercise.id)) != nil
             else { return }
-            saved = decoded
-
-            if let data = UserDefaults.standard.data(forKey: "miditext_\(exercise.id.uuidString)"),
-               let decoded = try? JSONDecoder().decode([MIDIText].self, from: data) {
-                savedTexts = decoded
-            }
+            saved = store.notes(for: exercise.id)
+            savedTexts = store.texts(for: exercise.id)
             savedGhosts = store.ghosts(for: exercise.id)
         }
 

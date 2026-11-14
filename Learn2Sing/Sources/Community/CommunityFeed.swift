@@ -467,8 +467,15 @@ final class CommunityFeed: ObservableObject {
         ]
         guard let url = components?.url else { return .failed }
         do {
-            let (data, response) = try await URLSession.shared.data(from: url)
-            guard let http = response as? HTTPURLResponse else { return .failed }
+            // Read no further than a page could legitimately weigh: any of the
+            // documents on it may have been posted by hand (see BoundedFetch).
+            let result = try await BoundedFetch.data(from: url, maxBytes: BoundedFetch.maxPageBytes)
+            guard case .answered(let data, let http) = result else {
+                if case .tooBig = result {
+                    print("CommunityFeed: page \(page) of \(storageType) is too big to read")
+                }
+                return .failed
+            }
             if http.statusCode == 400 { return .unknownSortKey }
             guard (200...299).contains(http.statusCode) else {
                 print("CommunityFeed: fetch of \(storageType) page \(page) failed with status \(http.statusCode)")
@@ -593,7 +600,9 @@ final class CommunityFeed: ObservableObject {
             guard let userID = record.customId1, let name = record.customName1,
                   !name.isEmpty, name != userID
             else { return }
-            names[userID] = name
+            // No longer than the profile screen lets a username be (see
+            // TextLimit): it is drawn on every row the uploader has.
+            names[userID] = name.limited(to: TextLimit.username)
         }
     }
 

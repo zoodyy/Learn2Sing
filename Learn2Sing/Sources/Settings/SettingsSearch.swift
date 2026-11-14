@@ -1067,7 +1067,7 @@ private struct SettingsSearchContainer<Content: View>: View {
                 coordinator.reveal(pending, using: proxy)
             }
         }
-        .searchable(text: $searchText,
+        .searchable(text: $searchText.limited(to: TextLimit.search),
                     placement: .navigationBarDrawer(displayMode: pinsSearchField ? .always : .automatic),
                     prompt: L("Search %@", screen.title))
         // Swiping down over the keyboard puts it away, as everywhere else.

@@ -14,6 +14,9 @@ struct Learn2SingApp: App {
     init() {
         // Before the profile backup first reads the instrument.
         Instrument.removeUploadedInstruments()
+        // And before anything reads the delay: an older version stored whatever
+        // was typed into the field.
+        AutoMicDelay.holdStoredSettingInRange()
     }
 
     var body: some Scene {

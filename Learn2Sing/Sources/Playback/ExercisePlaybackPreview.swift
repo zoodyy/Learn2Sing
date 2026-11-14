@@ -254,7 +254,9 @@ struct ExercisePlaybackPreview: View {
     /// live screen and the review screen use, so an exercise that doesn't repeat
     /// shows no badge here either.
     private func repetition(at beat: Double) -> (current: Int, total: Int)? {
-        let total = max(1, exercise.repeatCount)
+        // The repetitions the timeline laid out, which is the exercise's own count
+        // unless that was more than a run may hold (see ExerciseLimits).
+        let total = max(1, timeline.repeats.count)
         guard total > 1, timeline.repeats.count > 0 else { return nil }
         return (current: min(total - 1, timeline.repeats.index(at: beat)) + 1, total: total)
     }

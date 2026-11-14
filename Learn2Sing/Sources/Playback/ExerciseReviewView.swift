@@ -340,7 +340,7 @@ struct ExerciseReviewView: View {
 
         // Which repetition the cursor is sitting in, for the optional badge — the
         // same rule the live view uses.
-        let totalReps = max(1, exercise.repeatCount)
+        let totalReps = max(1, repeatLayout.count)
         var repetition: (current: Int, total: Int)? = nil
         if totalReps > 1, repeatLayout.count > 0 {
             let idx = min(totalReps - 1, repeatLayout.index(at: beat))

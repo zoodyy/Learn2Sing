@@ -18,12 +18,14 @@ nonisolated struct Routine: Identifiable, Hashable, Codable {
         case id, name, details, exerciseIDs
     }
 
-    /// Hand-written so routines saved before a field existed still decode.
+    /// Hand-written so routines saved before a field existed still decode. The
+    /// texts are held to the lengths their fields take (see TextLimit).
     init(from decoder: Decoder) throws {
         let c = try decoder.container(keyedBy: CodingKeys.self)
         id = try c.decodeIfPresent(UUID.self, forKey: .id) ?? UUID()
-        name = try c.decode(String.self, forKey: .name)
-        details = try c.decodeIfPresent(String.self, forKey: .details) ?? ""
+        name = try c.decode(String.self, forKey: .name).limited(to: TextLimit.routineName)
+        details = (try c.decodeIfPresent(String.self, forKey: .details) ?? "")
+            .limited(to: TextLimit.routineDetails)
         exerciseIDs = try c.decodeIfPresent([UUID].self, forKey: .exerciseIDs) ?? []
     }
 }
@@ -117,6 +119,7 @@ final class ExerciseStore: ObservableObject {
         updateSupersededBundledIfNeeded()
         adoptNoCategory()
         enforceBundledPrivacy()
+        holdRunsWithinLimits()
         seedPlayHistoryIfNeeded()
         // Last, so it sees the library the steps above settled on. Every one of
         // them that changed it has refreshed the whitelist already (`save` does
@@ -327,6 +330,32 @@ final class ExerciseStore: ObservableObject {
         exercises = saved
     }
 
+    /// Takes repetitions off any exercise that would lay out more than
+    /// `ExerciseLimits.timelineItems` notes, ghost notes and labels in one run.
+    /// Nothing the settings screen or the MIDI editor makes can, but an exercise
+    /// downloaded or imported before those held to it might, and every screen
+    /// that plays one lays the whole run out at once. Run whenever exercises come
+    /// in: at launch and after an import.
+    ///
+    /// Only an exercise repeated more often than a full repetition could ever
+    /// allow can be over, so the rest are passed by without reading their
+    /// patterns.
+    func holdRunsWithinLimits() {
+        let alwaysFits = Exercise.mostRepeats(
+            items: ExerciseLimits.notesPerRepetition + ExerciseLimits.ghostsPerRepetition
+                + ExerciseLimits.labelsPerRepetition)
+        var changed = false
+        for i in exercises.indices where exercises[i].repeatCount > alwaysFits {
+            let id = exercises[i].id
+            let items = notes(for: id).count + ghosts(for: id).count + texts(for: id).count
+            guard !exercises[i].fitsTimeline(items: items) else { continue }
+            exercises[i].repeatCount = Exercise.mostRepeats(items: items)
+            exercises[i] = exercises[i].withinLimits()
+            changed = true
+        }
+        if changed { save() }
+    }
+
     func save() {
         if let data = try? JSONEncoder().encode(exercises) {
             UserDefaults.standard.set(data, forKey: storeKey)
@@ -368,6 +397,7 @@ final class ExerciseStore: ObservableObject {
     /// undeletable "No Category" group.
     @discardableResult
     func renameCategory(_ name: String, to newName: String) -> Bool {
+        let newName = newName.limited(to: TextLimit.categoryName)
         guard name != Self.noCategoryName,
               !newName.isEmpty,
               newName != name,
@@ -858,6 +888,7 @@ final class ExerciseStore: ObservableObject {
 
     /// Rename a routine. Refused only when the new name is empty after trimming.
     func renameRoutine(_ id: UUID, to newName: String) {
+        let newName = newName.limited(to: TextLimit.routineName)
         guard !newName.isEmpty,
               let idx = routines.firstIndex(where: { $0.id == id }),
               routines[idx].name != newName else { return }
@@ -868,6 +899,7 @@ final class ExerciseStore: ObservableObject {
     /// Set a routine's description — the text its intro screen shows. Any text
     /// is allowed, empty included.
     func setRoutineDetails(_ id: UUID, to newDetails: String) {
+        let newDetails = newDetails.limited(to: TextLimit.routineDetails)
         guard let idx = routines.firstIndex(where: { $0.id == id }),
               routines[idx].details != newDetails else { return }
         routines[idx].details = newDetails
@@ -1206,6 +1238,11 @@ final class ExerciseStore: ObservableObject {
             get: { self.exercises.first(where: { $0.id == id }) ?? Exercise(name: "") },
             set: { newValue in
                 guard let idx = self.exercises.firstIndex(where: { $0.id == id }) else { return }
+                // Whatever a screen writes is held to the limits here, so a field
+                // that forgot to cut its own value off can't store one past them
+                // (see ExerciseLimits). The screens bound to this read the held
+                // value back.
+                let newValue = newValue.withinLimits()
                 // Only a write that changes something is an edit, so a field
                 // committed as it was doesn't move the exercise up "Recently
                 // Updated".
@@ -1472,11 +1509,15 @@ final class ExerciseStore: ObservableObject {
     /// with ghost notes in it still opens there as the exercise it was.
     nonisolated static func midiGhostKey(_ id: UUID) -> String { "midighost_\(id.uuidString)" }
 
+    /// The exercise's stored notes, at most `ExerciseLimits.notesPerRepetition`
+    /// of them whatever was stored: a pattern cached from the community is
+    /// whatever its document held. The same goes for the labels and ghost notes
+    /// below, each to its own limit.
     func notes(for id: UUID) -> [MIDINote] {
         guard let data = UserDefaults.standard.data(forKey: Self.midiKey(id)),
               let saved = try? JSONDecoder().decode([MIDINote].self, from: data)
         else { return [] }
-        return saved
+        return saved.capped(at: ExerciseLimits.notesPerRepetition)
     }
 
     private func setNotes(_ notes: [MIDINote], for id: UUID) {
@@ -1488,7 +1529,7 @@ final class ExerciseStore: ObservableObject {
         guard let data = UserDefaults.standard.data(forKey: Self.midiTextKey(id)),
               let saved = try? JSONDecoder().decode([MIDIText].self, from: data)
         else { return [] }
-        return saved
+        return saved.capped(at: ExerciseLimits.labelsPerRepetition)
     }
 
     private func setTexts(_ texts: [MIDIText], for id: UUID) {
@@ -1502,7 +1543,7 @@ final class ExerciseStore: ObservableObject {
         guard let data = UserDefaults.standard.data(forKey: Self.midiGhostKey(id)),
               let saved = try? JSONDecoder().decode([MIDINote].self, from: data)
         else { return [] }
-        return saved
+        return saved.capped(at: ExerciseLimits.ghostsPerRepetition)
     }
 
     private func setGhosts(_ ghosts: [MIDINote], for id: UUID) {
@@ -1695,6 +1736,9 @@ final class ExerciseStore: ObservableObject {
         updateSupersededBundled()
         save()
         enforceBundledPrivacy()
+        // And either can carry an exercise from before the limits, or a file
+        // written by hand.
+        holdRunsWithinLimits()
     }
 
     /// Whether importing `imported` over `existing` changes the exercise: its

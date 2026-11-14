@@ -60,6 +60,11 @@ nonisolated struct Exercise: Identifiable, Hashable, Codable {
         visibility = try c.decodeIfPresent(ExerciseVisibility.self, forKey: .visibility) ?? .private
         uploaderName = try c.decodeIfPresent(String.self, forKey: .uploaderName) ?? ""
         downloadedFrom = try c.decodeIfPresent(String.self, forKey: .downloadedFrom)
+        // Whatever a document says, the exercise that comes out of it keeps to
+        // the limits: a public one is decoded on other people's phones, and a
+        // repetition count of a billion, a transposition past every MIDI note or
+        // ten-to-the-thirty beats of silence would bring the app down there.
+        self = withinLimits()
     }
 
     func encode(to encoder: Encoder) throws {
@@ -154,7 +159,7 @@ struct RepeatLayout {
 
 extension Exercise {
     /// Largest per-repetition tempo change the settings screen accepts, in BPM.
-    static let maxSpeedPerRepeat = 150
+    static let maxSpeedPerRepeat = ExerciseLimits.speedPerRepeat.upperBound
     /// The tempo a single repetition is held inside, in BPM. A long run of speed
     /// steps would otherwise reach a standstill (or a tempo running backwards) at
     /// one end and an unsingable blur at the other.
@@ -170,8 +175,12 @@ extension Exercise {
     /// Lay this exercise's repetitions out over a pattern `span` beats long (rounded
     /// up to a whole beat, plus the silence between repetitions), scaling each one so
     /// a timeline played at `bpm` sounds every repetition at its own tempo.
-    func repeatLayout(span: Double) -> RepeatLayout {
-        RepeatLayout(span: span, count: max(1, repeatCount)) { rep in
+    ///
+    /// `items` is how many notes, ghost notes and labels each repetition lays out,
+    /// which caps how many repetitions there are (see `playedRepeatCount(items:)`);
+    /// 0 holds the count to its own limit alone.
+    func repeatLayout(span: Double, items: Int = 0) -> RepeatLayout {
+        RepeatLayout(span: span, count: playedRepeatCount(items: items)) { rep in
             bpm > 0 ? bpm / tempo(forRepetition: rep) : 1
         }
     }
@@ -254,7 +263,7 @@ private struct CategoryNameField: View {
     }
 
     var body: some View {
-        TextField("Name", text: $name)
+        TextField("Name", text: $name.limited(to: TextLimit.categoryName))
             .focused(focus, equals: category)
             .onSubmit(commit)
             // Every row sees every focus change; only the one losing it commits.
@@ -894,7 +903,7 @@ struct ExercisesView: View {
             // Unlike Community's always-visible field, this one starts scrolled
             // out of sight (see ExerciseCollectionList's hidesSearchBarInitially)
             // and is revealed by pulling the list down.
-            .searchable(text: $searchText,
+            .searchable(text: $searchText.limited(to: TextLimit.search),
                         placement: .navigationBarDrawer(displayMode: .automatic),
                         prompt: L("Exercises, Descriptions"))
             // Swiping down over the search field's keyboard puts it away, like

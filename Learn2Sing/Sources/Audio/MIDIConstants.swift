@@ -7,8 +7,12 @@ let loPitch  = 24   // C1
 
 private let _noteLabels = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"]
 
+/// "C4" for 60. Floored division, so a note number below 0 is named rather than
+/// read out of the table's bounds: Swift's `%` keeps the sign of the number.
 func pitchName(_ pitch: Int) -> String {
-    "\(_noteLabels[pitch % 12])\((pitch / 12) - 1)"
+    let remainder = pitch % 12
+    let octave = pitch / 12 - (remainder < 0 ? 1 : 0)
+    return "\(_noteLabels[(remainder + 12) % 12])\(octave - 1)"
 }
 
 /// Bit set of the black keys within an octave: C#, D#, F#, G#, A#.
@@ -95,11 +99,17 @@ nonisolated enum PitchTravel {
         // so the walk steps back over them rather than reading one as the note sung
         // before the other.
         let order = notes.indices.sorted { notes[$0].beat < notes[$1].beat }
+        // Where the run of notes sharing this one's start begins in `order`. The
+        // note before that run is the one sung before this one; kept as the walk
+        // goes rather than stepped back to per note, which over a run of notes all
+        // starting together — a document can hold such a thing — costs their count
+        // squared.
+        var groupStart = 0
         for k in 1..<order.count {
             let i = order[k]
             let note = notes[i]
-            var p = k - 1
-            while p >= 0, notes[order[p]].beat >= note.beat { p -= 1 }
+            if notes[order[k - 1]].beat < note.beat { groupStart = k }
+            let p = groupStart - 1
             guard p >= 0 else { continue }
             let from = notes[order[p]]
 
@@ -253,6 +263,21 @@ enum AutoMicDelay {
     /// offset controls stop at.
     static let ceilingMs: Double = 2000
 
+    /// What the delay setting may hold, in milliseconds: never negative (see
+    /// `floorMs`), and never past `ceilingMs`, typed or restored.
+    static let settingRange: ClosedRange<Double> = 0...ceilingMs
+
+    /// Brings a stored delay from before the field held to `settingRange` back
+    /// inside it. The scoring and the review screen turn it into whole numbers,
+    /// which a delay typed as twenty nines can't be.
+    static func holdStoredSettingInRange() {
+        let defaults = UserDefaults.standard
+        guard defaults.object(forKey: microphoneDelayKey) != nil else { return }
+        let stored = defaults.double(forKey: microphoneDelayKey)
+        let held = stored.isFinite ? stored.clamped(to: settingRange) : 0
+        if held != stored { defaults.set(held, forKey: microphoneDelayKey) }
+    }
+
     /// The lowest delay a run is searched at, in milliseconds. Below zero is no
     /// microphone at all but a singer who slides into each note early, over the end
     /// of the one before, where the time a note allows for arriving on it does them
@@ -318,8 +343,11 @@ enum VocalRange: String, CaseIterable, Identifiable {
     /// The singer's stored custom low/high MIDI notes, clamped so low ≤ high.
     static var customRange: (low: Int, high: Int) {
         let defaults = UserDefaults.standard
-        let low  = defaults.object(forKey: customLowKey)  as? Int ?? customDefault.low
-        let high = defaults.object(forKey: customHighKey) as? Int ?? customDefault.high
+        // On the keys the pickers offer, whatever was stored.
+        let low  = (defaults.object(forKey: customLowKey)  as? Int ?? customDefault.low)
+            .clamped(to: loPitch...hiPitch)
+        let high = (defaults.object(forKey: customHighKey) as? Int ?? customDefault.high)
+            .clamped(to: loPitch...hiPitch)
         return (min(low, high), max(low, high))
     }
 

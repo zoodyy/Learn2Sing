@@ -300,7 +300,7 @@ struct CommunityView: View {
             }
             .navigationTitle(L("Community"))
             .navigationBarTitleDisplayMode(.inline)
-            .searchable(text: $searchText,
+            .searchable(text: $searchText.limited(to: TextLimit.search),
                         placement: .navigationBarDrawer(displayMode: .always),
                         prompt: L("Users, Exercises, Descriptions"))
             // Swiping down over the search field's keyboard puts it away, like
@@ -531,7 +531,7 @@ struct CommunityUserProfileView: View {
         }
         .navigationTitle(username)
         .navigationBarTitleDisplayMode(.inline)
-        .searchable(text: $searchText,
+        .searchable(text: $searchText.limited(to: TextLimit.search),
                     placement: .navigationBarDrawer(displayMode: .always),
                     prompt: L("Exercises, Descriptions"))
         // Swiping down over the search field's keyboard puts it away, like
@@ -677,8 +677,10 @@ private struct CommunityProfileHeader: View {
         expanded = ExpandedPicture(image: image)
     }
 
+    /// Another user's picture, decoded no bigger than this app makes one (see
+    /// `ProfilePictureCodec.image(fromBase64:maxPixels:)`).
     private static func image(_ base64: String?) -> UIImage? {
-        base64.flatMap { Data(base64Encoded: $0) }.flatMap(UIImage.init(data:))
+        base64.flatMap { ProfilePictureCodec.image(fromBase64: $0) }
     }
 
     /// "3 months ago" in the language the app is set to — not the device's, which

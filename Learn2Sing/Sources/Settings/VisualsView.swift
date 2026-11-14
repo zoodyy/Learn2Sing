@@ -386,7 +386,7 @@ struct PlaybackVisualsView: View {
             templates.syncSelectedWithCurrent()
         }
         .alert("New Template", isPresented: $isNamingTemplate) {
-            TextField("Name", text: $newTemplateName)
+            TextField("Name", text: $newTemplateName.limited(to: TextLimit.templateName))
             Button("Save") { saveCurrentAsTemplate() }
             Button("Cancel", role: .cancel) { selectAfterSaving = nil }
         } message: {

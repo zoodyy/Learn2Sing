@@ -46,7 +46,7 @@ private struct RoutineNameField: View {
     }
 
     var body: some View {
-        TextField("Name", text: $name)
+        TextField("Name", text: $name.limited(to: TextLimit.routineName))
             .focused($isFocused)
             .onChange(of: name) { _, newName in
                 store.renameRoutine(routineID, to: newName.trimmingCharacters(in: .whitespaces))
@@ -81,7 +81,8 @@ private struct RoutineDetailsField: View {
     }
 
     var body: some View {
-        TextField("Shown before the routine starts", text: $details, axis: .vertical)
+        TextField("Shown before the routine starts",
+                  text: $details.limited(to: TextLimit.routineDetails), axis: .vertical)
             .lineLimit(3...8)
             .onChange(of: details) { _, newDetails in
                 store.setRoutineDetails(routineID, to: newDetails)
