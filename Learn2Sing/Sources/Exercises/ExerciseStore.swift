@@ -36,7 +36,17 @@ nonisolated struct Routine: Identifiable, Hashable, Codable {
 /// `midighost_<uuid>`) so it stays compatible with the existing
 /// EditingView/PlaybackView.
 final class ExerciseStore: ObservableObject {
-    @Published var exercises: [Exercise] = []
+    /// The library. Announced by hand rather than through `@Published`, so that
+    /// `stage(_:)` can write to it without telling every screen at once; every
+    /// other write announces itself exactly as `@Published` would.
+    var exercises: [Exercise] {
+        get { library }
+        set {
+            objectWillChange.send()
+            library = newValue
+        }
+    }
+    private var library: [Exercise] = []
     /// User-defined categories used to group exercises in the list, in display order.
     @Published var categories: [String] = []
     /// Exercise ids ordered by when they last played through to the end, newest
@@ -1253,6 +1263,69 @@ final class ExerciseStore: ObservableObject {
         )
     }
 
+    // MARK: - Edits on the settings screen
+
+    /// The exercises `stage(_:)` has written since the rest of the app was last
+    /// told, each as it was before the first of those writes.
+    private var stagedOriginals: [UUID: Exercise] = [:]
+    /// Tells the rest of the app once the staged edits have settled.
+    private var stagedPublish: Task<Void, Never>?
+
+    /// Writes an edit made on an exercise's settings screen into the library at
+    /// once, but holds back telling the rest of the app, saving the library and
+    /// stamping the exercise as edited until the edits settle: a second after
+    /// the last one, or sooner through `publishStagedEdits()`.
+    ///
+    /// Announced one by one, every keystroke in a field and every step of a
+    /// slider redrew every screen built on the library, the lists of the tabs
+    /// behind the settings screen included, and wrote the whole library out to
+    /// UserDefaults, which is what made those controls lag. Written into the
+    /// library at once rather than kept on the screen, an edit is never lost to
+    /// leaving in a hurry, and whatever reads the library in the meantime (the
+    /// check that throws away a new exercise left untouched, say) reads it as it
+    /// now is. The screen that stages an edit redraws itself.
+    ///
+    /// Held to the limits like a write through `binding(for:)`.
+    func stage(_ exercise: Exercise) {
+        guard let idx = library.firstIndex(where: { $0.id == exercise.id }) else { return }
+        let held = exercise.withinLimits()
+        guard library[idx] != held else { return }
+        if stagedOriginals[exercise.id] == nil { stagedOriginals[exercise.id] = library[idx] }
+        library[idx] = held
+        stagedPublish?.cancel()
+        stagedPublish = Task { [weak self] in
+            try? await Task.sleep(for: .seconds(1))
+            guard !Task.isCancelled else { return }
+            self?.publishStagedEdits()
+        }
+    }
+
+    /// Tells the rest of the app about the edits `stage(_:)` held back, saves
+    /// the library, and stamps each exercise they changed as edited. One that is
+    /// back to how it was before the first of them isn't stamped (nothing about
+    /// it changed), nor is one deleted since.
+    ///
+    /// Called when the settings screen goes away or the MIDI editor covers it,
+    /// before its "Undo My Changes", and as the app leaves the foreground, which
+    /// may be the last chance.
+    func publishStagedEdits() {
+        stagedPublish?.cancel()
+        stagedPublish = nil
+        guard !stagedOriginals.isEmpty else { return }
+        let originals = stagedOriginals
+        stagedOriginals = [:]
+        for (id, original) in originals {
+            guard let current = library.first(where: { $0.id == id }), current != original
+            else { continue }
+            ExerciseDates.markEdited(id)
+        }
+        // Even when every edit was taken back again: a save made elsewhere in
+        // the meantime wrote the library out with them in it, and a screen that
+        // redrew in the meantime drew them.
+        objectWillChange.send()
+        save()
+    }
+
     // MARK: - Reset
 
     /// The exercises the user made themselves: neither shipped with the app nor
@@ -1329,6 +1402,10 @@ final class ExerciseStore: ObservableObject {
     /// first, then `startFromStorage()` seeds the library the way a new install's
     /// first launch does, rather than this putting it back piece by piece.
     func resetToFirstLaunch() {
+        // Nothing staged before the wipe may stamp or save anything after it.
+        stagedPublish?.cancel()
+        stagedPublish = nil
+        stagedOriginals = [:]
         let defaults = UserDefaults.standard
         for exercise in exercises {
             defaults.removeObject(forKey: Self.midiKey(exercise.id))
@@ -1514,11 +1591,21 @@ final class ExerciseStore: ObservableObject {
     /// whatever its document held. The same goes for the labels and ghost notes
     /// below, each to its own limit.
     func notes(for id: UUID) -> [MIDINote] {
-        guard let data = UserDefaults.standard.data(forKey: Self.midiKey(id)),
-              let saved = try? JSONDecoder().decode([MIDINote].self, from: data)
-        else { return [] }
-        return saved.capped(at: ExerciseLimits.notesPerRepetition)
+        guard let data = UserDefaults.standard.data(forKey: Self.midiKey(id)) else { return [] }
+        if let decoded = decodedNotes[id], decoded.stored == data { return decoded.notes }
+        guard let saved = try? JSONDecoder().decode([MIDINote].self, from: data) else { return [] }
+        let notes = saved.capped(at: ExerciseLimits.notesPerRepetition)
+        decodedNotes[id] = (data, notes)
+        return notes
     }
+
+    /// What `notes(for:)` has decoded, each with the stored bytes it came from.
+    /// The Exercises tab asks for the notes of every row it shows each time it
+    /// redraws, which is on every change to the library, and decoding them all
+    /// again each time cost frames. Checked against what is stored rather than
+    /// cleared on a write, because the MIDI editor and the community cache write
+    /// patterns straight to UserDefaults.
+    private var decodedNotes: [UUID: (stored: Data, notes: [MIDINote])] = [:]
 
     private func setNotes(_ notes: [MIDINote], for id: UUID) {
         guard let data = try? JSONEncoder().encode(notes) else { return }

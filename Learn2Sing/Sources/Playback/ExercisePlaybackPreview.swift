@@ -48,6 +48,11 @@ struct ExercisePlaybackPreview: View {
     /// gives a press before it counts as a drag.
     private static let tapSlop: CGFloat = 10
 
+    /// Redraws the help bubble's text when the language is changed in Settings.
+    /// The settings screen observes it too, but `==` leaves the language out, so
+    /// that screen's redraw wouldn't reach this one.
+    @ObservedObject private var appLanguage = LanguageManager.shared
+
     /// The playback look. Read once: nothing on this screen changes it.
     @State private var visuals = VisualSettings.current
     @AppStorage(VocalRange.storageKey) private var vocalRangeRaw = ""
@@ -86,7 +91,7 @@ struct ExercisePlaybackPreview: View {
             .background(Color(.systemGroupedBackground))
             // The pattern arrives with the screen and the exercise changes under the
             // controls below, so the timeline is rebuilt from whichever moved.
-            .onChange(of: exercise, initial: true) { _, _ in rebuild() }
+            .onChange(of: drawnExercise, initial: true) { _, _ in rebuild() }
             .onChange(of: pattern) { _, _ in rebuild() }
             .onChange(of: labels) { _, _ in rebuild() }
             .onChange(of: ghosts) { _, _ in rebuild() }
@@ -138,6 +143,17 @@ struct ExercisePlaybackPreview: View {
     private func rebuild() {
         timeline = exercise.timeline(pattern: pattern, labels: labels, ghosts: ghosts,
                                      vocalRange: VocalRange(rawValue: vocalRangeRaw))
+    }
+
+    /// The exercise as far as the drawing goes: all of it but the name and the
+    /// description, which aren't drawn. What `==` and the rebuild go by, so a
+    /// keystroke in either field neither lays the timeline out again nor redraws
+    /// the canvas.
+    private var drawnExercise: Exercise {
+        var drawn = exercise
+        drawn.name = ""
+        drawn.details = ""
+        return drawn
     }
 
     // MARK: - Settings
@@ -259,5 +275,18 @@ struct ExercisePlaybackPreview: View {
         let total = max(1, timeline.repeats.count)
         guard total > 1, timeline.repeats.count > 0 else { return nil }
         return (current: min(total - 1, timeline.repeats.index(at: beat)) + 1, total: total)
+    }
+}
+
+extension ExercisePlaybackPreview: Equatable {
+    /// Whether two previews draw the same thing, which is what `.equatable()` on
+    /// the settings screen goes by: that screen redraws on every keystroke in
+    /// its name and description fields, and this needn't. The tap action is left
+    /// out, since it opens the same editor whichever closure it came in.
+    static func == (lhs: Self, rhs: Self) -> Bool {
+        lhs.drawnExercise == rhs.drawnExercise
+            && lhs.pattern == rhs.pattern && lhs.labels == rhs.labels && lhs.ghosts == rhs.ghosts
+            && lhs.width == rhs.width && lhs.fullHeight == rhs.fullHeight
+            && lhs.scrollOffset == rhs.scrollOffset
     }
 }

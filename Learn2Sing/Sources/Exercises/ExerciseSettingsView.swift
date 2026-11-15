@@ -6,7 +6,8 @@ struct ExerciseSettingsView: View {
     /// strings are resolved when the body runs, so SwiftUI needs telling.
     @ObservedObject private var appLanguage = LanguageManager.shared
 
-    @Binding var exercise: Exercise
+    /// The exercise this screen edits.
+    let exerciseID: UUID
     /// Pushes the MIDI editor for this exercise onto the tab's path, exactly as the
     /// "Edit MIDI" row does; a tap on the preview at the top goes the same way.
     let onEditMIDI: () -> Void
@@ -14,6 +15,50 @@ struct ExerciseSettingsView: View {
     @EnvironmentObject private var toasts: ToastCenter
     @Environment(\.dismiss) private var dismiss
     @FocusState private var focusedField: Field?
+
+    /// Counts the edits made on this screen, and is what redraws it after one
+    /// (see the setter below for the edits that don't). They go into the library
+    /// through `ExerciseStore.stage(_:)`, which waits for them to settle before
+    /// telling the rest of the app, so the store no longer redraws this screen,
+    /// and every other, on every keystroke.
+    @State private var editCount = 0
+
+    /// The exercise as the library holds it, this screen's latest edits
+    /// included. Every write goes through `ExerciseStore.stage(_:)`.
+    private var exercise: Exercise {
+        get {
+            // Read, so that the count going up redraws the screen.
+            _ = editCount
+            return store.exercises.first(where: { $0.id == exerciseID }) ?? Exercise(name: "")
+        }
+        nonmutating set {
+            let current = exercise
+            store.stage(newValue)
+            // A keystroke in the name or the description is the one edit that
+            // needn't redraw the form: the field shows what was typed without
+            // it, and the form redrawing for every keystroke was half of what
+            // typing there cost. The title, the one other place the name shows,
+            // catches up when the store announces the edit. Every other write
+            // redraws, even one that changed nothing, so a number field held to
+            // its limit shows the number it was held to.
+            let onlyText = newValue != current && Self.withoutText(newValue) == Self.withoutText(current)
+            if !onlyText { editCount &+= 1 }
+        }
+    }
+
+    /// An exercise with its name and description taken out, for telling an edit
+    /// to those two apart from every other.
+    private static func withoutText(_ exercise: Exercise) -> Exercise {
+        var exercise = exercise
+        exercise.name = ""
+        exercise.details = ""
+        return exercise
+    }
+
+    /// `exercise`, for the controls that take a binding.
+    private var exerciseBinding: Binding<Exercise> {
+        Binding(get: { exercise }, set: { exercise = $0 })
+    }
 
     /// Drives the "really delete?" confirmation shown by the delete button.
     @State private var isConfirmingDelete = false
@@ -135,6 +180,9 @@ struct ExerciseSettingsView: View {
                             exercise: exercise, pattern: pattern, labels: labels, ghosts: ghosts,
                             width: previewWidth, fullHeight: previewSize,
                             scrollOffset: scrollOffset, onTap: onEditMIDI)
+                            // Left alone while the name or the description is
+                            // typed, which it doesn't draw.
+                            .equatable()
                     }
                 }
         }
@@ -173,11 +221,16 @@ struct ExerciseSettingsView: View {
             // the exercise's estimated difficulty describing something it no
             // longer plays. Asked for a tick later than the delete button's own
             // work, so an exercise on its way out isn't estimated on the way.
-            let id = exercise.id
+            let id = exerciseID
             DispatchQueue.main.async { CommunitySync.shared.seedDifficulty(for: id) }
-            guard wasWithinLengthRuleOnOpen, exercise.visibility == .public,
-                  !isLongEnoughToPublish else { return }
-            exercise.visibility = .private
+            if wasWithinLengthRuleOnOpen, exercise.visibility == .public,
+               !isLongEnoughToPublish {
+                exercise.visibility = .private
+            }
+            // Last, so it takes that along too. Left or covered by the MIDI
+            // editor, this screen hands the exercise to screens that only redraw
+            // when the store announces a change.
+            store.publishStagedEdits()
         }
         .alert("Delete Exercise?", isPresented: $isConfirmingDelete) {
             Button("Delete", role: .destructive) {
@@ -284,7 +337,7 @@ struct ExerciseSettingsView: View {
     private var settingsForm: some View {
         Form {
             Section("Name") {
-                TextField("Name", text: $exercise.name.limited(to: TextLimit.exerciseName))
+                TextField("Name", text: exerciseBinding.name.limited(to: TextLimit.exerciseName))
                     .focused($focusedField, equals: .name)
                     .onSubmit { demoteIfNameTaken() }
                     .settingHelp(L("What this exercise is called in your lists."))
@@ -292,7 +345,7 @@ struct ExerciseSettingsView: View {
 
             Section("Description") {
                 TextField("Shown before the exercise starts",
-                          text: $exercise.details.limited(to: TextLimit.exerciseDetails), axis: .vertical)
+                          text: exerciseBinding.details.limited(to: TextLimit.exerciseDetails), axis: .vertical)
                     .lineLimit(3...8)
                     .focused($focusedField, equals: .details)
                     .settingHelp(L("Your note on what to do, shown on the screen before the exercise starts."))
@@ -362,7 +415,7 @@ struct ExerciseSettingsView: View {
                         HStack {
                             Text("Switch transposing direction after")
                             Spacer()
-                            TextField("0", value: $exercise.switchDirectionAfter, format: .number)
+                            TextField("0", value: exerciseBinding.switchDirectionAfter, format: .number)
                                 .multilineTextAlignment(.trailing)
                                 .keyboardType(.numberPad)
                                 .focused($focusedField, equals: .switchDirection)
@@ -408,7 +461,7 @@ struct ExerciseSettingsView: View {
             }
 
             Section("Pitch") {
-                Stepper(value: $exercise.pitchShift, in: ExerciseLimits.pitchShift) {
+                Stepper(value: exerciseBinding.pitchShift, in: ExerciseLimits.pitchShift) {
                     HStack {
                         Text("Transpose")
                         Spacer()
@@ -558,8 +611,11 @@ struct ExerciseSettingsView: View {
         labels = openLabels
         ghosts = openGhosts
         // Last, so the write to the store that the server syncs watch happens
-        // once the pattern they upload alongside it is back in place.
+        // once the pattern they upload alongside it is back in place. Announced
+        // at once rather than when the edits settle, since that stamps the
+        // exercise as edited, and the stamp has to come before the line below.
         exercise = openState
+        store.publishStagedEdits()
         // After that write, which stamps the exercise as edited like any other.
         ExerciseDates.restore(openDates, for: openState.id)
     }

@@ -52,6 +52,10 @@ struct Learn2SingApp: App {
         .onChange(of: scenePhase) { _, phase in
             switch phase {
             case .background:
+                // First, so the backup sent below has them: edits on an
+                // exercise's settings screen wait to be announced until they
+                // settle (see `ExerciseStore.stage(_:)`).
+                store.publishStagedEdits()
                 ProfileSync.shared.appDidEnterBackground()
                 AppUsageTime.pause()
             case .active:
