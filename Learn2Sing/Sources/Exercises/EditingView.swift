@@ -206,6 +206,20 @@ private let maxGhostsAtOnce = 5
 /// plain to see against the green, without the alarm of the red that marks
 /// overlapping notes.
 private let ghostOverNoteColor = Color.cyan
+/// How near an edge of the roll a drag has to bring the finger before the roll scrolls
+/// that way (see `edgeScrollVelocity`).
+private let edgeScrollZone: CGFloat = 44
+/// How much closer to an edge than it pressed a drag has to come before the roll scrolls
+/// that way, so a press that lands near an edge, and a finger wavering there, leave the
+/// roll where it is.
+private let edgeScrollSlop: CGFloat = 10
+/// How fast the roll scrolls with the finger at an edge or past it, in points a second.
+/// No more than a quarter-beat note's width a frame at 60 frames a second, so the eraser
+/// can't skip one as the roll runs under it.
+private let edgeScrollMaxSpeed: CGFloat = 700
+/// How long the roll takes to reach the speed the finger asks for, so it never sets off
+/// with a jolt.
+private let edgeScrollEaseIn: CFTimeInterval = 0.2
 
 
 // MARK: - EditingView
@@ -274,6 +288,11 @@ struct EditingView: View {
     /// Set the first time the roll is scrolled up or down or drawn on. From then on
     /// it stays where the user has it, whatever happens to its height.
     @State private var rollTouched = false
+    /// Scrolls the roll while a drag holds the finger near one of its edges.
+    @State private var edge = RollEdgeScroll()
+    /// Whether a finger is down on the roll. Unlike the drag's end, this also goes
+    /// back when the system cancels the drag, which has to stop edge scrolling too.
+    @GestureState private var fingerOnRoll = false
     @Environment(\.scenePhase) private var scenePhase
 
     init(exercise: Exercise? = nil) {
@@ -353,6 +372,21 @@ struct EditingView: View {
         case refused(Refusal)
         case erasing
     }
+
+    /// A drag on the roll in the roll's own space, which the tools work in: where the
+    /// press landed, and where the finger is now. While the roll scrolls under a finger
+    /// held near its edge, the finger comes to be somewhere new in it without moving.
+    private struct RollTouch {
+        var startLocation: CGPoint
+        var location: CGPoint
+        var translation: CGSize {
+            CGSize(width: location.x - startLocation.x, height: location.y - startLocation.y)
+        }
+    }
+
+    /// The space the roll's drag is read in: the vertical scroll view's frame, piano
+    /// keys and all, which stays put however the roll is scrolled.
+    private let rollViewportSpace = "rollViewport"
 
     /// Why a press drew nothing although it landed on free timeline.
     private enum Refusal {
@@ -515,8 +549,20 @@ struct EditingView: View {
             guard !rollTouched else { return }
             rollPos.scrollTo(y: openingOffset(in: size))
         }
+        // Only edge scrolling reads these, and nothing is drawn from them, so they're
+        // kept where changing them doesn't redraw the screen.
+        .onScrollGeometryChange(for: CGRect.self) { g in
+            CGRect(origin: g.contentOffset, size: g.containerSize)
+        } action: { _, new in
+            edge.vertical = new
+        }
         .onScrollPhaseChange { _, phase in
             if phase == .interacting { rollTouched = true }
+        }
+        .coordinateSpace(.named(rollViewportSpace))
+        .onReceive(edge.frames) { edgeScrollStep($0) }
+        .onChange(of: fingerOnRoll) { _, down in
+            if !down { edge.end() }
         }
     }
 
@@ -613,6 +659,7 @@ struct EditingView: View {
                  """)
         }
         .onDisappear {
+            edge.end()
             isPlaying = false
             player.stop()
             if engineStarted {
@@ -642,7 +689,12 @@ struct EditingView: View {
     /// margin growing or shrinking is that edge moving: slide the offset by the same
     /// amount so the grid stays where it was instead of jumping sideways.
     private func holdScroll(throughMarginChange delta: CGFloat) {
-        scrollPos.scrollTo(x: max(0, scrollGeom.minX + delta))
+        var offset = rollOffset
+        offset.x = max(0, offset.x + delta)
+        // A drag under way reads the finger against the offset the roll is being moved
+        // to from here on, not the one its geometry reports until the next layout.
+        if edge.drag != nil { edge.offset = offset }
+        scrollPos.scrollTo(x: offset.x)
     }
 
     // MARK: - Playback
@@ -701,7 +753,9 @@ struct EditingView: View {
     /// Keep the playhead on screen during playback: once it leaves the viewport,
     /// jump the scroll so it re-enters near the left edge.
     private func followPlayhead() {
-        guard isPlaying, scrollGeom.width > 0 else { return }
+        // Not while a drag is steering the roll (see `edgeScrollStep`): the finger has
+        // the say over where it's scrolled until it lifts.
+        guard isPlaying, scrollGeom.width > 0, edge.offset == nil else { return }
         let x = leadW + CGFloat(displayBeat) * beatW
         if x > scrollGeom.maxX - 24 || x < scrollGeom.minX {
             let target = max(0, x - scrollGeom.width * 0.2)
@@ -1129,27 +1183,152 @@ struct EditingView: View {
 
     // MARK: - Gesture
 
+    // Read in the viewport's space rather than the roll's own, so where the finger is
+    // on screen is known exactly however the roll is scrolled: edge scrolling goes by
+    // that, and moves the roll on under it (see `rollTouch(for:)`).
     private var rollGesture: some Gesture {
-        DragGesture(minimumDistance: 0, coordinateSpace: .local)
+        DragGesture(minimumDistance: 0, coordinateSpace: .named(rollViewportSpace))
+            .updating($fingerOnRoll) { _, down, _ in down = true }
             .onChanged { v in
                 if !rollTouched { rollTouched = true }
-                switch tool {
-                case .pen:   noteChanged(v, in: .melody)
-                case .ghost: noteChanged(v, in: .ghost)
-                case .text:  textChanged(v)
-                case .erase: eraseChanged(v)
-                case .hand:  break
-                }
+                applyTool(rollTouch(for: v))
+                updateEdgeScroll()
             }
-            .onEnded { v in
+            .onEnded { _ in
+                edge.end()
                 switch tool {
-                case .pen:   noteEnded(v, in: .melody)
-                case .ghost: noteEnded(v, in: .ghost)
-                case .text:  textEnded(v)
+                case .pen:   noteEnded(in: .melody)
+                case .ghost: noteEnded(in: .ghost)
+                case .text:  textEnded()
                 case .erase: interaction = .idle
                 case .hand:  break
                 }
             }
+    }
+
+    /// Hands the drag to the tool in use.
+    private func applyTool(_ touch: RollTouch) {
+        switch tool {
+        case .pen:   noteChanged(touch, in: .melody)
+        case .ghost: noteChanged(touch, in: .ghost)
+        case .text:  textChanged(touch)
+        case .erase: eraseChanged(touch)
+        case .hand:  break
+        }
+    }
+
+    /// The drag `v` in the roll's own space, noting down where the finger is on screen
+    /// for edge scrolling.
+    private func rollTouch(for v: DragGesture.Value) -> RollTouch {
+        // A drag the system cancelled never ended, so a press somewhere else is a new
+        // one whatever was noted down.
+        if let drag = edge.drag, drag.pressedAt != v.startLocation { edge.end() }
+        let offset = rollOffset
+        let start = edge.drag?.start ?? rollPoint(v.startLocation, scrolledTo: offset)
+        edge.drag = RollEdgeScroll.Drag(start: start, pressedAt: v.startLocation, finger: v.location)
+        return RollTouch(startLocation: start, location: rollPoint(v.location, scrolledTo: offset))
+    }
+
+    /// What the roll is scrolled to: where edge scrolling has put it during a drag it
+    /// has scrolled, and otherwise what its scroll geometry last reported.
+    private var rollOffset: CGPoint {
+        edge.offset ?? CGPoint(x: scrollGeom.minX, y: edge.vertical.minY)
+    }
+
+    /// `point` in the viewport's space, where the drag reports the finger, in the roll's
+    /// own space with the roll scrolled to `offset`. The grid starts right of the keys.
+    private func rollPoint(_ point: CGPoint, scrolledTo offset: CGPoint) -> CGPoint {
+        CGPoint(x: point.x - pianoW + offset.x, y: point.y + offset.y)
+    }
+
+    // MARK: Edge scrolling
+    //
+    // A drag that carries something about, stretches a note or erases can bring the
+    // finger up against the edge of what's on screen. Held there, the roll scrolls
+    // that way under it, faster the nearer the edge it is, and the tool goes on
+    // working wherever the finger comes to be on the roll, exactly as if it had moved.
+
+    /// Which ways the roll scrolls when a drag brings the finger near its edge: either
+    /// way for a note or label being carried about, and for the eraser; only sideways
+    /// while a note is drawn or one of its ends dragged, which can only make it longer
+    /// or shorter; not at all for anything else.
+    private var edgeScrollAxes: Axis.Set {
+        switch interaction {
+        case .movingNote, .erasing:
+            return [.horizontal, .vertical]
+        case .movingText(_, _, let moved):
+            // A label that hasn't moved yet may still turn out to be a tap.
+            return moved ? [.horizontal, .vertical] : []
+        case .creating, .pendingNote, .resizing:
+            return .horizontal
+        case .idle, .pendingText, .deadSpace, .refused:
+            return []
+        }
+    }
+
+    /// How fast the roll scrolls under the finger, in points a second either way: zero
+    /// unless the drag has brought the finger near an edge it may scroll towards.
+    private var edgeScrollVelocity: CGVector {
+        guard let drag = edge.drag, scrollGeom.width > 0, edge.vertical.height > 0 else { return .zero }
+        let axes = edgeScrollAxes
+        var velocity = CGVector.zero
+        if axes.contains(.horizontal) {
+            let left = pianoW, right = pianoW + scrollGeom.width
+            let zone = min(edgeScrollZone, scrollGeom.width / 4)
+            velocity.dx = edgeSpeed(distance: right - drag.finger.x, pressed: right - drag.pressedAt.x, zone: zone)
+                - edgeSpeed(distance: drag.finger.x - left, pressed: drag.pressedAt.x - left, zone: zone)
+        }
+        if axes.contains(.vertical) {
+            let height = edge.vertical.height
+            let zone = min(edgeScrollZone, height / 4)
+            velocity.dy = edgeSpeed(distance: height - drag.finger.y, pressed: height - drag.pressedAt.y, zone: zone)
+                - edgeSpeed(distance: drag.finger.y, pressed: drag.pressedAt.y, zone: zone)
+        }
+        return velocity
+    }
+
+    /// How fast the roll scrolls towards one edge with the finger `distance` from it
+    /// (less than nothing past it) after pressing `pressed` from it: not at all until
+    /// the finger is inside `zone` and has come `edgeScrollSlop` nearer the edge than it
+    /// pressed, then faster the nearer it gets, flat out at the edge and past it.
+    private func edgeSpeed(distance: CGFloat, pressed: CGFloat, zone: CGFloat) -> CGFloat {
+        guard distance < zone, pressed - distance >= edgeScrollSlop else { return 0 }
+        let depth = min(1, (zone - distance) / zone)
+        return edgeScrollMaxSpeed * depth * depth
+    }
+
+    /// Starts the roll scrolling once a drag has brought the finger near an edge, and
+    /// stops it once it no longer is.
+    private func updateEdgeScroll() {
+        if edgeScrollVelocity == .zero {
+            edge.stop()
+        } else {
+            edge.start()
+        }
+    }
+
+    /// One frame of edge scrolling: the roll moves on as far as the finger's place near
+    /// the edge asks, and the tool works on at wherever that leaves the finger.
+    private func edgeScrollStep(_ frame: RollEdgeScroll.Frame) {
+        let velocity = edgeScrollVelocity
+        guard let drag = edge.drag, velocity != .zero else {
+            edge.stop()
+            return
+        }
+        // A hitch doesn't jump the roll, or the eraser past a note: never more than a
+        // 60th of a second's worth at once.
+        let seconds = CGFloat(min(frame.step, 1.0 / 60) * min(1, frame.elapsed / edgeScrollEaseIn))
+        let from = rollOffset
+        let to = CGPoint(
+            x: (from.x + velocity.dx * seconds).clamped(to: 0...max(0, contentW - scrollGeom.width)),
+            y: (from.y + velocity.dy * seconds).clamped(to: 0...max(0, gridH - edge.vertical.height)))
+        // Held against the end the finger points at, there's nowhere further to go
+        // until the drag makes room (a note carried right lengthens the grid).
+        guard to != from else { return }
+        edge.offset = to
+        if to.x != from.x { scrollPos.scrollTo(x: to.x) }
+        if to.y != from.y { rollPos.scrollTo(y: to.y) }
+        applyTool(RollTouch(startLocation: drag.start, location: rollPoint(drag.finger, scrolledTo: to)))
     }
 
     // MARK: Pen and ghost tools — create, move, resize notes (no delete)
@@ -1157,7 +1336,7 @@ struct EditingView: View {
     // The two tools work exactly alike, each on its own `layer` of notes and under
     // that layer's rules for which of them may sound at once.
 
-    private func noteChanged(_ v: DragGesture.Value, in layer: NoteLayer) {
+    private func noteChanged(_ v: RollTouch, in layer: NoteLayer) {
         switch interaction {
         case .idle:
             guard beatValue(v.startLocation.x) >= 0 else {
@@ -1285,7 +1464,7 @@ struct EditingView: View {
         }
     }
 
-    private func noteEnded(_ v: DragGesture.Value, in layer: NoteLayer) {
+    private func noteEnded(in layer: NoteLayer) {
         // Said once, as the finger lifts, however many moves ran into it.
         if hitLengthLimit {
             hitLengthLimit = false
@@ -1345,7 +1524,7 @@ struct EditingView: View {
 
     // MARK: Text tool — place, move, edit labels
 
-    private func textChanged(_ v: DragGesture.Value) {
+    private func textChanged(_ v: RollTouch) {
         switch interaction {
         case .idle:
             if let hit = textAt(v.startLocation) {
@@ -1376,7 +1555,7 @@ struct EditingView: View {
         }
     }
 
-    private func textEnded(_ v: DragGesture.Value) {
+    private func textEnded() {
         switch interaction {
         case .pendingText(let p):
             guard hasRoomForLabel else {
@@ -1439,7 +1618,7 @@ struct EditingView: View {
 
     // MARK: Erase tool — scrub over notes, ghost notes and text to delete
 
-    private func eraseChanged(_ v: DragGesture.Value) {
+    private func eraseChanged(_ v: RollTouch) {
         // Ghost notes first: they're drawn over the notes.
         if let g = noteAt(v.location, in: .ghost) {
             ghosts.removeAll { $0.id == g.id }
@@ -1991,5 +2170,103 @@ struct EditingView: View {
               let saved = try? JSONDecoder().decode(type, from: data)
         else { return [] }
         return saved
+    }
+}
+
+// MARK: - Edge scrolling
+
+/// What scrolling the roll while a drag holds the finger near its edge keeps from one
+/// frame to the next. None of it is drawn, so it lives in a reference the screen doesn't
+/// watch: the finger moving, or the roll scrolling up and down, redraws nothing by
+/// itself.
+private final class RollEdgeScroll {
+    /// A drag on the roll while the finger is down, in the space of the roll's
+    /// viewport, which stays put however the roll is scrolled.
+    struct Drag {
+        /// Where the press landed, in the roll's own space.
+        var start: CGPoint
+        /// Where the press landed in the viewport.
+        var pressedAt: CGPoint
+        /// Where the finger is now in the viewport.
+        var finger: CGPoint
+    }
+
+    /// One tick of the display link.
+    struct Frame {
+        /// Seconds since the last tick.
+        var step: CFTimeInterval
+        /// Seconds since this run of scrolling began.
+        var elapsed: CFTimeInterval
+    }
+
+    var drag: Drag?
+
+    /// The roll's vertical scroll offset and visible height, as its scroll geometry
+    /// last reported them. (The horizontal ones are the screen's `scrollGeom`, which
+    /// the ruler is drawn from.)
+    var vertical = CGRect.zero
+
+    /// Where the roll has been scrolled to, from the first time a drag moves it (a step
+    /// of edge scrolling, or the margin in front of beat 0 changing; see `holdScroll`)
+    /// until the finger lifts. Touches are read against this rather than the scroll
+    /// geometry, which only reports a step a layout later: against the offset before
+    /// it, whatever the finger holds would be put down a step behind the finger.
+    var offset: CGPoint?
+
+    /// Ticks once a frame while edge scrolling runs.
+    let frames = PassthroughSubject<Frame, Never>()
+
+    private var link: CADisplayLink?
+    private var startedAt: CFTimeInterval?
+    private var lastTick: CFTimeInterval?
+
+    func start() {
+        guard link == nil else { return }
+        let link = CADisplayLink(target: RollEdgeScrollTarget(self),
+                                 selector: #selector(RollEdgeScrollTarget.tick(_:)))
+        link.add(to: .main, forMode: .common)
+        self.link = link
+    }
+
+    func stop() {
+        link?.invalidate()
+        link = nil
+        startedAt = nil
+        lastTick = nil
+    }
+
+    /// Done with the drag: stops any scrolling and forgets it.
+    func end() {
+        stop()
+        drag = nil
+        offset = nil
+    }
+
+    fileprivate func tick(_ link: CADisplayLink) {
+        let now = link.timestamp
+        // The first tick goes by the frame it's for: there's no last one to go by.
+        let step = lastTick.map { now - $0 } ?? (link.targetTimestamp - now)
+        let startedAt = startedAt ?? now
+        self.startedAt = startedAt
+        lastTick = now
+        frames.send(Frame(step: step, elapsed: now - startedAt))
+    }
+}
+
+/// What the display link calls. A display link keeps its target, so this holds the
+/// edge scrolling only weakly, and stops the link should that ever be gone.
+private final class RollEdgeScrollTarget: NSObject {
+    private weak var owner: RollEdgeScroll?
+
+    init(_ owner: RollEdgeScroll) {
+        self.owner = owner
+    }
+
+    @objc func tick(_ link: CADisplayLink) {
+        guard let owner else {
+            link.invalidate()
+            return
+        }
+        owner.tick(link)
     }
 }
