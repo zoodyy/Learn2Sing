@@ -172,7 +172,14 @@ final class PitchDetector: ObservableObject {
                 // found nothing to take down yet. Starting now would leave the
                 // microphone listening behind a run that has stopped asking for it.
                 guard self.shouldRun else { return }
-                self.beginListening()
+                // The session this listens through is configured on
+                // `AudioControl.queue` and may still be on its way in: the screen
+                // asks for it just before this, and the answer above is usually
+                // quicker. Listening starts once it is in place.
+                AudioControl.afterPendingWork { [weak self] in
+                    guard let self, self.shouldRun else { return }
+                    self.beginListening()
+                }
             }
         }
     }
@@ -223,7 +230,10 @@ final class PitchDetector: ObservableObject {
     }
 
     private func beginListening() {
-        guard !running else { return }
+        // A capture session already on its way up reports when it gets there; a second
+        // start in the meantime (one that was waiting on the permission, or on the
+        // session) would only overtake it.
+        guard !running, !captureStarting else { return }
         if !captureUnavailable {
             listenThroughCapture()
         } else {
@@ -417,10 +427,18 @@ final class PitchDetector: ObservableObject {
 /// with this class.
 nonisolated final class MicrophoneCapture: NSObject, AVCaptureAudioDataOutputSampleBufferDelegate,
                                            @unchecked Sendable {
-    private let session = AVCaptureSession()
-    private let output = AVCaptureAudioDataOutput()
-    /// Starting and stopping a session block, so they happen here rather than on the
-    /// main thread.
+    /// The session and its output, made on the session queue the first time the
+    /// capture starts rather than along with this object. The detector makes this
+    /// on the main thread just as a run's microphone comes up, and making a session
+    /// is a round trip to the media server, the first one of a launch more than
+    /// that. The session queue's.
+    private var session: AVCaptureSession?
+    private var output: AVCaptureAudioDataOutput?
+    /// The session once it has been made, for whoever asks whether it is running
+    /// (the main thread) and for the buffer queue, which reads its clock.
+    private let madeSession = OSAllocatedUnfairLock<AVCaptureSession?>(uncheckedState: nil)
+    /// Making, starting and stopping a session block, so they happen here rather
+    /// than on the main thread.
     private let sessionQueue = DispatchQueue(label: "Learn2Sing microphone session")
     private let bufferQueue = DispatchQueue(label: "Learn2Sing microphone buffers", qos: .userInteractive)
     private let queue: MicrophoneQueue
@@ -452,11 +470,6 @@ nonisolated final class MicrophoneCapture: NSObject, AVCaptureAudioDataOutputSam
         self.onFailure = onFailure
         super.init()
         scratch.initialize(repeating: 0, count: Self.scratchCapacity)
-        observers.append(NotificationCenter.default.addObserver(
-            forName: AVCaptureSession.runtimeErrorNotification, object: session, queue: nil
-        ) { [weak self] _ in
-            self?.onFailure()
-        })
     }
 
     deinit {
@@ -466,7 +479,7 @@ nonisolated final class MicrophoneCapture: NSObject, AVCaptureAudioDataOutputSam
         scratch.deallocate()
     }
 
-    var isRunning: Bool { session.isRunning }
+    var isRunning: Bool { madeSession.withLockUnchecked { $0 }?.isRunning ?? false }
 
     /// Starts the session; `completion`, on the session queue, says whether it runs.
     func start(completion: @escaping @Sendable (Bool) -> Void) {
@@ -476,7 +489,7 @@ nonisolated final class MicrophoneCapture: NSObject, AVCaptureAudioDataOutputSam
             framesQueued = 0
         }
         sessionQueue.async { [self] in
-            guard configure() else {
+            guard configure(), let session else {
                 completion(false)
                 return
             }
@@ -489,7 +502,7 @@ nonisolated final class MicrophoneCapture: NSObject, AVCaptureAudioDataOutputSam
     func stop() {
         bufferQueue.sync { accepting = false }
         sessionQueue.sync {
-            if session.isRunning { session.stopRunning() }
+            if let session, session.isRunning { session.stopRunning() }
         }
     }
 
@@ -497,7 +510,7 @@ nonisolated final class MicrophoneCapture: NSObject, AVCaptureAudioDataOutputSam
     /// delegate, which is this.
     func close() {
         stop()
-        sessionQueue.sync { output.setSampleBufferDelegate(nil, queue: nil) }
+        sessionQueue.sync { output?.setSampleBufferDelegate(nil, queue: nil) }
     }
 
     /// Starts queuing what the session records at `rate`.
@@ -509,9 +522,20 @@ nonisolated final class MicrophoneCapture: NSObject, AVCaptureAudioDataOutputSam
         }
     }
 
-    /// Gives the session the microphone and an output for its buffers, once.
+    /// Makes the session and gives it the microphone and an output for its buffers,
+    /// once.
     private func configure() -> Bool {
         if let configured { return configured }
+        let session = AVCaptureSession()
+        let output = AVCaptureAudioDataOutput()
+        self.session = session
+        self.output = output
+        madeSession.withLockUnchecked { $0 = session }
+        observers.append(NotificationCenter.default.addObserver(
+            forName: AVCaptureSession.runtimeErrorNotification, object: session, queue: nil
+        ) { [weak self] _ in
+            self?.onFailure()
+        })
         // The app's own audio session, as `AudioRouteManager` left it: the category,
         // the route and the microphone the singer chose all stay theirs.
         session.usesApplicationAudioSession = true
@@ -604,7 +628,7 @@ nonisolated final class MicrophoneCapture: NSObject, AVCaptureAudioDataOutputSam
         stamp.mFlags = .sampleTimeValid
         // The session's own clock, which is the host clock unless something has
         // given it another; the clap test and the debug recording want host time.
-        if clock == nil { clock = session.synchronizationClock }
+        if clock == nil { clock = madeSession.withLockUnchecked { $0 }?.synchronizationClock }
         var time = CMSampleBufferGetPresentationTimeStamp(sampleBuffer)
         if let clock { time = CMSyncConvertTime(time, from: clock, to: CMClockGetHostTimeClock()) }
         if time.isValid {

@@ -11,6 +11,35 @@
 import AVFoundation
 import Combine
 
+/// The one queue every call that can hold its caller up on the audio system goes
+/// through: setting the session's category, activating, routing and deactivating
+/// it, and building, starting, pausing and stopping the synthesiser's engine.
+///
+/// Each of those is a round trip to the system's audio server, and some of them
+/// wait on the hardware besides: activating the record-and-play session took about
+/// 200 ms on the simulator, every time an exercise started. On the main thread that
+/// was 200 ms without a frame drawn, right as the playback screen was sliding in,
+/// and the engine's own start added more just as the notes were about to move.
+/// Here they wait without holding anything up.
+///
+/// One serial queue, so they still happen in the order they are asked for: a
+/// session is configured before the engine that plays through it starts, and an
+/// engine stops before the session it played through is deactivated, without
+/// either side having to wait for the other. Nothing on the main thread ever waits
+/// for this queue, so a slow call here can't stall a frame, and the main thread
+/// can't end up waiting on a queue that is itself waiting for the main thread.
+nonisolated enum AudioControl {
+    static let queue = DispatchQueue(label: "Learn2Sing audio control", qos: .userInitiated)
+
+    /// Runs `work` on the main queue once everything already handed to `queue` has
+    /// run: for whatever needs the session as the calls before it left it.
+    static func afterPendingWork(_ work: @escaping @MainActor @Sendable () -> Void) {
+        queue.async {
+            DispatchQueue.main.async { work() }
+        }
+    }
+}
+
 final class AudioRouteManager: ObservableObject {
     static let shared = AudioRouteManager()
 
@@ -18,11 +47,11 @@ final class AudioRouteManager: ObservableObject {
     static let micKey = "selectedMicrophone"
 
     /// Output sentinel: follow the system — use connected earphones/Bluetooth, else the speaker.
-    static let automatic = "Automatic"
+    nonisolated static let automatic = "Automatic"
     /// Output sentinel: always the phone's built-in speaker.
-    static let builtInSpeaker = "iPhone Speaker"
+    nonisolated static let builtInSpeaker = "iPhone Speaker"
     /// Input sentinel: always the phone's built-in microphone.
-    static let builtInMic = "iPhone Microphone"
+    nonisolated static let builtInMic = "iPhone Microphone"
 
     /// What to show for a route in the pickers. The three sentinels double as the
     /// values stored in UserDefaults, so they're translated only on the way to the
@@ -34,12 +63,16 @@ final class AudioRouteManager: ObservableObject {
         }
     }
 
-    private let session = AVAudioSession.sharedInstance()
     private var observer: NSObjectProtocol?
-    /// Whether the app currently owns the session, i.e. `configureSession` ran and
-    /// `deactivateSession` hasn't. Guards the two things that must never happen mid
-    /// playback: probing for devices (which widens the category) and re-asserting a
-    /// route we aren't using.
+    /// Whether the app currently owns the session, i.e. `configureSession` was asked
+    /// for and `deactivateSession` hasn't been since. Guards the two things that must
+    /// never happen mid playback: probing for devices (which widens the category) and
+    /// re-asserting a route we aren't using.
+    ///
+    /// Main-thread state, set the moment the call is made rather than when
+    /// `AudioControl.queue` gets round to it: the queue carries the calls out in the
+    /// order they were made, so what was last asked for is what the session ends up
+    /// as, and that is what these two have to answer for.
     private var sessionActive = false
     /// Whether the active session is the playback-only one, which must never be
     /// widened back to `.playAndRecord` behind the user's back.
@@ -75,6 +108,11 @@ final class AudioRouteManager: ObservableObject {
 
     /// Rebuild the lists of selectable devices from what's currently connected.
     ///
+    /// Looked up on `AudioControl.queue`, since asking the session what is connected
+    /// is a round trip to the audio server, and this runs on every route change,
+    /// several of which come with every exercise starting. The lists were always
+    /// published a moment later rather than on the spot.
+    ///
     /// - Parameter probingDevices: widen the category first so devices the current
     ///   configuration hides become visible. Only for the settings screen — it
     ///   changes the route, so it's ignored while the session is in use.
@@ -84,22 +122,39 @@ final class AudioRouteManager: ObservableObject {
         // and with the phone speaker pinned (no A2DP) the headset isn't in the route
         // either. So on the settings screen, where nothing is playing, allow every
         // device before looking. `configureSession` narrows it again before playback.
-        if probingDevices && !sessionActive {
+        let probing = probingDevices && !sessionActive
+        let speaker = selectedSpeaker, mic = selectedMic
+        AudioControl.queue.async { [weak self] in
+            let (inputs, outputs) = Self.connectedOptions(probing: probing, speaker: speaker, mic: mic)
+            DispatchQueue.main.async {
+                guard let self else { return }
+                if self.inputOptions != inputs { self.inputOptions = inputs }
+                if self.outputOptions != outputs { self.outputOptions = outputs }
+            }
+        }
+    }
+
+    /// The pickers' lists as the session has them right now. `AudioControl.queue` only.
+    private nonisolated static func connectedOptions(probing: Bool, speaker: String, mic: String)
+        -> (inputs: [String], outputs: [String]) {
+        let session = AVAudioSession.sharedInstance()
+        if probing {
             try? session.setCategory(.playAndRecord, mode: .default,
-                                     options: categoryOptions(allowingEveryDevice: true))
+                                     options: categoryOptions(speaker: speaker, mic: mic,
+                                                              allowingEveryDevice: true))
         }
 
         let availableInputs = session.availableInputs ?? []
 
         // Inputs: automatic + built-in mic + every external input port (headset / Bluetooth mics).
-        var ins = [Self.automatic, Self.builtInMic]
+        var ins = [automatic, builtInMic]
         for port in availableInputs where port.portType != .builtInMic {
             ins.append(port.portName)
         }
 
         // Outputs: automatic + built-in speaker + any connected external output (AirPods, etc.).
-        var outs = [Self.automatic, Self.builtInSpeaker]
-        for port in session.currentRoute.outputs where Self.isExternalOutput(port) {
+        var outs = [automatic, builtInSpeaker]
+        for port in session.currentRoute.outputs where isExternalOutput(port) {
             outs.append(port.portName)
         }
         // A Bluetooth headset that the current route doesn't use — because the phone
@@ -110,22 +165,36 @@ final class AudioRouteManager: ObservableObject {
             outs.append(port.portName)
         }
 
-        let inputs = Self.deduplicated(ins), outputs = Self.deduplicated(outs)
-        DispatchQueue.main.async {
-            if self.inputOptions != inputs { self.inputOptions = inputs }
-            if self.outputOptions != outputs { self.outputOptions = outputs }
-        }
+        return (deduplicated(ins), deduplicated(outs))
     }
 
     /// Configure the shared session for simultaneous record + playback, honouring the
     /// user's speaker / microphone preferences. Call before starting the engine or mic tap.
-    func configureSession() {
+    ///
+    /// Returns straight away: the session is configured on `AudioControl.queue`,
+    /// which is where the synthesiser's engine starts too, so an engine started
+    /// after this call still starts on the configured session. Anything else that
+    /// needs it finished goes through `AudioControl.afterPendingWork` (the pitch
+    /// detector does), or waits for `completion`, which runs on the main queue once
+    /// it is.
+    func configureSession(then completion: (@MainActor @Sendable () -> Void)? = nil) {
         playbackOnly = false
-        try? session.setCategory(.playAndRecord, mode: .default, options: categoryOptions())
-        try? session.setActive(true)
         sessionActive = true
-        applyOutputRoute()
-        applyInputRoute()
+        let speaker = selectedSpeaker, mic = selectedMic
+        AudioControl.queue.async {
+            Self.applyRecordingSession(speaker: speaker, mic: mic)
+            if let completion { DispatchQueue.main.async { completion() } }
+        }
+    }
+
+    /// What `configureSession` does to the session. `AudioControl.queue` only.
+    private nonisolated static func applyRecordingSession(speaker: String, mic: String) {
+        let session = AVAudioSession.sharedInstance()
+        try? session.setCategory(.playAndRecord, mode: .default,
+                                 options: categoryOptions(speaker: speaker, mic: mic))
+        try? session.setActive(true)
+        applyOutputRoute(session, speaker: speaker)
+        applyInputRoute(session, mic: mic)
     }
 
     /// The longest `configureSession(whenSettled:)` waits for the route before calling
@@ -147,30 +216,44 @@ final class AudioRouteManager: ObservableObject {
     /// after the run before it, while iOS gave 177 ms for both). Starting once the
     /// route has arrived keeps every start clear of the switch.
     ///
-    /// `ready` runs on the main queue, once: straight away when the route is already
-    /// where it is going, and at the latest after `settleTimeout`, so a device that
-    /// drops out half way can't hold a run up. Cancelling the wait drops it instead.
+    /// `ready` runs on the main queue, once, and never before the configuration
+    /// (which happens on `AudioControl.queue`) has finished: straight after it when
+    /// the route is already where it is going, and at the latest after
+    /// `settleTimeout`, so a device that drops out half way can't hold a run up.
+    /// Cancelling the wait drops it instead.
     func configureSession(whenSettled ready: @escaping () -> Void) -> RouteWait {
-        let destination = expectedOutput()
-        let wait = RouteWait(arrived: { [weak self] in self?.output(reaches: destination) ?? true },
-                             ready: ready)
-        // Listening before configuring, so a step of the walk that lands while
-        // `configureSession` is still running can't be missed.
+        let wait = RouteWait(ready: ready)
+        // Listening before configuring, so a step of the walk that lands while the
+        // configuration is still under way can't be missed.
         wait.listen(timeout: Self.settleTimeout)
-        configureSession()
-        DispatchQueue.main.async { wait.check() }
+        playbackOnly = false
+        sessionActive = true
+        let speaker = selectedSpeaker, mic = selectedMic
+        AudioControl.queue.async {
+            // Read before configuring: where the output ends up depends on what the
+            // route reaches before the new category is in place.
+            let destination = Self.expectedOutput(speaker: speaker)
+            Self.applyRecordingSession(speaker: speaker, mic: mic)
+            DispatchQueue.main.async { wait.configured(heading: destination) }
+        }
         return wait
     }
 
     /// A `configureSession(whenSettled:)` that hasn't called back yet.
     final class RouteWait {
-        private let arrived: () -> Bool
         private var ready: (() -> Void)?
         private var observer: NSObjectProtocol?
         private var timeout: DispatchWorkItem?
+        /// Where the output is going, known once the session has been configured.
+        /// Until then the route isn't judged at all: a change seen half way through
+        /// the configuration can't call the run's audio up on a session that hasn't
+        /// finished being set up.
+        private var destination: Destination?
+        /// Set when `settleTimeout` has passed: the wait is over as soon as the
+        /// configuration is.
+        private var timedOut = false
 
-        fileprivate init(arrived: @escaping () -> Bool, ready: @escaping () -> Void) {
-            self.arrived = arrived
+        fileprivate init(ready: @escaping () -> Void) {
             self.ready = ready
         }
 
@@ -181,13 +264,25 @@ final class AudioRouteManager: ObservableObject {
             observer = NotificationCenter.default.addObserver(
                 forName: AVAudioSession.routeChangeNotification, object: nil, queue: .main
             ) { _ in self.check() }
-            let giveUp = DispatchWorkItem { self.finish(callingBack: true) }
+            let giveUp = DispatchWorkItem {
+                self.timedOut = true
+                self.check()
+            }
             timeout = giveUp
             DispatchQueue.main.asyncAfter(deadline: .now() + seconds, execute: giveUp)
         }
 
-        fileprivate func check() {
-            if arrived() { finish(callingBack: true) }
+        /// The session is configured, and the output is on its way to `destination`.
+        fileprivate func configured(heading destination: Destination) {
+            self.destination = destination
+            check()
+        }
+
+        private func check() {
+            guard let destination else { return }
+            if timedOut || AudioRouteManager.output(reaches: destination) {
+                finish(callingBack: true)
+            }
         }
 
         /// Drop the wait without calling back.
@@ -207,7 +302,7 @@ final class AudioRouteManager: ObservableObject {
     }
 
     /// Where a route can end up, as far as waiting for it goes.
-    private enum Destination {
+    fileprivate nonisolated enum Destination: Sendable {
         case speaker
         case external
     }
@@ -216,16 +311,17 @@ final class AudioRouteManager: ObservableObject {
     /// phone's speaker when the user pinned it, otherwise an external device if the
     /// route reaches one already (iOS hands the output back to it once the new
     /// category is in place), and the speaker when there is none.
-    private func expectedOutput() -> Destination {
-        if selectedSpeaker == Self.builtInSpeaker { return .speaker }
-        return session.currentRoute.outputs.contains(where: Self.isExternalOutput) ? .external : .speaker
+    private nonisolated static func expectedOutput(speaker: String) -> Destination {
+        if speaker == builtInSpeaker { return .speaker }
+        let outputs = AVAudioSession.sharedInstance().currentRoute.outputs
+        return outputs.contains(where: isExternalOutput) ? .external : .speaker
     }
 
-    private func output(reaches destination: Destination) -> Bool {
-        let outputs = session.currentRoute.outputs
+    fileprivate nonisolated static func output(reaches destination: Destination) -> Bool {
+        let outputs = AVAudioSession.sharedInstance().currentRoute.outputs
         switch destination {
         case .speaker: return outputs.contains { $0.portType == .builtInSpeaker }
-        case .external: return outputs.contains(where: Self.isExternalOutput)
+        case .external: return outputs.contains(where: isExternalOutput)
         }
     }
 
@@ -233,21 +329,29 @@ final class AudioRouteManager: ObservableObject {
     /// samples in Settings. Activating the recording category would ask a user who
     /// hasn't granted microphone access for it, which has nothing to do with
     /// listening to an instrument, so this one only plays. Pairs with
-    /// `deactivateSession` like `configureSession` does.
+    /// `deactivateSession` like `configureSession` does, and like it, returns
+    /// straight away.
     func configurePlaybackSession() {
         playbackOnly = true
-        try? session.setCategory(.playback, mode: .default)
-        try? session.setActive(true)
         sessionActive = true
+        AudioControl.queue.async {
+            let session = AVAudioSession.sharedInstance()
+            try? session.setCategory(.playback, mode: .default)
+            try? session.setActive(true)
+        }
     }
 
     /// Release the shared session when playback ends. Pairs with `configureSession`
     /// so the mic/route is freed instead of being left active behind the exercise
-    /// list. Call only after both audio engines have been stopped.
+    /// list. Call only once both audio engines have been told to stop: the
+    /// synthesiser's stops on `AudioControl.queue` ahead of this, and the pitch
+    /// detector's before its `stop()` returns.
     func deactivateSession() {
         sessionActive = false
         playbackOnly = false
-        try? session.setActive(false, options: .notifyOthersOnDeactivation)
+        AudioControl.queue.async {
+            try? AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
+        }
     }
 
     /// The category options that match the current preferences.
@@ -259,7 +363,8 @@ final class AudioRouteManager: ObservableObject {
     ///
     /// - Parameter allowingEveryDevice: allow every device regardless of the
     ///   preferences, so they can all be enumerated for the pickers.
-    private func categoryOptions(allowingEveryDevice: Bool = false)
+    private nonisolated static func categoryOptions(speaker: String, mic: String,
+                                                    allowingEveryDevice: Bool = false)
         -> AVAudioSession.CategoryOptions {
         // `.defaultToSpeaker` makes the built-in speaker the default output and, crucially,
         // drives it at full *media* volume. Routing to the speaker with
@@ -273,7 +378,7 @@ final class AudioRouteManager: ObservableObject {
 
         // Wireless output (A2DP = full-quality stereo, and AirPlay) unless the user has
         // pinned the phone speaker, in which case offering them is what breaks the pin.
-        if allowingEveryDevice || selectedSpeaker != Self.builtInSpeaker {
+        if allowingEveryDevice || speaker != builtInSpeaker {
             options.insert(.allowBluetoothA2DP)
             options.insert(.allowAirPlay)
         }
@@ -285,16 +390,16 @@ final class AudioRouteManager: ObservableObject {
         // the user asked for a microphone other than the phone's own. That's also why the
         // built-in mic stays the default: it keeps clean music on the AirPods while the
         // phone's mic listens for pitch.
-        if allowingEveryDevice || selectedMic != Self.builtInMic {
+        if allowingEveryDevice || mic != builtInMic {
             options.insert(.allowBluetoothHFP)
         }
 
         return options
     }
 
-    private func applyOutputRoute() {
-        let externalConnected = session.currentRoute.outputs.contains(where: Self.isExternalOutput)
-        if selectedSpeaker == Self.builtInSpeaker && externalConnected {
+    private nonisolated static func applyOutputRoute(_ session: AVAudioSession, speaker: String) {
+        let externalConnected = session.currentRoute.outputs.contains(where: isExternalOutput)
+        if speaker == builtInSpeaker && externalConnected {
             // The category already keeps wireless outputs away, so what's left here is a
             // wired accessory (or a Bluetooth headset still in the route because its mic
             // is in use). Those need the explicit override — the "speakerphone" path,
@@ -309,23 +414,24 @@ final class AudioRouteManager: ObservableObject {
         }
     }
 
-    private func applyInputRoute() {
-        if let preferred = preferredInput() { try? session.setPreferredInput(preferred) }
+    private nonisolated static func applyInputRoute(_ session: AVAudioSession, mic: String) {
+        if let preferred = preferredInput(session, mic: mic) { try? session.setPreferredInput(preferred) }
     }
 
     /// The input port matching the user's choice, falling back to the built-in mic
     /// when the chosen device isn't connected.
-    private func preferredInput() -> AVAudioSessionPortDescription? {
+    private nonisolated static func preferredInput(_ session: AVAudioSession,
+                                                   mic: String) -> AVAudioSessionPortDescription? {
         let inputs = session.availableInputs ?? []
-        switch selectedMic {
-        case Self.builtInMic:
+        switch mic {
+        case builtInMic:
             return inputs.first { $0.portType == .builtInMic }
-        case Self.automatic:
+        case automatic:
             // Prefer an external mic (headset / Bluetooth) when connected, else built-in.
             return inputs.first { $0.portType != .builtInMic }
                 ?? inputs.first { $0.portType == .builtInMic }
         default:
-            return inputs.first { $0.portName == selectedMic }
+            return inputs.first { $0.portName == mic }
                 ?? inputs.first { $0.portType == .builtInMic }
         }
     }
@@ -334,12 +440,20 @@ final class AudioRouteManager: ObservableObject {
     /// being plugged in or unpaired drops the speaker override and can steal the
     /// input. Only acts when the live route actually disagrees with the preference,
     /// so it settles instead of bouncing off its own route-change notifications.
+    /// The route is read, and put right, on `AudioControl.queue`.
     private func reapplyRoutesIfNeeded() {
         guard sessionActive, !playbackOnly else { return }
+        let speaker = selectedSpeaker, mic = selectedMic
+        AudioControl.queue.async {
+            Self.reapplyRoutes(speaker: speaker, mic: mic)
+        }
+    }
 
-        let outputWrong = selectedSpeaker == Self.builtInSpeaker
-            && session.currentRoute.outputs.contains(where: Self.isExternalOutput)
-        let wanted = preferredInput()
+    private nonisolated static func reapplyRoutes(speaker: String, mic: String) {
+        let session = AVAudioSession.sharedInstance()
+        let outputWrong = speaker == builtInSpeaker
+            && session.currentRoute.outputs.contains(where: isExternalOutput)
+        let wanted = preferredInput(session, mic: mic)
         let inputWrong = wanted.map { port in
             !session.currentRoute.inputs.contains { $0.uid == port.uid }
         } ?? false
@@ -348,9 +462,10 @@ final class AudioRouteManager: ObservableObject {
         // A device that appeared after `configureSession` may need different options
         // (a newly connected headset has to be shut out again when the speaker is
         // pinned), so re-derive them rather than only re-applying the routes.
-        try? session.setCategory(.playAndRecord, mode: .default, options: categoryOptions())
-        applyOutputRoute()
-        applyInputRoute()
+        try? session.setCategory(.playAndRecord, mode: .default,
+                                 options: categoryOptions(speaker: speaker, mic: mic))
+        applyOutputRoute(session, speaker: speaker)
+        applyInputRoute(session, mic: mic)
     }
 
     /// The microphone and the speaker the session is routed through right now, as one

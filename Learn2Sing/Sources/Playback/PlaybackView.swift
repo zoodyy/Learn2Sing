@@ -55,10 +55,57 @@ private extension Instrument {
 
 // MARK: - Audio engine (custom additive synthesiser)
 
-final class ExercisePlayer {
-    private let engine = AVAudioEngine()
-    /// The synthesiser's way into the engine; nil until `buildGraph` (see there).
+/// The synthesiser's audio engine, worked from `AudioControl.queue` alone. Every
+/// call on it can keep its caller waiting on the audio system: wiring the source in
+/// is what builds the engine's audio I/O, and starting, pausing and stopping it
+/// wait for that I/O. The player hands each of them over and carries on.
+private nonisolated final class SynthEngine: @unchecked Sendable {
+    let engine = AVAudioEngine()
+    /// The synthesiser's way into the engine; nil until `start` (see
+    /// `ExercisePlayer.begin`).
     private var sourceNode: AVAudioSourceNode?
+
+    /// Wire `render` in, the first time, and start the engine unless it is running.
+    ///
+    /// Not wired up any earlier, because connecting to the mixer is what creates the
+    /// engine's audio I/O unit, and that is anything but free: under the
+    /// record-and-play session it builds the microphone-and-earphones device and
+    /// wakes the Bluetooth link. SwiftUI runs `@State private var player =
+    /// ExercisePlayer()` every time it rebuilds the struct of a screen holding one
+    /// and keeps only the first player, so wiring up as the player is made did all
+    /// that again and again for players that never play: after every run, on
+    /// leaving for the background and on coming back — on 2026-10-26 two seconds
+    /// before the run whose AirPods came out of their start holding extra audio (see
+    /// `AudioRouteManager.configureSession(whenSettled:)`).
+    func start(sampleRate: Double, render: @escaping AVAudioSourceNodeRenderBlock) {
+        if sourceNode == nil {
+            let format = AVAudioFormat(standardFormatWithSampleRate: sampleRate, channels: 2)!
+            let node = AVAudioSourceNode(renderBlock: render)
+            engine.attach(node)
+            engine.connect(node, to: engine.mainMixerNode, format: format)
+            sourceNode = node
+        }
+        startIfStopped()
+    }
+
+    func startIfStopped() {
+        guard !engine.isRunning else { return }
+        engine.prepare()
+        try? engine.start()
+    }
+
+    func pause() {
+        if engine.isRunning { engine.pause() }
+    }
+
+    func stop() {
+        if engine.isRunning { engine.stop() }
+    }
+}
+
+final class ExercisePlayer {
+    /// The engine, which is only ever worked on `AudioControl.queue`.
+    private let synthEngine = SynthEngine()
 
     private static let renderRate: Double = 44100
     private let sampleRate = renderRate
@@ -145,8 +192,10 @@ final class ExercisePlayer {
     // Extra delay between a sample leaving the engine and reaching the speaker. Read
     // from the audio session when the route settles rather than on every frame — it
     // only changes with the route, and the session's own accessor is not something to
-    // call 60–120 times a second on the main thread.
-    private var cachedOutputLatency: TimeInterval = 0
+    // call 60–120 times a second on the main thread. Nor once at all, in fact: it is a
+    // round trip to the audio server, so it is read on `AudioControl.queue` and kept
+    // here behind a lock of its own.
+    private let outputLatency = OSAllocatedUnfairLock<TimeInterval>(initialState: 0)
     private var routeObserver: NSObjectProtocol?
 
     // The engine should be running between begin() and stop(); used to restart it
@@ -162,11 +211,11 @@ final class ExercisePlayer {
     init() {
         mach_timebase_info(&timebase)
 
-        // The engine is *not* started here, and not even wired up (see `buildGraph`).
-        // It's started in begin() once the audio route has settled, so the very first
-        // rendered sample already targets the final output (e.g. AirPods). Starting it
-        // earlier and then switching the route mid-stream is what delayed the audio,
-        // glitched timing and stuttered.
+        // The engine is *not* started here, and not even wired up (see
+        // `SynthEngine.start`). It's started in begin() once the audio route has
+        // settled, so the very first rendered sample already targets the final output
+        // (e.g. AirPods). Starting it earlier and then switching the route mid-stream
+        // is what delayed the audio, glitched timing and stuttered.
 
         // iOS stops the engine when the audio IO is reconfigured — most notably when
         // the pitch detector's input engine starts a moment after this one. Without
@@ -174,10 +223,11 @@ final class ExercisePlayer {
         // (anchored to the first rendered sample) never starts and the notes sit
         // frozen even though the mic-driven indicator keeps moving.
         configObserver = NotificationCenter.default.addObserver(
-            forName: .AVAudioEngineConfigurationChange, object: engine, queue: .main
+            forName: .AVAudioEngineConfigurationChange, object: synthEngine.engine, queue: .main
         ) { [weak self] _ in
-            guard let self, self.shouldRun, !self.isSuspended, !self.engine.isRunning else { return }
-            try? self.engine.start()
+            guard let self, self.shouldRun, !self.isSuspended else { return }
+            let synthEngine = self.synthEngine
+            AudioControl.queue.async { synthEngine.startIfStopped() }
         }
 
         routeObserver = NotificationCenter.default.addObserver(
@@ -189,37 +239,37 @@ final class ExercisePlayer {
 
     /// Start the audio engine. Call only after the session/route is configured so the
     /// output clock anchors to the correct route from the first buffer onward.
+    ///
+    /// Returns straight away: the engine is wired up and started on
+    /// `AudioControl.queue`, behind the session configuration that came before it.
+    /// A schedule handed over in the meantime simply waits for the engine's first
+    /// render, which is what anchors the clock either way.
     func begin() {
         shouldRun = true
         isSuspended = false
         refreshOutputLatency()
-        buildGraph()
-        guard !engine.isRunning else { return }
-        engine.prepare()
-        try? engine.start()
+        let synthEngine = self.synthEngine, sampleRate = self.sampleRate
+        let render = makeRenderBlock()
+        AudioControl.queue.async {
+            synthEngine.start(sampleRate: sampleRate, render: render)
+        }
     }
 
-    /// Wire the synthesiser into the engine, the first time it is about to play.
-    ///
-    /// Not done in `init`, because connecting to the mixer is what creates the
-    /// engine's audio I/O unit, and that is anything but free: under the record-and-play
-    /// session it builds the microphone-and-earphones device and wakes the Bluetooth
-    /// link. SwiftUI runs `@State private var player = ExercisePlayer()` every time it
-    /// rebuilds the struct of a screen holding one and keeps only the first player, so
-    /// wiring up in `init` did all that again and again for players that never play:
-    /// after every run, on leaving for the background and on coming back — on
-    /// 2026-10-26 two seconds before the run whose AirPods came out of their start
-    /// holding extra audio (see `AudioRouteManager.configureSession(whenSettled:)`).
-    private func buildGraph() {
-        guard sourceNode == nil else { return }
-        let format = AVAudioFormat(standardFormatWithSampleRate: sampleRate, channels: 2)!
-        let node = AVAudioSourceNode { [weak self] _, timestamp, frameCount, ablPointer -> OSStatus in
-            self?.render(frameCount: Int(frameCount), hostTime: timestamp.pointee.mHostTime, abl: ablPointer)
+    /// What the engine asks for each buffer of sound. Writes silence once the player
+    /// has gone: the engine is stopped on `AudioControl.queue`, a moment after the
+    /// player lets go of it, and a buffer left unwritten would play whatever was in it.
+    private func makeRenderBlock() -> AVAudioSourceNodeRenderBlock {
+        { [weak self] isSilence, timestamp, frameCount, ablPointer -> OSStatus in
+            guard let self else {
+                for buffer in UnsafeMutableAudioBufferListPointer(ablPointer) {
+                    if let data = buffer.mData { memset(data, 0, Int(buffer.mDataByteSize)) }
+                }
+                isSilence.pointee = true
+                return noErr
+            }
+            self.render(frameCount: Int(frameCount), hostTime: timestamp.pointee.mHostTime, abl: ablPointer)
             return noErr
         }
-        engine.attach(node)
-        engine.connect(node, to: engine.mainMixerNode, format: format)
-        sourceNode = node
     }
 
     /// Stop rendering while the app is backgrounded. The playhead is preserved so the
@@ -234,7 +284,8 @@ final class ExercisePlayer {
         os_unfair_lock_lock(&clockLock)
         startCaptured = false
         os_unfair_lock_unlock(&clockLock)
-        if engine.isRunning { engine.pause() }
+        let synthEngine = self.synthEngine
+        AudioControl.queue.async { synthEngine.pause() }
     }
 
     /// Restart after returning from the background and re-anchor the on-screen clock
@@ -252,10 +303,8 @@ final class ExercisePlayer {
         // flicking every note to the left for a frame.
         startCaptured = false
         os_unfair_lock_unlock(&clockLock)
-        if !engine.isRunning {
-            engine.prepare()
-            try? engine.start()
-        }
+        let synthEngine = self.synthEngine
+        AudioControl.queue.async { synthEngine.startIfStopped() }
     }
 
     // MARK: Real-time render
@@ -486,9 +535,14 @@ final class ExercisePlayer {
     }
 
     /// Re-read the route's output latency. Called when the engine starts, when it
-    /// resumes and whenever the route changes — the only times it can differ.
+    /// resumes and whenever the route changes — the only times it can differ. Read on
+    /// `AudioControl.queue`, ahead of whatever start was asked for after it.
     private func refreshOutputLatency() {
-        cachedOutputLatency = AVAudioSession.sharedInstance().outputLatency
+        let outputLatency = self.outputLatency
+        AudioControl.queue.async {
+            let latency = AVAudioSession.sharedInstance().outputLatency
+            outputLatency.withLock { $0 = latency }
+        }
     }
 
     /// The musical beat currently being *heard*, anchored to the audio engine's own
@@ -504,7 +558,7 @@ final class ExercisePlayer {
         let now = mach_absolute_time()
         let elapsedTicks = now > startHost ? now - startHost : 0
         let elapsedSec = Double(elapsedTicks) * Double(timebase.numer) / Double(timebase.denom) / 1.0e9
-        let audibleSec = elapsedSec - cachedOutputLatency   // account for the DAC delay
+        let audibleSec = elapsedSec - outputLatency.withLock { $0 }   // account for the DAC delay
         return audibleSec * (bpm / 60.0) - leadIn
     }
 
@@ -522,7 +576,7 @@ final class ExercisePlayer {
 
         let elapsedTicks = hostTime > startHost ? hostTime - startHost : 0
         let elapsedSec = Double(elapsedTicks) * Double(timebase.numer) / Double(timebase.denom) / 1.0e9
-        let audibleSec = elapsedSec - cachedOutputLatency
+        let audibleSec = elapsedSec - outputLatency.withLock { $0 }
         return audibleSec * (bpm / 60.0) - leadIn
     }
 
@@ -660,10 +714,16 @@ final class ExercisePlayer {
     /// Cancel the schedule and stop the engine. Idempotent: stopping an engine that
     /// isn't running is skipped so repeated teardown calls (finish, then onDisappear,
     /// then deinit) are harmless and never block on an already-stopped engine.
+    ///
+    /// The schedule is cancelled on the spot; the engine stops on
+    /// `AudioControl.queue`, after anything still on its way there (a start that
+    /// hasn't happened yet stops again straight away) and before any session
+    /// deactivation asked for after this.
     func stop() {
         shouldRun = false
         cancelAll()
-        if engine.isRunning { engine.stop() }
+        let synthEngine = self.synthEngine
+        AudioControl.queue.async { synthEngine.stop() }
     }
 
     deinit {
