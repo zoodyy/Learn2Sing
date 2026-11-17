@@ -87,7 +87,10 @@ private struct SettingHelpModifier: ViewModifier {
             // (opening a picker, following a link, toggling a switch); the hold
             // is distinguished from a tap by the minimum duration.
             .simultaneousGesture(
-                LongPressGesture(minimumDuration: SettingHelpBubble.holdDuration).onEnded { _ in
+                LongPressGesture(minimumDuration: SettingHelpBubble.holdDuration,
+                                 maximumDistance: SettingHelpBubble.holdMovement).onEnded { _ in
+                    // Whatever else is still waiting on this press lets go of it.
+                    NotificationCenter.default.post(name: SettingHelpBubble.holdRecognized, object: nil)
                     UIImpactFeedbackGenerator(style: .light).impactOccurred()
                     resetToken += 1
                     // A beat after the rebuild, not during it. A `Menu` opens on
@@ -199,6 +202,19 @@ enum SettingHelpBubble {
     /// so the hold that put the help up is never also taken for a tap (see
     /// AnywhereDoubleTap).
     static let holdDuration: TimeInterval = 0.4
+
+    /// How far a press may wander and still be the hold, in points: SwiftUI's
+    /// own default for a long press, spelled out because a history chart's drag
+    /// (see ChartTouchRecognizer) starts at exactly the distance the hold gives
+    /// up at, so that one press can never be taken by both.
+    static let holdMovement: CGFloat = 10
+
+    /// Posted the moment `settingHelp`, `explain` or `explainScreen` recognize
+    /// their hold, before the help goes up: for anything still waiting to see
+    /// what that press becomes to let go of it. A history chart would otherwise
+    /// take the finger moving on under the help for a drag across it (see
+    /// ChartTouchRecognizer).
+    static let holdRecognized = Notification.Name("SettingHelpHoldRecognized")
 
     /// A popover adapts to a full-height sheet on iPhone unless something says
     /// otherwise; SwiftUI's `.presentationCompactAdaptation(.popover)` is what

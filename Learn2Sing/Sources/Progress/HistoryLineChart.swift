@@ -33,6 +33,8 @@ struct HistoryChartPoint {
 ///
 /// Tapping a plotted point marks it and shows its value and date in a bubble
 /// pointing at it; tapping away from every point puts the bubble away again.
+/// Dragging a finger across the chart moves the bubble from point to point
+/// under it, and leaves it on the last one when the finger lifts.
 struct HistoryLineChart: View {
     /// Oldest first, at most one per date: the chart keys its marks by date.
     let points: [HistoryChartPoint]
@@ -60,8 +62,8 @@ struct HistoryLineChart: View {
     /// which knows when what it plots has changed underneath the selection.
     @Binding var selectedDate: Date?
 
-    /// The chart draws its own axes and bubble rather than using the semantic
-    /// label colours, so it has to flip them with the appearance itself.
+    /// The chart draws its own axes rather than using the semantic label
+    /// colours, so it has to flip them with the appearance itself.
     @Environment(\.colorScheme) private var colorScheme
 
     /// The language dates are written in, which the axis also measures them in,
@@ -69,23 +71,14 @@ struct HistoryLineChart: View {
     @Environment(\.locale) private var locale
 
     /// Everything the chart draws on top of its surface — axis lines, labels,
-    /// the selection ring — in the colour that contrasts with it.
+    /// and over in HistoryChartSelection the selection ring — in the colour
+    /// that contrasts with it.
     private var ink: Color { colorScheme == .dark ? .white : .black }
-
-    /// Measured size of the bubble, needed to place it above the point and keep
-    /// it inside the chart. Zero until the first layout pass, which is why the
-    /// bubble stays hidden that long.
-    @State private var bubbleSize: CGSize = .zero
 
     /// Measured width of the plot, which is what decides how many x axis labels
     /// can stand side by side. Zero until the first layout pass, and the axis
     /// goes without labels that long rather than guessing at a width.
     @State private var plotWidth: CGFloat = 0
-
-    /// How far from a point a tap still counts as hitting it. A comfortable
-    /// touch target, and doubles as the "tapped nothing" threshold that
-    /// dismisses the bubble.
-    private let hitRadius: CGFloat = 44
 
     var body: some View {
         // Dots make sparse history readable (and a lone point visible at all,
@@ -98,7 +91,7 @@ struct HistoryLineChart: View {
                 .lineStyle(StrokeStyle(lineWidth: 2, lineCap: .round))
                 // The x value is a plotting position rather than a date, so the
                 // point's own date is spelled out for VoiceOver instead.
-                .accessibilityLabel(dateText(p))
+                .accessibilityLabel(p.writtenDate(dateStyle))
                 .accessibilityValue(Text(verbatim: p.valueText))
             if showsDots {
                 PointMark(x: .value("Time", p.x), y: .value(valueName, p.value))
@@ -159,8 +152,11 @@ struct HistoryLineChart: View {
         }
         .chartOverlay { proxy in
             GeometryReader { geo in
-                selectionLayer(marks: markPositions(proxy: proxy, in: geo),
-                               size: geo.size)
+                HistoryChartSelection(marks: markPositions(proxy: proxy, in: geo),
+                                      size: geo.size,
+                                      dateStyle: dateStyle,
+                                      tint: tint,
+                                      selectedDate: $selectedDate)
             }
         }
         .frame(minHeight: 120)
@@ -274,65 +270,131 @@ struct HistoryLineChart: View {
 
     // MARK: - Point selection
 
-    /// A plotted point together with where it ended up on screen.
-    private struct MarkPosition {
-        let point: HistoryChartPoint
-        let position: CGPoint
-    }
-
     /// Screen position of every plotted point, in the coordinate space of the
     /// overlay's `GeometryReader`.
-    private func markPositions(proxy: ChartProxy, in geo: GeometryProxy) -> [MarkPosition] {
+    private func markPositions(proxy: ChartProxy, in geo: GeometryProxy) -> [HistoryChartMark] {
         guard let plotAnchor = proxy.plotFrame else { return [] }
         let plot = geo[plotAnchor]
         return points.compactMap { p in
             guard let x = proxy.position(forX: p.x),
                   let y = proxy.position(forY: p.value)
             else { return nil }
-            return MarkPosition(point: p,
-                                position: CGPoint(x: plot.minX + x, y: plot.minY + y))
+            return HistoryChartMark(point: p,
+                                    position: CGPoint(x: plot.minX + x, y: plot.minY + y))
         }
     }
+}
 
-    /// The tap target laid over the plot, plus the marker and bubble for the
-    /// point that is currently selected.
-    private func selectionLayer(marks: [MarkPosition], size: CGSize) -> some View {
+/// A plotted point together with where it ended up on screen.
+private struct HistoryChartMark {
+    let point: HistoryChartPoint
+    let position: CGPoint
+}
+
+extension HistoryChartPoint {
+    /// The point's date as its bubble writes it and VoiceOver reads it.
+    fileprivate func writtenDate(_ style: Date.FormatStyle) -> Text {
+        if let dateText {
+            Text(verbatim: dateText)
+        } else {
+            Text(date, format: style)
+        }
+    }
+}
+
+/// What lies over a history chart's plot: the touch surface, plus the marker
+/// and bubble for the point that is currently selected.
+///
+/// A view of its own, so that moving the selection redraws only this and not
+/// the chart under it. A drag moves the selection on at every point the finger
+/// passes, and redrawing the chart each time, axis labels fitted all over
+/// again, cost more than a frame per point.
+private struct HistoryChartSelection: View {
+    let marks: [HistoryChartMark]
+    /// The overlay's size, which the bubble is kept inside.
+    let size: CGSize
+    let dateStyle: Date.FormatStyle
+    let tint: Color
+    @Binding var selectedDate: Date?
+
+    /// The bubble and marker are drawn in the chart's own ink, which flips with
+    /// the appearance.
+    @Environment(\.colorScheme) private var colorScheme
+
+    private var ink: Color { colorScheme == .dark ? .white : .black }
+
+    /// Measured size of the bubble, needed to place it above the point and keep
+    /// it inside the chart. Zero until the first layout pass, which is why the
+    /// bubble stays hidden that long.
+    @State private var bubbleSize: CGSize = .zero
+
+    /// How far from a point a tap still counts as hitting it. A comfortable
+    /// touch target, and doubles as the "tapped nothing" threshold that
+    /// dismisses the bubble.
+    private let hitRadius: CGFloat = 44
+
+    var body: some View {
         let selected = selectedDate.flatMap { date in
             marks.first { $0.point.date == date }
         }
-        return ZStack {
-            Rectangle()
-                .fill(.clear)
-                .contentShape(Rectangle())
-                .onTapGesture { location in
-                    let hit = nearestMark(to: location, among: marks)
+        ZStack {
+            ChartTouchSurface(
+                onTap: { location in
+                    let hit = nearestMark(to: location)
                     withAnimation(.snappy(duration: 0.2)) {
                         selectedDate = hit?.point.date
                     }
-                }
+                },
+                onScrub: { location in
+                    // Straight onto the point, without the tap's animation:
+                    // the bubble has to keep up with the finger, not trail it.
+                    guard let hit = scrubbedMark(at: location),
+                          hit.point.date != selectedDate
+                    else { return }
+                    selectedDate = hit.point.date
+                })
+                // Nothing to read out: VoiceOver reads the points themselves.
+                .accessibilityHidden(true)
 
             if let selected {
                 marker.position(selected.position)
-                bubble(for: selected.point, at: selected.position, in: size)
+                bubble(for: selected.point, at: selected.position)
             }
         }
     }
 
-    /// A point's date as its bubble writes it and VoiceOver reads it.
-    private func dateText(_ point: HistoryChartPoint) -> Text {
-        if let text = point.dateText {
-            Text(verbatim: text)
-        } else {
-            Text(point.date, format: dateStyle)
-        }
-    }
-
     /// The nearest point to a tap, or nil when the tap landed near none of them.
-    private func nearestMark(to location: CGPoint, among marks: [MarkPosition]) -> MarkPosition? {
+    private func nearestMark(to location: CGPoint) -> HistoryChartMark? {
         marks
             .map { ($0, hypot($0.position.x - location.x, $0.position.y - location.y)) }
             .filter { $0.1 <= hitRadius }
             .min { $0.1 < $1.1 }?.0
+    }
+
+    /// How close together two points have to sit across the plot for a
+    /// dragging finger to pick between them by height instead: about half a
+    /// dot's width, so points drawn on top of one another can still be reached
+    /// one by one, while points further apart each keep a stretch of the plot
+    /// where they are picked whatever the finger's height.
+    private let stackedPointTolerance: CGFloat = 3
+
+    /// The point under a dragging finger: the one nearest to it across the
+    /// plot, wherever the finger is up or down it, so a finger swept from one
+    /// end to the other passes every point on the way and can be kept below
+    /// the line, out of the bubble's way. Points that sit almost exactly above
+    /// one another (runs sung minutes apart, in a window a year wide) are told
+    /// apart by how near they are to the finger, so moving up or down picks
+    /// among them.
+    private func scrubbedMark(at location: CGPoint) -> HistoryChartMark? {
+        guard let nearestAcross = marks.map({ abs($0.position.x - location.x) }).min() else {
+            return nil
+        }
+        return marks
+            .filter { abs($0.position.x - location.x) <= nearestAcross + stackedPointTolerance }
+            .min {
+                hypot($0.position.x - location.x, $0.position.y - location.y)
+                    < hypot($1.position.x - location.x, $1.position.y - location.y)
+            }
     }
 
     /// Ring drawn over the selected point, so it stays identifiable while the
@@ -349,8 +411,7 @@ struct HistoryLineChart: View {
     /// It sits above the point when there is room and flips below when there
     /// isn't, and slides sideways to stay inside the chart — the tail follows,
     /// so it keeps pointing at the point either way.
-    private func bubble(for point: HistoryChartPoint, at position: CGPoint,
-                        in size: CGSize) -> some View {
+    private func bubble(for point: HistoryChartPoint, at position: CGPoint) -> some View {
         let tailHeight: CGFloat = 7
         let gap: CGFloat = 7          // clearance between the marker and the tail tip
         let inset: CGFloat = 2        // keeps the bubble off the chart's own edges
@@ -367,7 +428,7 @@ struct HistoryLineChart: View {
             Text(verbatim: point.valueText)
                 .font(.subheadline.weight(.semibold))
                 .foregroundStyle(tint)
-            dateText(point)
+            point.writtenDate(dateStyle)
                 .font(.caption2)
                 .foregroundStyle(ink.opacity(0.7))
         }
@@ -387,6 +448,234 @@ struct HistoryLineChart: View {
         .position(x: centerX, y: top + bubbleSize.height / 2)
         // Taps belong to the layer underneath, which dismisses the bubble.
         .allowsHitTesting(false)
+    }
+}
+
+// MARK: - Touch
+
+/// A finger on a history chart. Read by UIKit rather than by SwiftUI gestures,
+/// because only a UIKit recognizer can make the screen's own gestures wait for
+/// it: a drag that starts on the chart is the chart's, so the screen must not
+/// scroll under it and the back swipe must not take the screen away with it.
+///
+/// What a press turns out to be is ChartTouchRecognizer's to tell: a tap,
+/// reported once as it lifts, or a drag, reported from the moment it sets off
+/// and on every move after that.
+private struct ChartTouchSurface: UIViewRepresentable {
+    /// A tap, at the point it landed.
+    let onTap: (CGPoint) -> Void
+    /// The finger's position as it drags across the chart.
+    let onScrub: (CGPoint) -> Void
+
+    func makeUIView(context: Context) -> UIView {
+        let view = UIView()
+        view.backgroundColor = .clear
+        let recognizer = ChartTouchRecognizer(target: context.coordinator,
+                                              action: #selector(Coordinator.handle(_:)))
+        recognizer.delegate = context.coordinator
+        view.addGestureRecognizer(recognizer)
+        return view
+    }
+
+    func updateUIView(_ view: UIView, context: Context) {
+        context.coordinator.onTap = onTap
+        context.coordinator.onScrub = onScrub
+    }
+
+    func makeCoordinator() -> Coordinator { Coordinator(onTap: onTap, onScrub: onScrub) }
+
+    final class Coordinator: NSObject, UIGestureRecognizerDelegate {
+        var onTap: (CGPoint) -> Void
+        var onScrub: (CGPoint) -> Void
+
+        init(onTap: @escaping (CGPoint) -> Void, onScrub: @escaping (CGPoint) -> Void) {
+            self.onTap = onTap
+            self.onScrub = onScrub
+        }
+
+        @objc func handle(_ recognizer: ChartTouchRecognizer) {
+            // A press the help has taken does nothing else, not even what was
+            // recognized from it a moment before the help went up.
+            guard !recognizer.yieldedToHelp else { return }
+            switch recognizer.state {
+            case .began:
+                // The point the finger landed on first, so that a drag set off
+                // from it shows it too: by the time the finger has moved far
+                // enough to be dragging it can be nearer the next one. The next
+                // move catches up with the finger.
+                onScrub(recognizer.startLocation)
+            case .changed:
+                onScrub(recognizer.fingerLocation)
+            case .ended where recognizer.isDrag:
+                // The bubble stays on the point under the finger as it lifts.
+                onScrub(recognizer.fingerLocation)
+            case .ended:
+                onTap(recognizer.fingerLocation)
+            default:
+                break
+            }
+        }
+
+        /// Scrolling the screen and swiping back off it wait to see whether a
+        /// press on the chart turns into a drag, and lose to it when it does:
+        /// they are what that same drag would otherwise do as well.
+        func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer,
+                               shouldBeRequiredToFailBy other: UIGestureRecognizer) -> Bool {
+            Self.isScreenGesture(other, around: gestureRecognizer)
+        }
+
+        /// Alongside everything else, SwiftUI's gestures included: the chart's
+        /// press-and-hold help has to go on watching the press, and gives up on
+        /// it by itself once the finger moves far enough to be dragging.
+        func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer,
+                               shouldRecognizeSimultaneouslyWith other: UIGestureRecognizer) -> Bool {
+            !Self.isScreenGesture(other, around: gestureRecognizer)
+        }
+
+        /// A finger put down on a screen still coasting from a flick is
+        /// stopping it, not picking a point, just as it would be over a button.
+        func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer,
+                               shouldReceive touch: UITouch) -> Bool {
+            guard let view = gestureRecognizer.view else { return true }
+            return !sequence(first: view, next: { $0.superview })
+                .contains { ($0 as? UIScrollView)?.isDecelerating == true }
+        }
+
+        /// Whether `other` belongs to the screen the chart is on rather than to
+        /// anything in it: the scrolling of whatever the chart sits in, or the
+        /// navigation controller's back swipes, from the edge and from anywhere.
+        private static func isScreenGesture(_ other: UIGestureRecognizer,
+                                            around recognizer: UIGestureRecognizer) -> Bool {
+            if let scrollView = other.view as? UIScrollView {
+                return other === scrollView.panGestureRecognizer
+            }
+            guard let navigation = recognizer.view?.enclosingNavigationController else {
+                return false
+            }
+            return other === navigation.interactivePopGestureRecognizer
+                || other === navigation.interactiveContentPopGestureRecognizer
+        }
+    }
+}
+
+/// Tells apart what a press on a history chart is:
+///
+/// - **A tap** lifts without having moved further than a hold may. It is
+///   recognized once, as it lifts.
+/// - **A drag** moves further than that. It begins there, follows the finger
+///   wherever it goes after that, up and down included, and ends when the
+///   finger lifts.
+/// - **A hold** is whatever the chart's press-and-hold help takes. The help
+///   gives up on a press at exactly the distance a drag starts at
+///   (`SettingHelpBubble.holdMovement`), and this gives the press up the moment
+///   the help announces it has it (`helpTookPress`). So a press is never taken
+///   by both, and the finger has right up to the help going up to set off on a
+///   drag instead.
+private final class ChartTouchRecognizer: UIGestureRecognizer {
+    /// Whether the press became a drag: what tells the `.ended` that lifts a
+    /// drag from the one that recognizes a tap.
+    private(set) var isDrag = false
+
+    /// Whether the help took the press, after which nothing it was recognized
+    /// as is acted on.
+    private(set) var yieldedToHelp = false
+
+    /// Where the finger went down, in the view's own coordinates.
+    private(set) var startLocation: CGPoint = .zero
+
+    /// Where the finger is, in the view's own coordinates; where it lifted, once
+    /// it has.
+    private(set) var fingerLocation: CGPoint = .zero
+
+    /// The one finger followed. Any others that land meanwhile are ignored,
+    /// rather than taken for a gesture of their own.
+    private var finger: UITouch?
+
+    override init(target: Any?, action: Selector?) {
+        super.init(target: target, action: action)
+        NotificationCenter.default.addObserver(self, selector: #selector(helpTookPress),
+                                               name: SettingHelpBubble.holdRecognized,
+                                               object: nil)
+    }
+
+    /// The help went up for the press being followed. Usually that is a press
+    /// still resting, but the help can also be recognized on the very move that
+    /// sets a drag off, or the lift that ends a tap, when that comes just as the
+    /// hold time runs out: the press is let go of whatever it has been
+    /// recognized as, and `yieldedToHelp` keeps the coordinator from acting on
+    /// a drag or a tap recognized in that same instant.
+    @objc private func helpTookPress() {
+        guard finger != nil else { return }
+        yieldedToHelp = true
+        switch state {
+        case .possible:
+            state = .failed
+        case .began, .changed:
+            state = .cancelled
+        default:
+            break
+        }
+    }
+
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent) {
+        guard finger == nil, let touch = touches.first else {
+            touches.forEach { ignore($0, for: event) }
+            return
+        }
+        touches.filter { $0 !== touch }.forEach { ignore($0, for: event) }
+        finger = touch
+        startLocation = touch.location(in: view)
+        fingerLocation = startLocation
+    }
+
+    override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent) {
+        guard let finger, touches.contains(finger) else { return }
+        fingerLocation = finger.location(in: view)
+        switch state {
+        case .possible:
+            guard hypot(fingerLocation.x - startLocation.x, fingerLocation.y - startLocation.y)
+                    > SettingHelpBubble.holdMovement
+            else { return }
+            isDrag = true
+            state = .began
+        case .began, .changed:
+            state = .changed
+        default:
+            break
+        }
+    }
+
+    override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent) {
+        guard let finger, touches.contains(finger) else { return }
+        fingerLocation = finger.location(in: view)
+        switch state {
+        case .possible, .began, .changed:
+            state = .ended
+        default:
+            break
+        }
+    }
+
+    override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent) {
+        guard let finger, touches.contains(finger) else { return }
+        state = isDrag ? .cancelled : .failed
+    }
+
+    override func reset() {
+        super.reset()
+        finger = nil
+        isDrag = false
+        yieldedToHelp = false
+    }
+}
+
+
+private extension UIView {
+    /// The navigation controller the screen holding this view was pushed onto.
+    var enclosingNavigationController: UINavigationController? {
+        let controller = sequence(first: self as UIResponder, next: { $0.next })
+            .first { $0 is UIViewController } as? UIViewController
+        return controller?.navigationController
     }
 }
 

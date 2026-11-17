@@ -289,6 +289,13 @@ struct PracticeHistoryView: View {
             chartSelection = nil
             calendarSelection = nil
         }
+        // One bubble at a time, however the chart's went up. The window-wide
+        // watcher only puts the calendar's away on a tap, and a drag across
+        // the chart picks points too.
+        .onChange(of: chartSelection) {
+            guard chartSelection != nil, calendarSelection != nil else { return }
+            withAnimation(.snappy(duration: 0.2)) { calendarSelection = nil }
+        }
         .navigationTitle(L("Time Spent Singing"))
         .navigationBarTitleDisplayMode(.inline)
         .stableTopEdgeFade()
