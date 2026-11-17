@@ -205,7 +205,8 @@ struct PitchDetectionPromptView: View {
 
     private var tryButton: some View {
         Button {
-            isTrying = true
+            // Over this sheet rather than over the run (see `MicrophonePermission`).
+            MicrophonePermission.askIfNeeded { isTrying = true }
         } label: {
             Label("Try It Out", systemImage: "play.circle")
                 .font(.headline)

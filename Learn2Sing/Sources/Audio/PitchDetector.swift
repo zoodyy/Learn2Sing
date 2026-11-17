@@ -269,7 +269,7 @@ final class PitchDetector: ObservableObject {
     /// the analysis starts afresh at that rate, and from the next buffer on the
     /// capture queues what it records.
     private func captureDelivered(rate: Double) {
-        guard usingCapture, shouldRun, let capture,
+        guard usingCapture, shouldRun, let capture, rate > 0,
               let format = AVAudioFormat(standardFormatWithSampleRate: rate, channels: 1) else { return }
         debugSink?.begin(format: format)   // DEBUG RECORDING — remove with DebugRecording.swift
         listener.start(sampleRate: rate, detection: detection)
@@ -320,11 +320,30 @@ final class PitchDetector: ObservableObject {
 
     // MARK: Through the engine
 
+    /// The format the microphone can be listened to in through the engine right
+    /// now, or nil while there is no input to listen to.
+    ///
+    /// A connection or a tap on the input node has to run at the hardware's sample
+    /// rate exactly; asked for any other, the engine raises an Objective-C
+    /// exception, which ends the app. The node's output format usually is that,
+    /// but it keeps whatever the node was last connected with, so after the route
+    /// has changed under the engine (Bluetooth earphones coming or going, the
+    /// configuration change this listens again after) it can still name the old
+    /// rate. The hardware's own format, the node's input format, is current.
+    private func currentInputFormat() -> AVAudioFormat? {
+        let input = engine.inputNode
+        let hardware = input.inputFormat(forBus: 0)
+        guard hardware.sampleRate > 0, hardware.channelCount > 0 else { return nil }
+        let output = input.outputFormat(forBus: 0)
+        if output.sampleRate == hardware.sampleRate, output.channelCount > 0 { return output }
+        return AVAudioFormat(standardFormatWithSampleRate: hardware.sampleRate,
+                             channels: hardware.channelCount)
+    }
+
     private func listenThroughSink() {
         guard !running else { return }
         let input = engine.inputNode
-        let format = input.outputFormat(forBus: 0)
-        guard format.sampleRate > 0, format.channelCount > 0 else {
+        guard let format = currentInputFormat() else {
             reportListening()
             return
         }
@@ -353,7 +372,7 @@ final class PitchDetector: ObservableObject {
             confirmAudioArrives(after: startCount)
             reportListening()
         } catch {
-            listenThroughTap(format: format)
+            listenThroughTap()
         }
     }
 
@@ -367,14 +386,16 @@ final class PitchDetector: ObservableObject {
             guard let self, self.running, !self.usingTap, self.startCount == start,
                   !self.listener.queue.hasReceivedAudio else { return }
             self.engine.stop()
-            self.listenThroughTap(format: self.engine.inputNode.outputFormat(forBus: 0))
+            self.listenThroughTap()
         }
     }
 
-    private func listenThroughTap(format: AVAudioFormat) {
+    private func listenThroughTap() {
         if let sink = sinkNode { engine.disconnectNodeInput(sink) }
         running = false
-        guard format.sampleRate > 0, format.channelCount > 0 else {
+        // Read now rather than handed over: the start that just failed may have
+        // failed because the route was changing.
+        guard let format = currentInputFormat() else {
             reportListening()
             return
         }

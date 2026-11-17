@@ -79,6 +79,23 @@ struct ExerciseIntroView: View {
     /// Flips after a download so the button confirms instead of copying again.
     @State private var isDownloaded = false
 
+    /// Whether this screen is in its navigation stack, for a Start that waited on
+    /// the microphone question to check before it opens the run.
+    @State private var isOnScreen = false
+
+    /// Start, asking for the microphone first if it has never been asked for, so
+    /// the system's question goes up over this screen rather than over a run that
+    /// has already begun (see `MicrophonePermission`). The run opens once it is
+    /// answered, allowed or not.
+    private func start() {
+        MicrophonePermission.askIfNeeded {
+            // A screen taken off the stack while the question was up (a restore
+            // landing on a fresh install can drop its route) has nothing to start.
+            guard isOnScreen else { return }
+            onStart()
+        }
+    }
+
     /// What the server's users tend to score on this exercise, 0-100, which the
     /// stars draw inverted as how hard it is (see `difficultyRow`).
     ///
@@ -246,7 +263,7 @@ struct ExerciseIntroView: View {
             }
 
             HStack(spacing: 12) {
-                Button(action: onStart) {
+                Button(action: start) {
                     Text(verbatim: queuePosition?.title(L("Start")) ?? L("Start"))
                         .font(.headline)
                         .frame(maxWidth: .infinity)
@@ -264,6 +281,8 @@ struct ExerciseIntroView: View {
         }
         .navigationTitle(exercise.localizedName)
         .navigationBarTitleDisplayMode(.inline)
+        .onAppear { isOnScreen = true }
+        .onDisappear { isOnScreen = false }
         // This screen is the only place the community counts are shown, and the
         // server summarises one exercise per call, so the tally is fetched here
         // — on the exercise that was tapped — instead of for the whole list on

@@ -64,6 +64,8 @@ private nonisolated final class SynthEngine: @unchecked Sendable {
     /// The synthesiser's way into the engine; nil until `start` (see
     /// `ExercisePlayer.begin`).
     private var sourceNode: AVAudioSourceNode?
+    /// What `start` was asked to wire in, kept until the output can take it.
+    private var unwired: (sampleRate: Double, render: AVAudioSourceNodeRenderBlock)?
 
     /// Wire `render` in, the first time, and start the engine unless it is running.
     ///
@@ -78,20 +80,45 @@ private nonisolated final class SynthEngine: @unchecked Sendable {
     /// before the run whose AirPods came out of their start holding extra audio (see
     /// `AudioRouteManager.configureSession(whenSettled:)`).
     func start(sampleRate: Double, render: @escaping AVAudioSourceNodeRenderBlock) {
-        if sourceNode == nil {
-            let format = AVAudioFormat(standardFormatWithSampleRate: sampleRate, channels: 2)!
-            let node = AVAudioSourceNode(renderBlock: render)
-            engine.attach(node)
-            engine.connect(node, to: engine.mainMixerNode, format: format)
-            sourceNode = node
-        }
+        if sourceNode == nil { unwired = (sampleRate, render) }
         startIfStopped()
     }
 
+    /// Start the engine, unless it is running already or the output has no format
+    /// to start it in. Wiring or starting the engine while the output has none
+    /// raises an Objective-C exception (`IsFormatSampleRateAndChannelCountValid`)
+    /// rather than returning an error, and nothing in Swift catches that: the app
+    /// is simply gone. An output passes through that state while its route is being
+    /// rebuilt, which with Bluetooth earphones can take a moment: when they are
+    /// switched to, or when the microphone joins a session they already play in.
+    /// The engine is restarted from here straight after a configuration change,
+    /// which is exactly then, and the likeliest way a fresh install crashed when
+    /// the microphone was allowed only once its first run had started (see
+    /// `MicrophonePermission`). Skipped, the engine is started again by the route
+    /// change that comes once the output has arrived (see `ExercisePlayer`).
     func startIfStopped() {
-        guard !engine.isRunning else { return }
+        guard !engine.isRunning, outputHasFormat else { return }
+        if sourceNode == nil, let unwired {
+            let format = AVAudioFormat(standardFormatWithSampleRate: unwired.sampleRate, channels: 2)!
+            let node = AVAudioSourceNode(renderBlock: unwired.render)
+            engine.attach(node)
+            engine.connect(node, to: engine.mainMixerNode, format: format)
+            sourceNode = node
+            self.unwired = nil
+        }
+        // Nothing to play yet: a configuration change or route change can come in
+        // before the start that wires the synthesiser in.
+        guard sourceNode != nil else { return }
         engine.prepare()
         try? engine.start()
+    }
+
+    /// Whether the output currently has a format the engine can start in: some
+    /// channels at some sample rate. Asked of the output node, which reports the
+    /// hardware's format.
+    private var outputHasFormat: Bool {
+        let format = engine.outputNode.outputFormat(forBus: 0)
+        return format.sampleRate > 0 && format.channelCount > 0
     }
 
     func pause() {
@@ -233,7 +260,14 @@ final class ExercisePlayer {
         routeObserver = NotificationCenter.default.addObserver(
             forName: AVAudioSession.routeChangeNotification, object: nil, queue: .main
         ) { [weak self] _ in
-            self?.refreshOutputLatency()
+            guard let self else { return }
+            self.refreshOutputLatency()
+            // A start the output had no format for yet (see
+            // `SynthEngine.startIfStopped`) goes ahead once the route has got
+            // where it was going. Nothing happens to an engine that is running.
+            guard self.shouldRun, !self.isSuspended else { return }
+            let synthEngine = self.synthEngine
+            AudioControl.queue.async { synthEngine.startIfStopped() }
         }
     }
 
@@ -1039,8 +1073,15 @@ private final class AudioStartup {
     /// Whether the run's engine has been started and its notes scheduled, which is
     /// what tells a resume to pick the run up rather than start it.
     var hasStarted = false
+    /// Set while the app is in the background, where the run's audio was stopped,
+    /// so coming back to the front knows there is something to pick up.
+    var isAwayInBackground = false
+    /// Counts cancellations, so a start that waited on the microphone question can
+    /// tell whether it has been called off in the meantime.
+    private(set) var generation = 0
 
     func cancel() {
+        generation += 1
         routeWait?.cancel()
         routeWait = nil
         whenListening = nil
@@ -1356,6 +1397,7 @@ struct PlaybackView: View {
             // clock). This keeps audio and the animation in sync and stops playback
             // from starting partway through while the exercise is still loading.
             audioStartup.hasStarted = false
+            audioStartup.isAwayInBackground = false
             startAudio()
         }
         .onChange(of: trialDetection) { _, detection in
@@ -1377,9 +1419,19 @@ struct PlaybackView: View {
             guard finalScore == nil, delayResultMs == nil else { return }   // nothing to sync on a result screen
             switch phase {
             case .active:
+                // Only the background stopped anything. The app also goes
+                // inactive, and back, without getting that far: under a system
+                // alert, such as the one asking for the microphone, and while
+                // Control Center or the notifications are pulled down over it.
+                // The run's audio carries on through those, and setting it all up
+                // again there reconfigured the session under both running engines
+                // and started the microphone a second time.
+                guard audioStartup.isAwayInBackground else { break }
+                audioStartup.isAwayInBackground = false
                 guard !isPaused else { break }   // stay paused if the user paused before leaving
                 startAudio()
             case .background:
+                audioStartup.isAwayInBackground = true
                 audioStartup.cancel()
                 player.pauseForBackground()
                 pitchDetector.stop()
@@ -1408,6 +1460,20 @@ struct PlaybackView: View {
     /// background left it.
     private func startAudio() {
         audioStartup.cancel()
+        // Never under the system's question about the microphone: asked from in
+        // here, it went up over a run already starting, and was answered with the
+        // engine playing and the session set up for a microphone it didn't have
+        // yet. Every way in asks before opening this screen (see
+        // `MicrophonePermission`), so this only catches one that doesn't, and
+        // starts nothing until the question is answered.
+        if MicrophonePermission.needsAsking {
+            let asked = audioStartup.generation
+            MicrophonePermission.askIfNeeded {
+                guard audioStartup.generation == asked else { return }
+                startAudio()
+            }
+            return
+        }
         audioStartup.routeWait = AudioRouteManager.shared.configureSession(whenSettled: {
             audioStartup.routeWait = nil
             if !audioStartup.hasStarted { prepareRun() }

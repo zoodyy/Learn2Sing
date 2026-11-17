@@ -114,8 +114,13 @@ struct SettingsView: View {
                 case .delayPlayback:
                     PlaybackView(exercise: delayTestExercise, mode: .clapDelayTest)
                 case .delayExercisePicker:
-                    DelayTestExercisePickerView {
-                        settingsPath.append(SettingsRoute.delayExercisePlayback($0))
+                    // The microphone is asked for over the list, before the run
+                    // starts (see `MicrophonePermission`); the clap test asks from
+                    // its intro screen's Start.
+                    DelayTestExercisePickerView { id in
+                        MicrophonePermission.askIfNeeded {
+                            settingsPath.append(SettingsRoute.delayExercisePlayback(id))
+                        }
                     }
                 case .delayExercisePlayback(let id):
                     // The exercise is looked up on the way in rather than carried in
@@ -127,7 +132,11 @@ struct SettingsView: View {
                 case .voice:
                     VoiceSettingsView(
                         openRangeTest: { settingsPath.append(SettingsRoute.vocalRangeTest) },
-                        openPitchDetectionTrial: { settingsPath.append(SettingsRoute.pitchDetectionTrial) })
+                        openPitchDetectionTrial: {
+                            MicrophonePermission.askIfNeeded {
+                                settingsPath.append(SettingsRoute.pitchDetectionTrial)
+                            }
+                        })
                 case .vocalRangeTest:
                     VocalRangeTestView { settingsPath = [] }
                 case .pitchDetectionTrial:
