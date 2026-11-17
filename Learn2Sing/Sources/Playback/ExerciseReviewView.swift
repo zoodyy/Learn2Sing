@@ -42,8 +42,9 @@ struct ExerciseReviewView: View {
     let bpm: Double
     /// Where the repetitions sit on the timeline, for the repetition counter badge.
     let repeatLayout: RepeatLayout
-    /// The pitch each repetition was centred on during the run, which a drag along
-    /// the timeline moves the view up and down by (see `PlaybackCenterTrack`).
+    /// The pitch each repetition was centred on during the run, which the opening
+    /// view takes its height from and a drag along the timeline moves the view up and
+    /// down by (see `PlaybackCenterTrack`).
     var repetitionCenters: [Double] = []
     /// How much later than the fastest pitch detection's the run's line was drawn
     /// (see `PitchDetection`). The line is shifted back by it on top of the delay,
@@ -398,10 +399,25 @@ struct ExerciseReviewView: View {
 
     /// The opening view: the first note against the left edge of the note area
     /// (rather than the silent lead-in the recording also covers), or the first ghost
-    /// note where one comes in ahead of it, centred on the notes' own pitch range — a
-    /// stray label or a stray detected pitch shouldn't be what decides where the
-    /// review starts.
+    /// note where one comes in ahead of it, with the notes as high or low on the
+    /// screen as playback had them when its playhead was there. That is the view a
+    /// finger put down on the timeline at the same point brings up (see `jump(to:)`),
+    /// so putting one down where the bar already stands moves nothing.
+    ///
+    /// The delay test isn't handed the repetitions' centres, so there the view is
+    /// centred on the notes' own pitch range instead — a stray label or a stray
+    /// detected pitch shouldn't be what decides where the review starts.
     private func framedCamera(size: CGSize, content: Content) -> Camera {
+        let firstNote = [notes, ghosts].joined().map(\.beat).min() ?? content.beats.lowerBound
+        let lead = Double((playheadX(size: size) - keyboardWidth) / beatWidth(zoom: 1))
+        // Held to the stretch the timeline covers, as a drag along it is, so the
+        // height below is read at the place the view actually opens on.
+        let playhead = min(max(firstNote + lead, content.beats.lowerBound), content.beats.upperBound)
+        if let center = PlaybackCenterTrack.center(at: playhead, frames: samples,
+                                                   repeatLayout: repeatLayout,
+                                                   repetitionCenters: repetitionCenters) {
+            return Camera(playheadBeat: playhead, centerPitch: center)
+        }
         let pitches = notes.map(\.pitch)
         let center: Double
         if let low = pitches.min(), let high = pitches.max() {
@@ -409,9 +425,6 @@ struct ExerciseReviewView: View {
         } else {
             center = (content.pitches.lowerBound + content.pitches.upperBound) / 2
         }
-        let firstNote = [notes, ghosts].joined().map(\.beat).min() ?? content.beats.lowerBound
-        let playhead = firstNote
-            + Double((playheadX(size: size) - keyboardWidth) / beatWidth(zoom: 1))
         return Camera(playheadBeat: playhead, centerPitch: center)
     }
 
@@ -604,7 +617,8 @@ struct ExerciseReviewView: View {
 
     /// The vertical centre playback drew the run at, frame by frame. Worked out on
     /// the first drag along the timeline rather than with the screen, since a long
-    /// run recorded tens of thousands of frames and the singer may never drag it.
+    /// run recorded tens of thousands of frames and the singer may never drag it;
+    /// the opening view replays only the frames up to where it opens.
     private var playbackCenters: PlaybackCenterTrack {
         if let track = centerTrack.track { return track }
         let track = PlaybackCenterTrack(frames: samples, repeatLayout: repeatLayout,

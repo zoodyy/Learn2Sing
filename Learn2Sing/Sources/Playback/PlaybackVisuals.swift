@@ -362,15 +362,39 @@ struct PlaybackCenterTrack {
     /// `frames` is the run's recording, oldest first; `repetitionCenters` and
     /// `repeatLayout` are what the run was recentred on.
     init(frames: [PitchSample], repeatLayout: RepeatLayout, repetitionCenters: [Double]) {
+        self.init(frames: frames, repeatLayout: repeatLayout,
+                  repetitionCenters: repetitionCenters, through: .infinity)
+    }
+
+    /// The centre playback showed when its playhead was at `beat`, exactly as the
+    /// whole run's track has it, but replaying only the frames up to that beat: for
+    /// a single place near the start, the rest of a long run isn't worth working
+    /// through. nil where the run had nothing to recentre on.
+    static func center(at beat: Double, frames: [PitchSample], repeatLayout: RepeatLayout,
+                       repetitionCenters: [Double]) -> Double? {
+        PlaybackCenterTrack(frames: frames, repeatLayout: repeatLayout,
+                            repetitionCenters: repetitionCenters, through: beat)
+            .center(at: beat)
+    }
+
+    /// Replays the frames up to and including the first one past `lastBeat` (all of
+    /// them if none is), which is all `center(at:)` reads for any beat up to it. Past
+    /// rather than at, because frames drawn while the run was paused share one beat,
+    /// and where those are the run's last frames, `center(at:)` reads the last of them.
+    private init(frames: [PitchSample], repeatLayout: RepeatLayout,
+                 repetitionCenters: [Double], through lastBeat: Double) {
         guard repeatLayout.count > 0, !repetitionCenters.isEmpty else { return }
         let follower = VerticalFollower()
-        beats.reserveCapacity(frames.count)
-        centers.reserveCapacity(frames.count)
+        if lastBeat == .infinity {
+            beats.reserveCapacity(frames.count)
+            centers.reserveCapacity(frames.count)
+        }
         for frame in frames {
             let index = min(repetitionCenters.count - 1, repeatLayout.index(at: frame.beat))
             beats.append(frame.beat)
             centers.append(follower.step(target: repetitionCenters[index],
                                          factor: VerticalFollower.playbackFactor))
+            if frame.beat > lastBeat { break }
         }
     }
 
