@@ -78,6 +78,8 @@ T("7d", "7 Tage", "7 d", "7 j", "7 gg", "7 d", "7 d", "7 дн.", "7 dni", "7 gü
 T("30d", "30 Tage", "30 d", "30 j", "30 gg", "30 d", "30 d", "30 дн.", "30 dni", "30 gün", "30 dgr", "30日", "30일", "30天", "30 يومًا")
 T("6m", "6 Mon.", "6 m", "6 m", "6 m", "6 m", "6 mnd", "6 мес.", "6 mies.", "6 ay", "6 mån", "6か月", "6개월", "6个月", "6 أشهر")
 T("1y", "1 Jahr", "1 a", "1 an", "1 anno", "1 ano", "1 jr", "1 год", "1 rok", "1 yıl", "1 år", "1年", "1년", "1年", "سنة")
+# What VoiceOver calls the chart's window picker, read before the window it shows.
+T("Time Range", "Zeitraum", "Periodo", "Période", "Periodo", "Período", "Periode", "Период", "Okres", "Dönem", "Period", "期間", "기간", "时间范围", "الفترة الزمنية")
 
 # The run's statistics, below the score screen's chart.
 T("Run Details", "Details zum Durchgang", "Detalles de la ejecución", "Détails de la session", "Dettagli dell’esecuzione", "Detalhes da execução", "Details van de ronde", "Подробности прохода", "Szczegóły przebiegu", "Tur ayrıntıları", "Detaljer om omgången", "この回の詳細", "회차 상세 정보", "本次详情", "تفاصيل المحاولة")

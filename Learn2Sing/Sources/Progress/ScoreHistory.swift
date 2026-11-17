@@ -223,13 +223,8 @@ struct ScoreHistoryChart: View {
 
     var body: some View {
         VStack(spacing: 10) {
-            Picker("Range", selection: $range) {
-                ForEach(ScoreRange.allCases) { r in
-                    Text(L(r.rawValue)).tag(r)
-                }
-            }
-            .pickerStyle(.segmented)
-            .explain(L("How far back the chart looks, from the last day to everything you have sung."))
+            rangeMenu
+                .frame(maxWidth: .infinity, alignment: .trailing)
 
             let visible = points
             if visible.isEmpty {
@@ -263,6 +258,39 @@ struct ScoreHistoryChart: View {
         // A different window plots different points, so whatever was selected in
         // the old one no longer has a mark to point at.
         .onChange(of: range) { selectedDate = nil }
+    }
+
+    /// The window picker: a drop-down on the trailing edge of the row above the
+    /// plot, its capsule saying which window is showing. As tall as the
+    /// segmented control the windows used to be picked from, and filled like
+    /// its track.
+    private var rangeMenu: some View {
+        Menu {
+            Picker(L("Time Range"), selection: $range) {
+                ForEach(ScoreRange.allCases) { r in
+                    Text(L(r.rawValue)).tag(r)
+                }
+            }
+        } label: {
+            HStack(spacing: 4) {
+                Text(L(range.rawValue))
+                Image(systemName: "chevron.up.chevron.down")
+                    .imageScale(.small)
+            }
+            .font(.footnote.weight(.semibold))
+            .foregroundStyle(ink)
+            .padding(.horizontal, 12)
+            // At least: a larger text size grows the capsule rather than
+            // clipping its label.
+            .frame(minHeight: 32)
+            .background(Color(.tertiarySystemFill), in: Capsule())
+        }
+        // Shortest window first whichever way the menu opens, the order the
+        // buttons ran in.
+        .menuOrder(.fixed)
+        .accessibilityLabel(L("Time Range"))
+        .accessibilityValue(L(range.rawValue))
+        .explain(L("How far back the chart looks, from the last day to everything you have sung."))
     }
 
     /// The stretch of time a fixed window covers: exactly its duration up to

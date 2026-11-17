@@ -2163,8 +2163,8 @@ private struct ScoreView: View {
     private let swipeSpace = "scoreSwipe"
 
     /// Where the chart ended up, so the exit swipe can leave drags that start on
-    /// it alone. It has a range picker that is slid sideways and points that are
-    /// tapped, and a gesture on the screen around it wins over both.
+    /// it alone: a finger put down on its range menu or its points is there for
+    /// them, not for leaving the screen.
     @State private var chartFrame: CGRect = .zero
 
     /// A `.headline` line at whatever size the reader has text set to, which is
