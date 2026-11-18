@@ -669,7 +669,6 @@ private final class ChartTouchRecognizer: UIGestureRecognizer {
     }
 }
 
-
 private extension UIView {
     /// The navigation controller the screen holding this view was pushed onto.
     var enclosingNavigationController: UINavigationController? {
