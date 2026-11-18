@@ -33,9 +33,11 @@ struct HistoryChartPoint {
 ///
 /// Tapping a plotted point marks it and shows its value and date in a bubble
 /// pointing at it; tapping away from every point puts the bubble away again.
-/// Dragging a finger across the chart moves the bubble from point to point by
-/// how far along the plot the finger is, whatever its height, and leaves it on
-/// the last one when the finger lifts.
+/// A drag that sets off near the line moves the bubble from point to point by
+/// how far along the plot the finger is, whatever its height after that, and
+/// leaves it on the last one when the finger lifts. A drag that sets off
+/// further from the line is left to the screen, to scroll or swipe back with
+/// as anywhere else on it.
 struct HistoryLineChart: View {
     /// Oldest first, at most one per date: the chart keys its marks by date.
     let points: [HistoryChartPoint]
@@ -395,6 +397,11 @@ private struct HistoryChartSelection: View {
     /// dismisses the bubble.
     private let hitRadius: CGFloat = 44
 
+    /// How near the line a drag has to set off for the chart to take it, in
+    /// points: about a fingertip's width either side of it. Further off, the
+    /// drag scrolls the screen or swipes back, as anywhere else on it.
+    private let dragReach: CGFloat = 30
+
     /// Steps a drag's selection through the points it passes, rather than
     /// letting it jump over them. A reference held in state, so the stepping
     /// redraws nothing until it moves the selection.
@@ -413,6 +420,7 @@ private struct HistoryChartSelection: View {
                         selectedDate = hit?.point.date
                     }
                 },
+                takesDrag: { location in isNearLine(location) },
                 onDrag: { drag in
                     // Straight onto each point, without the tap's animation:
                     // the bubble has to keep up with the finger, not trail it.
@@ -452,6 +460,31 @@ private struct HistoryChartSelection: View {
             .map { ($0, hypot($0.position.x - location.x, $0.position.y - location.y)) }
             .filter { $0.1 <= hitRadius }
             .min { $0.1 < $1.1 }?.0
+    }
+
+    /// Whether `location` is within `dragReach` of the line, or of the one point
+    /// when there is no line. The line is measured as straight runs from point
+    /// to point: the curve drawn through them strays from those by a few
+    /// points at most, which the reach takes in its stride.
+    private func isNearLine(_ location: CGPoint) -> Bool {
+        guard let first = marks.first else { return false }
+        guard marks.count > 1 else {
+            return hypot(first.position.x - location.x, first.position.y - location.y) <= dragReach
+        }
+        return zip(marks, marks.dropFirst()).contains { from, to in
+            distance(from: location, toLineFrom: from.position, to: to.position) <= dragReach
+        }
+    }
+
+    /// How far `point` is from the straight run between `start` and `end`.
+    private func distance(from point: CGPoint, toLineFrom start: CGPoint,
+                          to end: CGPoint) -> CGFloat {
+        let run = CGPoint(x: end.x - start.x, y: end.y - start.y)
+        let lengthSquared = run.x * run.x + run.y * run.y
+        let along = lengthSquared == 0 ? 0
+            : min(max(((point.x - start.x) * run.x + (point.y - start.y) * run.y)
+                      / lengthSquared, 0), 1)
+        return hypot(point.x - (start.x + along * run.x), point.y - (start.y + along * run.y))
     }
 
     /// Which point is under a dragging finger at `x`, by how far along the plot
@@ -523,15 +556,19 @@ private struct HistoryChartSelection: View {
 
 /// A finger on a history chart. Read by UIKit rather than by SwiftUI gestures,
 /// because only a UIKit recognizer can make the screen's own gestures wait for
-/// it: a drag that starts on the chart is the chart's, so the screen must not
+/// it: a drag the chart takes is the chart's alone, so the screen must not
 /// scroll under it and the back swipe must not take the screen away with it.
 ///
 /// What a press turns out to be is ChartTouchRecognizer's to tell: a tap,
 /// reported once as it lifts, or a drag, reported from the moment it sets off
-/// and on every move after that.
+/// and on every move after that. Taps are taken anywhere on the chart, drags
+/// only where `takesDrag` says; any other drag the screen gets, as though the
+/// chart were not there.
 private struct ChartTouchSurface: UIViewRepresentable {
     /// A tap, at the point it landed.
     let onTap: (CGPoint) -> Void
+    /// Whether a drag setting off from this point is the chart's.
+    let takesDrag: (CGPoint) -> Bool
     /// A drag across the chart, as it goes.
     let onDrag: (ChartDrag) -> Void
 
@@ -547,17 +584,29 @@ private struct ChartTouchSurface: UIViewRepresentable {
 
     func updateUIView(_ view: UIView, context: Context) {
         context.coordinator.onTap = onTap
+        context.coordinator.takesDrag = takesDrag
         context.coordinator.onDrag = onDrag
     }
 
-    func makeCoordinator() -> Coordinator { Coordinator(onTap: onTap, onDrag: onDrag) }
+    func makeCoordinator() -> Coordinator {
+        Coordinator(onTap: onTap, takesDrag: takesDrag, onDrag: onDrag)
+    }
 
     final class Coordinator: NSObject, UIGestureRecognizerDelegate {
         var onTap: (CGPoint) -> Void
+        var takesDrag: (CGPoint) -> Bool
         var onDrag: (ChartDrag) -> Void
 
-        init(onTap: @escaping (CGPoint) -> Void, onDrag: @escaping (ChartDrag) -> Void) {
+        /// Whether the press in progress went down where the chart takes a
+        /// drag. Worked out as the press is handed over, before the screen's
+        /// gestures ask whether they have to wait for it.
+        private var pressMayDrag = false
+
+        init(onTap: @escaping (CGPoint) -> Void,
+             takesDrag: @escaping (CGPoint) -> Bool,
+             onDrag: @escaping (ChartDrag) -> Void) {
             self.onTap = onTap
+            self.takesDrag = takesDrag
             self.onDrag = onDrag
         }
 
@@ -585,11 +634,22 @@ private struct ChartTouchSurface: UIViewRepresentable {
         }
 
         /// Scrolling the screen and swiping back off it wait to see whether a
-        /// press on the chart turns into a drag, and lose to it when it does:
-        /// they are what that same drag would otherwise do as well.
+        /// press near the line turns into a drag, and lose to it when it does:
+        /// they are what that same drag would otherwise do as well. A press
+        /// anywhere else on the chart holds them up for nothing.
         func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer,
                                shouldBeRequiredToFailBy other: UIGestureRecognizer) -> Bool {
-            Self.isScreenGesture(other, around: gestureRecognizer)
+            pressMayDrag && Self.isScreenGesture(other, around: gestureRecognizer)
+        }
+
+        /// A press that sets off across the chart from somewhere it takes no
+        /// drag gives up, and leaves the drag to the screen. A tap is taken
+        /// from anywhere.
+        func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
+            guard let recognizer = gestureRecognizer as? ChartTouchRecognizer,
+                  recognizer.isDrag
+            else { return true }
+            return takesDrag(recognizer.startLocation)
         }
 
         /// Alongside everything else, SwiftUI's gestures included: the chart's
@@ -605,8 +665,10 @@ private struct ChartTouchSurface: UIViewRepresentable {
         func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer,
                                shouldReceive touch: UITouch) -> Bool {
             guard let view = gestureRecognizer.view else { return true }
-            return !sequence(first: view, next: { $0.superview })
+            let isCoasting = sequence(first: view, next: { $0.superview })
                 .contains { ($0 as? UIScrollView)?.isDecelerating == true }
+            pressMayDrag = !isCoasting && takesDrag(touch.location(in: view))
+            return !isCoasting
         }
 
         /// Whether `other` belongs to the screen the chart is on rather than to
@@ -722,9 +784,10 @@ private final class DragFollower: NSObject {
 ///
 /// - **A tap** lifts without having moved further than a hold may. It is
 ///   recognized once, as it lifts.
-/// - **A drag** moves further than that. It begins there, follows the finger
-///   wherever it goes after that, up and down included, and ends when the
-///   finger lifts.
+/// - **A drag** moves further than that. It begins there, if it set off where
+///   the chart takes a drag (see `ChartTouchSurface.takesDrag`), follows the
+///   finger wherever it goes after that, up and down included, and ends when
+///   the finger lifts.
 /// - **A hold** is whatever the chart's press-and-hold help takes. The help
 ///   gives up on a press at exactly the distance a drag starts at
 ///   (`SettingHelpBubble.holdMovement`), and this gives the press up the moment

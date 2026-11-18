@@ -189,9 +189,10 @@ enum ScoreRange: String, CaseIterable, Identifiable {
 ///
 /// Tapping a plotted point marks it and shows its score and time in a bubble
 /// pointing at it; tapping away from every point puts the bubble away again.
-/// Dragging across the chart moves the bubble from point to point as the
-/// finger goes along it, whatever its height, without scrolling the screen or
-/// swiping back off it, and leaves it on the last point when the finger lifts. The chart itself is
+/// A drag that sets off near the line moves the bubble from point to point as
+/// the finger goes along it, whatever its height, without scrolling the screen
+/// or swiping back off it, and leaves it on the last point when the finger
+/// lifts. A drag further from the line scrolls or swipes back as usual. The chart itself is
 /// `HistoryLineChart`, which the Home tab's practice time is drawn in as well.
 struct ScoreHistoryChart: View {
     let entries: [ScoreEntry]
