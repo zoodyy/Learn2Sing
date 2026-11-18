@@ -33,8 +33,9 @@ struct HistoryChartPoint {
 ///
 /// Tapping a plotted point marks it and shows its value and date in a bubble
 /// pointing at it; tapping away from every point puts the bubble away again.
-/// Dragging a finger across the chart moves the bubble from point to point
-/// under it, and leaves it on the last one when the finger lifts.
+/// Dragging a finger across the chart moves the bubble from point to point by
+/// how far along the plot the finger is, whatever its height, and leaves it on
+/// the last one when the finger lifts.
 struct HistoryLineChart: View {
     /// Oldest first, at most one per date: the chart keys its marks by date.
     let points: [HistoryChartPoint]
@@ -271,16 +272,73 @@ struct HistoryLineChart: View {
     // MARK: - Point selection
 
     /// Screen position of every plotted point, in the coordinate space of the
-    /// overlay's `GeometryReader`.
+    /// overlay's `GeometryReader`, along with where a drag across the plot picks
+    /// it up (`HistoryChartMark.dragX`).
     private func markPositions(proxy: ChartProxy, in geo: GeometryProxy) -> [HistoryChartMark] {
         guard let plotAnchor = proxy.plotFrame else { return [] }
         let plot = geo[plotAnchor]
-        return points.compactMap { p in
+        let placed = points.compactMap { p -> (point: HistoryChartPoint, position: CGPoint)? in
             guard let x = proxy.position(forX: p.x),
                   let y = proxy.position(forY: p.value)
             else { return nil }
-            return HistoryChartMark(point: p,
-                                    position: CGPoint(x: plot.minX + x, y: plot.minY + y))
+            return (p, CGPoint(x: plot.minX + x, y: plot.minY + y))
+        }
+        let dragXs = Self.dragPositions(of: placed.map(\.position.x),
+                                        within: plot.minX...plot.maxX)
+        return zip(placed, dragXs).map { placed, dragX in
+            HistoryChartMark(point: placed.point, position: placed.position, dragX: dragX)
+        }
+    }
+
+    /// The least room across the plot a drag gives each point, in points. About
+    /// a dot's width, a little more than a full chart of points gets anyway:
+    /// enough for the finger to stop on each of a stack of runs in turn, while
+    /// a crowd of them is spread no further from where it is drawn than it has
+    /// to be.
+    private static let dragSpacing: CGFloat = 6
+
+    /// Where a drag picks up each of the points at `xs` (oldest first, so
+    /// left to right): at each point's own x, except where points crowd closer
+    /// together than `dragSpacing`, as runs sung minutes apart do in a window a
+    /// year wide. Those are spread apart to that spacing, centred on where they
+    /// are, so a finger swept across them meets each in turn, oldest first. A
+    /// spread that would run past the end of the plot is packed against it
+    /// instead, so a finger can still reach every point. When even that leaves
+    /// too little room, the spacing shrinks to what the plot can give them all.
+    private static func dragPositions(of xs: [CGFloat],
+                                      within bounds: ClosedRange<CGFloat>) -> [CGFloat] {
+        let count = xs.count
+        guard count > 1 else { return xs }
+        let spacing = min(dragSpacing,
+                          (bounds.upperBound - bounds.lowerBound) / CGFloat(count - 1))
+        // Spaced out, the positions less each one's share of the spacing
+        // (i × spacing) never decrease. The closest such sequence to where the
+        // points are drawn averages each run of points that would otherwise
+        // overlap, merging runs until none does (pool adjacent violators).
+        var runs: [(sum: CGFloat, count: Int)] = []
+        for (index, x) in xs.enumerated() {
+            runs.append((x - CGFloat(index) * spacing, 1))
+            while runs.count > 1 {
+                let last = runs[runs.count - 1]
+                let previous = runs[runs.count - 2]
+                guard previous.sum / CGFloat(previous.count) > last.sum / CGFloat(last.count)
+                else { break }
+                runs.removeLast(2)
+                runs.append((previous.sum + last.sum, previous.count + last.count))
+            }
+        }
+        var positions: [CGFloat] = []
+        for run in runs {
+            let start = run.sum / CGFloat(run.count)
+            for _ in 0..<run.count {
+                positions.append(start + CGFloat(positions.count) * spacing)
+            }
+        }
+        // Each point kept no nearer an end than the points beyond it need,
+        // which leaves the spacing between them as it was.
+        return positions.enumerated().map { index, x in
+            min(max(x, bounds.lowerBound + CGFloat(index) * spacing),
+                bounds.upperBound - CGFloat(count - 1 - index) * spacing)
         }
     }
 }
@@ -289,6 +347,10 @@ struct HistoryLineChart: View {
 private struct HistoryChartMark {
     let point: HistoryChartPoint
     let position: CGPoint
+    /// Where along the plot a dragging finger picks this point up: its own x,
+    /// unless it sits closer to its neighbours than a finger can tell apart
+    /// (see `HistoryLineChart.dragPositions`).
+    let dragX: CGFloat
 }
 
 extension HistoryChartPoint {
@@ -333,6 +395,11 @@ private struct HistoryChartSelection: View {
     /// dismisses the bubble.
     private let hitRadius: CGFloat = 44
 
+    /// Steps a drag's selection through the points it passes, rather than
+    /// letting it jump over them. A reference held in state, so the stepping
+    /// redraws nothing until it moves the selection.
+    @State private var follower = DragFollower()
+
     var body: some View {
         let selected = selectedDate.flatMap { date in
             marks.first { $0.point.date == date }
@@ -340,18 +407,33 @@ private struct HistoryChartSelection: View {
         ZStack {
             ChartTouchSurface(
                 onTap: { location in
+                    follower.stop()
                     let hit = nearestMark(to: location)
                     withAnimation(.snappy(duration: 0.2)) {
                         selectedDate = hit?.point.date
                     }
                 },
-                onScrub: { location in
-                    // Straight onto the point, without the tap's animation:
+                onDrag: { drag in
+                    // Straight onto each point, without the tap's animation:
                     // the bubble has to keep up with the finger, not trail it.
-                    guard let hit = scrubbedMark(at: location),
-                          hit.point.date != selectedDate
-                    else { return }
-                    selectedDate = hit.point.date
+                    follower.show = { index in
+                        guard marks.indices.contains(index) else { return }
+                        let mark = marks[index]
+                        guard mark.point.date != selectedDate else { return }
+                        selectedDate = mark.point.date
+                    }
+                    switch drag {
+                    case .began(let start, let finger):
+                        // The point the finger landed on first: by the time
+                        // it has moved far enough to be dragging, it can be
+                        // past it and the next one too.
+                        follower.jump(to: draggedIndex(at: start.x))
+                        follower.follow(to: draggedIndex(at: finger.x))
+                    case .moved(let finger), .ended(let finger):
+                        follower.follow(to: draggedIndex(at: finger.x))
+                    case .cancelled:
+                        follower.stop()
+                    }
                 })
                 // Nothing to read out: VoiceOver reads the points themselves.
                 .accessibilityHidden(true)
@@ -361,6 +443,7 @@ private struct HistoryChartSelection: View {
                 bubble(for: selected.point, at: selected.position)
             }
         }
+        .onDisappear { follower.stop() }
     }
 
     /// The nearest point to a tap, or nil when the tap landed near none of them.
@@ -371,30 +454,15 @@ private struct HistoryChartSelection: View {
             .min { $0.1 < $1.1 }?.0
     }
 
-    /// How close together two points have to sit across the plot for a
-    /// dragging finger to pick between them by height instead: about half a
-    /// dot's width, so points drawn on top of one another can still be reached
-    /// one by one, while points further apart each keep a stretch of the plot
-    /// where they are picked whatever the finger's height.
-    private let stackedPointTolerance: CGFloat = 3
-
-    /// The point under a dragging finger: the one nearest to it across the
-    /// plot, wherever the finger is up or down it, so a finger swept from one
-    /// end to the other passes every point on the way and can be kept below
-    /// the line, out of the bubble's way. Points that sit almost exactly above
-    /// one another (runs sung minutes apart, in a window a year wide) are told
-    /// apart by how near they are to the finger, so moving up or down picks
-    /// among them.
-    private func scrubbedMark(at location: CGPoint) -> HistoryChartMark? {
-        guard let nearestAcross = marks.map({ abs($0.position.x - location.x) }).min() else {
-            return nil
-        }
-        return marks
-            .filter { abs($0.position.x - location.x) <= nearestAcross + stackedPointTolerance }
-            .min {
-                hypot($0.position.x - location.x, $0.position.y - location.y)
-                    < hypot($1.position.x - location.x, $1.position.y - location.y)
-            }
+    /// Which point is under a dragging finger at `x`, by how far along the plot
+    /// the finger is and nothing else: its height makes no difference, so a
+    /// sweep from the first point to the last brings up every point on the
+    /// way, in order, and the finger can stay below the line, out of the
+    /// bubble's way. Points stacked almost on top of one another are picked up
+    /// a little apart (see `HistoryChartMark.dragX`), so the sweep steps
+    /// through those too.
+    private func draggedIndex(at x: CGFloat) -> Int? {
+        marks.indices.min { abs(marks[$0].dragX - x) < abs(marks[$1].dragX - x) }
     }
 
     /// Ring drawn over the selected point, so it stays identifiable while the
@@ -464,8 +532,8 @@ private struct HistoryChartSelection: View {
 private struct ChartTouchSurface: UIViewRepresentable {
     /// A tap, at the point it landed.
     let onTap: (CGPoint) -> Void
-    /// The finger's position as it drags across the chart.
-    let onScrub: (CGPoint) -> Void
+    /// A drag across the chart, as it goes.
+    let onDrag: (ChartDrag) -> Void
 
     func makeUIView(context: Context) -> UIView {
         let view = UIView()
@@ -479,36 +547,36 @@ private struct ChartTouchSurface: UIViewRepresentable {
 
     func updateUIView(_ view: UIView, context: Context) {
         context.coordinator.onTap = onTap
-        context.coordinator.onScrub = onScrub
+        context.coordinator.onDrag = onDrag
     }
 
-    func makeCoordinator() -> Coordinator { Coordinator(onTap: onTap, onScrub: onScrub) }
+    func makeCoordinator() -> Coordinator { Coordinator(onTap: onTap, onDrag: onDrag) }
 
     final class Coordinator: NSObject, UIGestureRecognizerDelegate {
         var onTap: (CGPoint) -> Void
-        var onScrub: (CGPoint) -> Void
+        var onDrag: (ChartDrag) -> Void
 
-        init(onTap: @escaping (CGPoint) -> Void, onScrub: @escaping (CGPoint) -> Void) {
+        init(onTap: @escaping (CGPoint) -> Void, onDrag: @escaping (ChartDrag) -> Void) {
             self.onTap = onTap
-            self.onScrub = onScrub
+            self.onDrag = onDrag
         }
 
         @objc func handle(_ recognizer: ChartTouchRecognizer) {
+            if recognizer.state == .cancelled {
+                onDrag(.cancelled)
+                return
+            }
             // A press the help has taken does nothing else, not even what was
             // recognized from it a moment before the help went up.
             guard !recognizer.yieldedToHelp else { return }
             switch recognizer.state {
             case .began:
-                // The point the finger landed on first, so that a drag set off
-                // from it shows it too: by the time the finger has moved far
-                // enough to be dragging it can be nearer the next one. The next
-                // move catches up with the finger.
-                onScrub(recognizer.startLocation)
+                onDrag(.began(from: recognizer.startLocation, to: recognizer.fingerLocation))
             case .changed:
-                onScrub(recognizer.fingerLocation)
+                onDrag(.moved(to: recognizer.fingerLocation))
             case .ended where recognizer.isDrag:
-                // The bubble stays on the point under the finger as it lifts.
-                onScrub(recognizer.fingerLocation)
+                // The bubble ends up on the point under the finger as it lifts.
+                onDrag(.ended(at: recognizer.fingerLocation))
             case .ended:
                 onTap(recognizer.fingerLocation)
             default:
@@ -555,6 +623,98 @@ private struct ChartTouchSurface: UIViewRepresentable {
             return other === navigation.interactivePopGestureRecognizer
                 || other === navigation.interactiveContentPopGestureRecognizer
         }
+    }
+}
+
+/// A drag across a history chart, in the touch surface's own coordinates.
+private enum ChartDrag {
+    /// The press has moved far enough to be a drag: where it went down, and
+    /// where the finger is now.
+    case began(from: CGPoint, to: CGPoint)
+    case moved(to: CGPoint)
+    /// The finger lifted, here.
+    case ended(at: CGPoint)
+    /// The touch was taken away, by the help going up or the chart going away.
+    case cancelled
+}
+
+/// Moves a drag's selection through every point between the one showing and
+/// the one under the finger, a point a frame, rather than jumping straight
+/// there. Jumping would skip the points the finger passed over while the press
+/// was still deciding whether it was a drag, and any a quick finger crosses
+/// between two of its moves.
+///
+/// At a finger's usual pace that is the point under it every time, at once. A
+/// finger that gets ahead is followed a point a frame while it is up to
+/// `stepsBehind` points ahead, so each of those comes up, and in longer strides
+/// beyond that, so however fast the finger goes the bubble is never more than
+/// about that many frames behind it.
+private final class DragFollower: NSObject {
+    /// Puts up the point at an index into the marks.
+    var show: (Int) -> Void = { _ in }
+
+    /// How many points the finger can be ahead and still have each of them
+    /// come up in turn. Covers what a press crosses before it counts as a drag
+    /// (10 pt, at least 5 pt a point) with room to spare.
+    private let stepsBehind = 6
+
+    private var shown: Int?
+    private var target: Int?
+    private var link: CADisplayLink?
+    /// Set when a point has just been put up out of turn, so the next one
+    /// waits for a frame rather than replacing it before it is ever drawn.
+    private var mustWaitForFrame = false
+
+    /// Shows `index` straight away, wherever the selection was.
+    func jump(to index: Int?) {
+        stop()
+        guard let index else { return }
+        shown = index
+        target = index
+        show(index)
+        mustWaitForFrame = true
+    }
+
+    /// Heads for `index`, stepping through every point on the way.
+    func follow(to index: Int?) {
+        guard let index else { return }
+        guard shown != nil else {
+            jump(to: index)
+            return
+        }
+        target = index
+        guard link == nil, index != shown else { return }
+        if !mustWaitForFrame { step() }
+        if shown != target { startLink() }
+    }
+
+    func stop() {
+        link?.invalidate()
+        link = nil
+        mustWaitForFrame = false
+    }
+
+    private func startLink() {
+        let link = CADisplayLink(target: self, selector: #selector(frame))
+        link.add(to: .main, forMode: .common)
+        self.link = link
+    }
+
+    @objc private func frame() {
+        mustWaitForFrame = false
+        step()
+        if shown == target { stop() }
+    }
+
+    private func step() {
+        guard let shown, let target, shown != target else { return }
+        let ahead = target - shown
+        // ⌈|ahead| / stepsBehind⌉: one point at a time while the finger is up
+        // to `stepsBehind` points ahead, strides that grow with the gap beyond.
+        let stride = (abs(ahead) + stepsBehind - 1) / stepsBehind
+        let next = shown + (ahead > 0 ? stride : -stride)
+        self.shown = next
+        show(next)
     }
 }
 
