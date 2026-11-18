@@ -5,7 +5,9 @@ import UIKit
 /// playback screen draws it, with the singer's whole pitch line laid over it so
 /// they can see where they were sharp, flat or late. Nothing moves and nothing
 /// sounds — the playhead is a fixed cursor that the content is dragged past.
-/// One finger scrolls; a pinch zooms the axis the fingers are arranged along.
+/// It moves and zooms exactly as the MIDI editor's roll does (see PanZoomCamera.swift):
+/// one finger or two carry it any way, and two pinch it bigger or smaller at the same
+/// time, both ways alike, or one way alone when they're held level or upright.
 ///
 /// A timeline along the bottom shows how far into the run the playhead is, as the
 /// playback screen's does when it is switched on, and doubles as a scroll bar: a
@@ -78,21 +80,17 @@ struct ExerciseReviewView: View {
     /// How far the sung line is drawn earlier than it was recorded, in beats.
     private var lineShift: Double { micDelayBeats(delayMs + lookAheadMs, bpm: bpm) }
 
-    /// Where the view is looking. `nil` until the singer moves it: the drawing
-    /// falls back to the framing worked out from the screen size, so the very
-    /// first frame is already pointed at the exercise without this screen having
-    /// to write any state before it can draw.
-    private struct Camera {
-        /// Beat drawn at the playhead line, and the MIDI pitch drawn at the
-        /// vertical centre.
-        var playheadBeat: Double
-        var centerPitch: Double
-        /// Zoom the pinch has applied on top of the saved zoom settings, so an
-        /// untouched review is framed exactly as playback was.
-        var horizontalZoom: Double = 1
-        var verticalZoom: Double = 1
-    }
-    @State private var camera: Camera? = nil
+    /// Where the view is looking and how far it's zoomed each way, in beats across and
+    /// semitones down from the top of the keyboard (see `rowsDown`), at points per beat
+    /// and points per semitone. Put where the view opens once the screen has a size,
+    /// and framed afresh for every new size until the singer moves it (see
+    /// `placeCamera`). Only the canvas and the timeline's accessibility value watch it.
+    @State private var camera = PanZoomCamera()
+    /// Set the first time the singer moves the view, or drags along the timeline.
+    @State private var cameraTouched = false
+
+    /// What `measureContent` measured last, kept while the sung line stays where it is.
+    @State private var contentCache = ContentCache()
 
     /// Full-screen size of the canvas, so the gesture handlers can do the same
     /// layout maths the drawing does. Only ever read by them — the drawing takes
@@ -135,11 +133,15 @@ struct ExerciseReviewView: View {
                 height: geo.size.height + geo.safeAreaInsets.top + geo.safeAreaInsets.bottom)
             ZStack {
                 ZStack {
-                    Canvas { ctx, size in
-                        draw(ctx: ctx, size: size,
+                    PanZoomCanvas(camera: camera) { ctx, size, shot in
+                        draw(ctx: ctx, size: size, shot: shot,
                              safeTop: geo.safeAreaInsets.top, safeBottom: geo.safeAreaInsets.bottom)
                     }
-                    PanZoomSurface(onPan: pan(by:), onPinch: zoom(by:axis:around:))
+                    // One finger moves the view anywhere on it: there's nothing to draw
+                    // with here.
+                    PanZoomTouchSurface(camera: camera,
+                                        oneFingerAxes: { _ in [.horizontal, .vertical] },
+                                        onNavigationBegan: { cameraTouched = true })
                 }
                 .explain(showsTimeline
                          ? L("The whole exercise with the pitch you sang drawn over it. Drag to move around, pinch to zoom, or drag along the timeline at the bottom to jump to any point.")
@@ -156,9 +158,22 @@ struct ExerciseReviewView: View {
             .onAppear {
                 canvasSize = canvas
                 safeArea = geo.safeAreaInsets
+                placeCamera()
             }
-            .onChange(of: canvas) { _, size in canvasSize = size }
-            .onChange(of: geo.safeAreaInsets) { _, insets in safeArea = insets }
+            // Read before the new size is stored, so what the singer was looking at
+            // stays at the playhead and the centre through a rotation.
+            .onChange(of: canvas) { _, size in
+                let kept = cameraFocus
+                canvasSize = size
+                placeCamera(keeping: kept)
+            }
+            .onChange(of: geo.safeAreaInsets) { _, insets in
+                let kept = cameraFocus
+                safeArea = insets
+                placeCamera(keeping: kept)
+            }
+            // The delay test slides the sung line, and the run's ends with it.
+            .onChange(of: delayMs) { _, _ in placeCamera() }
         }
         // An inset rather than an overlay, so the drawing knows the bar is there and
         // keeps the repetition badge above it. The canvas underneath still ignores
@@ -284,15 +299,6 @@ struct ExerciseReviewView: View {
         size.height / CGFloat(hiPitch - loPitch + 1) * CGFloat(visuals.verticalZoom * zoom)
     }
 
-    private func sceneLayout(size: CGSize, camera: Camera,
-                             safeTop: CGFloat, safeBottom: CGFloat) -> SceneLayout {
-        SceneLayout(size: size, pianoW: keyboardWidth,
-                    rowH: rowHeight(size: size, zoom: camera.verticalZoom),
-                    beatPx: beatWidth(zoom: camera.horizontalZoom),
-                    playheadX: playheadX(size: size), centerPitch: camera.centerPitch,
-                    centerY: centerY(height: size.height, safeTop: safeTop, safeBottom: safeBottom))
-    }
-
     /// Screen y the camera's centre pitch is drawn at: the middle of what the bars
     /// leave visible, rather than the middle of the canvas — which on the delay test
     /// sits partly behind the offset controls. It is the point the vertical limits
@@ -309,11 +315,18 @@ struct ExerciseReviewView: View {
 
     // MARK: - Drawing
 
-    private func draw(ctx: GraphicsContext, size: CGSize, safeTop: CGFloat, safeBottom: CGFloat) {
+    private func draw(ctx: GraphicsContext, size: CGSize, shot cameraShot: PanZoomShot,
+                      safeTop: CGFloat, safeBottom: CGFloat) {
         let content = measureContent()
-        let cam = resolvedCamera(size: size, content: content)
-        let layout = sceneLayout(size: size, camera: cam, safeTop: safeTop, safeBottom: safeBottom)
-        let beat = cam.playheadBeat
+        let shot = displayedShot(cameraShot, size: size, content: content,
+                                 safeTop: safeTop, safeBottom: safeBottom)
+        let focus = focus(of: shot, size: size, safeTop: safeTop, safeBottom: safeBottom)
+        let layout = SceneLayout(size: size, pianoW: keyboardWidth,
+                                 rowH: shot.zoom.height, beatPx: shot.zoom.width,
+                                 playheadX: playheadX(size: size), centerPitch: focus.pitch,
+                                 centerY: centerY(height: size.height, safeTop: safeTop,
+                                                  safeBottom: safeBottom))
+        let beat = focus.beat
         let delay = lineShift
 
         // The sung line, shifted earlier by the microphone delay so it lies where
@@ -388,13 +401,112 @@ struct ExerciseReviewView: View {
 
     // MARK: - Camera
 
-    /// The camera to draw with: whatever the singer has scrolled to, or the
-    /// opening framing, and either way kept over the content — so a rotation that
-    /// changes what fits on screen can't leave the view stranded off the end.
-    private func resolvedCamera(size: CGSize, content: Content) -> Camera {
-        var cam = camera ?? framedCamera(size: size, content: content)
-        clamp(&cam, content: content)
-        return cam
+    /// How far down from the top of the keyboard `pitch` is, in semitones: the camera's
+    /// unit down the screen, so a higher pitch is further up.
+    private func rowsDown(_ pitch: Double) -> CGFloat {
+        CGFloat(Double(hiPitch) - pitch)
+    }
+
+    /// Where the singer reads the run: the playhead line across, the vertical centre
+    /// down (see `centerY`).
+    private func focusPoint(size: CGSize, safeTop: CGFloat, safeBottom: CGFloat) -> CGPoint {
+        CGPoint(x: playheadX(size: size),
+                y: centerY(height: size.height, safeTop: safeTop, safeBottom: safeBottom))
+    }
+
+    /// The beat at the playhead line and the pitch at the vertical centre, as `shot`
+    /// shows them.
+    private func focus(of shot: PanZoomShot, size: CGSize,
+                       safeTop: CGFloat, safeBottom: CGFloat) -> (beat: Double, pitch: Double) {
+        let point = shot.content(at: focusPoint(size: size, safeTop: safeTop, safeBottom: safeBottom))
+        return (Double(point.x), Double(hiPitch) - Double(point.y))
+    }
+
+    /// The shot at `zoom` with `beat` at the playhead line and `pitch` at the vertical
+    /// centre.
+    private func shot(beat: Double, pitch: Double, zoom: CGSize, size: CGSize,
+                      safeTop: CGFloat, safeBottom: CGFloat) -> PanZoomShot {
+        .holding(CGPoint(x: CGFloat(beat), y: rowsDown(pitch)),
+                 at: focusPoint(size: size, safeTop: safeTop, safeBottom: safeBottom), zoom: zoom)
+    }
+
+    /// The zoom playback drew the run at: the saved zoom settings, with nothing of the
+    /// singer's own on top, so an untouched review is framed exactly as playback was.
+    private func playbackZoom(size: CGSize) -> CGSize {
+        CGSize(width: beatWidth(zoom: 1), height: rowHeight(size: size, zoom: 1))
+    }
+
+    /// The opening view (see `framedFocus`), at playback's zoom.
+    private func framedShot(size: CGSize, content: Content,
+                            safeTop: CGFloat, safeBottom: CGFloat) -> PanZoomShot {
+        let framed = framedFocus(size: size, content: content)
+        return shot(beat: framed.beat, pitch: framed.pitch, zoom: playbackZoom(size: size),
+                    size: size, safeTop: safeTop, safeBottom: safeBottom)
+    }
+
+    /// What the view shows: the camera's `shot` once the camera has one, and until then
+    /// the framing worked out from the screen size, so the very first frame is already
+    /// pointed at the exercise without this screen having to write any state before it
+    /// can draw.
+    private func displayedShot(_ shot: PanZoomShot, size: CGSize, content: Content,
+                               safeTop: CGFloat, safeBottom: CGFloat) -> PanZoomShot {
+        camera.isPlaced
+            ? shot
+            : framedShot(size: size, content: content, safeTop: safeTop, safeBottom: safeBottom)
+    }
+
+    /// How far the camera may go: out and in as far as `beatWidthRange` and
+    /// `rowHeightRange` let it (never short of playback's own zoom), with the playhead
+    /// over the run's beats and the vertical centre over its pitches.
+    ///
+    /// Both limits are on what the singer reads the run at, the playhead across and its
+    /// centre pitch down, rather than on the visible window: everything drawn has to be
+    /// able to reach them. That is also what makes each note and each part of the sung
+    /// line reachable at all when a bar is covering the foot of the screen; a limit on
+    /// the window instead would let a high exercise's lowest notes stop under it with
+    /// nowhere further to scroll.
+    private func cameraLimits(size: CGSize, content: Content,
+                              safeTop: CGFloat, safeBottom: CGFloat) -> PanZoomLimits {
+        let focus = focusPoint(size: size, safeTop: safeTop, safeBottom: safeBottom)
+        let playback = playbackZoom(size: size)
+        let across = min(beatWidthRange.lowerBound, playback.width)...max(beatWidthRange.upperBound, playback.width)
+        let down = min(rowHeightRange.lowerBound, playback.height)...max(rowHeightRange.upperBound, playback.height)
+        return PanZoomLimits(
+            x: .init(zoom: across,
+                     content: CGFloat(content.beats.lowerBound)...CGFloat(content.beats.upperBound),
+                     focus: focus.x),
+            y: .init(zoom: down,
+                     content: rowsDown(content.pitches.upperBound)...rowsDown(content.pitches.lowerBound),
+                     focus: focus.y))
+    }
+
+    /// Tells the camera the screen's size and how far it may go, when the screen
+    /// appears, changes size, or slides the sung line (the delay test). Until the singer
+    /// moves the view it's put where the view opens for that size; after that, `kept`
+    /// (the beat at the playhead and the pitch at the centre) stays where it was.
+    private func placeCamera(keeping kept: (beat: Double, pitch: Double)? = nil) {
+        let size = canvasSize
+        guard size.width > 0, size.height > 0 else { return }
+        let content = measureContent()
+        camera.update(viewport: size, limits: cameraLimits(size: size, content: content,
+                                                           safeTop: safeArea.top,
+                                                           safeBottom: safeArea.bottom))
+        if !cameraTouched {
+            camera.jump(to: framedShot(size: size, content: content,
+                                       safeTop: safeArea.top, safeBottom: safeArea.bottom))
+        } else if let kept {
+            camera.jump(to: shot(beat: kept.beat, pitch: kept.pitch, zoom: camera.shot.zoom,
+                                 size: size, safeTop: safeArea.top, safeBottom: safeArea.bottom))
+        }
+    }
+
+    /// The beat at the playhead and the pitch at the centre as the camera shows them at
+    /// the size the screen had last, for keeping them where they are through a change
+    /// of size.
+    private var cameraFocus: (beat: Double, pitch: Double)? {
+        guard camera.isPlaced, canvasSize.width > 0, canvasSize.height > 0 else { return nil }
+        return focus(of: camera.shot, size: canvasSize,
+                     safeTop: safeArea.top, safeBottom: safeArea.bottom)
     }
 
     /// The opening view: the first note against the left edge of the note area
@@ -407,7 +519,7 @@ struct ExerciseReviewView: View {
     /// The delay test isn't handed the repetitions' centres, so there the view is
     /// centred on the notes' own pitch range instead — a stray label or a stray
     /// detected pitch shouldn't be what decides where the review starts.
-    private func framedCamera(size: CGSize, content: Content) -> Camera {
+    private func framedFocus(size: CGSize, content: Content) -> (beat: Double, pitch: Double) {
         let firstNote = [notes, ghosts].joined().map(\.beat).min() ?? content.beats.lowerBound
         let lead = Double((playheadX(size: size) - keyboardWidth) / beatWidth(zoom: 1))
         // Held to the stretch the timeline covers, as a drag along it is, so the
@@ -416,7 +528,7 @@ struct ExerciseReviewView: View {
         if let center = PlaybackCenterTrack.center(at: playhead, frames: samples,
                                                    repeatLayout: repeatLayout,
                                                    repetitionCenters: repetitionCenters) {
-            return Camera(playheadBeat: playhead, centerPitch: center)
+            return (playhead, center)
         }
         let pitches = notes.map(\.pitch)
         let center: Double
@@ -425,7 +537,7 @@ struct ExerciseReviewView: View {
         } else {
             center = (content.pitches.lowerBound + content.pitches.upperBound) / 2
         }
-        return Camera(playheadBeat: playhead, centerPitch: center)
+        return (playhead, center)
     }
 
     /// How far the drawn content reaches, as the camera limits.
@@ -441,11 +553,28 @@ struct ExerciseReviewView: View {
         var pitches: ClosedRange<Double>
     }
 
+    /// What `measureContent` measured last, and how far the sung line was shifted
+    /// then. The notes and the recording never change while the screen is up, only the
+    /// shift does (on the delay test), so the measuring, a pass over every sample of
+    /// the run, needn't be done again for every frame the view moves.
+    private final class ContentCache {
+        var shift: Double?
+        var content: Content?
+    }
+
     /// Measures those limits. Samples with no detected pitch don't count towards
     /// the line's ends: it only starts where the singer did, not at the silent
     /// lead-in the recording also covers.
     private func measureContent() -> Content {
         let delay = lineShift
+        if contentCache.shift == delay, let content = contentCache.content { return content }
+        let content = measureContent(shiftedBy: delay)
+        contentCache.shift = delay
+        contentCache.content = content
+        return content
+    }
+
+    private func measureContent(shiftedBy delay: Double) -> Content {
         var firstBeat = Double.infinity
         var lastBeat = -Double.infinity
         for note in [notes, ghosts].joined() {
@@ -488,72 +617,6 @@ struct ExerciseReviewView: View {
         return Content(beats: firstBeat...lastBeat, pitches: lowPitch...highPitch)
     }
 
-    /// A one-finger drag: the content follows the finger on both axes.
-    private func pan(by delta: CGSize) {
-        let size = canvasSize
-        guard size.width > 0, size.height > 0 else { return }
-        let content = measureContent()
-        var cam = resolvedCamera(size: size, content: content)
-        cam.playheadBeat -= Double(delta.width / beatWidth(zoom: cam.horizontalZoom))
-        cam.centerPitch += Double(delta.height / rowHeight(size: size, zoom: cam.verticalZoom))
-        clamp(&cam, content: content)
-        camera = cam
-    }
-
-    /// A pinch along one axis, keeping whatever is under the fingers' midpoint
-    /// where it is so the content doesn't slide out from under them.
-    private func zoom(by factor: CGFloat, axis: Axis, around point: CGPoint) {
-        let size = canvasSize
-        guard size.width > 0, size.height > 0, factor > 0 else { return }
-        let content = measureContent()
-        var cam = resolvedCamera(size: size, content: content)
-        switch axis {
-        case .horizontal:
-            let offset = point.x - playheadX(size: size)
-            let anchorBeat = cam.playheadBeat + Double(offset / beatWidth(zoom: cam.horizontalZoom))
-            cam.horizontalZoom = clampedHorizontalZoom(cam.horizontalZoom * Double(factor))
-            cam.playheadBeat = anchorBeat - Double(offset / beatWidth(zoom: cam.horizontalZoom))
-        case .vertical:
-            let offset = point.y - centerY(height: size.height,
-                                           safeTop: safeArea.top, safeBottom: safeArea.bottom)
-            let anchorPitch = cam.centerPitch
-                - Double(offset / rowHeight(size: size, zoom: cam.verticalZoom))
-            cam.verticalZoom = clampedVerticalZoom(cam.verticalZoom * Double(factor), size: size)
-            cam.centerPitch = anchorPitch
-                + Double(offset / rowHeight(size: size, zoom: cam.verticalZoom))
-        }
-        clamp(&cam, content: content)
-        camera = cam
-    }
-
-    private func clampedHorizontalZoom(_ zoom: Double) -> Double {
-        let base = beatWidth(zoom: 1)
-        guard base > 0 else { return zoom }
-        return min(max(zoom, Double(beatWidthRange.lowerBound / base)),
-                   Double(beatWidthRange.upperBound / base))
-    }
-
-    private func clampedVerticalZoom(_ zoom: Double, size: CGSize) -> Double {
-        let base = rowHeight(size: size, zoom: 1)
-        guard base > 0 else { return zoom }
-        return min(max(zoom, Double(rowHeightRange.lowerBound / base)),
-                   Double(rowHeightRange.upperBound / base))
-    }
-
-    /// Keeps the camera over the content. Both limits are on the camera itself —
-    /// the playhead across, its centre pitch down — rather than on the visible
-    /// window: those two are what the singer reads the run with, so everything
-    /// drawn has to be able to reach them. That is also what makes each note and
-    /// each part of the sung line reachable at all when a bar is covering the foot
-    /// of the screen; a limit on the window instead would let a high exercise's
-    /// lowest notes stop under it with nowhere further to scroll.
-    private func clamp(_ cam: inout Camera, content: Content) {
-        cam.playheadBeat = min(max(cam.playheadBeat, content.beats.lowerBound),
-                               content.beats.upperBound)
-        cam.centerPitch = min(max(cam.centerPitch, content.pitches.lowerBound),
-                              content.pitches.upperBound)
-    }
-
     // MARK: - Timeline
 
     /// The strip a drag along the timeline starts in. As wide as the screen, so the
@@ -562,28 +625,37 @@ struct ExerciseReviewView: View {
     private func timelineStrip(safeBottom: CGFloat) -> some View {
         VStack(spacing: 0) {
             Spacer(minLength: 0)
-            TimelineScrubSurface(onScrub: scrub(toX:), onEnd: { isScrubbing = false })
-                .frame(height: PlaybackTimeline.touchHeight)
-                .accessibilityElement()
-                .accessibilityLabel(L("Timeline"))
-                .accessibilityValue(Text(timelineProgress, format: .percent.precision(.fractionLength(0))))
-                .accessibilityAdjustableAction { direction in
-                    switch direction {
-                    case .increment: jump(to: timelineProgress + 0.1)
-                    case .decrement: jump(to: timelineProgress - 0.1)
-                    @unknown default: break
+            // Its value follows the view as it moves, without the screen around it
+            // being redrawn for every step.
+            PanZoomReader(camera: camera) { shot in
+                TimelineScrubSurface(onScrub: scrub(toX:), onEnd: { isScrubbing = false })
+                    .frame(height: PlaybackTimeline.touchHeight)
+                    .accessibilityElement()
+                    .accessibilityLabel(L("Timeline"))
+                    .accessibilityValue(Text(timelineProgress(of: shot),
+                                             format: .percent.precision(.fractionLength(0))))
+                    .accessibilityAdjustableAction { direction in
+                        switch direction {
+                        case .increment: jump(to: timelineProgress(of: camera.shot) + 0.1)
+                        case .decrement: jump(to: timelineProgress(of: camera.shot) - 0.1)
+                        @unknown default: break
+                        }
                     }
-                }
-                .padding(.bottom, safeBottom)
+            }
+            .padding(.bottom, safeBottom)
         }
     }
 
-    /// How far along the timeline the view is: the playhead's place in the stretch
-    /// it can travel, which is everything the bar stands for here.
-    private var timelineProgress: Double {
+    /// How far along the timeline `shot` is: the playhead's place in the stretch it
+    /// can travel, which is everything the bar stands for here.
+    private func timelineProgress(of shot: PanZoomShot) -> Double {
+        let size = canvasSize
+        guard size.width > 0, size.height > 0 else { return 0 }
         let content = measureContent()
-        let cam = resolvedCamera(size: canvasSize, content: content)
-        return PlaybackTimeline.progress(at: cam.playheadBeat, in: content.beats)
+        let shown = displayedShot(shot, size: size, content: content,
+                                  safeTop: safeArea.top, safeBottom: safeArea.bottom)
+        let beat = focus(of: shown, size: size, safeTop: safeArea.top, safeBottom: safeArea.bottom).beat
+        return PlaybackTimeline.progress(at: beat, in: content.beats)
     }
 
     /// A finger landing on the timeline, or moving along it, at `x` across the
@@ -604,15 +676,16 @@ struct ExerciseReviewView: View {
         let size = canvasSize
         guard size.width > 0, size.height > 0 else { return }
         let content = measureContent()
-        var cam = resolvedCamera(size: size, content: content)
+        let current = displayedShot(camera.shot, size: size, content: content,
+                                    safeTop: safeArea.top, safeBottom: safeArea.bottom)
         let beats = content.beats
-        cam.playheadBeat = beats.lowerBound
-            + min(max(fraction, 0), 1) * (beats.upperBound - beats.lowerBound)
-        if let center = playbackCenters.center(at: cam.playheadBeat) {
-            cam.centerPitch = center
-        }
-        clamp(&cam, content: content)
-        camera = cam
+        let beat = beats.lowerBound + min(max(fraction, 0), 1) * (beats.upperBound - beats.lowerBound)
+        let pitch = playbackCenters.center(at: beat)
+            ?? focus(of: current, size: size, safeTop: safeArea.top, safeBottom: safeArea.bottom).pitch
+        cameraTouched = true
+        // Held over the run's beats and pitches by the camera's own limits.
+        camera.jump(to: shot(beat: beat, pitch: pitch, zoom: current.zoom, size: size,
+                             safeTop: safeArea.top, safeBottom: safeArea.bottom))
     }
 
     /// The vertical centre playback drew the run at, frame by frame. Worked out on
@@ -711,97 +784,6 @@ private struct PressReportingButtonStyle: ButtonStyle {
             .onChange(of: configuration.isPressed) { _, isPressed in
                 onPressChange(isPressed)
             }
-    }
-}
-
-// MARK: - Pan & pinch input
-
-/// Scroll and zoom input for the review canvas. Written against UIKit's
-/// recognisers rather than SwiftUI's gestures because the pinch has to know which
-/// way round the fingers are: `MagnifyGesture` reports a scale and nothing else,
-/// so a sideways pinch (zoom time) can't be told from an up-and-down one (zoom
-/// pitch) through it.
-private struct PanZoomSurface: UIViewRepresentable {
-    /// Drag since the last callback, in points.
-    let onPan: (CGSize) -> Void
-    /// Scale since the last callback, the axis the fingers are arranged along, and
-    /// the point between them that the zoom should hold still.
-    let onPinch: (CGFloat, Axis, CGPoint) -> Void
-
-    func makeUIView(context: Context) -> UIView {
-        let view = UIView()
-        view.backgroundColor = .clear
-        // Without this the view is handed only the first touch, so a pinch never
-        // sees two fingers and its axis can't be read at all.
-        view.isMultipleTouchEnabled = true
-
-        let pan = UIPanGestureRecognizer(target: context.coordinator,
-                                         action: #selector(Coordinator.handlePan(_:)))
-        // One finger scrolls; a second one means the gesture is a pinch instead.
-        pan.maximumNumberOfTouches = 1
-        pan.delegate = context.coordinator
-        view.addGestureRecognizer(pan)
-
-        let pinch = UIPinchGestureRecognizer(target: context.coordinator,
-                                             action: #selector(Coordinator.handlePinch(_:)))
-        pinch.delegate = context.coordinator
-        view.addGestureRecognizer(pinch)
-        return view
-    }
-
-    func updateUIView(_ uiView: UIView, context: Context) {
-        context.coordinator.onPan = onPan
-        context.coordinator.onPinch = onPinch
-    }
-
-    func makeCoordinator() -> Coordinator { Coordinator(onPan: onPan, onPinch: onPinch) }
-
-    final class Coordinator: NSObject, UIGestureRecognizerDelegate {
-        var onPan: (CGSize) -> Void
-        var onPinch: (CGFloat, Axis, CGPoint) -> Void
-        /// Fixed when the two fingers land, so a pinch that drifts diagonally keeps
-        /// zooming the one axis it started on.
-        private var axis: Axis = .horizontal
-
-        init(onPan: @escaping (CGSize) -> Void,
-             onPinch: @escaping (CGFloat, Axis, CGPoint) -> Void) {
-            self.onPan = onPan
-            self.onPinch = onPinch
-        }
-
-        // Both recognisers report incrementally — each callback reads how far the
-        // gesture has come and resets it — so the view can apply the change to a
-        // camera the clamping may meanwhile have moved, without the two fighting.
-        @objc func handlePan(_ recognizer: UIPanGestureRecognizer) {
-            guard recognizer.state == .changed, let view = recognizer.view else { return }
-            let translation = recognizer.translation(in: view)
-            recognizer.setTranslation(.zero, in: view)
-            onPan(CGSize(width: translation.x, height: translation.y))
-        }
-
-        @objc func handlePinch(_ recognizer: UIPinchGestureRecognizer) {
-            guard let view = recognizer.view else { return }
-            switch recognizer.state {
-            case .began:
-                guard recognizer.numberOfTouches >= 2 else { return }
-                let first = recognizer.location(ofTouch: 0, in: view)
-                let second = recognizer.location(ofTouch: 1, in: view)
-                axis = abs(second.x - first.x) >= abs(second.y - first.y) ? .horizontal : .vertical
-                recognizer.scale = 1
-            case .changed:
-                let scale = recognizer.scale
-                recognizer.scale = 1
-                guard scale > 0 else { return }
-                onPinch(scale, axis, recognizer.location(in: view))
-            default:
-                break
-            }
-        }
-
-        func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer,
-                               shouldRecognizeSimultaneouslyWith other: UIGestureRecognizer) -> Bool {
-            true
-        }
     }
 }
 

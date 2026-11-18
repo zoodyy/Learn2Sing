@@ -222,6 +222,18 @@ private let edgeScrollMaxSpeed: CGFloat = 700
 /// How long the roll takes to reach the speed the finger asks for, so it never sets off
 /// with a jolt.
 private let edgeScrollEaseIn: CFTimeInterval = 0.2
+/// As far in as the roll zooms, either way: a quarter-beat note about a fingertip wide.
+private let rollMaxZoom: CGFloat = 3
+/// As far out as the roll zooms across, squeezing a long pattern onto the screen: about
+/// five points a beat.
+private let rollMinZoomAcross: CGFloat = 0.1
+/// As far out as it ever zooms up and down, so a short viewport (a phone on its side)
+/// doesn't shrink the rows to nothing trying to fit them all. Otherwise it zooms out
+/// until every row fits.
+private let rollMinZoomDown: CGFloat = 0.3
+/// The closest beat lines may come before only the bar lines are drawn, on the grid
+/// and the ruler alike.
+private let closestBeatLines: CGFloat = 8
 
 
 // MARK: - EditingView
@@ -280,11 +292,12 @@ struct EditingView: View {
     @State private var playheadBeat: Double = 0
     @State private var playStartBeat: Double = 0
     @State private var engineStarted = false
-    /// Where the roll is scrolled to and how far it's zoomed, which the keys, the ruler
-    /// and the grid are all drawn through (see RollCamera.swift). Opens scrolled down
-    /// to where `openingOffset` puts it, until `rollTouched`. Only the canvases watch
-    /// it, so the body never reads what it shows.
-    @State private var camera = RollCamera()
+    /// Where the roll is scrolled to and how far it's zoomed each way, which the keys,
+    /// the ruler and the grid are all drawn through (see PanZoomCamera.swift). Its
+    /// content is the roll's own space, unzoomed. Opens scrolled down to where
+    /// `openingOffset` puts it, until `rollTouched`. Only the canvases watch it, so the
+    /// body never reads what it shows.
+    @State private var camera = PanZoomCamera()
     /// Set the first time the roll is scrolled, zoomed or drawn on. From then on it
     /// stays where the user has it, whatever happens to its height.
     @State private var rollTouched = false
@@ -524,9 +537,10 @@ struct EditingView: View {
     }
 
     /// The roll: the piano-key column beside the grid, both drawn through the camera.
-    /// Two fingers move and zoom it whatever the tool, as a photo is moved and zoomed;
-    /// one finger does with the hand tool, and scrolls it up and down on the keys. Kept
-    /// out of `body` so the compiler can still type-check that.
+    /// Two fingers move and zoom it whatever the tool, as a photo is moved and zoomed
+    /// (held level or upright, they stretch it that way alone); one finger does with
+    /// the hand tool, and scrolls it up and down on the keys. Kept out of `body` so the
+    /// compiler can still type-check that.
     private var rollViewport: some View {
         ZStack(alignment: .topLeading) {
             HStack(spacing: 0) {
@@ -535,17 +549,17 @@ struct EditingView: View {
                 ZStack {
                     rollCanvas
                     playheadOverlay
-                    RollScrollIndicators(camera: camera)
+                    PanZoomScrollIndicators(camera: camera)
                 }
             }
             // Over everything, so it sees every finger; the tools' drag below is on
             // the view around it and sees them too.
-            RollNavigationSurface(camera: camera,
-                                  keysWidth: pianoW,
-                                  oneFingerPans: tool == .hand,
-                                  onPressBegan: pressBegan,
-                                  onPressEnded: pressEnded,
-                                  onNavigationBegan: navigationBegan)
+            PanZoomTouchSurface(camera: camera,
+                                viewportOrigin: CGPoint(x: pianoW, y: 0),
+                                oneFingerAxes: oneFingerAxes(at:),
+                                onPressBegan: pressBegan(stoppedMotion:),
+                                onPressEnded: pressEnded,
+                                onNavigationBegan: navigationBegan)
         }
         .clipped()
         .contentShape(Rectangle())
@@ -563,15 +577,35 @@ struct EditingView: View {
         }
     }
 
+    /// Which ways one finger landing at `point` (piano keys and all) moves the roll: up
+    /// and down on the keys, any way with the hand tool, and not at all where it draws.
+    private func oneFingerAxes(at point: CGPoint) -> Axis.Set {
+        if point.x < pianoW { return .vertical }
+        return tool == .hand ? [.horizontal, .vertical] : []
+    }
+
     /// The roll's viewport, piano keys and all, is `size` now.
     private func viewportChanged(to size: CGSize) {
-        camera.setContent(CGSize(width: contentW, height: gridH))
-        camera.setViewport(CGSize(width: max(0, size.width - pianoW), height: size.height))
+        let grid = CGSize(width: max(0, size.width - pianoW), height: size.height)
+        camera.update(viewport: grid, limits: rollLimits(viewport: grid, width: contentW))
         // The first layouts are provisional, taller than the roll ends up while the
         // push sets the screen out, so until the roll is touched it's put where it
         // opens each time its height changes.
         guard !rollTouched else { return }
-        camera.jump(toY: openingOffset(in: size))
+        camera.jump(to: PanZoomShot(origin: CGPoint(x: camera.shot.origin.x, y: openingOffset(in: size)),
+                                    zoom: camera.shot.zoom))
+    }
+
+    /// How far the camera may go over a roll `width` wide in its own space, seen
+    /// through a grid viewport of `viewport`: zoomed out across to `rollMinZoomAcross`,
+    /// and up and down until every row fits (or `rollMinZoomDown`), but never short of
+    /// the size the editor draws at unzoomed; in to `rollMaxZoom` either way. The roll's
+    /// edges stay at the viewport's.
+    private func rollLimits(viewport: CGSize, width: CGFloat) -> PanZoomLimits {
+        let fitRows = viewport.height > 0 ? viewport.height / gridH : 1
+        return PanZoomLimits(
+            x: .init(zoom: rollMinZoomAcross...rollMaxZoom, content: 0...width),
+            y: .init(zoom: min(1, max(rollMinZoomDown, fitRows))...rollMaxZoom, content: 0...gridH))
     }
 
     /// How wide the roll is in its own space, and how much of that is the dead margin
@@ -591,7 +625,9 @@ struct EditingView: View {
         // A drag under way has had the roll moved under it, and keeps the say over
         // where it is until the finger lifts.
         if lead != 0, edge.drag != nil { edge.steered = true }
-        camera.setContent(CGSize(width: new.width, height: gridH), leadGrownBy: lead)
+        camera.update(viewport: camera.viewport,
+                      limits: rollLimits(viewport: camera.viewport, width: new.width),
+                      shift: CGVector(dx: lead, dy: 0))
     }
 
     /// How far down the roll opens scrolled: far enough that the notes (and ghost
@@ -776,9 +812,9 @@ struct EditingView: View {
         guard isPlaying, camera.viewport.width > 0, !edge.steered,
               !camera.isNavigating, !camera.isMoving else { return }
         let shot = camera.shot
-        let shown = camera.viewport.width / shot.zoom
+        let shown = camera.viewport.width / shot.zoom.width
         let x = leadW + CGFloat(displayBeat) * beatW
-        if x > shot.origin.x + shown - 24 / shot.zoom || x < shot.origin.x {
+        if x > shot.origin.x + shown - 24 / shot.zoom.width || x < shot.origin.x {
             camera.glide(toX: max(0, x - shown * 0.2))
         }
     }
@@ -824,27 +860,36 @@ struct EditingView: View {
         HStack(spacing: 0) {
             Color(white: 0.13).frame(width: pianoW)
             TimelineView(.animation(minimumInterval: nil, paused: !isPlaying)) { _ in
-                RollCameraCanvas(camera: camera) { ctx, size, shot in
+                PanZoomCanvas(camera: camera) { ctx, size, shot in
                     ctx.fill(Path(CGRect(origin: .zero, size: size)), with: .color(Color(white: 0.13)))
-                    let beatPx = beatW * shot.zoom
-                    ctx.translateBy(x: (leadW - shot.origin.x) * shot.zoom, y: 0)
+                    let zoom = shot.zoom.width
+                    let beatPx = beatW * zoom
+                    ctx.translateBy(x: (leadW - shot.origin.x) * zoom, y: 0)
                     // Black over the dead margin here too, so the exercise starts on the
                     // same line on the ruler as it does on the grid.
-                    ctx.fill(Path(CGRect(x: -leadW * shot.zoom, y: 0, width: leadW * shot.zoom,
+                    ctx.fill(Path(CGRect(x: -leadW * zoom, y: 0, width: leadW * zoom,
                                          height: size.height)),
                              with: .color(.black))
 
+                    // Zoomed far out across, beat ticks give way to bar ticks, and the
+                    // bars are numbered every second, fourth... where their numbers
+                    // would run into each other.
+                    let beatTicks = beatPx >= closestBeatLines
+                    var numberEvery = 1
+                    while CGFloat(numberEvery * beatsPerMeasure) * beatPx < 22 { numberEvery *= 2 }
                     let shownFrom = (shot.origin.x - leadW) / beatW
-                    let shownTo = shownFrom + size.width / shot.zoom / beatW
-                    if let beats = wholeSpan(shownFrom, shownTo, within: 0...totalBeats) {
+                    let shownTo = shownFrom + size.width / zoom / beatW
+                    let lastBeat = shownBeats(viewportWidth: size.width, zoom: zoom)
+                    if let beats = wholeSpan(shownFrom, shownTo, within: 0...lastBeat) {
                         for beat in beats {
                             let x = CGFloat(beat) * beatPx
                             let isBar = beat % beatsPerMeasure == 0
+                            guard isBar || beatTicks else { continue }
                             var tick = Path()
                             tick.move(to: CGPoint(x: x, y: isBar ? size.height * 0.35 : size.height * 0.65))
                             tick.addLine(to: CGPoint(x: x, y: size.height))
                             ctx.stroke(tick, with: .color(white: isBar ? 0.6 : 0.35), lineWidth: 1)
-                            if isBar {
+                            if isBar, (beat / beatsPerMeasure) % numberEvery == 0 {
                                 ctx.draw(
                                     Text(verbatim: "\(beat / beatsPerMeasure + 1)")
                                         .font(.system(size: 9, weight: .medium))
@@ -879,7 +924,7 @@ struct EditingView: View {
             .onChanged { v in
                 if isPlaying { stopPlayback() }
                 let shot = camera.shot
-                let beat = Double((v.location.x / shot.zoom + shot.origin.x - leadW) / beatW)
+                let beat = Double((v.location.x / shot.zoom.width + shot.origin.x - leadW) / beatW)
                 playheadBeat = min(Double(totalBeats), max(0, snapped(beat)))
             }
     }
@@ -888,12 +933,12 @@ struct EditingView: View {
     /// playing. Drawn in its own overlay so the note canvas isn't redrawn per frame.
     private var playheadOverlay: some View {
         TimelineView(.animation(minimumInterval: nil, paused: !isPlaying)) { _ in
-            RollCameraCanvas(camera: camera) { ctx, size, shot in
-                let x = (leadW + CGFloat(displayBeat) * beatW - shot.origin.x) * shot.zoom
+            PanZoomCanvas(camera: camera) { ctx, size, shot in
+                let x = (leadW + CGFloat(displayBeat) * beatW - shot.origin.x) * shot.zoom.width
                 guard x >= 0, x <= size.width else { return }
                 // Down the rows and no further.
-                let top = max(0, -shot.origin.y * shot.zoom)
-                let bottom = min(size.height, (gridH - shot.origin.y) * shot.zoom)
+                let top = max(0, -shot.origin.y * shot.zoom.height)
+                let bottom = min(size.height, (gridH - shot.origin.y) * shot.zoom.height)
                 guard bottom > top else { return }
                 var line = Path()
                 line.move(to: CGPoint(x: x, y: top))
@@ -1026,15 +1071,16 @@ struct EditingView: View {
     /// The keys, drawn through the roll's camera: scrolled and zoomed up and down with
     /// the grid's rows, always the same width.
     private var pianoKeysCanvas: some View {
-        RollCameraCanvas(camera: camera) { ctx, size, shot in
-            let keyH = rowH * shot.zoom
-            let top = -shot.origin.y * shot.zoom
+        PanZoomCanvas(camera: camera) { ctx, size, shot in
+            let zoom = shot.zoom.height
+            let keyH = rowH * zoom
+            let top = -shot.origin.y * zoom
             // Zoomed out too far for every name to fit, only the Cs are named, which
             // mark the octaves.
             let namesAll = keyH >= 12
             let nameSize = namesAll ? 9 : min(9, max(6, keyH - 1))
             let shownFrom = shot.origin.y / rowH
-            let shownTo = shownFrom + size.height / shot.zoom / rowH
+            let shownTo = shownFrom + size.height / zoom / rowH
             if let rows = wholeSpan(shownFrom, shownTo, within: 0...(totalRows - 1)) {
                 for row in rows {
                     let pitch = hiPitch - row
@@ -1061,9 +1107,17 @@ struct EditingView: View {
 
             var border = Path()
             border.move(to: CGPoint(x: pianoW - 0.5, y: max(0, top)))
-            border.addLine(to: CGPoint(x: pianoW - 0.5, y: min(size.height, top + gridH * shot.zoom)))
+            border.addLine(to: CGPoint(x: pianoW - 0.5, y: min(size.height, top + gridH * zoom)))
             ctx.stroke(border, with: .color(.gray.opacity(0.5)), lineWidth: 1)
         }
+    }
+
+    /// The beats the grid and the ruler run to: the pattern's own, or on to the far edge
+    /// of a viewport `viewportWidth` points wide when the roll is zoomed out across
+    /// (`zoom`) so far that all of it fits with room to spare.
+    private func shownBeats(viewportWidth: CGFloat, zoom: CGFloat) -> Int {
+        let fill = ((viewportWidth / zoom - leadW) / beatW).rounded(.up)
+        return max(totalBeats, fill.isFinite ? Int(min(fill, Double(Int32.max))) : 0)
     }
 
     // MARK: - Piano roll grid canvas
@@ -1074,87 +1128,96 @@ struct EditingView: View {
         let overlaps = overlapSpans(in: shown)
         let ghostCovers = ghostCoverSpans(of: shown, by: shownGhosts)
         let labelScales = textScales
-        return RollCameraCanvas(camera: camera) { ctx, size, shot in
-            // Drawn in the roll's own space, zoomed into the viewport. Lines are a
-            // screen point (or a few) wide whatever the zoom: `pt` is one of those in
-            // the roll's own space.
-            let pt = 1 / shot.zoom
-            ctx.scaleBy(x: shot.zoom, y: shot.zoom)
-            ctx.translateBy(x: -shot.origin.x, y: -shot.origin.y)
+        return PanZoomCanvas(camera: camera) { ctx, size, shot in
+            // Everything is laid out in the grid's own space (beat 0 at x 0, unzoomed)
+            // and drawn where the camera puts it, in screen points: the roll can be
+            // zoomed further one way than the other, which a scaled context would draw
+            // as stretched lines and squashed text. The camera measures from the dead
+            // margin's left edge, `leadW` before beat 0.
+            let zoomX = shot.zoom.width, zoomY = shot.zoom.height
+            func screen(_ rect: CGRect) -> CGRect { shot.screen(rect.offsetBy(dx: leadW, dy: 0)) }
+            func screenX(_ x: CGFloat) -> CGFloat { (x + leadW - shot.origin.x) * zoomX }
+            func screenY(_ y: CGFloat) -> CGFloat { (y - shot.origin.y) * zoomY }
+            // Corners as round as the lesser of the two zooms makes them, so a note
+            // stretched one way keeps round corners.
+            let corner = 3 * min(zoomX, zoomY)
+            let smallCorner = 2 * min(zoomX, zoomY)
 
             // The dead margin: flat black, no rows and no lines, so it's plain that
             // nothing goes there. Only a label hanging off the front reaches over it —
             // the labels are drawn last, on top.
-            ctx.fill(Path(CGRect(x: 0, y: 0, width: leadW, height: gridH)), with: .color(.black))
-            ctx.translateBy(x: leadW, y: 0)
+            ctx.fill(Path(screen(CGRect(x: -leadW, y: 0, width: leadW, height: gridH))),
+                     with: .color(.black))
 
             // The stretch of the grid on screen. Only the rows, lines, notes and labels
             // in it are drawn: zoomed in on a long pattern, that's a sliver of them.
             let visible = CGRect(x: shot.origin.x - leadW, y: shot.origin.y,
-                                 width: size.width * pt, height: size.height * pt)
+                                 width: size.width / zoomX, height: size.height / zoomY)
+            let lastBeat = shownBeats(viewportWidth: size.width, zoom: zoomX)
             let left = max(0, visible.minX)
-            let right = min(gridW, visible.maxX)
+            let right = min(CGFloat(lastBeat) * beatW, visible.maxX)
             let rows = wholeSpan(visible.minY / rowH, visible.maxY / rowH, within: 0...(totalRows - 1))
 
             if let rows, right > left {
                 // Row backgrounds
                 for row in rows {
                     let pitch = hiPitch - row
-                    let y = CGFloat(row) * rowH
                     let bg: Color = isBlack(pitch) ? Color(white: 0.1) : Color(white: 0.17)
-                    ctx.fill(Path(CGRect(x: left, y: y, width: right - left, height: rowH)),
-                             with: .color(bg))
+                    let band = CGRect(x: left, y: CGFloat(row) * rowH, width: right - left, height: rowH)
+                    ctx.fill(Path(screen(band)), with: .color(bg))
                 }
 
                 // Horizontal row separators
                 var hGrid = Path()
                 for row in rows.lowerBound...(rows.upperBound + 1) {
-                    let y = CGFloat(row) * rowH
-                    hGrid.move(to: CGPoint(x: left, y: y))
-                    hGrid.addLine(to: CGPoint(x: right, y: y))
+                    let y = screenY(CGFloat(row) * rowH)
+                    hGrid.move(to: CGPoint(x: screenX(left), y: y))
+                    hGrid.addLine(to: CGPoint(x: screenX(right), y: y))
                 }
-                ctx.stroke(hGrid, with: .color(white: 0.22), lineWidth: 0.5 * pt)
+                ctx.stroke(hGrid, with: .color(white: 0.22), lineWidth: 0.5)
             }
 
-            // Vertical beat lines
-            if let beats = wholeSpan(visible.minX / beatW, visible.maxX / beatW, within: 0...totalBeats) {
+            // Vertical beat lines; zoomed far out across, only the bar lines.
+            let beatLines = beatW * zoomX >= closestBeatLines
+            if let beats = wholeSpan(visible.minX / beatW, visible.maxX / beatW, within: 0...lastBeat) {
                 for beat in beats {
-                    let x = CGFloat(beat) * beatW
                     let isBar = beat % 4 == 0
+                    guard isBar || beatLines else { continue }
+                    let x = screenX(CGFloat(beat) * beatW)
                     var line = Path()
-                    line.move(to: CGPoint(x: x, y: 0))
-                    line.addLine(to: CGPoint(x: x, y: gridH))
+                    line.move(to: CGPoint(x: x, y: screenY(0)))
+                    line.addLine(to: CGPoint(x: x, y: screenY(gridH)))
                     ctx.stroke(line,
                                with: .color(white: isBar ? 0.45 : 0.25),
-                               lineWidth: (isBar ? 1.5 : 0.5) * pt)
+                               lineWidth: isBar ? 1.5 : 0.5)
                 }
             }
 
-            // A note's name is as big on screen as it is unzoomed, a little bigger zoomed
-            // in, and written only where it fits.
-            let nameSize = (8 * shot.zoom).clamped(to: 8...11)
+            // A note's name is as big as it is unzoomed, a little bigger with the rows
+            // zoomed in, and written only where it fits.
+            let nameSize = (8 * zoomY).clamped(to: 8...11)
             func fitsName(_ box: CGRect) -> Bool {
-                box.width * shot.zoom > 20 && box.height * shot.zoom >= nameSize
+                box.width > 20 && box.height >= nameSize
             }
 
             // Notes
             for note in shown {
                 let rect = rect(for: note)
                 guard rect.intersects(visible) else { continue }
-                let inner = rect.insetBy(dx: 1, dy: 1)
+                let inner = screen(rect.insetBy(dx: 1, dy: 1))
                 let dimmed = note.id == inProgressID
-                let notePath = Path(roundedRect: inner, cornerRadius: 3)
+                let notePath = Path(roundedRect: inner, cornerRadius: corner)
                 ctx.fill(notePath, with: .color(.green.opacity(dimmed ? 0.6 : 0.88)))
-                ctx.stroke(notePath, with: .color(.green), lineWidth: pt)
+                ctx.stroke(notePath, with: .color(.green), lineWidth: 1)
 
                 // Where a ghost note of the same pitch lies over the note. Under the
                 // red, which marks something to fix; this only says where it is.
                 for span in ghostCovers[note.id] ?? [] {
-                    let x0 = max(inner.minX, CGFloat(span.start) * beatW)
-                    let x1 = min(inner.maxX, CGFloat(span.end) * beatW)
+                    let x0 = max(inner.minX, screenX(CGFloat(span.start) * beatW))
+                    let x1 = min(inner.maxX, screenX(CGFloat(span.end) * beatW))
                     guard x1 > x0 else { continue }
                     let covered = CGRect(x: x0, y: inner.minY, width: x1 - x0, height: inner.height)
-                    ctx.fill(Path(roundedRect: covered, cornerRadius: 2),
+                    ctx.fill(Path(roundedRect: covered, cornerRadius: smallCorner),
                              with: .color(ghostOverNoteColor.opacity(dimmed ? 0.6 : 0.95)))
                 }
 
@@ -1162,23 +1225,23 @@ struct EditingView: View {
                 // part of the note is the problem rather than just which notes are.
                 if let spans = overlaps[note.id] {
                     for span in spans {
-                        let x0 = max(inner.minX, CGFloat(span.start) * beatW)
-                        let x1 = min(inner.maxX, CGFloat(span.end) * beatW)
+                        let x0 = max(inner.minX, screenX(CGFloat(span.start) * beatW))
+                        let x1 = min(inner.maxX, screenX(CGFloat(span.end) * beatW))
                         guard x1 > x0 else { continue }
                         let bad = CGRect(x: x0, y: inner.minY,
                                          width: x1 - x0, height: inner.height)
-                        ctx.fill(Path(roundedRect: bad, cornerRadius: 2),
+                        ctx.fill(Path(roundedRect: bad, cornerRadius: smallCorner),
                                  with: .color(.red.opacity(dimmed ? 0.7 : 0.95)))
                     }
-                    ctx.stroke(notePath, with: .color(.red), lineWidth: 1.5 * pt)
+                    ctx.stroke(notePath, with: .color(.red), lineWidth: 1.5)
                 }
 
                 if fitsName(inner) {
                     ctx.draw(
                         Text(pitchName(note.pitch))
-                            .font(.system(size: nameSize * pt, weight: .medium))
+                            .font(.system(size: nameSize, weight: .medium))
                             .foregroundColor(.black),
-                        at: CGPoint(x: inner.minX + 3 * pt, y: inner.midY),
+                        at: CGPoint(x: inner.minX + 3, y: inner.midY),
                         anchor: .leading
                     )
                 }
@@ -1192,16 +1255,16 @@ struct EditingView: View {
             for ghost in shownGhosts {
                 let box = rect(for: ghost)
                 guard box.intersects(visible) else { continue }
-                let inner = box.insetBy(dx: 1, dy: 1)
+                let inner = screen(box.insetBy(dx: 1, dy: 1))
                 let dimmed = ghost.id == inProgressID
-                let ghostPath = Path(roundedRect: inner, cornerRadius: 3)
+                let ghostPath = Path(roundedRect: inner, cornerRadius: corner)
                 var fill = ctx
                 for note in shown where note.pitch == ghost.pitch {
-                    fill.clip(to: Path(rect(for: note).insetBy(dx: 1, dy: 1)), options: .inverse)
+                    fill.clip(to: Path(screen(rect(for: note).insetBy(dx: 1, dy: 1))), options: .inverse)
                 }
                 fill.fill(ghostPath, with: .color(.green.opacity(dimmed ? 0.18 : 0.3)))
                 ctx.stroke(ghostPath, with: .color(.green.opacity(0.9)),
-                           style: StrokeStyle(lineWidth: pt, dash: [3 * pt, 2 * pt]))
+                           style: StrokeStyle(lineWidth: 1, dash: [3, 2]))
 
                 // A note of the same pitch already has its name written there.
                 let named = shown.contains {
@@ -1211,9 +1274,9 @@ struct EditingView: View {
                 if fitsName(inner), !named {
                     ctx.draw(
                         Text(pitchName(ghost.pitch))
-                            .font(.system(size: nameSize * pt, weight: .medium))
+                            .font(.system(size: nameSize, weight: .medium))
                             .foregroundColor(.white.opacity(0.75)),
-                        at: CGPoint(x: inner.minX + 3 * pt, y: inner.midY),
+                        at: CGPoint(x: inner.minX + 3, y: inner.midY),
                         anchor: .leading
                     )
                 }
@@ -1225,26 +1288,31 @@ struct EditingView: View {
             // readable.
             if let line = textSnapLine {
                 var path = Path()
-                path.move(to: CGPoint(x: line.x, y: line.top))
-                path.addLine(to: CGPoint(x: line.x, y: line.bottom))
+                path.move(to: CGPoint(x: screenX(line.x), y: screenY(line.top)))
+                path.addLine(to: CGPoint(x: screenX(line.x), y: screenY(line.bottom)))
                 ctx.stroke(path, with: .color(.appAccent),
-                           style: StrokeStyle(lineWidth: 2 * pt, lineCap: .round))
+                           style: StrokeStyle(lineWidth: 2, lineCap: .round))
             }
 
             // Text labels, each shrunk as far as it has to be to keep clear of the
             // others. They grow and shrink with the roll: a label covers the beats it
-            // was written over, however far the roll is zoomed.
+            // was written over, however far the roll is zoomed. Its text goes by the
+            // lesser of the two zooms, so it fits the chip whichever way the roll is
+            // stretched and is never drawn out of shape.
+            let textZoom = min(zoomX, zoomY)
             for (label, scale) in zip(texts, labelScales) {
                 let rect = drawnTextRect(for: label, scale: scale)
                 guard rect.intersects(visible) else { continue }
-                let chip = Path(roundedRect: rect.insetBy(dx: 1, dy: 3), cornerRadius: 3)
+                let box = screen(rect)
+                let chip = Path(roundedRect: screen(rect.insetBy(dx: 1, dy: 3)), cornerRadius: corner)
                 ctx.fill(chip, with: .color(.orange.opacity(0.22)))
-                ctx.stroke(chip, with: .color(.orange.opacity(0.6)), lineWidth: pt)
+                ctx.stroke(chip, with: .color(.orange.opacity(0.6)), lineWidth: 1)
                 ctx.draw(
                     Text(label.text.isEmpty ? " " : label.text)
-                        .font(.system(size: midiTextFontSize * CGFloat(scale), weight: .semibold))
+                        .font(.system(size: midiTextFontSize * CGFloat(scale) * textZoom,
+                                      weight: .semibold))
                         .foregroundColor(.orange),
-                    at: CGPoint(x: rect.midX, y: rect.midY),
+                    at: CGPoint(x: box.midX, y: box.midY),
                     anchor: .center
                 )
             }
@@ -1308,8 +1376,8 @@ struct EditingView: View {
 
     /// `point` in the viewport's space, where the drag reports the finger, in the roll's
     /// own space as `shot` shows it. The grid starts right of the keys.
-    private func rollPoint(_ point: CGPoint, in shot: RollShot) -> CGPoint {
-        shot.roll(CGPoint(x: point.x - pianoW, y: point.y))
+    private func rollPoint(_ point: CGPoint, in shot: PanZoomShot) -> CGPoint {
+        shot.content(at: CGPoint(x: point.x - pianoW, y: point.y))
     }
 
     // MARK: Two fingers
@@ -1320,18 +1388,17 @@ struct EditingView: View {
     // as the press turns out to be moving the roll.
 
     /// The first finger of a press has landed on the roll. A press that lands while the
-    /// roll is still gliding only stops it, as a scroll view's does.
-    private func pressBegan() {
+    /// roll is still gliding (`stoppedMotion`) only stops it, as a scroll view's does.
+    private func pressBegan(stoppedMotion: Bool) {
         press.isDown = true
-        press.toolLocked = camera.stopMotion()
-        if press.toolLocked { takeBackToolDrag() }
+        press.toolLocked = stoppedMotion
+        if stoppedMotion { takeBackToolDrag() }
     }
 
     /// The last finger of the press has lifted.
     private func pressEnded() {
         press.isDown = false
         releaseToolLockIfDone()
-        camera.resumeSettling()
     }
 
     /// The press has turned into moving the roll.
@@ -1456,8 +1523,8 @@ struct EditingView: View {
         let limit = edgeScrollMaxSpeed
         let from = shot.origin
         let to = camera.clamped(
-            CGPoint(x: from.x + (velocity.dx / shot.zoom).clamped(to: -limit...limit) * seconds,
-                    y: from.y + (velocity.dy / shot.zoom).clamped(to: -limit...limit) * seconds),
+            CGPoint(x: from.x + (velocity.dx / shot.zoom.width).clamped(to: -limit...limit) * seconds,
+                    y: from.y + (velocity.dy / shot.zoom.height).clamped(to: -limit...limit) * seconds),
             zoom: shot.zoom)
         // Held against the end the finger points at, there's nowhere further to go
         // until the drag makes room (a note carried right lengthens the grid).
@@ -1675,8 +1742,9 @@ struct EditingView: View {
             }
 
         case .movingText(let id, let grabDX, _):
-            // Six screen points, whatever the zoom.
-            let moved = hypot(v.translation.width, v.translation.height) > 6 / camera.shot.zoom
+            // Six screen points, whatever the zoom either way.
+            let zoom = camera.shot.zoom
+            let moved = hypot(v.translation.width * zoom.width, v.translation.height * zoom.height) > 6
             if moved, let i = texts.firstIndex(where: { $0.id == id }) {
                 // No further along than a stored label may sit (see ExerciseLimits).
                 let centre = min(snappedTextCentre(beatValue(v.location.x) - grabDX),
@@ -2207,7 +2275,7 @@ struct EditingView: View {
     /// move it by.
     private func resizeEdge(of note: MIDINote, x: CGFloat) -> ResizeEdge? {
         let box = rect(for: note)
-        let zone = min(14 / camera.shot.zoom, box.width / 3)
+        let zone = min(14 / camera.shot.zoom.width, box.width / 3)
         if x - box.minX < zone { return .leading }
         if box.maxX - x < zone { return .trailing }
         return nil
